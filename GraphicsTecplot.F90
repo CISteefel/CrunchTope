@@ -276,6 +276,22 @@ IF (ny > 1 .AND. nz > 1) THEN                 !! 3D case
   END DO
   CLOSE(UNIT=8,STATUS='keep')
   
+  fn='totcon-1D'
+ilength = 9
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+!!!WRITE(8,2283) PrintTime
+!!!WRITE(8,102)
+!!!102 FORMAT('# Units: Mol/kgw')
+WRITE(8,2286) (ulabprnt(ik),ik=1,ncomp)
+jy = 11
+jz = 1
+DO jx = 1,nx
+  WRITE(8,184) x(jx)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
+END DO
+CLOSE(UNIT=8,STATUS='keep')
+
+  
   fn='totslice'
   ilength = 8
   CALL newfile(fn,suf1,fnv,nint,ilength)

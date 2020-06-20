@@ -68,6 +68,9 @@ INTEGER(I4B)                                       :: jz
 DO jz = 1,nz 
   DO jy = 1,ny
     DO jx = 0,nx
+      if (jx == 25 .and. jy == 9) then
+        continue
+        end if
       IF (permx(jx,jy,jz) == 0.0 .AND. permx(jx+1,jy,jz) == 0.0) THEN
         harx(jx,jy,jz) = 0.0
       ELSE

@@ -201,6 +201,7 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec)  
               END IF
+          
             ELSE
               IF (iplotph /= 0) THEN
                 IF (iplotph == 1 .AND. nplot == 1) THEN
@@ -309,6 +310,11 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec)  
               END IF
+              
+            ELSE IF (iplotall == 3) THEN      
+              
+                WRITE(intfile,705) PrintTime,(sp10(iplot(i),jx,jy,jz),i=1,nplot)
+                
             ELSE
               IF (iplotph /= 0) THEN
                 IF (iplotph == 1 .AND. nplot == 1) THEN

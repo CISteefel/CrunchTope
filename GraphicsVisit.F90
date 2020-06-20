@@ -332,17 +332,31 @@ END IF
     StringProper(ls+2:ls+3) = '"'
     WriteString(ik) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)   
-!!!  WRITE(8,2009) (ulab(ik),ik=1,ncomp)
+  WRITE(8,2009) (WriteString(ik),ik=1,ncomp)   
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+  
+ !!! fn='totcon-1D'
+  !!!  ilength = 9
+  !!!  CALL newfile(fn,suf1,fnv,nint,ilength)
+ !!!   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+!!!WRITE(8,2283) PrintTime
+!!!WRITE(8,102)
+!!!102 FORMAT('# Units: Mol/kgw')
+ !!!   WRITE(8,2287) (ulabprnt(ik),ik=1,ncomp)
+ !!!   jy = 11
+ !!!   jz = 1
+  !!!  DO jx = 1,nx
+  !!!    WRITE(8,184) x(jx)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
+  !!!  END DO
+ !!!   CLOSE(UNIT=8,STATUS='keep')
   
   IF (ikph /= 0) THEN
       
@@ -484,6 +498,23 @@ IF (nrct > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+  
+    fn='crankLogK'
+  ilength = 9
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "crankLogK" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "CrankLogK" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,crankLogK(jx,jy,jz)
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
 
   fn='TotMineral'
   ilength = 10
@@ -682,8 +713,16 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          WritePermx = Log10(permx(jx,jy,jz))
-          WritePermy = Log10(permy(jx,jy,jz))
+          IF (permx(jx,jy,jz) == 0.0d0) THEN
+            WritePermx = -25.00
+          ELSE
+            WritePermx = Log10(permx(jx,jy,jz))
+          END IF
+          IF (permy(jx,jy,jz) == 0.0d0) THEN
+            WritePermy = -25.00
+          ELSE
+            WritePermy = Log10(permy(jx,jy,jz))
+          END IF
 !!!          WritePermz = Log10(permz(jx,jy,jz))
           IF (ny==1)  THEN
             WritePermy = 0.0
@@ -923,6 +962,7 @@ END IF
 2281 FORMAT('   X        ','     Y        ',4X,a18)
 2285 FORMAT('    X        ','     Y        ',3X,30(1X,a13))
 2286 FORMAT('    X        ','      Y               ',3X,30(1X,a15))
+2287 FORMAT('    X           ',2X,30(2X,a15))
 
 RETURN
 END SUBROUTINE GraphicsVisit

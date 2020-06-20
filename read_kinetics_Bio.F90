@@ -667,7 +667,7 @@ do_input_pathways: do kpath=1,npath
 
 end do do_input_pathways
 
-write(*,*)'multipliers for reaction ',namkin(ikin),' add up to: ',addup
+write(*,*)' Multipliers for reaction ',namkin(ikin),' add up to: ',addup
 
 IF ( addup < (1.0d0-tiny) .OR. addup > (1.0d0+tiny) ) THEN
   dumstring = namkin(ikin)

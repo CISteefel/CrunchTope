@@ -1014,8 +1014,10 @@ DO k = 1,nkin
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
                 END DO
               ELSE
+                DO i = 1,ncomp
                   jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
-                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )                 
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                END DO
               END IF
               
             END IF

@@ -195,21 +195,22 @@ ELSE      !! End of write for specific output times (as opposed to interval)
         totRare = s(isotopeRare(id),jx,jy,jz)
         IsotopeRatio(id) = ( (totRare/totCommon)/IsotopeReference(id) - 1.0d0 ) *1000.0d0
       END DO 
-        DO kIsotopologue = 1,nIsotopeMineral
+      
+      DO kIsotopologue = 1,nIsotopeMineral
 
-          kMineralRare = kIsotopeRare(kIsotopologue)
-          KMineralCommon = kIsotopeCommon(kIsotopologue)
-          isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+        kMineralRare = kIsotopeRare(kIsotopologue)
+        KMineralCommon = kIsotopeCommon(kIsotopologue)
+        isotopologue = PointerToPrimaryIsotope(kIsotopologue)
 
-          totCommonMineral = volfx(kMineralCommon,jx,jy,jz)
-          totRareMineral   = volfx(kMineralRare,jx,jy,jz)
-          IF (totCommonMineral == 0.0) THEN
-            IsotopeRatioMineral(kIsotopologue) = 0.0
-          ELSE
-            IsotopeRatioMIneral(kIsotopologue) = ( (totRareMineral/totCommonMineral)/IsotopeReference(isotopologue) - 1.0d0 ) *1000.0d0
-          END IF
-        END DO
-        WRITE(intfile,185) PrintTime,(IsotopeRatio(id),id=1,nIsotopePrimary),(IsotopeRatioMineral(kIsotopologue),kIsotopologue=1,nIsotopeMineral)
+        totCommonMineral = volfx(kMineralCommon,jx,jy,jz)
+        totRareMineral   = volfx(kMineralRare,jx,jy,jz)
+        IF (totCommonMineral == 0.0) THEN
+          IsotopeRatioMineral(kIsotopologue) = 0.0
+        ELSE
+          IsotopeRatioMIneral(kIsotopologue) = ( (totRareMineral/totCommonMineral)/IsotopeReference(isotopologue) - 1.0d0 ) *1000.0d0
+        END IF
+      END DO
+      WRITE(intfile,185) PrintTime,(IsotopeRatio(id),id=1,nIsotopePrimary),(IsotopeRatioMineral(kIsotopologue),kIsotopologue=1,nIsotopeMineral)
 
     END DO
 

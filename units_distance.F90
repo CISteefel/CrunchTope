@@ -75,25 +75,25 @@ IF (parfind == 'distance_units' .OR. parfind == 'distance_unit') THEN
   distance_units = dumstring
   
 !  Check to see that the units are recognized
-  IF (distance_units == 'meter' .OR. distance_units == 'meters') THEN
+  IF (distance_units == 'meter' .OR. distance_units == 'meters' .OR. distance_units == 'm') THEN
     distance_units = 'meters'
   END IF
-  IF (distance_units == 'centimeter' .OR. distance_units == 'centimeters') THEN
+  IF (distance_units == 'centimeter' .OR. distance_units == 'centimeters'.OR. distance_units == 'cm') THEN
     distance_units = 'centimeters'
   END IF
-  IF (distance_units == 'millimeter' .OR. distance_units == 'millimeters') THEN
+  IF (distance_units == 'millimeter' .OR. distance_units == 'millimeters'.OR. distance_units == 'mm') THEN
     distance_units = 'millimeters'
   END IF
-  IF (distance_units == 'kilometer' .OR. distance_units == 'kilometers') THEN
+  IF (distance_units == 'kilometer' .OR. distance_units == 'kilometers'.OR. distance_units == 'km') THEN
     distance_units = 'kilometers'
   END IF
-  IF (distance_units == 'micrometer' .OR. distance_units == 'micrometers') THEN
+  IF (distance_units == 'micrometer' .OR. distance_units == 'micrometers'.OR.  distance_units == 'um') THEN
     distance_units = 'micrometers'
   END IF
   IF (distance_units == 'micron' .OR. distance_units == 'microns') THEN
     distance_units = 'micrometers'
   END IF
-  IF (distance_units == 'nanometer' .OR. distance_units == 'nanometers') THEN
+  IF (distance_units == 'nanometer' .OR. distance_units == 'nanometers'.OR. distance_units == 'nm') THEN
     distance_units = 'nanometers'
   END IF
   IF (distance_units == 'm') THEN

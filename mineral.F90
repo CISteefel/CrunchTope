@@ -250,5 +250,7 @@ MODULE mineral
 ! biomass end
 
   REAL(DP), dimension(4,31)                        :: rate0Prime
+  
+  REAL(DP),DIMENSION(:,:,:), ALLOCATABLE    :: crankLogK
 
 END MODULE mineral

@@ -403,11 +403,13 @@ DO jy = 1,ny
       dspw = avgro*dspx(jx,jy,jz)
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
+      
       IF (jc(1) == 2) THEN
         aw = DMAX1(fw,zero)      ! Pure advective boundary
       ELSE
         aw = DMAX1(fw,zero) + dw
       END IF
+      
       IF (jc(1) == 2) THEN
         dw_d = 0.0
         aw_d = 0.0

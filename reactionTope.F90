@@ -370,6 +370,7 @@ DO k = 1,nkin
         END IF
 
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
+        
         si(np,k) = 10**(silog(np,k))
 
 !!  Biomass case
@@ -498,7 +499,19 @@ DO k = 1,nkin
         
 !!!     ******************* End of isotopes ***************************************************
 
-        silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
+
+        silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
+        
+!!!        if (silog(np,k) < 0.0d0) then
+!!!          if (crankLogK(jx,jy,jz) /= 0.0) then
+!!!             silog(np,k) = (sumiap - (crankLogK(jx,jy,jz)+keqmin(1,k,jx,jy,jz)))/clg
+!!!           else
+!!!             silog(np,k) = (sumiap - (keqmin(1,k,jx,jy,jz)))/clg
+!!!           end if    
+!!!        end if
+          
+          
+!!!        silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
         silogGlobal(np,k,jx,jy,jz) = silog(np,k)
         siln(np,k)  = clg*silog(np,k)
         si(np,k)    = 10**(silog(np,k))

@@ -561,7 +561,7 @@ IF (CalculateFlow) THEN
 
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 
-  dtflow = 1.0D-10
+  dtflow = 1.0D-05
   WRITE(*,*)
   WRITE(*,*) ' Running flow field to steady state prior to chemistry'
   WRITE(*,*)
@@ -1088,6 +1088,7 @@ DO WHILE (nn <= nend)
     END IF
 
     IF (os3dpetsc) THEN
+      
       IF (spherical) THEN
         CALL coeffSphericalNew(nx,ny,nz)
       ELSE if (cylindrical) THEN
@@ -1098,6 +1099,7 @@ DO WHILE (nn <= nend)
           CALL gasdiff(nx,ny,nz)
         END IF
       END IF
+      
     END IF
 
     IF (delt > dtmaxcour .AND. dtmaxcour /= 0.0) THEN
@@ -1377,9 +1379,13 @@ DO WHILE (nn <= nend)
              sp10(1,jx,jy,jz) = sn(1,jx,jy,jz)
           END IF
 
+!!!       Now the Newton step grid cell by grid cell (solving for ncomp by ncomp chemical system)
+          
           CALL os3d_newton(ncomp,nspec,nkin,nrct,ngas,ikin,           &
             nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,neqn,igamma,   & 
             delt,corrmax,jx,jy,jz,iterat,icvg,nx,ny,nz,time,AqueousToBulk)
+          
+!!!       Now we have solved the nonlinear reaction step, so go to next step
 
           CALL SpeciesLocal(ncomp,nspec,jx,jy,jz)
           CALL totconc(ncomp,nspec,jx,jy,jz)

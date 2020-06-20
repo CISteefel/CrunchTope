@@ -934,7 +934,7 @@ DO i = 1,ncomp
         + xvecgas*df + ex_transport  &
         + gas_transport  &
         + xspecdiffw*df + xspecdiffe*df   ! Species-dependent diffusion
-    
+      continue
   ELSE
       
     IF (ierode == 1) THEN
@@ -949,7 +949,11 @@ DO i = 1,ncomp
         + xvec_ex*df + yvec_ex*df + xvecgas*df + yvecgas*df  &
         + ex_transport + gas_transport  &
         + xspecdiffw*df + xspecdiffe*df + xspecdiffs*df + xspecdiffn*df ! Species-dependent diffusion
-    
+
+        if (jx==1) then
+          continue
+        end if
+        
   END IF
   
   IF (ABS(fxx(ind)) > fxmax(i)) THEN

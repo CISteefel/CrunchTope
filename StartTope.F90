@@ -41,8 +41,6 @@
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
-
-
 SUBROUTINE StartTope(ncomp,nspec,nkin,nrct,ngas,npot,                   &
     nx,ny,nz,data1,ipath,igamma,ikmast,ikph,iko2,ltitle,    &
     tstep,delt,deltmin,ttol,jpor,ikin,nstop,                          &
@@ -585,6 +583,13 @@ REAL(DP)                                                      :: SSA_m2g
 
 REAL(DP)                                                      :: ScaleMineralVolumes
 
+LOGICAL(LGT)                   :: nmmLogical
+REAL(DP),DIMENSION(:,:,:), ALLOCATABLE   :: stress
+!!!REAL(DP),DIMENSION(:,:,:), ALLOCATABLE    :: crankLogK
+REAL(DP)                       :: StressMaxVal
+REAL(DP)                       :: CrankSolubility
+    
+
 
 INTEGER(I4B)                                                  :: knucl
 INTEGER(I4B)                                                  :: ios
@@ -787,6 +792,14 @@ IF (found) THEN
     os3d = .TRUE.
     petscon = .FALSE.
   END IF
+  
+
+  
+  parchar = 'nmm'
+  parfind = ' '
+  nmmLogical = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
+
 
   parchar = 'courant_number'
   parfind = ' '
@@ -6203,6 +6216,16 @@ IF (found) THEN
       DO ll = 1,nplot
         iplot(ll) = ll
       END DO
+
+    ELSE IF (stringarray(1) == 'hfts') THEN
+      iplotall = 3
+      WRITE(*,*)
+      WRITE(*,*) ' Writing only sulfate'
+      WRITE(*,*)
+      nplot = 2
+      iplot(1) = 22
+      iplot(2) = 49
+      
     ELSE
       
 !  Check to see that strings match species names
@@ -8277,8 +8300,10 @@ IF (readvelocity) THEN
     READ(23,*,END=1020) (((qx(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
   ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
     DO jz = 1,nz
+!!!      DO jy = 1,simsize%ny
+      DO jx= 0,nx
       DO jy = 1,ny
-        DO jx= 0,nx
+!!!        DO jx= 0,simsize%nx
           READ(23,*,END=1020) qx(jx,jy,jz)
         END DO
       END DO
@@ -8336,8 +8361,10 @@ IF (readvelocity) THEN
       READ(23,*,END=1020) (((qy(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
     ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
       DO jz = 1,nz
-        DO jy = 0,ny
-          DO jx= 1,nx
+        DO jx= 1,nx
+          DO jy = 0,ny
+!!!        DO jy = 0,simsize%ny
+!!!          DO jx= 1,simsize%nx
             READ(23,*,END=1020) qy(jx,jy,jz)
           END DO
         END DO
@@ -9182,6 +9209,42 @@ IF (found) THEN
       END IF
     END IF     
   END IF
+  
+  ALLOCATE(stress(nx,ny,1))
+  ALLOCATE(CrankLogK(nx,ny,1))
+  jz = 1
+  IF (nmmLogical) then
+    OPEN(UNIT=53,FILE='NMMtoCrunch_JustData.txt',STATUS='UNKNOWN')
+    do jy = 1,ny
+      do jx = 1,nx
+        read(53,*) stress(jx,jy,jz)
+        stress(jx,jy,jz) = DABS(stress(jx,jy,jz))
+      end do
+    end do
+    StressMaxVal = maxval(stress)
+    
+    do jy = 1,ny
+      do jx = 1,nx
+        stress(jx,jy,jz) = stress(jx,jy,jz)/StressMaxVal
+      end do
+    end do
+    
+    CrankSolubility = 1.0d0
+    DO jy = 1,ny
+      DO jx= 1,nx
+        IF (por(jx,jy,jz) == 1.0d0) THEN              !! pore space
+          crankLogK(jx,jy,jz) = 0.0d0
+        ELSE
+          crankLogK(jx,jy,jz) = CrankSolubility*stress(jx,jy,jz)
+        END IF
+      END DO
+    END DO
+    
+    CLOSE(UNIT=53,STATUS='keep')
+    
+    DEALLOCATE(stress)
+    
+    ENDIF
 
   parchar = 'anisotropy_ratioY'
   parfind = ' '
