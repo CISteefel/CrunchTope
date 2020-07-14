@@ -429,7 +429,9 @@ ELSE IF (nx > 1 .AND. ny == 1 .AND. nz > 1) THEN
 !!!  END IF
 
 
-ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+!!!ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+  
+  ELSE
 
   IF (ALLOCATED(s)) THEN
     DEALLOCATE(s)

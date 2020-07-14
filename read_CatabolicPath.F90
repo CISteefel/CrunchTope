@@ -70,9 +70,6 @@
 
 !   internal
     integer                                                       :: ios
-
-    
-
           
 !   type
     type reaction_t
@@ -156,11 +153,11 @@ LOGICAL(LGT)                                                :: ext
 !     open file
 
       INQUIRE(FILE='CatabolicControl.ant',EXIST=ext)
-      IF (EXT) THEN          !!  Aqueous Control file exists, so read input filename from it rather than prompting user
+      IF (EXT) THEN          !!  Catabolic Control file exists, so read input filename from it rather than prompting user
         OPEN(113,FILE='CatabolicControl.ant',STATUS='old',ERR=708)
         READ(113,'(a)') filename
         CLOSE(113,STATUS='keep')
-      ELSE                   !!  No AqueousControl.ant file, so just use "aqueous.dbs" 
+      ELSE                   !!  No CatabolicControl.ant file, so just use "CatabolicPathways.in" 
         filename = 'CatabolicPathways.in'
       END IF
 
@@ -337,7 +334,6 @@ LOGICAL(LGT)                                                :: ext
           ELSE
             SubstrateForLagMineral(np,kPath) = is
           END IF
-
 
 !         find the biomass for this reaction in the mineral list
           ib = 0

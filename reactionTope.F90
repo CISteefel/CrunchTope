@@ -1008,8 +1008,10 @@ DO k = 1,nkin
       ELSE IF (imintype(np,k) == 10) THEN
         CONTINUE
       ELSE
+        
 !! General case, which uses (or not) the exponents in "snorm"
         AffinityTerm = term1
+        
       END IF
 
 !!    Sergi:  Need to move the END IF above here??

@@ -49,7 +49,7 @@ USE concentration
 USE solver
 
 IMPLICIT NONE
-!fp! auto_par_loops = 0;
+
 !  External variables
 
 INTEGER(I4B), INTENT(IN)                           :: ncomp

@@ -126,7 +126,8 @@ userD(6) = ksp%v
       DEALLOCATE(cDD)
     END IF
     ALLOCATE(cDD(nx,ny,nz))
-  ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN         ! 3D case
+!!  ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN         ! 3D case
+    ELSE IF (ny > 1 .AND. nz > 1) THEN         ! 3D case
     IF (ALLOCATED(aDD)) THEN
       DEALLOCATE(aDD)
     END IF

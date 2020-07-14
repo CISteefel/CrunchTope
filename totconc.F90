@@ -48,7 +48,6 @@ USE params
 USE concentration
 
 IMPLICIT NONE
-!fp! auto_par_loops=0;
 
 !  External variables and arrays
 

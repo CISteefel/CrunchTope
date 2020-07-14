@@ -386,23 +386,15 @@ DO k = 1,nkin
 !!!        Bnucleation = 0.000480339     !! 95C
 !!!        Anucleation = 0.001
         
-        
-          IF (si(np,k) > 1.0) THEN
-              
+          IF (si(np,k) > 1.0) THEN    
             BtimesSigma = Bnucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)
-            AffinityTerm = Azero25C(np,k)*DEXP(-BtimesSigma/( siln(np,k)*siln(np,k) ) )
-            
+            AffinityTerm = Azero25C(np,k)*DEXP(-BtimesSigma/( siln(np,k)*siln(np,k) ) )   
           ELSE
-              
             AffinityTerm = 0.0d0
-            
           END IF
-
         ELSE
-
           AffinityTerm = term1
         END IF
-
 
         IF (imintype(np,k) == 3 .OR. imintype(np,k) == 2) THEN           !! Monod or irreversible
           AffinityTerm = sign
@@ -448,6 +440,7 @@ DO k = 1,nkin
             ELSE
                 jac_sat = 0.0d0
             END IF
+            
 !!        Then strictly first order TST type rate laws:
           ELSE IF (AffinityDepend1(np,k) == 1.0d0 .AND. AffinityDepend2(np,k) == 1.0d0 .AND. AffinityDepend3(np,k) == 1.0d0) THEN
 
