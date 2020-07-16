@@ -775,17 +775,20 @@ IF (CalculateFlow) THEN
   END IF
 
  ! final check of water content
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
+  IF (Richards) then
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
           IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
               wc(jx,jy,jz) = wcs(jx,jy,jz)
           ELSE IF (wc(jx,jy,jz) < wcr) THEN
               wc(jx,jy,jz) = wcr
           END IF
+        END DO
       END DO
     END DO
-  END DO
+  END IF
+!! ********************************
 
 
 
@@ -1163,17 +1166,19 @@ DO WHILE (nn <= nend)
     END IF
 
     ! final check of water content
-     DO jz = 1,nz
-       DO jy = 1,ny
-         DO jx = 1,nx
+    IF (Richards) THEN
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
              IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                  wc(jx,jy,jz) = wcs(jx,jy,jz)
              ELSE IF (wc(jx,jy,jz) < wcr) THEN
                  wc(jx,jy,jz) = wcr
              END IF
+           END DO
          END DO
-       END DO
-     END DO
+      END DO
+    END IF
 
 
 
@@ -1224,7 +1229,9 @@ DO WHILE (nn <= nend)
 !  *********  End NUFT block within time stepping  ****************
 
   IF (gimrt) THEN         !  Update dispersivity
-    CALL dispersivity(nx,ny,nz)
+    IF (.NOT. Richards) THEN
+      CALL dispersivity(nx,ny,nz)
+    END IF
   END IF
 
 !  **************  OS3D BLOCK    **********************
@@ -1256,7 +1263,9 @@ DO WHILE (nn <= nend)
 
       IF (xflow .OR. yflow .OR. zflow) THEN
         call CourantStepAlt(nx,ny,nz,dtmaxcour)
-        CALL dispersivity(nx,ny,nz)
+        IF (.NOT. Richards) THEN
+          CALL dispersivity(nx,ny,nz)
+        END IF
       END IF
 
     END IF
@@ -1648,9 +1657,11 @@ DO WHILE (nn <= nend)
   6000   IF (gimrt) THEN
 
     jz = 1
-    WRITE(*,*) 'GIMRT invoked!'
+!!!    WRITE(*,*) 'GIMRT invoked!'
 !           Calculate finite difference coefficients
-    CALL dispersivity(nx,ny,nz)
+        IF (.NOT. Richards) THEN
+          CALL dispersivity(nx,ny,nz)
+        END IF
 
     IF (TortuosityOption /= 'none') THEN
       CALL CalculateTortuosity(nx,ny,nz)

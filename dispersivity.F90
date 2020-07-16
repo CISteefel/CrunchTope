@@ -82,18 +82,18 @@ INTEGER(I4B)                                                       :: jz
 
 IF (ny==1 .AND. nz==1) THEN      !!  1D case
 
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO jx = 1,nx
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
      
-      vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
-      vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
-      vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
+        vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
+        vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
+        vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
 
-      qbar = DSQRT( vx*vx + vy*vy + vz*vz )
+        qbar = DSQRT( vx*vx + vy*vy + vz*vz )
 
-      IF (qbar /= 0.0) THEN
-        dspx(jx,jy,jz) = alft*( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )*qbar +  &
+        IF (qbar /= 0.0) THEN
+          dspx(jx,jy,jz) = alft*( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )*qbar +  &
             (alfl-alft)*( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )*vx*vx/qbar
           
 !!!        dspx(jx,jy,jz) = alft*qbar +  &
@@ -101,36 +101,35 @@ DO jz = 1,nz
         
 !!!        dspx(jx,jy,jz) = alfl*vx*vx/qbar + alft*vy*vy/qbar
         
-      ELSE
-        dspx(jx,jy,jz) = 0.0
-      END IF
+        ELSE
+          dspx(jx,jy,jz) = 0.0
+        END IF
+        
+      END DO
     END DO
   END DO
-END DO
-
-
 
 ELSE IF (nz==1) THEN             !!  2D case
 
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO jx = 1,nx
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
      
-      vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
-      vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
-      vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
+        vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
+        vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
+        vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
 
-      qbar = DSQRT( vx*vx + vy*vy + vz*vz )
+        qbar = DSQRT( vx*vx + vy*vy + vz*vz )
 
-      IF (qbar /= 0.0) THEN
-        dspx(jx,jy,jz) = alft*qbar +  &
+        IF (qbar /= 0.0) THEN
+          dspx(jx,jy,jz) = alft*qbar +  &
             (alfl-alft)*vx*vx/qbar   
-      ELSE
-        dspx(jx,jy,jz) = 0.0
-      END IF
+        ELSE
+          dspx(jx,jy,jz) = 0.0
+        END IF
+      END DO
     END DO
   END DO
-END DO
 
 !!!DO jz = 1,nz
   jz = 1

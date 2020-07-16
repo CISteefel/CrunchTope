@@ -9448,7 +9448,10 @@ WRITE(iunit2,1111) alfl
 WRITE(iunit2,1112) alft
 WRITE(iunit2,*)
 
-CALL dispersivity(nx,ny,nz)
+IF (.NOT. Richards) THEN
+  CALL dispersivity(nx,ny,nz)
+END IF
+
 dspx = 0.0
 dspy = 0.0
 dspz = 0.0
