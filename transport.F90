@@ -186,4 +186,8 @@ MODULE transport
   INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE    :: jyn
   INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE    :: jys
 
+! Zhi Li
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: us
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: vs
+
 END module transport

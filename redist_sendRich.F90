@@ -42,39 +42,100 @@
 
 !!!      ****************************************
 
-MODULE medium
+SUBROUTINE redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend_zm,rsend_zp)
+USE crunchtype
+USE params
+USE medium
+USE flow
+USE CrunchFunctions
 
-  USE crunchtype
+IMPLICIT NONE
 
-  INTEGER(I4B)                                    :: ierode
-  INTEGER(I4B)                                    :: isaturate
-
-  REAL(DP)                                        :: constantpor
-  REAL(DP)                                        :: FixSaturation
-  REAL(DP)                                        :: MinimumPorosity
-  REAL(DP)                                        :: PoreThreshold
-  REAL(DP)                                        :: PoreFill
- ! Added for the Richards solver, Zhi Li 20200629
-  REAL(DP)                                        :: wcr
-  REAL(DP)                                        :: vga
-  REAL(DP)                                        :: vgn
-
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: AqueousToBulkCond
-
-! Allocatable arrays dimensioned over spatial domain
-
-  REAL(DP), dimension(:,:,:), allocatable         :: porin
-  REAL(DP), dimension(:,:,:), allocatable         :: por
-  REAL(DP), dimension(:,:,:), allocatable         :: porOld
-  REAL(DP), dimension(:), allocatable             :: x
-  REAL(DP), dimension(:), allocatable             :: y
-  REAL(DP), dimension(:), allocatable             :: z
-  REAL(DP), dimension(:), allocatable             :: dxx
-  REAL(DP), dimension(:), allocatable             :: dyy
-  REAL(DP), dimension(:,:,:), allocatable         :: dzz
-  REAL(DP), dimension(:,:,:), allocatable         :: dxy
+INTEGER(I4B), INTENT(IN)                                       :: nx
+INTEGER(I4B), INTENT(IN)                                       :: ny
+INTEGER(I4B), INTENT(IN)                                       :: nz
+INTEGER(I4B), INTENT(IN)                                       :: jx
+INTEGER(I4B), INTENT(IN)                                       :: jy
+INTEGER(I4B), INTENT(IN)                                       :: jz
+REAL(DP), INTENT(INOUT)                                           :: delV
+REAL(DP), INTENT(INOUT)                                          :: rsend_zm
+REAL(DP), INTENT(INOUT)                                          :: rsend_zp
 
 
-END MODULE medium
+!  ****** PARAMETERS  ****************************
+
+REAL(DP)                                                              :: temp
+REAL(DP)                                                              :: delVzm
+REAL(DP)                                                              :: delVzp
+INTEGER(I4B)                                                          :: iz
+
+delVzm = 0.0d0
+delVzp = 0.0d0
+! send moisture up
+IF (rsend_zm > 0.0) THEN
+    delVzm = delV * rsend_zm
+    iz = jz
+    DO WHILE (iz .NE. 1)
+        iz = iz - 1
+        IF (room(jx,jy,iz) > 0.0) THEN
+            ! if excess moisture < available space
+            IF (room(jx,jy,iz) > delVzm) THEN
+                wc(jx,jy,iz) = wc(jx,jy,iz) + delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                room(jx,jy,iz) = room(jx,jy,iz) - delVzm
+                delVzm = 0.0d0
+                EXIT
+            ! if excess moisture > available space
+            ELSE
+                wc(jx,jy,iz) = wc(jx,jy,iz) + room(jx,jy,iz)/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                delVzm = delVzm - room(jx,jy,iz)
+                room(jx,jy,iz) = 0.0d0
+            END IF
+        END IF
+    END DO
+    ! allow excess moisture to leave domain if permeablity > 0
+    IF (Kfacz(jx,jy,iz-1) > 0.0) THEN
+        delVzm = 0.0d0
+    END IF
+END IF
+
+! send moisture down
+IF (rsend_zp > 0.0) THEN
+    delVzp = delV * rsend_zp
+    iz = jz
+    DO WHILE (iz .NE. nz)
+        iz = iz + 1
+        IF (room(jx,jy,iz) > 0.0) THEN
+            ! if excess moisture < available space
+            IF (room(jx,jy,iz) > delVzp) THEN
+                wc(jx,jy,iz) = wc(jx,jy,iz) + delVzp/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                room(jx,jy,iz) = room(jx,jy,iz) - delVzp
+                delVzp = 0.0d0
+                EXIT
+            ! if excess moisture > available space
+            ELSE
+                wc(jx,jy,iz) = wc(jx,jy,iz) + room(jx,jy,iz)/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                delVzp = delVzp - room(jx,jy,iz)
+                room(jx,jy,iz) = 0.0d0
+            END IF
+        END IF
+    END DO
+    ! allow excess moisture to leave domain if permeablity > 0
+    IF (Kfacz(jx,jy,iz) > 0.0) THEN
+        delVzp = 0.0d0
+    END IF
+END IF
+
+
+! If excess moisture remains, reverse sending directions
+IF (delVzm + delVzp > 0.0) THEN
+    delV = delVzm + delVzp
+    temp = rsend_zm
+    rsend_zm = rsend_zp
+    rsend_zp = temp
+ELSE
+    delV = 0.0d0
+END IF
+
+
+RETURN
+END SUBROUTINE redist_sendRich

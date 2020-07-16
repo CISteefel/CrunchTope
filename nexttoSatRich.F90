@@ -41,40 +41,47 @@
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
+SUBROUTINE nexttoSatRich(nx,ny,nz,jx,jy,jz,nextto_sat)
+USE crunchtype
+USE params
+USE medium
+USE flow
+USE CrunchFunctions
 
-MODULE medium
+IMPLICIT NONE
 
-  USE crunchtype
+INTEGER(I4B), INTENT(IN)                                       :: nx
+INTEGER(I4B), INTENT(IN)                                       :: ny
+INTEGER(I4B), INTENT(IN)                                       :: nz
 
-  INTEGER(I4B)                                    :: ierode
-  INTEGER(I4B)                                    :: isaturate
+!  Internal variables and arrays
+INTEGER(I4B), INTENT(IN)                                                  :: jx
+INTEGER(I4B), INTENT(IN)                                                  :: jy
+INTEGER(I4B), INTENT(IN)                                                  :: jz
 
-  REAL(DP)                                        :: constantpor
-  REAL(DP)                                        :: FixSaturation
-  REAL(DP)                                        :: MinimumPorosity
-  REAL(DP)                                        :: PoreThreshold
-  REAL(DP)                                        :: PoreFill
- ! Added for the Richards solver, Zhi Li 20200629
-  REAL(DP)                                        :: wcr
-  REAL(DP)                                        :: vga
-  REAL(DP)                                        :: vgn
+LOGICAL(LGT), INTENT(INOUT)                                     :: nextto_sat
 
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: AqueousToBulkCond
-
-! Allocatable arrays dimensioned over spatial domain
-
-  REAL(DP), dimension(:,:,:), allocatable         :: porin
-  REAL(DP), dimension(:,:,:), allocatable         :: por
-  REAL(DP), dimension(:,:,:), allocatable         :: porOld
-  REAL(DP), dimension(:), allocatable             :: x
-  REAL(DP), dimension(:), allocatable             :: y
-  REAL(DP), dimension(:), allocatable             :: z
-  REAL(DP), dimension(:), allocatable             :: dxx
-  REAL(DP), dimension(:), allocatable             :: dyy
-  REAL(DP), dimension(:,:,:), allocatable         :: dzz
-  REAL(DP), dimension(:,:,:), allocatable         :: dxy
+! Check if a grid cell is adjacent to a saturated grid cell
+IF (jz == 1) THEN
+    IF (wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
+        nextto_sat = .TRUE.
+    ELSE IF (Kfacz(jx,jy,jz-1) > 0.0d0 .AND. wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1)) THEN
+        nextto_sat = .TRUE.
+    END IF
+ELSE IF (jz >= nz) THEN
+    IF (wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1)) THEN
+        nextto_sat = .TRUE.
+    ELSE IF (Kfacz(jx,jy,jz) > 0.0d0 .AND. wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
+        nextto_sat = .TRUE.
+    END IF
+ELSE
+    IF (wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1) .OR. wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
+        nextto_sat = .TRUE.
+    END IF
+END IF
 
 
-END MODULE medium
+
+
+RETURN
+END SUBROUTINE nexttoSatRich

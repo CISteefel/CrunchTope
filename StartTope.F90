@@ -1,46 +1,48 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
-!!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
-!!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
-!!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
+!!! If you have questions about your rights to use or distribute this software, please contact
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government
+!!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting
+!!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public,
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
-!!! 
+!!!
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-!!! 
+!!!
 !!! (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 !!!
-!!! (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+!!! (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
 !!! in the documentation and/or other materials provided with the distribution.
 !!!
-!!! (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of 
+!!! (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of
 !!! its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 !!!
-!!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
-!!! BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-!!! SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-!!! DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-!!! OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-!!! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
+!!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+!!! BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+!!! SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+!!! DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+!!! OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+!!! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 !!! THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !!!
-!!! You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or 
+!!! You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or
 !!! performance of the source code ("Enhancements") to anyone; however, if you choose to make your
-!!! Enhancements available either publicly, or directly to Lawrence Berkeley National Laboratory, without 
-!!! imposing a separate written license agreement for such 
-!!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use, 
-!!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or 
+!!! Enhancements available either publicly, or directly to Lawrence Berkeley National Laboratory, without
+!!! imposing a separate written license agreement for such
+!!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use,
+!!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
+
+
 SUBROUTINE StartTope(ncomp,nspec,nkin,nrct,ngas,npot,                   &
     nx,ny,nz,data1,ipath,igamma,ikmast,ikph,iko2,ltitle,    &
     tstep,delt,deltmin,ttol,jpor,ikin,nstop,                          &
@@ -83,7 +85,7 @@ END INTERFACE
 
 INTERFACE
   SUBROUTINE find_condition(nin,nout,found,phfound,ncomp,  &
-    nspec,nrct,nkin,ngas,nexchange,nsurf,ndecay,           & 
+    nspec,nrct,nkin,ngas,nexchange,nsurf,ndecay,           &
     ph,guessph,constraint,nchem,unitsflag,jpor,            &
     DensityModule,RunningPest)
   USE crunchtype
@@ -111,8 +113,8 @@ INTERFACE
   REAL(DP), DIMENSION(:), INTENT(OUT)                          :: guessph
   CHARACTER (LEN=mls), DIMENSION(:,:), INTENT(IN OUT)          :: constraint
   INTEGER(I4B), DIMENSION(:), INTENT(INOUT)                    :: unitsflag
-  CHARACTER (LEN=mls),  INTENT(IN)                             :: DensityModule 
-  LOGICAL(LGT), INTENT(IN)                                     :: RunningPest  
+  CHARACTER (LEN=mls),  INTENT(IN)                             :: DensityModule
+  LOGICAL(LGT), INTENT(IN)                                     :: RunningPest
   END SUBROUTINE find_condition
 END INTERFACE
 
@@ -388,7 +390,7 @@ REAL(DP)                                                      :: dtBase
 REAL(DP)                                                      :: geometricSum
 REAL(DP)                                                      :: checkSum
 INTEGER(I4B)                                                  :: ntt
-REAL(DP), DIMENSION(:), ALLOCATABLE                           :: dtTemp 
+REAL(DP), DIMENSION(:), ALLOCATABLE                           :: dtTemp
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: perlen
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: tsmult
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                           :: CECconvert
@@ -583,13 +585,6 @@ REAL(DP)                                                      :: SSA_m2g
 
 REAL(DP)                                                      :: ScaleMineralVolumes
 
-LOGICAL(LGT)                   :: nmmLogical
-REAL(DP),DIMENSION(:,:,:), ALLOCATABLE   :: stress
-!!!REAL(DP),DIMENSION(:,:,:), ALLOCATABLE    :: crankLogK
-REAL(DP)                       :: StressMaxVal
-REAL(DP)                       :: CrankSolubility
-    
-
 
 INTEGER(I4B)                                                  :: knucl
 INTEGER(I4B)                                                  :: ios
@@ -618,7 +613,7 @@ namelist /Nucleation/                                          NameMineral,     
 
 
 
-ALLOCATE(realmult(100)) 
+ALLOCATE(realmult(100))
 
 pi = DACOS(-1.0d0)
 
@@ -687,7 +682,7 @@ END IF
 INQUIRE(FILE=filename,EXIST=ext)
 IF (.NOT. ext) THEN
   CALL stringlen(filename,ls)
-  WRITE(*,*) 
+  WRITE(*,*)
   WRITE(*,*) ' Cannot find input file: ', filename(1:ls)
   WRITE(*,*)
   READ(*,*)
@@ -743,15 +738,17 @@ WRITE(iunit2,*) '   '
 WRITE(iunit2,*) '                  Authors:  C.I. STEEFEL, S. MOLINS '
 
 WRITE(iunit2,*) '                      *** Copyright Notice ***          '
-WRITE(iunit2,*) ' “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory' 
-WRITE(iunit2,*) ' (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.'
+WRITE(iunit2,*) ' ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, &
+                    through Lawrence Berkeley National Laboratory'
+WRITE(iunit2,*) ' (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.'
 WRITE(iunit2,*)
 WRITE(iunit2,*) ' If you have questions about your rights to use or distribute this software, please contact '
-WRITE(iunit2,*) ' Berkeley Lab Innovation & Partnerships Office at  IPO@lbl.gov.  '
+WRITE(iunit2,*) ' Berkeley Lab Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.  '
 WRITE(iunit2,*)
-WRITE(iunit2,*) ' NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government '
+WRITE(iunit2,*) ' NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government '
 WRITE(iunit2,*) ' consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting '
-WRITE(iunit2,*) ' on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, '
+WRITE(iunit2,*) ' on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, &
+                    distribute copies to the public, '
 WRITE(iunit2,*) ' prepare derivative works, and perform publicly and display publicly, and to permit other to do so.'
 WRITE(iunit2,*) '   '
 
@@ -772,7 +769,7 @@ IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Runtime parameters block found'
 !!  WRITE(*,*)
-  
+
 ! Now, find the individual parameters within block
 
   parchar = 'gimrt'
@@ -792,14 +789,6 @@ IF (found) THEN
     os3d = .TRUE.
     petscon = .FALSE.
   END IF
-  
-
-  
-  parchar = 'nmm'
-  parfind = ' '
-  nmmLogical = .FALSE.
-  CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
-
 
   parchar = 'courant_number'
   parfind = ' '
@@ -843,7 +832,7 @@ IF (found) THEN
     tstep = realjunk
     tstep = tstep*time_scale
   END IF
-  
+
   parchar = 'timestep_init'
   parfind = ' '
   realjunk = 0.0
@@ -852,6 +841,7 @@ IF (found) THEN
     delt = 1.e-10           ! Use default
   ELSE
     delt = realjunk
+    ! Zhi Li commented out this line!
     delt = delt*time_scale
   END IF
   deltmin = delt
@@ -860,7 +850,7 @@ IF (found) THEN
   parfind = ' '
   data1 = ' '
   CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  ! 
+  IF (parfind == ' ') THEN  !
     data1 = ' '             ! Use default
   ELSE
     data1 = dumstring
@@ -874,7 +864,7 @@ IF (found) THEN
     parchar = 'later_inputfiles'
     parfind = ' '
     lenarray = 0
-  
+
     CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
 
     IF (parfind == ' ') THEN
@@ -934,7 +924,7 @@ IF (found) THEN
     CALL stringlen(DensityModule,lchar)
     WRITE(*,*)
     WRITE(*,*) ' Density module not recognized: ', DensityModule(1:lchar)
-    WRITE(*,*)  
+    WRITE(*,*)
     READ(*,*)
     STOP
   END IF
@@ -944,7 +934,7 @@ IF (found) THEN
   realjunk = 1.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
   IF (parfind == ' ') THEN  ! Parameter fix_saturation not found
-    FixSaturation = 1.0d0              
+    FixSaturation = 1.0d0
   ELSE
     IF (realjunk > 0.0d0 .AND. realjunk <= 1.0d0) THEN
       FixSaturation = realjunk
@@ -952,7 +942,7 @@ IF (found) THEN
         isaturate = 0
       ELSE
         isaturate = 1
-        WRITE(*,*) 
+        WRITE(*,*)
         WRITE(*,*) ' Liquid saturation: ', FixSaturation
         WRITE(*,*) ' Running as an unsaturated problem'
         WRITE(*,*)
@@ -973,14 +963,14 @@ IF (found) THEN
   parfind = ' '
   SaturationFile = ' '
   CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SaturationFileFormat)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
    SaturationFile = ' '             ! No default
 !!  Check to make sure the user is not using the old designator "read_saturation"
     parchar = 'read_saturation'
     parfind = ' '
     CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SaturationFileFormat)
     IF (parfind == 'read_saturation') THEN
-      WRITE(*,*) 
+      WRITE(*,*)
       WRITE(*,*) 'Keyword "read_saturation" now obsolete--use "read_saturationfile"'
       WRITE(*,*)
       READ(*,*)
@@ -991,17 +981,17 @@ IF (found) THEN
   END IF
 
 5014 CONTINUE
-     
+
   parchar = 'CylindricalDivideVolume'
   parfind = ' '
   CylindricalDivideVolume = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,CylindricalDivideVolume)
-  
+
   parchar = 'Benchmark'
   parfind = ' '
   Benchmark = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,Benchmark)
-  
+
   parchar = 'DampRateInLowPorosity'
   parfind = ' '
   realjunk = 0.0
@@ -1011,14 +1001,14 @@ IF (found) THEN
   ELSE
     PorosityDamp = realjunk
   END IF
-  
+
   DampRateInLowPorosity = .FALSE.
   IF (PorosityDamp < 1.0d0) THEN
     DampRateInLowPorosity = .TRUE.
   END IF
 
 !!    **********************  Solver Methods   ***********************
-  
+
   parchar = 'hindmarsh'
   parfind = ' '
   SolveHindmarsh = .FALSE.
@@ -1040,7 +1030,7 @@ IF (found) THEN
   parfind = ' '
   SolverMethod = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
    SolverMethod = 'bcgs'             ! Use default
   ELSE
     SolverMethod = dumstring
@@ -1050,7 +1040,7 @@ IF (found) THEN
 
   IF (SolverMethod == 'gmres') THEN
     CONTINUE
-  ELSE IF (SolverMethod == 'bicg') THEN   
+  ELSE IF (SolverMethod == 'bicg') THEN
     CONTINUE
   ELSE IF (SolverMethod == 'bcgs') THEN
     CONTINUE
@@ -1069,7 +1059,7 @@ IF (found) THEN
   parfind = ' '
   PCMethod = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN 
+  IF (parfind == ' ') THEN
     PCMethod = 'ilu'             ! Use default
   ELSE
     PCMethod = dumstring
@@ -1083,9 +1073,9 @@ IF (found) THEN
 
   IF (PCMethod == 'ilu') THEN
     CONTINUE
-  ELSE IF (PCMethod == 'jacobi') THEN   
+  ELSE IF (PCMethod == 'jacobi') THEN
     CONTINUE
-  ELSE IF (PCMethod == 'direct') THEN   
+  ELSE IF (PCMethod == 'direct') THEN
     CONTINUE
   ELSE
     CALL stringlen(PCMethod,lchar)
@@ -1100,7 +1090,7 @@ IF (found) THEN
   parfind = ' '
   intjunk = 0
   CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
     Level = 5                 ! Use default
   ELSE
     Level = intjunk
@@ -1127,7 +1117,7 @@ IF (found) THEN
   parfind = ' '
   GIMRT_SolverMethod = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
    GIMRT_SolverMethod = 'gmres'             ! Use default
   ELSE
     GIMRT_SolverMethod = dumstring
@@ -1150,7 +1140,7 @@ IF (found) THEN
   parfind = ' '
   GIMRT_PCMethod = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN 
+  IF (parfind == ' ') THEN
     GIMRT_PCMethod = 'bjacobi'             ! Use default
   ELSE
     GIMRT_PCMethod = dumstring
@@ -1160,9 +1150,9 @@ IF (found) THEN
 
   IF (GIMRT_PCMethod == 'bjacobi') THEN
     CONTINUE
-  ELSE IF (GIMRT_PCMethod == 'lu') THEN   
+  ELSE IF (GIMRT_PCMethod == 'lu') THEN
     CONTINUE
-  ELSE IF (GIMRT_PCMethod == 'ilu') THEN   
+  ELSE IF (GIMRT_PCMethod == 'ilu') THEN
     CONTINUE
   ELSE
     CALL stringlen(GIMRT_PCMethod,lchar)
@@ -1177,7 +1167,7 @@ IF (found) THEN
   parfind = ' '
   intjunk = 0
   CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
     GimrtLevel = 1                 ! Use default
   ELSE
     GimrtLevel = intjunk
@@ -1214,17 +1204,17 @@ IF (found) THEN
   parfind = ' '
   intjunk = 1
   CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
-  IF (parfind == ' ') THEN 
-    IF (gimrt) THEN 
+  IF (parfind == ' ') THEN
+    IF (gimrt) THEN
       ScreenInterval = 1                 ! Use default
-    ELSE 
+    ELSE
       ScreenInterval = 10
     END IF
   ELSE
     ScreenInterval = intjunk
   END IF
 
- 
+
   parchar = 'time_tolerance'
   parfind = ' '
   realjunk = 0.0
@@ -1234,7 +1224,7 @@ IF (found) THEN
   ELSE
     ttol = realjunk
   END IF
-  
+
   ResidualTolerance = 0.0d0
   parchar = 'ResidualTolerance'
   parfind = ' '
@@ -1245,7 +1235,7 @@ IF (found) THEN
   ELSE
     ResidualTolerance = realjunk
   END IF
-  
+
   parchar = 'correction_max'
   parfind = ' '
   realjunk = 0.0
@@ -1255,7 +1245,7 @@ IF (found) THEN
   ELSE
     corrmax = realjunk
   END IF
-  
+
   parchar = 'dissolution_max'
   parfind = ' '
   realjunk = 0.0
@@ -1265,7 +1255,7 @@ IF (found) THEN
   ELSE
     vdissmax = realjunk
   END IF
-  
+
   parchar = 'precipitation_max'
   parfind = ' '
   realjunk = 0.0
@@ -1275,7 +1265,7 @@ IF (found) THEN
   ELSE
     vpptmax = realjunk
   END IF
-  
+
   parchar = 'debye-huckel'
   parfind = ' '
   activity_dbh = .true.
@@ -1287,7 +1277,7 @@ IF (found) THEN
     igamma = 0
     WRITE(*,*) ' Unit activity coefficients'
   END IF
-  
+
   parchar = 'lag_activity'
   parfind = ' '
   lag_activity =  .true.
@@ -1303,7 +1293,7 @@ IF (found) THEN
   ELSE
     igamma = 0
   END IF
-  
+
   parchar = 'database_sweep'
   parfind = ' '
   database_sweep = .false.
@@ -1319,7 +1309,7 @@ IF (found) THEN
   parfind = ' '
   ReadGeochemicalConditions = .false.
   CALL read_logical(nout,lchar,parchar,parfind,ReadGeochemicalConditions)
-  
+
   parchar = 'ReadGautier'
   parfind = ' '
   ReadGautier = .false.
@@ -1366,7 +1356,7 @@ IF (found) THEN
   IF (GMSsecondary .OR. GMSmineral) THEN
     icomplete = 1
   END IF
-  
+
   parchar = 'reaction_path'
   parfind = ' '
   reaction_path = .false.
@@ -1376,9 +1366,9 @@ IF (found) THEN
   ELSE
     ipath = 0
   END IF
-  
+
 !  Logical "speciate_only" instructs code to skip mineral kinetics section
-  
+
   parchar = 'speciate_only'
   parfind = ' '
   onlyspeciate = .false.
@@ -1388,9 +1378,9 @@ IF (found) THEN
   ELSE
     ispeciate= 0
   END IF
-  
+
 !  Logical "generic_rates" turns on generic rates (database read skipped)
-  
+
 !!  parchar = 'generic_rates'
 !!  parfind = ' '
 !!  genericrates = .false.
@@ -1410,12 +1400,12 @@ IF (found) THEN
     igenericrates = 0
   ELSE
     genericrates =  .TRUE.
-    igenericrates = 1    
+    igenericrates = 1
     RateGeneric = realjunk
   END IF
-  
+
 !  If speciation only is specified, turn off "generic rates" option
-  
+
   IF (ispeciate == 1) THEN
     igenericrates = 0
   END IF
@@ -1432,7 +1422,7 @@ IF (found) THEN
   parfind = ' '
   RestartOutputFile = ' '
   CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  ! 
+  IF (parfind == ' ') THEN  !
     RestartOutputFile = 'crunch.rst'             ! Use default
   ELSE
     RestartOutputFile = dumstring
@@ -1551,7 +1541,7 @@ IF (found) THEN
   SilicaRateLaw = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SilicaRateLaw)
 
-  IF (JennyDruhan) THEN 
+  IF (JennyDruhan) THEN
 
     parchar = 'UseBulkMineral'
     parfind = ' '
@@ -1577,7 +1567,7 @@ IF (found) THEN
     realjunk = 0.0
     CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
     IF (parfind == ' ') THEN  ! Parameter minimum_porosity not found
-      WRITE(*,*) 
+      WRITE(*,*)
       WRITE(*,*) ' When running with "KateMaher" option, a value for "DistributionCalcite" must be specified in RUNTIME block'
       WRITE(*,*)
       STOP
@@ -1619,7 +1609,7 @@ IF (found) THEN
       LagSurface = realjunk
     END IF
   END IF
-  
+
 ELSE
   WRITE(*,*) ' Failed to find runtime parameters block'
   WRITE(*,*) ' ---> Using default values'
@@ -1709,7 +1699,7 @@ CALL readblock(nin,nout,section,found,ncount)
 IF (found) THEN
 !!  WRITE(*,*) ' Temperature parameters block found'
 !!  WRITE(*,*)
-  
+
   parchar = 'set_temperature'
   parfind = ' '
   realjunk = 0.0
@@ -1724,7 +1714,7 @@ IF (found) THEN
     jtemp = 0
 !!   WRITE(*,5012)  tinit
   END IF
-  
+
   parchar = 'temperature_gradient'
   parfind = ' '
   realjunk = 0.0
@@ -1738,19 +1728,19 @@ IF (found) THEN
     jtemp = 1
     WRITE(*,5013)  tgrad
   END IF
-  
+
   parchar = 'read_temperaturefile'
   parfind = ' '
   TFile = ' '
   CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,TemperatureFileFormat)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
    TFile = ' '             ! No default
 !!  Check to make sure the user is not using the old designator "read_temperature"
     parchar = 'read_temperature'
     parfind = ' '
     CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,TemperatureFileFormat)
     IF (parfind == 'read_temperature') THEN
-      WRITE(*,*) 
+      WRITE(*,*)
       WRITE(*,*) 'Keyword "read_temperature" now obsolete--use "read_temperaturefile"'
       WRITE(*,*)
       READ(*,*)
@@ -1765,7 +1755,7 @@ IF (found) THEN
     parfind = ' '
     RunIsothermal = .false.
     CALL read_logical(nout,lchar,parchar,parfind,RunIsothermal)
-    
+
     IF (RunIsothermal .AND. tgrad /= 0.0d0) THEN
         WRITE(*,*)
         WRITE(*,*) ' Isothermal run incompatible with temperature gradient'
@@ -1780,17 +1770,17 @@ IF (found) THEN
         READ(*,*)
         STOP
     END IF
-    
-    
+
+
 ELSE
-  
+
   WRITE(*,*) ' Temperature parameters not found'
   WRITE(*,*) ' Using defaults'
   jtemp = 0
   tinit = 25.0
   tgrad = 0.0
   TFile = ' '
-  
+
 END IF
 !*************************************************************
 
@@ -1852,18 +1842,18 @@ DO k = 1,nrct
     END IF
   END DO
 END DO
-        
+
 
 !!  Now check for nucleation block
 
 !      *****************NUCLEATION SECTION***********************
 
 section = 'nucleation'
-    
+
 CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
-    
+
 IF (ALLOCATED(NucleationMineral)) THEN
   DEALLOCATE(NucleationMineral)
 END IF
@@ -1892,7 +1882,7 @@ IF (ALLOCATED(npNucleationPath)) THEN
 END IF
 ALLOCATE(npNucleationPath(50))
 npNucleationPath = 0
-    
+
   IF (ALLOCATED(Azero25C)) THEN
     DEALLOCATE(Azero25C)
     ALLOCATE(Azero25C(nreactmax,nrct))
@@ -1935,7 +1925,7 @@ npNucleationPath = 0
   END IF
   SumMineralSurfaceArea = .FALSE.
   HomogeneousNucleation = .FALSE.
-  
+
 !!  Based on MINERAL block in input file, identify nucleation pathways
 
   knucl = 0
@@ -1954,7 +1944,7 @@ npNucleationPath = 0
   NucleationPaths = knucl
 
   REWIND nout
-  
+
 !!! Loop over nucleation pathways provided in input file (or database file)
   do_input_pathways: DO knucl=1,nucleationpaths
 
@@ -1969,10 +1959,10 @@ npNucleationPath = 0
 !!!  Sigma(mJ/m2)   = 97.0
 !!!  SSA(m2/g)      = 1.0
 !!!  Surface        = all
-      
-      
+
+
 !     read 'Nucleation' namelist from file
-      read(nout,nml=Nucleation,iostat=ios)     
+      read(nout,nml=Nucleation,iostat=ios)
 
 !     result from read (IOS)
       IF (ios == 0) THEN
@@ -1981,14 +1971,14 @@ npNucleationPath = 0
 
 !! Point from list of names derived from input file (or database) to what is read in the namelist
         IF (NucleationMineral(knucl) == NameMineral .and. NameNucleationPathway(knucl)== label) THEN
-   
+
           k = kNucleationPath(knucl)
           np = npNucleationPath(knucl)
           Azero25C(np,k) = A_zero25C
           Bnucleation(np,k) = B_nucleation
           SigmaNucleation(np,k) = Sigma_mJm2
           SurfaceAreaNucleation(np,k) = SSA_m2g
-        
+
           IF (surface == 'none' .OR. surface == 'NONE' .OR. surface == 'None.') THEN
             HomogeneousNucleation(np,k) = .TRUE.
           ELSE IF (surface == 'all' .OR. surface == 'ALL' .OR. surface == 'All') THEN
@@ -2004,7 +1994,7 @@ npNucleationPath = 0
                 NucleationSurface(np,k) = kk
               END IF
             END DO
-      
+
             IF (NucleationSurface(np,k) == 0) THEN
               WRITE(*,*)
               WRITE(*,*) ' Mineral surface for nucleation not found in list'
@@ -2013,16 +2003,16 @@ npNucleationPath = 0
               READ(*,*)
               STOP
             END IF
-            
+
           END IF
 
-          
+
           rewind(nout)
-          
+
           EXIT do_nucleationpathways
-          
+
         ELSE
-      
+
           CYCLE do_nucleationpathways
 
         END IF
@@ -2042,11 +2032,11 @@ npNucleationPath = 0
     end if
 
   end do do_nucleationpathways
-  
+
 end do do_input_pathways
-  
+
 ELSE
-  
+
   IF (NeedNucleationBlock) THEN
     WRITE(*,*)
     WRITE(*,*) ' Nucleation type rate law found listed in database'
@@ -2058,7 +2048,7 @@ ELSE
     READ(*,*)
     STOP
   END IF
-  
+
 END IF          !!!!  End of nucleation read
 
 IF (master == ' ') then
@@ -2103,13 +2093,13 @@ IF (.NOT. CheckDuan) THEN
 END IF
 
 
-IF (OelkersRateLaw) THEN 
+IF (OelkersRateLaw) THEN
   WRITE(*,*)
   WRITE(*,*) ' Oelkers Rate Law no longer hardwired--Use HyperbolicInhibition in "Dependence" '
   WRITE(*,*)
   READ(*,*)
   STOP
-  
+
 !!  kUPlag = 1
 !!  ikAl = 0
 !!  DO ik = 1,ncomp
@@ -2120,14 +2110,14 @@ IF (OelkersRateLaw) THEN
 
 !!  IF (ikAl == 0) THEN
 !!    WRITE(*,*)
-!!    WRITE(*,*) ' Primary species "HAlO2(aq)" not found when using "OelkersRateLaw" option '  
+!!    WRITE(*,*) ' Primary species "HAlO2(aq)" not found when using "OelkersRateLaw" option '
 !!    WRITE(*,*)
 !!    STOP
 !!  END IF
 
 END IF
 
-IF (BurchRateLaw .OR. HellmannRateLaw .OR. SilicaRateLaw) THEN 
+IF (BurchRateLaw .OR. HellmannRateLaw .OR. SilicaRateLaw) THEN
   kUPlag = 1
 END IF
 
@@ -2142,7 +2132,7 @@ IF (KateMaher) THEN
   IF (kUCalcite == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Mineral number of "Uranium-Calcite" when using "KateMaher" option not found '
-    WRITE(*,*) ' Mineral should be specified as "Uranium-Calcite" in database and input file'    
+    WRITE(*,*) ' Mineral should be specified as "Uranium-Calcite" in database and input file'
     WRITE(*,*)
     STOP
   END IF
@@ -2156,7 +2146,7 @@ IF (KateMaher) THEN
   IF (kMarineCalcite == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Mineral number of "Marine-Calcite" when using "KateMaher" option not found '
-    WRITE(*,*) ' Mineral should be specified as "Marine-Calcite" in database and input file'    
+    WRITE(*,*) ' Mineral should be specified as "Marine-Calcite" in database and input file'
     WRITE(*,*)
     STOP
   END IF
@@ -2170,7 +2160,7 @@ IF (KateMaher) THEN
   IF (kUPlag == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Mineral number of "Plag_U" when using "KateMaher" option not found '
-    WRITE(*,*) ' Mineral should be specified as "Plag_U" in database and input file'    
+    WRITE(*,*) ' Mineral should be specified as "Plag_U" in database and input file'
     WRITE(*,*)
     STOP
   END IF
@@ -2195,7 +2185,7 @@ IF (KateMaher) THEN
     END IF
   END DO
 
-  IF (OelkersRateLaw) THEN 
+  IF (OelkersRateLaw) THEN
     DO ik = 1,ncomp
       IF (ulab(ik) == 'HAlO2(aq)') THEN
         ikAl = ik
@@ -2204,7 +2194,7 @@ IF (KateMaher) THEN
 
     IF (ikAl == 0) THEN
       WRITE(*,*)
-      WRITE(*,*) ' Primary species "HAlO2(aq)" not found when using "OelkersRateLaw" option '  
+      WRITE(*,*) ' Primary species "HAlO2(aq)" not found when using "OelkersRateLaw" option '
       WRITE(*,*)
       STOP
     END IF
@@ -2212,25 +2202,25 @@ IF (KateMaher) THEN
 
   IF (ikCa == 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Species number for "Ca++" not found when using "KateMaher" option '  
+    WRITE(*,*) ' Species number for "Ca++" not found when using "KateMaher" option '
     WRITE(*,*)
     STOP
   END IF
   IF (ikCO3 == 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Species number for "CO3--" not found when using "KateMaher" option '  
+    WRITE(*,*) ' Species number for "CO3--" not found when using "KateMaher" option '
     WRITE(*,*)
     STOP
   END IF
   IF (ik234U == 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Species number for "U_234O2++" not found when using "KateMaher" option '  
+    WRITE(*,*) ' Species number for "U_234O2++" not found when using "KateMaher" option '
     WRITE(*,*)
     STOP
   END IF
   IF (ik238U == 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Species number for "U_238O2++" not found when using "KateMaher" option '  
+    WRITE(*,*) ' Species number for "U_238O2++" not found when using "KateMaher" option '
     WRITE(*,*)
     STOP
   END IF
@@ -2338,7 +2328,7 @@ IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Ion exchange block found'
 !!  WRITE(*,*)
-  
+
   CALL read_exchange(nout,ncomp,nexchange,data1,nexch_sec,nkin)
 
   IF (ALLOCATED(icec)) THEN
@@ -2347,13 +2337,13 @@ IF (found) THEN
   ELSE
     ALLOCATE(icec(nexchange))
   END IF
-  
+
 !  If there is exchange, change to IGAMMA = 2 (no lag of activity coefficients)
-  
+
 !  IF (igamma == 3 .AND. nexchange > 0) THEN
 !    igamma = 2
 !  END IF
-  
+
 ELSE
   WRITE(*,*) ' No ion exchange block found'
 END IF
@@ -2517,7 +2507,7 @@ END DO        !  Loop over minerals
 !CALL readblock(nin,nout,section,found,ncount)
 
 !IF (found) THEN
-  
+
 !  ALLOCATE(idecay(ncomp))
 !  idecay = 0
 !  ALLOCATE(nisotope(ncomp))
@@ -2526,22 +2516,22 @@ END DO        !  Loop over minerals
 !  decay_label = ' '
 !  ALLOCATE(half_life(30,ncomp))
 !  half_life = 0.0
-  
+
 !  WRITE(*,*) ' Radioactive decay block found'
 !  CALL read_decay(nout,ncomp,ndecay)
-  
+
 !  nisotope_max = 0
 !  DO id = 1,ndecay
 !    nisotope_max = MAX(nisotope_max,nisotope(id))
 !  END DO
-  
+
 !  Find the non-zero stoichiometric coefficient for radioactive species in minerals
-  
+
 !  ALLOCATE(kdecay(nrct,ndecay))
 !  kdecay = 0
 !  ALLOCATE(nmindecay(ndecay))
 !  nmindecay = 0
-  
+
 !  DO id = 1,ndecay
 !    i = idecay(id)     !  Point to primary species so as to sweep stoichiometric coeffs
 !    kd = 0
@@ -2553,12 +2543,12 @@ END DO        !  Loop over minerals
 !    END DO
 !    nmindecay(id) = kd    !  Set up so one can sweep "nmindecay" instead of "nrct"
 !  END DO
-  
+
 !  nmindecay_max = 0
 !  DO id = 1,ndecay
 !    nmindecay_max = MAX(nmindecay_max,nmindecay(id))
 !  END DO
-  
+
 !  i = size(idecay,1)
 !  ALLOCATE(workint1(i))
 !  workint1 = idecay
@@ -2566,7 +2556,7 @@ END DO        !  Loop over minerals
 !  ALLOCATE(idecay(ndecay))
 !  IF (ndecay /= 0) idecay(1:ndecay) = workint1(1:ndecay)
 !  DEALLOCATE(workint1)
-  
+
 !  i = size(nisotope,1)
 !  ALLOCATE(workint1(i))
 !  workint1 = nisotope
@@ -2574,7 +2564,7 @@ END DO        !  Loop over minerals
 !  ALLOCATE(nisotope(ndecay))
 !  IF (ndecay /= 0) nisotope(1:ndecay) = workint1(1:ndecay)
 !  DEALLOCATE(workint1)
-  
+
 !  ndim1 = nmindecay_max
 !  ndim2 = ndecay
 !  i = size(kdecay,1)
@@ -2586,7 +2576,7 @@ END DO        !  Loop over minerals
 !  IF(ndim1 /= 0 .AND. ndim2 /= 0)  &
 !      kdecay(1:ndim1,1:ndim2) = workint2(1:ndim1,1:ndim2)
 !  DEALLOCATE(workint2)
-  
+
 !  ndim1 = nisotope_max
 !  ndim2 = ndecay
 !  i = size(half_life,1)
@@ -2597,7 +2587,7 @@ END DO        !  Loop over minerals
 !  ALLOCATE(half_life(ndim1,ndim2))
 !  IF(ndim1 /= 0 .AND. ndim2 /= 0)half_life(1:ndim1,1:ndim2) = work2(1:ndim1,1:ndim2)
 !  DEALLOCATE(work2)
-  
+
 !  ndim1 = nisotope_max
 !  ndim2 = ndecay
 !  i = size(decay_label,1)
@@ -2608,7 +2598,7 @@ END DO        !  Loop over minerals
 !  ALLOCATE(decay_label(ndim1,ndim2))
 !  IF(ndim1 /= 0.AND.ndim2 /= 0)decay_label(1:ndim1,1:ndim2) = workchar2(1:ndim1,1:ndim2)
 !  DEALLOCATE(workchar2)
-  
+
 !ELSE
 !  WRITE(*,*) ' No radioactive decay block found'
 !END IF
@@ -2908,7 +2898,7 @@ IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Porosity parameters block found'
 !!  WRITE(*,*)
-  
+
   parchar = 'fix_porosity'
   parfind = ' '
   realjunk = 0.0
@@ -2950,14 +2940,14 @@ IF (found) THEN
       STOP
     END IF
   END IF
-  
+
   PoreFill = 0.0d0
   parchar = 'porosity_exponent'
   parfind = ' '
   realjunk = 0.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
   IF (parfind == ' ') THEN  ! Parameter minimum_porosity not found
-    CONTINUE               
+    CONTINUE
   ELSE
     IF (realjunk >= 0.0d0) THEN
       PoreFill = realjunk
@@ -2970,7 +2960,7 @@ IF (found) THEN
       STOP
     END IF
   END IF
-  
+
   PoreThreshold = 1.0d0
   parchar = 'porosity_threshold'
   parfind = ' '
@@ -2990,19 +2980,19 @@ IF (found) THEN
       STOP
     END IF
   END IF
-    
+
   parchar = 'read_porosityfile'
   parfind = ' '
   PorosityFile = ' '
   CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,PorosityFileFormat)
-  IF (parfind == ' ') THEN  ! 
+  IF (parfind == ' ') THEN  !
     PorosityFile = ' '             ! Use default
 !!  Check to make sure the user is not using the old designator "read_porosity"
     parchar = 'read_porosity'
     parfind = ' '
     CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,PorosityFileFormat)
     IF (parfind == 'read_porosity') THEN
-      WRITE(*,*) 
+      WRITE(*,*)
       WRITE(*,*) 'Keyword "read_porosity" now obsolete--use "read_porosityfile"'
       WRITE(*,*)
       READ(*,*)
@@ -3037,20 +3027,20 @@ IF (found) THEN
       jpor = 0
     END IF
   END IF
-  
-  
+
+
   5011   CONTINUE
-  
+
 ELSE
-  
+
   WRITE(*,*) ' Porosity parameters not found'
   WRITE(*,*) ' Using defaults'
   jpor = 1
   MinimumPorosity = 1.0E-14
-  
+
 END IF
 
-   
+
 !  ****************GEOCHEMICAL INPUT****************
 
 !  Now check here that appropriate species are present if a solute-based density module is to be used
@@ -3062,12 +3052,12 @@ IF (DensityModule == 'sodium_chloride') THEN
     IF (ulab(i) == 'Na+') then
       MeanSalt(1) = i
     END IF
-  END DO 
+  END DO
   DO i = 1,ncomp+nspec
     IF (ulab(i) == 'Cl-') then
       MeanSalt(2) = i
     END IF
-  END DO 
+  END DO
   IF (MeanSalt(1) == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Cation for mean solute concentration not found'
@@ -3089,12 +3079,12 @@ ELSE IF (DensityModule == 'sodium_nitrate') THEN
     IF (ulab(i) == 'Na+') then
       MeanSalt(1) = i
     END IF
-  END DO 
+  END DO
   DO i = 1,ncomp+nspec
     IF (ulab(i) == 'NO3-') then
       MeanSalt(2) = i
     END IF
-  END DO 
+  END DO
   IF (MeanSalt(1) == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Cation for mean solute concentration not found'
@@ -3116,12 +3106,12 @@ ELSE IF (DensityModule == 'calcium_nitrate') THEN
     IF (ulab(i) == 'Ca++') then
       MeanSalt(1) = i
     END IF
-  END DO 
+  END DO
   DO i = 1,ncomp+nspec
     IF (ulab(i) == 'NO3-') then
       MeanSalt(2) = i
     END IF
-  END DO 
+  END DO
   IF (MeanSalt(1) == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Cation for mean solute concentration not found'
@@ -3143,12 +3133,12 @@ ELSE IF (DensityModule == 'potassium_nitrate') THEN
     IF (ulab(i) == 'K+') then
       MeanSalt(1) = i
     END IF
-  END DO 
+  END DO
   DO i = 1,ncomp+nspec
     IF (ulab(i) == 'NO3-') then
       MeanSalt(2) = i
     END IF
-  END DO 
+  END DO
   IF (MeanSalt(1) == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Cation for mean solute concentration not found'
@@ -3178,7 +3168,7 @@ ELSE
   WRITE(*,*)
   WRITE(*,*) ' Current density module: ', DensityModule(1:ls)
   WRITE(*,*)
-  	
+
 END IF
 
 
@@ -3248,7 +3238,7 @@ unitsflag = 1
 SaturationCond = FixSaturation
 
 CALL find_condition(nin,nout,found,phfound,ncomp,  &
-    nspec,nrct,nkin,ngas,nexchange,nsurf,ndecay,   & 
+    nspec,nrct,nkin,ngas,nexchange,nsurf,ndecay,   &
     ph,guessph,constraint,nchem,unitsflag,jpor,    &
     DensityModule,RunningPest)
 
@@ -3279,14 +3269,14 @@ IF (nchem > 1) THEN
 END IF
 
 DO k = 1,nchem
-  
+
 !  DO i = 1,ncomp
 !    WRITE(*,*)
 !    WRITE(*,*) ' Species = ',ulab(i)
 !    WRITE(*,*) ' itype = ',itype(i,k)
 !    WRITE(*,*)
 !  END DO
-  
+
   dumstring = condlabel(k)
   CALL stringlen(dumstring,ls)
 !  WRITE(*,*)
@@ -3297,21 +3287,21 @@ DO k = 1,nchem
   WRITE(iunit2,*) ' Condition Label: ',dumstring(1:ls)
 !  WRITE(iunit2,*) ' Condition title ',condtitle(k)
   WRITE(iunit2,*)
-  
+
 !  WRITE(*,*)
 !  WRITE(*,596)
 !  DO i = 1,ncomp
 !    WRITE(*,595) ulab(i),itype(i,k),guess(i,k), ctot(i,k),constraint(i,k)
 !  END DO
-  
+
   WRITE(iunit2,*)
   WRITE(iunit2,596)
   DO i = 1,ncomp
     WRITE(iunit2,595) ulab(i),itype(i,k),guess(i,k), ctot(i,k),constraint(i,k)
   END DO
-  
+
   portemp = porcond(k)
-  
+
   WRITE(iunit2,*)
   WRITE(iunit2,599) portemp
   WRITE(iunit2,*)
@@ -3320,11 +3310,11 @@ DO k = 1,nchem
 !  WRITE(*,599) portemp
 !  WRITE(*,*)
 !  WRITE(*,*)
-  
+
   DO i = 1,ncomp
     ncon(i,k) = constraint(i,k)
   END DO
-  
+
 END DO
 
 !  Find master species and pH (if present)
@@ -3369,7 +3359,7 @@ DO ik = 1,ncomp+nspec
 END DO
 
 !!IF (ikFe2 /= 0 .and. ikFe3 /= 0 .and. iko2 /= 0) THEN
-  
+
 
 ikTracer = 0
 DO ik = 1,ncomp+nspec
@@ -3406,7 +3396,7 @@ IF (found) THEN
   parchar = 'createpestexchangefile'
   parfind = ' '
   CALL ReadFileNameOnly(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
    PestExchangeOutputFile = 'PestExchange.out'             ! Use default
   ELSE
    PestExchangeOutputFile = dumstring
@@ -3417,7 +3407,7 @@ IF (found) THEN
   parchar = 'createpestsurfacefile'
   parfind = ' '
   CALL ReadFileNameOnly(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  
+  IF (parfind == ' ') THEN
    PestSurfaceOutputFile = 'PestSurface.out'             ! Use default
   ELSE
    PestSurfaceOutputFile = dumstring
@@ -3460,7 +3450,7 @@ IsotopePrimaryCommon = 0
 IF (found) THEN
 
   CALL read_Isotopes(nout,ncomp,nspec,nrct,nsurf,nexchange,ngas)
-  
+
   NoFractionationDissolution = .FALSE.
   parchar = 'NoFractionationDissolution'
   parfind = ' '
@@ -3493,8 +3483,8 @@ IF (found) THEN
   DEALLOCATE(workint1)
 
 ELSE
-  
-    
+
+
 END IF
 !!   ********* END OF ISOTOPES BLOCK ********************
 
@@ -3515,7 +3505,7 @@ ALLOCATE(AqueousToBulkCond(nchem))
 
 iinit = 1
 DO nco = 1,nchem
-  
+
   dumstring = condlabel(nco)
   CALL stringlen(dumstring,ls)
 
@@ -3523,18 +3513,18 @@ DO nco = 1,nchem
 
 !!  sumpor = 0.0
 !!  DO k = 1,nkin
-!!    sumpor = sumpor + volin(k,nco) 
-!!  END DO  
+!!    sumpor = sumpor + volin(k,nco)
+!!  END DO
 !!  IF (jpor == -1) THEN
 !!    portemp = constantpor
 !!  ELSE
 !!    portemp = 1.0 - sumpor
 !!  END IF
-  
+
   portemp = porcond(nco)
-  
+
   CALL keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc)
-  
+
   DO i = 1,ncomp
     namtemp = ulab(i)
     sptmp10(i) = guess(i,nco)
@@ -3559,7 +3549,7 @@ DO nco = 1,nchem
   LogPotential_tmp = 0.0
   spgastmp = -100.0d0
   spgastmp10 = 1.0D-35
-  
+
   CALL species_init(ncomp,nspec)
   CALL gases_init(ncomp,ngas,tempc)
   CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nchem)
@@ -3568,21 +3558,21 @@ DO nco = 1,nchem
   CALL totgas_init(ncomp,nspec,ngas)
   CALL totsurf_init(ncomp,nsurf,nsurf_sec)
   CALL totexchange_init(ncomp,nexchange,nexch_sec,nco)
-  
+
   IF(.NOT. RunningPest) THEN
     WRITE(*,*)
     WRITE(*,*) ' --> Initializing Condition:  ',dumstring(1:ls)
     WRITE(*,*)
   END IF
-	
+
   CALL equilib_co2(ncomp,nspec,nrct,ngas,nsurf,igamma,ikph,  &
       nco,nexchange,nexch_sec,nsurf_sec,npot,neqn,tempc,portemp,    &
       DensityModule,ipest,PestUnit,pest)
- 
+
 !! Convert from bars pressure to n/V (mol/m^3) by converting to Pascals, then dividing by RT
   tk = tempc + 273.15d0
   denmol = 1.e05/(8.314*tk)   ! P/RT = n/V, with pressure converted from bars to Pascals
- 
+
   spgastmp10 = spgastmp10*denmol
   spgastmp = DLOG(spgastmp10)
 
@@ -3594,7 +3584,7 @@ DO nco = 1,nchem
     spcondgas(kk,nco) = spgastmp(kk)
     spcondgas10(kk,nco) = spgastmp10(kk)
   END DO
-  
+
   DO i = 1,ncomp
     scond(i,nco) = stmp(i)
   END DO
@@ -3602,7 +3592,7 @@ DO nco = 1,nchem
   IF (DensityModule /= 'temperature') THEN
 !   Calculate the correction for the mass fraction of water:  kg_solution/kg_water
     MeanSaltConcentration = 0.001*(wtaq(MeanSalt(1))*scond(MeanSalt(1),nco) +   &
-            wtaq(MeanSalt(2))*scond(MeanSalt(2),nco)) 
+            wtaq(MeanSalt(2))*scond(MeanSalt(2),nco))
     MassFraction = 1.0/(1.0 + MeanSaltConcentration)
   ELSE
     MassFraction = 1.0
@@ -3611,7 +3601,7 @@ DO nco = 1,nchem
   AqueousToBulkCond(nco) = rocond(nco)*SaturationCond(nco)*porcond(nco)*MassFraction
 
   DO nex = 1,nexchange+nexch_sec
-    spcondex(nex,nco) = spextmp(nex) 
+    spcondex(nex,nco) = spextmp(nex)
     spcondex10(nex,nco) = spextmp10(nex)
   END DO
   DO is = 1,nsurf
@@ -3626,9 +3616,9 @@ DO nco = 1,nchem
     spcondsurf(is,nco) = spsurftmp(is)
     spcondsurf10(is,nco) = spsurftmp10(is)
   END DO
-  
+
 !  Map the species to an array dimensioned to number of geochemical conditions
-  
+
 END DO
 
 
@@ -3838,7 +3828,7 @@ IF (found) THEN
   !!CALL read_kinetics(nout,ncomp,nspec,nrct,ikin,data1)
   CALL read_kinetics_Bio(nout,ncomp,nspec,nrct,ikin,nkin,data1)
 
-!  If radioactive decay equations are present, check minerals for corresponding 
+!  If radioactive decay equations are present, check minerals for corresponding
 !    radiogenic isotopes
 
   nmonodaqmax = 0
@@ -3848,7 +3838,7 @@ IF (found) THEN
     DO kk = 1,nmonodaq(ir)
       nmonodaqmax = MAX0(nmonodaqmax,nmonodaq(ir))
       ninhibitaqmax = MAX0(ninhibitaq(ir),ninhibitaqmax)
-    END DO 
+    END DO
   END DO
 
   IF (ALLOCATED(nrad_decay)) THEN
@@ -3878,7 +3868,7 @@ IF (found) THEN
         IF (dependk(i,1,ir) == 1.0) then
           iraddecay(ir) = i            !  This flags the isotopic parent in radioactive decay rxn
         END IF
-      END DO 
+      END DO
     END IF
   END DO
 
@@ -3890,14 +3880,14 @@ IF (found) THEN
           IF (mumin(np,k,i) > 0.0) THEN
             dumstring = umin(k)
             CALL stringlen(dumstring,ls)
-            WRITE(*,*) 
+            WRITE(*,*)
             WRITE(*,*) ' Mineral found with radioactive decay reaction: ', dumstring(1:ls)
             WRITE(*,*) ' Parallel reaction:  ', np
-            WRITE(*,*) 
+            WRITE(*,*)
             nrad_decay(ir) = nrad_decay(ir) + 1
             kd = nrad_decay(ir)
-            krad_tmp(kd,ir) = k  
-            nprad_tmp(kd,ir) = np  
+            krad_tmp(kd,ir) = k
+            nprad_tmp(kd,ir) = np
             irsave = ir
 !           Find the daughter element (if there is one and if it hasn't been loaded yet)
   5103      continue
@@ -3913,14 +3903,14 @@ IF (found) THEN
                 IF (idaughter == iraddecay(ir2)) THEN
                   dumstring = ulab(idaughter)
                   CALL stringlen(dumstring,ls)
-                  WRITE(*,*) 
+                  WRITE(*,*)
                   WRITE(*,*) ' Decay reaction involving daughter found: ', dumstring(1:ls)
-                  WRITE(*,*) 
+                  WRITE(*,*)
                   nrad_decay(ir2) = nrad_decay(ir2) + 1
                   kd = nrad_decay(ir2)
-                  krad_tmp(kd,ir2) = k  
-                  nprad_tmp(kd,ir2) = np  
-                  irsave = ir2 
+                  krad_tmp(kd,ir2) = k
+                  nprad_tmp(kd,ir2) = np
+                  irsave = ir2
                   DaughterFound = .TRUE.
                 END IF
               END DO
@@ -3931,13 +3921,13 @@ IF (found) THEN
               END IF
             ELSE
               GO TO 5104
-            END IF 
-!            GO TO 5103        
-  5104      CONTINUE  
+            END IF
+!            GO TO 5103
+  5104      CONTINUE
           END IF
         END DO
-      END DO 
-    END IF    
+      END DO
+    END IF
   END DO
 
   nradmax = 0
@@ -3967,7 +3957,7 @@ IF (found) THEN
       npradpoint(kd,ir) = nprad_tmp(kd,ir)
     END DO
   END DO
-         
+
   DEALLOCATE(list_tmp)
   DEALLOCATE(krad_tmp)
   DEALLOCATE(nprad_tmp)
@@ -3994,15 +3984,15 @@ IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Retardation parameters block found'
 !!  WRITE(*,*)
-  
+
 
   CALL read_kd(nout,ncomp,nretard)
-  
+
 ELSE
-  
+
   WRITE(*,*) ' Retardation parameters not found'
   WRITE(*,*) ' Assuming NO retardation (Kd = 0) '
-  
+
 END IF
 
 
@@ -4021,7 +4011,7 @@ OutputDistanceScale = 1.0
 IF (found) THEN
 !!  WRITE(*,*) ' Discretization block found'
 !!  WRITE(*,*)
-  
+
   dist_scale = 1.0d0
   CALL units_distance(nout,section,dist_scale)
 
@@ -4030,7 +4020,7 @@ IF (found) THEN
 !*****************
 !  X discretization
 !******************
-  
+
   parchar = 'xzones'
   parfind = ' '
   realmult = 0.0
@@ -4084,11 +4074,11 @@ IF (found) THEN
       END IF
     END IF
   END IF
-  
+
 !*****************
 !  Y discretization
 !******************
-  
+
   parchar = 'yzones'
   parfind = ' '
   realmult = 0.0
@@ -4144,16 +4134,16 @@ IF (found) THEN
       END IF
     END IF
   END IF
-  
+
 !*****************
 !  Z discretization
 !******************
-  
+
   parchar = 'zzones'
   parfind = ' '
   realmult = 0.0
   CALL read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
-  
+
         if (parfind.eq.' ') then
           write(*,*) ' No discretization in Z direction'
           write(*,*) ' Setting nz = 1'
@@ -4171,7 +4161,7 @@ IF (found) THEN
             write(*,*) ' Z discretization'
 !  Check to see if there are an even number values given
 !  One for the number of cells, the second for the spacing
-  
+
            if (mod(lenarray,2).eq.0) then
               nzonez = lenarray/2
               do i = 1,lenarray,2
@@ -4204,19 +4194,19 @@ IF (found) THEN
             endif
           endif
         endif
-  
+
 !  WRITE(*,*)
 !  WRITE(*,*) ' No Z discretization allowed in GIMRT option at present time'
 !  WRITE(*,*)
 !  nz = 1
 !  nzonez = 0
-  
+
    dxxt = dxxt/dist_scale
    dyyt = dyyt/dist_scale
    dzzt = dzzt/dist_scale
 
    dist_scale = 1.0d0
-   
+
 !!! ExportGridLocations  true
 ExportGridLocations = .FALSE.
 parchar = 'ExportGridLocations'
@@ -4226,13 +4216,13 @@ CALL read_logical(nout,lchar,parchar,parfind,ExportGridLocations)
 IF (ExportGridLocations) THEN
   WRITE(*,*)
   WRITE(*,*) 'Exporting grid locations'
-  
+
   OPEN(unit=98,file='GridLocations.txt',status='unknown')
-  
+
 END IF
-  
+
 !*************
-  
+
 ELSE
   WRITE(*,*)
   WRITE(*,*) ' Failed to find discretization block'
@@ -4246,7 +4236,7 @@ ELSE
   nxyz = 1
 END IF
 
-    
+
 !*****************************************************
 !  Write out information on discretization
 
@@ -4357,9 +4347,9 @@ IF (nzonex == 0) THEN
   dxx(3) = 1.0d0
   x(0) = 0.0d0
   x(1) = 0.5d0*dxx(1)
-  
+
 ELSE
-  
+
   nx = 0
   DO i = 1,nzonex
     IF (nvx(i) == 0) THEN
@@ -4372,9 +4362,9 @@ ELSE
       nx = nx + 1
     END DO
   END DO
-  
+
 !  Allocate "X" arrays that depend on NX here
-  
+
   IF (ALLOCATED(x)) THEN
     DEALLOCATE(x)
     ALLOCATE(x(0:nx))
@@ -4387,7 +4377,7 @@ ELSE
   ELSE
     ALLOCATE(dxx(-1:nx+2))
   END IF
-  
+
   jxx = 0
   DO i = 1,nzonex
     DO jx = 1,nvx(i)
@@ -4395,18 +4385,18 @@ ELSE
       dxx(jxx) = dxxt(i)
     END DO
   END DO
-  
+
   dxx(-1) = dxx(1)
   dxx(0) = dxx(1)
   dxx(nx+1) = dxx(nx)
   dxx(nx+2) = dxx(nx)
-  
+
   x(0) = 0.0d0
   x(1) = 0.5d0*dxx(1)
   DO jx = 2,nx
     x(jx) = x(jx-1) + 0.5d0*(dxx(jx)+dxx(jx-1))
   END DO
-  
+
 END IF
 
 1021 FORMAT(2X,'Cell',2X,'Distance (m)')
@@ -4461,7 +4451,7 @@ IF (nzoney == 0) THEN
   y(0) = 0.0d0
   y(1) = 0.5d0*dyy(1)
 ELSE
-  
+
   ny = 0
   DO i = 1,nzoney
     IF (nvy(i) == 0) THEN
@@ -4474,9 +4464,9 @@ ELSE
       ny = ny + 1
     END DO
   END DO
-  
+
 !  Allocate "Y" arrays that depend on NY here
-  
+
   IF (ALLOCATED(y)) THEN
     DEALLOCATE(y)
     ALLOCATE(y(0:ny))
@@ -4489,7 +4479,7 @@ ELSE
   ELSE
     ALLOCATE(dyy(-1:ny+2))
   END IF
-  
+
   jyy = 0
   DO i = 1,nzoney
     DO jy = 1,nvy(i)
@@ -4497,18 +4487,18 @@ ELSE
       dyy(jyy) = dyyt(i)
     END DO
   END DO
-  
+
   dyy(-1) = dyy(1)
   dyy(0) = dyy(1)
   dyy(ny+1) = dyy(ny)
   dyy(ny+2) = dyy(ny)
-  
+
   y(0) = 0.0d0
   y(1) = 0.5d0*dyy(1)
   DO jy = 2,ny
     y(jy) = y(jy-1) + 0.5d0*dyy(jy-1) + 0.5d0*dyy(jy)
   END DO
-  
+
 END IF
 
 !      write(*,*)
@@ -4551,7 +4541,7 @@ IF (nzonez == 0) THEN
   z(0) = 0.0d0
   z(1) = 0.5d0*dzz(1,1,1)
 ELSE
-  
+
   nz = 0
   DO i = 1,nzonez
     IF (nvz(i) == 0) THEN
@@ -4564,9 +4554,9 @@ ELSE
       nz = nz + 1
     END DO
   END DO
-  
+
 !  Allocate "Z" arrays that depend on NZ here
-  
+
   IF (ALLOCATED(z)) THEN
     DEALLOCATE(z)
     ALLOCATE(z(0:nz))
@@ -4579,7 +4569,7 @@ ELSE
   ELSE
     ALLOCATE(dzz(0:nx+1,0:ny+1,-1:nz+2))
   END IF
-  
+
   jzz = 0
   DO i = 1,nzonez
     DO jz = 1,nvz(i)
@@ -4587,18 +4577,18 @@ ELSE
       dzz(:,:,jzz) = dzzt(i)
     END DO
   END DO
-  
+
   dzz(:,:,-1) = dzz(:,:,1)
   dzz(:,:,0) = dzz(:,:,1)
   dzz(:,:,nz+1) = dzz(:,:,nz)
   dzz(:,:,nz+2) = dzz(:,:,nz)
-  
+
   z(0) = 0.0d0
   z(1) = 0.5*dzz(1,1,1)
   DO jz = 2,nz
     z(jz) = z(jz-1) + 0.5*(dzz(1,1,jz)+dzz(1,1,jz-1))
   END DO
-  
+
 END IF
 
 WRITE(*,*)
@@ -4618,13 +4608,12 @@ WRITE(iunit2,1021)
 DO jz = 1,nz
   WRITE(iunit2,1019) jz,z(jz)
 END DO
-
 WRITE(iunit2,*)
 
 nxyz = nx*ny*nz
 
 IF (ExportGridLocations) THEN
-  
+
 !!!  do jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
@@ -4632,10 +4621,11 @@ IF (ExportGridLocations) THEN
       END DO
     END DO
 !!!  END DO
-  
+
   close(unit=98,status='keep')
-  
+
 END IF
+
 
 IF (nxyz > nx .OR. nxyz == 1) THEN
   IF (spherical) THEN
@@ -4648,10 +4638,18 @@ IF (nxyz > nx .OR. nxyz == 1) THEN
   END IF
 END IF
 
+! Zhi Li 20200708
+IF (nx == 1 .OR. nx == 2) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Need at least 3 grid cells for transport in X direction'
+    WRITE(*,*)
+!!!    STOP
+END IF
+
 IF (nxyz == 1) THEN
   ihindmarsh = 0
   petscon = .FALSE.
-END IF 
+END IF
 
 IF (nx > 1 .AND. ny > 1 .AND. gimrt) THEN      !  2D or greater problem
   IF (SolveHindmarsh .OR. ihindmarsh == 1) THEN
@@ -4659,7 +4657,7 @@ IF (nx > 1 .AND. ny > 1 .AND. gimrt) THEN      !  2D or greater problem
     WRITE(*,*) ' Hindmarsh block tridiagonal solver cannot be used for 2D/3D problems'
     WRITE(*,*) ' Switching to PETSc '
     WRITE(*,*) ' Return to continue'
-    READ(*,*) 
+    READ(*,*)
     ihindmarsh = 0
     petscon = .TRUE.
   END IF
@@ -4667,7 +4665,7 @@ END IF
 
 IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN               !  3D problem, use OS3D
   IF (gimrt) THEN
-    WRITE(*,*) 
+    WRITE(*,*)
     WRITE(*,*) ' 3D not currently available with the global implicit (gimrt) option'
     WRITE(*,*) ' Hit "RETURN" to proceed with the OS3D option'
     READ(*,*)
@@ -4680,11 +4678,9 @@ IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN               !  3D problem, use OS3D
 END IF
 
 CALL REALLOCATE(ncomp,nspec,nrct,nkin,ngas,nsurf,nexchange,ikin,nexch_sec,nsurf_sec)
-
 ! biomass
 call read_CatabolicPath(ncomp,nkin,ikin)
 ! biomass end
-
 
 
 IF (nradmax > 0) THEN
@@ -4722,12 +4718,13 @@ END IF
 
 !   *****************  GLOBAL ARRAYS  ***********************
 !    Allocate global arrays, mostly over the spatial domain
-
 CALL GlobalArrayAllocation(ncomp,nspec,nkin,nrct,ngas,npot,nexchange,nexch_sec,nsurf,nsurf_sec,ikin,nx,ny,nz)
-
 qx = 0.0d0
 qy = 0.0d0
 qz = 0.0d0
+! Zhi Li
+ALLOCATE(us(nx+1,ny,nz))
+ALLOCATE(vs(nx,ny+1,nz))
 dspx = 0.0d0
 dspy = 0.0d0
 dspz = 0.0d0
@@ -4749,9 +4746,9 @@ VolumeLastTimeStep = 1.0E-10
 dppt = 0.0d0
 area = 0.0d0
 xgram = 1.0d0
+
 s = 0.0d0
 sn = 0.0d0
-
 
 si = 1.0d0
 silog = 0.0d0
@@ -4766,7 +4763,6 @@ rdkin = 0.0d0
 raq = 0.0d0
 
 !  These are deallocated at the end of START98
-
 ALLOCATE(ndist(nxyz))
 ALLOCATE(jxxlo(nxyz))
 ALLOCATE(jxxhi(nxyz))
@@ -4783,15 +4779,11 @@ jzzhi = 1
 jzzlo = 1
 jjfix = 0
 t = tinit
-
-
 ! *****************************************************************
 
 !    ***************INTERNAL HETEROGENEITIES********************
-
 section = 'initial_conditions'
 CALL readblock(nin,nout,section,found,ncount)
-
 IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Initial conditions block found'
@@ -4806,7 +4798,6 @@ ELSE
 END IF
 
 CALL read_het(nout,nchem,nhet,nx,ny,nz)
-
 IF (nhet == 0) THEN
   WRITE(*,*)
   WRITE(*,*) ' No initial conditions found'
@@ -4882,9 +4873,9 @@ IF (nhet > 0) THEN
       STOP
     END IF
   END DO
-  
+
 !  Save geochemical condition numbers in JINIT pointer array
-  
+
   jinit = 0
   activecell = 1
 
@@ -4914,12 +4905,12 @@ IF (nhet > 0) THEN
       OPEN(unit=98,file='InvadingCluster.dat',status='old')
 
       read(98,*) GridCoordinateX,GridCoordinateY
-      do jy = 1,ny 
+      do jy = 1,ny
         do jx = 1,nx
           if (jx == GridCoordinateX .AND. jy == GridCoordinateY) then
             jinit(jx,jy,1) = 2
             read(98,*,END=980) GridCoordinateX,GridCoordinateY
-          else 
+          else
             jinit(jx,jy,1) = 1
           endif
         end do
@@ -4931,9 +4922,9 @@ IF (nhet > 0) THEN
     ELSE
       continue
     END IF
-    
+
       END IF    !! End of ReadGeochemicalConditions = .TRUE.
-    
+
     IF (ReadGautier) THEN
 
       IF (ALLOCATED(tortuosity)) THEN
@@ -4948,15 +4939,15 @@ IF (nhet > 0) THEN
     INQUIRE(FILE='FILE15.dat',EXIST=ext)
 
 !!%% 1st column = averaged pixel number (65536 averaged pixels = 65536 rows)
-!!%% 2nd column = most abundant mineral in the averaged pixel. 
+!!%% 2nd column = most abundant mineral in the averaged pixel.
 !!Number ID: 1= PORE/EMPTINESS ; 2= QUARTZ ; 3= CHLORITE ; 4=ILLITE/MICA ; 5=TI OXIDE; 6=KAOLINITE ; 7=ILLITE/SMECTITE ; 8=FE OXIDE
 !!%% 3rd column = PORE percentage in the averaged pixel
-!!%% 4th column = QUARTZ percentage in the averaged pixel 
-!!%% 5th column = CHLORITE percentage in the averaged pixel 
-!!%% 6th column = ILLITE/MICA percentage in the averaged pixel 
-!!%% 7th column = TI OXIDE percentage in the averaged pixel 
+!!%% 4th column = QUARTZ percentage in the averaged pixel
+!!%% 5th column = CHLORITE percentage in the averaged pixel
+!!%% 6th column = ILLITE/MICA percentage in the averaged pixel
+!!%% 7th column = TI OXIDE percentage in the averaged pixel
 !!%% 8th column = KAOLINITE percentage in the averaged pixel
-!!%% 9th column = ILLITE/SMECTITE percentage in the averaged pixel 
+!!%% 9th column = ILLITE/SMECTITE percentage in the averaged pixel
 !!%% 10th column = FE OXIDE percentage in the averaged pixel
 
 !! Quartz = 1
@@ -4993,7 +4984,7 @@ IF (nhet > 0) THEN
                  tortuosity(jx,jy,jz) = 0.007
              END IF
            END IF
-           
+
            IF (IlliteRead == 100.0) THEN
              volfx(3,jx,jy,1) = 0.99
            ELSE
@@ -5031,8 +5022,8 @@ IF (nhet > 0) THEN
     END IF
 
       END IF    !! End of ReadGautier = .TRUE.
-      
-  
+
+
 ELSE
   WRITE(*,*)
   WRITE(*,*) ' Initial conditions must be specified'
@@ -5065,14 +5056,14 @@ IF (jtemp == 2) THEN
 
   IF (.NOT. ext) THEN
     CALL stringlen(TFile,ls)
-    WRITE(*,*) 
+    WRITE(*,*)
     WRITE(*,*) ' Temperature file for read not found: ', TFile(1:ls)
     WRITE(*,*)
     READ(*,*)
     STOP
   END IF
 
-  OPEN(UNIT=52,FILE=TFile,STATUS='OLD',ERR=6002) 
+  OPEN(UNIT=52,FILE=TFile,STATUS='OLD',ERR=6002)
   FileTemp = TFile
   CALL stringlen(FileTemp,FileNameLength)
   IF (TemperatureFileFormat == 'ContinuousRead') THEN
@@ -5085,7 +5076,7 @@ IF (jtemp == 2) THEN
         END DO
       END DO
     END DO
-  ELSE IF (TemperatureFileFormat == 'FullForm') THEN 
+  ELSE IF (TemperatureFileFormat == 'FullForm') THEN
     IF (ny > 1 .AND. nz > 1) THEN
       DO jz = 1,nz
         DO jy = 1,ny
@@ -5109,7 +5100,7 @@ IF (jtemp == 2) THEN
         READ(52,*,END=1020) xdum,t(jx,jy,jz)
       END DO
     END IF
-  ELSE IF (TemperatureFileFormat == 'Unformatted') THEN  
+  ELSE IF (TemperatureFileFormat == 'Unformatted') THEN
     READ(52,END=1020) t
   ELSE
     WRITE(*,*)
@@ -5190,23 +5181,20 @@ WRITE(*,*)
 WRITE(iunit2,*)
 WRITE(iunit2,*) 'Number of heterogeneities = ', nhet
 WRITE(iunit2,*)
-
 !  ******************* INITIALIZATION OF SPATIAL DOMAIN ***************************
-
 sexch = 0.0
 fexch = 0.0
-
 IF (SaturationFile /= ' ') THEN
   INQUIRE(FILE=SaturationFile,EXIST=ext)
   IF (.NOT. ext) THEN
     CALL stringlen(SaturationFile,ls)
-    WRITE(*,*) 
+    WRITE(*,*)
     WRITE(*,*) ' Liquid saturation file not found: ', SaturationFile(1:ls)
     WRITE(*,*)
     READ(*,*)
     STOP
   END IF
-  OPEN(UNIT=52,FILE=SaturationFile,STATUS='OLD',ERR=6002) 
+  OPEN(UNIT=52,FILE=SaturationFile,STATUS='OLD',ERR=6002)
   FileTemp = SaturationFile
   CALL stringlen(FileTemp,FileNameLength)
   IF (SaturationFileFormat == 'ContinuousRead') THEN
@@ -5219,7 +5207,7 @@ IF (SaturationFile /= ' ') THEN
         END DO
       END DO
     END DO
-  ELSE IF (SaturationFileFormat == 'FullForm') THEN 
+  ELSE IF (SaturationFileFormat == 'FullForm') THEN
     IF (ny > 1 .AND. nz > 1) THEN
       DO jz = 1,nz
         DO jy = 1,ny
@@ -5243,7 +5231,7 @@ IF (SaturationFile /= ' ') THEN
         READ(52,*,END=1020) xdum,satliq(jx,jy,jz)
       END DO
     END IF
-  ELSE IF (SaturationFileFormat == 'Unformatted') THEN  
+  ELSE IF (SaturationFileFormat == 'Unformatted') THEN
     READ(52,END=1020) satliq
   ELSE
     WRITE(*,*)
@@ -5256,7 +5244,7 @@ IF (SaturationFile /= ' ') THEN
   MinSaturation = MINVAL(satliq(1:nx,1:ny,1:nz))
   IF (MinSaturation < 1.0) THEN
     isaturate = 1
-    WRITE(*,*) 
+    WRITE(*,*)
     WRITE(*,*) ' Running as an unsaturated problem'
     WRITE(*,*)
   END IF
@@ -5269,13 +5257,13 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
   INQUIRE(FILE=PorosityFile,EXIST=ext)
   IF (.NOT. ext) THEN
     CALL stringlen(PorosityFile,ls)
-    WRITE(*,*) 
+    WRITE(*,*)
     WRITE(*,*) ' Porosity file not found: ', PorosityFile(1:ls)
     WRITE(*,*)
     READ(*,*)
     STOP
   END IF
-  OPEN(UNIT=52,FILE=PorosityFile,STATUS='OLD',ERR=6001) 
+  OPEN(UNIT=52,FILE=PorosityFile,STATUS='OLD',ERR=6001)
   FileTemp = PorosityFile
   CALL stringlen(FileTemp,FileNameLength)
   IF (PorosityFileFormat == 'ContinuousRead') THEN
@@ -5288,7 +5276,7 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
         END DO
       END DO
     END DO
-  ELSE IF (PorosityFileFormat == 'FullForm') THEN 
+  ELSE IF (PorosityFileFormat == 'FullForm') THEN
     IF (ny > 1 .AND. nz > 1) THEN
       DO jz = 1,nz
         DO jy = 1,ny
@@ -5311,7 +5299,7 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
         READ(52,*,END=1020) xdum,work3(jx,jy,jz)
       END DO
     END IF
-  ELSE IF (PorosityFileFormat == 'Unformatted') THEN  
+  ELSE IF (PorosityFileFormat == 'Unformatted') THEN
     READ(52,END=1020) work3
   ELSE
     WRITE(*,*)
@@ -5370,30 +5358,30 @@ DO jz = 1,nz
       END IF
 
 !! Porosity calculated from aperture crashes in Hang version
-   
+
       IF (SaturationFile == ' ') THEN
         satliq(jx,jy,jz) = SaturationCond(jinit(jx,jy,jz))
         satliqold(jx,jy,jz) = satliq(jx,jy,jz)
       END IF
 
       IF (jpor == 3) THEN    ! Renormalize volume fractions for case of porosity read from file and porosity update
-               
+
         ScaleMineralVolumes = ( (1.0d0-porin(jx,jy,jz)) / (1.0d0-porcond(jinit(jx,jy,jz))) )
-!!!        ScaleMineralVolumes = porcond(jinit(jx,jy,jz))/porin(jx,jy,jz) 
-        
+!!!        ScaleMineralVolumes = porcond(jinit(jx,jy,jz))/porin(jx,jy,jz)
+
         SumMineralVolume = 0.0d0
         DO k = 1,nrct
 !!!            volin(k,jinit(jx,jy,jz)) = volin(k,jinit(jx,jy,jz)) * ScaleMineralVolumes
 !!!            volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
             volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz)) * ScaleMineralVolumes
-            SumMineralVolume = SumMineralVolume + volfx(k,jx,jy,jz) 
+            SumMineralVolume = SumMineralVolume + volfx(k,jx,jy,jz)
             VolumeLastTimeStep(k,jx,jy,jz) = volfx(k,jx,jy,jz)
             area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))
         END DO
         porin(jx,jy,jz) = 1.0d0-SumMineralVolume
-         
+
       END IF
-      
+
       IF (.NOT. ReadGautier) THEN
         por(jx,jy,jz) = porin(jx,jy,jz)
       END IF
@@ -5413,7 +5401,7 @@ DO jz = 1,nz
       IF (DensityModule /= 'temperature') THEN
 !       Calculate the correction for the mass fraction of water:  kg_solution/kg_water
         MeanSaltConcentration = 0.001d0*(wtaq(MeanSalt(1))*s(MeanSalt(1),jx,jy,jz) +   &
-            wtaq(MeanSalt(2))*s(MeanSalt(2),jx,jy,jz)) 
+            wtaq(MeanSalt(2))*s(MeanSalt(2),jx,jy,jz))
         MassFraction = 1.0d0/(1.0d0 + MeanSaltConcentration)
       ELSE
         MassFraction = 1.0d0
@@ -5426,7 +5414,7 @@ DO jz = 1,nz
         exchangesites(ix,jx,jy,jz) = convert*totexch(ix,jinit(jx,jy,jz)) ! Now in equivalents/m3 por. med.
 !!        exchangesites(ix,jx,jy,jz) = totexch(ix,jinit(jx,jy,jz)) ! Already in equivalents/m3 por. med.
       END DO
-      
+
       do ix = 1,nexchange
         spex(ix,jx,jy,jz) = spcondex(ix,jinit(jx,jy,jz))
         spex10(ix,jx,jy,jz) = convert*spcondex10(ix,jinit(jx,jy,jz))  ! Now in eq/m3 por. med.
@@ -5458,12 +5446,12 @@ END DO
 !!      OPEN(unit=99,file='calcite.dat',status='old')
 
 !!      read(99,*) GridCoordinateX,GridCoordinateY
-!!      do jy = 1,ny 
+!!      do jy = 1,ny
 !!        do jx = 1,nx
 !!          if (jx == GridCoordinateX .AND. jy == GridCoordinateY) then
 !!            volfx(1,jx,jy,1) = 0.05
 !!            read(99,*,END=981) GridCoordinateX,GridCoordinateY
-!!          else 
+!!          else
 !!            volfx(1,jx,jy,1) = 0.000
 !!          endif
 !!        end do
@@ -5486,7 +5474,7 @@ END DO
       OPEN(unit=97,file='plagioclase.dat',status='old')
 
       read(97,*) GridCoordinateX,GridCoordinateY
-      do jy = 1,ny 
+      do jy = 1,ny
         do jx = 1,nx
           if (jx == GridCoordinateX .AND. jy == GridCoordinateY) then
             if (jinit(jx,jy,1) == 2) then
@@ -5495,7 +5483,7 @@ END DO
               volfx(6,jx,jy,1) = 0.20
             end if
             read(97,*,END=979) GridCoordinateX,GridCoordinateY
-          else 
+          else
             volfx(6,jx,jy,1) = 0.000
           endif
         end do
@@ -5604,7 +5592,7 @@ CALL read_BoundaryConditionByZone(nout,nx,ny,nz,nBoundaryConditionZone)
 IF (nBoundaryConditionZone > 0) THEN
 
 !!  Initialize concentration at boundaries from various zones
-        
+
   DO l = 1,nBoundaryConditionZone
 
     DO jz = jzzBC_lo(l),jzzBC_hi(l)
@@ -5683,7 +5671,7 @@ IF (nBoundaryConditionZone > 0) THEN
       DO is = 1,nsurf
         spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
         IF (iedl(is) == 0) THEN
-          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber) 
+          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
         END IF
       END DO
       DO is = 1,nsurf+nsurf_sec
@@ -5736,7 +5724,7 @@ IF (nBoundaryConditionZone > 0) THEN
       DO is = 1,nsurf
         spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
         IF (iedl(is) == 0) THEN
-          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber) 
+          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
         END IF
       END DO
       DO is = 1,nsurf+nsurf_sec
@@ -5791,7 +5779,7 @@ IF (nBoundaryConditionZone > 0) THEN
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
           IF (iedl(is) == 0) THEN
-            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber) 
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
           END IF
         END DO
         DO is = 1,nsurf+nsurf_sec
@@ -5844,7 +5832,7 @@ IF (nBoundaryConditionZone > 0) THEN
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
           IF (iedl(is) == 0) THEN
-            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber) 
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
           END IF
         END DO
         DO is = 1,nsurf+nsurf_sec
@@ -5902,7 +5890,7 @@ IF (nBoundaryConditionZone > 0) THEN
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
           IF (iedl(is) == 0) THEN
-            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber) 
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
           END IF
         END DO
         DO is = 1,nsurf+nsurf_sec
@@ -5956,7 +5944,7 @@ IF (nBoundaryConditionZone > 0) THEN
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
           IF (iedl(is) == 0) THEN
-            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber) 
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
           END IF
         END DO
         DO is = 1,nsurf+nsurf_sec
@@ -6083,7 +6071,6 @@ END IF
 !  ****************END OF BOUNDARY CONDITIONS*************
 
 !     ***********OUTPUT SECTION***************************
-
 section = 'output'
 CALL readblock(nin,nout,section,found,ncount)
 
@@ -6092,9 +6079,9 @@ OutputTimeUnits = 'years'
 IF (found) THEN
   WRITE(*,*) ' Output block found'
   WRITE(*,*)
-  
+
   CALL units_timeOutput(nout,section,time_scale)
-  
+
   nstop = 0
   parchar = 'spatial_profile'
   parchar2 = 'spatial_profile_at_time'
@@ -6129,23 +6116,23 @@ IF (found) THEN
   END IF
 
   parchar2 = ''
-  
+
   OutputTimeScale = 1.0d0/time_scale
 
 !  Convert units if necessary
-  
+
   DO i = 1,nstop
     prtint(i) = prtint(i)*time_scale
   END DO
-  
+
 !!  Beginning of minseries definition ********************
-  
+
 !! This reads the file names and the location of the mineral time series curves
   minseries = 0
   CALL read_minseries(nout,minseries,nx,ny,nz)
-  
+
   DO ll = 1,minseries
-      
+
     IF (jxminseries(ll) > nx) THEN
       WRITE(*,*)
       WRITE(*,*) '  You have specified a mineral series plot location > NX'
@@ -6168,23 +6155,23 @@ IF (found) THEN
       STOP
     END IF
   END DO
-  
-  
+
+
 !!  End of minseries definition ********************
-  
+
 !! This reads the file names and the location of the breakthrough curves
   nseries = 0
   CALL read_series(nout,nseries,nx,ny,nz)
-  
+
   iplotall = 0
-  
+
 !! This reads the species to be written to the breakthrough files
 
   parchar = 'time_series_print'
   parfind = ' '
   lenarray = 0
   nplot = 0
-  
+
   CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
   IF (parfind == ' ') THEN    ! Assume default
     WRITE(*,*) ' Parfind is blank'
@@ -6216,20 +6203,10 @@ IF (found) THEN
       DO ll = 1,nplot
         iplot(ll) = ll
       END DO
-
-    ELSE IF (stringarray(1) == 'hfts') THEN
-      iplotall = 3
-      WRITE(*,*)
-      WRITE(*,*) ' Writing only sulfate'
-      WRITE(*,*)
-      nplot = 2
-      iplot(1) = 22
-      iplot(2) = 49
-      
     ELSE
-      
+
 !  Check to see that strings match species names
-      
+
       iplotph = 0
       nplot = lenarray
       DO ll = 1,nplot
@@ -6267,17 +6244,17 @@ IF (found) THEN
       END DO
     END IF
   END IF
-  
+
   IF (ALLOCATED(TimeSeriesSpecies)) THEN
     DEALLOCATE(TimeSeriesSpecies)
   END IF
   ALLOCATE(TimeSeriesSpecies(nplot))
   TimeSeriesSpecies = stringarray(1:nplot)
-    
+
   parchar = 'time_series_units'
   parfind = ' '
   lenarray = 0
-  
+
   CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
   IF (parfind == ' ') THEN    ! No units provided
     DO ll = 1,nplot
@@ -6299,7 +6276,7 @@ IF (found) THEN
       TimeSeriesUnits(ll) = stringarray(ll)
     END DO
   END IF
-  
+
   parchar = 'time_series_output'
   parfind = ' '
   CALL read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
@@ -6338,7 +6315,7 @@ IF (found) THEN
     END DO
     interval = 0
   END IF
-  
+
   time_scale = 1.0d0
 
   DO ll = 1,nseries
@@ -6388,9 +6365,9 @@ IF (found) THEN
       STOP
     END IF
   END DO
-  
+
 ELSE
-  
+
   WRITE(*,*)
   WRITE(*,*) '        NO OUTPUT TIMES SPECIFIED'
   WRITE(*,*) '   TIMESTEPPING OFF--INITIALIZATION ONLY'
@@ -6509,7 +6486,8 @@ ALLOCATE(workint1(i))
 workint1 = jzAqueousFluxSeries_hi
 DEALLOCATE(jzAqueousFluxSeries_hi)
 ALLOCATE(jzAqueousFluxSeries_hi(nAqueousFluxSeriesFile))
-IF(nAqueousFluxSeriesFile /= 0) jzAqueousFluxSeries_hi(1:nAqueousFluxSeriesFile) = workint1(1:nAqueousFluxSeriesFile)
+IF(nAqueousFluxSeriesFile /= 0) jzAqueousFluxSeries_hi(1:nAqueousFluxSeriesFile) = &
+                workint1(1:nAqueousFluxSeriesFile)
 DEALLOCATE(workint1)
 
 
@@ -6518,7 +6496,8 @@ ALLOCATE(workint1(i))
 workint1 = jxFluxWeightedConcentration_lo
 DEALLOCATE(jxFluxWeightedConcentration_lo)
 ALLOCATE(jxFluxWeightedConcentration_lo(nFluxWeightedConcentrationFile))
-IF(nFluxWeightedConcentrationFile /= 0) jxFluxWeightedConcentration_lo(1:nFluxWeightedConcentrationFile) = workint1(1:nFluxWeightedConcentrationFile)
+IF(nFluxWeightedConcentrationFile /= 0) jxFluxWeightedConcentration_lo(1:nFluxWeightedConcentrationFile) = &
+                workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
 i = size(jyFluxWeightedConcentration_lo,1)
@@ -6526,7 +6505,8 @@ ALLOCATE(workint1(i))
 workint1 = jyFluxWeightedConcentration_lo
 DEALLOCATE(jyFluxWeightedConcentration_lo)
 ALLOCATE(jyFluxWeightedConcentration_lo(nFluxWeightedConcentrationFile))
-IF(nFluxWeightedConcentrationFile /= 0) jyFluxWeightedConcentration_lo(1:nFluxWeightedConcentrationFile) = workint1(1:nFluxWeightedConcentrationFile)
+IF(nFluxWeightedConcentrationFile /= 0) jyFluxWeightedConcentration_lo(1:nFluxWeightedConcentrationFile) = &
+                workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
 i = size(jzFluxWeightedConcentration_lo,1)
@@ -6534,7 +6514,8 @@ ALLOCATE(workint1(i))
 workint1 = jzFluxWeightedConcentration_lo
 DEALLOCATE(jzFluxWeightedConcentration_lo)
 ALLOCATE(jzFluxWeightedConcentration_lo(nFluxWeightedConcentrationFile))
-IF(nFluxWeightedConcentrationFile /= 0) jzFluxWeightedConcentration_lo(1:nFluxWeightedConcentrationFile) = workint1(1:nFluxWeightedConcentrationFile)
+IF(nFluxWeightedConcentrationFile /= 0) jzFluxWeightedConcentration_lo(1:nFluxWeightedConcentrationFile) = &
+                workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
 i = size(jxFluxWeightedConcentration_hi,1)
@@ -6542,7 +6523,8 @@ ALLOCATE(workint1(i))
 workint1 = jxFluxWeightedConcentration_hi
 DEALLOCATE(jxFluxWeightedConcentration_hi)
 ALLOCATE(jxFluxWeightedConcentration_hi(nFluxWeightedConcentrationFile))
-IF(nFluxWeightedConcentrationFile /= 0) jxFluxWeightedConcentration_hi(1:nFluxWeightedConcentrationFile) = workint1(1:nFluxWeightedConcentrationFile)
+IF(nFluxWeightedConcentrationFile /= 0) jxFluxWeightedConcentration_hi(1:nFluxWeightedConcentrationFile) = &
+                workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
 i = size(jyFluxWeightedConcentration_hi,1)
@@ -6550,7 +6532,8 @@ ALLOCATE(workint1(i))
 workint1 = jyFluxWeightedConcentration_hi
 DEALLOCATE(jyFluxWeightedConcentration_hi)
 ALLOCATE(jyFluxWeightedConcentration_hi(nFluxWeightedConcentrationFile))
-IF(nFluxWeightedConcentrationFile /= 0) jyFluxWeightedConcentration_hi(1:nFluxWeightedConcentrationFile) = workint1(1:nFluxWeightedConcentrationFile)
+IF(nFluxWeightedConcentrationFile /= 0) jyFluxWeightedConcentration_hi(1:nFluxWeightedConcentrationFile) = &
+                workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
 i = size(jzFluxWeightedConcentration_hi,1)
@@ -6558,7 +6541,8 @@ ALLOCATE(workint1(i))
 workint1 = jzFluxWeightedConcentration_hi
 DEALLOCATE(jzFluxWeightedConcentration_hi)
 ALLOCATE(jzFluxWeightedConcentration_hi(nFluxWeightedConcentrationFile))
-IF(nFluxWeightedConcentrationFile /= 0) jzFluxWeightedConcentration_hi(1:nFluxWeightedConcentrationFile) = workint1(1:nFluxWeightedConcentrationFile)
+IF(nFluxWeightedConcentrationFile /= 0) jzFluxWeightedConcentration_hi(1:nFluxWeightedConcentrationFile) = &
+                workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
 !  ***************END OF OUTPUT********************************
@@ -6704,11 +6688,11 @@ IF (found) THEN
 
   IF (.NOT. modflow .OR. MODFLOWfile == ' ') THEN
     WRITE(*,*)
-    WRITE(*,*) ' Modflow file not specified ' 
+    WRITE(*,*) ' Modflow file not specified '
     WRITE(*,*) ' MODFLOW keyword block should not be included without a Modflow *.hff file'
     WRITE(*,*)
     READ(*,*)
-    STOP 
+    STOP
   END IF
 
 
@@ -6720,121 +6704,121 @@ IF (found) THEN
   END IF
   IF (ALLOCATED(q)) THEN
     DEALLOCATE(q)
-    ALLOCATE(q(mxwell))  
+    ALLOCATE(q(mxwell))
   ELSE
-    ALLOCATE(q(mxwell))  
+    ALLOCATE(q(mxwell))
   END IF
   IF (ALLOCATED(qriver)) THEN
     DEALLOCATE(qriver)
-    ALLOCATE(qriver(mxrivr))  
+    ALLOCATE(qriver(mxrivr))
   ELSE
-    ALLOCATE(qriver(mxrivr))  
+    ALLOCATE(qriver(mxrivr))
   END IF
   IF (ALLOCATED(qdrain)) THEN
     DEALLOCATE(qdrain)
-    ALLOCATE(qdrain(mxdrn))  
+    ALLOCATE(qdrain(mxdrn))
   ELSE
-    ALLOCATE(qdrain(mxdrn))  
+    ALLOCATE(qdrain(mxdrn))
   END IF
   IF (ALLOCATED(cnhIn)) THEN
     DEALLOCATE(cnhIn)
-    ALLOCATE(cnhIn(ndimdummy))  
+    ALLOCATE(cnhIn(ndimdummy))
   ELSE
-    ALLOCATE(cnhIn(ndimdummy))  
+    ALLOCATE(cnhIn(ndimdummy))
   END IF
   IF (ALLOCATED(wellIn)) THEN
     DEALLOCATE(wellIn)
-    ALLOCATE(wellIn(mxwell))  
+    ALLOCATE(wellIn(mxwell))
   ELSE
-    ALLOCATE(wellIn(mxwell))  
+    ALLOCATE(wellIn(mxwell))
   END IF
   IF (ALLOCATED(riverIn)) THEN
     DEALLOCATE(riverIn)
-    ALLOCATE(riverIn(mxrivr))  
+    ALLOCATE(riverIn(mxrivr))
   ELSE
-    ALLOCATE(riverIn(mxrivr))  
+    ALLOCATE(riverIn(mxrivr))
   END IF
   IF (ALLOCATED(jxWellLoc)) THEN
     DEALLOCATE(jxWellLoc)
-    ALLOCATE(jxWellLoc(mxwell))  
+    ALLOCATE(jxWellLoc(mxwell))
   ELSE
-    ALLOCATE(jxWellLoc(mxwell))  
+    ALLOCATE(jxWellLoc(mxwell))
   END IF
   IF (ALLOCATED(jyWellLoc)) THEN
     DEALLOCATE(jyWellLoc)
-    ALLOCATE(jyWellLoc(mxwell))  
+    ALLOCATE(jyWellLoc(mxwell))
   ELSE
-    ALLOCATE(jyWellLoc(mxwell))  
+    ALLOCATE(jyWellLoc(mxwell))
   END IF
   IF (ALLOCATED(jzWellLoc)) THEN
     DEALLOCATE(jzWellLoc)
-    ALLOCATE(jzWellLoc(mxwell))  
+    ALLOCATE(jzWellLoc(mxwell))
   ELSE
-    ALLOCATE(jzWellLoc(mxwell))  
+    ALLOCATE(jzWellLoc(mxwell))
   END IF
   IF (ALLOCATED(jxRiverLoc)) THEN
     DEALLOCATE(jxRiverLoc)
-    ALLOCATE(jxRiverLoc(mxrivr))  
+    ALLOCATE(jxRiverLoc(mxrivr))
   ELSE
-    ALLOCATE(jxRiverLoc(mxrivr))  
+    ALLOCATE(jxRiverLoc(mxrivr))
   END IF
   IF (ALLOCATED(jyRiverLoc)) THEN
     DEALLOCATE(jyRiverLoc)
-    ALLOCATE(jyRiverLoc(mxrivr))  
+    ALLOCATE(jyRiverLoc(mxrivr))
   ELSE
-    ALLOCATE(jyRiverLoc(mxrivr))  
+    ALLOCATE(jyRiverLoc(mxrivr))
   END IF
   IF (ALLOCATED(jzRiverLoc)) THEN
     DEALLOCATE(jzRiverLoc)
-    ALLOCATE(jzRiverLoc(mxrivr))  
+    ALLOCATE(jzRiverLoc(mxrivr))
   ELSE
-    ALLOCATE(jzRiverLoc(mxrivr))  
+    ALLOCATE(jzRiverLoc(mxrivr))
   END IF
   IF (ALLOCATED(jxDrainLoc)) THEN
     DEALLOCATE(jxDrainLoc)
-    ALLOCATE(jxDrainLoc(mxdrn))  
+    ALLOCATE(jxDrainLoc(mxdrn))
   ELSE
-    ALLOCATE(jxDrainLoc(mxdrn))  
+    ALLOCATE(jxDrainLoc(mxdrn))
   END IF
   IF (ALLOCATED(jyDrainLoc)) THEN
     DEALLOCATE(jyDrainLoc)
-    ALLOCATE(jyDrainLoc(mxdrn))  
+    ALLOCATE(jyDrainLoc(mxdrn))
   ELSE
-    ALLOCATE(jyDrainLoc(mxdrn))  
+    ALLOCATE(jyDrainLoc(mxdrn))
   END IF
   IF (ALLOCATED(jzDrainLoc)) THEN
     DEALLOCATE(jzDrainLoc)
-    ALLOCATE(jzDrainLoc(mxdrn))  
+    ALLOCATE(jzDrainLoc(mxdrn))
   ELSE
-    ALLOCATE(jzDrainLoc(mxdrn))  
+    ALLOCATE(jzDrainLoc(mxdrn))
   END IF
   IF (ALLOCATED(jxHeadLoc)) THEN
     DEALLOCATE(jxHeadLoc)
-    ALLOCATE(jxHeadLoc(ndimdummy))  
+    ALLOCATE(jxHeadLoc(ndimdummy))
   ELSE
-    ALLOCATE(jxHeadLoc(ndimdummy))  
+    ALLOCATE(jxHeadLoc(ndimdummy))
   END IF
   IF (ALLOCATED(jyHeadLoc)) THEN
     DEALLOCATE(jyHeadLoc)
-    ALLOCATE(jyHeadLoc(ndimdummy))  
+    ALLOCATE(jyHeadLoc(ndimdummy))
   ELSE
-    ALLOCATE(jyHeadLoc(ndimdummy))  
+    ALLOCATE(jyHeadLoc(ndimdummy))
   END IF
   IF (ALLOCATED(jzHeadLoc)) THEN
     DEALLOCATE(jzHeadLoc)
-    ALLOCATE(jzHeadLoc(ndimdummy))  
+    ALLOCATE(jzHeadLoc(ndimdummy))
   ELSE
-    ALLOCATE(jzHeadLoc(ndimdummy))  
+    ALLOCATE(jzHeadLoc(ndimdummy))
   END IF
 
   call ModScan(nx,ny,nz,cnhIn,wellIn,riverIn,ndimdummy,mxwell,mxrivr,mxdrn)
- 
+
   REWIND 1
 
   IF (nwells /= mxwell) THEN
     WRITE(*,*)
     WRITE(*,*) ' "Nwells" read from "hff" file should match MXWELL from MODFLOW "wel" file'
-    WRITE(*,*) 
+    WRITE(*,*)
     READ(*,*)
     STOP
   END IF
@@ -6842,7 +6826,7 @@ IF (found) THEN
   IF (ndrains /= mxdrn) THEN
     WRITE(*,*)
     WRITE(*,*) ' "Ndrains" read from "hff" file should match MXDRN from MODFLOW "drn" file'
-    WRITE(*,*) 
+    WRITE(*,*)
     READ(*,*)
     STOP
   END IF
@@ -6850,7 +6834,7 @@ IF (found) THEN
   IF (nrivers/= mxrivr) THEN
     WRITE(*,*)
     WRITE(*,*) ' "Nrivers" read from "hff" file should match MXRIVR from MODFLOW "riv" file'
-    WRITE(*,*) 
+    WRITE(*,*)
     READ(*,*)
     STOP
   END IF
@@ -6882,7 +6866,7 @@ IF (found) THEN
     DEALLOCATE(qcnh)
   END IF
   ALLOCATE(qcnh(ncnh))
-  
+
 
 ! read in dimensions
   READ(52,*)
@@ -6890,7 +6874,7 @@ IF (found) THEN
   READ(52,*) nztemp,nytemp,nxtemp,nstress,modflowTimeUnits
   READ(52,*)
   READ(52,*)
-  READ(52,*)  
+  READ(52,*)
   IF (nztemp /= nz) THEN
     WRITE(*,*)
     WRITE(*,*) ' NZ does not match in MODFLOW and CRUNCH'
@@ -6931,7 +6915,7 @@ IF (found) THEN
     ModFlowCnv = 365.0
   ELSE IF (ModFlowTimeUnits == 5) THEN   !  MODFLOW time units in years
     ModFlowCnv = 1.0
-  ELSE 
+  ELSE
     WRITE(*,*)
     WRITE(*,*) ' MODFLOW time units read from *.bas file not recognized'
     WRITE(*,*) ' MODFLOW time units flag: ',ModFlowTimeUnits
@@ -6939,8 +6923,8 @@ IF (found) THEN
     READ(*,*)
     STOP
   END IF
-    
-! Read in cell types from MODFLOW .bas file	
+
+! Read in cell types from MODFLOW .bas file
 
 !fp! auto_par_loops=0;
   DO jz=1,nz
@@ -6972,7 +6956,7 @@ IF (found) THEN
   DO i = 1,nstress
     READ(52,*,err=3000) perlen(i),nstp(i),tsmult(i)
   END DO
-	
+
   CLOSE(52)
 
   ALLOCATE(jxTemp(ndimdummy))
@@ -6998,7 +6982,7 @@ IF (found) THEN
     WRITE(*,*) ' Number of conditions needed:   ', NeedWellCondition
     WRITE(*,*) ' Number of conditions provided: ', nparams
     WRITE(*,*) ' Need well conditions at the following locations: '
-    WRITE(*,*) 
+    WRITE(*,*)
     DO i = 1,nwells
       IF (wellIn(i)) THEN
         WRITE(*,1501) jxWellLoc(i), jyWellLoc(i), jzWellLoc(i)
@@ -7042,7 +7026,7 @@ IF (found) THEN
     END IF
     501 CONTINUE
   END DO
-     
+
 
 !  Read drains
 
@@ -7075,7 +7059,7 @@ IF (found) THEN
     WRITE(*,*) ' Number of conditions needed:   ', NeedRiverCondition
     WRITE(*,*) ' Number of conditions provided: ', nparams
     WRITE(*,*) ' Need river conditions at the following locations: '
-    WRITE(*,*) 
+    WRITE(*,*)
     DO i = 1,nrivers
       IF (riverIn(i)) THEN
         WRITE(*,1502) jxRiverLoc(i), jyRiverLoc(i), jzRiverLoc(i)
@@ -7132,7 +7116,7 @@ IF (found) THEN
     WRITE(*,*) ' Number of conditions needed:   ', NeedHeadCondition
     WRITE(*,*) ' Number of conditions provided: ', nparams
     WRITE(*,*) ' Need constant head conditions at the following locations: '
-    WRITE(*,*) 
+    WRITE(*,*)
     DO i = 1,ncnh
       IF (cnhIn(i)) THEN
         WRITE(*,1503) jxHeadLoc(i), jyHeadLoc(i), jzHeadLoc(i)
@@ -7179,8 +7163,8 @@ IF (found) THEN
 ! **** Now read the geochemical condition for MODFLOW recharge
 
   CALL readRecharge(nout,RechargeCondition)
- 
-! ***************************************** 
+
+! *****************************************
 
 !  IF (RechargeCondition == 0) THEN
 !    WRITE(*,*)
@@ -7194,7 +7178,7 @@ IF (found) THEN
   IF (ALLOCATED(qevt)) THEN
     DEALLOCATE(qevt)
   END IF
-  ALLOCATE(qevt(nx,ny)) 
+  ALLOCATE(qevt(nx,ny))
   IF (ALLOCATED(wtype)) THEN
     DEALLOCATE(wtype)
   END IF
@@ -7263,7 +7247,7 @@ IF (found) THEN
         STOP
       END IF
 
-    ELSE 
+    ELSE
       WRITE(*,*)
       WRITE(*,*) ' Number of time steps within a stress period cannot be less than 1'
       WRITE(*,*) ' Stress period number: ',i
@@ -7338,23 +7322,23 @@ ALLOCATE(qrecharge(nx,ny))
 qrecharge = 0
 
 IF (found) THEN
-  
+
 !  Initialize pressure and pumping rate first
-  
+
   qg = 0.0d0
   IF (isaturate == 1) THEN
     gaspump = 0.0d0
   END IF
-  
+
   CALL units_time(nout,section,time_scale)
   CALL units_distance(nout,section,dist_scale)
-  
+
   CALL read_constantflow(nout,nx,ny,nz,constant_flow,qxinit,qyinit,qzinit)
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
 
   CALL read_pump(nout,nx,ny,nz,nchem,npump)
- 
+
   IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
   END IF
@@ -7374,33 +7358,33 @@ IF (found) THEN
 
 !  NOTE: Specification of constant flow field overrides all other
 !        instructions (e.g., file read or flow calculation)
-  
+
   IF (constant_flow) THEN
     WRITE(*,*)
     WRITE(*,*) ' Constant flow specified'
     WRITE(*,*)
   ELSE
-    
+
 !  No constant flow field specified, so look for file read or
 !     flow calculation
-    
+
     readvelocity = .false.
     CALL read_flowfile(nout,nx,ny,nz,constant_flow,  &
         qxinit,qyinit,qzinit,velocityfile,lfile,VelocityFileFormat)
-    
+
     IF (velocityfile /= ' ') THEN
       readvelocity = .TRUE.
       WRITE(*,*)
       WRITE(*,*) ' Velocities to be read from file: ',velocityfile(1:lfile)
       WRITE(*,*)
-      
+
     END IF
 
 !  *******************FLOW CALCULATION****************************
 
-!  Check to see if flow should be calculated--only do so if either constant_flow = .FALSE., or if 
+!  Check to see if flow should be calculated--only do so if either constant_flow = .FALSE., or if
 !  readvelocity = .FALSE.
-    
+
     CalculateFlow = .FALSE.
     IF (.NOT. ReadVelocity) THEN
       parchar = 'calculate_flow'
@@ -7409,7 +7393,49 @@ IF (found) THEN
     END IF
 
     IF (CalculateFlow .AND. nxyz > 1) THEN
-      
+
+        ! Select NS solver or Darcy solver, added by Zhi Li
+        NavierStokes = .FALSE.
+        parchar = 'ns_solve'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,NavierStokes)
+
+        ! Select Richards solver, added by Zhi Li 20200629
+        Richards = .FALSE.
+        parchar = 'richards'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,Richards)
+        ! Invoke moisture residtribution
+        redistribute_wc = .FALSE.
+        parchar = 'redistribute_wc'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,redistribute_wc)
+        ! Initial water content
+        parchar = 'wc_init'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        wc_init = realjunk
+        ! Soil parameters
+        parchar = 'wc_residual'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        wcr = realjunk
+
+        parchar = 'vangenuchten_alpha'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        vga = realjunk
+
+        parchar = 'vangenuchten_n'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        vgn = realjunk
+
+
 !!      IF (nx > 1 .AND. nz > 1 .AND. ny == 1) THEN
 !!        WRITE(*,*)
 !!        WRITE(*,*) ' For flow problems, use X and Y coordinates first (Z for 3rd dimension)'
@@ -7423,102 +7449,185 @@ IF (found) THEN
 !!!        ALLOCATE(pres(0:nx+1,0:ny+1,0:nz+1))
 !!!      ELSE
 !!!        ALLOCATE(pres(0:nx+1,0:ny+1,0:nz+1))
-!!!      END IF 
+!!!      END IF
 
       IF (ALLOCATED(harx)) THEN
         DEALLOCATE(harx)
         ALLOCATE(harx(0:nx,1:ny,1:nz))
       ELSE
         ALLOCATE(harx(0:nx,1:ny,1:nz))
-      END IF 
+      END IF
       IF (ALLOCATED(hary)) THEN
         DEALLOCATE(hary)
         ALLOCATE(hary(1:nx,0:ny,1:nz))
       ELSE
         ALLOCATE(hary(1:nx,0:ny,1:nz))
-      END IF 
+      END IF
       IF (ALLOCATED(harz)) THEN
         DEALLOCATE(harz)
         ALLOCATE(harz(1:nx,1:ny,0:nz))
       ELSE
         ALLOCATE(harz(1:nx,1:ny,0:nz))
-      END IF 
+      END IF
 
       IF (ALLOCATED(perminx)) THEN
         DEALLOCATE(perminx)
         ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
       ELSE
         ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
-      END IF 
+      END IF
 
       IF (ALLOCATED(perminy)) THEN
         DEALLOCATE(perminy)
         ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
       ELSE
         ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
-      END IF 
+      END IF
 
       IF (ALLOCATED(perminz)) THEN
         DEALLOCATE(perminz)
         ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
       ELSE
         ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
-      END IF 
+      END IF
 
       IF (ALLOCATED(permx)) THEN
         DEALLOCATE(permx)
         ALLOCATE(permx(0:nx+1,1:ny,1:nz))
       ELSE
         ALLOCATE(permx(0:nx+1,1:ny,1:nz))
-      END IF 
-      
+      END IF
+
       IF (ALLOCATED(permxOld)) THEN
         DEALLOCATE(permxOld)
         ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
       ELSE
         ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
-      END IF 
+      END IF
 
       IF (ALLOCATED(permy)) THEN
         DEALLOCATE(permy)
         ALLOCATE(permy(1:nx,0:ny+1,1:nz))
       ELSE
         ALLOCATE(permy(1:nx,0:ny+1,1:nz))
-      END IF 
-      
+      END IF
+
       IF (ALLOCATED(permyOld)) THEN
         DEALLOCATE(permyOld)
         ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
       ELSE
         ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
-      END IF 
-      
+      END IF
+
       IF (ALLOCATED(permz)) THEN
         DEALLOCATE(permz)
         ALLOCATE(permz(1:nx,1:ny,0:nz+1))
       ELSE
         ALLOCATE(permz(1:nx,1:ny,0:nz+1))
-      END IF 
-      
+      END IF
+
       IF (ALLOCATED(permzOld)) THEN
         DEALLOCATE(permzOld)
         ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
       ELSE
         ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
-      END IF 
+      END IF
 
-      pres = 0.0  
+      pres = 0.0
       perminx = 0.0
       perminy = 0.0
       perminz = 0.0
-  
+
       WRITE(*,*)
       WRITE(*,*) ' Flow will be calculated'
       WRITE(*,*)
-      
+
+!  Allocate related fields for Richards equations, Li 20200629
+     IF (Richards) THEN
+         IF (ALLOCATED(head)) THEN
+           DEALLOCATE(head)
+           ALLOCATE(head(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(head(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(headOld)) THEN
+           DEALLOCATE(headOld)
+           ALLOCATE(headOld(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(headOld(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(wc)) THEN
+           DEALLOCATE(wc)
+           ALLOCATE(wc(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(wc(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(wcOld)) THEN
+           DEALLOCATE(wcOld)
+           ALLOCATE(wcOld(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(wcOld(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(wch)) THEN
+           DEALLOCATE(wch)
+           ALLOCATE(wch(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(wch(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(hwc)) THEN
+           DEALLOCATE(hwc)
+           ALLOCATE(hwc(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(hwc(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(wcs)) THEN
+           DEALLOCATE(wcs)
+           ALLOCATE(wcs(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(wcs(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(Ch)) THEN
+           DEALLOCATE(Ch)
+           ALLOCATE(Ch(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(Ch(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(room)) THEN
+           DEALLOCATE(room)
+           ALLOCATE(room(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(room(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+
+         IF (ALLOCATED(Kr)) THEN
+           DEALLOCATE(Kr)
+           ALLOCATE(Kr(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(Kr(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(Kfacx)) THEN
+           DEALLOCATE(Kfacx)
+           ALLOCATE(Kfacx(0:nx,1:ny,1:nz))
+         ELSE
+           ALLOCATE(Kfacx(0:nx,1:ny,1:nz))
+         END IF
+         IF (ALLOCATED(Kfacy)) THEN
+           DEALLOCATE(Kfacy)
+           ALLOCATE(Kfacy(1:nx,0:ny,1:nz))
+         ELSE
+           ALLOCATE(Kfacy(1:nx,0:ny,1:nz))
+         END IF
+         IF (ALLOCATED(Kfacz)) THEN
+           DEALLOCATE(Kfacz)
+           ALLOCATE(Kfacz(1:nx,1:ny,0:nz))
+         ELSE
+           ALLOCATE(Kfacz(1:nx,1:ny,0:nz))
+         END IF
+     END IF
+
 !  Look for information on permeability, pressure, and pumping or injection wells
 !  First, check to see whether permeability distribution is to be read from file
-      
+
       readperm = .false.
       npermx = 0
       npermy = 0
@@ -7534,19 +7643,19 @@ IF (found) THEN
         WRITE(iunit2,*)
         WRITE(iunit2,*) '  Reading permeabilities from file: ',permfile(1:lfile)
         WRITE(iunit2,*)
-        
+
 !!!!!!!!!!
         IF (PermFileFormat == 'SingleFile3D') THEN
-            
+
           INQUIRE(FILE=permfile,EXIST=ext)
           IF (.NOT. ext) THEN
             WRITE(*,*)
             WRITE(*,*) ' 3D permeability file not found: ',permfile(1:lfile)
             WRITE(*,*)
-            READ(*,*)   
+            READ(*,*)
             STOP
           END IF
-          
+
           OPEN(UNIT=23,FILE=permfile,STATUS='old',ERR=8005)
           FileTemp = permfile
           CALL stringlen(FileTemp,FileNameLength)
@@ -7558,23 +7667,23 @@ IF (found) THEN
                 permy(jx,jy,jz) = 0.001*permy(jx,jy,jz)/(9.81*997.075)
  !!               permz(jx,jy,jz) = permz(jx,jy,jz)/(9.81*997.075)
               END DO
-            END DO 
+            END DO
           END DO
-          
+
           jz = 1
           do jy = 1,ny
             permx(0,jy,jz) = permx(1,jy,jz)
             permx(nx+1,jy,jz) = permx(nx,jy,jz)
           end do
-          
+
           perminx = permx
           perminy = permy
           perminx = permx
-          
+
           CLOSE(UNIT=23,STATUS='keep')
 !!!!!!!
       ELSE
-  
+
           permxfile(1:lfile) = permfile(1:lfile)
           permxfile(lfile+1:lfile+2) = '.x'
           INQUIRE(FILE=permxfile,EXIST=ext)
@@ -7582,7 +7691,7 @@ IF (found) THEN
             WRITE(*,*)
             WRITE(*,*) ' X permeability file not found: ',permxfile(1:lfile+2)
             WRITE(*,*)
-            READ(*,*)   
+            READ(*,*)
             STOP
           END IF
           OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
@@ -7598,7 +7707,7 @@ IF (found) THEN
                 END DO
               END DO
             END DO
-          ELSE IF (PermFileFormat == 'FullForm') THEN 
+          ELSE IF (PermFileFormat == 'FullForm') THEN
             IF (ny > 1 .AND. nz > 1) THEN
               DO jz = 1,nz
                 DO jy = 1,ny
@@ -7621,7 +7730,7 @@ IF (found) THEN
               READ(23,*,END=1020) xdum,permx(jx,jy,jz)
             END DO
           END IF
-        ELSE IF (PermFileFormat == 'Unformatted') THEN  
+        ELSE IF (PermFileFormat == 'Unformatted') THEN
           READ(23,END=1020) permx
         ELSE
           WRITE(*,*)
@@ -7630,62 +7739,62 @@ IF (found) THEN
           READ(*,*)
           STOP
         END IF
-   
+
         CLOSE(UNIT=23,STATUS='keep')
-        
+
         termA = 2.14074E-05
- 
+
         do jy = 1,ny
             do jx = 1,nx
                        porTemp = 0.15
                        portemp1 = 0.15
-                       
+
                 termB=permx(jx,jy,1)/termA
                 term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
                 term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
                 portemp1 = portemp1 - term1/term2
-    
+
 
                                 term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
                 term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
                 portemp1 = portemp1 - term1/term2
-                
 
-                
+
+
                               term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
                 term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
                 portemp1 = portemp1 - term1/term2
-                
 
-                
+
+
                             term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
                 term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
                 portemp1 = portemp1 - term1/term2
-                
 
-                
-                term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
-                term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
-                portemp1 = portemp1 - term1/term2
-                
 
-                
+
                 term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
                 term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
                 portemp1 = portemp1 - term1/term2
-                
- 
-                
+
+
+
                 term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
                 term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
                 portemp1 = portemp1 - term1/term2
-               
+
+
+
+                term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
+                term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
+                portemp1 = portemp1 - term1/term2
+
                por(jx,jy,1) = portemp1
                volfx(2,jx,jy,1) = 1.0 - portemp1 - 0.05
-               
+
             end do
         end do
-  
+
         IF (ny /= 1) THEN
           permyfile(1:lfile) = permfile(1:lfile)
           permyfile(lfile+1:lfile+2) = '.y'
@@ -7694,7 +7803,7 @@ IF (found) THEN
             WRITE(*,*)
             WRITE(*,*) ' Y permeability file not found: ',permyfile(1:lfile+2)
             WRITE(*,*)
-            READ(*,*)   
+            READ(*,*)
             STOP
           END IF
           OPEN(UNIT=23,FILE=permyfile,STATUS='old',ERR=8002)
@@ -7710,7 +7819,7 @@ IF (found) THEN
                 END DO
               END DO
             END DO
-          ELSE IF (PermFileFormat == 'FullForm') THEN 
+          ELSE IF (PermFileFormat == 'FullForm') THEN
             IF (ny > 1 .AND. nz > 1) THEN
               DO jz = 1,nz
                 DO jy = 0,ny+1
@@ -7729,7 +7838,7 @@ IF (found) THEN
             ELSE
               CONTINUE
             END IF
-          ELSE IF (PermFileFormat == 'Unformatted') THEN  
+          ELSE IF (PermFileFormat == 'Unformatted') THEN
             READ(23,END=1020) permy
           ELSE
             WRITE(*,*)
@@ -7740,7 +7849,7 @@ IF (found) THEN
           END IF
           CLOSE(UNIT=23,STATUS='keep')
         END IF
-  
+
         IF (nz /= 1) THEN
           permzfile(1:lfile) = permfile(1:lfile)
           permzfile(lfile+1:lfile+2) = '.z'
@@ -7749,7 +7858,7 @@ IF (found) THEN
             WRITE(*,*)
             WRITE(*,*) ' Z permeability file not found: ',permzfile(1:lfile+2)
             WRITE(*,*)
-            READ(*,*)   
+            READ(*,*)
             STOP
           END IF
           OPEN(UNIT=23,FILE=permzfile,STATUS='old',ERR=8003)
@@ -7765,7 +7874,7 @@ IF (found) THEN
                 END DO
               END DO
             END DO
-          ELSE IF (PermFileFormat == 'FullForm') THEN 
+          ELSE IF (PermFileFormat == 'FullForm') THEN
             IF (ny > 1 .AND. nz > 1) THEN
               DO jz = 0,nz+1
                 DO jy = 1,ny
@@ -7777,7 +7886,7 @@ IF (found) THEN
             ELSE
               CONTINUE
             END IF
-          ELSE IF (PermFileFormat == 'Unformatted') THEN  
+          ELSE IF (PermFileFormat == 'Unformatted') THEN
             READ(23,END=1020) permz
           ELSE
             WRITE(*,*)
@@ -7787,9 +7896,9 @@ IF (found) THEN
             STOP
           END IF
           CLOSE(UNIT=23,STATUS='keep')
-        END IF  
+        END IF
 
-        END IF     
+        END IF
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 
         permmaxX = 0.0d0
@@ -7800,7 +7909,7 @@ IF (found) THEN
         do jz = 1,nz
           do jy = 1,ny
             do jx = 1,nx
- 
+
               if (permx(jx,jy,jz) > permmaxX) then
                 permmaxX = permx(jx,jy,jz)
               end if
@@ -7829,11 +7938,11 @@ IF (found) THEN
 !!!
 !!!                LogPermX = DLOG10(permx(jx,jy,jz))
 !!!                NewLogPermX = (LogPermX - MidPointX)/2.0d0 + MidPointX
-!!!                permx(jx,jy,jz) = 10**(NewLogPermX)       
+!!!                permx(jx,jy,jz) = 10**(NewLogPermX)
 !!!
 !!!                LogPermY = DLOG10(permY(jx,jy,jz))
 !!!                NewLogPermY = (LogPermY - MidPointY)/2.0d0 + MidPointY
-!!!                permy(jx,jy,jz) = 10**(NewLogPermY)       
+!!!                permy(jx,jy,jz) = 10**(NewLogPermY)
 !!!
 !!!           end do
 !!!         end do
@@ -7847,7 +7956,7 @@ IF (found) THEN
 !!!        do jz = 1,nz
 !!!          do jy = 1,ny
 !!!            do jx = 1,nx
-!!! 
+!!!
 !!!              if (permx(jx,jy,jz) > permmaxX) then
 !!!                permmaxX = permx(jx,jy,jz)
 !!!              end if
@@ -7876,7 +7985,7 @@ IF (found) THEN
 
         perminx = permx
         perminy = permy
-        perminz = permz       
+        perminz = permz
 
         GO TO 8004
 
@@ -7892,17 +8001,17 @@ IF (found) THEN
         READ(*,*)
 
 8004    CONTINUE
-      
+
         CONTINUE
-        
+
       END IF
-      
+
 !!!!      ELSE
 
         ALLOCATE(permzonex(0:mperm))
         ALLOCATE(permzoney(0:mperm))
         ALLOCATE(permzonez(0:mperm))
-      
+
         ALLOCATE(jxxpermx_lo(mperm))
         ALLOCATE(jxxpermx_hi(mperm))
         ALLOCATE(jyypermx_lo(mperm))
@@ -7925,7 +8034,7 @@ IF (found) THEN
         ALLOCATE(jzzpermz_hi(mperm))
 
 !  Reading permeability distribution directly from input file
-        
+
         CALL read_permx(nout,nx,ny,nz,npermx)
         IF (permzonex(0) == 0.0 .and. .NOT. ReadPerm) THEN
           WRITE(*,*)
@@ -7941,14 +8050,14 @@ IF (found) THEN
         END IF
 
 ! First, initialize X permeability to default permeability (permzonex(0))
-        
+
 
         IF (.NOT. ReadPerm) THEN
           perminx = permzonex(0)
         END IF
-        
+
 !  Next, initialize permeability from various zones
-        
+
         IF (npermx > 0) THEN
           DO l = 1,npermx
             DO jz = jzzpermx_lo(l),jzzpermx_hi(l)
@@ -7960,11 +8069,11 @@ IF (found) THEN
             END DO
           END DO
         END IF
-        
+
         permmaxX= 0.0
         permx = perminx
         permmaxX = MAXVAL(DABS(permx))
-        
+
         DEALLOCATE(permzonex)
         DEALLOCATE(jxxpermx_lo)
         DEALLOCATE(jxxpermx_hi)
@@ -7997,9 +8106,9 @@ IF (found) THEN
             WRITE(*,*) ' Background Y permeability = ',permzoney(0)
             WRITE(*,*)
           END IF
-          
+
 ! Initialize Y permeability to default permeability (permzoney(0))
-          
+
 !!        DO jy = 1,ny
 !!          perminy(:,jy,:) = permzoney(0)
 !!        END DO
@@ -8008,9 +8117,9 @@ IF (found) THEN
           perminy = permzoney(0)
         END IF
 
-          
+
 !  Next, initialize permeability from various zones
-          
+
           IF (npermy > 0) THEN
             DO l = 1,npermy
               DO jz = jzzpermy_lo(l),jzzpermy_hi(l)
@@ -8020,9 +8129,9 @@ IF (found) THEN
                   END DO
                 END DO
               END DO
-            END DO       
+            END DO
           END IF
-          
+
           permmaxy = 0.0
           permy = perminy
           permmaxy = MAXVAL(DABS(permy))
@@ -8034,7 +8143,7 @@ IF (found) THEN
           DEALLOCATE(jyypermy_hi)
           DEALLOCATE(jzzpermy_lo)
           DEALLOCATE(jzzpermy_hi)
-          
+
         END IF
 
         IF (nz == 1) THEN
@@ -8049,7 +8158,7 @@ IF (found) THEN
           DEALLOCATE(jzzpermz_hi)
 
         ELSE
-          
+
 
           CALL read_permz(nout,nx,ny,nz,npermz)
           IF (permzonez(0) == 0.0 .and. .NOT.ReadPerm) THEN
@@ -8064,7 +8173,7 @@ IF (found) THEN
             WRITE(*,*) ' Background Z permeability = ',permzonez(0)
             WRITE(*,*)
           END IF
-          
+
 ! Initialize Y permeability to default permeability (permzonez(0))
 
 !!        DO jz = 1,nz
@@ -8076,7 +8185,7 @@ IF (found) THEN
           permz = permzonez(0)
         END IF
 
-          
+
 !  Next, initialize permeability from various zones
 
           IF (npermz > 0) THEN
@@ -8088,7 +8197,7 @@ IF (found) THEN
                   END DO
                 END DO
               END DO
-            END DO       
+            END DO
           END IF
 
           permmaxz = 0.0
@@ -8102,11 +8211,11 @@ IF (found) THEN
           DEALLOCATE(jyypermz_hi)
           DEALLOCATE(jzzpermz_lo)
           DEALLOCATE(jzzpermz_hi)
-          
+
         END IF
 
 !!!  End of section where choosing between perm file read and zone specification      END IF
-      
+
       CALL read_gravity(nout)
 
       IF (ALLOCATED(activecellPressure)) THEN
@@ -8115,15 +8224,14 @@ IF (found) THEN
       ELSE
         ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
       END IF
-      
+
       activecellPressure = 1
 
       CALL read_pressureAlternative(nout,nx,ny,nz,npressure)
 
       pres = PressureZone(0)
-        
+
 !  Next, initialize pressure from various zones
-        
         IF (npressure > 0) THEN
           DO l = 1,npressure
             DO jz = jzzPressure_lo(l),jzzPressure_hi(l)
@@ -8157,7 +8265,7 @@ IF (found) THEN
       ELSE
         CONTINUE
       END IF
-      
+
     END IF   ! End of block within which flow calculation parameters are read
 
   END IF
@@ -8168,29 +8276,29 @@ IF (found) THEN
     readgasvelocity = .FALSE.
     WRITE(*,*)
   ELSE
-    
+
 !  No constant gas flow field specified, so look for file read
-    
+
     readgasvelocity = .false.
     CALL read_gasflowfile(nout,nx,ny,nz,constant_gasflow,  &
         qxgasinit,qygasinit,qzgasinit,gasvelocityfile,lfile,GasVelocityFileFormat)
-    
+
     IF (gasvelocityfile /= ' ') THEN
       readgasvelocity = .true.
 !!      WRITE(*,*)
 !!      WRITE(*,*) ' Gas velocities to be read from file ',gasvelocityfile(1:lfile)
 !!      WRITE(*,*)
-      
+
     END IF
 
   END IF
-  
+
   IF (CalculateFlow) THEN
     permxOld = permx
     permyOld = permy
     permzOld = permz
   END IF
-  
+
 ELSE
   WRITE(*,*)
   WRITE(*,*) ' No flow block found'
@@ -8224,22 +8332,22 @@ IF (constant_flow) THEN
   WRITE(iunit2,*) '  X Darcy velocity = ',qxinit
   WRITE(iunit2,*) '  Y Darcy velocity = ',qyinit
   WRITE(iunit2,*)
-  
+
 !  Convert units if necessary (converting to years)
-  
+
   qxinit = qxinit/(time_scale*dist_scale)
   qyinit = qyinit/(time_scale*dist_scale)
   qzinit = qzinit/(time_scale*dist_scale)
-  
+
   qxmax = qxinit
   qx = qxinit
-  
+
   qymax = qyinit
   qy = qyinit
 
   qzmax = qzinit
   qz = qzinit
-  
+
 END IF
 
 IF (constant_gasflow) THEN
@@ -8257,17 +8365,17 @@ IF (constant_gasflow) THEN
   WRITE(iunit2,*) '  Y gas flux  = ',qygasinit
   WRITE(iunit2,*) '  Z gas flux  = ',qzgasinit
   WRITE(iunit2,*)
-  
+
 !  Convert units if necessary (converting to years)
-  
+
   qxgasinit = qxgasinit/(time_scale*dist_scale)
   qygasinit = qygasinit/(time_scale*dist_scale)
   qzgasinit = qzgasinit/(time_scale*dist_scale)
-  
+
   qxgas = qxgasinit
   qygas = qygasinit
   qzgas = qzgasinit
-  
+
 END IF
 
 
@@ -8281,7 +8389,7 @@ IF (readvelocity) THEN
   WRITE(iunit2,*)
   WRITE(iunit2,*) '  Reading velocities from file: ',velocityfile(1:lfile)
   WRITE(iunit2,*)
-  
+
   vxfile(1:lfile) = velocityfile(1:lfile)
   vxfile(lfile+1:lfile+3) = '.vx'
   INQUIRE(FILE=vxfile,EXIST=ext)
@@ -8289,7 +8397,7 @@ IF (readvelocity) THEN
     WRITE(*,*)
     WRITE(*,*) ' X velocity file not found: ',vxfile(1:lfile+3)
     WRITE(*,*)
-    READ(*,*)   
+    READ(*,*)
     STOP
   END IF
   OPEN(UNIT=23,FILE=vxfile,STATUS='old',ERR=5001)
@@ -8300,15 +8408,13 @@ IF (readvelocity) THEN
     READ(23,*,END=1020) (((qx(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
   ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
     DO jz = 1,nz
-!!!      DO jy = 1,simsize%ny
-      DO jx= 0,nx
       DO jy = 1,ny
-!!!        DO jx= 0,simsize%nx
+        DO jx= 0,nx
           READ(23,*,END=1020) qx(jx,jy,jz)
         END DO
       END DO
     END DO
-  ELSE IF (VelocityFileFormat == 'FullForm') THEN 
+  ELSE IF (VelocityFileFormat == 'FullForm') THEN
 !!    IF (ny > 1 .AND. nz > 1) THEN
       DO jz = 1,nz
         DO jy = 1,ny
@@ -8331,7 +8437,7 @@ IF (readvelocity) THEN
 !!        READ(23,*,END=1020) xdum,qx(jx,jy,jz)
 !!      END DO
 !!    END IF
-  ELSE IF (VelocityFileFormat == 'Unformatted') THEN  
+  ELSE IF (VelocityFileFormat == 'Unformatted') THEN
     READ(23,END=1020) qx
   ELSE
     WRITE(*,*)
@@ -8340,7 +8446,7 @@ IF (readvelocity) THEN
     READ(*,*)
     STOP
   END IF
-  
+
   CLOSE(UNIT=23,STATUS='keep')
 
   IF (ny /= 1) THEN
@@ -8351,7 +8457,7 @@ IF (readvelocity) THEN
       WRITE(*,*)
       WRITE(*,*) ' Y velocity file not found: ',vyfile(1:lfile+3)
       WRITE(*,*)
-      READ(*,*)   
+      READ(*,*)
       STOP
     END IF
     OPEN(UNIT=23,FILE=vyfile,STATUS='old',ERR=5002)
@@ -8361,15 +8467,13 @@ IF (readvelocity) THEN
       READ(23,*,END=1020) (((qy(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
     ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
       DO jz = 1,nz
-        DO jx= 1,nx
-          DO jy = 0,ny
-!!!        DO jy = 0,simsize%ny
-!!!          DO jx= 1,simsize%nx
+        DO jy = 0,ny
+          DO jx= 1,nx
             READ(23,*,END=1020) qy(jx,jy,jz)
           END DO
         END DO
       END DO
-    ELSE IF (VelocityFileFormat == 'FullForm') THEN 
+    ELSE IF (VelocityFileFormat == 'FullForm') THEN
       IF (ny > 1 .AND. nz > 1) THEN
         DO jz = 1,nz
           DO jy = 0,ny
@@ -8388,7 +8492,7 @@ IF (readvelocity) THEN
       ELSE
         CONTINUE
       END IF
-    ELSE IF (VelocityFileFormat == 'Unformatted') THEN  
+    ELSE IF (VelocityFileFormat == 'Unformatted') THEN
       READ(23,END=1020) qy
     ELSE
       WRITE(*,*)
@@ -8399,7 +8503,7 @@ IF (readvelocity) THEN
     END IF
     CLOSE(UNIT=23,STATUS='keep')
   END IF     !!  End of IF block for reading Y velocities
-  
+
   IF (nz /= 1) THEN
     vzfile(1:lfile) = velocityfile(1:lfile)
     vzfile(lfile+1:lfile+3) = '.vz'
@@ -8408,7 +8512,7 @@ IF (readvelocity) THEN
       WRITE(*,*)
       WRITE(*,*) ' Z velocity file not found: ',vzfile(1:lfile+3)
       WRITE(*,*)
-      READ(*,*)   
+      READ(*,*)
       STOP
     END IF
     OPEN(UNIT=23,FILE=vzfile,STATUS='old',ERR=5003)
@@ -8425,7 +8529,7 @@ IF (readvelocity) THEN
           END DO
         END DO
       END DO
-    ELSE IF (VelocityFileFormat == 'FullForm') THEN 
+    ELSE IF (VelocityFileFormat == 'FullForm') THEN
       IF (ny > 1 .AND. nz > 1) THEN
         DO jz = 0,nz
           DO jy = 1,ny
@@ -8437,7 +8541,7 @@ IF (readvelocity) THEN
       ELSE
         CONTINUE
       END IF
-    ELSE IF (VelocityFileFormat == 'Unformatted') THEN  
+    ELSE IF (VelocityFileFormat == 'Unformatted') THEN
       READ(23,END=1020) qz
     ELSE
       WRITE(*,*)
@@ -8448,9 +8552,9 @@ IF (readvelocity) THEN
     END IF
     CLOSE(UNIT=23,STATUS='keep')
   END IF   !!  End of IF block for Z velocity
-  
+
   GO TO 5004
-  
+
   5001   WRITE(*,*) ' Error opening X velocity file: STOP'
   READ(*,*)
   STOP
@@ -8460,9 +8564,9 @@ IF (readvelocity) THEN
   5003   WRITE(*,*) ' Error opening Z velocity file: STOP'
   READ(*,*)
   STOP
-  
+
   5004   CONTINUE
-  
+
 !!  For uniform radial flow assuming an injection well at the origin
 !!  DO jx = 1,nx
 !!    qx(jx,1,1) = qg(1,1,1)/(2.0*pi*( x(jx) + 0.5*dxx(jx) )*dyy(1))
@@ -8480,7 +8584,7 @@ IF (readvelocity) THEN
 !!!      qy(jx,jy-1,jz) = qy(jx,jy,jz)
 !!!    end do
 !!!  end do
-   
+
   qx = qx/(time_scale*dist_scale)
   qxmax = MAXVAL(qx)
 
@@ -8489,8 +8593,8 @@ IF (readvelocity) THEN
 
   qz = qz/(time_scale*dist_scale)
   qzmax = MAXVAL(qz)
-  
-  
+
+
 END IF   ! End of block for file read of velocities
 
 
@@ -8528,7 +8632,7 @@ IF (readgasvelocity) THEN
     WRITE(*,*)
     WRITE(*,*) ' X gas velocity file not found: ',vxfile(1:lfile+3)
     WRITE(*,*)
-    READ(*,*)   
+    READ(*,*)
     STOP
   END IF
   OPEN(UNIT=23,FILE=vxfile,STATUS='old',ERR=7001)
@@ -8545,7 +8649,7 @@ IF (readgasvelocity) THEN
         END DO
       END DO
     END DO
-  ELSE IF (GasVelocityFileFormat == 'FullForm') THEN 
+  ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
     IF (ny > 1 .AND. nz > 1) THEN
       DO jz = 1,nz
         DO jy = 1,ny
@@ -8568,7 +8672,7 @@ IF (readgasvelocity) THEN
         READ(23,*,END=1020) xdum,qxgas(jx,jy,jz)
       END DO
     END IF
-  ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN  
+  ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
     READ(23,END=1020) qxgas
   ELSE
     WRITE(*,*)
@@ -8577,7 +8681,7 @@ IF (readgasvelocity) THEN
     READ(*,*)
     STOP
   END IF
-  
+
   CLOSE(UNIT=23,STATUS='keep')
 
   IF (ny /= 1) THEN
@@ -8588,7 +8692,7 @@ IF (readgasvelocity) THEN
       WRITE(*,*)
       WRITE(*,*) ' Y gas velocity file not found: ',vyfile(1:lfile+3)
       WRITE(*,*)
-      READ(*,*)   
+      READ(*,*)
       STOP
     END IF
     OPEN(UNIT=23,FILE=vyfile,STATUS='old',ERR=7002)
@@ -8604,7 +8708,7 @@ IF (readgasvelocity) THEN
           END DO
         END DO
       END DO
-    ELSE IF (GasVelocityFileFormat == 'FullForm') THEN 
+    ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
       IF (ny > 1 .AND. nz > 1) THEN
         DO jz = 1,nz
           DO jy = 0,ny
@@ -8623,7 +8727,7 @@ IF (readgasvelocity) THEN
       ELSE
         CONTINUE
       END IF
-    ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN  
+    ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
       READ(23,END=1020) qygas
     ELSE
       WRITE(*,*)
@@ -8634,7 +8738,7 @@ IF (readgasvelocity) THEN
     END IF
     CLOSE(UNIT=23,STATUS='keep')
   END IF     !!  End of IF block for reading Y velocities
-  
+
   IF (nz /= 1) THEN
     vzfile(1:lfile) = gasvelocityfile(1:lfile)
     vzfile(lfile+1:lfile+3) = '.vz'
@@ -8643,7 +8747,7 @@ IF (readgasvelocity) THEN
       WRITE(*,*)
       WRITE(*,*) ' Z velocity file not found: ',vzfile(1:lfile+3)
       WRITE(*,*)
-      READ(*,*)   
+      READ(*,*)
       STOP
     END IF
     OPEN(UNIT=23,FILE=vzfile,STATUS='old',ERR=7003)
@@ -8660,7 +8764,7 @@ IF (readgasvelocity) THEN
           END DO
         END DO
       END DO
-    ELSE IF (GasVelocityFileFormat == 'FullForm') THEN 
+    ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
       IF (ny > 1 .AND. nz > 1) THEN
         DO jz = 0,nz
           DO jy = 1,ny
@@ -8672,7 +8776,7 @@ IF (readgasvelocity) THEN
       ELSE
         CONTINUE
       END IF
-    ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN  
+    ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
       READ(23,END=1020) qzgas
     ELSE
       WRITE(*,*)
@@ -8684,9 +8788,9 @@ IF (readgasvelocity) THEN
     CLOSE(UNIT=23,STATUS='keep')
 
   END IF   !!  End of IF block for Z velocity
-  
+
   GO TO 7004
-  
+
   7001   WRITE(*,*) ' Error opening X gas velocity file: STOP'
   READ(*,*)
   STOP
@@ -8696,13 +8800,13 @@ IF (readgasvelocity) THEN
   7003   WRITE(*,*) ' Error opening Z gas velocity file: STOP'
   READ(*,*)
   STOP
-  
+
   7004   CONTINUE
 
   qxgas = qxgas/(time_scale*dist_scale)
   qygas = qygas/(time_scale*dist_scale)
   qzgas = qzgas/(time_scale*dist_scale)
-  
+
 END IF   ! End of block for file read of velocities
 
 time_scale = 1.0d0
@@ -8755,24 +8859,24 @@ IF (found) THEN
   WRITE(*,*) ' Erosion/burial block found'
   WRITE(*,*)
 
-  
+
   CALL units_time(nout,section,time_scale)
   CALL units_distance(nout,section,dist_scale)
 
 !  Look for file containing fluid burial rates
-    
+
   BurialFile = ' '
   readburial = .false.
   CALL read_burialfile(nout,nx,ny,nz,BurialFile,lfile,ierode,BurialFileFormat)
-    
+
   IF (BurialFile /= ' ') THEN
     readburial = .true.
-  END IF	
-  
+  END IF
+
   IF (.NOT. readburial) THEN
 
     CALL read_erosion(nout,erodex,erodey)
-  
+
     erodex = erodex/(time_scale*dist_scale)
     erodey = erodey/(time_scale*dist_scale)
 
@@ -8784,7 +8888,7 @@ IF (found) THEN
 
     IF (NoFluidBury) THEN
       FluidBuryX = 0.0D0
-      FluidBuryY = 0.0D0    
+      FluidBuryY = 0.0D0
     ELSE
       FluidBuryX = erodex
       FluidBuryY = erodey
@@ -8806,11 +8910,11 @@ IF (found) THEN
     WRITE(iunit2,*)
     WRITE(iunit2,*) '  Reading fluid and solid burial rates from file: ',BurialFile(1:lfile)
     WRITE(iunit2,*)
-  
+
     INQUIRE(FILE=BurialFile,EXIST=ext)
     IF (.NOT. ext) THEN
       CALL stringlen(BurialFile,ls)
-      WRITE(*,*) 
+      WRITE(*,*)
       WRITE(*,*) ' Solid/fluid burial file not found: ', BurialFile(1:ls)
       WRITE(*,*)
       READ(*,*)
@@ -8830,11 +8934,11 @@ IF (found) THEN
     DO jx= 0,nx
       READ(52,*,END=1020) FluidBuryX(jx),SolidBuryX(jx)
     END DO
-  ELSE IF (BurialFileFormat == 'FullForm') THEN 
+  ELSE IF (BurialFileFormat == 'FullForm') THEN
     DO jx= 0,nx
       READ(52,*,END=1020) xdum,FluidBuryX(jx),SolidBuryX(jx)
     END DO
-  ELSE IF (BurialFileFormat == 'Unformatted') THEN  
+  ELSE IF (BurialFileFormat == 'Unformatted') THEN
     READ(52,END=1020) FluidBuryX
     READ(52,END=1020) SolidBuryX
   ELSE
@@ -8867,10 +8971,10 @@ IF (found) THEN
     5016 CONTINUE
 
   ENDIF
-  
+
   dist_scale = 1.0d0
   time_scale = 1.0d0
-   
+
 END IF
 
 !  *****************TRANSPORT BLOCK***********************
@@ -8903,19 +9007,19 @@ IF (found) THEN
   WRITE(*,*)
   WRITE(*,*) ' Transport block found'
   WRITE(*,*)
-  
+
   IF (nx == 1 .OR. nx == 2) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Need at least 3 grid cells for transport in X direction'
+    WRITE(*,*) ' Need at least 3 grid cells for transport'
     WRITE(*,*)
-!!!    STOP
+    STOP
   END IF
 
   CALL units_time(nout,section,time_scale)
   CALL units_distance(nout,section,dist_scale)
-  
+
   CALL read_diffusion(nout,nx,ny,nz)
-  
+
   DO ik = 1,ncomp+nspec
     IF (idiffus == 0) THEN
       d_sp(ik) = dzero
@@ -8925,9 +9029,9 @@ IF (found) THEN
   END DO
 
   CALL read_gasdiffusion(nout,nx,ny,nz)
-  
+
   CALL read_speciesdiffusion(nout,ncomp,nspec,ndiff)
-  
+
   IF (ndiff >= 1) THEN
     species_diffusion = .TRUE.
   ELSE
@@ -8944,24 +9048,24 @@ IF (found) THEN
 !!!    READ(*,*)
 !!!    STOP
   END IF
-  
+
   CALL read_dispersion(nout,nx,ny,nz,alfl,alft)
-  
+
   alfl = alfl/dist_scale
   alft = alft/dist_scale
-  
+
 !  Convert units if necessary (converting to years and meters)
-  
+
 
   dcoeff = dcoeff/(time_scale*dist_scale*dist_scale)
   dzero = dzero/(time_scale*dist_scale*dist_scale)
   dgas = dgas/(time_scale*dist_scale*dist_scale)
 
-  
+
   DO ik = 1,ncomp+nspec
     d_sp(ik) = d_sp(ik)/(time_scale*dist_scale*dist_scale)
   END DO
-  
+
   time_scale = 1.0d0
   dist_scale = 1.0d0
 
@@ -8983,13 +9087,13 @@ IF (found) THEN
     END IF
     tortuosity = TortuosityConstant
   ELSE
-    
+
 !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
-    
+
     TortuosityFile = ' '
     ReadTortuosity = .FALSE.
     CALL read_TortuosityFile(nout,nx,ny,nz,constant_tortuosity,TortuosityFile,lfile,TortuosityFileFormat)
-    
+
     IF (TortuosityFile == ' ') THEN
       ReadTortuosity = .FALSE.
     ELSE
@@ -9002,7 +9106,7 @@ IF (found) THEN
       ALLOCATE(TortuosityZone(0:mperm))
 
       TortuosityZone = 0.0d0
-  
+
       ALLOCATE(jxxTortuosity_lo(mperm))
       ALLOCATE(jxxTortuosity_hi(mperm))
       ALLOCATE(jyyTortuosity_lo(mperm))
@@ -9028,13 +9132,13 @@ IF (found) THEN
       END IF
 
 ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
-     
-      IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN  
+
+      IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
         MillingtonQuirk = .FALSE.
         Tortuosity = TortuosityZone(0)
-        
+
 !       Next, initialize tortuosity from various zones
-        
+
         IF (nTortuosityZone > 0) THEN
           DO l = 1,nTortuosityZone
             DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
@@ -9061,7 +9165,7 @@ IF (found) THEN
       ELSE
         MillingtonQuirk = .TRUE.
       END IF
-        
+
       DEALLOCATE(TortuosityZone)
       DEALLOCATE(jxxTortuosity_lo)
       DEALLOCATE(jxxTortuosity_hi)
@@ -9076,20 +9180,20 @@ IF (found) THEN
         INQUIRE(FILE=TortuosityFile,EXIST=ext)
         IF (.NOT. ext) THEN
           CALL stringlen(TortuosityFile,ls)
-          WRITE(*,*) 
+          WRITE(*,*)
           WRITE(*,*) ' Tortuosity file not found: ', TortuosityFile(1:ls)
           WRITE(*,*)
           READ(*,*)
           STOP
         END IF
         MillingtonQuirk = .FALSE.
-        OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002) 
+        OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
         FileTemp = TortuosityFile
         CALL stringlen(FileTemp,FileNameLength)
         IF (TortuosityFileFormat == 'ContinuousRead') THEN
           READ(52,*,END=1020) (((tortuosity(jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
           OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
-          
+
           jz = 1
             DO jy = 1,ny
               DO jx= 1,nx
@@ -9147,7 +9251,7 @@ IF (found) THEN
           END DO
           CLOSE(UNIT=53,STATUS='keep')
 
-        ELSE IF (TortuosityFileFormat == 'FullForm') THEN 
+        ELSE IF (TortuosityFileFormat == 'FullForm') THEN
           IF (ny > 1 .AND. nz > 1) THEN
             DO jz = 1,nz
               DO jy = 1,ny
@@ -9195,7 +9299,7 @@ IF (found) THEN
               READ(52,*,END=1020) xdum,tortuosity(jx,jy,jz)
             END DO
           END IF
-        ELSE IF (TortuosityFileFormat == 'Unformatted') THEN  
+        ELSE IF (TortuosityFileFormat == 'Unformatted') THEN
           READ(52,END=1020) tortuosity
         ELSE
           WRITE(*,*)
@@ -9205,50 +9309,10 @@ IF (found) THEN
           STOP
         END IF
 
-        CLOSE(UNIT=52,STATUS='KEEP')    
+        CLOSE(UNIT=52,STATUS='KEEP')
       END IF
-    END IF     
+    END IF
   END IF
-  
-!!!   ******************  NMM Coupling  ****************************************************
-  
-!!!  ALLOCATE(stress(nx,ny,1))
-!!!  ALLOCATE(CrankLogK(nx,ny,1))
-!!!  jz = 1
-!!!  IF (nmmLogical) then
-!!!    OPEN(UNIT=53,FILE='NMMtoCrunch_JustData.txt',STATUS='UNKNOWN')
-!!!    do jy = 1,ny
-!!!      do jx = 1,nx
-!!!        read(53,*) stress(jx,jy,jz)
-!!!        stress(jx,jy,jz) = DABS(stress(jx,jy,jz))
-!!!      end do
-!!!    end do
-!!!    StressMaxVal = maxval(stress)
-    
-!!!    do jy = 1,ny
-!!!      do jx = 1,nx
-!!!        stress(jx,jy,jz) = stress(jx,jy,jz)/StressMaxVal
-!!!      end do
-!!!    end do
-    
-!!!    CrankSolubility = 1.0d0
-!!!    DO jy = 1,ny
-!!!      DO jx= 1,nx
-!!!        IF (por(jx,jy,jz) == 1.0d0) THEN              !! pore space
-!!!          crankLogK(jx,jy,jz) = 0.0d0
-!!!        ELSE
-!!!          crankLogK(jx,jy,jz) = CrankSolubility*stress(jx,jy,jz)
-!!!        END IF
-!!!      END DO
-!!!    END DO
-    
-!!!    CLOSE(UNIT=53,STATUS='keep')
-    
-!!!    DEALLOCATE(stress)
-    
-!!!    ENDIF
-  
-!!!   ******************  NMM Coupling  ****************************************************
 
   parchar = 'anisotropy_ratioY'
   parfind = ' '
@@ -9269,7 +9333,7 @@ IF (found) THEN
   ELSE
     anisotropyZ = realjunk
   END IF
-  
+
   ThresholdPorosity = 0.0d0
   TortuosityBelowThreshold = 1.0d0
   TortuosityAboveThreshold = 1.0d0
@@ -9331,15 +9395,15 @@ IF (found) THEN
   parchar = 'meandiffusion'
   parfind = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  
-    MeanDiffusion = 2     
+  IF (parfind == ' ') THEN
+    MeanDiffusion = 2
   ELSE
     IF (dumstring == 'GeometricMean' .OR. dumstring == 'geometricmean' .OR. dumstring == 'geometric') THEN
-      MeanDiffusion = 0 
+      MeanDiffusion = 0
     ELSE IF (dumstring == 'ArithmeticMean' .OR. dumstring == 'arithmeticmean' .OR. dumstring == 'arithmetic') THEN
-      MeanDiffusion = 1 
+      MeanDiffusion = 1
     ELSE IF (dumstring == 'HarmonicMean' .OR. dumstring == 'harmonicmean' .OR. dumstring == 'harmonic') THEN
-      MeanDiffusion = 2                  
+      MeanDiffusion = 2
     ELSE
       MeanDiffusion = 2
     END IF
@@ -9424,7 +9488,7 @@ dspz = 0.0
 !!             jinit(jx,jy,1) = 4
 !!             activecell(jx,jy,1) = 0
 !!             tortuosity(jx,jy,1) = 0.0d0
-!!         ELSE 
+!!         ELSE
 !!             continue
 !!         END IF
 
@@ -9535,7 +9599,7 @@ ZfluxWeightedConcentration = 0.0d0
                                           'delCaMineral        ',3x,     &
                                           'del34S_Sulfate      ',3x,     &
                                           'del34S_Sulfide      ',3x,     &
-                                          'del34S_Mineral      '     )                               
+                                          'del34S_Mineral      '     )
 3703 FORMAT('  Time(hrs)',4x,150(1X,a16))
 3704 FORMAT('  Time(min)',4x,150(1X,a16))
 3705 FORMAT('  Time(sec)',4x,150(1X,a16))
@@ -9606,7 +9670,7 @@ DEALLOCATE(jzzlo)
 DEALLOCATE(jzzhi)
 DEALLOCATE(jjfix)
 DEALLOCATE(surfcharge_init)
-DEALLOCATE(LogPotential_tmp)    
+DEALLOCATE(LogPotential_tmp)
 DEALLOCATE(unitsflag)
 DEALLOCATE(conversion)
 DEALLOCATE(OneOverMassFraction)
@@ -9718,19 +9782,19 @@ STOP
 WRITE(*,*) ' Error reading MODFLOW stress period information'
 WRITE(*,*) ' Number of stress periods: ', nstress
 WRITE(*,*) ' Looking for information on period length, no. of time steps, and multiplier '
-WRITE(*,*) 
+WRITE(*,*)
 READ(*,*)
 STOP
 6001 WRITE(*,*)
 CALL stringlen(PorosityFile,ls)
 WRITE(*,*) ' Error opening porosity file: ',PorosityFile(1:ls)
-WRITE(*,*) 
+WRITE(*,*)
 READ(*,*)
 STOP
 6002 WRITE(*,*)
 CALL stringlen(SaturationFile,ls)
 WRITE(*,*) ' Error opening liquid saturation file: ',SaturationFile(1:ls)
-WRITE(*,*) 
+WRITE(*,*)
 READ(*,*)
 STOP
 
@@ -9740,4 +9804,3 @@ READ(*,*)
 STOP
 
 END SUBROUTINE StartTope
-

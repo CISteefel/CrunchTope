@@ -42,39 +42,104 @@
 
 !!!      ****************************************
 
-MODULE medium
+SUBROUTINE watercontentRich(nx,ny,nz,dtyr)
+USE crunchtype
+USE params
+USE medium
+USE transport
+USE temperature, ONLY: ro
+USE flow
+USE CrunchFunctions
 
-  USE crunchtype
+IMPLICIT NONE
 
-  INTEGER(I4B)                                    :: ierode
-  INTEGER(I4B)                                    :: isaturate
+INTEGER(I4B), INTENT(IN)                                       :: nx
+INTEGER(I4B), INTENT(IN)                                       :: ny
+INTEGER(I4B), INTENT(IN)                                       :: nz
 
-  REAL(DP)                                        :: constantpor
-  REAL(DP)                                        :: FixSaturation
-  REAL(DP)                                        :: MinimumPorosity
-  REAL(DP)                                        :: PoreThreshold
-  REAL(DP)                                        :: PoreFill
- ! Added for the Richards solver, Zhi Li 20200629
-  REAL(DP)                                        :: wcr
-  REAL(DP)                                        :: vga
-  REAL(DP)                                        :: vgn
+!  Internal variables and arrays
 
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: AqueousToBulkCond
+INTEGER(I4B)                                                          :: jx
+INTEGER(I4B)                                                          :: jy
+INTEGER(I4B)                                                          :: jz
 
-! Allocatable arrays dimensioned over spatial domain
+!  ****** PARAMETERS  ****************************
+REAL(DP)                                                              :: coef
+REAL(DP)                                                              :: dt
+REAL(DP), PARAMETER                                                   :: Ss=1.0d-5
+REAL(DP), INTENT(IN)                                                  :: dtyr
 
-  REAL(DP), dimension(:,:,:), allocatable         :: porin
-  REAL(DP), dimension(:,:,:), allocatable         :: por
-  REAL(DP), dimension(:,:,:), allocatable         :: porOld
-  REAL(DP), dimension(:), allocatable             :: x
-  REAL(DP), dimension(:), allocatable             :: y
-  REAL(DP), dimension(:), allocatable             :: z
-  REAL(DP), dimension(:), allocatable             :: dxx
-  REAL(DP), dimension(:), allocatable             :: dyy
-  REAL(DP), dimension(:,:,:), allocatable         :: dzz
-  REAL(DP), dimension(:,:,:), allocatable         :: dxy
+CHARACTER (LEN=1)                                                     :: Coordinate
+
+dt = dtyr * 365 * 86400
+!   calculate darcy fluxes
+
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+        coef = 1.0d0 / (1.0d0 + Ss*(head(jx,jy,jz)-headOld(jx,jy,jz))/wcs(jx,jy,jz))
+        wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))     &
+                                    +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))  &
+                                    + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))
+        room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
+        IF (room(jx,jy,jz) < 0.0) THEN
+            room(jx,jy,jz) = 0.0d0
+        ELSE IF (room(jx,jy,jz) > (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)) THEN
+            room(jx,jy,jz) = (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
+        END IF
+
+        
+
+    END DO
+  END DO
+END DO
+
+DO jz = 1,nz
+  DO jx = 1,nx
+    IF (activecellPressure(jx,0,jz) == 0) THEN
+        wc(jx,0,jz) = wch(jx,0,jz)
+    ELSE
+        wc(jx,0,jz) = wch(jx,0,jz)
+    END IF
+    IF (activecellPressure(jx,ny+1,jz) == 0) THEN
+        wc(jx,ny+1,jz) = wch(jx,ny+1,jz)
+    ELSE
+        wc(jx,ny+1,jz) = wch(jx,ny+1,jz)
+    END IF
+  END DO
+END DO
+
+DO jz = 1,nz
+  DO jy = 1,ny
+    IF (activecellPressure(0,jy,jz) == 0) THEN
+        wc(0,jy,jz) = wch(0,jy,jz)
+    ELSE
+        wc(0,jy,jz) = wch(0,jy,jz)
+    END IF
+
+    IF (activecellPressure(nx+1,jy,jz) == 0) THEN
+        wc(nx+1,jy,jz) = wch(nx+1,jy,jz)
+    ELSE
+        wc(nx+1,jy,jz) = wch(nx+1,jy,jz)
+    END IF
+  END DO
+END DO
+
+DO jy = 1,ny
+  DO jx = 1,nx
+    IF (activecellPressure(jx,jy,0) == 0) THEN
+        wc(jx,jy,0) = wch(jx,jy,0)
+    ELSE
+        wc(jx,jy,0) = wch(jx,jy,0)
+    END IF
+    IF (activecellPressure(jx,jy,nz+1) == 0) THEN
+        wc(jx,jy,nz+1) = wch(jx,jy,nz+1)
+    ELSE
+        wc(jx,jy,nz+1) = wch(jx,jy,nz+1)
+    END IF
+  END DO
+END DO
 
 
-END MODULE medium
+RETURN
+END SUBROUTINE watercontentRich

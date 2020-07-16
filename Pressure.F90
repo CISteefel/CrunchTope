@@ -181,6 +181,8 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
       BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX) 
       XvecCrunchP(j) = pres(jx,jy,jz)
     END IF
+
+    
   END DO
 
   jx = 1
@@ -275,7 +277,7 @@ ELSE                !!  2D or 3D problem
   IF (nz == 1) THEN            !!  2D problem in X and Y
 
     jz = 1
-
+    
     DO jy = 2,ny-1
       DO jx = 2,nx-1
         j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1 
@@ -314,10 +316,15 @@ ELSE                !!  2D or 3D problem
 !!!          tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
           tdepend = (visc*ro(jx,jy,jz)*alphaBear*(1.0d0-por(jx,jy,jz)) + visc*ct*por(jx,jy,jz) ) *pres(jx,jy,jz)/ (dt*secyr)
           pumpterm = visc*ro(jx,jy,jz)*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
+
         END IF
-        
+
       END DO
     END DO
 
@@ -371,10 +378,14 @@ ELSE                !!  2D or 3D problem
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,0,jz)*pres(jx,0,jz)/(dyy(jy)*dyy(jy))   
           ELSE
             AddPressureY = 0.0d0
-          END IF   
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureY
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
+        
       END DO
 
       jy = ny
@@ -426,7 +437,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy,jz)*pres(jx,ny+1,jz)/(dyy(jy)*dyy(jy))   
           ELSE
             AddPressureY = 0.0d0
-          END IF 
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
@@ -483,7 +497,10 @@ ELSE                !!  2D or 3D problem
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(0,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))  
           ELSE
             AddPressureX = 0.0d0
-          END IF 
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
@@ -537,7 +554,10 @@ ELSE                !!  2D or 3D problem
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
           ELSE
             AddPressureX = 0.0d0
-          END IF 
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
@@ -604,7 +624,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,0,jz)*pres(jx,0,jz)/(dyy(jy)*dyy(jy))   
           ELSE
             AddPressureY = 0.0d0
-          END IF   
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
@@ -670,7 +693,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,0,jz)*pres(jx,0,jz)/(dyy(jy)*dyy(jy))   
           ELSE
             AddPressureY = 0.0d0
-          END IF 
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
@@ -736,7 +762,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy,jz)*pres(jx,ny+1,jz)/(dyy(jy)*dyy(jy))   
           ELSE
             AddPressureY = 0.0d0
-          END IF 
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
@@ -802,7 +831,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy,jz)*pres(jx,ny+1,jz)/(dyy(jy)*dyy(jy))   
           ELSE
             AddPressureY = 0.0d0
-          END IF 
+          END IF
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
           BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
 

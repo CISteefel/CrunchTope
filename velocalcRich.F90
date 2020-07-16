@@ -42,39 +42,101 @@
 
 !!!      ****************************************
 
-MODULE medium
+SUBROUTINE velocalcRich(nx,ny,nz)
+USE crunchtype
+USE params
+USE medium
+USE transport
+USE temperature, ONLY: ro
+USE flow
+USE CrunchFunctions
 
-  USE crunchtype
+IMPLICIT NONE
 
-  INTEGER(I4B)                                    :: ierode
-  INTEGER(I4B)                                    :: isaturate
+INTEGER(I4B), INTENT(IN)                                       :: nx
+INTEGER(I4B), INTENT(IN)                                       :: ny
+INTEGER(I4B), INTENT(IN)                                       :: nz
 
-  REAL(DP)                                        :: constantpor
-  REAL(DP)                                        :: FixSaturation
-  REAL(DP)                                        :: MinimumPorosity
-  REAL(DP)                                        :: PoreThreshold
-  REAL(DP)                                        :: PoreFill
- ! Added for the Richards solver, Zhi Li 20200629
-  REAL(DP)                                        :: wcr
-  REAL(DP)                                        :: vga
-  REAL(DP)                                        :: vgn
+!  Internal variables and arrays
 
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
-  REAL(DP), DIMENSION(:), ALLOCATABLE             :: AqueousToBulkCond
+INTEGER(I4B)                                                          :: jx
+INTEGER(I4B)                                                          :: jy
+INTEGER(I4B)                                                          :: jz
 
-! Allocatable arrays dimensioned over spatial domain
+!  ****** PARAMETERS  ****************************
 
-  REAL(DP), dimension(:,:,:), allocatable         :: porin
-  REAL(DP), dimension(:,:,:), allocatable         :: por
-  REAL(DP), dimension(:,:,:), allocatable         :: porOld
-  REAL(DP), dimension(:), allocatable             :: x
-  REAL(DP), dimension(:), allocatable             :: y
-  REAL(DP), dimension(:), allocatable             :: z
-  REAL(DP), dimension(:), allocatable             :: dxx
-  REAL(DP), dimension(:), allocatable             :: dyy
-  REAL(DP), dimension(:,:,:), allocatable         :: dzz
-  REAL(DP), dimension(:,:,:), allocatable         :: dxy
+CHARACTER (LEN=1)                                                     :: Coordinate
+
+!   calculate darcy fluxes
+
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+
+      IF (jx /= nx) THEN
+        Coordinate = 'X'
+        qx(jx,jy,jz) = -2.0d0 * Kfacx(jx,jy,jz) * (head(jx+1,jy,jz) - head(jx,jy,jz)) / (dxx(jx)+dxx(jx+1))
+      END IF
+      IF (jy /= ny) THEN
+        Coordinate = 'Y'
+        qy(jx,jy,jz) = -2.0d0 * Kfacy(jx,jy,jz) * (head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy)+dyy(jy+1))
+      END IF
+      IF (jz /= nz) THEN
+        Coordinate = 'Z'
+        qz(jx,jy,jz) = -2.0d0 * Kfacz(jx,jy,jz) * (head(jx,jy,jz+1) - head(jx,jy,jz)) / (dzz(jx,jy,jz)+dzz(jx,jy,jz+1)) &
+                        + Kfacz(jx,jy,jz)
+      END IF
+
+    END DO
+  END DO
+END DO
+
+DO jz = 1,nz
+  DO jx = 1,nx
+    IF (activecellPressure(jx,0,jz) == 0) THEN
+      qy(jx,0,jz) = -2.0d0 * Kfacy(jx,0,jz) * (head(jx,1,jz) - head(jx,0,jz)) / (dyy(1))
+    ELSE
+      qy(jx,0,jz) = 0.0d0
+    END IF
+    IF (activecellPressure(jx,ny+1,jz) == 0) THEN
+      qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
+    ELSE
+      qy(jx,ny,jz) = 0.0d0
+    END IF
+  END DO
+END DO
+
+DO jz = 1,nz
+  DO jy = 1,ny
+    IF (activecellPressure(0,jy,jz) == 0) THEN
+      qx(0,jy,jz) = -2.0d0 * Kfacx(0,jy,jz) * (head(1,jy,jz) - head(0,jy,jz)) / (dxx(1))
+    ELSE
+      qx(0,jy,jz) = 0.0d0
+    END IF
+
+    IF (activecellPressure(nx+1,jy,jz) == 0) THEN
+      qx(nx,jy,jz) = -2.0d0 * Kfacx(nx,jy,jz) * (head(nx+1,jy,jz) - head(nx,jy,jz)) / (dxx(nx))
+    ELSE
+      qx(nx,jy,jz) = 0.0d0
+    END IF
+  END DO
+END DO
 
 
-END MODULE medium
+DO jy = 1,ny
+  DO jx = 1,nx
+    IF (activecellPressure(jx,jy,0) == 0) THEN
+      qz(jx,jy,0) = -2.0d0 * Kfacz(jx,jy,0) * (head(jx,jy,1) - head(jx,jy,0)) / (dzz(jx,jy,1)) + Kfacz(jx,jy,0)
+    ELSE
+      qz(jx,jy,0) = 0.0d0
+    END IF
+    IF (activecellPressure(jx,jy,nz+1) == 0) THEN
+      qz(jx,jy,nz) = -2.0d0 * Kfacz(jx,jy,nz) * (head(jx,jy,nz+1) - head(jx,jy,nz)) / (dzz(jx,jy,nz)) + Kfacz(jx,jy,nz)
+    ELSE
+      qz(jx,jy,nz) = 0.0d0
+    END IF
+  END DO
+END DO
+
+RETURN
+END SUBROUTINE velocalcRich
