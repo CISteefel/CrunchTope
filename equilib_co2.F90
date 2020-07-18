@@ -1205,7 +1205,9 @@ DO  ktrial = 1,ntrial
      END IF
     u(i+ncomp+nexchange+nsurf) = u(i+ncomp+nexchange+nsurf) + beta(i+ncomp+nexchange+nsurf)
   END DO
-  
+  if (ktrial > 19 ) then
+    continue
+  end if
   DO i = 1,ncomp
     sptmp(i) = u(i)
     sptmp10(i) = DEXP(sptmp(i))
@@ -1242,13 +1244,16 @@ DO  ktrial = 1,ntrial
      continue
    end if
   
-  IF (fxmaxx < atol .AND. DABS(fxmaxPotential) < 1.0E-07 .AND. ktrial > 10 .AND. ChargeOK) THEN
+  IF (fxmaxx < atol .AND. DABS(fxmaxPotential) < 1.0E-08 .AND. ktrial > 20 .AND. ChargeOK) THEN
     
-    if (Duan .OR. Duan2006) then
-      call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
-    else
-      CALL gamma_init(ncomp,nspec,tempc,sqrt_sion)
-    end if
+    IF (igamma /= 0) THEN
+      if (Duan .OR. Duan2006) then
+        call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
+      else
+        CALL gamma_init(ncomp,nspec,tempc,sqrt_sion)
+      end if
+    END IF
+    
     CALL species_init(ncomp,nspec)
     
     if (Duan .OR. Duan2006) then
