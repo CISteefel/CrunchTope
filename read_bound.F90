@@ -102,6 +102,7 @@ IF(ls /= 0) THEN
   CALL convan(ssch,lzs,res)
   
   IF (ssch == 'x_begin') THEN
+    
     WRITE(*,*)
     WRITE(*,*) ' X = 0 boundary condition found'
     WRITE(*,*)
@@ -122,6 +123,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
+          jinit(0,:,:) = nco
           DO ik = 1,ncomp+nspec
             spb(ik,1) = spcond10(ik,nco)
           END DO
@@ -183,6 +185,7 @@ IF(ls /= 0) THEN
       jc(1) = 2     ! Assume no flux boundary
     END IF
     GO TO 10
+    
   ELSE IF (ssch == 'x_end') THEN
     WRITE(*,*)
     WRITE(*,*) ' X = NX boundary condition found'
@@ -203,6 +206,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
+          jinit(nx+1,:,:) = nco
           DO ik = 1,ncomp+nspec
             spb(ik,2) = spcond10(ik,nco)
           END DO
@@ -264,6 +268,7 @@ IF(ls /= 0) THEN
       jc(2) = 2     ! Assume no flux boundary
     END IF
     GO TO 10
+    
   ELSE IF (ssch == 'y_begin') THEN
     WRITE(*,*)
     WRITE(*,*) ' Y = 0 boundary condition found'
@@ -284,6 +289,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
+          jinit(:,0,:) = nco
           DO ik = 1,ncomp+nspec
             spb(ik,3) = spcond10(ik,nco)
           END DO
@@ -345,6 +351,7 @@ IF(ls /= 0) THEN
       jc(3) = 2     ! Assume no flux boundary
     END IF
     GO TO 10
+    
   ELSE IF (ssch == 'y_end') THEN
     WRITE(*,*)
     WRITE(*,*) ' Y = NY boundary condition found'
@@ -365,6 +372,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
+          jinit(:,ny+1,:) = nco
           DO ik = 1,ncomp+nspec
             spb(ik,4) = spcond10(ik,nco)
           END DO
@@ -426,6 +434,7 @@ IF(ls /= 0) THEN
       jc(4) = 2     ! Assume no flux boundary
     END IF
     GO TO 10
+    
   ELSE IF (ssch == 'z_begin') THEN
     WRITE(*,*)
     WRITE(*,*) ' Z = 0 boundary condition found'
@@ -446,6 +455,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
+          jinit(:,:,0) = nco
           DO ik = 1,ncomp+nspec
             spb(ik,5) = spcond10(ik,nco)
           END DO
@@ -507,6 +517,7 @@ IF(ls /= 0) THEN
       jc(5) = 2     ! Assume no flux boundary
     END IF
     GO TO 10
+    
   ELSE IF (ssch == 'z_end') THEN
     WRITE(*,*)
     WRITE(*,*) ' Z = NZ boundary condition found'
@@ -527,6 +538,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
+          jinit(:,:,nz+1) = nco
           DO ik = 1,ncomp+nspec
             spb(ik,6) = spcond10(ik,nco)
           END DO

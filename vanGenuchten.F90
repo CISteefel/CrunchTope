@@ -110,7 +110,7 @@ END DO
 DO jz = 1,nz
     DO jy = 1,ny
         DO jx = 0,nx
-            IF (nx == 3) THEN
+            IF (nx <= 3) THEN
                 Kfacx(jx,jy,jz) = 0.0d0
             ELSE
                 Kfacx(jx,jy,jz) = 0.5 * (permx(jx,jy,jz)*Kr(jx,jy,jz) + permx(jx+1,jy,jz)*Kr(jx+1,jy,jz)) * (ro(jx,jy,jz)*grav/visc)
@@ -124,7 +124,7 @@ END DO
 DO jz = 1,nz
     DO jy = 0,ny
         DO jx = 1,nx
-            IF (ny == 3) THEN
+            IF (ny == 1) THEN
                 Kfacy(jx,jy,jz) = 0.0d0
             ELSE
                 Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
@@ -138,12 +138,16 @@ END DO
 DO jz = 0,nz
     DO jy = 1,ny
         DO jx = 1,nx
-            Kfacz(jx,jy,jz) = 0.5 * (permz(jx,jy,jz)*Kr(jx,jy,jz) + permz(jx,jy,jz+1)*Kr(jx,jy,jz+1)) * (ro(jx,jy,jz)*grav/visc)
-            IF (permz(jx,jy,jz) == 0.0d0 .OR. permz(jx,jy,jz+1) == 0.0d0) THEN
+            IF (nz == 1) THEN
                 Kfacz(jx,jy,jz) = 0.0d0
-            END IF
-            IF (jz == 0 .AND. pres(jx,jy,jz) > 0) THEN
-                Kfacz(jx,jy,jz) = permz(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
+            ELSE
+                Kfacz(jx,jy,jz) = 0.5 * (permz(jx,jy,jz)*Kr(jx,jy,jz) + permz(jx,jy,jz+1)*Kr(jx,jy,jz+1)) * (ro(jx,jy,jz)*grav/visc)
+                IF (permz(jx,jy,jz) == 0.0d0 .OR. permz(jx,jy,jz+1) == 0.0d0) THEN
+                    Kfacz(jx,jy,jz) = 0.0d0
+                END IF
+                IF (jz == 0 .AND. pres(jx,jy,jz) > 0) THEN
+                    Kfacz(jx,jy,jz) = permz(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
+                END IF
             END IF 
         END DO
     END DO

@@ -1105,14 +1105,22 @@ DO k = 1,nkin
         
         IF (nIsotopeMineral > 0) THEN
             
-          kIsotopologue = kPointerIsotope(k)
-          KMineralCommon = kIsotopeCommon(kIsotopologue)
+          IF (IsotopeMineralCommon(k)) THEN
             
-          IF (NoFractionationDissolution .and. IsotopeMineralRare(k) .and. si(np,k) < 1.0d0) THEN
-            rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,kMineralCommon)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+            kIsotopologue = kPointerIsotope(k)
+            KMineralCommon = kIsotopeCommon(kIsotopologue)
+            
+            IF (NoFractionationDissolution .and. IsotopeMineralRare(k) .and. si(np,k) < 1.0d0) THEN
+              rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,kMineralCommon)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+            ELSE
+              rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+            END IF
+            
           ELSE
-            rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+            rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm            
+            
           END IF
+          
         ELSE
           rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         END IF

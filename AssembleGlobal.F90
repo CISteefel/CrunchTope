@@ -347,15 +347,15 @@ DO jy = 1,ny
 
     satl = satliq(jx,jy,jz)
     satgas = 1.0d0 - satl
-    IF (cylindrical) THEN
-      CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
-      df = 1.0d0
-      MultiplyCell = CellVolume
-      IF (CylindricalDivideVolume) THEN
-        df = 1.0/CellVolume
-        MultiplyCell = 1.0
-      END IF
-    ELSE IF (spherical) THEN
+IF (cylindrical) THEN
+  CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
+  df = 1.0d0
+  MultiplyCell = CellVolume
+  IF (CylindricalDivideVolume) THEN
+      df = 1.0/CellVolume
+      MultiplyCell = 1.0
+  END IF
+ELSE IF (spherical) THEN
       CellVolume = (4.0d0/3.0d0)*pi*( (x(jx) + 0.5d0*dxx(jx))**3.0d0 - (x(jx) - 0.5d0*dxx(jx))**3.0d0  )
        df = 1.0d0
        MultiplyCell = CellVolume
@@ -1398,6 +1398,7 @@ DO jy = 1,ny
 
 !  Jacobian entries:  Dependence of residual of surface potential equation on 
 !     other unknowns (ncomp,nsurf,npot)
+    
 
     DO npt = 1,npot
 
@@ -1405,13 +1406,13 @@ DO jy = 1,ny
       k = kpot(npt)       !!  One to one correspondence between potential and mineral surface (k)
 
       IF (volin(k,jinit(jx,jy,jz)) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
-        correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
+        correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
       ELSE
         volMinimum = volfx(k,jx,jy,jz)
         if (volMinimum < 1.0D-15) then
           volMinimum = 1.0D-15
         end if
-        correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*volMinimum/volmol(k)   !!  m^2 mineral/m^3 BV
+        correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k)   !!  m^2 mineral/m^3 BV
       END IF
  
 !!  Dependence of the potential on primary species concentrations

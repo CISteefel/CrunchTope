@@ -153,7 +153,7 @@ DO jz = 1,nz
 END DO
 
 IF (redistribute_wc) THEN
-    WRITE(*,*) '  Redistribution via 4 mechanisms: ',dist_path1,dist_path2,dist_path3,dist_path4
+!!!    WRITE(*,*) '  Redistribution via 4 mechanisms: ',dist_path1,dist_path2,dist_path3,dist_path4
 END IF 
 
 

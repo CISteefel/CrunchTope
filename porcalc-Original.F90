@@ -78,49 +78,29 @@ INTEGER(I4B)                                                    :: k
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      
       sum = 0.0
       DO k = 1,nkin
-
         vinit = volin(k,jinit(jx,jy,jz))
-        
-        IF (LocalEquilibrium(k)) THEN                      !! Local equilibrium fantasy, so don't change the surface area
-            
-          IF (volfx(k,jx,jy,jz) > 0.0d0) THEN
-            area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))
-          ELSE
-            area(k,jx,jy,jz) = 0.0d0
-          END IF
+        IF (vinit == 0.0) THEN
+          area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))*(volfx(k,jx,jy,jz)/0.01)**0.66666
           sum = sum + volfx(k,jx,jy,jz)
-          
-        ELSE                                               !! Update reactive surface area
-
-          IF (iarea(k,jinit(jx,jy,jz)) == 0) THEN                     !!  Bulk surface area
-              
-            IF (vinit == 0.0d0) THEN
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/0.01)**0.6666
-              sum = sum + volfx(k,jx,jy,jz)
-            ELSE
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
-              sum = sum + volfx(k,jx,jy,jz)
-            END IF
-            
-          ELSE                                                        !!  Specific surface area
-              
-            IF ( volin(k,jinit(jx,jy,jz)) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN   !!  Initially a zero volume fraction, so use "threshold" volume fraction
-              area(k,jx,jy,jz) = voltemp(k,jinit(jx,jy,jz))*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
-            ELSE
-              area(k,jx,jy,jz) = volfx(k,jx,jy,jz)*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
-            END IF
-            sum = sum + volfx(k,jx,jy,jz)
-            
-          END IF
-          
-
+        ELSE
+          sum = sum + volfx(k,jx,jy,jz)
+          area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
         END IF
-
-      END DO   !!!  End of mineral loop
-      
+      END DO
+      IF (jpor /= 1) THEN
+        por(jx,jy,jz) = porin(jx,jy,jz)
+      ELSE
+        por(jx,jy,jz) = 1.0 - sum
+        IF (por(jx,jy,jz) <= 0.0) THEN
+          por(jx,jy,jz) = 1.d-14
+        END IF
+      END IF
+      porfactor = (por(jx,jy,jz)/porin(jx,jy,jz))**0.6666666666666
+      DO k = 1,nkin
+        area(k,jx,jy,jz) = area(k,jx,jy,jz)*porfactor
+      END DO
     END DO
   END DO
 END DO

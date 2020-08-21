@@ -995,6 +995,7 @@ DO k = 1,nkin
               END DO
               
             ELSE
+              
               MoleFractionMineral = MoleFractionMineralRare(kPointerIsotope(k))
 !!            Use the bulk surface area (common)
               surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))

@@ -97,6 +97,7 @@ IF(ls /= 0) THEN
   lzs=ls
 !        call convan(ssch,lzs,res)
   CALL stringtype(ssch,lzs,res)
+  
 !!!  IF (res /= 'a') THEN
 !!!    WRITE(*,*)
 !!!    WRITE(*,*) ' Geochemical input should start with a string'
@@ -106,6 +107,7 @@ IF(ls /= 0) THEN
 !!!    READ(*,*)
 !!!    STOP
 !!!  END IF
+  
 END IF
 IF (ssch == umin(k)) THEN
   mineralfound = .true.     ! mineral found

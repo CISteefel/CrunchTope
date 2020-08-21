@@ -86,13 +86,13 @@ DO npt = 1,npot
   k = kpot(npt)
 
   IF (volin(k,jinit(jx,jy,jz)) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
-    correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
+    correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
   ELSE
     volMinimum = volfx(k,jx,jy,jz)
     if (volMinimum < 1.0D-15) then
        volMinimum = 1.0D-15
     end if
-    correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*volMinimum/volmol(k)   !!  m^2 mineral/m^3 BV
+    correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k)   !!  m^2 mineral/m^3 BV
   END IF
 
   if (correct == 0.0) then

@@ -60,6 +60,7 @@ DO ns = 1,nsurf_sec
         - DLOG(musurf(ns,islink(ns)+ncomp)) 
 
     spsurftmp10(ns+nsurf) = DEXP(spsurftmp(ns+nsurf))
+    continue
 
   ELSE                                  !! Non-electrostatic option
 

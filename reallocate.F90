@@ -713,6 +713,7 @@ ALLOCATE(specific(ndim1,ndim2))
 IF(ndim1 /= 0 .AND. ndim2 /= 0) specific(1:ndim1,1:ndim2) = work2(1:ndim1,1:ndim2)
 DEALLOCATE(work2)
 
+
 ndim1 = nrct
 ndim2 = nchem
 i = size(voltemp,1)

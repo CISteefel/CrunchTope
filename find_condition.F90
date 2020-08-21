@@ -528,6 +528,8 @@ IF (found) THEN
     CALL read_mineral(nout,k,nchem, ncomp,nspec,nrct,ngas,mineralfound)
 !          write(*,*) umin(k),volin(k,nchem),areain(k,nchem)
     IF (mineralfound) THEN
+      
+!!    Specific surface area specified
       IF (iarea(k,nchem) == 1) THEN    !!  Specific surface area specified
         IF (volmol(k) == 0.0D0 .OR. volmol(k) == 500.0d0) THEN
           WRITE(*,*) 
@@ -543,6 +545,8 @@ IF (found) THEN
         ELSE
           areain(k,nchem) = voltemp(k,nchem)*specific(k,nchem)*wtmin(k)/volmol(k)
         END IF
+        
+!!    Bulk surface area specified      
       ELSE                             !!  Bulk surface area specified
         IF (volin(k,nchem) /= 0.0) THEN
           specific(k,nchem) = areain(k,nchem)*volmol(k)/(volin(k,nchem)*wtmin(k))
@@ -555,6 +559,7 @@ IF (found) THEN
 !!          WRITE(*,*)
 !!          STOP
         END IF
+        
       END IF
       
     ELSE
@@ -737,7 +742,6 @@ IF (found) THEN
 
 ! Read surface complexes
   
-
 DO ks = 1,nsurf
     complexfound = .false.
 !    WRITE(*,*)

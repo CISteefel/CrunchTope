@@ -342,7 +342,7 @@ DO npt = 1,npot
   nrow = npt + ncomp + nexchange + nsurf
   is = ispot(npt)
   k = ksurf(is)
-  correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*volfx(k,jx,jy,jz)/volmol(k) 
+  correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volfx(k,jx,jy,jz)/volmol(k) 
  
   DO i2 = 1,ncomp
     ind2 = i2
@@ -378,7 +378,7 @@ DO npt = 1,npot
   nrow = npt + ncomp + nexchange + nsurf
   is = ispot(npt)
   k = ksurf(is)
-  correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*volfx(k,jx,jy,jz)/volmol(k) 
+  correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volfx(k,jx,jy,jz)/volmol(k) 
 
   DO npt2 = 1,npot
     ncol = npt2 + ncomp + nexchange + nsurf

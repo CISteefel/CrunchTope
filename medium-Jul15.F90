@@ -41,90 +41,36 @@
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
+    
+MODULE medium
+
+  USE crunchtype
+
+  INTEGER(I4B)                                    :: ierode
+  INTEGER(I4B)                                    :: isaturate
+
+  REAL(DP)                                        :: constantpor 
+  REAL(DP)                                        :: FixSaturation
+  REAL(DP)                                        :: MinimumPorosity
+  REAL(DP)                                        :: PoreThreshold
+  REAL(DP)                                        :: PoreFill
+
+  REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
+  REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
+  REAL(DP), DIMENSION(:), ALLOCATABLE             :: AqueousToBulkCond
+
+! Allocatable arrays dimensioned over spatial domain
+
+  REAL(DP), dimension(:,:,:), allocatable         :: porin
+  REAL(DP), dimension(:,:,:), allocatable         :: por
+  REAL(DP), dimension(:,:,:), allocatable         :: porOld
+  REAL(DP), dimension(:), allocatable             :: x
+  REAL(DP), dimension(:), allocatable             :: y
+  REAL(DP), dimension(:), allocatable             :: z
+  REAL(DP), dimension(:), allocatable             :: dxx
+  REAL(DP), dimension(:), allocatable             :: dyy
+  REAL(DP), dimension(:,:,:), allocatable         :: dzz
+  REAL(DP), dimension(:,:,:), allocatable         :: dxy
 
 
-SUBROUTINE porcalc(nx,ny,nz,nkin,jpor)
-USE crunchtype
-USE params
-USE concentration
-USE mineral
-USE medium
-
-IMPLICIT NONE
-!fp! auto_par_loops=0;
-
-!  External variables and arrays
-
-INTEGER(I4B), INTENT(IN)                                        :: nx
-INTEGER(I4B), INTENT(IN)                                        :: ny
-INTEGER(I4B), INTENT(IN)                                        :: nz
-INTEGER(I4B), INTENT(IN)                                        :: nkin
-INTEGER(I4B), INTENT(IN)                                        :: jpor
-
-!  Internal variables and arrays
-
-REAL(DP)                                                        :: sum
-REAL(DP)                                                        :: vinit
-REAL(DP)                                                        :: porfactor
-
-INTEGER(I4B)                                                    :: jx
-INTEGER(I4B)                                                    :: jy
-INTEGER(I4B)                                                    :: jz
-INTEGER(I4B)                                                    :: k
-
-!  NOTE:  Initial volume fractions should be advected as well
-!         Assumed immobile for the moment
-
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO jx = 1,nx
-      
-      sum = 0.0
-      DO k = 1,nkin
-
-        vinit = volin(k,jinit(jx,jy,jz))
-        
-        IF (LocalEquilibrium(k)) THEN                      !! Local equilibrium fantasy, so don't change the surface area
-            
-          IF (volfx(k,jx,jy,jz) > 0.0d0) THEN
-            area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))
-          ELSE
-            area(k,jx,jy,jz) = 0.0d0
-          END IF
-          sum = sum + volfx(k,jx,jy,jz)
-          
-        ELSE                                               !! Update reactive surface area
-
-          IF (iarea(k,jinit(jx,jy,jz)) == 0) THEN                     !!  Bulk surface area
-              
-            IF (vinit == 0.0d0) THEN
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/0.01)**0.6666
-              sum = sum + volfx(k,jx,jy,jz)
-            ELSE
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
-              sum = sum + volfx(k,jx,jy,jz)
-            END IF
-            
-          ELSE                                                        !!  Specific surface area
-              
-            IF ( volin(k,jinit(jx,jy,jz)) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN   !!  Initially a zero volume fraction, so use "threshold" volume fraction
-              area(k,jx,jy,jz) = voltemp(k,jinit(jx,jy,jz))*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
-            ELSE
-              area(k,jx,jy,jz) = volfx(k,jx,jy,jz)*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
-            END IF
-            sum = sum + volfx(k,jx,jy,jz)
-            
-          END IF
-          
-
-        END IF
-
-      END DO   !!!  End of mineral loop
-      
-    END DO
-  END DO
-END DO
-
-RETURN
-END SUBROUTINE porcalc
-!  *******************************************************
+END MODULE medium

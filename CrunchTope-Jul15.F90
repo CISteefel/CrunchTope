@@ -1,43 +1,43 @@
 !!! *** Copyright Notice ***
-!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
-!!!ï¿½
-!!! If you have questions about your rights to use or distribute this software, please contact
-!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
-!!!ï¿½
-!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government
-!!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting
-!!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public,
+!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
+!!! 
+!!! If you have questions about your rights to use or distribute this software, please contact 
+!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
+!!! 
+!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
+!!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
-!!!
+!!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-!!!
+!!! 
 !!! (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 !!!
-!!! (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+!!! (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
 !!! in the documentation and/or other materials provided with the distribution.
 !!!
-!!! (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of
+!!! (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of 
 !!! its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 !!!
-!!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
-!!! BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-!!! SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-!!! DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-!!! OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-!!! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+!!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
+!!! BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+!!! SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+!!! DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+!!! OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+!!! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
 !!! THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !!!
-!!! You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or
+!!! You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or 
 !!! performance of the source code ("Enhancements") to anyone; however, if you choose to make your
-!!! Enhancements available either publicly, or directly to Lawrence Berkeley National Laboratory, without
-!!! imposing a separate written license agreement for such
-!!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use,
-!!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or
+!!! Enhancements available either publicly, or directly to Lawrence Berkeley National Laboratory, without 
+!!! imposing a separate written license agreement for such 
+!!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use, 
+!!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or 
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
@@ -384,8 +384,6 @@ REAL(DP)                                                   :: denominator
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
 
-REAL(DP)                                                   :: dq_max
-
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -423,7 +421,7 @@ WRITE(*,*) '                 Authors:  C.I. STEEFEL, S. MOLINS'
 
 WRITE(*,*) '                      *** Copyright Notice ***          '
 WRITE(*,*) '     Copyright (c) 2016, The Regents of the University of California, '
-WRITE(*,*) '            through Lawrence Berkeley National Laboratory             '
+WRITE(*,*) '            through Lawrence Berkeley National Laboratory             ' 
 WRITE(*,*) '                        All Rights Reserved                           '
 WRITE(*,*)
 WRITE(*,*) '   ********************************************************************'
@@ -461,16 +459,18 @@ nrct = 0
 nkin = 0
 ikin = 0
 NumSourceTerms = 0
-isaturate = 0
-dtmaxcour = 0.0
-iprnt = 0
+isaturate = 0  
+dtmaxcour = 0.0   
+iprnt = 0    
 ncounter = 0
 
 !!call def_time(CPU_unit)
+
 CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,  &
     ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,       &
     corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,    &
     str_day,str_hr,str_min,str_sec,NumInputFiles,InputFileCounter,nBoundaryConditionZone)
+
 str_mon = 0
 str_day = 0
 str_hr  = 0
@@ -561,9 +561,7 @@ IF (CalculateFlow) THEN
 
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 
-    !ZhiLi
-    dtflow = delt
-!  dtflow = 1.0D-10
+  dtflow = 1.0D-05
   WRITE(*,*)
   WRITE(*,*) ' Running flow field to steady state prior to chemistry'
   WRITE(*,*)
@@ -579,10 +577,10 @@ IF (CalculateFlow) THEN
   ro(nx+1,:,:) = ro(nx,:,:)
   ro(:,0,:) = ro(:,1,:)
   ro(:,ny+1,:) = ro(:,ny,:)
-  ro(:,:,0) = ro(:,:,1)
+  ro(:,:,0) = ro(:,:,1)  
   ro(:,:,nz+1) = ro(:,:,nz)
 
-  CALL harmonic(nx,ny,nz)
+  CALL harmonic(nx,ny,nz) 
 
   MaxPermeabilityX = MAXVAL(harx)
   MaxPermeabilityY = MAXVAL(hary)
@@ -609,47 +607,7 @@ IF (CalculateFlow) THEN
       END DO
     END DO
   END IF
-
- !! Initialize pressure head, Zhi Li 20200709
- IF (Richards) THEN
-     WRITE(*,*) ' Initializing head and water content for Richards equation'
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
-           wcs(jx,jy,jz) = por(jx,jy,jz)
-           wc(jx,jy,jz) = wc_init
-           IF (wc(jx,jy,jz) >= wcs(jx,jy,jz)) THEN
-               wc(jx,jy,jz) = wcs(jx,jy,jz)
-               head(jx,jy,jz) = 0.0d0
-           ELSE
-               head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
-           END IF
-           ! enforce saturation when prescribed initial pressure exists
-           IF (pres(jx,jy,jz) > 0.0) THEN
-               IF (jx == 0 .OR. jx == nx+1 .OR. jy == 0 .OR. jy == ny+1 .OR. jz == 0 .OR. jz == nz+1) THEN
-                   wc(jx,jy,jz) = wcs(jx,jy,jz)
-                   head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
-               END IF
-           END IF
-         END DO
-       END DO
-     END DO
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
-           headOld(jx,jy,jz) = head(jx,jy,jz)
-           wcOld(jx,jy,jz) = wc(jx,jy,jz)
-           ! IF (jz == 0) THEN
-           !     dzz(jx,jy,jz) = dzz(jx,jy,jz) * 0.1d0
-           ! END IF
-         END DO
-       END DO
-     END DO
-     WRITE(*,*) ' Initialization completed!'
- END IF
-
-
-
+  
 !!  atolksp = 1.D-50
 !!  rtolksp = 1.D-25
 !!  dtolksp = 1.D+05
@@ -663,32 +621,16 @@ IF (CalculateFlow) THEN
   ksp%v = userP(6)
 
   CALL KSPSetOperators(ksp,amatP,amatP,ierr)
-
-
-
-  IF (NavierStokes) THEN
-    CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
-  ELSE IF (Richards) THEN
-    CALL vanGenuchten(nx,ny,nz)
-    CALL pressureRich(nx,ny,nz,dtflow,amatP,SteadyFlow)
-  ELSE
-    CALL pressure(nx,ny,nz,dtflow,amatP,SteadyFlow)
-  END IF
-
+  CALL pressure(nx,ny,nz,dtflow,amatP,SteadyFlow)
 
   CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
 !!!!  To invoke direct solve
 !!    call KSPGetPC(ksp,pc,ierr)
 !!    call PCSetType(pc,PCLU,ierr)
-
-   ! CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
-   ! CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
+ 
   CALL KSPSolve(ksp,BvecP,XvecP,ierr)
   CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
-
-!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
 
   WRITE(*,*)
   WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
@@ -732,73 +674,16 @@ IF (CalculateFlow) THEN
     STOP
   END IF
 
+  FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+    pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+  END FORALL 
 
-  IF (Richards) THEN
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-      END FORALL
-  ELSE
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-      END FORALL
-  END IF
-
-  ! DO jz = 0,nz+1
-  !   DO jy = 0,ny+1
-  !     DO jx = 0,nx+1
-  !         IF (jx == 2 .AND. jy == 2) THEN
-  !             WRITE(*,*) 'jz - Kz, head, headOld = ',jz,Kfacz(jx,jy,jz),head(jx,jy,jz),headOld(jx,jy,jz)
-  !         END IF
-  !     END DO
-  !   END DO
-  ! END DO
-
-  ! DO jz = 1,nz,8
-  !     WRITE(*,*) 'jz, h-hOld, wc-wcOld = ',jz,head(2,2,jz),headOld(2,2,jz),wc(2,2,jz),wcOld(2,2,jz)
-  ! END DO
-
-
-  IF (NavierStokes) THEN
-      CALL velocalcNS(nx,ny,nz,dtflow)
-  ELSE IF (Richards) THEN
-      CALL vanGenuchten(nx,ny,nz)
-      CALL velocalcRich(nx,ny,nz)
-      CALL watercontentRich(nx,ny,nz,dtflow)
-      CALL vanGenuchten(nx,ny,nz)
-      CALL redistributeRich(nx,ny,nz)
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
-      END FORALL
-      CALL velocalcRich(nx,ny,nz)
-  ELSE
-      CALL velocalc(nx,ny,nz)
-  END IF
-
- ! final check of water content
-  IF (Richards) then
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
-              wc(jx,jy,jz) = wcs(jx,jy,jz)
-          ELSE IF (wc(jx,jy,jz) < wcr) THEN
-              wc(jx,jy,jz) = wcr
-          END IF
-        END DO
-      END DO
-    END DO
-  END IF
-!! ********************************
-
-
-
-
-
+  CALL velocalc(nx,ny,nz)
 
 !!  Check divergence of flow field
 
   MaxDivergence = 0.00
-  DO jz = 1,nz
+  DO jz = 1,nz 
     DO jy = 1,ny
       DO jx = 1,nx
         Coordinate = 'X'
@@ -831,7 +716,7 @@ IF (CalculateFlow) THEN
   WRITE(*,*)
 
   SteadyFlow = .FALSE.
-
+  
 END IF   !!  End of steady state flow block
 
 !!  Initial mass in system
@@ -916,11 +801,11 @@ IF (irestart == 1) THEN
   CALL restart(time,nn,nint,nexchange,nsurf,nx,ny,nz,nstop,nstopsave, &
      delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
      amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
-
+    
 END IF
 
 
-!!  Check to see if the problem is fully saturated initially and changes to unsaturated
+!!  Check to see if the problem is fully saturated initially and changes to unsaturated 
 !!  with the call to "ReadFlowField".
 
 IF (isaturate == 1) THEN            !!  Already treated as a unsaturated problem
@@ -928,7 +813,7 @@ IF (isaturate == 1) THEN            !!  Already treated as a unsaturated problem
 END IF
 
 
-IF (gimrt .AND. isaturate == 1 .AND. .NOT. AlreadyUnsaturated) THEN
+IF (gimrt .AND. isaturate == 1 .AND. .NOT. AlreadyUnsaturated) THEN   
 
   CALL AllocateGasesGimrt(nx,ny,nz,ncomp)
 
@@ -995,7 +880,7 @@ IF (os3d .AND. nxyz > 1) THEN
       fg = 0.0
     END IF
   END IF
-END IF
+END IF 
 
 IF ( os3dpetsc) THEN
 
@@ -1012,12 +897,7 @@ iteration_tot = 0
 nn = 0
 
 DO WHILE (nn <= nend)
-
-    ! Zhi Li 20200715
-    IF (nn == 0 .and. (Richards .or. NavierStokes) ) THEN
-        delt = dtflow
-    END IF
-
+  
   nn = nn + 1
 
 !!!  Call timestep-dependent re-speciation routine to check whether initial state should be updated  FLASH
@@ -1034,7 +914,7 @@ DO WHILE (nn <= nend)
     roOld = ro
     DO jz = 1,nz
       DO jy = 1,ny
-        DO jx = 1,nx
+        DO jx = 1,nx     
           CALL density(jx,jy,jz)
         END DO
       END DO
@@ -1045,14 +925,13 @@ DO WHILE (nn <= nend)
     CALL UpdateExchanger(nx,ny,nz,nexchange)
   END IF
 
-
   IF (CalculateFlow) THEN
 
     ro(0,:,:) = ro(1,:,:)
     ro(nx+1,:,:) = ro(nx,:,:)
     ro(:,0,:) = ro(:,1,:)
     ro(:,ny+1,:) = ro(:,ny,:)
-    ro(:,:,0) = ro(:,:,1)
+    ro(:,:,0) = ro(:,:,1)  
     ro(:,:,nz+1) = ro(:,:,nz)
 
     IF (jpor == 1 .OR. jpor == 3) THEN
@@ -1070,29 +949,9 @@ DO WHILE (nn <= nend)
     SteadyFlow = .FALSE.
     CALL KSPSetOperators(ksp,amatP,amatP,ierr)
     CALL harmonic(nx,ny,nz)
-
-    IF (Richards) THEN
-        DO jz = 0,nz+1
-          DO jy = 0,ny+1
-            DO jx = 0,nx+1
-              headOld(jx,jy,jz) = head(jx,jy,jz)
-              wcOld(jx,jy,jz) = wc(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-    END IF
-
-    IF (NavierStokes) THEN
-        CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
-    ELSE IF (Richards) THEN
-        CALL vanGenuchten(nx,ny,nz)
-        CALL pressureRich(nx,ny,nz,delt,amatP,SteadyFlow)
-    ELSE
-        CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
-    END IF
+    CALL pressure (nx,ny,nz,delt,amatP,SteadyFlow)
 
     CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
-
 
 !!!!  To invoke direct solve
 !!    call KSPGetPC(ksp,pc,ierr)
@@ -1102,14 +961,8 @@ DO WHILE (nn <= nend)
       CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
     END IF
 
-!    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
-!    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
     CALL KSPSolve(ksp,BvecP,XvecP,ierr)
     CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
-
-!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
 
     IF (MOD(nn,ScreenInterval) == 0) THEN
       WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
@@ -1135,53 +988,11 @@ DO WHILE (nn <= nend)
       STOP
     END IF
 
+    FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+      pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+    END FORALL 
 
-
-    IF (Richards) THEN
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-        END FORALL
-    ELSE
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-        END FORALL
-    END IF
-
-    IF (NavierStokes) THEN
-        CALL velocalcNS(nx,ny,nz,delt)
-    ELSE IF (Richards) THEN
-        ! Disable os3d for now, Zhi Li 20200714
-        ! os3d = .FALSE.
-        CALL vanGenuchten(nx,ny,nz)
-        CALL velocalcRich(nx,ny,nz)
-        CALL watercontentRich(nx,ny,nz,delt)
-        CALL vanGenuchten(nx,ny,nz)
-        CALL redistributeRich(nx,ny,nz)
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
-        END FORALL
-        CALL velocalcRich(nx,ny,nz)
-    ELSE
-        CALL velocalc(nx,ny,nz)
-    END IF
-
-    ! final check of water content
-    IF (Richards) THEN
-      DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
-             IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
-                 wc(jx,jy,jz) = wcs(jx,jy,jz)
-             ELSE IF (wc(jx,jy,jz) < wcr) THEN
-                 wc(jx,jy,jz) = wcr
-             END IF
-           END DO
-         END DO
-      END DO
-    END IF
-
-
-
+    CALL velocalc(nx,ny,nz)
 
 !!          Coordinate = 'X'
 !!          call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
@@ -1209,11 +1020,11 @@ DO WHILE (nn <= nend)
 !!      write(*,*) ' Reached maximum number of iterations (but converged)'
 !!    ELSE IF (reason > 4) THEN
 !!      write(*,*)
-!!      write(*,*) ' Converged for some other reason'
+!!      write(*,*) ' Converged for some other reason'  
 !!    ELSE
 !!      WRITE(*,*)
 !!      Write(*,*) ' Failed to converge'
-!!    END IF
+!!    END IF  
 
 !!    WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
 !!    WRITE(*,*) ' Maximum divergence in flow field = ', MaxDivergence
@@ -1224,20 +1035,18 @@ DO WHILE (nn <= nend)
 
 !! Return here to restart time step after failure
 
-  4000 CONTINUE
+  4000 CONTINUE  
 
 !  *********  End NUFT block within time stepping  ****************
 
   IF (gimrt) THEN         !  Update dispersivity
-    IF (.NOT. Richards) THEN
-      CALL dispersivity(nx,ny,nz)
-    END IF
+    CALL dispersivity(nx,ny,nz)
   END IF
 
 !  **************  OS3D BLOCK    **********************
-
+  
   IF (os3d) THEN
-
+    
     IF (.NOT. modflow) THEN
 
       maxQx = MAXVAL(DABS(qx(0:nx,1:ny,1:nz)))
@@ -1263,9 +1072,7 @@ DO WHILE (nn <= nend)
 
       IF (xflow .OR. yflow .OR. zflow) THEN
         call CourantStepAlt(nx,ny,nz,dtmaxcour)
-        IF (.NOT. Richards) THEN
-          CALL dispersivity(nx,ny,nz)
-        END IF
+        CALL dispersivity(nx,ny,nz)
       END IF
 
     END IF
@@ -1281,6 +1088,7 @@ DO WHILE (nn <= nend)
     END IF
 
     IF (os3dpetsc) THEN
+      
       IF (spherical) THEN
         CALL coeffSphericalNew(nx,ny,nz)
       ELSE if (cylindrical) THEN
@@ -1291,6 +1099,7 @@ DO WHILE (nn <= nend)
           CALL gasdiff(nx,ny,nz)
         END IF
       END IF
+      
     END IF
 
     IF (delt > dtmaxcour .AND. dtmaxcour /= 0.0) THEN
@@ -1301,7 +1110,7 @@ DO WHILE (nn <= nend)
       DO jy = 1,ny
         DO jx = 1,nx
           CALL oldcon(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
-          CALL oldkd(ncomp,jx,jy,jz)
+          CALL oldkd(ncomp,jx,jy,jz)  
           IF (isaturate == 1) THEN
             CALL oldcongas(ncomp,ngas,jx,jy,jz)
           END IF
@@ -1317,7 +1126,7 @@ DO WHILE (nn <= nend)
     END IF
 
     DO i = 1,ncomp
-
+      
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = -1,0
@@ -1360,7 +1169,7 @@ DO WHILE (nn <= nend)
           END DO
         END DO
       END DO
-
+      
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1368,11 +1177,11 @@ DO WHILE (nn <= nend)
           END DO
         END DO
       END DO
-
+    
       IF (ReadNuft) THEN
         CALL tvdNuft(nx,ny,nz,delt,i)
       ELSE
-        CALL tvd(nx,ny,nz,delt,i)
+        CALL tvd(nx,ny,nz,delt,i)  
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1462,9 +1271,9 @@ DO WHILE (nn <= nend)
         END IF
       END IF
 
-
+      
     END DO   ! End of species
-
+    
 !!  Start of gas diffusion
 
     IF (os3dpetsc .AND. isaturate==1) THEN
@@ -1537,7 +1346,7 @@ DO WHILE (nn <= nend)
             END DO
           END DO
         END DO
-
+   
       END DO   ! End of cycling through components
 
     END IF     ! End of gas diffusion in OS3D mode
@@ -1545,13 +1354,13 @@ DO WHILE (nn <= nend)
 
 !  Start sweep through spatial domain for reaction step
 
-!   NOTE:  call to OLDCON not needed since total concentrations are transported
+!   NOTE:  call to OLDCON not needed since total concentrations are transported 
 !     (SN already calculated)
-
+    
     newtmax = 0
     loop4001: DO jz = 1,nz
       DO jy = 1,ny
-        DO jx = 1,nx
+        DO jx = 1,nx 
           CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
           IF (igamma == 3) THEN
 
@@ -1562,7 +1371,7 @@ DO WHILE (nn <= nend)
             END IF
 
           END IF
-
+          
           CALL AqueousToBulkConvert(jx,jy,jz,AqueousToBulk)
 
           IF (ncomp == 1 .AND. ulab(1) == 'Tracer') THEN
@@ -1570,13 +1379,17 @@ DO WHILE (nn <= nend)
              sp10(1,jx,jy,jz) = sn(1,jx,jy,jz)
           END IF
 
+!!!       Now the Newton step grid cell by grid cell (solving for ncomp by ncomp chemical system)
+          
           CALL os3d_newton(ncomp,nspec,nkin,nrct,ngas,ikin,           &
-            nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,neqn,igamma,   &
+            nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,neqn,igamma,   & 
             delt,corrmax,jx,jy,jz,iterat,icvg,nx,ny,nz,time,AqueousToBulk)
+          
+!!!       Now we have solved the nonlinear reaction step, so go to next step
 
           CALL SpeciesLocal(ncomp,nspec,jx,jy,jz)
           CALL totconc(ncomp,nspec,jx,jy,jz)
-
+    
           IF (iterat > newtmax) THEN
             newtmax = iterat
           END IF
@@ -1592,9 +1405,8 @@ DO WHILE (nn <= nend)
         END DO
       END DO
     END DO loop4001
-
-    ! No dt reduction when using Richards solver , Zhi Li 20200708
-    IF (icvg == 1 .AND. .NOT. Richards) THEN
+    
+    IF (icvg == 1) THEN
       ddtold = delt
       delt = delt/10.0
       itskip = 1
@@ -1611,7 +1423,7 @@ DO WHILE (nn <= nend)
             END DO
             DO is = 1,nsurf+nsurf_sec
               spsurf(is,jx,jy,jz) = spsurfold(is,jx,jy,jz)
-              spsurf10(is,jx,jy,jz) = EXP(spsurfold(is,jx,jy,jz))
+              spsurf10(is,jx,jy,jz) = EXP(spsurfold(is,jx,jy,jz))         
             END DO
             CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
           END DO
@@ -1642,27 +1454,26 @@ DO WHILE (nn <= nend)
       WRITE(*,5085) delt*OutputTimeScale
       WRITE(*,*)
       GO TO 4000   ! Loop back to start the time step over
-
+      
     ELSE
       iterat = newtmax
     END IF   !  End of IF block for case where no Newton convergence
-
-
+          
+    
   END IF    ! End of OS3D block
-
+  
 !  *************   END OF OS3D BLOCK  **********************
-
+  
 !  ***********  START GIMRT BLOCK  *********************
-
+  
   6000   IF (gimrt) THEN
-
+    
     jz = 1
-!!!    WRITE(*,*) 'GIMRT invoked!'
-!           Calculate finite difference coefficients
-        IF (.NOT. Richards) THEN
-          CALL dispersivity(nx,ny,nz)
-        END IF
 
+!           Calculate finite difference coefficients
+    
+    CALL dispersivity(nx,ny,nz)
+   
     IF (TortuosityOption /= 'none') THEN
       CALL CalculateTortuosity(nx,ny,nz)
     END IF
@@ -1703,7 +1514,7 @@ DO WHILE (nn <= nend)
         END IF
       END IF
     END IF
-
+    
     IF (isaturate == 1) THEN
       IF (cylindrical) THEN
 !!        CALL gasdiffCylinder(nx,ny,nz)
@@ -1712,7 +1523,7 @@ DO WHILE (nn <= nend)
         CALL gasdiff(nx,ny,nz)
       END IF
     END IF
-
+    
     IF (ierode == 1) THEN
       CALL erosion(nx,ny,nz)
     END IF
@@ -1723,7 +1534,7 @@ DO WHILE (nn <= nend)
         CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
       END DO
     END DO
-
+    
     jz = 1
     DO jy = 1,ny
       DO jx = 1,nx
@@ -1751,24 +1562,25 @@ DO WHILE (nn <= nend)
         END DO
       END DO
     END IF
+
 ! **************  START NEWTON LOOP  *******************
 
     5000     NE = 0
     icvg = 1
     iterat = 0
 
-
+    
 newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
       NE = NE + 1
       iterat = iterat + 1
 
-      CALL species(ncomp,nspec,nx,ny,nz)
-      CALL jacobian(ncomp,nspec,nx,ny,nz)
+      CALL species(ncomp,nspec,nx,ny,nz)   
+      CALL jacobian(ncomp,nspec,nx,ny,nz) 
       IF (ierode == 1) THEN
         CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
         CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
       END IF
-
+     
       jz = 1
       DO jy = 1,ny
         DO jx = 1,nx
@@ -1794,13 +1606,13 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           IF (isaturate == 1) THEN
             CALL jacgas(ncomp,ngas,jx,jy,jz)
           END IF
-
+          
           IF (ierode == 1) THEN
             CALL jac_exchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,neqn,jx,jy,jz)
           END IF
         END DO
       END DO
-
+      
       jz = 1
       DO jy = 1,ny
         DO jx = 1,nx
@@ -1818,7 +1630,7 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           END IF
         END DO  ! end of J loop
       END DO
-
+      
       CALL xmass(nx,ny,nz,ncomp,nspec)
 
 !************************ Start PETSC changes for matrix fill ********************
@@ -1836,27 +1648,27 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
 !**************  End PETSC changes *********************************************
 
 
-      IF (nxyz == 1) THEN
-
+      IF (nxyz == 1) THEN       
+        
         bb = -fxx
-
-!!        CALL ludcmp90(aaa,indd,det,neqn)
+        
+!!        CALL ludcmp90(aaa,indd,det,neqn)     
 !!        CALL lubksb90(aaa,indd,bb,neqn)
 
         CALL dgetrf(neqn,neqn,aaa,neqn,indd,info)
         CALL dgetrs(trans,neqn,ione,aaa,neqn,indd,bb,neqn,info)
-
+        
         xn = bb
         continue
-
+        
       ELSE       !  One-dimensional case
-
+        
         IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
 
         IF (switcheroo) then
           write(*,*) ' Using Hindmarsh solver with PETSc constructed arrays'
         end if
-
+          
           DO jx = 1,nx
             j = jx
             DO i = 1,neqn
@@ -1864,13 +1676,13 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
               yh(i,jx) = -fxx(ind)
             END DO
           END DO
-
+          
 
           CALL decbt90(neqn,nx,ier)
           CALL solbt90(neqn,nx)
 
         ELSE IF (ihindmarsh == 2) THEN
-
+          
 !         ***** PETSc closeout**************
           IF (petscon) then
             call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
@@ -1885,13 +1697,13 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
 !         ****** PETSc closeout finished *********
           READ(*,*)
           STOP
-
+          
         ELSE         !  Run PETSc
-
+          
           fxx = -fxx
 
 !************* Invoke PETSc solver *****************************************************
-          if (petscon) then
+          if (petscon) then 
 
             atolksp = 1.D-50
 !!            rtolksp = 1.D-09
@@ -1912,16 +1724,16 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
                 write(*,*) ' KSPSolve error, reducing timestep,ierr=',ierr
                 exit newtonloop
             endif
-          endif
+          endif  
 
 !      xn now contains the solution to amatpetsc * xvec = bvec
 !      unless the solver failed in which case the time step will be halved
 !******************  PETSc solver exit **************************************************
 
         END IF
-
+        
       END IF
-
+      
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
 
         errmax = 0.0
@@ -1984,9 +1796,9 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
             END DO
           END DO
         END DO
-
+        
       ELSE
-
+ 
         jz = 1
         errmax = 0.0D0
         DO jy = 1,ny
@@ -2056,7 +1868,7 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
         END DO
 
       END IF
-
+      
       icvg = 0
       jz = 1
       DO jy = 1,ny
@@ -2076,48 +1888,42 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           DO ix = 1,nexchange
             tolmax = 1.e-10
             ind = (j-1)*(neqn) + ix+ncomp
-            IF (DABS(delt*fxx(ind)) > tolmax) THEN
-                icvg = 1
-            END IF
+            IF (DABS(delt*fxx(ind)) > tolmax) icvg = 1
           END DO
           DO is = 1,nsurf
             tolmax = atol
             ind = (j-1)*(neqn) + is+ncomp+nexchange
-            IF (DABS(delt*fxx(ind)) > tolmax) THEN
-                icvg = 1
-            END IF
+            IF (DABS(delt*fxx(ind)) > tolmax) icvg = 1
           END DO
           DO npt = 1,npot
             tolmax = 1.e-10
             ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
-            IF (DABS(fxx(ind)) > tolmax) THEN
-                icvg = 1
-            END IF
+            IF (DABS(fxx(ind)) > tolmax) icvg = 1
           END DO
         END DO
       END DO
-
+      
       IF (ABS(errmax) < 1.e-15) THEN
         icvg = 0
       END IF
-
+      
 !! If electrochemical migration is considered, always carry out at least two Newton iterations
       IF (species_diffusion .AND. iterat<=2) icvg = 1
 !!      if (iterat<=1) icvg=1
 
 
     END DO  newtonloop    ! end of Newton iteration loop
-
+    
 !  Halve the timestep if convergence not achieved
-
+    
 5017 CONTINUE
     IF (icvg == 1) THEN
       MaxFx = MaxLoc(fxx)
 !!      MaxValFx = MaxVal(fxx)
-
+        
       ddtold = delt
       delt = delt/10.0
-      itskip = 1
+      itskip = 1 
 
       jz = 1
       DO jy = 1,ny
@@ -2146,7 +1952,7 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
         END DO
       END DO
 
-!!      CALL species(ncomp,nspec,nx,ny,nz)
+!!      CALL species(ncomp,nspec,nx,ny,nz)  
 !!      IF (ierode == 1) THEN
 !!        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 !!      END IF
@@ -2171,7 +1977,7 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           END DO
         END DO
       END IF
-
+      
       WRITE(*,*)
       WRITE(*,*) '***** NO CONVERGENCE OF NEWTON ITERATIONS IN GIMRT *****'
       WRITE(*,*) '                REDUCING TIME STEP'
@@ -2179,11 +1985,11 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
       WRITE(*,5085) delt*OutputTimeScale
       WRITE(*,*)
       GO TO 5000   ! Loop back to start the time step over
-
+      
     END IF   !  End of IF block for case where no Newton convergence
-
+    
 !  Correct for change in water concentration
-
+    
     IF (nn == 1) THEN
       IF (ALLOCATED(lrow)) DEALLOCATE(lrow)
       IF (ALLOCATED(levptr)) DEALLOCATE(levptr)
@@ -2207,10 +2013,10 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
 !        END DO
 !      END DO
 !    END IF
-
-    CALL species(ncomp,nspec,nx,ny,nz)
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-
+ 
+    CALL species(ncomp,nspec,nx,ny,nz)  
+    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz) 
+   
     jz = 1
     DO jy = 1,ny
       DO jx = 1,nx
@@ -2218,9 +2024,9 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
 !!        CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt)
       END DO
     END DO
-
+    
   END IF    !  END OF GIMRT NEWTON LOOP
-
+  
 !  *************  END OF GIMRT NEWTON LOOP  ********************
 
 !! For greater accuracy, update reaction rate
@@ -2233,16 +2039,16 @@ DO jz = 1,nz
   END DO
 END DO
 
-
-  time = time + delt
-
+ 
+  time = time + delt                     
+  
 !  Check charge balance
 
 !    totcharge = 0.0
 !    DO i = 1,ncomp
 !      totcharge = totcharge + chg(i)*s(i,20,1,1)
 !    END DO
-!    write(*,*)
+!    write(*,*) 
 !    write(*,*) ' Total charge at grid point 20 = ',totcharge
 !    write(*,*)
 
@@ -2265,7 +2071,7 @@ END DO
 
 !  Do not update mineral volume fractions in reaction path
 !  mode (ipath = 1 and nxyz = 1)
-
+  
   IF (ipath == 1 .AND. nxyz == 1) THEN
     CONTINUE
   ELSE
@@ -2277,12 +2083,12 @@ END DO
 
  !!  MassBalanceError = MassBalanceError + fxx(7)*delt
  !!  RateMassBalanceError = RateMassBalanceError + 0.1*dppt(6,1,1,1)*delt
- !!  aq_accum = 0.1*por(1,1,1)*ro(1,1,1)*(s(7,1,1,1)-sn(7,1,1,1))
+ !!  aq_accum = 0.1*por(1,1,1)*ro(1,1,1)*(s(7,1,1,1)-sn(7,1,1,1)) 
  !!  AqueousMassBalanceError = AqueousMassBalanceError + aq_accum
  !!  DynamicMassBalanceError = AqueousMassBalanceError + RateMassBalanceError
-
+  
 !  NOTE:  Will have to change some routines below for OS3D
-
+  
   IF (ineg == 1) THEN
 !!    WRITE(*,*)
 !!    WRITE(*,*) ' Mineral volume fractions negative'
@@ -2291,7 +2097,7 @@ END DO
     itskip = 1
     time = time - delt
 
-    delt = dtnewest
+    delt = dtnewest  
 
     DO jz = 1,nz
     DO jy = 1,ny
@@ -2314,7 +2120,7 @@ END DO
     END DO
     END DO
 
-    CALL species(ncomp,nspec,nx,ny,nz)
+    CALL species(ncomp,nspec,nx,ny,nz) 
     CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
     GO TO 6000
@@ -2322,18 +2128,18 @@ END DO
 
 
   !!!CALL ratecheck(nx,ny,nz,nrct,dtmax,delt)
-
+  
 !  **********************  START GIMRT BLOCK  *********************************
 
   IF (gimrt .AND. ierode == 1) THEN
-
+    
 !         Advect the minerals via burial or erosion
 !           (positive for burial, negative for erosion)
-
+    
     rinv = 1.0/delt
-
+    
     DO k=1,nkin
-
+      
       jz = 1
       DO jy = 1,ny
         DO jx = -1,0
@@ -2358,16 +2164,16 @@ END DO
           ctvd(jx,jy,jz) = volb(k,4)
         END DO
       END DO
-
+      
       jz = 1
       DO jy = 1,ny
         DO jx = 1,nx
           ctvd(jx,jy,jz) = volfx(k,jx,jy,jz)
         END DO
       END DO
-
+      
       IF (nx > 1 .AND. ny == 1) THEN
-
+        
         DO jx = 1,nx
           IF (jx == 1) THEN
             dxe = 0.5*(dxx(jx)+dxx(jx+1))
@@ -2393,50 +2199,44 @@ END DO
             rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
           END IF
         END DO
-        
         IF (SolidBuryX(1) > 0.0) THEN
           rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
         END IF
         IF (SolidBuryX(nx) < 0.0) THEN
           rrbur(nx) = rrbur(nx) - ccbur(nx)*volb(k,2)
         END IF
-
-        CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
-
+        
+        CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)      
+        
         DO jx = 1,nx
           volfx(k,jx,1,1) = uubur(jx)
         END DO
 
       END IF
-
+          
     END DO   ! End of mineral loop for erosion/burial
-
+    
     CALL porcalc(nx,ny,nz,nkin,jpor)     ! Updates porosity and surface area
-    
-    IF (KateMaher) THEN
-      write(*,*) 
-      write(*,*) ' KateMaher option no longer supported'
-      write(*,*)
-      read(*,*)
-      stop
-    END IF
 
-!!!  Bury/erode mineral properties (e.g., specificByGrid)
+    IF (KateMaher) THEN
+
+      rinv = 1.0/delt
     
-    rinv = 1.0/delt
-    jz = 1
-    jy = 1
-    
-    DO k = 1,nrct
+      jz = 1
+      jy = 1
+
+!!  ******************
+
+      call CalciteStoichiometryBoundary(1)
 
       DO jx = 1,nx
-        ctvd(jx,jy,jz) = specificByGrid(k,jx,jy,jz)
+        ctvd(jx,jy,jz) = muUranium234Bulk(jx,jy,jz)
       END DO
-
+      
       DO jx = 1,nx
         IF (jx == 1) THEN
-          dxw = 0.5*dxx(1)
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
         ELSE IF (jx == nx) THEN
           dxw = 0.5*(dxx(jx)+dxx(jx-1))
           dxe = 0.5*dxx(nx)
@@ -2458,29 +2258,202 @@ END DO
           rrbur(jx) = ctvd(jx,1,1)*rinv
         END IF
       END DO
-      
+
       IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
+        rrbur(1) = rrbur(1) - aabur(1)*muUranium234Boundary(1)
       END IF
-      
-      IF (SolidBuryX(nx) < 0.0) THEN
-        rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
-      END IF
-
-      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
-
+        
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)      
+        
       DO jx = 1,nx
-        specificByGrid(k,jx,1,1) = uubur(jx)
+        muUranium234Bulk(jx,1,1) = uubur(jx)
       END DO
-      
-    END DO
 
 !!   *************
 
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = muUranium238Bulk(jx,jy,jz)
+      END DO
+      
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
 
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*muUranium238Boundary(1)
+      END IF
+  
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)      
+        
+      DO jx = 1,nx
+        muUranium238Bulk(jx,1,1) = uubur(jx)
+      END DO
+
+!!  *****************
+
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = muCalciumBulk(jx,jy,jz)
+      END DO
+      
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*muCalciumBoundary(1)
+      END IF
+        
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)      
+        
+      DO jx = 1,nx
+        muCalciumBulk(jx,1,1) = uubur(jx)
+      END DO
+
+      muCalciumBulk = 0.97*muCalciumBulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
+      muUranium234Bulk = 0.97*muUranium234Bulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
+     muUranium238Bulk = 0.97*muUranium238Bulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
+
+!!  *****************
+
+    IF (nradmax > 0) THEN
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = mumin_decay(1,kUPlag,ik234U,jx,jy,jz)
+      END DO
+      
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*1.40e-10
+      END IF
+      IF (SolidBuryX(nx) < 0.0) THEN
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*muCalciumBulk(nx,1,1)
+      END IF
+        
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)      
+        
+      DO jx = 1,nx
+        mumin_decay(1,kUPlag,ik234U,jx,jy,jz) = uubur(jx)
+      END DO
+
+!!  *****************
+
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = mumin_decay(1,kUPlag,ik238U,jx,jy,jz)
+      END DO
+      
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*2.84e-06
+      END IF
+      IF (SolidBuryX(nx) < 0.0) THEN
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*muCalciumBulk(nx,1,1)
+      END IF
+        
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)      
+        
+      DO jx = 1,nx
+        mumin_decay(1,kUPlag,ik238U,jx,jy,jz) = uubur(jx)
+      END DO
+
+     END IF    !!  Nradmax > 0
+
+    END IF      !!  End of KateMaher block
+    
   END IF   !  End of erosion/burial block (for GIMRT only)
-
-
+  
 !  **********   END OF EROSION/BURIAL BLOCK FOR MINERALS  *****************
 
 !!    write(*,*) ' Smectite surface area = ', area(7,nx,1,1)
@@ -2493,8 +2466,9 @@ END DO
 !!    write(*,*)
 
 !  **********************  END GIMRT BLOCK  *********************************
-
+  
 !  Store values of master variable
+  
   phmax = 0.0
   phchg = maxval(DABS(sp(ikmast,1:nx,1:ny,1:nz)/clg-spno2(1:nx,1:ny,1:nz)/clg))
   phloc = maxloc(DABS(sp(ikmast,1:nx,1:ny,1:nz)/clg-spno2(1:nx,1:ny,1:nz)/clg))
@@ -2506,7 +2480,7 @@ END DO
   spexold = spex
   spsurfold = spsurf
 
-
+  
 !**********************************
   IF (iprint3 == 1) THEN
     IF (os3d) THEN
@@ -2617,61 +2591,36 @@ END DO
    END IF
 
 !  Calculate time step to be used based on various criteria
-!Adaptive dt, Zhi Li 20200715
-IF (Richards) THEN
-    dq_max = 0.0d0
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-            IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale) > dq_max) THEN
-                dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale)
-            END IF
-        END DO
-      END DO
-    END DO
 
+  IF (nn > 4) THEN
+    dtmax = tstep
+    IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
+      deltmin = dtmaxcour
+    END IF
+    IF (dtmaxcour /= 0.0) THEN
+      dtmax = MIN(dtmax,dtmaxcour)
+    END IF
+    dtmax = MAX(dtmax,deltmin)  
+    IF (ReadNuft) THEN 
+      dtNuft = timeNuft - time
+      IF (dtNuft < eps) THEN
+        dtmax = delt
+      ELSE
+        dtmax = MIN(dtNuft,dtmax)
+      END IF
+    END IF
+    IF (modflow) THEN 
+      dtModFlow = timeModFlow - time
+      IF (dtModFlow(NumModFlowSteps) < eps) THEN
+        dtmax = delt
+      ELSE
+        dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
+      END IF
+    END IF
+
+    CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
     dtold = delt
-    IF (dq_max > 0.02) THEN
-        delt = 0.9 * delt
-    ELSE IF (dq_max < 0.01) THEN
-        delt = 1.1 * delt
-    END IF
 
-    IF (delt < deltmin) THEN
-        delt = deltmin
-    ELSE IF (delt > dtmax) THEN
-        delt = dtmax
-    END IF
-ELSE
-      IF (nn > 4) THEN
-              dtmax = tstep
-              IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
-                deltmin = dtmaxcour
-              END IF
-              IF (dtmaxcour /= 0.0) THEN
-                dtmax = MIN(dtmax,dtmaxcour)
-              END IF
-              dtmax = MAX(dtmax,deltmin)
-              IF (ReadNuft) THEN
-                dtNuft = timeNuft - time
-                IF (dtNuft < eps) THEN
-                  dtmax = delt
-                ELSE
-                  dtmax = MIN(dtNuft,dtmax)
-                END IF
-              END IF
-              IF (modflow) THEN
-                dtModFlow = timeModFlow - time
-                IF (dtModFlow(NumModFlowSteps) < eps) THEN
-                  dtmax = delt
-                ELSE
-                  dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
-                END IF
-              END IF
-
-              CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
-              dtold = delt
-          END IF
   END IF
 
 !!  OPEN(unit=98,file='vxSonnenthal.dat',status='unknown')
@@ -2681,15 +2630,14 @@ ELSE
 !!  OPEN(unit=98,file='vySonnenthal.dat',status='unknown')
 !!  WRITE(98,*)(((qy(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
 !!  close(unit=98)
-
-
+  
   IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
     delt = prtint(nint) - time
     WRITE(*,*) ' Adjusting time step to match output file'
     WRITE(*,5085) delt*OutputTimeScale
     WRITE(*,*)
   END IF
-
+  
   spnno2 = spno2
   DO jz = 1,nz
     DO jy = 1,ny
@@ -2698,11 +2646,11 @@ ELSE
       END DO
     END DO
   END DO
-
+  
 !! Write breakthrough files here
   CALL BreakthroughWrite(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,nseries,  &
                         nexchange,nexch_sec,nsurf,nsurf_sec,nn,ikpH,time,nplotsurface,nplotexchange )
-
+  
   CALL MineralBreakthroughWrite(ncomp,nkin,nrct,nx,ny,nz,minseries,nn,time)
 
   CALL IsotopeBreakthroughWrite(ncomp,nspec,nkin,nrct,ngas,npot, &
@@ -2712,7 +2660,7 @@ ELSE
   call FluxWeightedConcentrationWrite(ncomp,nspec,nx,ny,nz,nn,time,delt )
 
   IF (MOD(nn,ScreenInterval) == 0 .AND. MakeMovie) THEN
-    write(*,*) ' ----> Writing to movie file'
+    write(*,*) ' ----> Writing to movie file'    
     CALL movie(ncomp,nrct,nkin,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
     FirstCall = .FALSE.
@@ -2728,10 +2676,10 @@ ELSE
   END IF
 
 185 FORMAT(1PE12.5,12x,100(1X,1PE16.8))
-
+  
 !        if (ulab(iplot(1)).eq.'h+' .or. ulab(iplot(1).eq.'H+' .and. nplot.eq.1) then
 !          phwrite = -(sp(iplot(1),j)+gam(iplot(1),j) )/clg
-
+  
   IF (time >= prtint(nint) .OR. steady) THEN
 
     iprnt = 1
@@ -2759,7 +2707,7 @@ ELSE
 
 
   END IF
-
+  
   IF (iprnt == 1) THEN
     IF (ny == 1 .AND. nz == 1) THEN
 
@@ -2792,7 +2740,7 @@ ELSE
 !!!          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
       END IF
 
-    ELSE
+    ELSE 
 !!      IF (nint >= nstop .OR. steady) THEN
 !!        CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
 !!          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
@@ -2810,7 +2758,7 @@ ELSE
       ELSE IF (visit) THEN
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
-      ELSE
+      ELSE 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
 !!!        CALL GraphicsTecplot(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
@@ -2835,7 +2783,7 @@ ELSE
   jxmax = 0
   jymax = 0
   MaxDivergence = 0.00
-  DO jz = 1,nz
+  DO jz = 1,nz 
     DO jy = 1,ny
       DO jx = 1,nx
         Coordinate = 'X'
@@ -2871,7 +2819,7 @@ ELSE
 
 
     END IF
-
+    
     IF (nint >= nstop .OR. steady) THEN
       IF (steady) THEN
         WRITE(*,*)
@@ -2886,7 +2834,7 @@ ELSE
         WRITE(*,*) '  *** RUN SUCCESSFULLY COMPLETED *** '
         WRITE(*,*)
       END IF
-
+            
       CALL date_and_time(dumm1,dumm2,dumm3,curr_time)
       end_mon = curr_time(2)
       end_day = curr_time(3)
@@ -2894,25 +2842,25 @@ ELSE
       end_min = curr_time(6)
       end_sec = curr_time(7)
       end_millisec = curr_time(8)
-
+     
       MilliSeconds = DFLOAT(end_millisec)
       EndSeconds = DFLOAT(end_sec) + MilliSeconds/1000.0d0
-
+      
       WRITE(*,*)
       WRITE(*,*)
       WRITE(*,*) '====== Running time on this computer ======'
       WRITE(*,*)
-
+      
       IF (end_mon /= str_mon) THEN
         end_day = str_day + 1
       END IF
-
+      
 
       call CPU_TIME(PrintSeconds)
       isimu_hr = DINT(PrintSeconds/3600.0d0)
       isimu_min = DINT(PrintSeconds/60.0d0) - isimu_hr*60.0d0
       isimu_sec = DINT(PrintSeconds) - isimu_hr - isimu_min
-      ExtraSeconds = PrintSeconds - DFLOAT(isimu_hr*3600)  - DFLOAT(isimu_min*60)
+      ExtraSeconds = PrintSeconds - DFLOAT(isimu_hr*3600)  - DFLOAT(isimu_min*60)  
 
 !!!      WRITE(*,771) isimu_hr, isimu_min, isimu_sec
       WRITE(*,771) isimu_hr, isimu_min, ExtraSeconds
@@ -2967,7 +2915,7 @@ ELSE
     WRITE(iures) ssurfold
     WRITE(iures) spsurf
     WRITE(iures) spsurf10
-    WRITE(iures) spsurfold
+    WRITE(iures) spsurfold 
     WRITE(iures) raq_tot
     WRITE(iures) sion
     WRITE(iures) jinit
@@ -2981,9 +2929,9 @@ ELSE
 
     WRITE(iures) t
     WRITE(iures) told
-    WRITE(iures) ro
-
-    WRITE(iures) por
+    WRITE(iures) ro   
+ 
+    WRITE(iures) por 
 
     WRITE(iures) satliq
     WRITE(iures) qxgas
@@ -2997,15 +2945,9 @@ ELSE
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
     WRITE(iures) ncounter
-
-    !! Write Richards, Zhi Li 20200705
-    IF (Richards) THEN
-        WRITE(iures) head
-        WRITE(iures) wc
-    END IF
-
+    
 !!    WRITE(iures) tauZero
-
+    
 !    CLOSE(UNIT=intfile,STATUS='keep')
 
     CLOSE(UNIT=iures,STATUS='keep')
@@ -3047,7 +2989,7 @@ ELSE
        ELSE
          NewInput = .FALSE.
        END IF
-
+       
        CLOSE(iunit2,status='keep')
 
        IF (nplot > 0) THEN
@@ -3060,8 +3002,9 @@ ELSE
        RETURN
 !!    ********  NORMAL STOP HERE  **************
     END IF
-
+    
     nint = nint + 1
+
     IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
       delt = prtint(nint) - time
       WRITE(*,*) ' Adjusting time step to match output file'
@@ -3184,3 +3127,4 @@ READ(*,*)
 STOP
 END SUBROUTINE CrunchTope
 !****************END DRIVER PROGRAM**********************
+

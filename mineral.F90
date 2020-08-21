@@ -198,6 +198,8 @@ MODULE mineral
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: LogPotential
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: VolumeLastTimeStep
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: rminSaveForDePaolo
+  
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: specificByGrid
 
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: muUranium234
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: muUranium238
