@@ -312,6 +312,7 @@ CHARACTER (LEN=mls)                                           :: breakfile
 CHARACTER (LEN=mls)                                           :: namtemp
 CHARACTER (LEN=12)                                            :: writeph
 CHARACTER (LEN=mls)                                           :: PorosityFile
+CHARACTER (LEN=mls)                                           :: GridVolumeFile
 CHARACTER (LEN=mls)                                           :: SaturationFile
 CHARACTER (LEN=mls)                                           :: BurialFile
 CHARACTER (LEN=mls)                                           :: ConditionName
@@ -340,6 +341,9 @@ LOGICAL(LGT)                                                  :: pest
 LOGICAL(LGT)                                                  :: readburial
 LOGICAL(LGT)                                                  :: NoFluidBury
 LOGICAL(LGT)                                                  :: ReadTortuosity
+
+LOGICAL(LGT)                                                  :: streamtube
+
 
 CHARACTER (LEN=mls), DIMENSION(:,:), ALLOCATABLE              :: constraint
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: realmult
@@ -376,6 +380,7 @@ INTEGER(I4B)                                                  :: ModFlowTimeUnit
 CHARACTER (LEN=mls)                                           :: modflowstring
 CHARACTER (LEN=mls)                                           :: SaturationFileFormat
 CHARACTER (LEN=mls)                                           :: PorosityFileFormat
+CHARACTER (LEN=mls)                                           :: GridVolumeFileFormat
 CHARACTER (LEN=mls)                                           :: BurialFileFormat
 CHARACTER (LEN=mls)                                           :: TortuosityFileFormat
 CHARACTER (LEN=mls)                                           :: GasVelocityFileFormat
@@ -569,6 +574,8 @@ CHARACTER (LEN=12)                                            :: dumm2
 CHARACTER (LEN=12)                                            :: dumm3
 INTEGER(I4B), DIMENSION(8)                                    :: curr_time
 
+CHARACTER (LEN=mls)                                           :: data2
+CHARACTER (LEN=mls)                                           :: data3
 
 CHARACTER (LEN=mls)                                           :: NameMineral
 CHARACTER (LEN=mls)                                           :: label
@@ -611,8 +618,11 @@ namelist /Nucleation/                                          NameMineral,     
                                                                SSA_m2g,            &
                                                                Surface
 
-
-
+#if defined(ALQUIMIA)
+include 'mpif.h'
+integer :: rank, ierror
+character(25) :: fn
+#endif
 
 ALLOCATE(realmult(100))
 
@@ -712,12 +722,18 @@ str_millisec = curr_time(8)
 
 nin = iunit1
 nout = 4
-
+#if !defined(ALQUIMIA)
 inquire(file='CrunchJunk2.out',opened=lopen)
 IF (lopen) THEN
   CLOSE (unit=nout)
 END IF
 OPEN(UNIT=nout,FILE='CrunchJunk2.out',STATUS='unknown')
+#else
+call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
+write(fn,"(a10,i0,a4)")'CrunchJunk',rank,'.out'
+write(*,*)fn
+OPEN(UNIT=nout,FILE=fn,STATUS='unknown')
+#endif
 
 section = 'title'
 CALL readblock(nin,nout,section,found,ncount)
@@ -855,6 +871,26 @@ IF (found) THEN
     data1 = ' '             ! Use default
   ELSE
     data1 = dumstring
+  END IF
+
+  parchar = 'kinetic_database'
+  parfind = ' '
+  data2 = ' '
+  CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
+  IF (parfind == ' ') THEN  ! 
+    data2 = ' '             ! Use default
+  ELSE
+    data2 = dumstring
+  END IF
+
+  parchar = 'catabolic_database'
+  parfind = ' '
+  data3 = ' '
+  CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
+  IF (parfind == ' ') THEN  ! 
+    data3 = ' '             ! Use default
+  ELSE
+    data3 = dumstring
   END IF
 
   IF (NumInputFiles > 1) THEN
@@ -1391,6 +1427,8 @@ IF (found) THEN
 !!  ELSE
 !!    igenericrates = 0
 !!  END IF
+  
+
 
   parchar = 'generic_rates'
   parfind = ' '
@@ -1457,6 +1495,11 @@ IF (found) THEN
 
   master = ' '
   CALL read_master(nout)
+  
+  parchar = 'streamtube'
+  parfind = ' '
+  streamtube = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,streamtube)
 
   parchar = 'steady_state'
   parfind = ' '
@@ -1810,12 +1853,12 @@ jyseries = 1
 jzseries = 1
 iedl = 0
 
-ALLOCATE(pH(mchem))
-ALLOCATE(guesspH(mchem))
-ALLOCATE(constraint(nc,mchem))
+if (.not.allocated(pH)) ALLOCATE(pH(mchem))
+if (.not.allocated(guesspH)) ALLOCATE(guesspH(mchem))
+if (.not.allocated(constraint)) ALLOCATE(constraint(nc,mchem))
 
 IF (Duan .OR. Duan2006) THEN
-  ALLOCATE(vrINitial(mchem))
+  if (.not.allocated(vrINitial)) ALLOCATE(vrINitial(mchem))
 END IF
 
 AffinityDepend1 = 1.0d0
@@ -2034,7 +2077,8 @@ npNucleationPath = 0
 
   end do do_nucleationpathways
 
-end do do_input_pathways
+  end do do_input_pathways
+  
 
 ELSE
 
@@ -2681,30 +2725,30 @@ neqn = ncomp + nsurf + nexchange + npot
 
 !  Temporary arrays deallocated later in START98
 
-ALLOCATE(SkipAdjust(mchem))
+if (.not.allocated(SkipAdjust)) ALLOCATE(SkipAdjust(mchem))
 SkipAdjust = .FALSE.
-ALLOCATE(tempcond(mchem))
-ALLOCATE(rocond(mchem))
-ALLOCATE(porcond(mchem))
-ALLOCATE(SaturationCond(mchem))
-ALLOCATE(ctot(ncomp,mchem))
-ALLOCATE(guess(ncomp,mchem))
-ALLOCATE(itype(ncomp,mchem))
-ALLOCATE(c_surf(nsurf,mchem))
-ALLOCATE(guess_surf(nsurf,mchem))
-ALLOCATE(gaspp(ncomp,mchem))
-ALLOCATE(totexch(nexchange,mchem))
+if (.not.allocated(tempcond)) ALLOCATE(tempcond(mchem))
+if (.not.allocated(rocond)) ALLOCATE(rocond(mchem))
+if (.not.allocated(porcond)) ALLOCATE(porcond(mchem))
+if (.not.allocated(SaturationCond)) ALLOCATE(SaturationCond(mchem))
+if (.not.allocated(ctot)) ALLOCATE(ctot(ncomp,mchem))
+if (.not.allocated(guess)) ALLOCATE(guess(ncomp,mchem))
+if (.not.allocated(itype)) ALLOCATE(itype(ncomp,mchem))
+if (.not.allocated(c_surf)) ALLOCATE(c_surf(nsurf,mchem))
+if (.not.allocated(guess_surf)) ALLOCATE(guess_surf(nsurf,mchem))
+if (.not.allocated(gaspp)) ALLOCATE(gaspp(ncomp,mchem))
+if (.not.allocated(totexch)) ALLOCATE(totexch(nexchange,mchem))
 IF (ALLOCATED(cec)) THEN
   DEALLOCATE(cec)
   ALLOCATE(cec(nexchange,mchem))
 ELSE
   ALLOCATE(cec(nexchange,mchem))
 END IF
-ALLOCATE(ncon(ncomp,mchem))
-ALLOCATE(condlabel(mchem))
-ALLOCATE(condtitle(mchem))
-ALLOCATE(fsurftmp(neqn,neqn))
-ALLOCATE(equilibrate(nc,mchem))
+if (.not.allocated(ncon)) ALLOCATE(ncon(ncomp,mchem))
+if (.not.allocated(condlabel)) ALLOCATE(condlabel(mchem))
+if (.not.allocated(condtitle)) ALLOCATE(condtitle(mchem))
+if (.not.allocated(fsurftmp)) ALLOCATE(fsurftmp(neqn,neqn))
+if (.not.allocated(equilibrate)) ALLOCATE(equilibrate(nc,mchem))
 
 !  **** End of temporary arrays (deallocated below)  ******
 
@@ -3481,6 +3525,9 @@ ELSE
 END IF
 !!   ********* END OF ISOTOPES BLOCK ********************
 
+! skip what follows if alquimia is defined
+#ifndef ALQUIMIA
+
 !     ********SPECIATION OF GEOCHEMICAL CONDITIONS******
 
 !  First, call the initialization routine so that the
@@ -3652,6 +3699,8 @@ WRITE(iunit2,*)
 
 IF (ispeciate == 1) STOP
 
+#endif
+! end of block to skip for ALQUIMIA
 
 !  ***************STOP HERE WHEN DATABASE SWEEP IS DONE***************
 
@@ -3819,7 +3868,7 @@ IF (found) THEN
 
   WRITE(*,*) ' Aqueous kinetics block found'
   !!CALL read_kinetics(nout,ncomp,nspec,nrct,ikin,data1)
-  CALL read_kinetics_Bio(nout,ncomp,nspec,nrct,ikin,nkin,data1)
+  CALL read_kinetics_Bio(nout,ncomp,nspec,nrct,ikin,nkin,data2)
 
 !  If radioactive decay equations are present, check minerals for corresponding
 !    radiogenic isotopes
@@ -3991,6 +4040,9 @@ END IF
 
 !   ***************************************************
 
+! skip what follows if alquimia is defined
+#ifndef ALQUIMIA
+
 !************DISCRETIZATION****************************
 !  Check for discretization block
 !  If absent, assume a reaction path calculation
@@ -4067,7 +4119,13 @@ IF (found) THEN
       END IF
     END IF
   END IF
+  
+!!!  End of X discretiztion
+!!!  ********************************************
+  
 
+
+!!!IF (.NOT. ReadGridVolumes) THEN
 !*****************
 !  Y discretization
 !******************
@@ -4152,17 +4210,21 @@ IF (found) THEN
             nz = 1
           else
             write(*,*) ' Z discretization'
+            
 !  Check to see if there are an even number values given
 !  One for the number of cells, the second for the spacing
 
            if (mod(lenarray,2).eq.0) then
+             
               nzonez = lenarray/2
               do i = 1,lenarray,2
                 ii = (i+1)/2
                 nvz(ii) = realmult(i)
                 dzzt(ii) = realmult(i+1)
               end do
-            else
+              
+           else
+             
               lenarray = lenarray - 1
               if (lenarray.gt.1) then
                 write(*,*) ' Both the number of cells and the grid'
@@ -4177,16 +4239,21 @@ IF (found) THEN
                   dzzt(ii) = realmult(i+1)
                   write(*,*) nvz(ii),dzzt(ii)
                 end do
+                
               else
+                
                 write(*,*) ' Both the number of cells and the grid'
                 write(*,*) '   spacing should be specified'
                 write(*,*) ' Only one value provided'
                 READ(*,*)
                 STOP
+                
               endif
             endif
           endif
         endif
+        
+!!! END IF
 
 !  WRITE(*,*)
 !  WRITE(*,*) ' No Z discretization allowed in GIMRT option at present time'
@@ -4229,7 +4296,25 @@ ELSE
   nxyz = 1
 END IF
 
+! end of block to skip for ALQUIMIA
+#else
+! ALQUIMIA is defined
 
+! alquimia single-cell chemistry
+  nx = 1
+  ny = 1
+  nz = 1
+  nzonex = 0
+  nzoney = 0
+  nzonez = 0
+  nxyz = 1
+
+#endif
+! end of ALQUIMIA block
+
+
+
+#ifndef ALQUIMIA
 !*****************************************************
 !  Write out information on discretization
 
@@ -4435,7 +4520,6 @@ IF (nzoney == 0) THEN
     ALLOCATE(dyy(-1:ny+2))
   END IF
 
-
   dyy(-1) = 1.0d0
   dyy(0) = 1.0d0
   dyy(1) = 1.0d0
@@ -4575,7 +4659,11 @@ ELSE
   dzz(:,:,0) = dzz(:,:,1)
   dzz(:,:,nz+1) = dzz(:,:,nz)
   dzz(:,:,nz+2) = dzz(:,:,nz)
+  
+!!! ************
+  
 
+ 
   z(0) = 0.0d0
   z(1) = 0.5*dzz(1,1,1)
   DO jz = 2,nz
@@ -4587,12 +4675,7 @@ END IF
 WRITE(*,*)
 WRITE(*,*) '  NZ = ',nz
 WRITE(*,*)
-!!WRITE(*,1021)
-!!DO jz = 1,nz
-!!  WRITE(*,1019) jz,z(jz)
-!!END DO
 
-!!WRITE(*,*)
 
 WRITE(iunit2,*)
 WRITE(iunit2,*) '  NZ = ',nz
@@ -4602,8 +4685,87 @@ DO jz = 1,nz
   WRITE(iunit2,1019) jz,z(jz)
 END DO
 WRITE(iunit2,*)
-
+#endif
 nxyz = nx*ny*nz
+
+IF (streamtube) THEN
+
+!!!  Now check to see if Volumes will be read for 1D streamtube case (if so, skip Y and Z discretization)
+  ReadGridVolumes = .FALSE.
+  GridVolumeFileFormat = 'FullForm'
+  parchar = 'read_volumes'
+  parfind = ' '
+  GridVolumeFile = ' '
+  CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,GridVolumeFileFormat)
+  IF (parfind == ' ') THEN  !
+    GridVolumeFile = 'streamtube.vol'            ! Use default
+    GridVolumeFileFormat = 'FullForm'
+  ELSE
+    GridVolumeFile = dumstring
+    CALL stringlen(GridVolumeFile,ls)
+    WRITE(*,*) ' Reading grid volumes from file: ',GridVolumeFile(1:ls)
+    ReadGridVolumes = .TRUE.
+  END IF
+  
+!!!  NOTE:  Assumes only 1D file, since this is for a 1D streamtube
+  
+  IF (GridVolumeFile /= ' ') THEN
+  ALLOCATE(work1(nx))
+  INQUIRE(FILE=GridVolumeFile,EXIST=ext)
+  
+  IF (.NOT. ext) THEN
+    CALL stringlen(GridVolumeFile,ls)
+    WRITE(*,*)
+    WRITE(*,*) ' GridVolumeFile file not found: ', GridVolumeFile(1:ls)
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+  
+  OPEN(UNIT=52,FILE=GridVolumeFile,STATUS='OLD',ERR=6001)
+  FileTemp = GridVolumeFile
+  CALL stringlen(FileTemp,FileNameLength)
+  
+  IF (GridVolumeFileFormat == 'ContinuousRead') THEN
+    
+    READ(52,*,END=1020) (work1(jx),jx=1,nx)
+    
+  ELSE IF (GridVolumeFileFormat == 'SingleColumn') THEN
+
+        DO jx= 1,nx
+          READ(52,*,END=1020) work1(jx)
+        END DO
+
+  ELSE IF (GridVolumeFileFormat == 'FullForm') THEN
+
+      DO jx= 1,nx
+        READ(52,*,END=1020) xdum,work1(jx)
+      END DO
+      
+  ELSE IF (GridVolumeFileFormat == 'Unformatted') THEN
+    
+    READ(52,END=1020) work1
+    
+  ELSE
+    
+!!! If no file format is given, assume FullForm (with dummy X)
+    
+      DO jx= 1,nx
+        READ(52,*,END=1020) xdum,work1(jx)
+      END DO
+    
+  END IF
+  CLOSE(UNIT=52)
+  
+  DO jx = 1,nx
+    dzz(jx,1,1) = work1(jx)
+  END DO
+  
+!!! Make ghost cells the same as first grid cell within domain
+  dzz(0,1,1) = dzz(1,1,1)
+  dzz(nx+1,1,1) = dzz(nx,1,1)
+  
+  END IF
 
 IF (ExportGridLocations) THEN
 
@@ -4616,6 +4778,8 @@ IF (ExportGridLocations) THEN
 !!!  END DO
 
   close(unit=98,status='keep')
+
+END IF
 
 END IF
 
@@ -4676,7 +4840,7 @@ END IF
 CALL REALLOCATE(ncomp,nspec,nrct,nkin,ngas,nsurf,nexchange,ikin,nexch_sec,nsurf_sec)
 
 ! biomass
-call read_CatabolicPath(ncomp,nkin,ikin)
+call read_CatabolicPath(ncomp,nkin,ikin,data3)
 ! biomass end
 
 
@@ -4720,8 +4884,21 @@ qx = 0.0d0
 qy = 0.0d0
 qz = 0.0d0
 ! Zhi Li
-ALLOCATE(us(nx+1,ny,nz))
-ALLOCATE(vs(nx,ny+1,nz))
+
+IF (ALLOCATED(us)) THEN
+  DEALLOCATE(us)
+  ALLOCATE(us(nx+1,ny,nz))
+ELSE
+  ALLOCATE(us(nx+1,ny,nz))
+END IF
+
+IF (ALLOCATED(vs)) THEN
+  DEALLOCATE(vs)
+  ALLOCATE(vs(nx+1,ny,nz))
+ELSE
+  ALLOCATE(vs(nx+1,ny,nz))
+END IF
+      
 dspx = 0.0d0
 dspy = 0.0d0
 dspz = 0.0d0
@@ -4777,6 +4954,9 @@ jzzlo = 1
 jjfix = 0
 t = tinit
 ! *****************************************************************
+
+! skip what follows if alquimia is defined
+#ifndef ALQUIMIA
 
 !    ***************INTERNAL HETEROGENEITIES********************
 section = 'initial_conditions'
@@ -5011,7 +5191,6 @@ IF (nhet > 0) THEN
         end do
       end do
 
-
       close(unit=98,status='keep')
 
     ELSE
@@ -5019,7 +5198,6 @@ IF (nhet > 0) THEN
     END IF
 
       END IF    !! End of ReadGautier = .TRUE.
-
 
 ELSE
   WRITE(*,*)
@@ -8997,13 +9175,15 @@ END IF
     END DO
   END DO
   
-!!  Now the boundaries
-  DO k = 1,nrct
-    jPoint = jinit(0,1,1)
-    specificByGrid(k,0,1,1) = specific(k,jPoint)
-    jPoint = jinit(nx+1,1,1)
-    specificByGrid(k,nx+1,1,1) = specific(k,jPoint)
-  END DO
+!!  Now the boundaries, if NX > 1
+  IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN
+    DO k = 1,nrct
+      jPoint = jinit(0,1,1)
+      specificByGrid(k,0,1,1) = specific(k,jPoint)
+      jPoint = jinit(nx+1,1,1)
+      specificByGrid(k,nx+1,1,1) = specific(k,jPoint)
+    END DO
+  END IF
 
       
 !!!END IF
@@ -9015,7 +9195,7 @@ section = 'transport'
 CALL readblock(nin,nout,section,found,ncount)
 
 formation = 1.0d0
-uli = 1.0d0
+uli = 4.0d0/3.0d0
 dcoeff = 0
 dgas = 0
 anisotropyY = 1.0d0
@@ -9481,7 +9661,7 @@ WRITE(iunit2,1112) alft
 WRITE(iunit2,*)
 
 IF (.NOT. Richards) THEN
-  CALL dispersivity(nx,ny,nz)
+!!!cis-NoDispersion  CALL dispersivity(nx,ny,nz)
 END IF
 
 dspx = 0.0
@@ -9643,10 +9823,13 @@ ZfluxWeightedConcentration = 0.0d0
 !DEALLOCATE(eqhom)
 !DEALLOCATE(eqsurf)
 
+#endif
+! end of block to skip for ALQUIMIA
 IF (ALLOCATED(stringarray)) THEN
   DEALLOCATE(stringarray)
 END IF
 DEALLOCATE(condtitle)
+#ifndef ALQUIMIA
 DEALLOCATE(condlabel)
 DEALLOCATE(keqmin_tmp)
 DEALLOCATE(keqaq_tmp)
@@ -9656,6 +9839,7 @@ DEALLOCATE(sptmp)
 DEALLOCATE(sptmp10)
 DEALLOCATE(gamtmp)
 DEALLOCATE(stmp)
+#endif
 DEALLOCATE(nbasin)
 DEALLOCATE(nbkin)
 DEALLOCATE(dxxt)
@@ -9664,6 +9848,7 @@ DEALLOCATE(dzzt)
 DEALLOCATE(nvx)
 DEALLOCATE(nvy)
 DEALLOCATE(nvz)
+#ifndef ALQUIMIA
 DEALLOCATE(sexch)
 DEALLOCATE(spextmp)
 DEALLOCATE(spextmp10)
@@ -9680,11 +9865,15 @@ DEALLOCATE(guess)
 DEALLOCATE(itype)
 DEALLOCATE(c_surf)
 DEALLOCATE(guess_surf)
+#endif
 DEALLOCATE(gaspp)
+#ifndef ALQUIMIA
 DEALLOCATE(totexch)
 !!DEALLOCATE(cec)
 DEALLOCATE(ncon)
+#endif
 DEALLOCATE(namdep_nyf)
+#ifndef ALQUIMIA
 DEALLOCATE(tempcond)
 DEALLOCATE(SkipAdjust)
 DEALLOCATE(rocond)
@@ -9692,6 +9881,7 @@ DEALLOCATE(porcond)
 DEALLOCATE(SaturationCond)
 DEALLOCATE(equilibrate)
 DEALLOCATE(fsurftmp)
+#endif
 DEALLOCATE(constraint)
 DEALLOCATE(realmult)
 DEALLOCATE(pH)
@@ -9704,13 +9894,19 @@ DEALLOCATE(jyyhi)
 DEALLOCATE(jzzlo)
 DEALLOCATE(jzzhi)
 DEALLOCATE(jjfix)
+#ifndef ALQUIMIA
 DEALLOCATE(surfcharge_init)
 DEALLOCATE(LogPotential_tmp)
+#endif
 DEALLOCATE(unitsflag)
+#ifndef ALQUIMIA
 DEALLOCATE(conversion)
+#endif
 DEALLOCATE(OneOverMassFraction)
 !!DEALLOCATE(SolidDensity)
+#ifndef ALQUIMIA
 DEALLOCATE(SolidSolutionRatio)
+#endif
 DEALLOCATE(SolidDensityFrom)
 IF (Duan .OR. Duan2006) THEN
   DEALLOCATE(vrInitial)

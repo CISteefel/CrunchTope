@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -251,6 +251,13 @@ REAL(DP)                                                        :: silnTMP
 
 REAL(DP)                                                        :: BtimesSigma
 
+REAL(DP)                                                        :: NucleationExponentialTerm
+REAL(DP)                                                        :: v_min
+REAL(DP)                                                        :: checkNucleation
+REAL(DP), PARAMETER                                             :: BoltzmannTerm=1.3806E-20
+REAL(DP)                                                        :: NucleationTerm
+REAL(DP)                                                        :: testSigma
+
 !!!NoFractionationDissolution = .false.
 
 SetToAqueousMoleFraction = .FALSE.
@@ -304,10 +311,12 @@ jac_rmin = 0.0d0
 
 DO k = 1,nkin
   
-  IF (nisotopemineral > 0 .AND. kPointerIsotope(k)/= 0) THEN
-    kIsotopologue  = kPointerIsotope(k)
-    kMineralRare   = kIsotopeRare(kIsotopologue)
-    KMineralCommon = kIsotopeCommon(kIsotopologue)
+  IF (nisotopemineral > 0) THEN
+    IF (kPointerIsotope(k)/= 0) THEN
+      kIsotopologue  = kPointerIsotope(k)
+      kMineralRare   = kIsotopeRare(kIsotopologue)
+      KMineralCommon = kIsotopeCommon(kIsotopologue)
+    END IF
   END IF
 
   checkSaturation = .FALSE.
@@ -380,15 +389,20 @@ DO k = 1,nkin
           END IF
           
         ELSE IF (imintype(np,k) == 10) THEN                            !! Nucleation case
-
-!!!        SigmaNucleation = 97.0
-!!!!        Bnucleation = 0.0009045710    !! 25C
-!!!        Bnucleation = 0.000480339     !! 95C
-!!!        Anucleation = 0.001
+          
+          v_min = 4.6629E-29
         
-          IF (si(np,k) > 1.0) THEN    
+         IF (si(np,k) > 1.0) THEN
+            
+           checkNucleation = 16.0/3.0 * 3.1415 * v_min**2/(BoltzmannTerm**3 * Tk**3) *   &
+               SigmaNucleation(np,k)**3 / siln(np,k)**2
+          
             BtimesSigma = Bnucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)
-            AffinityTerm = Azero25C(np,k)*DEXP(-BtimesSigma/( siln(np,k)*siln(np,k) ) )   
+            NucleationTerm = checkNucleation
+            NucleationExponentialTerm = DEXP(-checkNucleation)
+          
+            AffinityTerm = Azero25C(np,k)*NucleationExponentialTerm 
+          
           ELSE
             AffinityTerm = 0.0d0
           END IF
@@ -428,8 +442,12 @@ DO k = 1,nkin
               
               silnTMP = (sumiap - keqmin(1,k,jx,jy,jz))
               
-              BtimesSigma = Bnucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)
-              AffinityTMP = Azero25C(np,k)*DEXP(-BtimesSigma/(silnTMP*silnTMP ) )
+              checkNucleation = 16.0/3.0 * 3.1415 * v_min**2/(BoltzmannTerm**3 * Tk**3) *   &
+                  SigmaNucleation(np,k)**3 / silnTMP**2
+          
+              NucleationTerm = checkNucleation
+              NucleationExponentialTerm = DEXP(-checkNucleation)
+              AffinityTMP = Azero25C(np,k)*NucleationExponentialTerm
             
               jac_sat(i) = (AffinityTMP - AffinityInitial)/perturb
 !!!              jac_sat(i) = jac_check(i)

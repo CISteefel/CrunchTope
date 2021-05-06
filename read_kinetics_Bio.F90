@@ -1,4 +1,3 @@
-
 !!! *** Copyright Notice ***
 !!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
 !!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -163,14 +162,14 @@ integer(i4b),dimension(:),allocatable                         :: p_kin_cat
     character(len=mls)                                      :: name
     character(len=mls)                                      :: label
     character(len=mls)                                      :: type
-    type(reaction_t),dimension(ncomp)                       :: stoichiometry
+    type(reaction_t),dimension(mcomp)                       :: stoichiometry
     real(dp)                                                :: keq
 
     real(dp)                                                :: rate25C
     real(dp)                                                :: activation
-    type(terms_t),dimension(ncomp)                          :: monod_terms
-    type(terms_t),dimension(ncomp)                          :: dependence
-    type(terms_t),dimension(ncomp)                          :: inhibition
+    type(terms_t),dimension(mcomp)                          :: monod_terms
+    type(terms_t),dimension(mcomp)                          :: dependence
+    type(terms_t),dimension(mcomp)                          :: inhibition
 
 
     character(len=mls)                                            :: biomass
@@ -182,6 +181,7 @@ integer(i4b),dimension(:),allocatable                         :: p_kin_cat
     REAL(DP)                                                      :: RampTime
     REAL(DP)                                                      :: ThresholdConcentration
     character(len=mls)                                            :: SubstrateForLag
+    character(len=mls)                                            :: planktonic
 
     namelist /Aqueous/                                         name,          &
                                                                label,         &
@@ -205,7 +205,8 @@ integer(i4b),dimension(:),allocatable                         :: p_kin_cat
                                                                LagTime,                &
                                                                RampTime,               &
                                                                ThresholdConcentration, &
-                                                               SubstrateForLag
+                                                               SubstrateForLag,        &
+                                                               planktonic
 !
 ! end namelists -------------------------------------------------------------
 
@@ -303,14 +304,26 @@ allocate(SubstrateForLagAqueous(mpre))
 
 !!str_endkin = 'End of aqueous kinetics'
 
-INQUIRE(FILE='AqueousControl.ant',EXIST=ext)
-IF (EXT) THEN          !!  Aqueous Control file exists, so read input filename from it rather than prompting user
-  OPEN(113,FILE='AqueousControl.ant',STATUS='old',ERR=708)
-  READ(113,'(a)') filename2
-  CLOSE(113,STATUS='keep')
-ELSE                   !!  No AqueousControl.ant file, so just use "aqueous.dbs" 
-  filename2 = 'aqueous.dbs'
-END IF
+if (data1 == ' ') then
+
+  INQUIRE(FILE='AqueousControl.ant',EXIST=ext)
+  IF (EXT) THEN          !!  Aqueous Control file exists, so read input filename from it rather than prompting user
+    OPEN(113,FILE='AqueousControl.ant',STATUS='old',ERR=708)
+    READ(113,'(a)') filename2
+    CLOSE(113,STATUS='keep')
+  !! ELSE
+  !! INQUIRE(FILE=trim(adjustl(data1))//'x',EXIST=ext)
+  !! IF (EXT) then          !! try with the name of the database + and 'x' at the end
+  !!  filename2 = trim(adjustl(data1))//'x'
+  ELSE                   !!  No AqueousControl.ant file, so just use "aqueous.dbs"
+    filename2 = 'aqueous.dbs'
+  END IF
+  !! END IF
+else 
+ 
+  filename2 = data1
+  
+end if 
 
 OPEN(UNIT=112,FILE=filename2,STATUS='old')
 REWIND nout
@@ -417,7 +430,7 @@ IF(ls /= 0) THEN
     CALL stringtype(ssch,lzs,res)
     IF (res == 'a') THEN
       WRITE(*,*)
-      WRITE(*,*) ' "Rate" should be followed by a number'
+      WRITE(*,*) ' "-rate" should be followed by a number'
       WRITE(*,*) ' Aqueous kinetic reaction = ',dummy2(1:lsave)
       WRITE(*,*) ' String = ',ssch(1:ls)
       WRITE(*,*)
@@ -491,8 +504,6 @@ do_input_pathways: do kpath=1,npath
 !   read 'Aqueous' namelist from file
     read(112,nml=Aqueous,iostat=ios)     
 
-!!!cis            write(*,nml=Aqueous)
-            
 !   result from read (IOS)
     if (ios == 0) then
 
@@ -645,7 +656,7 @@ do_input_pathways: do kpath=1,npath
     end do
 
 !   equilibrium constant
-    keq_(ikin)  = keq_(ikin) + multiplier(kpath) * keq * clg         ! convert to ln
+    keq_(ikin)  = keq_(ikin) + multiplier(kpath) * keq ! it is actually converted in reactkin * clg         ! convert to ln
 
 !   keep track of the multiplier
     addup = addup + multiplier(kpath)
@@ -653,7 +664,7 @@ do_input_pathways: do kpath=1,npath
 !   store the stoichiometry in catabolic variable
     if (type == 'catabolic') then
 
-      keq_cat(ikin) = keq * clg
+      keq_cat(ikin) = keq !!* clg ! it is actually converted in reactkin * clg
       
       do ic=1,ncomp
 
@@ -667,7 +678,7 @@ do_input_pathways: do kpath=1,npath
 
 end do do_input_pathways
 
-write(*,*)' Multipliers for reaction ',namkin(ikin),' add up to: ',addup
+write(*,*)'multipliers for reaction ',namkin(ikin),' add up to: ',addup
 
 IF ( addup < (1.0d0-tiny) .OR. addup > (1.0d0+tiny) ) THEN
   dumstring = namkin(ikin)
@@ -723,9 +734,7 @@ do_aqueouskinetics: do
   SubstrateForLag = ' '
   
 ! read 'AqueousKinetics' namelist from file
-  read(112,nml=AqueousKinetics,iostat=ios)    
-  
-!!!            write(*,nml=AqueousKinetics)
+  read(112,nml=AqueousKinetics,iostat=ios)     
 
 ! result from read (IOS)
   if (ios == 0) then
@@ -1464,8 +1473,9 @@ do jj=1,ikin
     WRITE(iunit2,599) (ulab(j),j=1,ncomp)
   end if
   
-  WRITE(iunit2,600) namkin(jj),keqkin(jj)/clg,(mukin(jj,i),i=1,ncomp)
-  
+  !!WRITE(iunit2,600) namkin(jj),keqkin(jj)/clg,(mukin(jj,i),i=1,ncomp)
+  WRITE(iunit2,600) namkin(jj),keqkin(jj),(mukin(jj,i),i=1,ncomp)
+
   if (iaqtype(jj) == 8) then
   
   ! equilibrium constant

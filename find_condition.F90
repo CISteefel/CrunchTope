@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -548,6 +548,11 @@ IF (found) THEN
         
 !!    Bulk surface area specified      
       ELSE                             !!  Bulk surface area specified
+
+        if (mintype(k) == 1) then ! biomass - convert to mol/m3-bulk from mol/L-H2O
+          volin(k,nchem) = volin(k,nchem) * 1.d3 * porcond(nchem)
+        end if
+
         IF (volin(k,nchem) /= 0.0) THEN
           specific(k,nchem) = areain(k,nchem)*volmol(k)/(volin(k,nchem)*wtmin(k))
         ELSE
@@ -615,17 +620,19 @@ IF (found) THEN
 
     sum = 0.0d0
     DO k = 1,nkin
-      sum = sum + volin(k,nchem)
+      if (mintype(k) == 0) sum = sum + volin(k,nchem)
     END DO
     IF (sum == 0.0d0) THEN 
       SolidDensity(nchem) = 0.0d0
     ELSE
       TotalVolumeMinerals = 0.0d0
       DO k = 1,nkin
-        TotalVolumeMinerals = TotalVolumeMinerals + volin(k,nchem)
-        IF (volmol(k) /= 0.0d0) THEN
-          SolidDensity(nchem) = SolidDensity(nchem) + (volin(k,nchem)/sum)*0.001d0*wtmin(k)/volmol(k) 
-        END IF
+        if (mintype(k) == 0) then
+          TotalVolumeMinerals = TotalVolumeMinerals + volin(k,nchem)
+          IF (volmol(k) /= 0.0d0) THEN
+            SolidDensity(nchem) = SolidDensity(nchem) + (volin(k,nchem)/sum)*0.001d0*wtmin(k)/volmol(k) 
+          END IF
+        endif
       END DO
 !!      porcond(nchem) = 1.0d0 - TotalVolumeMinerals
     END IF

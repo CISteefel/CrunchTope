@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -544,6 +544,9 @@ IF (nrct > 0) THEN
     DO k = 1,nrct
       IF (volmol(k) /= 0.0 .AND. sum /= 0.0) THEN
         MineralPercent(k) = 100.0*wtmin(k)*volfx(k,jx,jy,jz)/volmol(k)/sum
+        IF (MineralPercent(k) < 1.0E-30) THEN
+          MineralPercent(k) = 1.0E-30
+        END IF
       END IF
     END DO
     WRITE(8,184) x(jx)*OutputDistanceScale,(MineralPercent(k),k = 1,nrct)
@@ -685,10 +688,14 @@ IF (nrct > 0) THEN
   DO jx = 1,nx
     sum = 0.0
     DO k = 1,nrct
-      dvolpr(k) = 100*volfx(k,jx,jy,jz)
-      sum = sum + volfx(k,jx,jy,jz)
-      if (dvolpr(k) < 1.0E-30 ) THEN
-        dvolpr(k) = 0.0
+      if (mintype(k) == 0) then
+        dvolpr(k) = 100*volfx(k,jx,jy,jz)
+        sum = sum + volfx(k,jx,jy,jz)
+        if (dvolpr(k) < 1.0E-30 ) THEN
+          dvolpr(k) = 0.0
+        end if
+      else if (mintype(k) == 1) then
+        dvolpr(k) = volfx(k,jx,jy,jz)
       end if
     END DO
     porprt = (1.0-sum)*100.0
@@ -708,6 +715,9 @@ IF (nrct > 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
+    if (area(k,jx,jy,jz) < 1.0E-35) then
+      area(k,jx,jy,jz) = 0.0d0
+    end if
     WRITE(8,184) x(jx)*OutputDistanceScale,(area(k,jx,jy,jz),k=1,nrct)
   END DO
   CLOSE(UNIT=8,STATUS='keep')
@@ -829,7 +839,7 @@ CLOSE(UNIT=8,STATUS='keep')
 504 FORMAT('END')
 182 FORMAT(80(1X,1PE12.4))
 183 FORMAT(1PE12.4,2X,1PE12.4)
-184 FORMAT(100(1X,1PE16.7))
+184 FORMAT(100(1X,1PE16.4))
 
 !2283 FORMAT('# Time (yrs) ',2X,1PE12.4)
 2283 FORMAT('# Time      ',2X,1PE12.4)

@@ -58,7 +58,7 @@ USE io
 USE ReadFlow
 USE modflowModule
 USE NanoCrystal
-USE isotope, ONLY: IsotopeMineralRare,IsotopeMineralCommon,kPointerIsotope
+USE isotope, ONLY: IsotopeMineralRare,IsotopeMineralCommon
 
 IMPLICIT NONE
 
@@ -147,10 +147,6 @@ END IF
 ALLOCATE(sppTMP10perturb(ncomp+nspec))
 sppTMP10perturb = 0.0
 
-IF (.not. ALLOCATED(kPointerIsotope)) THEN
-  ALLOCATE(kPointerIsotope(nrct))
-  kPointerIsotope = 0
-END IF
 
 !!  Allocation of Crystal Size Distribution stuff
 

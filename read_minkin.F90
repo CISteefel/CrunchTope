@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -133,12 +133,12 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                         :: halfsat_tmp
 !REAL(DP), DIMENSION(:,:), ALLOCATABLE                       :: yx
 !REAL(DP), DIMENSION(:,:), ALLOCATABLE                       :: indx
 
-character (len=mls) :: biomass
-integer(i4b) :: ios, im, ib
+character (len=mls)                                         :: biomass
+integer(i4b)                                                :: ios, im, ib
+integer(i4b),dimension(:),allocatable                       :: workint
 
-! sergi
- namelist /BiomassDecay/                                    biomass
-! end sergi
+namelist /BiomassDecay/                                        biomass
+
 
 imonod = 0
 kmonod = 0
@@ -159,6 +159,15 @@ IF (ALLOCATED(namAssociate)) THEN
 ELSE
   ALLOCATE(namAssociate(mrct))
 END IF
+
+IF (ALLOCATED(mintype)) THEN
+  DEALLOCATE(mintype)
+  ALLOCATE(mintype(mrct))
+ELSE
+  ALLOCATE(mintype(mrct))
+END IF
+! initialize to 0 (not biomass)
+mintype(:)=0
 
 !ALLOCATE(sto(50))
 !ALLOCATE(ax(mreact*mrct,mreact*mrct))
@@ -312,6 +321,7 @@ IF(ls /= 0) THEN
       STOP
     ELSE
       rate0(npar,nkin) = DNUM(ssch)
+      continue
     END IF
 !!  ELSE IF (ssch == '-sigma') THEN
 !!    iuser(8) = 1
@@ -616,6 +626,13 @@ IF(ls /= 0) THEN
         STOP
       END IF
     END IF
+  ELSE IF (ssch == '-biomass') THEN
+! label this mineral as biomass
+    id = ids + ls
+    lzs=ls
+    WRITE(*,*) ' Mineral = ',namdum(1:lsave),' is biomass.'
+    WRITE(*,*) ' In the database, specify number of cells per mol of biomass in the molar volume field'
+    mintype(nkin) = 1
   ELSE
     CONTINUE
   END IF
@@ -809,6 +826,7 @@ IF (ssch == tempmin) THEN
             STOP
           ELSE
             rate0(npar,nkin) = DNUM(ssch)
+            continue
           END IF
         ELSE
           WRITE(*,*)
@@ -1782,6 +1800,15 @@ DEALLOCATE(namAssociate)
 ALLOCATE(namAssociate(nkin))
 IF(nkin /= 0) namAssociate(1:nkin) = workchar1(1:nkin)
 DEALLOCATE(workchar1)
+
+! mineral type
+i = size(mintype,1)
+ALLOCATE(workint(i))
+workint = mintype
+DEALLOCATE(mintype)
+ALLOCATE(mintype(nkin+2))
+IF(nkin /= 0) mintype(1:nkin+2) = workint(1:nkin+2)
+DEALLOCATE(workint)
 
 !!  Check that the "associated" minerals are in the list
 

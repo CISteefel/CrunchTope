@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -326,7 +326,7 @@ DO jz = 1,nz
           ELSE
             area(k,jx,jy,jz) = 0.0d0
           END IF
-          sum = sum + volfx(k,jx,jy,jz)
+          if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz)
           
         ELSE                                               !! Update reactive surface area
 
@@ -334,10 +334,12 @@ DO jz = 1,nz
               
             IF (vinit == 0.0d0) THEN
               area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/0.01)**0.6666
-              sum = sum + volfx(k,jx,jy,jz)
+              if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz)
             ELSE
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
-              sum = sum + volfx(k,jx,jy,jz)
+              if (mintype(k) == 0) then 
+                area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
+                sum = sum + volfx(k,jx,jy,jz)
+              end if
             END IF
             
           ELSE                                                        !!  Specific surface area
@@ -347,7 +349,7 @@ DO jz = 1,nz
             ELSE
               area(k,jx,jy,jz) = volfx(k,jx,jy,jz)*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
             END IF
-            sum = sum + volfx(k,jx,jy,jz)
+            if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz)
             
           END IF
           
@@ -368,32 +370,26 @@ DO jz = 1,nz
 !!  Ripening
         IF (ForsteriteCapillary) THEN
 
-          RipeningRate = 1.0E-12
+          RipeningRate = 1.0E-31
           DeltaKeq = 0.05
            
-              RipenRate2 = volmol(2) * area(1,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * ( (Keqmin(1,2,jx,jy,jz)+DeltaKeq)/Keqmin(1,2,jx,jy,jz) - 1.0 )
-              RipenRate3 = volmol(3) * area(2,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * ( (Keqmin(1,3,jx,jy,jz)+DeltaKeq)/Keqmin(1,3,jx,jy,jz) - 1.0 )
-              RipenRate4 = volmol(4) * area(3,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * ( (Keqmin(1,4,jx,jy,jz)+DeltaKeq)/Keqmin(1,4,jx,jy,jz) - 1.0 )
-              RipenRate5 = volmol(5) * area(4,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * ( (Keqmin(1,5,jx,jy,jz)+DeltaKeq)/Keqmin(1,5,jx,jy,jz) - 1.0 )     
-
-              volfx(1,jx,jy,jz) = volfx(1,jx,jy,jz) - RipenRate2
-               volfx(2,jx,jy,jz) = volfx(2,jx,jy,jz) + RipenRate2
-             if (volfx(1,jx,jy,jz) < 0.0d0) THEN
-               volfx(1,jx,jy,jz) = 0.0d0
-             end if    
-             if (volfx(2,jx,jy,jz) < 0.0d0) THEN
-               volfx(2,jx,jy,jz) = 0.0d0
-             end if    
-!!!               volfx(2,jx,jy,jz) = volfx(2,jx,jy,jz) + RipenRate2 - RipenRate3   
-!!!               volfx(3,jx,jy,jz) = volfx(3,jx,jy,jz) + RipenRate3 - RipenRate4      
-!!!               volfx(4,jx,jy,jz) = volfx(4,jx,jy,jz) + RipenRate4 - RipenRate5     
-!!!               volfx(5,jx,jy,jz) = volfx(5,jx,jy,jz) + RipenRate5    
+!!!          RipenRate2 = volmol(2) * area(1,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
+!!!            ( (Keqmin(1,2,jx,jy,jz)+DeltaKeq)/Keqmin(1,2,jx,jy,jz) - 1.0 )
+!!!          RipenRate3 = volmol(3) * area(2,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
+!!!            ( (Keqmin(1,3,jx,jy,jz)+DeltaKeq)/Keqmin(1,3,jx,jy,jz) - 1.0 )
+!!!          RipenRate4 = volmol(4) * area(3,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
+!!!            ( (Keqmin(1,4,jx,jy,jz)+DeltaKeq)/Keqmin(1,4,jx,jy,jz) - 1.0 )
+!!!          RipenRate5 = volmol(5) * area(4,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
+!!!            ( (Keqmin(1,5,jx,jy,jz)+DeltaKeq)/Keqmin(1,5,jx,jy,jz) - 1.0 )     
+          
+ 
               
         END IF
       
 !!  Update porosity, with a save of the porosity to porOld
 
       porold(jx,jy,jz) = por(jx,jy,jz)
+      
       If (jpor == 1 .OR. jpor == 3) THEN
         por(jx,jy,jz) = 1.0 - sum
         IF (por(jx,jy,jz) < MinimumPorosity) THEN
@@ -403,13 +399,14 @@ DO jz = 1,nz
         por(jx,jy,jz) = porin(jx,jy,jz)
       END IF
       
-      
       porfactor = (por(jx,jy,jz)/porin(jx,jy,jz))**0.6666666666666
+      
 !!      IF (porfactor < 1.0d0) THEN
 !!        DO k = 1,nrct
 !!          area(k,jx,jy,jz) = area(k,jx,jy,jz)*porfactor
 !!        END DO
 !!      END IF
+      
     END DO
   END DO
 END DO

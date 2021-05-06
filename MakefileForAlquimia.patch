@@ -1,0 +1,16 @@
+diff --git a/source/Makefile b/source/Makefile
+index da80a0e..a689add 100644
+--- a/source/Makefile
++++ b/source/Makefile
+@@ -1,9 +1,9 @@
+ ALL: CrunchMain
+ 
+ ## for Alquimia, add the -DALQUIMIA flag
+-##FFLAGS  = -w -DALQUIMIA
++FFLAGS  = -w -DALQUIMIA
+ 
+-FFLAGS  = -w
++##FFLAGS  = -w
+ 
+ %.o: %.mod
+ 

@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -176,8 +176,15 @@ REAL(DP)                                                        :: AdjustKeq
 !!!REAL(DP)                                                        :: SigmaNucleation
 !!!REAL(DP)                                                        :: Bnucleation
 !!!REAL(DP)                                                        :: Anucleation
+
 REAL(DP)                                                        :: surfTotal
 REAL(DP)                                                        :: BtimesSigma
+
+REAL(DP)                                                        :: v_min
+REAL(DP)                                                        :: checkNucleation
+REAL(DP), PARAMETER                                             :: BoltzmannTerm=1.3806E-20
+REAL(DP)                                                        :: NucleationTerm
+REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: DecayTerm
 
@@ -818,11 +825,17 @@ DO k = 1,nkin
       
       ELSE IF (imintype(np,k) == 9) THEN
 
-        term2 = volfx(biomass_decay(np,nkin),jx,jy,jz)
-        !!write(*,*)'sergi: volume of biomass: ',volfx(biomass_decay(np,nkin),jx,jy,jz)
+        term2 = volfx(biomass_decay(np,k),jx,jy,jz)
+!!        term2 = term2/volmol(biomass_decay(np,k)) not applicable after volmol=1 for biomass
         pre_rmin(np,k) = term2
-        continue
-        
+
+!       note on units:
+!
+!       * concentration of biomass is in mol-biomass/m3
+!       * reaction rate constant is in 1/yr at this point
+!       * the bulk rate calculated below is in mol-reaction/m3-bulk/yr
+!       * this is a dissolution reaction where 1 mol-reaction = 1 mol-biomass
+
 ! end sergi: first order biomass decay - may 2011
 
         
@@ -933,16 +946,24 @@ DO k = 1,nkin
           
         pre_rmin(np,k) = 0.0d0
         actenergy(np,k) = 0.0d0
+        v_min = 4.6629E-29
         
 !!!        SigmaNucleation = 97.0
 !!!!        Bnucleation = 0.0009045710    !! 25C
-!!!        Bnucleation = 0.000480339     !! 95C
+!!!        Bnucleation = 0.000480339      !! 95C
 !!!        Anucleation = 0.001
         
          IF (si(np,k) > 1.0) THEN
             
+           checkNucleation = 16.0/3.0 * 3.1415 * v_min**2/(BoltzmannTerm**3 * Tk**3) *   &
+               SigmaNucleation(np,k)**3 / siln(np,k)**2
+          
           BtimesSigma = Bnucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)*SigmaNucleation(np,k)
-          NucleationExponentialTerm = DEXP(-BtimesSigma/( siln(np,k)*siln(np,k) ) )
+!!!          NucleationTerm = BtimesSigma/( siln(np,k)*siln(np,k) )
+!!!          NucleationExponentialTerm = DEXP(-BtimesSigma/( siln(np,k)*siln(np,k) ) )
+          NucleationTerm = checkNucleation
+          NucleationExponentialTerm = DEXP(-checkNucleation)
+
           AffinityTerm = Azero25C(np,k)*NucleationExponentialTerm 
           rate0(np,k) = 1.0d0
           actenergy(np,k) = 1.0d0
@@ -1122,7 +1143,9 @@ DO k = 1,nkin
           END IF
           
         ELSE
+          
           rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+          
         END IF
      
               

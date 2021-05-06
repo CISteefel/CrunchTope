@@ -192,7 +192,7 @@ IF (nrct > 1) THEN
          DO jz=1,nz
             sum = 0.0
             DO k = 1,nrct
-              sum = sum + volfx(k,jx,jy,jz)
+              if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz)
             END DO
             WRITE(32,432) (1.0-sum)*100.0
          ENDDO

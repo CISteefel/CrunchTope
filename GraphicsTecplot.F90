@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -710,8 +710,12 @@ IF (nrct > 0) THEN
     DO jx = 1,nx
       CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
       DO k = 1,nrct
-        dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        if (mintype(k) == 1) then
+          dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        else if (mintype(k) == 0) then
+          dvolpr(k) = volfx(k,jx,jy,jz)*1.0
         SumVolumeMineral(k) = SumVolumeMineral(k) + volfx(k,jx,jy,jz)*CellVolume
+        end if
       END DO
       WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(dvolpr(k),k=1,nrct)
     END DO
@@ -1303,7 +1307,11 @@ IF (nrct > 0) THEN
   DO jy = 1,ny
     DO jx = 1,nx
       DO k = 1,nrct
-        dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        if (mintype(k) == 0) then
+          dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        else if (mintype(k) == 1) then
+          dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        end if
       END DO
       WRITE(8,184) x(jx)*OutputDistanceScale,z(jz)*OutputDistanceScale,(dvolpr(k),k=1,nrct)
     END DO
@@ -1715,7 +1723,11 @@ IF (nrct > 0) THEN
   DO jy = 1,ny
     DO jx = 1,nx
       DO k = 1,nrct
-        dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        if (mintype(k) == 0) then
+          dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        else if (mintype(k) == 1) then
+          dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        end if
       END DO
       WRITE(8,185) x(jx)*OutputDistanceScale,(dvolpr(k),k=1,nrct)
     END DO

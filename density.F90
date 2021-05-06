@@ -93,7 +93,8 @@ IF (DensityModule == 'temperature') THEN
 !!Quality in Maidment, D.R. (Editor). Handbood of Hydrology, 
 !!McGraw-Hill, New York, NY (p. 11.3 )
 
-  ro(jx,jy,jz) = 1000.0d0*(1.0d0 - (tc + 288.9414d0) / (508929.2d0*(tc + 68.12963d0))*(tc-3.9863d0)**2.0d0)
+!!!  ro(jx,jy,jz) = 1000.0d0*(1.0d0 - (tc + 288.9414d0) / (508929.2d0*(tc + 68.12963d0))*(tc-3.9863d0)**2.0d0)
+  ro(jx,jy,jz) = 1000.0d0
 
 ELSE IF (DensityModule == 'sodium_chloride') THEN
 

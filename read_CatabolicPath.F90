@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@
 
 !! Written by Sergi Molins, 2014
     
-    subroutine read_CatabolicPath(ncomp,nkin,ikin)
+    subroutine read_CatabolicPath(ncomp,nkin,ikin,data3)
 
     use params
     use concentration, only: ulab, namkin, iaqtype
@@ -67,6 +67,7 @@
     integer(i4b),intent(in)                                       :: ncomp
     integer(i4b),intent(in)                                       :: nkin
     integer(i4b),intent(in)                                       :: ikin
+    character(LEN=mls), intent(in)                                :: data3
 
 !   internal
     integer                                                       :: ios
@@ -152,6 +153,8 @@ LOGICAL(LGT)                                                :: ext
 
 !     open file
 
+      if (data3 == ' ') then
+
       INQUIRE(FILE='CatabolicControl.ant',EXIST=ext)
       IF (EXT) THEN          !!  Catabolic Control file exists, so read input filename from it rather than prompting user
         OPEN(113,FILE='CatabolicControl.ant',STATUS='old',ERR=708)
@@ -161,6 +164,12 @@ LOGICAL(LGT)                                                :: ext
         filename = 'CatabolicPathways.in'
       END IF
 
+      else
+        
+        filename = data3
+
+      end if
+      
       OPEN(UNIT=112,FILE=filename,STATUS='old')
  !!     open(unit=112,file='CatabolicPathways.in',status='unknown')
    

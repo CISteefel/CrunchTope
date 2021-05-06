@@ -1230,7 +1230,7 @@ DO WHILE (nn <= nend)
 
   IF (gimrt) THEN         !  Update dispersivity
     IF (.NOT. Richards) THEN
-      CALL dispersivity(nx,ny,nz)
+!!!cis-NoDispersion      CALL dispersivity(nx,ny,nz)
     END IF
   END IF
 
@@ -1264,7 +1264,7 @@ DO WHILE (nn <= nend)
       IF (xflow .OR. yflow .OR. zflow) THEN
         call CourantStepAlt(nx,ny,nz,dtmaxcour)
         IF (.NOT. Richards) THEN
-          CALL dispersivity(nx,ny,nz)
+!!!cis-NoDispersion          CALL dispersivity(nx,ny,nz)
         END IF
       END IF
 
@@ -1660,7 +1660,7 @@ DO WHILE (nn <= nend)
 !!!    WRITE(*,*) 'GIMRT invoked!'
 !           Calculate finite difference coefficients
         IF (.NOT. Richards) THEN
-          CALL dispersivity(nx,ny,nz)
+!!!cis-NoDispersion          CALL dispersivity(nx,ny,nz)
         END IF
 
     IF (TortuosityOption /= 'none') THEN

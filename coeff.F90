@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -383,7 +383,14 @@ DO jy = 1,ny
         dharm = GeometricMean(dume,dumpx)
       END IF
 !!CIS      dharm = ArithmeticMean(dume,dumpx)
-      AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
+      !!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
+      IF (qx(jx,jy,jz) > 0.0d0) THEN
+        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
+      ELSE
+        AreaE = dyy(jy)*dzz(jx,jy,jz)
+      END IF
       dspe = avgro*dspx(jx,jy,jz) + dharm
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
@@ -450,7 +457,13 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
-      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
+      IF (qx(jx,jy,jz) > 0.0d0) THEN
+        AreaW = dyy(jy)*dzz(jx,jy,jz)
+      ELSE
+        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
+      END IF
       dspw = avgro*dspx(jx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
@@ -474,7 +487,13 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
-      AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
+      IF (qx(jx,jy,jz) > 0.0d0) THEN
+        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
+      ELSE
+        AreaE = dyy(jy)*dzz(jx,jy,jz)
+      END IF
       dspe = avgro*dspx(jx,jy,jz) + dharm
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
@@ -492,7 +511,14 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
-      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
+      IF (qx(jx,jy,jz) > 0.0d0) THEN
+        AreaW = dyy(jy)*dzz(jx,jy,jz)
+      ELSE
+        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
+      END IF
+      
       dspw = avgro*dspx(jx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))

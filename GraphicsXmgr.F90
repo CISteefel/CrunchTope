@@ -409,7 +409,7 @@ jy = 1
 jz = 1
 DO jx = 1,nx
 !fp! if_onproc({#expr# sp(1,jx,jy,jz) #});
-  CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt)
+!  CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt)
   CALL satcalc(ncomp,nrct,jx,jy,jz)
   DO k = 1,nrct
     dsat(k) = silog(1,k)

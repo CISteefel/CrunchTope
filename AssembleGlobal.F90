@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@ USE ReadFlow
 
 #include "petsc/finclude/petscmat.h"
 USE petscmat
- 
+
 #include "petsc/finclude/petsc.h"
 
 !**************************** End PETSc include statements **************
@@ -296,38 +296,46 @@ IF (species_diffusion) THEN
     
   ELSE    !! Conventional BC by face
 
-!!!    nbnd = 1
-!!!    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
-!!!    DO i = 1,ncomp
-!!!      s_dsp(i,0,jy,jz) = sdsp(i)
-!!!      s_chg(i,0,jy,jz) = schg(i)
-!!!    END DO
-!!!    sumwtchg(0,jy,jz) = sumchgbd
-  
-!!!    nbnd = 2
-!!!    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
-!!!    DO i = 1,ncomp
-!!!      s_dsp(i,nx+1,jy,jz) = sdsp(i)
-!!!      s_chg(i,nx+1,jy,jz) = schg(i)
-!!!    END DO
-!!!    sumwtchg(nx+1,jy,jz) = sumchgbd
+    nbnd = 1
+    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
+    DO jy = 1,ny
+       DO i = 1,ncomp
+          s_dsp(i,0,jy,jz) = sdsp(i)
+          s_chg(i,0,jy,jz) = schg(i)
+       END DO
+       sumwtchg(0,jy,jz) = sumchgbd
+    END DO
+ 
+    nbnd = 2
+    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
+    DO jy = 1,ny
+       DO i = 1,ncomp
+          s_dsp(i,nx+1,jy,jz) = sdsp(i)
+          s_chg(i,nx+1,jy,jz) = schg(i)
+       END DO
+       sumwtchg(nx+1,jy,jz) = sumchgbd
+    END DO
+ 
+    nbnd = 3
+    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
+    DO jx = 1,nx
+       DO i = 1,ncomp
+          s_dsp(i,jx,0,jz) = sdsp(i)
+          s_chg(i,jx,0,jz) = schg(i)
+       END DO
+       sumwtchg(jx,0,jz) = sumchgbd
+    END DO
 
-!!!    nbnd = 3
-!!!    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
-!!!    DO i = 1,ncomp
-!!!      s_dsp(i,jx,0,jz) = sdsp(i)
-!!!      s_chg(i,jx,0,jz) = schg(i)
-!!!    END DO
-!!!    sumwtchg(jx,0,jz) = sumchgbd
-
-!!!    nbnd = 4
-!!!    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
-!!!    DO i = 1,ncomp
-!!!      s_dsp(i,jx,ny+1,jz) = sdsp(i)
-!!!      s_chg(i,jx,ny+1,jz) = schg(i)
-!!!    END DO
-!!!    sumwtchg(jx,ny+1,jz) = sumchgbd
-
+    nbnd = 4
+    CALL bd_diffuse(ncomp,nspec,nbnd,sumchgbd)
+    DO jx = 1,nx
+       DO i = 1,ncomp
+          s_dsp(i,jx,ny+1,jz) = sdsp(i)
+          s_chg(i,jx,ny+1,jz) = schg(i)
+       END DO
+       sumwtchg(jx,ny+1,jz) = sumchgbd
+    END DO
+    
   END IF
 
 END IF
@@ -347,15 +355,15 @@ DO jy = 1,ny
 
     satl = satliq(jx,jy,jz)
     satgas = 1.0d0 - satl
-IF (cylindrical) THEN
-  CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
-  df = 1.0d0
-  MultiplyCell = CellVolume
-  IF (CylindricalDivideVolume) THEN
-      df = 1.0/CellVolume
-      MultiplyCell = 1.0
-  END IF
-ELSE IF (spherical) THEN
+    IF (cylindrical) THEN
+      CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
+      df = 1.0d0
+      MultiplyCell = CellVolume
+      IF (CylindricalDivideVolume) THEN
+        df = 1.0/CellVolume
+        MultiplyCell = 1.0
+      END IF
+    ELSE IF (spherical) THEN
       CellVolume = (4.0d0/3.0d0)*pi*( (x(jx) + 0.5d0*dxx(jx))**3.0d0 - (x(jx) - 0.5d0*dxx(jx))**3.0d0  )
        df = 1.0d0
        MultiplyCell = CellVolume

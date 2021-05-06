@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -64,34 +64,34 @@ IMPLICIT NONE
 
 !! External variables and arrays
 
-ALLOCATE(keqmin_tmp(mreact,nm))
-ALLOCATE(keqaq_tmp(mcmplx))
-ALLOCATE(keqgas_tmp(ng))
-ALLOCATE(keqsurf_tmp(msurf_sec))
-ALLOCATE(sptmp(nc+mcmplx))
-ALLOCATE(sptmp10(nc+mcmplx))
-ALLOCATE(gamtmp(nc+mcmplx))
-ALLOCATE(stmp(nc))
-ALLOCATE(nbasin(nc))
-ALLOCATE(nbkin(mcmplx))
-ALLOCATE(dxxt(mzone))
-ALLOCATE(dyyt(mzone))
-ALLOCATE(dzzt(mzone))
-ALLOCATE(nvx(mzone))
-ALLOCATE(nvy(mzone))
-ALLOCATE(nvz(mzone))
-ALLOCATE(sexch(nc+mexch))
-ALLOCATE(spextmp(mexch_sec+mexch))
-ALLOCATE(spextmp10(mexch_sec+mexch))
-ALLOCATE(totextmp(mexch))
-ALLOCATE(spgastmp(ng))
-ALLOCATE(spgastmp10(ng))
-ALLOCATE(sgastmp(nc))
-ALLOCATE(spsurftmp(msurf+msurf_sec))
-ALLOCATE(spsurftmp10(msurf+msurf_sec))
-ALLOCATE(ssurftmp(msurf))
-ALLOCATE(dpsi(meqn,meqn))
-ALLOCATE(namdep_nyf(5,10,mrct))
+IF (.not.ALLOCATED(keqmin_tmp)) ALLOCATE(keqmin_tmp(mreact,nm))
+IF (.not.ALLOCATED(keqaq_tmp)) ALLOCATE(keqaq_tmp(mcmplx))
+IF (.not.ALLOCATED(keqgas_tmp)) ALLOCATE(keqgas_tmp(ng))
+IF (.not.ALLOCATED(keqsurf_tmp)) ALLOCATE(keqsurf_tmp(msurf_sec))
+IF (.not.ALLOCATED(sptmp)) ALLOCATE(sptmp(nc+mcmplx))
+IF (.not.ALLOCATED(sptmp10)) ALLOCATE(sptmp10(nc+mcmplx))
+IF (.not.ALLOCATED(gamtmp)) ALLOCATE(gamtmp(nc+mcmplx))
+IF (.not.ALLOCATED(stmp)) ALLOCATE(stmp(nc))
+IF (.not.ALLOCATED(nbasin)) ALLOCATE(nbasin(nc))
+IF (.not.ALLOCATED(nbkin)) ALLOCATE(nbkin(mcmplx))
+IF (.not.ALLOCATED(dxxt)) ALLOCATE(dxxt(mzone))
+IF (.not.ALLOCATED(dyyt)) ALLOCATE(dyyt(mzone))
+IF (.not.ALLOCATED(dzzt)) ALLOCATE(dzzt(mzone))
+IF (.not.ALLOCATED(nvx)) ALLOCATE(nvx(mzone))
+IF (.not.ALLOCATED(nvy)) ALLOCATE(nvy(mzone))
+IF (.not.ALLOCATED(nvz)) ALLOCATE(nvz(mzone))
+IF (.not.ALLOCATED(sexch)) ALLOCATE(sexch(nc+mexch))
+IF (.not.ALLOCATED(spextmp)) ALLOCATE(spextmp(mexch_sec+mexch))
+IF (.not.ALLOCATED(spextmp10)) ALLOCATE(spextmp10(mexch_sec+mexch))
+IF (.not.ALLOCATED(totextmp)) ALLOCATE(totextmp(mexch))
+IF (.not.ALLOCATED(spgastmp)) ALLOCATE(spgastmp(ng))
+IF (.not.ALLOCATED(spgastmp10)) ALLOCATE(spgastmp10(ng))
+IF (.not.ALLOCATED(sgastmp)) ALLOCATE(sgastmp(nc))
+IF (.not.ALLOCATED(spsurftmp)) ALLOCATE(spsurftmp(msurf+msurf_sec))
+IF (.not.ALLOCATED(spsurftmp10)) ALLOCATE(spsurftmp10(msurf+msurf_sec))
+IF (.not.ALLOCATED(ssurftmp)) ALLOCATE(ssurftmp(msurf))
+IF (.not.ALLOCATED(dpsi)) ALLOCATE(dpsi(meqn,meqn))
+IF (.not.ALLOCATED(namdep_nyf)) ALLOCATE(namdep_nyf(5,10,mrct))
 
 
 ! **********  End of temporary arrays *************

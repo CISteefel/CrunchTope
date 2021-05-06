@@ -226,7 +226,6 @@ IF (cylindrical) THEN
       MultiplyCell = 1.0
   END IF
 ELSE IF (spherical) THEN
-
   CellVolume = (4.0d0/3.0d0)*pi*( (x(jx)+0.5d0*dxx(jx))**3.0d0 - (x(jx)-0.5d0*dxx(jx))**3.0d0  )
   df = 1.0d0
   MultiplyCell = CellVolume
