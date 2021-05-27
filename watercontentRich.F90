@@ -66,7 +66,7 @@ INTEGER(I4B)                                                          :: jz
 !  ****** PARAMETERS  ****************************
 REAL(DP)                                                              :: coef
 REAL(DP)                                                              :: dt
-REAL(DP), PARAMETER                                                   :: Ss=1.0d-5
+REAL(DP), PARAMETER                                                   :: Ss=1.0d-6
 REAL(DP), INTENT(IN)                                                  :: dtyr
 
 CHARACTER (LEN=1)                                                     :: Coordinate
@@ -77,18 +77,18 @@ dt = dtyr * 365 * 86400
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-        coef = 1.0d0 / (1.0d0 + Ss*(head(jx,jy,jz)-headOld(jx,jy,jz))/wcs(jx,jy,jz))
-        wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))     &
-                                    +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))  &
-                                    + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))
-        room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
-        IF (room(jx,jy,jz) < 0.0) THEN
-            room(jx,jy,jz) = 0.0d0
-        ELSE IF (room(jx,jy,jz) > (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)) THEN
-            room(jx,jy,jz) = (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
+        IF (activecellPressure(jx,jy,jz) == 1) THEN
+            coef = 1.0d0 / (1.0d0 + Ss*(head(jx,jy,jz)-headOld(jx,jy,jz))/wcs(jx,jy,jz))
+            wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))     &
+                                        +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))  &
+                                        + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))
+            room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
+            IF (room(jx,jy,jz) < 0.0) THEN
+                room(jx,jy,jz) = 0.0d0
+            ELSE IF (room(jx,jy,jz) > (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)) THEN
+                room(jx,jy,jz) = (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
+            END IF
         END IF
-
-        
 
     END DO
   END DO

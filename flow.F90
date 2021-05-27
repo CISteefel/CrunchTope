@@ -131,6 +131,9 @@ REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permyOld
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permzOld
 !! For Richards solver, Zhi Li 20200629
 REAL(DP)                                       :: wc_init
+REAL(DP)                                       :: watertable_init
+
+REAL(DP), DIMENSION(:,:),ALLOCATABLE         :: jz_bottom
 
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: head
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: headOld

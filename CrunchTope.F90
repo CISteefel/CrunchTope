@@ -386,6 +386,9 @@ INTEGER(I4B)                                               :: nco
 
 REAL(DP)                                                   :: dq_max
 
+REAL(DP)                                                   :: dist
+REAL(DP)                                                   :: satu
+
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -610,25 +613,68 @@ IF (CalculateFlow) THEN
     END DO
   END IF
 
- !! Initialize pressure head, Zhi Li 20200709
+ !! Get topography from pressure BC, ZhiLi20210526
+ !! Here jz_bottom is the jz index that represents the boundary cell above the top surface
+ IF (Richards) THEN
+     WRITE(*,*) ' Initializing topography'
+     DO jx = 0,nx+1
+         DO jy = 0,ny+1
+             DO jz = 1,nz-1
+                 IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+                     jz_bottom(jx,jy) = jz
+                     EXIT
+                 END IF
+            END DO
+        END DO
+    END DO
+END IF
+
+ !! Initialize pressure head, ZhiLi20210526
  IF (Richards) THEN
      WRITE(*,*) ' Initializing head and water content for Richards equation'
      DO jz = 0,nz+1
        DO jy = 0,ny+1
          DO jx = 0,nx+1
-           wcs(jx,jy,jz) = por(jx,jy,jz)
-           wc(jx,jy,jz) = wc_init
-           IF (wc(jx,jy,jz) >= wcs(jx,jy,jz)) THEN
-               wc(jx,jy,jz) = wcs(jx,jy,jz)
-               head(jx,jy,jz) = 0.0d0
-           ELSE
+             wcs(jx,jy,jz) = por(jx,jy,jz)
+             IF (activecellPressure(jx,jy,jz) == 1) THEN
+                 ! distance to top surface
+                 ! This only works for uniform dzz now!
+                 dist = (jz - jz_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
+                 ! set initial water table
+                 IF (dist > watertable_init) THEN
+                     wc(jx,jy,jz) = wcs(jx,jy,jz)
+                     head(jx,jy,jz) = dist - watertable_init
+                 ELSE
+                     ! Assume head is hydrostatic above the water table
+                     ! This makes wc_init useless!
+                    ! wc(jx,jy,jz) = wc_init
+                    head(jx,jy,jz) = dist - watertable_init
+                    satu = (1 + abs(vga*head(jx,jy,jz))**vgn) ** (1.0d0/vgn-1.0d0)
+                    IF (satu > 1) THEN
+                        satu = 1.0d0
+                    ELSE IF (satu < 0) THEN
+                        satu = 0.0d0
+                    END IF
+                    !!! Get wc from head
+                    IF (head(jx,jy,jz) >= 0.0d0) THEN
+                        wc(jx,jy,jz) = wcs(jx,jy,jz)
+                    ELSE
+                        wc(jx,jy,jz) = wcr + (wcs(jx,jy,jz) - wcr) * satu
+                    END IF
+                END IF
+            ELSE
+               ! initial condition for inactive cells
+               wc(jx,jy,jz) = wcr
+               ! head(jx,jy,jz) = 0.0d0
                head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
-           END IF
-           ! enforce saturation when prescribed initial pressure exists
-           IF (pres(jx,jy,jz) > 0.0) THEN
-               IF (jx == 0 .OR. jx == nx+1 .OR. jy == 0 .OR. jy == ny+1 .OR. jz == 0 .OR. jz == nz+1) THEN
-                   wc(jx,jy,jz) = wcs(jx,jy,jz)
-                   head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
+               IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+                   IF (pres(jx,jy,jz) > 0.0d0) THEN
+                       wc(jx,jy,jz) = wcs(jx,jy,jz)
+                       head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
+                   ELSE
+                       wc(jx,jy,jz) = wcr
+                       head(jx,jy,jz) = 0.0d0
+                   END IF
                END IF
            END IF
          END DO
@@ -639,9 +685,6 @@ IF (CalculateFlow) THEN
          DO jx = 0,nx+1
            headOld(jx,jy,jz) = head(jx,jy,jz)
            wcOld(jx,jy,jz) = wc(jx,jy,jz)
-           ! IF (jz == 0) THEN
-           !     dzz(jx,jy,jz) = dzz(jx,jy,jz) * 0.1d0
-           ! END IF
          END DO
        END DO
      END DO
@@ -743,20 +786,6 @@ IF (CalculateFlow) THEN
       END FORALL
   END IF
 
-  ! DO jz = 0,nz+1
-  !   DO jy = 0,ny+1
-  !     DO jx = 0,nx+1
-  !         IF (jx == 2 .AND. jy == 2) THEN
-  !             WRITE(*,*) 'jz - Kz, head, headOld = ',jz,Kfacz(jx,jy,jz),head(jx,jy,jz),headOld(jx,jy,jz)
-  !         END IF
-  !     END DO
-  !   END DO
-  ! END DO
-
-  ! DO jz = 1,nz,8
-  !     WRITE(*,*) 'jz, h-hOld, wc-wcOld = ',jz,head(2,2,jz),headOld(2,2,jz),wc(2,2,jz),wcOld(2,2,jz)
-  ! END DO
-
 
   IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
@@ -769,30 +798,22 @@ IF (CalculateFlow) THEN
       FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
       END FORALL
-      CALL velocalcRich(nx,ny,nz)
+      ! CALL velocalcRich(nx,ny,nz)
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
-
  ! final check of water content
-  IF (Richards) then
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
           IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
               wc(jx,jy,jz) = wcs(jx,jy,jz)
           ELSE IF (wc(jx,jy,jz) < wcr) THEN
               wc(jx,jy,jz) = wcr
           END IF
-        END DO
       END DO
     END DO
-  END IF
-!! ********************************
-
-
-
-
+  END DO
 
 
 !!  Check divergence of flow field
@@ -1014,7 +1035,7 @@ nn = 0
 DO WHILE (nn <= nend)
 
     ! Zhi Li 20200715
-    IF (nn == 0 .and. (Richards .or. NavierStokes) ) THEN
+    IF (nn == 0) THEN
         delt = dtflow
     END IF
 
@@ -1082,6 +1103,7 @@ DO WHILE (nn <= nend)
         END DO
     END IF
 
+
     IF (NavierStokes) THEN
         CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
     ELSE IF (Richards) THEN
@@ -1104,7 +1126,6 @@ DO WHILE (nn <= nend)
 
 !    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
 !    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
     CALL KSPSolve(ksp,BvecP,XvecP,ierr)
     CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
@@ -1147,6 +1168,7 @@ DO WHILE (nn <= nend)
         END FORALL
     END IF
 
+
     IF (NavierStokes) THEN
         CALL velocalcNS(nx,ny,nz,delt)
     ELSE IF (Richards) THEN
@@ -1160,25 +1182,22 @@ DO WHILE (nn <= nend)
         FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
           pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
         END FORALL
-        CALL velocalcRich(nx,ny,nz)
+        ! CALL velocalcRich(nx,ny,nz)
     ELSE
         CALL velocalc(nx,ny,nz)
     END IF
-
     ! final check of water content
-    IF (Richards) THEN
-      DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
+     DO jz = 1,nz
+       DO jy = 1,ny
+         DO jx = 1,nx
              IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                  wc(jx,jy,jz) = wcs(jx,jy,jz)
              ELSE IF (wc(jx,jy,jz) < wcr) THEN
                  wc(jx,jy,jz) = wcr
              END IF
-           END DO
          END DO
-      END DO
-    END IF
+       END DO
+     END DO
 
 
 
@@ -1229,9 +1248,7 @@ DO WHILE (nn <= nend)
 !  *********  End NUFT block within time stepping  ****************
 
   IF (gimrt) THEN         !  Update dispersivity
-    IF (.NOT. Richards) THEN
-!!!cis-NoDispersion      CALL dispersivity(nx,ny,nz)
-    END IF
+    CALL dispersivity(nx,ny,nz)
   END IF
 
 !  **************  OS3D BLOCK    **********************
@@ -1263,9 +1280,7 @@ DO WHILE (nn <= nend)
 
       IF (xflow .OR. yflow .OR. zflow) THEN
         call CourantStepAlt(nx,ny,nz,dtmaxcour)
-        IF (.NOT. Richards) THEN
-!!!cis-NoDispersion          CALL dispersivity(nx,ny,nz)
-        END IF
+        CALL dispersivity(nx,ny,nz)
       END IF
 
     END IF
@@ -1657,11 +1672,9 @@ DO WHILE (nn <= nend)
   6000   IF (gimrt) THEN
 
     jz = 1
-!!!    WRITE(*,*) 'GIMRT invoked!'
+    WRITE(*,*) 'GIMRT invoked!'
 !           Calculate finite difference coefficients
-        IF (.NOT. Richards) THEN
-!!!cis-NoDispersion          CALL dispersivity(nx,ny,nz)
-        END IF
+    CALL dispersivity(nx,ny,nz)
 
     IF (TortuosityOption /= 'none') THEN
       CALL CalculateTortuosity(nx,ny,nz)
@@ -2393,7 +2406,6 @@ END DO
             rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
           END IF
         END DO
-        
         IF (SolidBuryX(1) > 0.0) THEN
           rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
         END IF
@@ -2412,31 +2424,26 @@ END DO
     END DO   ! End of mineral loop for erosion/burial
 
     CALL porcalc(nx,ny,nz,nkin,jpor)     ! Updates porosity and surface area
-    
-    IF (KateMaher) THEN
-      write(*,*) 
-      write(*,*) ' KateMaher option no longer supported'
-      write(*,*)
-      read(*,*)
-      stop
-    END IF
 
-!!!  Bury/erode mineral properties (e.g., specificByGrid)
-    
-    rinv = 1.0/delt
-    jz = 1
-    jy = 1
-    
-    DO k = 1,nrct
+    IF (KateMaher) THEN
+
+      rinv = 1.0/delt
+
+      jz = 1
+      jy = 1
+
+!!  ******************
+
+      call CalciteStoichiometryBoundary(1)
 
       DO jx = 1,nx
-        ctvd(jx,jy,jz) = specificByGrid(k,jx,jy,jz)
+        ctvd(jx,jy,jz) = muUranium234Bulk(jx,jy,jz)
       END DO
 
       DO jx = 1,nx
         IF (jx == 1) THEN
-          dxw = 0.5*dxx(1)
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
         ELSE IF (jx == nx) THEN
           dxw = 0.5*(dxx(jx)+dxx(jx-1))
           dxe = 0.5*dxx(nx)
@@ -2458,25 +2465,199 @@ END DO
           rrbur(jx) = ctvd(jx,1,1)*rinv
         END IF
       END DO
-      
+
       IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
-      END IF
-      
-      IF (SolidBuryX(nx) < 0.0) THEN
-        rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
+        rrbur(1) = rrbur(1) - aabur(1)*muUranium234Boundary(1)
       END IF
 
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
 
       DO jx = 1,nx
-        specificByGrid(k,jx,1,1) = uubur(jx)
+        muUranium234Bulk(jx,1,1) = uubur(jx)
       END DO
-      
-    END DO
 
 !!   *************
 
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = muUranium238Bulk(jx,jy,jz)
+      END DO
+
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*muUranium238Boundary(1)
+      END IF
+
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
+
+      DO jx = 1,nx
+        muUranium238Bulk(jx,1,1) = uubur(jx)
+      END DO
+
+!!  *****************
+
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = muCalciumBulk(jx,jy,jz)
+      END DO
+
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*muCalciumBoundary(1)
+      END IF
+
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
+
+      DO jx = 1,nx
+        muCalciumBulk(jx,1,1) = uubur(jx)
+      END DO
+
+      muCalciumBulk = 0.97*muCalciumBulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
+      muUranium234Bulk = 0.97*muUranium234Bulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
+     muUranium238Bulk = 0.97*muUranium238Bulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
+
+!!  *****************
+
+    IF (nradmax > 0) THEN
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = mumin_decay(1,kUPlag,ik234U,jx,jy,jz)
+      END DO
+
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*1.40e-10
+      END IF
+      IF (SolidBuryX(nx) < 0.0) THEN
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*muCalciumBulk(nx,1,1)
+      END IF
+
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
+
+      DO jx = 1,nx
+        mumin_decay(1,kUPlag,ik234U,jx,jy,jz) = uubur(jx)
+      END DO
+
+!!  *****************
+
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = mumin_decay(1,kUPlag,ik238U,jx,jy,jz)
+      END DO
+
+      DO jx = 1,nx
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+        ELSE                         ! Erosion case
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
+          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv
+        END IF
+      END DO
+
+      IF (SolidBuryX(1) > 0.0) THEN
+        rrbur(1) = rrbur(1) - aabur(1)*2.84e-06
+      END IF
+      IF (SolidBuryX(nx) < 0.0) THEN
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*muCalciumBulk(nx,1,1)
+      END IF
+
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
+
+      DO jx = 1,nx
+        mumin_decay(1,kUPlag,ik238U,jx,jy,jz) = uubur(jx)
+      END DO
+
+     END IF    !!  Nradmax > 0
+
+    END IF      !!  End of KateMaher block
 
   END IF   !  End of erosion/burial block (for GIMRT only)
 
@@ -2629,9 +2810,11 @@ IF (Richards) THEN
         END DO
       END DO
     END DO
+    ! WRITE(*,*) '  >>>>> Maximum change in flux = ',dq_max
 
     dtold = delt
     IF (dq_max > 0.02) THEN
+
         delt = 0.9 * delt
     ELSE IF (dq_max < 0.01) THEN
         delt = 1.1 * delt

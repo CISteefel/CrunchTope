@@ -42,7 +42,7 @@
 
 !!!      ****************************************
 
-SUBROUTINE gradhRich(nx,ny,nz,jx,jy,jz,rsend_zm,rsend_zp,rrecv_zm,rrecv_zp)
+SUBROUTINE gradhRich(jx,jy,jz,rsend,rrecv)
 USE crunchtype
 USE params
 USE medium
@@ -51,16 +51,15 @@ USE CrunchFunctions
 
 IMPLICIT NONE
 
-INTEGER(I4B), INTENT(IN)                                       :: nx
-INTEGER(I4B), INTENT(IN)                                       :: ny
-INTEGER(I4B), INTENT(IN)                                       :: nz
 INTEGER(I4B), INTENT(IN)                                       :: jx
 INTEGER(I4B), INTENT(IN)                                       :: jy
 INTEGER(I4B), INTENT(IN)                                       :: jz
-REAL(DP), INTENT(INOUT)                                          :: rsend_zm
-REAL(DP), INTENT(INOUT)                                          :: rsend_zp
-REAL(DP), INTENT(INOUT)                                          :: rrecv_zm
-REAL(DP), INTENT(INOUT)                                          :: rrecv_zp
+! REAL(DP), INTENT(INOUT)                                          :: rsend_zm
+! REAL(DP), INTENT(INOUT)                                          :: rsend_zp
+! REAL(DP), INTENT(INOUT)                                          :: rrecv_zm
+! REAL(DP), INTENT(INOUT)                                          :: rrecv_zp
+REAL(DP), INTENT(INOUT), DIMENSION(-3:3)                         :: rsend
+REAL(DP), INTENT(INOUT), DIMENSION(-3:3)                         :: rrecv
 
 !  ****** PARAMETERS  ****************************
 REAL(DP)                                       :: dhxm
@@ -74,28 +73,28 @@ REAL(DP)                                       :: dh_tot
 ! Calculate head gradient in each direction
 
 ! x direction
-! IF (Kfacx(jx,jy,jz) > 0.0) THEN
-!     dhxp = 2.0d0*(h(jx+1,jy,jz) - h(jx,jy,jz)) / (dxx(jx+1) + dxx(jx))
-! ELSE
-!     dhxp = 0.0d0
-! END IF
-! IF (Kfacx(jx-1,jy,jz) > 0.0) THEN
-!     dhxm = 2.0d0*(h(jx,jy,jz) - h(jx-1,jy,jz)) / (dxx(jx) + dxx(jx-1))
-! ELSE
-!     dhxm = 0.0d0
-! END IF
-!
+IF (Kfacx(jx,jy,jz) > 0.0) THEN
+    dhxp = 2.0d0*(head(jx+1,jy,jz) - head(jx,jy,jz)) / (dxx(jx+1) + dxx(jx))
+ELSE
+    dhxp = 0.0d0
+END IF
+IF (Kfacx(jx-1,jy,jz) > 0.0) THEN
+    dhxm = 2.0d0*(head(jx,jy,jz) - head(jx-1,jy,jz)) / (dxx(jx) + dxx(jx-1))
+ELSE
+    dhxm = 0.0d0
+END IF
+
 ! ! y direction
-! IF (Kfacy(jx,jy,jz) > 0.0) THEN
-!     dhyp = 2.0d0*(h(jx,jy+1,jz) - h(jx,jy,jz)) / (dyy(jy+1) + dyy(jy))
-! ELSE
-!     dhyp = 0.0d0
-! END IF
-! IF (Kfacy(jx-1,jy,jz) > 0.0) THEN
-!     dhym = 2.0d0*(h(jx,jy,jz) - h(jx,jy-1,jz)) / (dyy(jy) + dyy(jy-1))
-! ELSE
-!     dhym = 0.0d0
-! END IF
+IF (Kfacy(jx,jy,jz) > 0.0) THEN
+    dhyp = 2.0d0*(head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy+1) + dyy(jy))
+ELSE
+    dhyp = 0.0d0
+END IF
+IF (Kfacy(jx-1,jy,jz) > 0.0) THEN
+    dhym = 2.0d0*(head(jx,jy,jz) - head(jx,jy-1,jz)) / (dyy(jy) + dyy(jy-1))
+ELSE
+    dhym = 0.0d0
+END IF
 
 ! z direction
 IF (Kfacz(jx,jy,jz) > 0.0) THEN
@@ -109,46 +108,103 @@ ELSE
     dhzm = 0.0d0
 END IF
 
-! ignore horizontal redistribution for now, Zhi Li 20200711
-dhxp = 0.0d0
-dhxm = 0.0d0
-dhyp = 0.0d0
-dhym = 0.0d0
+! ! ignore horizontal redistribution for now, Zhi Li 20200711
+! dhxp = 0.0d0
+! dhxm = 0.0d0
+! dhyp = 0.0d0
+! dhym = 0.0d0
 
 ! calculate split ratio
 dh_tot = abs(dhxp) + abs(dhxm) + abs(dhyp) + abs(dhym) + abs(dhzp) + abs(dhzm)
 
-! Need to distinguish send and recv
-IF (dhzp*dhzm >= 0.0) THEN
-    IF (dhzp > 0.0 .AND. dhzm > 0.0) THEN
-        rsend_zm = 1.0d0
-        rrecv_zm = 0.0d0
-        rsend_zp = 0.0d0
-        rrecv_zp = 1.0d0
-    ELSE IF (dhzp < 0.0 .AND. dhzm < 0.0) THEN
-        rsend_zm = 0.0d0
-        rrecv_zm = 1.0d0
-        rsend_zp = 1.0d0
-        rrecv_zp = 0.0d0
+! split ratio in x
+IF (dhxp*dhxm >= 0.0) THEN
+    IF (dhxp > 0.0 .OR. dhxm > 0.0) THEN
+        rsend(-1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+        rrecv(1) = (abs(dhxp) + abs(dhxm)) / dh_tot
     ELSE
-        rsend_zm = 0.0d0
-        rrecv_zm = 0.0d0
-        rsend_zp = 0.0d0
-        rrecv_zp = 0.0d0
+        rrecv(-1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+        rsend(1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+    END IF
+ELSE
+    IF (dhxp > 0.0) THEN
+        rrecv(-1) = abs(dhxm) / dh_tot
+        rrecv(1) = abs(dhxp) / dh_tot
+    ELSE
+        rsend(-1) = abs(dhxm) / dh_tot
+        rsend(1) = abs(dhxp) / dh_tot
+    END IF
+END IF
+
+! split ratio in y
+IF (dhyp*dhym >= 0.0) THEN
+    IF (dhyp > 0.0 .OR. dhym > 0.0) THEN
+        rsend(-2) = (abs(dhyp) + abs(dhym)) / dh_tot
+        rrecv(2) = (abs(dhyp) + abs(dhym)) / dh_tot
+    ELSE
+        rrecv(-2) = (abs(dhyp) + abs(dhym)) / dh_tot
+        rsend(2) = (abs(dhyp) + abs(dhym)) / dh_tot
+    END IF
+ELSE
+    IF (dhyp > 0.0) THEN
+        rrecv(-2) = abs(dhym) / dh_tot
+        rrecv(2) = abs(dhyp) / dh_tot
+    ELSE
+        rsend(-2) = abs(dhym) / dh_tot
+        rsend(2) = abs(dhyp) / dh_tot
+    END IF
+END IF
+
+! split ratio in z
+IF (dhzp*dhzm >= 0.0) THEN
+    IF (dhzp > 0.0 .OR. dhzm > 0.0) THEN
+        rsend(-3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+        rrecv(3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+    ELSE
+        rrecv(-3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+        rsend(3) = (abs(dhzp) + abs(dhzm)) / dh_tot
     END IF
 ELSE
     IF (dhzp > 0.0) THEN
-        rsend_zm = 0.0d0
-        rrecv_zm = abs(dhzm) / dh_tot
-        rsend_zp = 0.0d0
-        rrecv_zp = abs(dhzp) / dh_tot
+        rrecv(-3) = abs(dhzm) / dh_tot
+        rrecv(3) = abs(dhzp) / dh_tot
     ELSE
-        rsend_zm = abs(dhzm) / dh_tot
-        rrecv_zm = 0.0d0
-        rsend_zp = abs(dhzp) / dh_tot
-        rrecv_zp = 0.0d0
+        rsend(-3) = abs(dhzm) / dh_tot
+        rsend(3) = abs(dhzp) / dh_tot
     END IF
 END IF
+
+! Need to distinguish send and recv
+! IF (dhzp*dhzm >= 0.0) THEN
+!     IF (dhzp > 0.0 .AND. dhzm > 0.0) THEN
+!         rsend_zm = 1.0d0
+!         rrecv_zm = 0.0d0
+!         rsend_zp = 0.0d0
+!         rrecv_zp = 1.0d0
+!     ELSE IF (dhzp < 0.0 .AND. dhzm < 0.0) THEN
+!         rsend_zm = 0.0d0
+!         rrecv_zm = 1.0d0
+!         rsend_zp = 1.0d0
+!         rrecv_zp = 0.0d0
+!     ELSE
+!         rsend_zm = 0.0d0
+!         rrecv_zm = 0.0d0
+!         rsend_zp = 0.0d0
+!         rrecv_zp = 0.0d0
+!     END IF
+! ELSE
+!     IF (dhzp > 0.0) THEN
+!         rsend_zm = 0.0d0
+!         rrecv_zm = abs(dhzm) / dh_tot
+!         rsend_zp = 0.0d0
+!         rrecv_zp = abs(dhzp) / dh_tot
+!     ELSE
+!         rsend_zm = abs(dhzm) / dh_tot
+!         rrecv_zm = 0.0d0
+!         rsend_zp = abs(dhzp) / dh_tot
+!         rrecv_zp = 0.0d0
+!     END IF
+! END IF
 
 
 RETURN

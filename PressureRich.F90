@@ -101,7 +101,7 @@ REAL(DP), PARAMETER                                                   :: zero=0.
 REAL(DP), PARAMETER                                                   :: grav=9.8d0
 REAL(DP), PARAMETER                                                   :: alphaUnsat=0.001d0
 REAL(DP), PARAMETER                                                   :: alphaSat=0.000d0
-REAL(DP), PARAMETER                                                   :: Ss=1.0d-5
+REAL(DP), PARAMETER                                                   :: Ss=1.0d-6
 
 REAL(DP), DIMENSION(-3:3)                                             :: coef
 
@@ -265,17 +265,37 @@ DO jz = 1,nz
                         ELSE
                             coef(-2) = 0.0d0
                         END IF
+                    ELSE IF (activecellPressure(jx,jy,jz-1) == 0) THEN
+                        ! complex topography at top boundary, ZhiLi20210523
+                        coef(-2) = -2.0d0*dt*Kfacz(jx,jy,jz-1) / (dzz(jx,jy,jz)*dzz(jx,jy,jz))
+                        AddPressureZ = -coef(-2) * headOld(jx,jy,jz-1)
+                        ! switch to flux BC
+                        IF (headOld(jx,jy,jz-1) <= 0.0d0) THEN
+                            ! no flux unless there is exfiltration
+                            IF (headOld(jx,jy,jz) > headOld(jx,jy,jz-1)+0.5d0*dzz(jx,jy,jz)) THEN
+                                coef(-2) = -2.0d0*dt*Kfacz(jx,jy,jz-1) / (dzz(jx,jy,jz)*dzz(jx,jy,jz))
+                                AddPressureZ = -coef(-2) * headOld(jx,jy,jz-1)
+                            ELSE
+                                coef(-2) = 0.0d0
+                                AddPressureZ = 0.0d0
+                            END IF
+                        END IF
                     ELSE
                         coef(-2) = -2.0d0*dt*Kfacz(jx,jy,jz-1) / (dzz(jx,jy,jz)*(dzz(jx,jy,jz)+dzz(jx,jy,jz-1)))
                     END IF
 
                     IF (jz == nz) THEN
-                        IF (activecellPressure(jx,jy,nz+1) == 0) THEN
-                            coef(2) = -2.0d0*dt*Kfacz(jx,jy,jz) / (dzz(jx,jy,jz)*dzz(jx,jy,jz))
-                            AddPressureZ =  -coef(2) * headOld(jx,jy,nz+1)
-                        ELSE
-                            coef(2) = 0.0d0
-                        END IF
+                        ! IF (activecellPressure(jx,jy,nz+1) == 0) THEN
+                        !     coef(2) = -2.0d0*dt*Kfacz(jx,jy,jz) / (dzz(jx,jy,jz)*dzz(jx,jy,jz))
+                        !     AddPressureZ =  -coef(2) * headOld(jx,jy,nz+1)
+                        ! ELSE
+                        !     coef(2) = 0.0d0
+                        !     AddPressureZ = 0.0d0
+                        ! END IF
+
+                        ! assume bottom is always impermeable for now
+                        coef(2) = 0.0d0
+                        AddPressureZ = 0.0d0
                     ELSE
                         coef(2) = -2.0d0*dt*Kfacz(jx,jy,jz) / (dzz(jx,jy,jz)*(dzz(jx,jy,jz+1)+dzz(jx,jy,jz)))
                     END IF
@@ -283,12 +303,15 @@ DO jz = 1,nz
                     coef(-3) = 0.0d0
                 END IF
 
+
+
                 coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-3) - coef(-2) - coef(-1) - coef(1) - coef(2) - coef(3)
                 ! Right hand side
                 BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                             (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
                             AddPressureX + AddPressureY + AddPressureZ
                 XvecCrunchP(j) = head(jx,jy,jz)
+
                 ! Insert coefficients into matrix
                 CALL MatSetValues(amatP,1,j,1,j,coef(0),INSERT_VALUES,ierr)
                 IF (j-1 >= 0) THEN
@@ -297,18 +320,32 @@ DO jz = 1,nz
                 IF (j+1 < nx*ny*nz) THEN
                     CALL MatSetValues(amatP,1,j,1,j+1,coef(1),INSERT_VALUES,ierr)
                 END IF
-                IF (j-nx >= 0) THEN
-                    CALL MatSetValues(amatP,1,j,1,j-nx,coef(-2),INSERT_VALUES,ierr)
-                END IF
-                IF (j+nx < nx*ny*nz) THEN
-                    CALL MatSetValues(amatP,1,j,1,j+nx,coef(2),INSERT_VALUES,ierr)
-                END IF
-                IF (ny > 1 .AND. nz > 1) THEN
-                    IF (j-nx*ny >= 0) THEN
-                        CALL MatSetValues(amatP,1,j,1,j-nx*ny,coef(-3),INSERT_VALUES,ierr)
-                    END IF
-                    IF (j+nx*ny < nx*ny*nz) THEN
-                        CALL MatSetValues(amatP,1,j,1,j+nx*ny,coef(3),INSERT_VALUES,ierr)
+
+                IF (nz > 1) THEN
+                    ! 3D
+                    IF (ny > 1) THEN
+                        IF (j-nx >= 0) THEN
+                            CALL MatSetValues(amatP,1,j,1,j-nx,coef(-2),INSERT_VALUES,ierr)
+                        END IF
+                        IF (j+nx < nx*ny*nz) THEN
+                            CALL MatSetValues(amatP,1,j,1,j+nx,coef(2),INSERT_VALUES,ierr)
+                        END IF
+                        IF (j-nx*ny >= 0) THEN
+                            CALL MatSetValues(amatP,1,j,1,j-nx*ny,coef(-3),INSERT_VALUES,ierr)
+                        END IF
+                        IF (j+nx*ny < nx*ny*nz) THEN
+                            CALL MatSetValues(amatP,1,j,1,j+nx*ny,coef(3),INSERT_VALUES,ierr)
+                        END IF
+                    ELSE IF (ny == 1) THEN
+                        ! 2D x-z
+                        IF (j-nx >= 0) THEN
+                            IF (activecellPressure(jx,jy,jz-1) == 1) THEN
+                                CALL MatSetValues(amatP,1,j,1,j-nx,coef(-2),INSERT_VALUES,ierr)
+                            END IF
+                        END IF
+                        IF (j+nx < nx*ny*nz) THEN
+                            CALL MatSetValues(amatP,1,j,1,j+nx,coef(2),INSERT_VALUES,ierr)
+                        END IF
                     END IF
                 END IF
             END IF

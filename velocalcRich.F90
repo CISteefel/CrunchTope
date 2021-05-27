@@ -85,6 +85,14 @@ DO jz = 1,nz
         Coordinate = 'Z'
         qz(jx,jy,jz) = -2.0d0 * Kfacz(jx,jy,jz) * (head(jx,jy,jz+1) - head(jx,jy,jz)) / (dzz(jx,jy,jz)+dzz(jx,jy,jz+1)) &
                         + Kfacz(jx,jy,jz)
+        IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+            IF (head(jx,jy,jz) <= 0.0d0) THEN
+                ! no infiltration on dry surface, but exfiltration is ok
+                IF (qz(jx,jy,jz) > 0.0d0) THEN
+                    qz(jx,jy,jz) = 0.0d0
+                END IF
+            END IF
+        END IF
       END IF
 
     END DO
@@ -130,11 +138,12 @@ DO jy = 1,ny
     ELSE
       qz(jx,jy,0) = 0.0d0
     END IF
-    IF (activecellPressure(jx,jy,nz+1) == 0) THEN
-      qz(jx,jy,nz) = -2.0d0 * Kfacz(jx,jy,nz) * (head(jx,jy,nz+1) - head(jx,jy,nz)) / (dzz(jx,jy,nz)) + Kfacz(jx,jy,nz)
-    ELSE
-      qz(jx,jy,nz) = 0.0d0
-    END IF
+    ! IF (activecellPressure(jx,jy,nz+1) == 0) THEN
+    !   qz(jx,jy,nz) = -2.0d0 * Kfacz(jx,jy,nz) * (head(jx,jy,nz+1) - head(jx,jy,nz)) / (dzz(jx,jy,nz)) + Kfacz(jx,jy,nz)
+    ! ELSE
+    !   qz(jx,jy,nz) = 0.0d0
+    ! END IF
+    qz(jx,jy,nz) = 0.0d0
   END DO
 END DO
 

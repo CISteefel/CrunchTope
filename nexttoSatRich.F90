@@ -80,6 +80,10 @@ ELSE
     END IF
 END IF
 
+IF (activecellPressure(jx,jy,jz) == 0) THEN
+    nextto_sat = .FALSE.
+END IF
+
 
 
 

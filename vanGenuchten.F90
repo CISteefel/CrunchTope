@@ -78,13 +78,13 @@ DO jz = 0,nz+1
                 satu = 0.0d0
             END IF
             !!! Get wc from head
-            IF (h > 0) THEN
+            IF (h > 0.0d0) THEN
                 wch(jx,jy,jz) = wcs(jx,jy,jz)
             ELSE
                 wch(jx,jy,jz) = wcr + (wcs(jx,jy,jz) - wcr) * satu
             END IF
             !!! Get K from head
-            IF (h > 0) THEN
+            IF (h > 0.0d0) THEN
                 Kr(jx,jy,jz) = 1.0d0
             ELSE
                 Kr(jx,jy,jz) = satu**(0.5) * (1.0d0 - (1.0d0 - satu**(1.0/m))**m)**2.0
@@ -94,7 +94,7 @@ DO jz = 0,nz+1
             END IF
             !!! Get C from head
             Ch(jx,jy,jz) = (vga*m*vgn*(wcs(jx,jy,jz)-wcr)*abs(vga*h)**(vgn-1)) / (1.0d0 + abs(vga*h)**vgn)**(m+1)
-            IF (h > 0) THEN
+            IF (h > 0.0d0) THEN
                 Ch(jx,jy,jz) = 0.0d0
             END IF
             !!! get h from wc
@@ -116,6 +116,12 @@ DO jz = 1,nz
                 Kfacx(jx,jy,jz) = 0.5 * (permx(jx,jy,jz)*Kr(jx,jy,jz) + permx(jx+1,jy,jz)*Kr(jx+1,jy,jz)) * (ro(jx,jy,jz)*grav/visc)
                 IF (permx(jx,jy,jz) == 0.0d0 .OR. permx(jx+1,jy,jz) == 0.0d0) THEN
                     Kfacx(jx,jy,jz) = 0.0d0
+                END IF
+                IF (activecellPressure(jx,jy,jz) == 0) THEN
+                    Kfacx(jx,jy,jz) = 0.0d0
+                    IF (jx > 0) THEN
+                        Kfacx(jx-1,jy,jz) = 0.0d0
+                    END IF
                 END IF
             END IF
         END DO
@@ -148,10 +154,22 @@ DO jz = 0,nz
                 IF (jz == 0 .AND. pres(jx,jy,jz) > 0) THEN
                     Kfacz(jx,jy,jz) = permz(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
                 END IF
-            END IF 
+                IF (activecellPressure(jx,jy,jz) == 0) THEN
+                    IF (activecellPressure(jx,jy,jz+1) == 1) THEN
+                        Kfacz(jx,jy,jz) = 0.5 * (permz(jx,jy,jz)*Kr(jx,jy,jz) + permz(jx,jy,jz+1)*Kr(jx,jy,jz+1)) * (ro(jx,jy,jz)*grav/visc)
+                    ELSE
+                        Kfacz(jx,jy,jz) = 0.0d0
+                    END IF
+                END IF
+                ! impermeable bottom
+                IF (jz == nz) THEN
+                    Kfacz(jx,jy,jz) = 0.0d0
+                END IF
+            END IF
         END DO
     END DO
 END DO
+
 
 
 

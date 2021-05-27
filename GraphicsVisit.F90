@@ -1,43 +1,43 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
-!!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
-!!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
-!!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
+!!! If you have questions about your rights to use or distribute this software, please contact
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government
+!!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting
+!!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public,
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
-!!! 
+!!!
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-!!! 
+!!!
 !!! (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 !!!
-!!! (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+!!! (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
 !!! in the documentation and/or other materials provided with the distribution.
 !!!
-!!! (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of 
+!!! (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of
 !!! its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 !!!
-!!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
-!!! BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
-!!! SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-!!! DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-!!! OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-!!! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF 
+!!! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+!!! BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+!!! SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+!!! DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+!!! OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+!!! LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 !!! THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !!!
-!!! You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or 
+!!! You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or
 !!! performance of the source code ("Enhancements") to anyone; however, if you choose to make your
-!!! Enhancements available either publicly, or directly to Lawrence Berkeley National Laboratory, without 
-!!! imposing a separate written license agreement for such 
-!!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use, 
-!!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or 
+!!! Enhancements available either publicly, or directly to Lawrence Berkeley National Laboratory, without
+!!! imposing a separate written license agreement for such
+!!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use,
+!!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
@@ -111,10 +111,10 @@ CHARACTER (LEN=1)                                  :: tab
 CHARACTER (LEN=mls), DIMENSION(nsurf+nsurf_sec)    :: prtsurf
 CHARACTER (LEN=mls)                                 :: char_time
 CHARACTER (LEN=40)                                 :: prtspecies
- 
+
 INTEGER(I4B), DIMENSION(ncomp+nspec)               :: len_sp
 INTEGER(I4B)                                       :: lspecies
- 
+
 INTEGER(I4B), DIMENSION(nrct)                      :: len_min
 INTEGER(I4B)                                       :: j
 INTEGER(I4B)                                       :: jx
@@ -252,7 +252,7 @@ IF (nIsotopePrimary > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(id) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(id),id=1,nIsotopePrimary)   
+  WRITE(8,2009) (WriteString(id),id=1,nIsotopePrimary)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
@@ -262,7 +262,8 @@ IF (nIsotopePrimary > 0) THEN
           totRare = s(isotopeRare(id),jx,jy,jz)
           IsotopeRatio(id) = ( (totRare/totCommon)/IsotopeReference(id) - 1.0d0 ) *1000.0d0
         END DO
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(IsotopeRatio(id),id = 1,nIsotopePrimary)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                z(jz)*OutputDistanceScale,(IsotopeRatio(id),id = 1,nIsotopePrimary)
       END DO
     END DO
   END DO
@@ -288,7 +289,7 @@ IF (nIsotopeMineral > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(id) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(id),id=1,nIsotopeMineral)   
+  WRITE(8,2009) (WriteString(id),id=1,nIsotopeMineral)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
@@ -315,7 +316,7 @@ IF (nIsotopeMineral > 0) THEN
   CLOSE(UNIT=8,STATUS='keep')
 
 END IF
-     
+
   fn='totcon'
   ilength = 6
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -332,34 +333,20 @@ END IF
     StringProper(ls+2:ls+3) = '"'
     WriteString(ik) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(ik),ik=1,ncomp)   
+    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)
+!!!  WRITE(8,2009) (ulab(ik),ik=1,ncomp)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
- !!! fn='totcon-1D'
-  !!!  ilength = 9
-  !!!  CALL newfile(fn,suf1,fnv,nint,ilength)
- !!!   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-!!!WRITE(8,2283) PrintTime
-!!!WRITE(8,102)
-!!!102 FORMAT('# Units: Mol/kgw')
- !!!   WRITE(8,2287) (ulabprnt(ik),ik=1,ncomp)
- !!!   jy = 11
- !!!   jz = 1
-  !!!  DO jx = 1,nx
-  !!!    WRITE(8,184) x(jx)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
-  !!!  END DO
- !!!   CLOSE(UNIT=8,STATUS='keep')
-  
+
   IF (ikph /= 0) THEN
-      
+
     fn='pH'
     ilength = 2
     CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -376,9 +363,9 @@ END IF
       END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')
-    
+
   END IF
-  
+
   fn='conc'
   ilength = 4
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -395,19 +382,20 @@ END IF
     StringProper(ls+2:ls+3) = '"'
     WriteString(ik) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp+nspec)  
+    WRITE(8,2009) (WriteString(ik),ik=1,ncomp+nspec)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sp(IK,jx,jy,jz)/clg,IK = 1,ncomp+nspec)
+          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                z(jz)*OutputDistanceScale,(sp(IK,jx,jy,jz)/clg,IK = 1,ncomp+nspec)
         END DO
       END DO
     END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
 IF (nrct > 0) THEN
-    
+
   fn='rate'
   ilength = 4
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -424,7 +412,7 @@ IF (nrct > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(k) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(k),k=1,nrct)  
+    WRITE(8,2009) (WriteString(k),k=1,nrct)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
@@ -437,7 +425,7 @@ IF (nrct > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
   fn = 'volume'
   ilength = 6
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -454,7 +442,7 @@ IF (nrct > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(k) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(k),k=1,nrct)  
+    WRITE(8,2009) (WriteString(k),k=1,nrct)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
@@ -467,7 +455,7 @@ IF (nrct > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
   fn='saturation'
   ilength = 5
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -484,7 +472,7 @@ IF (nrct > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(k) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(k),k=1,nrct)  
+  WRITE(8,2009) (WriteString(k),k=1,nrct)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
@@ -498,23 +486,6 @@ IF (nrct > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
-!!!  fn='crankLogK'
-!!!  ilength = 9
-!!!  CALL newfile(fn,suf1,fnv,nint,ilength)
-!!!  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-!!!  WRITE(8,*) 'TITLE = "crankLogK" '
-!!!  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "CrankLogK" '
-!!!  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-!!!  DO jz = 1,nz
-!!!    DO jy = 1,ny
-!!!      DO jx = 1,nx
-!!!        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,crankLogK(jx,jy,jz)
-!!!      END DO
-!!!    END DO
-!!!  END DO
-!!!  CLOSE(UNIT=8,STATUS='keep')
-
 
   fn='TotMineral'
   ilength = 10
@@ -532,18 +503,18 @@ IF (nrct > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(ik) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)   
+    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
         totex_bas = 0.0
-        DO i = 1,ncomp  
+        DO i = 1,ncomp
           DO k = 1,nrct
             IF (volmol(k) /= 0.0) THEN
               IF (nradmax > 0) THEN
                 totex_bas(i) = totex_bas(i) + mumin_decay(1,k,i,jx,1,1)*volfx(k,jx,jy,jz)/volmol(k)
-              ELSE 
+              ELSE
                 totex_bas(i) = totex_bas(i) + mumin(1,k,i)*volfx(k,jx,jy,jz)/volmol(k)
               END IF
             ENDIF
@@ -571,7 +542,7 @@ IF (nrct > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(k) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(k),k=1,nrct)  
+  WRITE(8,2009) (WriteString(k),k=1,nrct)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
@@ -581,11 +552,11 @@ IF (nrct > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
 END IF   !! End of minerals
 
 IF (ikin > 0) THEN
-    
+
   fn='AqRate'
   ilength = 6
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -602,7 +573,7 @@ IF (ikin > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(ir) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(ir),ir=1,ikin) 
+    WRITE(8,2009) (WriteString(ir),ir=1,ikin)
   WRITE(8,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
   DO jz = 1,nz
     DO jy = 1,ny
@@ -612,9 +583,9 @@ IF (ikin > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
 END IF
-  
+
   fn='velocity'
   ilength = 8
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -626,18 +597,19 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
+          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
   !  Write out pressure
 
   115 FORMAT('# Units: Pascals')
 
   IF (calculateflow) THEN
-          
+
     jz = 1
     fn='pressure'
     ilength = 8
@@ -652,9 +624,49 @@ END IF
       END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')
-    
+
   END IF
-  
+
+  ! Write head and water content
+  IF (calculateflow) THEN
+      IF (Richards) THEN
+          fn='head'
+          ilength = 8
+          CALL newfile(fn,suf1,fnv,nint,ilength)
+          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+          WRITE(8,*) 'TITLE = "Pressure head (m)" '
+          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Head" '
+          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx = 1,nx
+                  WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                        z(jz)*OutputDistanceScale,head(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+          CLOSE(UNIT=8,STATUS='keep')
+
+          fn='watercontent'
+          ilength = 8
+          CALL newfile(fn,suf1,fnv,nint,ilength)
+          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+          WRITE(8,*) 'TITLE = "Water content" '
+          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Water Content" '
+          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx = 1,nx
+                  WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                        z(jz)*OutputDistanceScale,wc(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+          CLOSE(UNIT=8,STATUS='keep')
+      END IF
+  END IF
+
+
   IF (MakeMovie) THEN
     IF (FirstCall) THEN
       fn='VelocityEvolve'
@@ -667,7 +679,8 @@ END IF
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
-            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
+            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale    &
+                    ,z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
           END DO
         END DO
       END DO
@@ -676,14 +689,15 @@ END IF
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
-            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
+            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
           END DO
         END DO
       END DO
     END IF
-    
+
   END IF
-  
+
   fn = 'porosity'
   ilength = 8
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -700,9 +714,9 @@ END IF
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
   IF (CalculateFlow) THEN
-      
+
     fn = 'permeability'
     ilength = 12
     CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -713,16 +727,8 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          IF (permx(jx,jy,jz) == 0.0d0) THEN
-            WritePermx = -25.00
-          ELSE
-            WritePermx = Log10(permx(jx,jy,jz))
-          END IF
-          IF (permy(jx,jy,jz) == 0.0d0) THEN
-            WritePermy = -25.00
-          ELSE
-            WritePermy = Log10(permy(jx,jy,jz))
-          END IF
+          WritePermx = Log10(permx(jx,jy,jz))
+          WritePermy = Log10(permy(jx,jy,jz))
 !!!          WritePermz = Log10(permz(jx,jy,jz))
           IF (ny==1)  THEN
             WritePermy = 0.0
@@ -736,9 +742,9 @@ END IF
       END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')
-    
+
   END IF
-  
+
   fn='tortuosity'
   ilength = 12
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -749,14 +755,15 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,tortuosity(jx,jy,jz)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                z(jz)*OutputDistanceScale,tortuosity(jx,jy,jz)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
 IF (nexchange > 0) THEN
-    
+
   fn='exchange'
   ilength = 8
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -773,18 +780,19 @@ IF (nexchange > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(nex) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(nex),nex=1,nexch_sec)  
+  WRITE(8,2009) (WriteString(nex),nex=1,nexch_sec)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
         SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(spex10(nex+nexchange,jx,jy,jz)/SolidSolutionRatioTemp,nex = 1,nexch_sec)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
+                (spex10(nex+nexchange,jx,jy,jz)/SolidSolutionRatioTemp,nex = 1,nexch_sec)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
   fn='totexchange'
   ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -801,28 +809,29 @@ IF (nexchange > 0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(ik) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)   
+    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
         SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
         totex_bas = 0.0
-        DO i = 1,ncomp  
+        DO i = 1,ncomp
           DO nex = 1,nexch_sec
             totex_bas(i) = totex_bas(i) + muexc(nex,i)*spex10(nex+nexchange,jx,jy,jz)
           END DO
         END DO
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(totex_bas(i)/SolidSolutionRatioTemp,i = 1,ncomp)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                z(jz)*OutputDistanceScale,(totex_bas(i)/SolidSolutionRatioTemp,i = 1,ncomp)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
 END IF
-  
+
 IF (nsurf>0) THEN
-    
+
   fn='surface'
   ilength = 7
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -839,18 +848,19 @@ IF (nsurf>0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(ns) = StringProper(1:ls+3)
   END DO
-  WRITE(8,2009) (WriteString(ns),ns=1,nsurf_sec) 
+  WRITE(8,2009) (WriteString(ns),ns=1,nsurf_sec)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
         SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(spsurf10(ns,jx,jy,jz)/SolidSolutionRatioTemp,ns = 1,nsurf+nsurf_sec)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
+                (spsurf10(ns,jx,jy,jz)/SolidSolutionRatioTemp,ns = 1,nsurf+nsurf_sec)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
   fn='totsurface'
   ilength = 10
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -867,24 +877,25 @@ IF (nsurf>0) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(ik) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)   
+    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
         SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
         totex_bas = 0.0
-        DO i = 1,ncomp  
+        DO i = 1,ncomp
           DO ns = 1,nsurf_sec
             totex_bas(i) = totex_bas(i) + musurf(ns,i)*spsurf10(ns+nsurf,jx,jy,jz)
           END DO
         END DO
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(totex_bas(i)/SolidSolutionRatioTemp,i = 1,ncomp)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                z(jz)*OutputDistanceScale,(totex_bas(i)/SolidSolutionRatioTemp,i = 1,ncomp)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
+
 END IF
 
 IF (isaturate == 1) THEN
@@ -904,7 +915,7 @@ IF (isaturate == 1) THEN
     StringProper(ls+2:ls+3) = '"'
     WriteString(kk) = StringProper(1:ls+3)
   END DO
-    WRITE(8,2009) (WriteString(kk),kk=1,ngas) 
+    WRITE(8,2009) (WriteString(kk),kk=1,ngas)
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
 
   DO jz = 1,nz
@@ -913,13 +924,14 @@ IF (isaturate == 1) THEN
         tk = 273.15d0 + t(jx,jy,jz)
         denmol = 1.e05/(8.314*tk)                      ! P/RT = n/V, with pressure converted from bars to Pascals
         CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(gastmp10(kk),kk = 1,ngas)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                z(jz)*OutputDistanceScale,(gastmp10(kk),kk = 1,ngas)
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 END IF
-  
+
 
 !!!2009 FORMAT('VARIABLES = "X"          "Y"              "Z"           ', 100(', "',A13,'"') )
 !!!2009 FORMAT('VARIABLES = "X"          "Y"              "Z"           ', 100(' "'A13'" ') )
@@ -932,11 +944,11 @@ END IF
 1010 FORMAT('VARIABLES = " X "," Y ", " Z ","Porosity"')
 184 FORMAT(100(1X,1PE16.8))
 1011 FORMAT('VARIABLES = "X"          "Y"              "Z"           ',100(', "',A13,'"') )
-  
-  
 
-  
- 
+
+
+
+
 
 1009 FORMAT('VARIABLES = " X (meters) ", "  Y (meters)  "',100(', "',A13,'"'))
 
@@ -947,7 +959,7 @@ END IF
 1015 FORMAT('VARIABLES = " X (meters)", "Pressure"')
 2014 FORMAT('VARIABLES = " X (meters)", " Y (meters)", "Tortuosity"')
 2015 FORMAT('VARIABLES = " X (meters)", "X_Velocity"')
-     
+
 1021 FORMAT('VARIABLES = " X (meters)", "X-Permeability"')
 
 182 FORMAT(100(1X,1PE12.4))
@@ -962,7 +974,6 @@ END IF
 2281 FORMAT('   X        ','     Y        ',4X,a18)
 2285 FORMAT('    X        ','     Y        ',3X,30(1X,a13))
 2286 FORMAT('    X        ','      Y               ',3X,30(1X,a15))
-2287 FORMAT('    X           ',2X,30(2X,a15))
 
 RETURN
 END SUBROUTINE GraphicsVisit

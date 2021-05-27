@@ -77,20 +77,26 @@ IF (rrecv_zm > 0.0) THEN
         iz = iz - 1
         IF (wc(jx,jy,iz) > wcr) THEN
             IF ((wc(jx,jy,iz)-wcr) > delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))) THEN
-                wc(jx,jy,iz) = wc(jx,jy,iz) - delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                IF (activecellPressure(jx,jy,jz) == 1) THEN
+                    wc(jx,jy,iz) = wc(jx,jy,iz) - delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                END IF
                 room(jx,jy,iz) = room(jx,jy,iz) + delVzm
                 delVzm = 0.0d0
                 EXIT
             ELSE
                 delVzm = delVzm - (wc(jx,jy,iz)-wcr) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
                 room(jx,jy,iz) = room(jx,jy,iz) + (wc(jx,jy,iz)-wcr) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                wc(jx,jy,iz) = wcr
+                IF (activecellPressure(jx,jy,jz) == 1) THEN
+                    wc(jx,jy,iz) = wcr
+                END IF
             END IF
         END IF
+        ! limit recv within 1 cell
+        EXIT
     END DO
-    IF (Kfacz(jx,jy,iz-1) > 0.0) THEN
-        delVzm = 0.0d0
-    END IF
+    ! IF (Kfacz(jx,jy,iz-1) > 0.0) THEN
+    !     delVzm = 0.0d0
+    ! END IF
 END IF
 
 ! extract moisture from down
@@ -113,10 +119,12 @@ IF (rrecv_zp > 0.0) THEN
                 delVzp = 0.0d0
             END IF
         END IF
+        ! limit recv within 1 cell
+        EXIT
     END DO
-    IF (Kfacz(jx,jy,iz) > 0.0) THEN
-        delVzp = 0.0d0
-    END IF
+    ! IF (Kfacz(jx,jy,iz) > 0.0) THEN
+    !     delVzp = 0.0d0
+    ! END IF
 END IF
 
 
@@ -127,7 +135,7 @@ IF (delVzm + delVzp > 0.0) THEN
     rrecv_zm = rrecv_zp
     rrecv_zp = temp
 ELSE
-    delV = 0.0d0 
+    delV = 0.0d0
 END IF
 
 
