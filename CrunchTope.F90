@@ -617,16 +617,28 @@ IF (CalculateFlow) THEN
  !! Here jz_bottom is the jz index that represents the boundary cell above the top surface
  IF (Richards) THEN
      WRITE(*,*) ' Initializing topography'
-     DO jx = 0,nx+1
-         DO jy = 0,ny+1
-             DO jz = 1,nz-1
-                 IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-                     jz_bottom(jx,jy) = jz
+     IF (y_is_vertical) THEN
+         jz = 1
+         DO jx = 0,nx+1
+             DO jy = 1,ny-1
+                 IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                     j_bottom(jx,1) = jy
                      EXIT
                  END IF
             END DO
         END DO
-    END DO
+     ELSE
+         DO jx = 0,nx+1
+             DO jy = 0,ny+1
+                 DO jz = 1,nz-1
+                     IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+                         j_bottom(jx,jy) = jz
+                         EXIT
+                     END IF
+                END DO
+            END DO
+        END DO
+    END IF
 END IF
 
  !! Initialize pressure head, ZhiLi20210526
@@ -639,7 +651,11 @@ END IF
              IF (activecellPressure(jx,jy,jz) == 1) THEN
                  ! distance to top surface
                  ! This only works for uniform dzz now!
-                 dist = (jz - jz_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
+                 IF (y_is_vertical) THEN
+                     dist = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
+                 ELSE
+                     dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
+                 END IF
                  ! set initial water table
                  IF (dist > watertable_init) THEN
                      wc(jx,jy,jz) = wcs(jx,jy,jz)
@@ -667,15 +683,27 @@ END IF
                wc(jx,jy,jz) = wcr
                ! head(jx,jy,jz) = 0.0d0
                head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
-               IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-                   IF (pres(jx,jy,jz) > 0.0d0) THEN
-                       wc(jx,jy,jz) = wcs(jx,jy,jz)
-                       head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
-                   ELSE
-                       wc(jx,jy,jz) = wcr
-                       head(jx,jy,jz) = 0.0d0
+               IF (y_is_vertical) THEN
+                   IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                       IF (pres(jx,jy,jz) > 0.0d0) THEN
+                           wc(jx,jy,jz) = wcs(jx,jy,jz)
+                           head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
+                       ELSE
+                           wc(jx,jy,jz) = wcr
+                           head(jx,jy,jz) = 0.0d0
+                       END IF
                    END IF
-               END IF
+              ELSE
+                  IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+                      IF (pres(jx,jy,jz) > 0.0d0) THEN
+                          wc(jx,jy,jz) = wcs(jx,jy,jz)
+                          head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
+                      ELSE
+                          wc(jx,jy,jz) = wcr
+                          head(jx,jy,jz) = 0.0d0
+                      END IF
+                  END IF
+              END IF
            END IF
          END DO
        END DO

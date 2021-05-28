@@ -77,19 +77,33 @@ DO jz = 1,nz
         Coordinate = 'X'
         qx(jx,jy,jz) = -2.0d0 * Kfacx(jx,jy,jz) * (head(jx+1,jy,jz) - head(jx,jy,jz)) / (dxx(jx)+dxx(jx+1))
       END IF
-      IF (jy /= ny) THEN
-        Coordinate = 'Y'
-        qy(jx,jy,jz) = -2.0d0 * Kfacy(jx,jy,jz) * (head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy)+dyy(jy+1))
-      END IF
+
       IF (jz /= nz) THEN
         Coordinate = 'Z'
         qz(jx,jy,jz) = -2.0d0 * Kfacz(jx,jy,jz) * (head(jx,jy,jz+1) - head(jx,jy,jz)) / (dzz(jx,jy,jz)+dzz(jx,jy,jz+1)) &
                         + Kfacz(jx,jy,jz)
         IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-            IF (head(jx,jy,jz) <= 0.0d0) THEN
+            IF (head(jx,jy,jz) == 0.0d0) THEN
                 ! no infiltration on dry surface, but exfiltration is ok
                 IF (qz(jx,jy,jz) > 0.0d0) THEN
                     qz(jx,jy,jz) = 0.0d0
+                END IF
+            END IF
+        END IF
+      END IF
+
+      IF (jy /= ny) THEN
+        Coordinate = 'Y'
+        qy(jx,jy,jz) = -2.0d0 * Kfacy(jx,jy,jz) * (head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy)+dyy(jy+1))
+        IF (y_is_vertical) THEN
+            qz(jx,jy,jz) = 0.0d0
+            qy(jx,jy,jz) = qy(jx,jy,jz) + Kfacy(jx,jy,jz)
+            IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                IF (head(jx,jy,jz) == 0.0d0) THEN
+                    ! no infiltration on dry surface, but exfiltration is ok
+                    IF (qy(jx,jy,jz) > 0.0d0) THEN
+                        qy(jx,jy,jz) = 0.0d0
+                    END IF
                 END IF
             END IF
         END IF
@@ -108,6 +122,9 @@ DO jz = 1,nz
     END IF
     IF (activecellPressure(jx,ny+1,jz) == 0) THEN
       qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
+      IF (y_is_vertical) THEN
+          qy(jx,ny,jz) = qy(jx,ny,jz) + Kfacy(jx,ny,jz)
+      END IF
     ELSE
       qy(jx,ny,jz) = 0.0d0
     END IF

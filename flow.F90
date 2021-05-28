@@ -68,6 +68,7 @@ LOGICAL(LGT)                                 :: InitializeHydrostatic
 LOGICAL(LGT)                                 :: NavierStokes
 ! Richards option added by Zhi Li 20200629
 LOGICAL(LGT)                                 :: Richards
+LOGICAL(LGT)                                 :: y_is_vertical
 LOGICAL(LGT)                                 :: redistribute_wc
 
 INTEGER(I4B)                                 :: infiltration
@@ -133,7 +134,7 @@ REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permzOld
 REAL(DP)                                       :: wc_init
 REAL(DP)                                       :: watertable_init
 
-REAL(DP), DIMENSION(:,:),ALLOCATABLE         :: jz_bottom
+REAL(DP), DIMENSION(:,:),ALLOCATABLE         :: j_bottom
 
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: head
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: headOld

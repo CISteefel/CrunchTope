@@ -42,7 +42,7 @@
 
 !!!      ****************************************
 
-SUBROUTINE redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend_zm,rsend_zp)
+SUBROUTINE redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
 USE crunchtype
 USE params
 USE medium
@@ -58,82 +58,205 @@ INTEGER(I4B), INTENT(IN)                                       :: jx
 INTEGER(I4B), INTENT(IN)                                       :: jy
 INTEGER(I4B), INTENT(IN)                                       :: jz
 REAL(DP), INTENT(INOUT)                                           :: delV
-REAL(DP), INTENT(INOUT)                                          :: rsend_zm
-REAL(DP), INTENT(INOUT)                                          :: rsend_zp
+! REAL(DP), INTENT(INOUT)                                          :: rsend_zm
+! REAL(DP), INTENT(INOUT)                                          :: rsend_zp
+REAL(DP), DIMENSION(-3:3)                                               :: rsend
 
 
 !  ****** PARAMETERS  ****************************
 
 REAL(DP)                                                              :: temp
+REAL(DP)                                                              :: delVxm
+REAL(DP)                                                              :: delVxp
+INTEGER(I4B)                                                          :: ix
+REAL(DP)                                                              :: delVym
+REAL(DP)                                                              :: delVyp
+INTEGER(I4B)                                                          :: iy
 REAL(DP)                                                              :: delVzm
 REAL(DP)                                                              :: delVzp
 INTEGER(I4B)                                                          :: iz
 
+delVxm = 0.0d0
+delVxp = 0.0d0
+delVym = 0.0d0
+delVyp = 0.0d0
 delVzm = 0.0d0
 delVzp = 0.0d0
-! send moisture up
-IF (rsend_zm > 0.0) THEN
-    delVzm = delV * rsend_zm
-    iz = jz
-    DO WHILE (iz .NE. 1)
-        iz = iz - 1
-        IF (room(jx,jy,iz) > 0.0) THEN
+
+! send moisture in x direction
+IF (rsend(-1) > 0.0) THEN
+    delVxm = delV * rsend(-1)
+    ix = jx - 1
+    DO WHILE (ix .NE. 0)
+        IF (room(ix,jy,jz) > 0.0) THEN
             ! if excess moisture < available space
-            IF (room(jx,jy,iz) > delVzm) THEN
-                wc(jx,jy,iz) = wc(jx,jy,iz) + delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                room(jx,jy,iz) = room(jx,jy,iz) - delVzm
-                delVzm = 0.0d0
+            IF (room(ix,jy,jz) > delVxm) THEN
+                wc(ix,jy,jz) = wc(ix,jy,jz) + delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                room(ix,jy,jz) = room(ix,jy,jz) - delVxm
+                delVxm = 0.0d0
                 EXIT
             ! if excess moisture > available space
             ELSE
-                wc(jx,jy,iz) = wc(jx,jy,iz) + room(jx,jy,iz)/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                delVzm = delVzm - room(jx,jy,iz)
-                room(jx,jy,iz) = 0.0d0
+                wc(ix,jy,jz) = wc(ix,jy,jz) + room(ix,jy,jz)/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                delVxm = delVxm - room(ix,jy,jz)
+                room(ix,jy,jz) = 0.0d0
             END IF
         END IF
+        ix = ix - 1
     END DO
-    ! allow excess moisture to leave domain if permeablity > 0
-    IF (Kfacz(jx,jy,iz-1) > 0.0) THEN
-        delVzm = 0.0d0
-    END IF
 END IF
 
-! send moisture down
-IF (rsend_zp > 0.0) THEN
-    delVzp = delV * rsend_zp
-    iz = jz
-    DO WHILE (iz .NE. nz)
-        iz = iz + 1
-        IF (room(jx,jy,iz) > 0.0) THEN
+IF (rsend(1) > 0.0) THEN
+    delVxp = delV * rsend(1)
+    ix = jx + 1
+    DO WHILE (ix .NE. nx+1)
+        IF (room(ix,jy,jz) > 0.0) THEN
             ! if excess moisture < available space
-            IF (room(jx,jy,iz) > delVzp) THEN
-                wc(jx,jy,iz) = wc(jx,jy,iz) + delVzp/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                room(jx,jy,iz) = room(jx,jy,iz) - delVzp
-                delVzp = 0.0d0
+            IF (room(ix,jy,jz) > delVxp) THEN
+                wc(ix,jy,jz) = wc(ix,jy,jz) + delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                room(ix,jy,jz) = room(ix,jy,jz) - delVxp
+                delVxp = 0.0d0
                 EXIT
             ! if excess moisture > available space
             ELSE
-                wc(jx,jy,iz) = wc(jx,jy,iz) + room(jx,jy,iz)/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                delVzp = delVzp - room(jx,jy,iz)
-                room(jx,jy,iz) = 0.0d0
+                wc(ix,jy,jz) = wc(ix,jy,jz) + room(ix,jy,jz)/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                delVxp = delVxp - room(ix,jy,jz)
+                room(ix,jy,jz) = 0.0d0
             END IF
         END IF
+        ix = ix + 1
     END DO
-    ! allow excess moisture to leave domain if permeablity > 0
-    IF (Kfacz(jx,jy,iz) > 0.0) THEN
-        delVzp = 0.0d0
+END IF
+
+
+! 2D x-y
+IF (y_is_vertical) THEN
+    ! send moisture up
+    IF (rsend(-2) > 0.0) THEN
+        delVym = delV * rsend(-2)
+        iy = jy - 1
+        DO WHILE (activecellPressure(jx,iy,jz) == 1)
+            IF (room(jx,iy,jz) > 0.0) THEN
+                ! if excess moisture < available space
+                IF (room(jx,iy,jz) > delVym) THEN
+                    wc(jx,iy,jz) = wc(jx,iy,jz) + delVym/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    room(jx,iy,jz) = room(jx,iy,jz) - delVym
+                    delVym = 0.0d0
+                    EXIT
+                ! if excess moisture > available space
+                ELSE
+                    wc(jx,iy,jz) = wc(jx,iy,jz) + room(jx,iy,jz)/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    delVym = delVym - room(jx,iy,jz)
+                    room(jx,iy,jz) = 0.0d0
+                END IF
+            END IF
+            iy = iy - 1
+        END DO
+        ! allow excess moisture to leave domain if permeablity > 0
+        ! IF (Kfacy(jx,iy,jz) > 0.0) THEN
+        !     delVym = 0.0d0
+        ! END IF
+    END IF
+
+    ! send moisture down
+    IF (rsend(2) > 0.0) THEN
+        delVyp = delV * rsend(2)
+        iy = jy
+        DO WHILE (iy .NE. ny)
+            iy = iy + 1
+            IF (room(jx,iy,jz) > 0.0) THEN
+                ! if excess moisture < available space
+                IF (room(jx,iy,jz) > delVyp) THEN
+                    wc(jx,iy,jz) = wc(jx,iy,jz) + delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    room(jx,iy,jz) = room(jx,iy,jz) - delVyp
+                    delVyp = 0.0d0
+                    EXIT
+                ! if excess moisture > available space
+                ELSE
+                    wc(jx,iy,jz) = wc(jx,iy,jz) + room(jx,iy,jz)/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    delVyp = delVyp - room(jx,iy,jz)
+                    room(jx,iy,jz) = 0.0d0
+                END IF
+            END IF
+        END DO
+        ! allow excess moisture to leave domain if permeablity > 0
+        ! IF (Kfacz(jx,iy,jz) > 0.0) THEN
+        !     delVyp = 0.0d0
+        ! END IF
+    END IF
+
+ELSE
+    ! 2D x-z
+    ! send moisture up
+    IF (rsend(-3) > 0.0) THEN
+        delVzm = delV * rsend(-3)
+        iz = jz - 1
+        DO WHILE (activecellPressure(jx,jy,iz) == 1)
+            IF (room(jx,jy,iz) > 0.0) THEN
+                ! if excess moisture < available space
+                IF (room(jx,jy,iz) > delVzm) THEN
+                    wc(jx,jy,iz) = wc(jx,jy,iz) + delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    room(jx,jy,iz) = room(jx,jy,iz) - delVzm
+                    delVzm = 0.0d0
+                    EXIT
+                ! if excess moisture > available space
+                ELSE
+                    wc(jx,jy,iz) = wc(jx,jy,iz) + room(jx,jy,iz)/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    delVzm = delVzm - room(jx,jy,iz)
+                    room(jx,jy,iz) = 0.0d0
+                END IF
+            END IF
+            iz = iz - 1
+        END DO
+        ! allow excess moisture to leave domain if permeablity > 0
+        IF (Kfacz(jx,jy,iz) > 0.0) THEN
+            delVzm = 0.0d0
+        END IF
+    END IF
+
+    ! send moisture down
+    IF (rsend(3) > 0.0) THEN
+        delVzp = delV * rsend(3)
+        iz = jz
+        DO WHILE (iz .NE. nz)
+            iz = iz + 1
+            IF (room(jx,jy,iz) > 0.0) THEN
+                ! if excess moisture < available space
+                IF (room(jx,jy,iz) > delVzp) THEN
+                    wc(jx,jy,iz) = wc(jx,jy,iz) + delVzp/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    room(jx,jy,iz) = room(jx,jy,iz) - delVzp
+                    delVzp = 0.0d0
+                    EXIT
+                ! if excess moisture > available space
+                ELSE
+                    wc(jx,jy,iz) = wc(jx,jy,iz) + room(jx,jy,iz)/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    delVzp = delVzp - room(jx,jy,iz)
+                    room(jx,jy,iz) = 0.0d0
+                END IF
+            END IF
+        END DO
+        ! allow excess moisture to leave domain if permeablity > 0
+        IF (Kfacz(jx,jy,iz) > 0.0) THEN
+            delVzp = 0.0d0
+        END IF
     END IF
 END IF
 
 
 ! If excess moisture remains, reverse sending directions
-IF (delVzm + delVzp > 0.0) THEN
-    delV = delVzm + delVzp
-    temp = rsend_zm
-    rsend_zm = rsend_zp
-    rsend_zp = temp
+! IF (delVzm + delVzp > 0.0) THEN
+!     delV = delVzm + delVzp
+!     temp = rsend(-3)
+!     rsend(-3) = rsend(3)
+!     rsend(3) = temp
+! ELSE
+!     delV = 0.0d0
+! END IF
+
+IF (y_is_vertical) THEN
+    delV = delVxm + delVxp + delVym + delVyp
 ELSE
-    delV = 0.0d0
+    delV = delVxm + delVxp + delVzm + delVzp
 END IF
 
 

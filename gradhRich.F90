@@ -90,7 +90,7 @@ IF (Kfacy(jx,jy,jz) > 0.0) THEN
 ELSE
     dhyp = 0.0d0
 END IF
-IF (Kfacy(jx-1,jy,jz) > 0.0) THEN
+IF (Kfacy(jx,jy-1,jz) > 0.0) THEN
     dhym = 2.0d0*(head(jx,jy,jz) - head(jx,jy-1,jz)) / (dyy(jy) + dyy(jy-1))
 ELSE
     dhym = 0.0d0
@@ -173,38 +173,6 @@ ELSE
         rsend(3) = abs(dhzp) / dh_tot
     END IF
 END IF
-
-! Need to distinguish send and recv
-! IF (dhzp*dhzm >= 0.0) THEN
-!     IF (dhzp > 0.0 .AND. dhzm > 0.0) THEN
-!         rsend_zm = 1.0d0
-!         rrecv_zm = 0.0d0
-!         rsend_zp = 0.0d0
-!         rrecv_zp = 1.0d0
-!     ELSE IF (dhzp < 0.0 .AND. dhzm < 0.0) THEN
-!         rsend_zm = 0.0d0
-!         rrecv_zm = 1.0d0
-!         rsend_zp = 1.0d0
-!         rrecv_zp = 0.0d0
-!     ELSE
-!         rsend_zm = 0.0d0
-!         rrecv_zm = 0.0d0
-!         rsend_zp = 0.0d0
-!         rrecv_zp = 0.0d0
-!     END IF
-! ELSE
-!     IF (dhzp > 0.0) THEN
-!         rsend_zm = 0.0d0
-!         rrecv_zm = abs(dhzm) / dh_tot
-!         rsend_zp = 0.0d0
-!         rrecv_zp = abs(dhzp) / dh_tot
-!     ELSE
-!         rsend_zm = abs(dhzm) / dh_tot
-!         rrecv_zm = 0.0d0
-!         rsend_zp = abs(dhzp) / dh_tot
-!         rrecv_zp = 0.0d0
-!     END IF
-! END IF
 
 
 RETURN

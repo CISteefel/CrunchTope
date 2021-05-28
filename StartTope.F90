@@ -7404,6 +7404,11 @@ IF (found) THEN
         parchar = 'richards'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards)
+        ! True if 2D x-y, added by ZhiLi20210527
+        y_is_vertical = .FALSE.
+        parchar = 'y_is_vertical'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,y_is_vertical)
         ! Invoke moisture residtribution
         redistribute_wc = .FALSE.
         parchar = 'redistribute_wc'
@@ -7549,12 +7554,21 @@ IF (found) THEN
 
 !  Allocate related fields for Richards equations, Li 20200629
      IF (Richards) THEN
-        IF (ALLOCATED(jz_bottom)) THEN
-            DEALLOCATE(jz_bottom)
-            ALLOCATE(jz_bottom(0:nx+1,0:ny+1))
-        ELSE
-            ALLOCATE(jz_bottom(0:nx+1,0:ny+1))
-        END IF
+         IF (y_is_vertical) THEN
+             IF (ALLOCATED(j_bottom)) THEN
+                 DEALLOCATE(j_bottom)
+                 ALLOCATE(j_bottom(0:nx+1,1))
+             ELSE
+                 ALLOCATE(j_bottom(0:nx+1,1))
+             END IF
+         ELSE
+            IF (ALLOCATED(j_bottom)) THEN
+                DEALLOCATE(j_bottom)
+                ALLOCATE(j_bottom(0:nx+1,0:ny+1))
+            ELSE
+                ALLOCATE(j_bottom(0:nx+1,0:ny+1))
+            END IF
+        END IF 
          IF (ALLOCATED(head)) THEN
            DEALLOCATE(head)
            ALLOCATE(head(0:nx+1,0:ny+1,0:nz+1))

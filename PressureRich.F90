@@ -254,6 +254,18 @@ DO jz = 1,nz
                         ELSE
                             coef(3) = -2.0d0*dt*Kfacz(jx,jy,jz) / (dzz(jx,jy,jz)*(dzz(jx,jy,jz+1)+dzz(jx,jy,jz)))
                         END IF
+                    ELSE IF (nz == 1) THEN
+                        ! modify complex top boundary when domain is 2D x-y
+                        IF (activecellPressure(jx,jy-1,jz) == 0) THEN
+                            coef(-2) = -2.0d0*dt*Kfacy(jx,jy-1,jz) / (dyy(jy)*dyy(jy))
+                            AddPressureY = -coef(-2) * headOld(jx,jy-1,jz)
+                            IF (headOld(jx,jy-1,jz) == 0.0d0 .AND. headOld(jx,jy,jz) <= headOld(jx,jy-1,jz)+0.5d0*dyy(jy)) THEN
+                                coef(-2) = 0.0d0
+                                AddPressureY = -(dt/dyy(jy))*Kfacy(jx,jy-1,jz)
+                            ELSE IF (headOld(jx,jy-1,jz) < 0.0d0) THEN
+                                WRITE(*,*) ' WARNING : Top head BC should be >= 0 !!!'
+                            END IF
+                        END IF
                     END IF
 
                 ! if 2D x-z
@@ -269,16 +281,12 @@ DO jz = 1,nz
                         ! complex topography at top boundary, ZhiLi20210523
                         coef(-2) = -2.0d0*dt*Kfacz(jx,jy,jz-1) / (dzz(jx,jy,jz)*dzz(jx,jy,jz))
                         AddPressureZ = -coef(-2) * headOld(jx,jy,jz-1)
-                        ! switch to flux BC
-                        IF (headOld(jx,jy,jz-1) <= 0.0d0) THEN
-                            ! no flux unless there is exfiltration
-                            IF (headOld(jx,jy,jz) > headOld(jx,jy,jz-1)+0.5d0*dzz(jx,jy,jz)) THEN
-                                coef(-2) = -2.0d0*dt*Kfacz(jx,jy,jz-1) / (dzz(jx,jy,jz)*dzz(jx,jy,jz))
-                                AddPressureZ = -coef(-2) * headOld(jx,jy,jz-1)
-                            ELSE
-                                coef(-2) = 0.0d0
-                                AddPressureZ = 0.0d0
-                            END IF
+                        ! switch to no flux BC if the surface is dry (h = 0)
+                        IF (headOld(jx,jy,jz-1) == 0.0d0 .AND. headOld(jx,jy,jz) <= headOld(jx,jy,jz-1)+0.5d0*dzz(jx,jy,jz)) THEN
+                            coef(-2) = 0.0d0
+                            AddPressureZ = -(dt/dzz(jx,jy,jz))*Kfacz(jx,jy,jz-1)
+                        ELSE IF (headOld(jx,jy,jz-1) < 0.0d0) THEN
+                            WRITE(*,*) ' WARNING : Top head BC should be >= 0 !!!'
                         END IF
                     ELSE
                         coef(-2) = -2.0d0*dt*Kfacz(jx,jy,jz-1) / (dzz(jx,jy,jz)*(dzz(jx,jy,jz)+dzz(jx,jy,jz-1)))
@@ -305,11 +313,19 @@ DO jz = 1,nz
 
 
 
-                coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-3) - coef(-2) - coef(-1) - coef(1) - coef(2) - coef(3)
+
                 ! Right hand side
-                BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
-                            (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
-                            AddPressureX + AddPressureY + AddPressureZ
+                IF (y_is_vertical) THEN
+                    coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-2) - coef(-1) - coef(1) - coef(2)
+                    BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
+                                (dt/dyy(jy))*(Kfacy(jx,jy,jz)-Kfacy(jx,jy-1,jz)) + &
+                                AddPressureX + AddPressureY
+                ELSE
+                    coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-3) - coef(-2) - coef(-1) - coef(1) - coef(2) - coef(3)
+                    BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
+                                (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
+                                AddPressureX + AddPressureY + AddPressureZ
+                END IF
                 XvecCrunchP(j) = head(jx,jy,jz)
 
                 ! Insert coefficients into matrix
@@ -347,7 +363,18 @@ DO jz = 1,nz
                             CALL MatSetValues(amatP,1,j,1,j+nx,coef(2),INSERT_VALUES,ierr)
                         END IF
                     END IF
+                ELSE IF (y_is_vertical) THEN
+                    ! 2D x-y
+                    IF (j-nx >= 0) THEN
+                        IF (activecellPressure(jx,jy-1,jz) == 1) THEN
+                            CALL MatSetValues(amatP,1,j,1,j-nx,coef(-2),INSERT_VALUES,ierr)
+                        END IF
+                    END IF
+                    IF (j+nx < nx*ny*nz) THEN
+                        CALL MatSetValues(amatP,1,j,1,j+nx,coef(2),INSERT_VALUES,ierr)
+                    END IF
                 END IF
+
             END IF
         END DO
     END DO
