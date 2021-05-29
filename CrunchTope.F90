@@ -144,6 +144,7 @@ REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: aaaTemp
 REAL(DP), PARAMETER                                        :: atol=1.e-09
 REAL(DP), PARAMETER                                        :: rtol=1.e-06
 REAL(DP), PARAMETER                                        :: correx=1.0
+REAL(DP), PARAMETER                                        :: tiny=1.0E-13
 
 INTEGER(I4B), PARAMETER                                    :: idetail=0
 INTEGER(I4B), PARAMETER                                    :: nitmax=100
@@ -218,6 +219,7 @@ INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 INTEGER(I4B)                                               :: j
+INTEGER(I4B)                                               :: jydum
 INTEGER(I4B)                                               :: newtmax
 INTEGER(I4B)                                               :: ne
 INTEGER(I4B)                                               :: icvg
@@ -254,6 +256,9 @@ INTEGER(I4B)                                               :: idummy
 INTEGER(I4B)                                               :: jxmax
 INTEGER(I4B)                                               :: jymax
 
+INTEGER(I4B)                                               :: jydum2
+INTEGER(I4B)                                               :: jyCheck
+
 REAL(DP)                                                   :: dtold
 REAL(DP)                                                   :: tempc
 REAL(DP)                                                   :: det
@@ -288,7 +293,9 @@ REAL(DP)                                                   :: dtmaxcour
 REAL(DP)                                                   :: totcharge
 REAL(DP)                                                   :: PrintTime
 REAL(DP)                                                   :: DummyReal
-
+REAL(DP)                                                   :: distCheck
+REAL(DP)                                                   :: distCheck3
+REAL(DP)                                                   :: distCheck2
 REAL(DP), PARAMETER                                        :: eps=1.D-12
 
 REAL(DP)                                                   :: minsat
@@ -617,20 +624,33 @@ IF (CalculateFlow) THEN
  !! Here jz_bottom is the jz index that represents the boundary cell above the top surface
  IF (Richards) THEN
      WRITE(*,*) ' Initializing topography'
-     DO jx = 0,nx+1
-         DO jy = 0,ny+1
-             DO jz = 1,nz-1
-                 IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-                     jz_bottom(jx,jy) = jz
+     IF (y_is_vertical) THEN
+         jz = 1
+         DO jx = 0,nx+1
+             DO jy = 1,ny-1
+                 IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                     j_bottom(jx,1) = jy
                      EXIT
                  END IF
             END DO
         END DO
-    END DO
+     ELSE
+         DO jx = 0,nx+1
+             DO jy = 0,ny+1
+                 DO jz = 1,nz-1
+                     IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+                         j_bottom(jx,jy) = jz
+                         EXIT
+                     END IF
+                END DO
+            END DO
+        END DO
+    END IF
 END IF
 
  !! Initialize pressure head, ZhiLi20210526
  IF (Richards) THEN
+
      WRITE(*,*) ' Initializing head and water content for Richards equation'
      DO jz = 0,nz+1
        DO jy = 0,ny+1
@@ -638,10 +658,40 @@ END IF
              wcs(jx,jy,jz) = por(jx,jy,jz)
              IF (activecellPressure(jx,jy,jz) == 1) THEN
                  ! distance to top surface
-                 ! This only works for uniform dzz now!
-                 dist = (jz - jz_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
+                 ! This only works for uniform dyy or dzz now!
+                 IF (y_is_vertical) THEN
+                   
+                   dist = 0.0d0
+                   DO jydum = 0,jy
+                       dist = dist + dyy(jydum) 
+                   END DO
+                   dist = dist - 0.5*dyy(jyCheck)
+                   
+                   distCheck = 0.0d0
+                   jyCheck = INT(j_bottom(jx,1))
+                   DO jydum = 0,jycheck
+                       distCheck = distCheck + dyy(jydum) 
+                   END DO
+                   distCheck = distCheck 
+                               
+                   distCheck3 = dist - distCheck
+
+                   distCheck2 = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy) 
+                   
+!!!                   dist = distCheck3 - distCheck2                
+!!!                   IF (dist < -tiny .OR. dist > tiny ) THEN
+
+!!!                     write(*,*) dist
+!!!                     write(*,*)
+!!!                     write(*,*) 'distCheck2 should be equal to distCheck3 ',distcheck2,distcheck3
+!!!                     read(*,*)
+!!!                   END IF
+              
+                 ELSE
+                     dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
+                 END IF
                  ! set initial water table
-                 IF (dist > watertable_init) THEN
+                 IF (distCheck3 > watertable_init) THEN
                      wc(jx,jy,jz) = wcs(jx,jy,jz)
                      head(jx,jy,jz) = dist - watertable_init
                  ELSE
@@ -667,15 +717,27 @@ END IF
                wc(jx,jy,jz) = wcr
                ! head(jx,jy,jz) = 0.0d0
                head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
-               IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-                   IF (pres(jx,jy,jz) > 0.0d0) THEN
-                       wc(jx,jy,jz) = wcs(jx,jy,jz)
-                       head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
-                   ELSE
-                       wc(jx,jy,jz) = wcr
-                       head(jx,jy,jz) = 0.0d0
+               IF (y_is_vertical) THEN
+                   IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                       IF (pres(jx,jy,jz) > 0.0d0) THEN
+                           wc(jx,jy,jz) = wcs(jx,jy,jz)
+                           head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
+                       ELSE
+                           wc(jx,jy,jz) = wcr
+                           head(jx,jy,jz) = 0.0d0
+                       END IF
                    END IF
-               END IF
+              ELSE
+                  IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
+                      IF (pres(jx,jy,jz) > 0.0d0) THEN
+                          wc(jx,jy,jz) = wcs(jx,jy,jz)
+                          head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
+                      ELSE
+                          wc(jx,jy,jz) = wcr
+                          head(jx,jy,jz) = 0.0d0
+                      END IF
+                  END IF
+              END IF
            END IF
          END DO
        END DO
