@@ -658,6 +658,7 @@ END IF
              wcs(jx,jy,jz) = por(jx,jy,jz)
              IF (activecellPressure(jx,jy,jz) == 1) THEN
                  ! distance to top surface
+<<<<<<< HEAD
                  ! This only works for uniform dyy or dzz now!
                  IF (y_is_vertical) THEN
                    
@@ -687,6 +688,11 @@ END IF
 !!!                     read(*,*)
 !!!                   END IF
               
+=======
+                 ! This only works for uniform dzz now!
+                 IF (y_is_vertical) THEN
+                     dist = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
+>>>>>>> 5302b242be748123a41a3c536e1026ecd7b58260
                  ELSE
                      dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
                  END IF
