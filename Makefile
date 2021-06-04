@@ -314,7 +314,19 @@ SOURCEF = \
           xmass.F90\
           xmassNodeByNode.F90\
           xtoolInit.F90\
-          xtoolOutput.F90
+          xtoolOutput.F90\
+          redistributeRich.F90\
+          vanGenuchten.F90\
+          PressureRich.F90\
+          gradhRich.F90\
+          nexttoSatRich.F90\
+          redist_recvRich.F90\
+          velocalcRich.F90\
+          watercontentRich.F90\
+          PressureNS.F90\
+          velocalcNS.F90\
+          redist_sendRich.F90
+
 
 OBJSF  =  crunchtype.o\
           params.o\
@@ -627,7 +639,18 @@ OBJSF  =  crunchtype.o\
           xmass.o\
           xmassNodeByNode.o\
           xtoolInit.o\
-          xtoolOutput.o
+          xtoolOutput.o\
+          redistributeRich.o\
+          vanGenuchten.o\
+          PressureRich.o\
+          gradhRich.o\
+          nexttoSatRich.o\
+          redist_recvRich.o\
+          velocalcRich.o\
+          watercontentRich.o\
+          PressureNS.o\
+          velocalcNS.o\
+          redist_sendRich.o
 
 LOCDIR   = ${CrunchTope_Dir}
 
