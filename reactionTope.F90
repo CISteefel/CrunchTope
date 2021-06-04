@@ -223,6 +223,8 @@ END IF
 
 DO kIsotopologue = 1,nIsotopeMineral
 
+!! Points back to mineral number
+  
   kMineralRare = kIsotopeRare(kIsotopologue)
   KMineralCommon = kIsotopeCommon(kIsotopologue)
   
@@ -232,7 +234,7 @@ DO kIsotopologue = 1,nIsotopeMineral
       
 !! Should be in units of yr-1 to match the time step "delt" in years
       
-      DecayTerm = volfx(kMineralRare,jx,jy,jz)*DEXP(-lambda(kIsotopologue)*delt)
+      DecayTerm = volfx(kMineralRare,jx,jy,jz)*DEXP(-lambda(kIsotopologue)*delt)   !!! year^-1
       volfx(kMineralCommon,jx,jy,jz) = volfx(kMineralCommon,jx,jy,jz) + DecayTerm
       volfx(kMineralRare,jx,jy,jz)   = volfx(kMineralRare,jx,jy,jz)   - DecayTerm
       
@@ -268,12 +270,20 @@ DO kIsotopologue = 1,nIsotopeMineral
   iPrimaryCommon = isotopeCommon(Isotopologue)
 
   IF (IsotopeBackReactionOption(kIsotopologuePoint) == 'bulk' .OR. time < LagSurface/365.0) THEN
+    
     denominator = volfx(kMineralRarePoint,jx,jy,jz) + volfx(kMineralCommonPoint,jx,jy,jz) 
+     
+    
     IF (denominator == 0.0d0 .OR. time < LagSurface/365.0) THEN
       UseAqueousMoleFraction(kIsotopologue) = .TRUE.
     ELSE
+      
+!!! Standard mole fraction gives activity of isotopologue in mineral
+      
+!!!      Ion activity product = [Ca++] [CO3--]/activity_calcite
       MoleFractionMineralRare(kIsotopologue) = (volfx(kMineralRarePoint,jx,jy,jz)/denominator)
       MoleFractionMineralCommon(kIsotopologue) = (volfx(kMineralCommonPoint,jx,jy,jz)/denominator)
+      
     END IF
   ELSE IF (IsotopeBackReactionOption(kIsotopologuePoint) == 'surface') THEN
     denominator = volsave(kMineralRarePoint,jx,jy,jz) + volsave(kMineralCommonPoint,jx,jy,jz)

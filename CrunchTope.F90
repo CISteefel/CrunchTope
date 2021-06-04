@@ -658,7 +658,6 @@ END IF
              wcs(jx,jy,jz) = por(jx,jy,jz)
              IF (activecellPressure(jx,jy,jz) == 1) THEN
                  ! distance to top surface
-<<<<<<< HEAD
                  ! This only works for uniform dyy or dzz now!
                  IF (y_is_vertical) THEN
                    
@@ -688,11 +687,6 @@ END IF
 !!!                     read(*,*)
 !!!                   END IF
               
-=======
-                 ! This only works for uniform dzz now!
-                 IF (y_is_vertical) THEN
-                     dist = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
->>>>>>> 5302b242be748123a41a3c536e1026ecd7b58260
                  ELSE
                      dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
                  END IF
@@ -745,9 +739,11 @@ END IF
                   END IF
               END IF
            END IF
+		   
          END DO
        END DO
      END DO
+	 
      DO jz = 0,nz+1
        DO jy = 0,ny+1
          DO jx = 0,nx+1
@@ -1103,7 +1099,7 @@ nn = 0
 DO WHILE (nn <= nend)
 
     ! Zhi Li 20200715
-    IF (nn == 0) THEN
+    IF (nn == 0 .AND. dtflow /= 0.0) THEN
         delt = dtflow
     END IF
 
@@ -1740,7 +1736,7 @@ DO WHILE (nn <= nend)
   6000   IF (gimrt) THEN
 
     jz = 1
-    WRITE(*,*) 'GIMRT invoked!'
+!!!    WRITE(*,*) 'GIMRT invoked!'
 !           Calculate finite difference coefficients
     CALL dispersivity(nx,ny,nz)
 
@@ -2505,7 +2501,7 @@ END DO
       call CalciteStoichiometryBoundary(1)
 
       DO jx = 1,nx
-        ctvd(jx,jy,jz) = muUranium234Bulk(jx,jy,jz)
+        ctvd(jx,jy,jz) = specificByGrid(k,jx,jy,jz)
       END DO
 
       DO jx = 1,nx
@@ -2577,7 +2573,8 @@ END DO
       END DO
 
       IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*muUranium238Boundary(1)
+         rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
+			
       END IF
 
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
@@ -2669,13 +2666,13 @@ END DO
         rrbur(1) = rrbur(1) - aabur(1)*1.40e-10
       END IF
       IF (SolidBuryX(nx) < 0.0) THEN
-        rrbur(nx) = rrbur(nx) - ccbur(nx)*muCalciumBulk(nx,1,1)
+       rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
       END IF
 
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
 
       DO jx = 1,nx
-        mumin_decay(1,kUPlag,ik234U,jx,jy,jz) = uubur(jx)
+        specificByGrid(k,jx,1,1) = uubur(jx)
       END DO
 
 !!  *****************

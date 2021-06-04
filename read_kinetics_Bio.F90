@@ -304,7 +304,7 @@ allocate(SubstrateForLagAqueous(mpre))
 
 !!str_endkin = 'End of aqueous kinetics'
 
-if (data1 == ' ') then
+!!!if (data1 == ' ') then
 
   INQUIRE(FILE='AqueousControl.ant',EXIST=ext)
   IF (EXT) THEN          !!  Aqueous Control file exists, so read input filename from it rather than prompting user
@@ -319,11 +319,11 @@ if (data1 == ' ') then
     filename2 = 'aqueous.dbs'
   END IF
   !! END IF
-else 
+!!!else 
  
-  filename2 = data1
+!!!  filename2 = data1
   
-end if 
+!!!end if 
 
 OPEN(UNIT=112,FILE=filename2,STATUS='old')
 REWIND nout

@@ -715,9 +715,11 @@ IF (nrct > 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
-    if (area(k,jx,jy,jz) < 1.0E-35) then
-      area(k,jx,jy,jz) = 0.0d0
-    end if
+    do k = 1,nrct
+      if (area(k,jx,jy,jz) < 1.0E-35) then
+        area(k,jx,jy,jz) = 0.0d0
+      end if
+    end do
     WRITE(8,184) x(jx)*OutputDistanceScale,(area(k,jx,jy,jz),k=1,nrct)
   END DO
   CLOSE(UNIT=8,STATUS='keep')
