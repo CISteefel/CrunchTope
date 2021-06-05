@@ -101,7 +101,11 @@ DO jz = 0,nz+1
             IF (wc(jx,jy,jz) - wcr < 0.001) THEN
                 wc(jx,jy,jz) = wcr + 0.001
             END IF
-            hwc(jx,jy,jz) = -(1.0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0/m) - 1.0) ** (1.0/vgn)
+            IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
+                hwc(jx,jy,jz) = 0.0d0
+            ELSE
+                hwc(jx,jy,jz) = -(1.0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0/m) - 1.0) ** (1.0/vgn)
+            END IF
         END DO
     END DO
 END DO
