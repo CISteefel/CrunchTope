@@ -715,8 +715,8 @@ END IF
             ELSE
                ! initial condition for inactive cells
                wc(jx,jy,jz) = wcr
-               ! head(jx,jy,jz) = 0.0d0
-               head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
+               head(jx,jy,jz) = -999.0
+!!!               head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
                IF (y_is_vertical) THEN
                    IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
                        IF (pres(jx,jy,jz) > 0.0d0) THEN
@@ -867,17 +867,19 @@ END IF
       CALL velocalc(nx,ny,nz)
   END IF
  ! final check of water content
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-          IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
+    IF (Richards) THEN  
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
+            IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
               wc(jx,jy,jz) = wcs(jx,jy,jz)
-          ELSE IF (wc(jx,jy,jz) < wcr) THEN
+            ELSE IF (wc(jx,jy,jz) < wcr) THEN
               wc(jx,jy,jz) = wcr
-          END IF
+            END IF
+          END DO
+        END DO
       END DO
-    END DO
-  END DO
+    END IF
 
 
 !!  Check divergence of flow field
@@ -1251,7 +1253,8 @@ DO WHILE (nn <= nend)
         CALL velocalc(nx,ny,nz)
     END IF
     ! final check of water content
-     DO jz = 1,nz
+     IF (Richards) THEN
+       DO jz = 1,nz
        DO jy = 1,ny
          DO jx = 1,nx
              IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
@@ -1262,7 +1265,7 @@ DO WHILE (nn <= nend)
          END DO
        END DO
      END DO
-
+    END IF
 
 
 
