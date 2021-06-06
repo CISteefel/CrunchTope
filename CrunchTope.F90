@@ -661,6 +661,7 @@ END IF
                  ! This only works for uniform dyy or dzz now!
                  IF (y_is_vertical) THEN
                    
+                   jyCheck = INT(j_bottom(jx,1))
                    dist = 0.0d0
                    DO jydum = 0,jy
                        dist = dist + dyy(jydum) 
@@ -668,7 +669,7 @@ END IF
                    dist = dist - 0.5*dyy(jyCheck)
                    
                    distCheck = 0.0d0
-                   jyCheck = INT(j_bottom(jx,1))
+
                    DO jydum = 0,jycheck
                        distCheck = distCheck + dyy(jydum) 
                    END DO
