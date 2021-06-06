@@ -117,61 +117,77 @@ END IF
 ! calculate split ratio
 dh_tot = abs(dhxp) + abs(dhxm) + abs(dhyp) + abs(dhym) + abs(dhzp) + abs(dhzm)
 
-! split ratio in x
-IF (dhxp*dhxm >= 0.0) THEN
-    IF (dhxp > 0.0 .OR. dhxm > 0.0) THEN
-        rsend(-1) = (abs(dhxp) + abs(dhxm)) / dh_tot
-        rrecv(1) = (abs(dhxp) + abs(dhxm)) / dh_tot
-    ELSE
-        rrecv(-1) = (abs(dhxp) + abs(dhxm)) / dh_tot
-        rsend(1) = (abs(dhxp) + abs(dhxm)) / dh_tot
-    END IF
-ELSE
-    IF (dhxp > 0.0) THEN
-        rrecv(-1) = abs(dhxm) / dh_tot
-        rrecv(1) = abs(dhxp) / dh_tot
-    ELSE
-        rsend(-1) = abs(dhxm) / dh_tot
-        rsend(1) = abs(dhxp) / dh_tot
-    END IF
-END IF
 
-! split ratio in y
-IF (dhyp*dhym >= 0.0) THEN
-    IF (dhyp > 0.0 .OR. dhym > 0.0) THEN
-        rsend(-2) = (abs(dhyp) + abs(dhym)) / dh_tot
-        rrecv(2) = (abs(dhyp) + abs(dhym)) / dh_tot
+IF (dh_tot > 0.0) THEN
+    ! split ratio in x
+    IF (dhxp*dhxm >= 0.0) THEN
+        IF (dhxp > 0.0 .OR. dhxm > 0.0) THEN
+            rsend(-1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+            rrecv(1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+        ELSE
+            rrecv(-1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+            rsend(1) = (abs(dhxp) + abs(dhxm)) / dh_tot
+        END IF
     ELSE
-        rrecv(-2) = (abs(dhyp) + abs(dhym)) / dh_tot
-        rsend(2) = (abs(dhyp) + abs(dhym)) / dh_tot
+        IF (dhxp > 0.0) THEN
+            rrecv(-1) = abs(dhxm) / dh_tot
+            rrecv(1) = abs(dhxp) / dh_tot
+        ELSE
+            rsend(-1) = abs(dhxm) / dh_tot
+            rsend(1) = abs(dhxp) / dh_tot
+        END IF
     END IF
-ELSE
-    IF (dhyp > 0.0) THEN
-        rrecv(-2) = abs(dhym) / dh_tot
-        rrecv(2) = abs(dhyp) / dh_tot
-    ELSE
-        rsend(-2) = abs(dhym) / dh_tot
-        rsend(2) = abs(dhyp) / dh_tot
-    END IF
-END IF
 
-! split ratio in z
-IF (dhzp*dhzm >= 0.0) THEN
-    IF (dhzp > 0.0 .OR. dhzm > 0.0) THEN
-        rsend(-3) = (abs(dhzp) + abs(dhzm)) / dh_tot
-        rrecv(3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+    ! split ratio in y
+    IF (dhyp*dhym >= 0.0) THEN
+        IF (dhyp > 0.0 .OR. dhym > 0.0) THEN
+            rsend(-2) = (abs(dhyp) + abs(dhym)) / dh_tot
+            rrecv(2) = (abs(dhyp) + abs(dhym)) / dh_tot
+        ELSE
+            rrecv(-2) = (abs(dhyp) + abs(dhym)) / dh_tot
+            rsend(2) = (abs(dhyp) + abs(dhym)) / dh_tot
+        END IF
     ELSE
-        rrecv(-3) = (abs(dhzp) + abs(dhzm)) / dh_tot
-        rsend(3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+        IF (dhyp > 0.0) THEN
+            rrecv(-2) = abs(dhym) / dh_tot
+            rrecv(2) = abs(dhyp) / dh_tot
+        ELSE
+            rsend(-2) = abs(dhym) / dh_tot
+            rsend(2) = abs(dhyp) / dh_tot
+        END IF
+    END IF
+
+    ! split ratio in z
+    IF (dhzp*dhzm >= 0.0) THEN
+        IF (dhzp > 0.0 .OR. dhzm > 0.0) THEN
+            rsend(-3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+            rrecv(3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+        ELSE
+            rrecv(-3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+            rsend(3) = (abs(dhzp) + abs(dhzm)) / dh_tot
+        END IF
+    ELSE
+        IF (dhzp > 0.0) THEN
+            rrecv(-3) = abs(dhzm) / dh_tot
+            rrecv(3) = abs(dhzp) / dh_tot
+        ELSE
+            rsend(-3) = abs(dhzm) / dh_tot
+            rsend(3) = abs(dhzp) / dh_tot
+        END IF
     END IF
 ELSE
-    IF (dhzp > 0.0) THEN
-        rrecv(-3) = abs(dhzm) / dh_tot
-        rrecv(3) = abs(dhzp) / dh_tot
-    ELSE
-        rsend(-3) = abs(dhzm) / dh_tot
-        rsend(3) = abs(dhzp) / dh_tot
-    END IF
+    rsend(-3) = 0.0d0
+    rsend(-2) = 0.0d0
+    rsend(-1) = 0.0d0
+    rsend(3) = 0.0d0
+    rsend(2) = 0.0d0
+    rsend(1) = 0.0d0
+    rrecv(-3) = 0.0d0
+    rrecv(-2) = 0.0d0
+    rrecv(-1) = 0.0d0
+    rrecv(3) = 0.0d0
+    rrecv(2) = 0.0d0
+    rrecv(1) = 0.0d0
 END IF
 
 
