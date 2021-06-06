@@ -727,9 +727,17 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          WritePermx = Log10(permx(jx,jy,jz))
-          WritePermy = Log10(permy(jx,jy,jz))
-!!!          WritePermz = Log10(permz(jx,jy,jz))
+          IF (permx(jx,jy,jz) == 0.0) THEN
+            WritePermx = -30.00
+          ELSE
+            WritePermx = Log10(permx(jx,jy,jz))
+          END IF
+          IF (permy(jx,jy,jz) == 0.0) THEN
+            WritePermy = -30.00
+          ELSE
+            WritePermy = Log10(permy(jx,jy,jz))
+          END IF
+
           IF (ny==1)  THEN
             WritePermy = 0.0
           ENDIF
