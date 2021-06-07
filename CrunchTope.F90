@@ -1102,7 +1102,7 @@ nn = 0
 DO WHILE (nn <= nend)
 
     ! Zhi Li 20200715
-    IF (nn == 0 .AND. dtflow /= 0.0) THEN
+    IF (nn == 0 .AND. dtflow > 1.0E-15 ) THEN
         delt = dtflow
     END IF
 
