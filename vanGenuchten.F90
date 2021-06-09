@@ -58,7 +58,7 @@ USE CrunchFunctions
 
 REAL(DP)                                                              :: m
 REAL(DP)                                                              :: satu
-REAL(DP), PARAMETER                                                   :: visc=0.000001d0
+REAL(DP), PARAMETER                                                   :: visc=0.001d0
 REAL(DP), PARAMETER                                                   :: Ss=1.0D-05
 REAL(DP), PARAMETER                                                   :: grav=9.8d0
 REAL(DP), PARAMETER                                                   :: rho=1.0d3
@@ -152,9 +152,9 @@ DO jz = 1,nz
                     END IF
                 END IF
                 ! impermeable bottom
-                IF (jy == ny) THEN
-                    Kfacy(jx,jy,jz) = 0.0d0
-                END IF
+                ! IF (jy == ny) THEN
+                !     Kfacy(jx,jy,jz) = 0.0d0
+                ! END IF
             END IF
         END DO
     END DO
