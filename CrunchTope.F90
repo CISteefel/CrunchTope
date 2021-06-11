@@ -660,26 +660,26 @@ END IF
                  ! distance to top surface
                  ! This only works for uniform dyy or dzz now!
                  IF (y_is_vertical) THEN
-                   
+
                    jyCheck = INT(j_bottom(jx,1))
                    dist = 0.0d0
                    DO jydum = 0,jy
-                       dist = dist + dyy(jydum) 
+                       dist = dist + dyy(jydum)
                    END DO
                    dist = dist - 0.5*dyy(jyCheck)
-                   
+
                    distCheck = 0.0d0
 
                    DO jydum = 0,jycheck
-                       distCheck = distCheck + dyy(jydum) 
+                       distCheck = distCheck + dyy(jydum)
                    END DO
-                   distCheck = distCheck 
-                               
+                   distCheck = distCheck
+
                    distCheck3 = dist - distCheck
 
-                   distCheck2 = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy) 
-                   
-!!!                   dist = distCheck3 - distCheck2                
+                   distCheck2 = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
+
+!!!                   dist = distCheck3 - distCheck2
 !!!                   IF (dist < -tiny .OR. dist > tiny ) THEN
 
 !!!                     write(*,*) dist
@@ -687,7 +687,7 @@ END IF
 !!!                     write(*,*) 'distCheck2 should be equal to distCheck3 ',distcheck2,distcheck3
 !!!                     read(*,*)
 !!!                   END IF
-              
+
                  ELSE
                      dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
                  END IF
@@ -740,11 +740,11 @@ END IF
                   END IF
               END IF
            END IF
-		   
+
          END DO
        END DO
      END DO
-	 
+
      DO jz = 0,nz+1
        DO jy = 0,ny+1
          DO jx = 0,nx+1
@@ -856,7 +856,7 @@ END IF
       CALL velocalcNS(nx,ny,nz,dtflow)
   ELSE IF (Richards) THEN
       CALL vanGenuchten(nx,ny,nz)
-      CALL velocalcRich(nx,ny,nz)
+      CALL velocalcRich(nx,ny,nz,dtflow)
       CALL watercontentRich(nx,ny,nz,dtflow)
       CALL vanGenuchten(nx,ny,nz)
       CALL redistributeRich(nx,ny,nz)
@@ -868,7 +868,7 @@ END IF
       CALL velocalc(nx,ny,nz)
   END IF
  ! final check of water content
-    IF (Richards) THEN  
+    IF (Richards) THEN
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1242,7 +1242,7 @@ DO WHILE (nn <= nend)
         ! Disable os3d for now, Zhi Li 20200714
         ! os3d = .FALSE.
         CALL vanGenuchten(nx,ny,nz)
-        CALL velocalcRich(nx,ny,nz)
+        CALL velocalcRich(nx,ny,nz,delt)
         CALL watercontentRich(nx,ny,nz,delt)
         CALL vanGenuchten(nx,ny,nz)
         CALL redistributeRich(nx,ny,nz)
@@ -2578,7 +2578,7 @@ END DO
 
       IF (SolidBuryX(1) > 0.0) THEN
          rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
-			
+
       END IF
 
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)

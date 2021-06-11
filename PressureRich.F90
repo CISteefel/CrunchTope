@@ -89,6 +89,7 @@ REAL(DP)                                                              :: Check
 REAL(DP)                                                              :: AddPressureX
 REAL(DP)                                                              :: AddPressureY
 REAL(DP)                                                              :: AddPressureZ
+REAL(DP)                                                              :: pumpterm
 
 !  ****** PARAMETERS  ****************************
 
@@ -320,11 +321,35 @@ DO jz = 1,nz
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dyy(jy))*(Kfacy(jx,jy,jz)-Kfacy(jx,jy-1,jz)) + &
                                 AddPressureX + AddPressureY
+                    pumpterm = dt*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
+                    ! if pumpterm is along boundary, treat as a Neumann-type BC
+                    IF (pumpterm .NE. 0.0) THEN
+                        IF (jx == 1) THEN
+                            coef(0) = coef(0) + coef(-1)
+                            coef(-1) = 0.0d0
+                        ELSE IF (jx == nx) THEN
+                            coef(0) = coef(0) + coef(1)
+                            coef(1) = 0.0d0
+                        END IF
+                        IF (jy == 1 .OR. activecellPressure(jx,jy-1,jz) == 0) THEN
+                            coef(0) = coef(0) + coef(-2)
+                            coef(-2) = 0.0d0
+                            BvecCrunchP(j) = BvecCrunchP(j) - (dt/dyy(jy))*Kfacy(jx,jy-1,jz)
+                        ELSE IF (jy == ny) THEN
+                            coef(0) = coef(0) + coef(2)
+                            coef(2) = 0.0d0
+                            BvecCrunchP(j) = BvecCrunchP(j) + (dt/dyy(jy))*Kfacy(jx,jy,jz)
+                        END IF
+                    END IF
+
                 ELSE
                     coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-3) - coef(-2) - coef(-1) - coef(1) - coef(2) - coef(3)
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
                                 AddPressureX + AddPressureY + AddPressureZ
+                    pumpterm = dt*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
                 END IF
                 XvecCrunchP(j) = head(jx,jy,jz)
 

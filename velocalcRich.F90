@@ -42,7 +42,7 @@
 
 !!!      ****************************************
 
-SUBROUTINE velocalcRich(nx,ny,nz)
+SUBROUTINE velocalcRich(nx,ny,nz,dtyr)
 USE crunchtype
 USE params
 USE medium
@@ -63,9 +63,16 @@ INTEGER(I4B)                                                          :: jx
 INTEGER(I4B)                                                          :: jy
 INTEGER(I4B)                                                          :: jz
 
+REAL(DP)                                                       :: dt
+REAL(DP), INTENT(IN)                                           :: dtyr
+
 !  ****** PARAMETERS  ****************************
 
 CHARACTER (LEN=1)                                                     :: Coordinate
+
+
+dt = dtyr * 365 * 86400
+
 
 !   calculate darcy fluxes
 
@@ -117,13 +124,34 @@ DO jz = 1,nz
   DO jx = 1,nx
     IF (activecellPressure(jx,0,jz) == 0) THEN
       qy(jx,0,jz) = -2.0d0 * Kfacy(jx,0,jz) * (head(jx,1,jz) - head(jx,0,jz)) / (dyy(1))
+      ! gravity term
+      IF (y_is_vertical) THEN
+          qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
+      END IF
+      ! pump source term
+      IF (qg(jx,0,jz) .NE. 0.0) THEN
+          qy(jx,0,jz) = qg(jx,0,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+      END IF
+      ! check if there is enough room available
+      IF (qy(jx,0,jz) > 0.0 .AND. room(jx,1,jz) < qy(jx,0,jz) * dt * dxx(jx)* dzz(jx,1,jz)) THEN
+          qy(jx,0,jz) = room(jx,1,jz) / dt * dxx(jx)* dzz(jx,1,jz)
+      END IF
     ELSE
       qy(jx,0,jz) = 0.0d0
     END IF
     IF (activecellPressure(jx,ny+1,jz) == 0) THEN
       qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
+      ! gravity term
       IF (y_is_vertical) THEN
           qy(jx,ny,jz) = qy(jx,ny,jz) + Kfacy(jx,ny,jz)
+      END IF
+      ! pump source term
+      IF (qg(jx,ny,jz) .NE. 0.0) THEN
+          qy(jx,ny,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+      END IF
+      ! check if there is enough room available
+      IF (qy(jx,ny,jz) < 0.0 .AND. room(jx,ny,jz) < -qy(jx,ny,jz) * dt * dxx(jx)* dzz(jx,ny,jz)) THEN
+          qy(jx,ny,jz) = -room(jx,ny,jz) / dt * dxx(jx)* dzz(jx,ny,jz)
       END IF
     ELSE
       qy(jx,ny,jz) = 0.0d0

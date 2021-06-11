@@ -82,6 +82,12 @@ DO jz = 1,nz
             wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))     &
                                         +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))  &
                                         + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))
+            ! add source term if not along boundary
+            IF (jx > 1 .AND. jx < nx) THEN
+                IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1) THEN
+                    wc(jx,jy,jz) = wc(jx,jy,jz) + dt*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                END IF
+            END IF
             room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
             IF (room(jx,jy,jz) < 0.0) THEN
                 room(jx,jy,jz) = 0.0d0
