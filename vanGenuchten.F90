@@ -63,15 +63,14 @@ REAL(DP), PARAMETER                                                   :: Ss=1.0D
 REAL(DP), PARAMETER                                                   :: grav=9.8d0
 REAL(DP), PARAMETER                                                   :: rho=1.0d3
 
-m = 1.0d0 - 1.0d0/vgn
-
 
 DO jz = 0,nz+1
     DO jy = 0,ny+1
         DO jx = 0,nx+1
+            m = 1.0d0 - 1.0d0/vgn(jx,jy,jz)
             h = head(jx,jy,jz)
             !!! Get saturation from head
-            satu = (1 + abs(vga*h)**vgn) ** (-m)
+            satu = (1 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz)) ** (-m)
             IF (satu > 1) THEN
                 satu = 1.0d0
             ELSE IF (satu < 0) THEN
@@ -93,7 +92,7 @@ DO jz = 0,nz+1
                 END IF
             END IF
             !!! Get C from head
-            Ch(jx,jy,jz) = (vga*m*vgn*(wcs(jx,jy,jz)-wcr)*abs(vga*h)**(vgn-1)) / (1.0d0 + abs(vga*h)**vgn)**(m+1)
+            Ch(jx,jy,jz) = (vga(jx,jy,jz)*m*vgn(jx,jy,jz)*(wcs(jx,jy,jz)-wcr)*abs(vga(jx,jy,jz)*h)**(vgn(jx,jy,jz)-1)) / (1.0d0 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz))**(m+1)
             IF (h > 0.0d0) THEN
                 Ch(jx,jy,jz) = 0.0d0
             END IF
@@ -104,7 +103,7 @@ DO jz = 0,nz+1
             IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                 hwc(jx,jy,jz) = 0.0d0
             ELSE
-                hwc(jx,jy,jz) = -(1.0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0/m) - 1.0) ** (1.0/vgn)
+                hwc(jx,jy,jz) = -(1.0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0/m) - 1.0) ** (1.0/vgn(jx,jy,jz))
             END IF
         END DO
     END DO

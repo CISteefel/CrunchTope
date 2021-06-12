@@ -595,7 +595,7 @@ INTEGER(I4B)                                                  :: ios
 INTEGER(I4B)                                                  :: nucleationpaths
 INTEGER(I4B)                                                  :: kFlag
 INTEGER(I4B)                                                  :: npFlag
-INTEGER(I4B)                                                  :: jPoint																	   
+INTEGER(I4B)                                                  :: jPoint
 
 INTEGER(I4B)                                                  :: nBoundaryConditionZone
 
@@ -614,6 +614,10 @@ namelist /Nucleation/                                          NameMineral,     
                                                                Sigma_mJm2,         &
                                                                SSA_m2g,            &
                                                                Surface
+
+INTEGER(I4B)                                                  :: nvgn
+INTEGER(I4B)                                                  :: nvga
+
 
 
 #if defined(ALQUIMIA)
@@ -733,7 +737,7 @@ call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
 write(fn,"(a10,i0,a4)")'CrunchJunk',rank,'.out'
 write(*,*)fn
 OPEN(UNIT=nout,FILE=fn,STATUS='unknown')
-#endif	 
+#endif
 
 section = 'title'
 CALL readblock(nin,nout,section,found,ncount)
@@ -877,7 +881,7 @@ parchar = 'kinetic_database'
   parfind = ' '
   data2 = ' '
   CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  ! 
+  IF (parfind == ' ') THEN  !
     data2 = ' '             ! Use default
   ELSE
     data2 = dumstring
@@ -887,7 +891,7 @@ parchar = 'kinetic_database'
   parfind = ' '
   data3 = ' '
   CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN  ! 
+  IF (parfind == ' ') THEN  !
     data3 = ' '             ! Use default
   ELSE
     data3 = dumstring
@@ -4124,10 +4128,10 @@ IF (found) THEN
 
 !!!  End of X discretiztion
 !!!  ********************************************
-  
 
 
-!!!IF (.NOT. ReadGridVolumes) THEN						   
+
+!!!IF (.NOT. ReadGridVolumes) THEN
 !*****************
 !  Y discretization
 !******************
@@ -4212,21 +4216,21 @@ IF (found) THEN
             nz = 1
           else
             write(*,*) ' Z discretization'
-            
+
 !  Check to see if there are an even number values given
 !  One for the number of cells, the second for the spacing
 
            if (mod(lenarray,2).eq.0) then
-             
+
               nzonez = lenarray/2
               do i = 1,lenarray,2
                 ii = (i+1)/2
                 nvz(ii) = realmult(i)
                 dzzt(ii) = realmult(i+1)
               end do
-              
+
            else
-             
+
               lenarray = lenarray - 1
               if (lenarray.gt.1) then
                 write(*,*) ' Both the number of cells and the grid'
@@ -4241,20 +4245,20 @@ IF (found) THEN
                   dzzt(ii) = realmult(i+1)
                   write(*,*) nvz(ii),dzzt(ii)
                 end do
-                
+
               else
-                
+
                 write(*,*) ' Both the number of cells and the grid'
                 write(*,*) '   spacing should be specified'
                 write(*,*) ' Only one value provided'
                 READ(*,*)
                 STOP
-                
+
               endif
             endif
           endif
         endif
-        
+
 !!! END IF
 
 !  WRITE(*,*)
@@ -4317,7 +4321,7 @@ END IF
 
 
 
-#ifndef ALQUIMIA				 
+#ifndef ALQUIMIA
 
 !*****************************************************
 !  Write out information on discretization
@@ -4712,13 +4716,13 @@ IF (streamtube) THEN
     WRITE(*,*) ' Reading grid volumes from file: ',GridVolumeFile(1:ls)
     ReadGridVolumes = .TRUE.
   END IF
-  
+
 !!!  NOTE:  Assumes only 1D file, since this is for a 1D streamtube
-  
+
   IF (GridVolumeFile /= ' ') THEN
   ALLOCATE(work1(nx))
   INQUIRE(FILE=GridVolumeFile,EXIST=ext)
-  
+
   IF (.NOT. ext) THEN
     CALL stringlen(GridVolumeFile,ls)
     WRITE(*,*)
@@ -4727,15 +4731,15 @@ IF (streamtube) THEN
     READ(*,*)
     STOP
   END IF
-  
+
   OPEN(UNIT=52,FILE=GridVolumeFile,STATUS='OLD',ERR=6001)
   FileTemp = GridVolumeFile
   CALL stringlen(FileTemp,FileNameLength)
-  
+
   IF (GridVolumeFileFormat == 'ContinuousRead') THEN
-    
+
     READ(52,*,END=1020) (work1(jx),jx=1,nx)
-    
+
   ELSE IF (GridVolumeFileFormat == 'SingleColumn') THEN
 
         DO jx= 1,nx
@@ -4747,30 +4751,30 @@ IF (streamtube) THEN
       DO jx= 1,nx
         READ(52,*,END=1020) xdum,work1(jx)
       END DO
-      
+
   ELSE IF (GridVolumeFileFormat == 'Unformatted') THEN
-    
+
     READ(52,END=1020) work1
-    
+
   ELSE
-    
+
 !!! If no file format is given, assume FullForm (with dummy X)
-    
+
       DO jx= 1,nx
         READ(52,*,END=1020) xdum,work1(jx)
       END DO
-    
+
   END IF
   CLOSE(UNIT=52)
-  
+
   DO jx = 1,nx
     dzz(jx,1,1) = work1(jx)
   END DO
-  
+
 !!! Make ghost cells the same as first grid cell within domain
   dzz(0,1,1) = dzz(1,1,1)
   dzz(nx+1,1,1) = dzz(nx,1,1)
-  
+
   END IF
 IF (ExportGridLocations) THEN
 
@@ -4785,7 +4789,7 @@ IF (ExportGridLocations) THEN
   close(unit=98,status='keep')
 
 END IF
-END IF	  
+END IF
 
 !!!  End of DISCRETIZATION
 
@@ -7609,17 +7613,17 @@ IF (found) THEN
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         wcr = realjunk
 
-        parchar = 'vangenuchten_alpha'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        vga = realjunk
-
-        parchar = 'vangenuchten_n'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        vgn = realjunk
+        ! parchar = 'vangenuchten_alpha'
+        ! parfind = ' '
+        ! realjunk = 0.0
+        ! CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        ! vga = realjunk
+        !
+        ! parchar = 'vangenuchten_n'
+        ! parfind = ' '
+        ! realjunk = 0.0
+        ! CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        ! vgn = realjunk
 
 
 !!      IF (nx > 1 .AND. nz > 1 .AND. ny == 1) THEN
@@ -7744,7 +7748,7 @@ IF (found) THEN
             ELSE
                 ALLOCATE(j_bottom(0:nx+1,0:ny+1))
             END IF
-        END IF 
+        END IF
          IF (ALLOCATED(head)) THEN
            DEALLOCATE(head)
            ALLOCATE(head(0:nx+1,0:ny+1,0:nz+1))
@@ -7825,19 +7829,114 @@ IF (found) THEN
            ALLOCATE(Kfacz(1:nx,1:ny,0:nz))
          END IF
 
-         ! send/recv ratio for moisture redistribution, Zhi Li 20200721
-         ! IF (ALLOCATED(rsend)) THEN
-         !   DEALLOCATE(rsend)
-         !   ALLOCATE(rsend(0:5))
-         ! ELSE
-         !   ALLOCATE(rsend(0:5))
-         ! END IF
-         ! IF (ALLOCATED(rrecv)) THEN
-         !   DEALLOCATE(rrecv)
-         !   ALLOCATE(rrecv(0:5))
-         ! ELSE
-         !   ALLOCATE(rrecv(0:5))
-         ! END IF
+         ! van Genuchten alpha and n, Zhi Li 20210611
+         IF (ALLOCATED(vgn)) THEN
+           DEALLOCATE(vgn)
+           ALLOCATE(vgn(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(vgn(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+         IF (ALLOCATED(vga)) THEN
+           DEALLOCATE(vga)
+           ALLOCATE(vga(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(vga(0:nx+1,0:ny+1,0:nz+1))
+         END IF
+
+         nvgn = 0
+         nvga = 0
+
+         ALLOCATE(vgnzone(0:mvg))
+         ALLOCATE(vgazone(0:mvg))
+
+         ALLOCATE(jxxvgn_lo(mvg))
+         ALLOCATE(jxxvgn_hi(mvg))
+         ALLOCATE(jyyvgn_lo(mvg))
+         ALLOCATE(jyyvgn_hi(mvg))
+         ALLOCATE(jzzvgn_lo(mvg))
+         ALLOCATE(jzzvgn_hi(mvg))
+
+         ALLOCATE(jxxvga_lo(mvg))
+         ALLOCATE(jxxvga_hi(mvg))
+         ALLOCATE(jyyvga_lo(mvg))
+         ALLOCATE(jyyvga_hi(mvg))
+         ALLOCATE(jzzvga_lo(mvg))
+         ALLOCATE(jzzvga_hi(mvg))
+
+         ! read van Genuchten n
+         CALL read_vgn(nout,nx,ny,nz,nvgn)
+         IF (vgnzone(0) == 0.0) THEN
+           WRITE(*,*)
+           WRITE(*,*) ' No default vangenuchten_n given'
+           WRITE(*,*) ' vangenuchten_n should be followed by "default" or blank string'
+           WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
+           WRITE(*,*)
+           STOP
+         ELSE
+           WRITE(*,*)
+           WRITE(*,*) ' Background vangenuchten_n = ',vgnzone(0)
+           WRITE(*,*)
+         END IF
+
+         vgn = vgnzone(0)
+
+         IF (nvgn > 0) THEN
+           DO l = 1,nvgn
+             DO jz = jzzvgn_lo(l),jzzvgn_hi(l)
+               DO jy = jyyvgn_lo(l),jyyvgn_hi(l)
+                 DO jx = jxxvgn_lo(l),jxxvgn_hi(l)
+                   vgn(jx,jy,jz) = vgnzone(l)
+                 END DO
+               END DO
+             END DO
+           END DO
+         END IF
+
+         DEALLOCATE(vgnzone)
+         DEALLOCATE(jxxvgn_lo)
+         DEALLOCATE(jxxvgn_hi)
+         DEALLOCATE(jyyvgn_lo)
+         DEALLOCATE(jyyvgn_hi)
+         DEALLOCATE(jzzvgn_lo)
+         DEALLOCATE(jzzvgn_hi)
+
+         ! read van Genuchten alpha
+         CALL read_vga(nout,nx,ny,nz,nvga)
+         IF (vgazone(0) == 0.0) THEN
+           WRITE(*,*)
+           WRITE(*,*) ' No default vangenuchten_alpha given'
+           WRITE(*,*) ' vangenuchten_alpha should be followed by "default" or blank string'
+           WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
+           WRITE(*,*)
+           STOP
+         ELSE
+           WRITE(*,*)
+           WRITE(*,*) ' Background vangenuchten_alpha = ',vgazone(0)
+           WRITE(*,*)
+         END IF
+
+         vga = vgazone(0)
+
+         IF (nvga > 0) THEN
+           DO l = 1,nvga
+             DO jz = jzzvga_lo(l),jzzvga_hi(l)
+               DO jy = jyyvga_lo(l),jyyvga_hi(l)
+                 DO jx = jxxvga_lo(l),jxxvga_hi(l)
+                   vga(jx,jy,jz) = vgazone(l)
+                 END DO
+               END DO
+             END DO
+           END DO
+         END IF
+
+         DEALLOCATE(vgazone)
+         DEALLOCATE(jxxvga_lo)
+         DEALLOCATE(jxxvga_hi)
+         DEALLOCATE(jyyvga_lo)
+         DEALLOCATE(jyyvga_hi)
+         DEALLOCATE(jzzvga_lo)
+         DEALLOCATE(jzzvga_hi)
+
      END IF
 
 !  Look for information on permeability, pressure, and pumping or injection wells
@@ -9196,7 +9295,7 @@ END IF
 !!!  For erosion and burial, transport mineral/solid properties
 
 !!!IF (gimrt .AND. ierode == 1) THEN
-  
+
   IF (ALLOCATED(specificByGrid)) THEN
     DEALLOCATE(specificByGrid)
   END IF
@@ -9205,17 +9304,17 @@ END IF
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        
-        !!    Map mineral parameters by Condition to grid 
+
+        !!    Map mineral parameters by Condition to grid
         DO k = 1,nrct
           jpoint = jinit(jx,jy,jz)
           specificByGrid(k,jx,jy,jz) = specific(k,jpoint)
         END DO
-        
+
       END DO
     END DO
   END DO
-  
+
 !!  Now the boundaries, if NX > 1
   IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN
     DO k = 1,nrct
@@ -9226,7 +9325,7 @@ END IF
     END DO
   END IF
 
-      
+
 !!!END IF
 
 !  *****************TRANSPORT BLOCK***********************

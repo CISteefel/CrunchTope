@@ -660,7 +660,6 @@ END IF
                  ! distance to top surface
                  ! This only works for uniform dyy or dzz now!
                  IF (y_is_vertical) THEN
-
                    jyCheck = INT(j_bottom(jx,1))
                    dist = 0.0d0
                    DO jydum = 0,jy
@@ -668,31 +667,31 @@ END IF
                    END DO
                    dist = dist - 0.5*dyy(jyCheck)
 
-                   distCheck = 0.0d0
+                   ! distCheck = 0.0d0
+                   !
+                   ! DO jydum = 0,jycheck
+                   !     distCheck = distCheck + dyy(jydum)
+                   ! END DO
+                   ! distCheck = distCheck
+                   !
+                   ! distCheck3 = dist - distCheck
+                   !
+                   ! distCheck2 = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
 
-                   DO jydum = 0,jycheck
-                       distCheck = distCheck + dyy(jydum)
-                   END DO
-                   distCheck = distCheck
-
-                   distCheck3 = dist - distCheck
-
-                   distCheck2 = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
-
-!!!                   dist = distCheck3 - distCheck2
-!!!                   IF (dist < -tiny .OR. dist > tiny ) THEN
-
-!!!                     write(*,*) dist
-!!!                     write(*,*)
-!!!                     write(*,*) 'distCheck2 should be equal to distCheck3 ',distcheck2,distcheck3
-!!!                     read(*,*)
-!!!                   END IF
+                  ! dist = distCheck3 - distCheck2
+                  ! IF (dist < -tiny .OR. dist > tiny ) THEN
+                  !
+                  !   write(*,*) dist
+                  !   write(*,*)
+                  !   write(*,*) 'distCheck2 should be equal to distCheck3 ',distcheck2,distcheck3
+                  !   read(*,*)
+                  ! END IF
 
                  ELSE
                      dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
                  END IF
                  ! set initial water table
-                 IF (distCheck3 > watertable_init) THEN
+                 IF (dist > watertable_init) THEN
                      wc(jx,jy,jz) = wcs(jx,jy,jz)
                      head(jx,jy,jz) = dist - watertable_init
                  ELSE
@@ -700,7 +699,7 @@ END IF
                      ! This makes wc_init useless!
                     ! wc(jx,jy,jz) = wc_init
                     head(jx,jy,jz) = dist - watertable_init
-                    satu = (1 + abs(vga*head(jx,jy,jz))**vgn) ** (1.0d0/vgn-1.0d0)
+                    satu = (1 + abs(vga(jx,jy,jz)*head(jx,jy,jz))**vgn(jx,jy,jz)) ** (1.0d0/vgn(jx,jy,jz)-1.0d0)
                     IF (satu > 1) THEN
                         satu = 1.0d0
                     ELSE IF (satu < 0) THEN
@@ -717,7 +716,7 @@ END IF
                ! initial condition for inactive cells
                wc(jx,jy,jz) = wcr
                head(jx,jy,jz) = -999.0
-!!!               head(jx,jy,jz) = -(1.0d0/vga) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn)) - 1.0d0) ** (1.0d0/vgn)
+!!!               head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
                IF (y_is_vertical) THEN
                    IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
                        IF (pres(jx,jy,jz) > 0.0d0) THEN
@@ -744,6 +743,17 @@ END IF
          END DO
        END DO
      END DO
+
+     ! DO jz = 0,nz+1
+     !   DO jy = 0,ny+1
+     !     DO jx = 0,nx+1
+     !       wc(jx,jy,jz) = wc_init
+     !       IF (activecellPressure(jx,jy,jz) == 1) THEN
+     !           head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
+     !       END IF
+     !     END DO
+     !   END DO
+     ! END DO
 
      DO jz = 0,nz+1
        DO jy = 0,ny+1

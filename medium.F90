@@ -56,8 +56,8 @@ MODULE medium
   REAL(DP)                                        :: PoreFill
  ! Added for the Richards solver, Zhi Li 20200629
   REAL(DP)                                        :: wcr
-  REAL(DP)                                        :: vga
-  REAL(DP)                                        :: vgn
+  ! REAL(DP)                                        :: vga
+  ! REAL(DP)                                        :: vgn
 
   REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
   REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
