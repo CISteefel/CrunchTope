@@ -138,6 +138,11 @@ DO jz = 1,nz
       END IF
     ELSE
       qy(jx,0,jz) = 0.0d0
+      ! WRITE(*,*) 'qg, qy, secyr = ',qg(jx,0,jz),qy(jx,0,jz),secyr
+      IF (qg(jx,1,jz) .NE. 0.0) THEN
+          qy(jx,0,jz) = qg(jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+          ! WRITE(*,*) 'qg, qy, secyr = ',qg(jx,1,jz),qy(jx,0,jz),secyr
+      END IF
     END IF
     IF (activecellPressure(jx,ny+1,jz) == 0) THEN
       qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))

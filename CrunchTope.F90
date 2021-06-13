@@ -627,6 +627,7 @@ IF (CalculateFlow) THEN
      IF (y_is_vertical) THEN
          jz = 1
          DO jx = 0,nx+1
+             j_bottom(jx,1) = 0
              DO jy = 1,ny-1
                  IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
                      j_bottom(jx,1) = jy
@@ -655,6 +656,7 @@ END IF
      DO jz = 0,nz+1
        DO jy = 0,ny+1
          DO jx = 0,nx+1
+
              wcs(jx,jy,jz) = por(jx,jy,jz)
              IF (activecellPressure(jx,jy,jz) == 1) THEN
                  ! distance to top surface
@@ -666,6 +668,7 @@ END IF
                        dist = dist + dyy(jydum)
                    END DO
                    dist = dist - 0.5*dyy(jyCheck)
+
 
                    ! distCheck = 0.0d0
                    !
@@ -739,6 +742,8 @@ END IF
                   END IF
               END IF
            END IF
+
+
 
          END DO
        END DO
