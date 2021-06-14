@@ -112,7 +112,17 @@ DO jz = 1,nz
                         qy(jx,jy,jz) = 0.0d0
                     END IF
                 END IF
+                ! flux boundary condition
+                IF (qg(jx,jy+1,jz) .NE. 0.0) THEN
+                    qy(jx,jy,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+                END IF
+                ! check if there is enough room available
+                IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN
+                    qy(jx,jy,jz) = room(jx,jy+1,jz) / dt * dxx(jx)* dzz(jx,jy+1,jz)
+                END IF
             END IF
+        ELSE
+            WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
         END IF
       END IF
 
@@ -122,45 +132,42 @@ END DO
 
 DO jz = 1,nz
   DO jx = 1,nx
-    IF (activecellPressure(jx,0,jz) == 0) THEN
-      qy(jx,0,jz) = -2.0d0 * Kfacy(jx,0,jz) * (head(jx,1,jz) - head(jx,0,jz)) / (dyy(1))
-      ! gravity term
-      IF (y_is_vertical) THEN
-          qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
-      END IF
+      ! jy = 1
+    qy(jx,0,jz) = -2.0d0 * Kfacy(jx,0,jz) * (head(jx,1,jz) - head(jx,0,jz)) / (dyy(1))
+    IF (y_is_vertical) THEN
+        qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
+        IF (activecellPressure(jx,0,jz) == 1) THEN
+          IF (qg(jx,1,jz) .NE. 0.0) THEN
+              qy(jx,0,jz) = qg(jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+          END IF
+        END IF
+    ELSE
+        WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
+    END IF
+    ! check if there is enough room available
+    IF (qy(jx,0,jz) > 0.0 .AND. room(jx,1,jz) < qy(jx,0,jz) * dt * dxx(jx)* dzz(jx,1,jz)) THEN
+        qy(jx,0,jz) = room(jx,1,jz) / dt * dxx(jx)* dzz(jx,1,jz)
+    END IF
+
+    ! jy = ny
+    qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
+    ! gravity term
+    IF (y_is_vertical) THEN
+      qy(jx,ny,jz) = qy(jx,ny,jz) + Kfacy(jx,ny,jz)
       ! pump source term
-      IF (qg(jx,0,jz) .NE. 0.0) THEN
-          qy(jx,0,jz) = qg(jx,0,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-      END IF
-      ! check if there is enough room available
-      IF (qy(jx,0,jz) > 0.0 .AND. room(jx,1,jz) < qy(jx,0,jz) * dt * dxx(jx)* dzz(jx,1,jz)) THEN
-          qy(jx,0,jz) = room(jx,1,jz) / dt * dxx(jx)* dzz(jx,1,jz)
+      IF (activecellPressure(jx,ny+1,jz) == 1) THEN
+          IF (qg(jx,ny,jz) .NE. 0.0) THEN
+              qy(jx,ny,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+          END IF
       END IF
     ELSE
-      qy(jx,0,jz) = 0.0d0
-      ! WRITE(*,*) 'qg, qy, secyr = ',qg(jx,0,jz),qy(jx,0,jz),secyr
-      IF (qg(jx,1,jz) .NE. 0.0) THEN
-          qy(jx,0,jz) = qg(jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-          ! WRITE(*,*) 'qg, qy, secyr = ',qg(jx,1,jz),qy(jx,0,jz),secyr
-      END IF
+      WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
     END IF
-    IF (activecellPressure(jx,ny+1,jz) == 0) THEN
-      qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
-      ! gravity term
-      IF (y_is_vertical) THEN
-          qy(jx,ny,jz) = qy(jx,ny,jz) + Kfacy(jx,ny,jz)
-      END IF
-      ! pump source term
-      IF (qg(jx,ny,jz) .NE. 0.0) THEN
-          qy(jx,ny,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
-      END IF
-      ! check if there is enough room available
-      IF (qy(jx,ny,jz) < 0.0 .AND. room(jx,ny,jz) < -qy(jx,ny,jz) * dt * dxx(jx)* dzz(jx,ny,jz)) THEN
-          qy(jx,ny,jz) = -room(jx,ny,jz) / dt * dxx(jx)* dzz(jx,ny,jz)
-      END IF
-    ELSE
-      qy(jx,ny,jz) = 0.0d0
+    ! check if there is enough room available
+    IF (qy(jx,ny,jz) < 0.0 .AND. room(jx,ny,jz) < -qy(jx,ny,jz) * dt * dxx(jx)* dzz(jx,ny,jz)) THEN
+      qy(jx,ny,jz) = -room(jx,ny,jz) / dt * dxx(jx)* dzz(jx,ny,jz)
     END IF
+
   END DO
 END DO
 

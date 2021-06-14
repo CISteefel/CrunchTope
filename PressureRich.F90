@@ -325,13 +325,13 @@ DO jz = 1,nz
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
                     ! if pumpterm is along boundary, treat as a Neumann-type BC
                     IF (pumpterm .NE. 0.0) THEN
-                        IF (jx == 1) THEN
-                            coef(0) = coef(0) + coef(-1)
-                            coef(-1) = 0.0d0
-                        ELSE IF (jx == nx) THEN
-                            coef(0) = coef(0) + coef(1)
-                            coef(1) = 0.0d0
-                        END IF
+                        ! IF (jx == 1) THEN
+                        !     coef(0) = coef(0) + coef(-1)
+                        !     coef(-1) = 0.0d0
+                        ! ELSE IF (jx == nx) THEN
+                        !     coef(0) = coef(0) + coef(1)
+                        !     coef(1) = 0.0d0
+                        ! END IF
                         IF (jy == 1 .OR. activecellPressure(jx,jy-1,jz) == 0) THEN
                             coef(0) = coef(0) + coef(-2)
                             coef(-2) = 0.0d0
