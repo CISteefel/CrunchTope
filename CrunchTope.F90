@@ -664,9 +664,11 @@ END IF
                  IF (y_is_vertical) THEN
                    jyCheck = INT(j_bottom(jx,1))
                    dist = 0.0d0
-                   DO jydum = 0,jy
-                       dist = dist + dyy(jydum)
-                   END DO
+                   IF (jy > jyCheck) THEN
+                       DO jydum = jyCheck,jy
+                           dist = dist + dyy(jydum)
+                       END DO
+                   END IF
                    dist = dist - 0.5*dyy(jyCheck)
 
 
