@@ -91,8 +91,8 @@ DO jz = 1,nz
             room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
             IF (room(jx,jy,jz) < 0.0) THEN
                 room(jx,jy,jz) = 0.0d0
-            ELSE IF (room(jx,jy,jz) > (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)) THEN
-                room(jx,jy,jz) = (wcs(jx,jy,jz)-wcr) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
+            ELSE IF (room(jx,jy,jz) > (wcs(jx,jy,jz)-wcr(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)) THEN
+                room(jx,jy,jz) = (wcs(jx,jy,jz)-wcr(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
             END IF
         END IF
 

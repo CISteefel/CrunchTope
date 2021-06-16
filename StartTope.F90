@@ -617,6 +617,7 @@ namelist /Nucleation/                                          NameMineral,     
 
 INTEGER(I4B)                                                  :: nvgn
 INTEGER(I4B)                                                  :: nvga
+INTEGER(I4B)                                                  :: nwcr
 
 
 
@@ -7607,11 +7608,11 @@ IF (found) THEN
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         watertable_init = realjunk
         ! Soil parameters
-        parchar = 'wc_residual'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        wcr = realjunk
+        ! parchar = 'wc_residual'
+        ! parfind = ' '
+        ! realjunk = 0.0
+        ! CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        ! wcr = realjunk
 
         ! parchar = 'vangenuchten_alpha'
         ! parfind = ' '
@@ -7791,6 +7792,12 @@ IF (found) THEN
          ELSE
            ALLOCATE(wcs(0:nx+1,0:ny+1,0:nz+1))
          END IF
+         IF (ALLOCATED(wcr)) THEN
+           DEALLOCATE(wcr)
+           ALLOCATE(wcr(0:nx+1,0:ny+1,0:nz+1))
+         ELSE
+           ALLOCATE(wcr(0:nx+1,0:ny+1,0:nz+1))
+         END IF
          IF (ALLOCATED(Ch)) THEN
            DEALLOCATE(Ch)
            ALLOCATE(Ch(0:nx+1,0:ny+1,0:nz+1))
@@ -7845,9 +7852,11 @@ IF (found) THEN
 
          nvgn = 0
          nvga = 0
+         nwcr = 0
 
          ALLOCATE(vgnzone(0:mvg))
          ALLOCATE(vgazone(0:mvg))
+         ALLOCATE(wcrzone(0:mwcr))
 
          ALLOCATE(jxxvgn_lo(mvg))
          ALLOCATE(jxxvgn_hi(mvg))
@@ -7862,6 +7871,13 @@ IF (found) THEN
          ALLOCATE(jyyvga_hi(mvg))
          ALLOCATE(jzzvga_lo(mvg))
          ALLOCATE(jzzvga_hi(mvg))
+
+         ALLOCATE(jxxwcr_lo(mwcr))
+         ALLOCATE(jxxwcr_hi(mwcr))
+         ALLOCATE(jyywcr_lo(mwcr))
+         ALLOCATE(jyywcr_hi(mwcr))
+         ALLOCATE(jzzwcr_lo(mwcr))
+         ALLOCATE(jzzwcr_hi(mwcr))
 
          ! read van Genuchten n
          CALL read_vgn(nout,nx,ny,nz,nvgn)
@@ -7936,6 +7952,43 @@ IF (found) THEN
          DEALLOCATE(jyyvga_hi)
          DEALLOCATE(jzzvga_lo)
          DEALLOCATE(jzzvga_hi)
+
+         ! read residual water content
+         CALL read_wcr(nout,nx,ny,nz,nwcr)
+         IF (wcrzone(0) == 0.0) THEN
+           WRITE(*,*)
+           WRITE(*,*) ' No default wc_residual given'
+           WRITE(*,*) ' wc_residual should be followed by "default" or blank string'
+           WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
+           WRITE(*,*)
+           STOP
+         ELSE
+           WRITE(*,*)
+           WRITE(*,*) ' Background wc_residual = ',wcrzone(0)
+           WRITE(*,*)
+         END IF
+
+         wcr = wcrzone(0)
+
+         IF (nwcr > 0) THEN
+           DO l = 1,nwcr
+             DO jz = jzzwcr_lo(l),jzzwcr_hi(l)
+               DO jy = jyywcr_lo(l),jyywcr_hi(l)
+                 DO jx = jxxwcr_lo(l),jxxwcr_hi(l)
+                   wcr(jx,jy,jz) = wcrzone(l)
+                 END DO
+               END DO
+             END DO
+           END DO
+         END IF
+
+         DEALLOCATE(wcrzone)
+         DEALLOCATE(jxxwcr_lo)
+         DEALLOCATE(jxxwcr_hi)
+         DEALLOCATE(jyywcr_lo)
+         DEALLOCATE(jyywcr_hi)
+         DEALLOCATE(jzzwcr_lo)
+         DEALLOCATE(jzzwcr_hi)
 
      END IF
 

@@ -714,21 +714,21 @@ END IF
                     IF (head(jx,jy,jz) >= 0.0d0) THEN
                         wc(jx,jy,jz) = wcs(jx,jy,jz)
                     ELSE
-                        wc(jx,jy,jz) = wcr + (wcs(jx,jy,jz) - wcr) * satu
+                        wc(jx,jy,jz) = wcr(jx,jy,jz) + (wcs(jx,jy,jz) - wcr(jx,jy,jz)) * satu
                     END IF
                 END IF
             ELSE
                ! initial condition for inactive cells
-               wc(jx,jy,jz) = wcr
+               wc(jx,jy,jz) = wcr(jx,jy,jz)
                head(jx,jy,jz) = -999.0
-!!!               head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
+!!!               head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
                IF (y_is_vertical) THEN
                    IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
                        IF (pres(jx,jy,jz) > 0.0d0) THEN
                            wc(jx,jy,jz) = wcs(jx,jy,jz)
                            head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
                        ELSE
-                           wc(jx,jy,jz) = wcr
+                           wc(jx,jy,jz) = wcr(jx,jy,jz)
                            head(jx,jy,jz) = 0.0d0
                        END IF
                    END IF
@@ -738,7 +738,7 @@ END IF
                           wc(jx,jy,jz) = wcs(jx,jy,jz)
                           head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
                       ELSE
-                          wc(jx,jy,jz) = wcr
+                          wc(jx,jy,jz) = wcr(jx,jy,jz)
                           head(jx,jy,jz) = 0.0d0
                       END IF
                   END IF
@@ -756,7 +756,7 @@ END IF
      !     DO jx = 0,nx+1
      !       wc(jx,jy,jz) = wc_init
      !       IF (activecellPressure(jx,jy,jz) == 1) THEN
-     !           head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
+     !           head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
      !       END IF
      !     END DO
      !   END DO
@@ -891,8 +891,8 @@ END IF
           DO jx = 1,nx
             IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
               wc(jx,jy,jz) = wcs(jx,jy,jz)
-            ELSE IF (wc(jx,jy,jz) < wcr) THEN
-              wc(jx,jy,jz) = wcr
+            ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
+              wc(jx,jy,jz) = wcr(jx,jy,jz)
             END IF
           END DO
         END DO
@@ -1277,8 +1277,8 @@ DO WHILE (nn <= nend)
          DO jx = 1,nx
              IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                  wc(jx,jy,jz) = wcs(jx,jy,jz)
-             ELSE IF (wc(jx,jy,jz) < wcr) THEN
-                 wc(jx,jy,jz) = wcr
+             ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
+                 wc(jx,jy,jz) = wcr(jx,jy,jz)
              END IF
          END DO
        END DO

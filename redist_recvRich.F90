@@ -88,16 +88,16 @@ IF (rrecv(-1) > 0.0) THEN
     ix = jx
     DO WHILE (ix .NE. 1)
         ix = ix - 1
-        IF (wc(ix,jy,jz) > wcr) THEN
-            IF ((wc(ix,jy,jz)-wcr) > delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
+        IF (wc(ix,jy,jz) > wcr(ix,jy,jz)) THEN
+            IF ((wc(ix,jy,jz)-wcr(ix,jy,jz)) > delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
                 wc(ix,jy,jz) = wc(ix,jy,jz) - delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
                 room(ix,jy,jz) = room(ix,jy,jz) + delVxm
                 delVxm = 0.0d0
                 EXIT
             ELSE
-                delVxm = delVxm - (wc(ix,jy,jz)-wcr) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
-                room(ix,jy,jz) = room(ix,jy,jz) + (wc(ix,jy,jz)-wcr) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
-                wc(ix,jy,jz) = wcr
+                delVxm = delVxm - (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                room(ix,jy,jz) = room(ix,jy,jz) + (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                wc(ix,jy,jz) = wcr(ix,jy,jz)
             END IF
         END IF
         ! limit recv within 1 cell
@@ -110,16 +110,16 @@ IF (rrecv(1) > 0.0) THEN
     ix = jx
     DO WHILE (ix .NE. nx-1)
         ix = ix + 1
-        IF (wc(ix,jy,jz) > wcr) THEN
-            IF ((wc(ix,jy,jz)-wcr) > delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
+        IF (wc(ix,jy,jz) > wcr(ix,jy,jz)) THEN
+            IF ((wc(ix,jy,jz)-wcr(ix,jy,jz)) > delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
                 wc(ix,jy,jz) = wc(ix,jy,jz) - delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
                 room(ix,jy,jz) = room(ix,jy,jz) + delVxp
                 delVxp = 0.0d0
                 EXIT
             ELSE
-                delVxp = delVxp - (wc(ix,jy,jz)-wcr) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
-                room(ix,jy,jz) = room(ix,jy,jz) + (wc(ix,jy,jz)-wcr) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
-                wc(ix,jy,jz) = wcr
+                delVxp = delVxp - (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                room(ix,jy,jz) = room(ix,jy,jz) + (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                wc(ix,jy,jz) = wcr(ix,jy,jz)
             END IF
         END IF
         ! limit recv within 1 cell
@@ -135,8 +135,8 @@ IF (y_is_vertical) THEN
         iy = jy
         DO WHILE (activecellPressure(jx,iy,jz) == 1)
             iy = iy - 1
-            IF (wc(jx,iy,jz) > wcr) THEN
-                IF ((wc(jx,iy,jz)-wcr) > delVym/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))) THEN
+            IF (wc(jx,iy,jz) > wcr(jx,iy,jz)) THEN
+                IF ((wc(jx,iy,jz)-wcr(jx,iy,jz)) > delVym/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))) THEN
                     IF (activecellPressure(jx,iy,jz) == 1) THEN
                         wc(jx,iy,jz) = wc(jx,iy,jz) - delVym/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
                     END IF
@@ -144,10 +144,10 @@ IF (y_is_vertical) THEN
                     delVym = 0.0d0
                     EXIT
                 ELSE
-                    delVym = delVym - (wc(jx,iy,jz)-wcr) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
-                    room(jx,iy,jz) = room(jx,iy,jz) + (wc(jx,iy,jz)-wcr) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    delVym = delVym - (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    room(jx,iy,jz) = room(jx,iy,jz) + (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
                     IF (activecellPressure(jx,jy,jz) == 1) THEN
-                        wc(jx,iy,jz) = wcr
+                        wc(jx,iy,jz) = wcr(jx,iy,jz)
                     END IF
                 END IF
             END IF
@@ -162,16 +162,16 @@ IF (y_is_vertical) THEN
         iy = jy
         DO WHILE (iy .NE. ny-1)
             iy = iy + 1
-            IF (wc(jx,iy,jz) > wcr) THEN
-                IF ((wc(jx,iy,jz)-wcr) > delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))) THEN
+            IF (wc(jx,iy,jz) > wcr(jx,iy,jz)) THEN
+                IF ((wc(jx,iy,jz)-wcr(jx,iy,jz)) > delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))) THEN
                     wc(jx,iy,jz) = wc(jx,iy,jz) - delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
                     room(jx,iy,jz) = room(jx,iy,jz) + delVyp
                     delVyp = 0.0d0
                     EXIT
                 ELSE
-                    delVyp = delVyp - (wc(jx,iy,jz)-wcr) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
-                    room(jx,iy,jz) = room(jx,iy,jz) + (wc(jx,iy,jz)-wcr) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
-                    wc(jx,iy,jz) = wcr
+                    delVyp = delVyp - (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    room(jx,iy,jz) = room(jx,iy,jz) + (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    wc(jx,iy,jz) = wcr(jx,iy,jz)
                 END IF
             END IF
             ! limit recv within 1 cell
@@ -188,8 +188,8 @@ ELSE
         iz = jz
         DO WHILE (iz .NE. 1)
             iz = iz - 1
-            IF (wc(jx,jy,iz) > wcr) THEN
-                IF ((wc(jx,jy,iz)-wcr) > delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))) THEN
+            IF (wc(jx,jy,iz) > wcr(jx,jy,iz)) THEN
+                IF ((wc(jx,jy,iz)-wcr(jx,jy,iz)) > delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))) THEN
                     IF (activecellPressure(jx,jy,iz) == 1) THEN
                         wc(jx,jy,iz) = wc(jx,jy,iz) - delVzm/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
                     END IF
@@ -197,10 +197,10 @@ ELSE
                     delVzm = 0.0d0
                     EXIT
                 ELSE
-                    delVzm = delVzm - (wc(jx,jy,iz)-wcr) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                    room(jx,jy,iz) = room(jx,jy,iz) + (wc(jx,jy,iz)-wcr) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    delVzm = delVzm - (wc(jx,jy,iz)-wcr(jx,jy,iz)) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    room(jx,jy,iz) = room(jx,jy,iz) + (wc(jx,jy,iz)-wcr(jx,jy,iz)) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
                     IF (activecellPressure(jx,jy,jz) == 1) THEN
-                        wc(jx,jy,iz) = wcr
+                        wc(jx,jy,iz) = wcr(jx,jy,iz)
                     END IF
                 END IF
             END IF
@@ -218,16 +218,16 @@ ELSE
         iz = jz
         DO WHILE (iz .NE. nz-1)
             iz = iz + 1
-            IF (wc(jx,jy,iz) > wcr) THEN
-                IF ((wc(jx,jy,iz)-wcr) > delVzp/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))) THEN
+            IF (wc(jx,jy,iz) > wcr(jx,jy,iz)) THEN
+                IF ((wc(jx,jy,iz)-wcr(jx,jy,iz)) > delVzp/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))) THEN
                     wc(jx,jy,iz) = wc(jx,jy,iz) - delVzp/(dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
                     room(jx,jy,iz) = room(jx,jy,iz) + delVzp
                     delVzp = 0.0d0
                     EXIT
                 ELSE
-                    delVzp = delVzp - (wc(jx,jy,iz)-wcr) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                    room(jx,jy,iz) = room(jx,jy,iz) + (wc(jx,jy,iz)-wcr) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
-                    wc(jx,jy,iz) = wcr
+                    delVzp = delVzp - (wc(jx,jy,iz)-wcr(jx,jy,iz)) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    room(jx,jy,iz) = room(jx,jy,iz) + (wc(jx,jy,iz)-wcr(jx,jy,iz)) * (dxx(jx)*dyy(jy)*dzz(jx,jy,iz))
+                    wc(jx,jy,iz) = wcr(jx,jy,iz)
                 END IF
             END IF
             ! limit recv within 1 cell

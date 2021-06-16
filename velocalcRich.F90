@@ -114,7 +114,7 @@ DO jz = 1,nz
                 END IF
                 ! flux boundary condition
                 IF (qg(jx,jy+1,jz) .NE. 0.0) THEN
-                    qy(jx,jy,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+                    qy(jx,jy,jz) = qg(jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
                 END IF
                 ! check if there is enough room available
                 IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN

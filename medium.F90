@@ -55,7 +55,7 @@ MODULE medium
   REAL(DP)                                        :: PoreThreshold
   REAL(DP)                                        :: PoreFill
  ! Added for the Richards solver, Zhi Li 20200629
-  REAL(DP)                                        :: wcr
+  ! REAL(DP)                                        :: wcr
   ! REAL(DP)                                        :: vga
   ! REAL(DP)                                        :: vgn
 

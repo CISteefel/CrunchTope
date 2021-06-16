@@ -80,7 +80,7 @@ DO jz = 0,nz+1
             IF (h > 0.0d0) THEN
                 wch(jx,jy,jz) = wcs(jx,jy,jz)
             ELSE
-                wch(jx,jy,jz) = wcr + (wcs(jx,jy,jz) - wcr) * satu
+                wch(jx,jy,jz) = wcr(jx,jy,jz) + (wcs(jx,jy,jz) - wcr(jx,jy,jz)) * satu
             END IF
             !!! Get K from head
             IF (h > 0.0d0) THEN
@@ -92,18 +92,18 @@ DO jz = 0,nz+1
                 END IF
             END IF
             !!! Get C from head
-            Ch(jx,jy,jz) = (vga(jx,jy,jz)*m*vgn(jx,jy,jz)*(wcs(jx,jy,jz)-wcr)*abs(vga(jx,jy,jz)*h)**(vgn(jx,jy,jz)-1)) / (1.0d0 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz))**(m+1)
+            Ch(jx,jy,jz) = (vga(jx,jy,jz)*m*vgn(jx,jy,jz)*(wcs(jx,jy,jz)-wcr(jx,jy,jz))*abs(vga(jx,jy,jz)*h)**(vgn(jx,jy,jz)-1)) / (1.0d0 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz))**(m+1)
             IF (h > 0.0d0) THEN
                 Ch(jx,jy,jz) = 0.0d0
             END IF
             !!! get h from wc
-            IF (wc(jx,jy,jz) - wcr < 0.001) THEN
-                wc(jx,jy,jz) = wcr + 0.001
+            IF (wc(jx,jy,jz) - wcr(jx,jy,jz) < 0.001) THEN
+                wc(jx,jy,jz) = wcr(jx,jy,jz) + 0.001
             END IF
             IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                 hwc(jx,jy,jz) = 0.0d0
             ELSE
-                hwc(jx,jy,jz) = -(1.0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr)/(wc(jx,jy,jz) - wcr))**(1.0/m) - 1.0) ** (1.0/vgn(jx,jy,jz))
+                hwc(jx,jy,jz) = -(1.0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0/m) - 1.0) ** (1.0/vgn(jx,jy,jz))
             END IF
         END DO
     END DO

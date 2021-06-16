@@ -120,6 +120,12 @@ INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jyyvga_lo
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jyyvga_hi
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jzzvga_lo
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jzzvga_hi
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jxxwcr_lo
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jxxwcr_hi
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jyywcr_lo
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jyywcr_hi
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jzzwcr_lo
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: jzzwcr_hi
 
 REAL(DP), DIMENSION(:), ALLOCATABLE          :: PressureZone
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: PressureFix
@@ -164,8 +170,10 @@ REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Ch
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: room
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: vgn
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: vga
+REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcr
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: vgnzone
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: vgazone
+REAL(DP), DIMENSION(:),ALLOCATABLE           :: wcrzone
 
 !!  PETSc arrays for solver
 

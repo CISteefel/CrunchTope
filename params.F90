@@ -83,6 +83,7 @@ MODULE params
   INTEGER(I4B), PARAMETER :: maqkin=25
 
   INTEGER(I4B), PARAMETER :: mvg=10000
+  INTEGER(I4B), PARAMETER :: mwcr=10000
 
   REAL(DP), PARAMETER :: rgasKCAL=0.001987d0      !!  kcal/deg-mol
   REAL(DP), PARAMETER :: rgas=.00831470       !!  kJ/deg-mol

@@ -253,6 +253,7 @@ SOURCEF = \
           read_TortuosityByZone.F90\
     read_vgn.F90\
 	read_vga.F90\
+	read_wcr.F90\
           readblock.F90\
           readbreak.F90\
           readCaseSensitive.F90\
@@ -579,6 +580,7 @@ OBJSF  =  crunchtype.o\
           read_TortuosityByZone.o\
 	read_vgn.o\
 	read_vga.o\
+	read_wcr.o\
           readblock.o\
           readbreak.o\
           readCaseSensitive.o\
@@ -662,4 +664,4 @@ include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
 
 CrunchMain :
-	-${FLINKER} -o CrunchTope ${SOURCEF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}
+	-${FLINKER} -o CrunchTope ${SOURCEF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS} -fbacktrace
