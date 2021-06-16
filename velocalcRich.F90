@@ -158,6 +158,8 @@ DO jz = 1,nz
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
           IF (qg(jx,ny,jz) .NE. 0.0) THEN
               qy(jx,ny,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+          ELSE
+              qy(jx,ny,jz) = Kfacy(jx,ny,jz)
           END IF
       END IF
     ELSE
