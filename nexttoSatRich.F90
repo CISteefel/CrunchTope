@@ -62,21 +62,48 @@ INTEGER(I4B), INTENT(IN)                                                  :: jz
 LOGICAL(LGT), INTENT(INOUT)                                     :: nextto_sat
 
 ! Check if a grid cell is adjacent to a saturated grid cell
-IF (jz == 1) THEN
-    IF (wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
-        nextto_sat = .TRUE.
-    ELSE IF (Kfacz(jx,jy,jz-1) > 0.0d0 .AND. wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1)) THEN
-        nextto_sat = .TRUE.
+IF (y_is_vertical) THEN
+    IF (jy == 1) THEN
+        IF (wc(jx,jy+1,jz) >= wcs(jx,jy+1,jz)) THEN
+            nextto_sat = .TRUE.
+        ELSE IF (Kfacy(jx,jy-1,jz) > 0.0d0 .AND. wc(jx,jy-1,jz) >= wcs(jx,jy-1,jz)) THEN
+            nextto_sat = .TRUE.
+        END IF
+    ELSE IF (jy >= ny) THEN
+        IF (wc(jx,jy-1,jz) >= wcs(jx,jy-1,jz)) THEN
+            nextto_sat = .TRUE.
+        ELSE IF (Kfacy(jx,jy,jz) > 0.0d0 .AND. wc(jx,jy+1,jz) >= wcs(jx,jy+1,jz)) THEN
+            nextto_sat = .TRUE.
+        END IF
+    ELSE
+        IF (activecellPressure(jx,jy,jz) == 1 .AND. activecellPressure(jx,jy-1,jz) == 0) THEN
+            IF (head(jx,jx-1,jz) > 0.0) THEN
+                nextto_sat = .TRUE.
+            END IF
+        ELSE
+            IF (wc(jx,jy-1,jz) >= wcs(jx,jy-1,jz) .OR. wc(jx,jy+1,jz) >= wcs(jx,jy+1,jz)) THEN
+                nextto_sat = .TRUE.
+            END IF
+        END IF
     END IF
-ELSE IF (jz >= nz) THEN
-    IF (wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1)) THEN
-        nextto_sat = .TRUE.
-    ELSE IF (Kfacz(jx,jy,jz) > 0.0d0 .AND. wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
-        nextto_sat = .TRUE.
-    END IF
+
 ELSE
-    IF (wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1) .OR. wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
-        nextto_sat = .TRUE.
+    IF (jz == 1) THEN
+        IF (wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
+            nextto_sat = .TRUE.
+        ELSE IF (Kfacz(jx,jy,jz-1) > 0.0d0 .AND. wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1)) THEN
+            nextto_sat = .TRUE.
+        END IF
+    ELSE IF (jz >= nz) THEN
+        IF (wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1)) THEN
+            nextto_sat = .TRUE.
+        ELSE IF (Kfacz(jx,jy,jz) > 0.0d0 .AND. wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
+            nextto_sat = .TRUE.
+        END IF
+    ELSE
+        IF (wc(jx,jy,jz-1) >= wcs(jx,jy,jz-1) .OR. wc(jx,jy,jz+1) >= wcs(jx,jy,jz+1)) THEN
+            nextto_sat = .TRUE.
+        END IF
     END IF
 END IF
 

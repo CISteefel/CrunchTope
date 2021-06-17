@@ -120,6 +120,7 @@ DO jz = 1,nz
                 IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN
                     qy(jx,jy,jz) = room(jx,jy+1,jz) / dt * dxx(jx)* dzz(jx,jy+1,jz)
                 END IF
+
             END IF
         ELSE
             WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
