@@ -89,6 +89,10 @@ DO jz = 1,nz
                 END IF
             END IF
 
+            ! IF (activecellPressure(jx,jy-1,jz) == 0) THEN
+            !     WRITE(*,*) ' jx, wc, Ktop, qtop, Kbot, qbot = ',jx,wc(jx,jy,jz),Kfacy(jx,jy-1,jz),qy(jx,jy-1,jz),Kfacy(jx,jy,jz),qy(jx,jy,jz)
+            ! END IF
+
             room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
             IF (room(jx,jy,jz) < 0.0) THEN
                 room(jx,jy,jz) = 0.0d0

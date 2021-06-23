@@ -136,9 +136,13 @@ DO jz = 1,nz
             IF (ny == 1) THEN
                 Kfacy(jx,jy,jz) = 0.0d0
             ELSE
-                Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
-                IF (permy(jx,jy,jz) == 0.0d0 .OR. permy(jx,jy+1,jz) == 0.0d0) THEN
-                    Kfacy(jx,jy,jz) = 0.0d0
+                IF (jy == ny) THEN
+                    Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz)*(ro(jx,jy,jz)*grav/visc)
+                ELSE
+                    Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                    IF (permy(jx,jy,jz) == 0.0d0 .OR. permy(jx,jy+1,jz) == 0.0d0) THEN
+                        Kfacy(jx,jy,jz) = 0.0d0
+                    END IF
                 END IF
             END IF
             ! if 2D x-y

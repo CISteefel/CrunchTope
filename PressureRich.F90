@@ -337,9 +337,10 @@ DO jz = 1,nz
                             coef(-2) = 0.0d0
                             BvecCrunchP(j) = BvecCrunchP(j) - (dt/dyy(jy))*Kfacy(jx,jy-1,jz)
                         ELSE IF (jy == ny) THEN
+                            ! free drainage at bottom
                             coef(0) = coef(0) + coef(2)
                             coef(2) = 0.0d0
-                            BvecCrunchP(j) = BvecCrunchP(j) + (dt/dyy(jy))*Kfacy(jx,jy,jz)
+                            BvecCrunchP(j) = BvecCrunchP(j) - pumpterm
                         END IF
                     END IF
 
