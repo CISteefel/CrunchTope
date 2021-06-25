@@ -71,11 +71,13 @@ DO jz = 0,nz+1
             h = head(jx,jy,jz)
             !!! Get saturation from head
             satu = (1 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz)) ** (-m)
+            ! satu = (wc(jx,jy,jz)- wcr(jx,jy,jz)) / (wcs(jx,jy,jz)- wcr(jx,jy,jz))
             IF (satu > 1) THEN
                 satu = 1.0d0
             ELSE IF (satu < 0) THEN
                 satu = 0.0d0
             END IF
+
             !!! Get wc from head
             IF (h > 0.0d0) THEN
                 wch(jx,jy,jz) = wcs(jx,jy,jz)
@@ -91,6 +93,11 @@ DO jz = 0,nz+1
                     Kr(jx,jy,jz) = 1.0d0
                 END IF
             END IF
+            ! IF (activecellPressure(jx,jy,jz) == 1) THEN
+            !     IF (activecellPressure(jx,jy-1,jz) == 0) THEN
+            !         WRITE(*,*) 'head, wc, satu, m, Kr, a, n = ',h,wc(jx,jy,jz),satu,m,Kr(jx,jy,jz),vga(jx,jy,jz),vgn(jx,jy,jz)
+            !     END IF
+            ! END IF
             !!! Get C from head
             Ch(jx,jy,jz) = (vga(jx,jy,jz)*m*vgn(jx,jy,jz)*(wcs(jx,jy,jz)-wcr(jx,jy,jz))*abs(vga(jx,jy,jz)*h)**(vgn(jx,jy,jz)-1)) / (1.0d0 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz))**(m+1)
             IF (h > 0.0d0) THEN
@@ -116,10 +123,20 @@ DO jz = 1,nz
             IF (nx <= 3) THEN
                 Kfacx(jx,jy,jz) = 0.0d0
             ELSE
-                Kfacx(jx,jy,jz) = 0.5 * (permx(jx,jy,jz)*Kr(jx,jy,jz) + permx(jx+1,jy,jz)*Kr(jx+1,jy,jz)) * (ro(jx,jy,jz)*grav/visc)
+                IF (upstream_weighting) THEN
+                    IF (qx(jx,jy,jz) >= 0.0) THEN
+                        Kfacx(jx,jy,jz) = permx(jx,jy,jz)*Kr(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
+                    ELSE
+                        Kfacx(jx,jy,jz) = permx(jx+1,jy,jz)*Kr(jx+1,jy,jz) * (ro(jx+1,jy,jz)*grav/visc)
+                    END IF
+                ELSE
+                    Kfacx(jx,jy,jz) = 0.5 * (permx(jx,jy,jz)*Kr(jx,jy,jz) + permx(jx+1,jy,jz)*Kr(jx+1,jy,jz)) * (ro(jx,jy,jz)*grav/visc)
+                END IF
+                ! zero conductivity if either cell is impermeable
                 IF (permx(jx,jy,jz) == 0.0d0 .OR. permx(jx+1,jy,jz) == 0.0d0) THEN
                     Kfacx(jx,jy,jz) = 0.0d0
                 END IF
+                ! zero conductivity for inactive cells
                 IF (activecellPressure(jx,jy,jz) == 0) THEN
                     Kfacx(jx,jy,jz) = 0.0d0
                     IF (jx > 0) THEN
@@ -139,7 +156,15 @@ DO jz = 1,nz
                 IF (jy == ny) THEN
                     Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz)*(ro(jx,jy,jz)*grav/visc)
                 ELSE
-                    Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                    IF (upstream_weighting) THEN
+                        IF (qy(jx,jy,jz) >= 0.0) THEN
+                            Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
+                        ELSE
+                            Kfacy(jx,jy,jz) = permy(jx,jy+1,jz)*Kr(jx,jy+1,jz) * (ro(jx,jy+1,jz)*grav/visc)
+                        END IF
+                    ELSE
+                        Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                    END IF
                     IF (permy(jx,jy,jz) == 0.0d0 .OR. permy(jx,jy+1,jz) == 0.0d0) THEN
                         Kfacy(jx,jy,jz) = 0.0d0
                     END IF
@@ -149,15 +174,19 @@ DO jz = 1,nz
             IF (y_is_vertical) THEN
                 IF (activecellPressure(jx,jy,jz) == 0) THEN
                     IF (activecellPressure(jx,jy+1,jz) == 1) THEN
-                        Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                        ! saturated if pressure is prescribed
+                        IF (headOld(jx,jy,jz) > 0.0) THEN
+                            Kfacy(jx,jy,jz) = permy(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
+                        ELSE
+                            Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                            IF (upstream_weighting) THEN
+                                Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
+                            END IF
+                        END IF
                     ELSE
                         Kfacy(jx,jy,jz) = 0.0d0
                     END IF
                 END IF
-                ! impermeable bottom
-                ! IF (jy == ny) THEN
-                !     Kfacy(jx,jy,jz) = 0.0d0
-                ! END IF
             END IF
         END DO
     END DO

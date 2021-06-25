@@ -70,6 +70,7 @@ LOGICAL(LGT)                                 :: NavierStokes
 LOGICAL(LGT)                                 :: Richards
 LOGICAL(LGT)                                 :: y_is_vertical
 LOGICAL(LGT)                                 :: redistribute_wc
+LOGICAL(LGT)                                 :: upstream_weighting
 
 INTEGER(I4B)                                 :: infiltration
 

@@ -720,7 +720,7 @@ END IF
             ELSE
                ! initial condition for inactive cells
                wc(jx,jy,jz) = wcr(jx,jy,jz)
-               head(jx,jy,jz) = -999.0
+               head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
 !!!               head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
                IF (y_is_vertical) THEN
                    IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN

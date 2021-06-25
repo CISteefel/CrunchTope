@@ -7607,6 +7607,12 @@ IF (found) THEN
         realjunk = 0.0
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         watertable_init = realjunk
+        ! perm averaging method
+        upstream_weighting = .FALSE.
+        parchar = 'upstream_weighting'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,upstream_weighting)
+
         ! Soil parameters
         ! parchar = 'wc_residual'
         ! parfind = ' '

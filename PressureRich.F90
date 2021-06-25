@@ -323,6 +323,7 @@ DO jz = 1,nz
                                 AddPressureX + AddPressureY
                     pumpterm = dt*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
+
                     ! if pumpterm is along boundary, treat as a Neumann-type BC
                     IF (pumpterm .NE. 0.0) THEN
                         ! IF (jx == 1) THEN
