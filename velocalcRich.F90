@@ -62,8 +62,9 @@ INTEGER(I4B), INTENT(IN)                                       :: nz
 INTEGER(I4B)                                                          :: jx
 INTEGER(I4B)                                                          :: jy
 INTEGER(I4B)                                                          :: jz
+INTEGER(I4B)                                                          :: npz
 
-REAL(DP)                                                       :: dt
+REAL(DP)                                                       :: dt,pumpterm
 REAL(DP), INTENT(IN)                                           :: dtyr
 
 !  ****** PARAMETERS  ****************************
@@ -72,7 +73,6 @@ CHARACTER (LEN=1)                                                     :: Coordin
 
 
 dt = dtyr * 365 * 86400
-
 
 !   calculate darcy fluxes
 
@@ -113,9 +113,19 @@ DO jz = 1,nz
                     END IF
                 END IF
                 ! flux boundary condition
-                IF (qg(jx,jy+1,jz) .NE. 0.0) THEN
-                    qy(jx,jy,jz) = qg(jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
-                END IF
+                pumpterm = 0.0d0
+!!!                DO npz = 1,npump(jx,jy+1,jz)
+                DO npz = 1,npump(jx,jy,jz)
+!!!                  pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+                  pumpterm = pumpterm + qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+
+!!!                IF (qg(npz,jx,jy+1,jz) .NE. 0.0) THEN
+!!!                    qy(jx,jy,jz) = qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+!!!                END IF  
+                  
+                END DO
+                qy(jx,jy,jz) = pumpterm
+                
                 ! check if there is enough room available
                 IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN
                     qy(jx,jy,jz) = room(jx,jy+1,jz) / dt * dxx(jx)* dzz(jx,jy+1,jz)
@@ -138,9 +148,19 @@ DO jz = 1,nz
     IF (y_is_vertical) THEN
         qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
         IF (activecellPressure(jx,0,jz) == 1) THEN
-          IF (qg(jx,1,jz) .NE. 0.0) THEN
-              qy(jx,0,jz) = qg(jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-          END IF
+          
+                pumpterm = 0.0d0
+                DO npz = 1,npump(jx,1,jz)
+                  
+                  pumpterm = pumpterm + qg(npz,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+                  
+!!!          IF (qg(1,jx,1,jz) .NE. 0.0) THEN
+!!!              qy(jx,0,jz) = qg(1,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+!!!          END IF     
+                  
+                END DO
+                qy(jx,0,jz) = pumpterm
+                
         END IF
     ELSE
         WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
@@ -157,14 +177,17 @@ DO jz = 1,nz
       qy(jx,ny,jz) = qy(jx,ny,jz) + Kfacy(jx,ny,jz)
       ! pump source term
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
-          IF (qg(jx,ny,jz) .NE. 0.0) THEN
+        
+                
+          IF (qg(1,jx,ny,jz) /= 0.0) THEN
               ! free drainage
               qy(jx,ny,jz) = Kfacy(jx,ny,jz)
-              ! qy(jx,ny,jz) = qg(jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+              ! qy(jx,ny,jz) = qg(1,jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
               IF (qy(jx,ny,jz) * dt > wc(jx,ny,jz) * dyy(ny)) THEN
                   qy(jx,ny,jz) = wc(jx,ny,jz) * dyy(ny) / dt
               END IF
           END IF
+          
       END IF
     ELSE
       WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'

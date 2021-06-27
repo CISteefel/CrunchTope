@@ -43,7 +43,7 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_pump(nout,nx,ny,nz,nchem,npump)
+SUBROUTINE read_pump(nout,nx,ny,nz,nchem)
 USE crunchtype
 USE CrunchFunctions
 USE params
@@ -61,7 +61,6 @@ INTEGER(I4B), INTENT(IN)                                    :: nx
 INTEGER(I4B), INTENT(IN)                                    :: ny
 INTEGER(I4B), INTENT(IN)                                    :: nz
 INTEGER(I4B), INTENT(IN)                                    :: nchem
-INTEGER(I4B), INTENT(OUT)                                   :: npump
 
 !  Internal variables and arrays
 
@@ -78,9 +77,44 @@ INTEGER(I4B)                                                :: jxxtemp
 INTEGER(I4B)                                                :: jyytemp
 INTEGER(I4B)                                                :: jzztemp
 
+INTEGER(I4B)                                                :: jx
+INTEGER(I4B)                                                :: jy
+INTEGER(I4B)                                                :: jz
+
 REAL(DP)                                                    :: qtemp
 
+INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE               :: intbndTemp
+REAL(DP),     DIMENSION(:,:,:,:), ALLOCATABLE               :: qgTemp
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: jxxPumpZone
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: jyyPumpZone
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: jzzPumpZone
+
+INTEGER(I4B)                                                :: npumpzone
+INTEGER(I4B)                                                :: npz
+
+
 nxyz = nx*ny*nz
+
+ALLOCATE(intbndTemp(500,nx,ny,nz))
+ALLOCATE(qgTemp(500,nx,ny,nz))
+ALLOCATE(jxxPumpZone(500))
+ALLOCATE(jyyPumpZone(500))
+ALLOCATE(jzzPumpZone(500))
+ALLOCATE(npump(nx,ny,nz))
+
+IF (ALLOCATED(qg)) THEN
+  DEALLOCATE(qg)
+  ALLOCATE(qg(5,nx,ny,nz))
+ELSE
+  ALLOCATE(qg(5,nx,ny,nz))
+END IF
+IF (ALLOCATED(intbnd)) THEN
+  DEALLOCATE(intbnd)
+  ALLOCATE(intbnd(5,nx,ny,nz))
+ELSE
+  ALLOCATE(intbnd(5,nx,ny,nz))
+END IF
+
 
 REWIND nout
 
@@ -133,7 +167,7 @@ IF(ls /= 0) THEN
         WRITE(*,*)
         READ(*,*)
         STOP
-        50         npump = npump+ 1
+        50         continue
         intbnd_tmp = nco
       ELSE         !  Blank string
         WRITE(*,*)
@@ -143,7 +177,7 @@ IF(ls /= 0) THEN
         STOP
       END IF
 
-! Now look for pumping well
+! Now look for the location of the well
 
       id = ids + ls
       CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -162,7 +196,6 @@ IF(ls /= 0) THEN
       ELSE                  ! Zero length trailing string
         WRITE(*,*)
         WRITE(*,*) ' No grid location given for pumping zone'
-        WRITE(*,*) ' Pumping zone ',npump
         WRITE(*,*)
         READ(*,*)
         STOP
@@ -171,20 +204,17 @@ IF(ls /= 0) THEN
       IF (jxxtemp > nx) THEN
         WRITE(*,*)
         WRITE(*,*) ' You have specified a pumping zone at JX > NX'
-        WRITE(*,*) ' Pumping zone number ',npump
         READ(*,*)
         STOP
       END IF
       IF (jxxtemp < 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' You have specified a pumping zone at JX < 1'
-        WRITE(*,*) ' Pumping zone number ',npump
         READ(*,*)
         STOP
       END IF
       
       WRITE(*,*)
-      WRITE(*,*) ' Pumping zone number ',npump
       WRITE(*,*) ' Jxx location = ', jxxtemp
 
 !!      IF (ny > 1) THEN
@@ -198,7 +228,7 @@ IF(ls /= 0) THEN
           ELSE                !  An ascii string--so bag it.
             WRITE(*,*)
             WRITE(*,*) ' No Y location for pumping zone'
-            WRITE(*,*) ' Pumping zone ',npump
+
             WRITE(*,*)
             READ(*,*)
             STOP
@@ -206,7 +236,6 @@ IF(ls /= 0) THEN
         ELSE                  ! Zero length trailing string
           WRITE(*,*)
           WRITE(*,*) ' No Y location for pumping zone'
-          WRITE(*,*) ' Pumping zone ',npump
           WRITE(*,*)
           READ(*,*)
           STOP
@@ -215,26 +244,22 @@ IF(ls /= 0) THEN
         IF (jyytemp > ny) THEN
           WRITE(*,*)
           WRITE(*,*) ' You have specified a pumping zone at JY > NY'
-          WRITE(*,*) ' Pumping zone number ',npump
           READ(*,*)
           STOP
         END IF
         IF (jyytemp < 1) THEN
           WRITE(*,*)
           WRITE(*,*) ' You have specified a pumping zone at JY < 1'
-          WRITE(*,*) ' Pumping zone number ',npump
           READ(*,*)
           STOP
         END IF
 
         WRITE(*,*)
-        WRITE(*,*) ' Pumping zone number ',npump
         WRITE(*,*) ' Jyy location = ', jyytemp
 
 !!      ELSE
 !!        jyytemp = 1
 !!      END IF
-
 
         id = ids + ls
         CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -246,7 +271,6 @@ IF(ls /= 0) THEN
           ELSE                !  An ascii string--so bag it.
             WRITE(*,*)
             WRITE(*,*) ' No Z location for pumping zone'
-            WRITE(*,*) ' Pumping zone ',npump
             WRITE(*,*)
             READ(*,*)
             STOP
@@ -254,7 +278,6 @@ IF(ls /= 0) THEN
         ELSE                  ! Zero length trailing string
           WRITE(*,*)
           WRITE(*,*) ' No Z location for pumping zone'
-          WRITE(*,*) ' Pumping zone ',npump
           WRITE(*,*)
           READ(*,*)
           STOP
@@ -263,24 +286,34 @@ IF(ls /= 0) THEN
         IF (jzztemp > nz) THEN
           WRITE(*,*)
           WRITE(*,*) ' You have specified a pumping zone at JZ > NZ'
-          WRITE(*,*) ' Pumping zone number ',npump
           READ(*,*)
           STOP
         END IF
         IF (jzztemp < 1) THEN
           WRITE(*,*)
           WRITE(*,*) ' You have specified a pumping zone at JZ < 1'
-          WRITE(*,*) ' Pumping zone number ',npump
           READ(*,*)
           STOP
         END IF
 
         WRITE(*,*)
-        WRITE(*,*) ' Pumping zone number ',npump
         WRITE(*,*) ' Jzz location = ', jzztemp
-
-      qg(jxxtemp,jyytemp,jzztemp) = qtemp
-      intbnd(jxxtemp,jyytemp,jzztemp) = intbnd_tmp
+        
+        
+        npumpzone = npumpzone + 1
+        IF (npumpzone > 500) THEN
+          WRITE(*,*) 
+          WRITE(*,*) ' # pumpzones not dimensioned large enough in read_Pump'
+          WRITE(*,*)
+          READ(*,*)
+        END IF
+        
+        jxxPumpZone(npumpzone) = jxxtemp
+        jyyPumpZone(npumpzone) = jyytemp 
+        jzzPumpZone(npumpzone) = jzztemp   
+        qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp) = qtemp
+        intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp) = intbnd_tmp
+        
 
     ELSE
       WRITE(*,*)
@@ -298,5 +331,38 @@ END IF
 
 GO TO 10
 
-500 RETURN
+500 CONTINUE
+    
+!!!  Now identify cases where there are multiple wells at same grid cell and fill out array npump(jx,jy,jz)
+    
+    npump = 0
+    
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          
+          do npz = 1,npumpzone
+            jxxtemp = jxxPumpZone(npz)
+            jyytemp = jyyPumpZone(npz)
+            jzztemp = jzzPumpZone(npz)
+            
+            IF (jxxtemp == jx .AND. jyytemp == jy .AND. jzztemp == jz ) THEN
+
+              npump(jx,jy,jz) = npump(jx,jy,jz) + 1
+              qg(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
+              intbnd(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
+              
+            END IF
+            
+          END DO
+    
+        END DO
+      END DO
+    END DO
+    
+    DEALLOCATE(qgTemp)
+    DEALLOCATE(intbndTemp)
+              
+    
+RETURN
 END SUBROUTINE read_pump

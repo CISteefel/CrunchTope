@@ -452,7 +452,7 @@ DO i = 1,ncomp
     END IF
   END IF
   IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
-    sptmp10(i) = 55.5
+    sptmp10(i) = 55.50929781
     sptmp(i) = DLOG(sptmp10(i))
   END IF
 END DO

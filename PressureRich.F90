@@ -81,6 +81,8 @@ INTEGER(I4B)                                                          :: nxyz
 INTEGER(I4B)                                                          :: rows
 INTEGER(I4B)                                                          :: cols
 
+INTEGER(I4B)                                                          :: npz
+
 REAL(DP)                                                              :: AccumulationTerm
 REAL(DP)                                                              :: RightHandSide
 REAL(DP)                                                              :: DiagonalTerm
@@ -153,6 +155,7 @@ END DO
 DO jz = 1,nz
     DO jy = 1,ny
         DO jx = 1,nx
+          pumpterm = 0.0
             j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
             ! Inactive cells
             IF (activecellPressure(jx,jy,jz) == 0) THEN
@@ -321,7 +324,9 @@ DO jz = 1,nz
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dyy(jy))*(Kfacy(jx,jy,jz)-Kfacy(jx,jy-1,jz)) + &
                                 AddPressureX + AddPressureY
-                    pumpterm = dt*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    DO npz = 1,npump(jx,jy,jz)
+                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    END DO
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
 
                     ! if pumpterm is along boundary, treat as a Neumann-type BC
@@ -350,7 +355,9 @@ DO jz = 1,nz
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
                                 AddPressureX + AddPressureY + AddPressureZ
-                    pumpterm = dt*qg(jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    DO npz = 1,npump(jx,jy,jz)
+                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    END DO
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
                 END IF
                 XvecCrunchP(j) = head(jx,jy,jz)

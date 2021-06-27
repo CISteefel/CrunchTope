@@ -55,6 +55,7 @@ USE medium
 USE transport
 USE temperature
 USE ReadFlow
+USE flow
 
 #include "petsc/finclude/petscmat.h"
 USE petscmat
@@ -167,6 +168,8 @@ INTEGER(I4B)                                  :: round
 INTEGER(I4B)                                  :: nbnd
 INTEGER(I4B)                                  :: nBoundaryConditionZone
 
+INTEGER(I4B)                                  :: npz
+
 REAL(DP)                                      :: sqrt_sion
 REAL(DP)                                      :: sum
 REAL(DP)                                      :: rotemp
@@ -199,6 +202,10 @@ Mat                                                                 amatpetsc
 
 
 jz = 1
+if (delt < 1.0e-20) then
+  write(*,*) delt
+  read(*,*)
+end if
 r = 1.0/delt      
 wtfactor = r
 pi = DACOS(-1.0d0)
@@ -244,6 +251,7 @@ TempFlux = 0.0d0
 
 !!!  Do the boundaries first
 
+!!!  ***** Nernst-Planck ******
 IF (species_diffusion) THEN
 
   IF (nBoundaryConditionZone > 0) THEN
@@ -339,6 +347,7 @@ IF (species_diffusion) THEN
   END IF
 
 END IF
+!!!  ***** Nernst-Planck ******
 
 jz = 1
 DO jy = 1,ny
@@ -987,25 +996,18 @@ DO jy = 1,ny
       
     END IF
     
-    200     CONTINUE
+200 CONTINUE
     
-    IF (qg(jx,jy,jz) > 0.0) THEN       !  Injection well
-      source = 0.0                 ! Source term on R.H.S.
-    ELSE IF (qg(jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
-      IF (ReadNuft) THEN
-        source = xgram(jx,jy,jz)*qg(jx,jy,jz)/CellVolume          !!  NUFT source term in kg/year
+    source = 0.0d0
+    DO npz = 1,npump(jx,jy,jz)
+      IF (qg(npz,jx,jy,jz) > 0.0) THEN       !  Injection well
+        CONTINUE                ! Source term on R.H.S.
+      ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
+        source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
       ELSE
-        IF (cylindrical .OR. spherical) THEN
-!!          source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp/CellVolume  !!  GIMRT source term in m^3/year
-          source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp/CellVolume  
-
-        ELSE
-          source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
-        END IF
+        CONTINUE
       END IF
-    ELSE
-      source = 0.0
-    END IF
+    END DO
     
     IF (species_diffusion) THEN
 
@@ -1040,22 +1042,12 @@ DO jy = 1,ny
 
             fanalyt_w = df*(  check1  &
               - (term2*dgradw/sumsigma_w + term3a*sigma_w(i)*dgradw + fgradsumw*sigma_w(i)/sumsigma_w)  )
-            continue
-              if (i==2 .and. i2==1) then
-                  continue
-              end if
-              if (i==2 .and. i2==3) then
-                  continue
-              end if
-              if (i==2 .and. i2==4) then
-                  continue
-              end if
               
 !            fanalyt(i,i2) = df* term1  
-            continue
+
           END DO
         END DO
-        continue
+
       ELSE IF (nx > 1 .AND. ny > 1) THEN             !  2d PROBLEM
         DO i2 = 1,ncomp
           fgradsume = 0.0

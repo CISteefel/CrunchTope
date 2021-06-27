@@ -66,10 +66,12 @@ INTEGER(I4B)                                             :: jx
 INTEGER(I4B)                                             :: jy
 INTEGER(I4B)                                             :: jz
 INTEGER(I4B)                                             :: i
+INTEGER(I4B)                                             :: npz
 
 REAL(DP)                                                 :: dtemp
 REAL(DP)                                                 :: porsatro
 REAL(DP)                                                 :: dtmin
+REAL(DP)                                                 :: pumpterm
 
 IF (xflow .OR. yflow .OR. zflow) THEN
 
@@ -112,9 +114,7 @@ IF (xflow .OR. yflow .OR. zflow) THEN
         IF(qrecharge(jx,jy) == 0.0)THEN
           dtemp=1.e30
         ELSE
-!fp! if_onproc( {#expr# por(jx,jy,1) #});
           dtemp=ABS( 0.5*dxx(jx)*dyy(jy)*dzz(jx,jy,1)*porsatro/qrecharge(jx,jy)  )
-!fp! end_onproc();
         END IF
         dtmin=MIN(dtemp,dtmin)
       END DO
@@ -125,19 +125,21 @@ IF (xflow .OR. yflow .OR. zflow) THEN
       jy = jyNuftSource(i)
       jz = jzNuftSource(i)
       porsatro = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
-      IF(qg(jx,jy,jz) == 0.0)THEN
-        dtemp=1.e30
+      
+      pumpterm = 0.0d0
+      DO npz = 1,npump(jx,jy,jz)
+        pumpterm = pumpterm + qg(npz,jx,jy,jz)
+      END DO
+      IF (pumpterm == 0.0d0) THEN
+        dtemp = 1.0E-30
       ELSE
-!fp! if_onproc( {#expr# por(jx,jy,jz) #});
-        dtemp=ABS(0.5*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)*porsatro/qg(jx,jy,jz))
-!fp! end_onproc();
+        dtemp=ABS(0.5*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)*porsatro/pumpterm)
       END IF
+      
       dtmin=MIN(dtemp,dtmin)
     END DO
 
     dtmaxcour = dtmin
-
-!fp! reduce( {#ident# dtmaxcour #}, min_op);
 
   ELSE                   !  Volumetric flux used
 

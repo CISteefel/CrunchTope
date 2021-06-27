@@ -182,6 +182,7 @@ REAL(DP)                                                  :: recharge
 REAL(DP)                                                  :: pi
 REAL(DP)                                                  :: MultiplyCell
 
+INTEGER(I4B)                                              :: npz
 INTEGER(I4B)                                              :: nbnd
 INTEGER(I4B)                                              :: jdum
 INTEGER(I4B)                                              :: jdum2
@@ -646,7 +647,7 @@ END IF
 END IF
 
 IF (isaturate == 1) THEN
-  IF (gaspump(jx,jy,jz) > 0.0) THEN
+  IF (gaspump(1,jx,jy,jz) > 0.0) THEN
     call GasInjection(ncomp,nspec,ngas,sgaspump,jx,jy,jz)
   END IF
 END IF
@@ -820,46 +821,34 @@ DO i = 1,ncomp
     ybdflux = 0.0
   END IF
   
-  600   CONTINUE
+600 CONTINUE
   
+!!NOTE:  "GIMRT" source term in m**3/year
+  source = 0.0d0
+  DO npz = 1,npump(jx,jy,jz)
     
-  IF (qg(jx,jy,jz) > 0.0) THEN    ! Injection well
-    IF (ReadNuft) THEN
-!! NOTE:  Nuft source term in kg/year
-      source = xgram(jx,jy,jz)*qg(jx,jy,jz)*scond(i,intbnd(jx,jy,jz))/CellVolume
+    IF (qg(npz,jx,jy,jz) > 0.0) THEN    ! Injection well
+
+        source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
+
+    ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
+
+        source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
     ELSE
-!! NOTE:  "GIMRT" source term in m**3/year
-      IF (cylindrical .OR. spherical) THEN
-!!        source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp*scond(i,intbnd(jx,jy,jz))             !! Units of moles/yr 
-        source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp*scond(i,intbnd(jx,jy,jz))/CellVolume
-      ELSE
-        source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp*scond(i,intbnd(jx,jy,jz))/CellVolume  !! Units of moles/m^3 porous medium/year
-      END IF
+      CONTINUE
     END IF
-  ELSE IF (qg(jx,jy,jz) < 0.0) THEN    ! Pumping well
-    IF (ReadNuft) THEN
-      source = xgram(jx,jy,jz)*qg(jx,jy,jz)*s(i,jx,jy,jz)/CellVolume
-    ELSE
-      IF (cylindrical .OR. spherical) THEN
-!!        source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp*s(i,jx,jy,jz)
-        source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
-      ELSE
-        source = xgram(jx,jy,jz)*qg(jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
-      END IF
-    END IF
-  ELSE
-    source = 0.0
-  END IF
+    
+  END DO
 
   GasSource = 0.0
 
   IF (isaturate == 1) THEN
-    IF (gaspump(jx,jy,jz) > 0.0) THEN
+    IF (gaspump(1,jx,jy,jz) > 0.0) THEN
       IF (cylindrical .OR. spherical) THEN
 !!        GasSource = gaspump(jx,jy,jz)*sgaspump(i)
-        GasSource = gaspump(jx,jy,jz)*sgaspump(i)/CellVolume
+        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
       ELSE
-        GasSource = gaspump(jx,jy,jz)*sgaspump(i)/CellVolume
+        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
       END IF
     ELSE
       GasSource = 0.0

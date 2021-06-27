@@ -69,7 +69,7 @@ INTEGER(I4B)                                       :: kk
 
 REAL(DP)                                           :: sum
 
-nco = intbndgas(jx,jy,jz)
+nco = intbndgas(1,jx,jy,jz)
 
 DO  i = 1,ncomp
   sum=0.0

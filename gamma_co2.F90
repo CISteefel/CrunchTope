@@ -124,21 +124,14 @@ CALL keqcalcGasOnly(ngas,nspec,jx,jy,jz,pg)
 
 ChargeSum = 0.0d0
 TotalMoles = 0.0d0
-IF (ikh2o /= 0) THEN
-  DO ik = 1,ncomp+nspec
-    IF (ulab(ik) /= 'H2O') THEN
-      TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
-      ChargeSum = ChargeSum + sp10(ik,jx,jy,jz)*chg(ik)*chg(ik)
-    ELSE
-      CONTINUE
-    END IF
-  END DO
-ELSE
-  DO ik = 1,ncomp+nspec
+DO ik = 1,ncomp+nspec
+  IF (ulab(ik) /= 'H2O' .AND. ulab(ik) /= 'H2O18' .AND. ulab(ik) /= 'H218O') THEN
     TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
     ChargeSum = ChargeSum + sp10(ik,jx,jy,jz)*chg(ik)*chg(ik)
-  END DO
-END IF
+  ELSE
+    CONTINUE
+  END IF
+END DO
 
 sion_tmp = 0.50D0*ChargeSum
 sion(jx,jy,jz) = sion_tmp
@@ -221,9 +214,11 @@ DO ik = 1,ncomp+nspec
 
   IF (chg(ik) == 0.0D0) THEN
 
-    IF (ulab(ik) == 'H2O') THEN
+    IF (ulab(ik) == 'H2O' .OR. ulab(ik) == 'H2O18' .OR. ulab(ik) == 'H218O') THEN
+      
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
       gam(ik,jx,jy,jz) = DLOG(gamWaterCheck)
+      
     ELSE IF (ulab(ik) == 'CO2(aq)') THEN
 
       call calc_lambda(pg,tk,lambda)
@@ -235,6 +230,7 @@ DO ik = 1,ncomp+nspec
     ELSE
       gam(ik,jx,jy,jz) = clg*0.10d0*sion_tmp
     END IF
+    
   ELSE
 
     IF (IncludeBdot) THEN  

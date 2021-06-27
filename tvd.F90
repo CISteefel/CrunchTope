@@ -64,7 +64,7 @@ INTEGER(I4B), INTENT(IN)                                               :: icomp
 LOGICAL(LGT)                                                           :: TvdOption
 
 REAL(DP) :: height,cfl,phi,tmp,sdum,cnv
-REAL(DP) :: dtdx,dtdy,dtdz,area,cellvolume,porsatro,PorSorp
+REAL(DP) :: dtdx,dtdy,dtdz,area,cellvolume,porsatro,PorSorp,sourceTerm,AccumulationTerm
 
 
 INTEGER(I4B) :: i,j,k,jx,jy,jz
@@ -84,6 +84,8 @@ INTEGER(I4B) :: river
 
 !   Drain Declarations
 INTEGER(I4B) :: drain
+
+INTEGER(I4B) :: npz
 
 TvdOption = .TRUE.
 
@@ -292,35 +294,29 @@ DO jz=1,nz
       dtdz = delt/dzz(jx,jy,jz)
       PorSorp = por(jx,jy,jz)*sorp(jx,jy,jz)
       IF (activecell(jx,jy,jz) /= 0) THEN
-        IF (modflow) THEN
-          ctvd(jx,jy,jz)= ctvd(jx,jy,jz) - delt* ((ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +      &
-              (gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) + (htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) ) /  &
-              (cellvolume*PorSorp )
-        ELSE
-          IF (qg(jx,jy,jz) > 0.0) THEN
-            ctvd(jx,jy,jz)= (ro(jx,jy,jz)*qg(jx,jy,jz)*scond(icomp,intbnd(jx,jy,jz))*delt/cellvolume  +  &
-                               satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)      &
-              - ( dtdx*(ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +                               &
-                  dtdy*(gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) +                               &
-                  dtdz*(htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) )     )                         &
-                      /(satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp)
-          ELSE IF (qg(jx,jy,jz) < 0.0d0) THEN
-            ctvd(jx,jy,jz)= (ro(jx,jy,jz)*qg(jx,jy,jz)*ctvd(jx,jy,jz)*delt/cellvolume  +  &
-                               satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)      &
-              - ( dtdx*(ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +                               &
-                  dtdy*(gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) +                               &
-                  dtdz*(htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) )     )                         &
-                      /(satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp)
-          ELSE
-            ctvd(jx,jy,jz)= ( satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)       &
-              - ( dtdx*(ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +                             &
-                  dtdy*(gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) +                             &
-                  dtdz*(htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) )      )                      &
-                      /(satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp)
-          END IF
 
-        END IF
+        sourceTerm = 0.d0
+        DO npz = 1,npump(jx,jy,jz)
+          
+          IF (qg(npz,jx,jy,jz) > 0.0) THEN
+            sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(npz,jx,jy,jz)*scond(icomp,intbnd(npz,jx,jy,jz))*delt/cellvolume
+          ELSE IF (qg(npz,jx,jy,jz) < 0.0d0) THEN
+            sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(npz,jx,jy,jz)*ctvd(jx,jy,jz)*delt/cellvolume
+          ELSE
+            CONTINUE
+          END IF
+            
+          accumulationTerm = satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)
+          ctvd(jx,jy,jz)= sourceTerm + accumulationTerm    &
+              - ( dtdx*(ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +                               &
+                  dtdy*(gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) +                               &
+                  dtdz*(htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) )                               &
+                      /(satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp)
+          
+        END DO
+        
       END IF
+            
     END DO
   END DO
 END DO

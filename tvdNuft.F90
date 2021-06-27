@@ -362,8 +362,8 @@ END IF
 DO jz = 1,nz
   DO jy=1,ny
     DO jx=1,nx
-      IF (intbnd(jx,jy,jz) > 0) THEN
-        nco = intbnd(jx,jy,jz)
+      IF (intbnd(1,jx,jy,jz) > 0) THEN
+        nco = intbnd(1,jx,jy,jz)
         IF (rectangular) THEN
           cellvolume = dzz(jx,jy,jz)*dxx(jx)*dyy(jy)
         ELSE 

@@ -164,12 +164,7 @@ IF (ALLOCATED(porin)) THEN
 ELSE
   ALLOCATE(porin(-1:nx+2,-1:ny+2,-1:nz+2))
 END IF
-IF (ALLOCATED(qg)) THEN
-  DEALLOCATE(qg)
-  ALLOCATE(qg(nx,ny,nz))
-ELSE
-  ALLOCATE(qg(nx,ny,nz))
-END IF
+
 IF (ALLOCATED(pres)) THEN
   DEALLOCATE(pres)
   ALLOCATE(pres(0:nx+1,0:ny+1,0:nz+1))
@@ -353,74 +348,74 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
 !!!    ALLOCATE(por(0:nx+1,0:ny+1,nz))
 !!!  END IF
 
-ELSE IF (nx > 1 .AND. ny == 1 .AND. nz > 1) THEN
+!!!ELSE IF (nx > 1 .AND. ny == 1 .AND. nz > 1) THEN
 
-  IF (ALLOCATED(s)) THEN
-    DEALLOCATE(s)
-    ALLOCATE(s(ncomp,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(s(ncomp,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(sp)) THEN
-    DEALLOCATE(sp)
-    ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(sp10)) THEN
-    DEALLOCATE(sp10)
-    ALLOCATE(sp10(ncomp+nspec,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(sp10(ncomp+nspec,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(spex)) THEN
-    DEALLOCATE(spex)
-    ALLOCATE(spex(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(spex(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(spsurf)) THEN
-    DEALLOCATE(spsurf)
-    ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(spgas)) THEN
-    DEALLOCATE(spgas)
-    ALLOCATE(spgas(ngas,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(spgas(ngas,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(LogPotential)) THEN
-    DEALLOCATE(LogPotential)
-    ALLOCATE(LogPotential(nsurf,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(LogPotential(nsurf,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(spex10)) THEN
-    DEALLOCATE(spex10)
-    ALLOCATE(spex10(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(spex10(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(spsurf10)) THEN
-    DEALLOCATE(spsurf10)
-    ALLOCATE(spsurf10(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(spsurf10(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(spgas10)) THEN
-    DEALLOCATE(spgas10)
-    ALLOCATE(spgas10(ngas,0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(spgas10(ngas,0:nx+1,ny,0:nz+1))
-  END IF
-  IF (ALLOCATED(t)) THEN
-    DEALLOCATE(t)
-    ALLOCATE(t(0:nx+1,ny,0:nz+1))
-  ELSE
-    ALLOCATE(t(0:nx+1,ny,0:nz+1))
-  END IF
+!!!  IF (ALLOCATED(s)) THEN
+!!!    DEALLOCATE(s)
+!!!    ALLOCATE(s(ncomp,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(s(ncomp,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(sp)) THEN
+!!!    DEALLOCATE(sp)
+!!!    ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(sp10)) THEN
+!!!    DEALLOCATE(sp10)
+!!!    ALLOCATE(sp10(ncomp+nspec,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(sp10(ncomp+nspec,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(spex)) THEN
+!!!    DEALLOCATE(spex)
+!!!    ALLOCATE(spex(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(spex(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(spsurf)) THEN
+!!!    DEALLOCATE(spsurf)
+!!!    ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(spgas)) THEN
+!!!    DEALLOCATE(spgas)
+!!!    ALLOCATE(spgas(ngas,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(spgas(ngas,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(LogPotential)) THEN
+!!!    DEALLOCATE(LogPotential)
+!!!    ALLOCATE(LogPotential(nsurf,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(LogPotential(nsurf,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(spex10)) THEN
+!!!    DEALLOCATE(spex10)
+!!!    ALLOCATE(spex10(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(spex10(nexchange+nexch_sec,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(spsurf10)) THEN
+!!!    DEALLOCATE(spsurf10)
+!!!    ALLOCATE(spsurf10(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(spsurf10(nsurf+nsurf_sec,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(spgas10)) THEN
+!!!    DEALLOCATE(spgas10)
+!!!    ALLOCATE(spgas10(ngas,0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(spgas10(ngas,0:nx+1,ny,0:nz+1))
+!!!  END IF
+!!!  IF (ALLOCATED(t)) THEN
+!!!    DEALLOCATE(t)
+!!!    ALLOCATE(t(0:nx+1,ny,0:nz+1))
+!!!  ELSE
+!!!    ALLOCATE(t(0:nx+1,ny,0:nz+1))
+!!!  END IF
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
 !!!    ALLOCATE(por(0:nx+1,ny,0:nz+1))

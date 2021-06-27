@@ -374,7 +374,7 @@ IF (NumSourceTerms > 0) THEN
   qgNuft = qgNuft*secyr             !  NUFT source term in kg/s --> convert to years
 END IF
 qgNuftOld = qgNuft
-qg = qgNuft
+!!!qg = qgNuft
 
 IF (ReadNuftLiqFlux) THEN
   READ(iunitNuft) qxNuft

@@ -59,6 +59,7 @@ MODULE params
   INTEGER(I4B), PARAMETER :: msurftot=msurf+msurf_sec
   INTEGER(I4B), PARAMETER :: mx=1000
   INTEGER(I4B), PARAMETER :: mp=meqn*mx*meqn*3
+  INTEGER(I4B), PARAMETER :: mpump=1
   INTEGER(I4B), PARAMETER :: my=1000
   INTEGER(I4B), PARAMETER :: mz=1
   INTEGER(I4B), PARAMETER :: mwidth=2

@@ -520,7 +520,6 @@ INTEGER(I4B)                                                  :: lfile
 INTEGER(I4B)                                                  :: npermx
 INTEGER(I4B)                                                  :: npermy
 INTEGER(I4B)                                                  :: npermz
-INTEGER(I4B)                                                  :: npump
 INTEGER(I4B)                                                  :: ngaspump
 INTEGER(I4B)                                                  :: intfile
 INTEGER(I4B)                                                  :: ndiff
@@ -7475,23 +7474,20 @@ END IF
   velocityfile = ' '
   gasvelocityfile = ' '
 
-IF (ALLOCATED(intbnd)) THEN
-  DEALLOCATE(intbnd)
-END IF
-ALLOCATE(intbnd(nx,ny,nz))
 intbnd = 0
 
 IF (isaturate == 1) THEN         !! Unsaturated case
   IF (ALLOCATED(intbndgas)) THEN
     DEALLOCATE(intbndgas)
   END IF
-  ALLOCATE(intbndgas(nx,ny,nz))
+  ALLOCATE(intbndgas(5,nx,ny,nz))
   intbndgas = 0
+  
   IF (ALLOCATED(gaspump)) THEN
     DEALLOCATE(gaspump)
-    ALLOCATE(gaspump(nx,ny,nz))
+    ALLOCATE(gaspump(5,nx,ny,nz))
   ELSE
-    ALLOCATE(gaspump(nx,ny,nz))
+    ALLOCATE(gaspump(5,nx,ny,nz))
   END IF
 END IF
 
@@ -7505,7 +7501,6 @@ IF (found) THEN
 
 !  Initialize pressure and pumping rate first
 
-  qg = 0.0d0
   IF (isaturate == 1) THEN
     gaspump = 0.0d0
   END IF
@@ -7517,7 +7512,7 @@ IF (found) THEN
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
 
-  CALL read_pump(nout,nx,ny,nz,nchem,npump)
+  CALL read_pump(nout,nx,ny,nz,nchem)
 
   IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
@@ -8940,24 +8935,6 @@ IF (readvelocity) THEN
   STOP
 
   5004   CONTINUE
-
-!!  For uniform radial flow assuming an injection well at the origin
-!!  DO jx = 1,nx
-!!    qx(jx,1,1) = qg(1,1,1)/(2.0*pi*( x(jx) + 0.5*dxx(jx) )*dyy(1))
-!  END DO
-
-!!! jz = 1
-!!!  do jy = 1,ny
-!!!    do jx = 1,nx
-!!!      qx(jx-1,jy,jz) = qx(jx,jy,jz)
-!!!    end do
-!!!  end do
-
-!!!  do jx = 1,nx
-!!!    do jy = 1,ny
-!!!      qy(jx,jy-1,jz) = qy(jx,jy,jz)
-!!!    end do
-!!!  end do
 
   qx = qx/(time_scale*dist_scale)
   qxmax = MAXVAL(qx)

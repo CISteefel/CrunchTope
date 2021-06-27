@@ -369,6 +369,7 @@ REAL(DP)                                                   :: CumulativeCO2
 CHARACTER (LEN=1)                                          :: trans
 
 INTEGER(I4B)                                               :: info
+INTEGER(I4B)                                               :: npz
 
 INTEGER(I4B), PARAMETER                                    :: ione=1
 
@@ -387,6 +388,8 @@ REAL(DP)                                                   :: sumCalcite
 REAL(DP)                                                   :: sumCO2
 REAL(DP)                                                   :: sumPlagioclaseArea
 REAL(DP)                                                   :: denominator
+
+REAL(DP)                                                   :: pumpterm
 
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
@@ -918,10 +921,13 @@ END IF
         call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
         checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
-        RealSum = ro(jx,jy,jz)*qg(jx,jy,jz) + checkw+checks+checkMinus-checkn-checke-CheckPlus
-        if (jx==62 .and. jy==1) then
-            continue
-        end if
+        
+        pumpterm = 0.0d0
+        DO npz = 1,npump(jx,jy,jz)
+          pumpterm = pumpterm + qg(npz,jx,jy,jz)
+        END DO
+        RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
+        
         IF (DABS(RealSum) > MaxDivergence) THEN
             jxmax = jx
             jymax = jy
@@ -1285,45 +1291,6 @@ DO WHILE (nn <= nend)
      END DO
     END IF
 
-
-
-!!          Coordinate = 'X'
-!!          call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-!!          checkw = RoAveLeft*qx(jx-1,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
-!!          checke = RoAveRight*qx(jx,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
-!!          Coordinate = 'Y'
-!!          call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-!!          checkn = RoAveRight*qy(jx,jy,jz)*dxx(jx)*dzz(jx,jy,jz)
-!!          checks = RoAveLeft*qy(jx,jy-1,jz)*dxx(jx)*dzz(jx,jy,jz)
-!!          Coordinate = 'Z'
-!!          call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-!!          checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
-!!          checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
-!!          SumCheck = ro(jx,jy,jz)*qg(jx,jy,jz) + checkw+checks+checkMinus-checkn-checke-CheckPlus
-
-!!    CALL KSPGetConvergedReason(ksp,reason,ierr)
-!!    IF (reason == 2) THEN
-!!      write(*,*)
-!!      write(*,*) ' Converged on relative tolerance'
-!!    ELSE IF (reason == 3) THEN
-!!      write(*,*)
-!!      write(*,*) ' Converged on absolute tolerance'
-!!    ELSE IF (reason == 4) THEN
-!!      write(*,*)
-!!      write(*,*) ' Reached maximum number of iterations (but converged)'
-!!    ELSE IF (reason > 4) THEN
-!!      write(*,*)
-!!      write(*,*) ' Converged for some other reason'
-!!    ELSE
-!!      WRITE(*,*)
-!!      Write(*,*) ' Failed to converge'
-!!    END IF
-
-!!    WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
-!!    WRITE(*,*) ' Maximum divergence in flow field = ', MaxDivergence
-!!    WRITE(*,*)
-!!    READ(*,*)
-
   END IF
 
 !! Return here to restart time step after failure
@@ -1470,7 +1437,11 @@ DO WHILE (nn <= nend)
       END DO
 
       IF (ReadNuft) THEN
-        CALL tvdNuft(nx,ny,nz,delt,i)
+        WRITE(*,*) 
+        WRITE(*,*) ' Nuft Read option no longer supported'
+        READ(*,*)
+        STOP
+        !!!CALL tvdNuft(nx,ny,nz,delt,i)
       ELSE
         CALL tvd(nx,ny,nz,delt,i)
       DO jz = 1,nz
@@ -3119,7 +3090,12 @@ ELSE
         call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
         checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
-        RealSum = ro(jx,jy,jz)*qg(jx,jy,jz) + checkw+checks+checkMinus-checkn-checke-CheckPlus
+        
+        pumpterm = 0.0d0
+        DO npz = 1,npump(jx,jy,jz)
+          pumpterm = pumpterm + qg(npz,jx,jy,jz)
+        END DO
+        RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
 
         IF (DABS(RealSum) > MaxDivergence) THEN
             jxmax = jx

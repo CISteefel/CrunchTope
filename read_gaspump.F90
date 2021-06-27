@@ -282,8 +282,8 @@ IF(ls /= 0) THEN
         WRITE(*,*) ' Jzz location = ', jzztemp
         WRITE(*,*)
 
-      gaspump(jxxtemp,jyytemp,jzztemp) = qtemp
-      intbndgas(jxxtemp,jyytemp,jzztemp) = intbnd_tmp
+      gaspump(1,jxxtemp,jyytemp,jzztemp) = qtemp
+      intbndgas(1,jxxtemp,jyytemp,jzztemp) = intbnd_tmp
       
     ELSE
       WRITE(*,*)

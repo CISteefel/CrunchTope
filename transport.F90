@@ -171,7 +171,7 @@ MODULE transport
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: dspx
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: dspy
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: dspz
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: qg
+
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: tortuosity
 
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: fluxx

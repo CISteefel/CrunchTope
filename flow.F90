@@ -74,15 +74,14 @@ LOGICAL(LGT)                                 :: upstream_weighting
 
 INTEGER(I4B)                                 :: infiltration
 
-!fp! block(1);
-INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE  :: intbnd
-INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE  :: intbndgas
-!fp! darray=0;
-!fp! block_xy(1);
-REAL(DP), DIMENSION(:,:), ALLOCATABLE        :: qrecharge
-!fp! darray=0;
 
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: gaspump
+INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE  :: intbnd
+INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE  :: intbndgas
+
+REAL(DP), DIMENSION(:,:), ALLOCATABLE        :: qrecharge
+
+REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qg
+REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: gaspump
 
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: permzonex
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: permzoney
@@ -172,9 +171,11 @@ REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: room
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: vgn
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: vga
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcr
-REAL(DP), DIMENSION(:),ALLOCATABLE           :: vgnzone
-REAL(DP), DIMENSION(:),ALLOCATABLE           :: vgazone
-REAL(DP), DIMENSION(:),ALLOCATABLE           :: wcrzone
+REAL(DP), DIMENSION(:),ALLOCATABLE             :: vgnzone
+REAL(DP), DIMENSION(:),ALLOCATABLE             :: vgazone
+REAL(DP), DIMENSION(:),ALLOCATABLE             :: wcrzone
+
+INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
 
 !!  PETSc arrays for solver
 
