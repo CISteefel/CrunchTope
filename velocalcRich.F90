@@ -112,6 +112,7 @@ DO jz = 1,nz
                         qy(jx,jy,jz) = 0.0d0
                     END IF
                 END IF
+                
                 ! flux boundary condition
                 pumpterm = 0.0d0
 !!!                DO npz = 1,npump(jx,jy+1,jz)

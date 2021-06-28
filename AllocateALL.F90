@@ -79,6 +79,13 @@ INTEGER(I4B), INTENT(IN)                           :: nz
 
 !!  Internal arrays and variables
 
+IF (ALLOCATED(npump)) THEN
+  DEALLOCATE(npump)
+  ALLOCATE(npump(nx,ny,nz))
+ELSE
+  ALLOCATE(npump(nx,ny,nz))
+END IF
+
 IF (ALLOCATED(sion)) THEN
   DEALLOCATE(sion)
 END IF

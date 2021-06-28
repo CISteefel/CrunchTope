@@ -100,7 +100,14 @@ ALLOCATE(qgTemp(500,nx,ny,nz))
 ALLOCATE(jxxPumpZone(500))
 ALLOCATE(jyyPumpZone(500))
 ALLOCATE(jzzPumpZone(500))
-ALLOCATE(npump(nx,ny,nz))
+
+IF (ALLOCATED(npump)) THEN
+  DEALLOCATE(npump)
+  ALLOCATE(npump(nx,ny,nz))
+ELSE
+  ALLOCATE(npump(nx,ny,nz))
+END IF
+
 
 IF (ALLOCATED(qg)) THEN
   DEALLOCATE(qg)

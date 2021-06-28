@@ -305,15 +305,17 @@ DO jz=1,nz
           ELSE
             CONTINUE
           END IF
-            
-          accumulationTerm = satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)
-          ctvd(jx,jy,jz)= sourceTerm + accumulationTerm    &
-              - ( dtdx*(ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +                               &
-                  dtdy*(gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) +                               &
-                  dtdz*(htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) )                               &
-                      /(satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp)
           
         END DO
+            
+        accumulationTerm = satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)
+        ctvd(jx,jy,jz)= ( sourceTerm + accumulationTerm    &
+              - ( dtdx*(ftvd(jx,jy,jz) - ftvd(jx-1,jy,jz)) +                               &
+                  dtdy*(gtvd(jx,jy,jz) - gtvd(jx,jy-1,jz)) +                               &
+                  dtdz*(htvd(jx,jy,jz) - htvd(jx,jy,jz-1)) )   )                            &
+                      /(satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp)
+          
+
         
       END IF
             
