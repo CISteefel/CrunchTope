@@ -7511,9 +7511,8 @@ IF (found) THEN
   CALL read_constantflow(nout,nx,ny,nz,constant_flow,qxinit,qyinit,qzinit)
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
-
   CALL read_pump(nout,nx,ny,nz,nchem)
-
+  
   IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
   END IF

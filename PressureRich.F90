@@ -324,9 +324,14 @@ DO jz = 1,nz
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dyy(jy))*(Kfacy(jx,jy,jz)-Kfacy(jx,jy-1,jz)) + &
                                 AddPressureX + AddPressureY
-                    DO npz = 1,npump(jx,jy,jz)
-                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-                    END DO
+                    
+                    pumpterm = 0.0d0
+                    IF (wells) THEN
+                      DO npz = 1,npump(jx,jy,jz)
+                        pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                      END DO
+                    END IF
+
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
 
                     ! if pumpterm is along boundary, treat as a Neumann-type BC
@@ -355,11 +360,17 @@ DO jz = 1,nz
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
                                 AddPressureX + AddPressureY + AddPressureZ
-                    DO npz = 1,npump(jx,jy,jz)
-                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-                    END DO
+                    
+                    pumpterm = 0.0d0
+                    IF (wells) THEN
+                      DO npz = 1,npump(jx,jy,jz)
+                        pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                      END DO
+                    END IF
+                    
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
                 END IF
+                
                 XvecCrunchP(j) = head(jx,jy,jz)
 
                 ! Insert coefficients into matrix

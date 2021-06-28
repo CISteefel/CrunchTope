@@ -78,10 +78,12 @@ INTEGER(I4B)                                 :: infiltration
 INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE  :: intbnd
 INTEGER(I4B), DIMENSION(:,:,:,:), ALLOCATABLE  :: intbndgas
 
-REAL(DP), DIMENSION(:,:), ALLOCATABLE        :: qrecharge
+REAL(DP), DIMENSION(:,:), ALLOCATABLE          :: qrecharge
 
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qg
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: gaspump
+
+LOGICAL(LGT)                                   :: wells
 
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: permzonex
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: permzoney

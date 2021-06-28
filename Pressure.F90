@@ -947,9 +947,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
+            pumpterm = 0.0d0
+            IF (wells) THEN
             DO npz = 1,npump(jx,jy,jz)
               pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
             END DO
+            END IF
             
             BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + BodyForceZ) 
             XvecCrunchP(j) = pres(jx,jy,jz)
@@ -1018,9 +1021,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
             IF (activecellPressure(0,jy,jz) == 0) THEN  
               AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx)) 
@@ -1092,9 +1098,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
               
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
             IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
               AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -1165,9 +1174,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
 
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
             IF (activecellPressure(jx,0,jz) == 0) THEN  
               AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy-1,jz)*pres(jx,0,jz)/(dyy(jy)*dyy(jy))   
@@ -1238,9 +1250,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
             IF (activecellPressure(jx,ny+1,jz) == 0) THEN  
               AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy,jz)*pres(jx,ny+1,jz)/(dyy(jy)*dyy(jy))   
@@ -1311,9 +1326,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
 
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
             IF (activecellPressure(jx,jy,0) == 0) THEN  
               AddPressureZ =  2.0d0*ro(jx,jy,jz)*harz(jx,jy,jz-1)*pres(jx,jy,0)/(dzz(jx,jy,jz)*dzz(jx,jy,jz))   
@@ -1384,9 +1402,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
 
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
             IF (activecellPressure(jx,jy,nz+1) == 0) THEN  
               AddPressureZ =  2.0d0*ro(jx,jy,jz)*harz(jx,jy,jz)*pres(jx,jy,nz+1)/(dzz(jx,jy,jz)*dzz(jx,jy,jz))   
@@ -1467,9 +1488,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
 
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -1552,9 +1576,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
 
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -1637,9 +1664,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))  
@@ -1722,9 +1752,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -1808,9 +1841,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -1893,9 +1929,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -1978,9 +2017,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2063,9 +2105,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2148,9 +2193,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(jx,0,jz) == 0) THEN  
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy-1,jz)*pres(jx,0,jz)/(dyy(jy)*dyy(jy))   
@@ -2233,9 +2281,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
 
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(jx,ny+1,jz) == 0) THEN  
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy,jz)*pres(jx,ny+1,jz)/(dyy(jy)*dyy(jy))   
@@ -2318,9 +2369,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(jx,0,jz) == 0) THEN  
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy-1,jz)*pres(jx,0,jz)/(dyy(jy)*dyy(jy))   
@@ -2403,9 +2457,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(jx,ny+1,jz) == 0) THEN  
             AddPressureY =  2.0d0*ro(jx,jy,jz)*hary(jx,jy,jz)*pres(jx,ny+1,jz)/(dyy(jy)*dyy(jy))   
@@ -2423,8 +2480,6 @@ ELSE                !!  2D or 3D problem
 
           END IF
         END DO
-
-
 
 !!  **************************************************************************************************************************************************
 !!  Now the corners
@@ -2501,9 +2556,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2598,9 +2656,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2695,9 +2756,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2792,9 +2856,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2889,9 +2956,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -2986,9 +3056,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -3083,9 +3156,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(0,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx-1,jy,jz)*pres(0,jy,jz)/(dxx(jx)*dxx(jx))   
@@ -3180,9 +3256,12 @@ ELSE                !!  2D or 3D problem
 
             tdepend = visc*ct*por(jx,jy,jz)*pres(jx,jy,jz)/ (dt*secyr)
             
-            DO npz = 1,npump(jx,jy,jz)
-              pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-            END DO
+            pumpterm = 0.0d0
+            IF (wells) THEN
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+              END DO
+            END IF
 
           IF (activecellPressure(nx+1,jy,jz) == 0) THEN  
             AddPressureX =  2.0d0*ro(jx,jy,jz)*harx(jx,jy,jz)*pres(nx+1,jy,jz)/(dxx(jx)*dxx(jx))   

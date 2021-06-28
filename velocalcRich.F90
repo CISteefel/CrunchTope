@@ -106,6 +106,7 @@ DO jz = 1,nz
             qz(jx,jy,jz) = 0.0d0
             qy(jx,jy,jz) = qy(jx,jy,jz) + Kfacy(jx,jy,jz)
             IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+              
                 IF (head(jx,jy,jz) == 0.0d0) THEN
                     ! no infiltration on dry surface, but exfiltration is ok
                     IF (qy(jx,jy,jz) > 0.0d0) THEN
@@ -115,16 +116,21 @@ DO jz = 1,nz
                 
                 ! flux boundary condition
                 pumpterm = 0.0d0
-!!!                DO npz = 1,npump(jx,jy+1,jz)
-                DO npz = 1,npump(jx,jy,jz)
-!!!                  pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
-                  pumpterm = pumpterm + qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+                IF (wells) THEN
 
-!!!                IF (qg(npz,jx,jy+1,jz) .NE. 0.0) THEN
-!!!                    qy(jx,jy,jz) = qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
-!!!                END IF  
+                  DO npz = 1,npump(jx,jy,jz)
+            
+                    pumpterm = pumpterm + qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))         
+!!!  *****************************************************************************************
+!!!                 DO npz = 1,npump(jx,jy+1,jz)
+!!!                   pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+!!!                 IF (qg(npz,jx,jy+1,jz) .NE. 0.0) THEN
+!!!                   qy(jx,jy,jz) = qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+!!!                 END IF  
+!!!  *****************************************************************************************      
+                  END DO
                   
-                END DO
+                END IF
                 qy(jx,jy,jz) = pumpterm
                 
                 ! check if there is enough room available
@@ -149,18 +155,21 @@ DO jz = 1,nz
     IF (y_is_vertical) THEN
         qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
         IF (activecellPressure(jx,0,jz) == 1) THEN
-          
-                pumpterm = 0.0d0
-                DO npz = 1,npump(jx,1,jz)
-                  
-                  pumpterm = pumpterm + qg(npz,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-                  
-!!!          IF (qg(1,jx,1,jz) .NE. 0.0) THEN
+
+          pumpterm = 0.0d0
+          IF (wells) THEN
+
+            DO npz = 1,npump(jx,1,jz)
+              pumpterm = pumpterm + qg(npz,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+!!!  *****************************************************************************************                  
+!!!           IF (qg(1,jx,1,jz) .NE. 0.0) THEN
 !!!              qy(jx,0,jz) = qg(1,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-!!!          END IF     
-                  
-                END DO
-                qy(jx,0,jz) = pumpterm
+!!!           END IF     
+!!!  *****************************************************************************************                  
+            END DO
+            
+          END IF
+          qy(jx,0,jz) = pumpterm
                 
         END IF
     ELSE
@@ -179,7 +188,8 @@ DO jz = 1,nz
       ! pump source term
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
         
-                
+        IF (wells) THEN
+          
           IF (qg(1,jx,ny,jz) /= 0.0) THEN
               ! free drainage
               qy(jx,ny,jz) = Kfacy(jx,ny,jz)
@@ -188,6 +198,8 @@ DO jz = 1,nz
                   qy(jx,ny,jz) = wc(jx,ny,jz) * dyy(ny) / dt
               END IF
           END IF
+          
+        END IF
           
       END IF
     ELSE

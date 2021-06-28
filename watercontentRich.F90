@@ -88,12 +88,19 @@ DO jz = 1,nz
             ! add source term if not along boundary
             IF (jx > 1 .AND. jx < nx) THEN
               
-                IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1 .AND. qg(1,jx,jy,jz) /= 0.0) THEN
+!!!                IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1 .AND. qg(1,jx,jy,jz) /= 0.0) THEN
+                IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1) THEN
+                  
                   pumpterm = 0.0d0
-                  DO npz = 1,npump(jx,jy,jz)
-                    pumpterm = pumpterm + dt*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-                  END DO
+                  IF (wells) THEN
+                    
+                    DO npz = 1,npump(jx,jy,jz)
+                      pumpterm = pumpterm + dt*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                    END DO
+                    
+                  END IF
                   wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm
+                  
                 END IF
                 
             END IF

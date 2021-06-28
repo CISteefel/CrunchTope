@@ -296,17 +296,19 @@ DO jz=1,nz
       IF (activecell(jx,jy,jz) /= 0) THEN
 
         sourceTerm = 0.d0
-        DO npz = 1,npump(jx,jy,jz)
+        IF (wells) THEN
           
-          IF (qg(npz,jx,jy,jz) > 0.0) THEN
-            sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(npz,jx,jy,jz)*scond(icomp,intbnd(npz,jx,jy,jz))*delt/cellvolume
-          ELSE IF (qg(npz,jx,jy,jz) < 0.0d0) THEN
-            sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(npz,jx,jy,jz)*ctvd(jx,jy,jz)*delt/cellvolume
-          ELSE
-            CONTINUE
-          END IF
+          DO npz = 1,npump(jx,jy,jz)
+            IF (qg(npz,jx,jy,jz) > 0.0) THEN
+              sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(npz,jx,jy,jz)*scond(icomp,intbnd(npz,jx,jy,jz))*delt/cellvolume
+            ELSE IF (qg(npz,jx,jy,jz) < 0.0d0) THEN
+              sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(npz,jx,jy,jz)*ctvd(jx,jy,jz)*delt/cellvolume
+            ELSE
+              CONTINUE
+            END IF      
+          END DO
           
-        END DO
+        END IF
             
         accumulationTerm = satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)
         ctvd(jx,jy,jz)= ( sourceTerm + accumulationTerm    &

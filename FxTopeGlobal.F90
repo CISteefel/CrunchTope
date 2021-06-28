@@ -825,20 +825,24 @@ DO i = 1,ncomp
   
 !!NOTE:  "GIMRT" source term in m**3/year
   source = 0.0d0
-  DO npz = 1,npump(jx,jy,jz)
+  IF (wells) THEN
+   
+    DO npz = 1,npump(jx,jy,jz)
     
-    IF (qg(npz,jx,jy,jz) > 0.0) THEN    ! Injection well
+      IF (qg(npz,jx,jy,jz) > 0.0) THEN    ! Injection well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
 
-    ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
+      ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
-    ELSE
-      CONTINUE
-    END IF
+      ELSE
+        CONTINUE
+      END IF
     
-  END DO
+    END DO
+    
+  END IF
 
   GasSource = 0.0
 

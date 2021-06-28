@@ -923,9 +923,13 @@ END IF
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
         
         pumpterm = 0.0d0
-        DO npz = 1,npump(jx,jy,jz)
-          pumpterm = pumpterm + qg(npz,jx,jy,jz)
-        END DO
+        IF (wells) THEN
+
+          DO npz = 1,npump(jx,jy,jz)
+            pumpterm = pumpterm + qg(npz,jx,jy,jz)
+          END DO
+        
+        END IF
         RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
         
         IF (DABS(RealSum) > MaxDivergence) THEN
@@ -3092,9 +3096,14 @@ ELSE
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
         
         pumpterm = 0.0d0
-        DO npz = 1,npump(jx,jy,jz)
-          pumpterm = pumpterm + qg(npz,jx,jy,jz)
-        END DO
+        IF (wells) THEN
+          
+          DO npz = 1,npump(jx,jy,jz)
+            pumpterm = pumpterm + qg(npz,jx,jy,jz)
+          END DO
+          
+        END IF
+        
         RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
 
         IF (DABS(RealSum) > MaxDivergence) THEN

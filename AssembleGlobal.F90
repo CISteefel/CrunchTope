@@ -999,15 +999,19 @@ DO jy = 1,ny
 200 CONTINUE
     
     source = 0.0d0
-    DO npz = 1,npump(jx,jy,jz)
-      IF (qg(npz,jx,jy,jz) > 0.0) THEN       !  Injection well
-        CONTINUE                ! Source term on R.H.S.
-      ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
-        source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
-      ELSE
-        CONTINUE
-      END IF
-    END DO
+    IF (wells) THEN
+   
+      DO npz = 1,npump(jx,jy,jz)
+        IF (qg(npz,jx,jy,jz) > 0.0) THEN       !  Injection well
+          CONTINUE                ! Source term on R.H.S.
+        ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
+          source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
+        ELSE
+          CONTINUE
+        END IF
+      END DO
+    
+    END IF
     
     IF (species_diffusion) THEN
 

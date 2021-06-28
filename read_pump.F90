@@ -109,21 +109,10 @@ ELSE
 END IF
 
 
-IF (ALLOCATED(qg)) THEN
-  DEALLOCATE(qg)
-  ALLOCATE(qg(5,nx,ny,nz))
-ELSE
-  ALLOCATE(qg(5,nx,ny,nz))
-END IF
-IF (ALLOCATED(intbnd)) THEN
-  DEALLOCATE(intbnd)
-  ALLOCATE(intbnd(5,nx,ny,nz))
-ELSE
-  ALLOCATE(intbnd(5,nx,ny,nz))
-END IF
-
 
 REWIND nout
+
+wells = .FALSE.
 
 npump = 0
 10 READ(nout,'(a)',END=500) zone
@@ -340,6 +329,25 @@ GO TO 10
 
 500 CONTINUE
     
+IF (npumpzone > 0) THEN
+      
+  IF (ALLOCATED(qg)) THEN
+    DEALLOCATE(qg)
+    ALLOCATE(qg(5,nx,ny,nz))
+  ELSE
+    ALLOCATE(qg(5,nx,ny,nz))
+  END IF
+  IF (ALLOCATED(intbnd)) THEN
+    DEALLOCATE(intbnd)
+    ALLOCATE(intbnd(5,nx,ny,nz))
+  ELSE
+    ALLOCATE(intbnd(5,nx,ny,nz))
+  END IF
+  
+  wells = .TRUE.
+
+END IF
+
 !!!  Now identify cases where there are multiple wells at same grid cell and fill out array npump(jx,jy,jz)
     
     npump = 0
