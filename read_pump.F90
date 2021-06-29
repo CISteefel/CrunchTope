@@ -295,6 +295,8 @@ IF(ls /= 0) THEN
           READ(*,*)
         END IF
         
+        write(*,*) ' npumpzone = ', npumpzone
+        
         jxxPumpZone(npumpzone) = jxxtemp
         jyyPumpZone(npumpzone) = jyytemp 
         jzzPumpZone(npumpzone) = jzztemp   

@@ -203,7 +203,7 @@ Mat                                                                 amatpetsc
 
 jz = 1
 if (delt < 1.0e-20) then
-  write(*,*) delt
+  write(*,*) ' Delt = ', delt
   read(*,*)
 end if
 r = 1.0/delt      
