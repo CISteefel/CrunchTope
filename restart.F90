@@ -220,9 +220,9 @@ END IF
     END IF
     ALLOCATE(RealDummyArray(nxyz))
 
-    READ(iures) RealDummyArray
-    READ(iures) RealDummyArray
-    READ(iures) RealDummyArray
+!!!    READ(iures) RealDummyArray
+!!!    READ(iures) RealDummyArray
+!!!    READ(iures) RealDummyArray
     
 
     
@@ -231,6 +231,12 @@ END IF
     READ(iures) VolSaveByTimeStep
     READ(iures) Volsave
     READ(iures) ncounter
+    
+        !! Write Richards, Zhi Li 20200705
+    IF (Richards) THEN
+        READ (iures) head
+        READ (iures) wc
+    END IF
     
 !!    READ(iures) tauZero
 

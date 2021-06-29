@@ -726,7 +726,8 @@ END IF
                head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
 !!!               head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
                IF (y_is_vertical) THEN
-                   IF (jy < ny+1 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                   IF (jy < ny+1) THEN
+                     IF (activecellPressure(jx,jy+1,jz) == 1) THEN
                        IF (pres(jx,jy,jz) > 0.0d0) THEN
                            wc(jx,jy,jz) = wcs(jx,jy,jz)
                            head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
@@ -734,7 +735,8 @@ END IF
                            wc(jx,jy,jz) = wcr(jx,jy,jz)
                            head(jx,jy,jz) = 0.0d0
                        END IF
-                   END IF
+                     END IF
+                  END IF
               ELSE
                   IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
                       IF (pres(jx,jy,jz) > 0.0d0) THEN
@@ -2887,7 +2889,7 @@ IF (Richards) THEN
     ELSE IF (delt > dtmax) THEN
         delt = dtmax
     ELSE
-!!      WRITE(*,*) ' Delt = ',delt
+      WRITE(*,*) ' Delt = ',delt
       CONTINUE
     END IF
     
@@ -3252,9 +3254,9 @@ ELSE
     WRITE(iures) qygas
     WRITE(iures) qzgas
     WRITE(iures) pres
-    WRITE(iures) dspy
-    WRITE(iures) dspz
-    WRITE(iures) qg
+  !!!  WRITE(iures) dspy
+  !!!  WRITE(iures) dspz
+  !!!  WRITE(iures) qg
     WRITE(iures) ActiveCell
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
