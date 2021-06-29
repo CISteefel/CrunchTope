@@ -1,6 +1,7 @@
 ALL: CrunchMain
 
-FFLAGS  = -w -ffpe-trap=invalid,overflow,zero
+# FFLAGS  = -w -I/Users/lichee/Documents/Research/Codes/petsc/include -I/Users/lichee/Documents/Research/Codes/petsc/arch-darwin-c-debug/include
+FFLAGS  = -w -I/Users/zli/Codes/petsc/include -I/Users/zli/Codes/petsc/arch-darwin-c-debug/include
 
 SOURCEF = \
           crunchtype.F90\
