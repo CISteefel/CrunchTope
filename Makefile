@@ -1,6 +1,6 @@
 ALL: CrunchMain
 
-FFLAGS  = -w -ffpe-trap=invalid,overflow,zero
+FFLAGS  = -w -ffpe-trap=invalid,overflow,zero   
 
 SOURCEF = \
           crunchtype.F90\
@@ -116,7 +116,6 @@ SOURCEF = \
           GIMRTCrunchPETScTolerances.F90\
           GlobalArrayAllocation.F90\
           GlobalDensity.F90\
-	      gradhRich.F90\
           graphics3d.F90\
           GraphicsKaleidagraph.F90\
           GraphicsTecplot.F90\
@@ -158,7 +157,6 @@ SOURCEF = \
           modread.F90\
           ModScan.F90\
           movie.F90\
-	      nexttoSatRich.F90\
           newfile.F90\
           nrerror.F90\
           NviewInit.F90\
@@ -176,8 +174,6 @@ SOURCEF = \
           porcalc.F90\
           porperm.F90\
           Pressure.F90\
-	      PressureNS.F90\
-	      PressureRich.F90\
           PrimarySpeciesCheck.F90\
           ratecheck.F90\
           reactionTope.F90\
@@ -250,9 +246,9 @@ SOURCEF = \
           read_toperatio.F90\
           read_tortuosityfile.F90\
           read_TortuosityByZone.F90\
-          read_vgn.F90\
-	      read_vga.F90\
-	      read_wcr.F90\
+	  read_vgn.F90\
+	  read_vga.F90\
+	  read_wcr.F90\
           readblock.F90\
           readbreak.F90\
           readCaseSensitive.F90\
@@ -269,9 +265,6 @@ SOURCEF = \
           readtype3.F90\
           readtypescan1.F90\
           reallocate.F90\
-	      redistributeRich.F90\
-	      redist_recvRich.F90\
-	      redist_sendRich.F90\
           restart.F90\
           rocalc.F90\
           satcalc.F90\
@@ -318,17 +311,25 @@ SOURCEF = \
           units_time.F90\
           units_timeOutput.F90\
           UpdateExchanger.F90\
-		  vanGenuchten.F90\
           velocalc.F90\
-	      velocalcNS.F90\
-	      velocalcRich.F90\
-	      watercontentRich.F90\
           WaterReacted.F90\
           WaterReactedNodeByNode.F90\
           xmass.F90\
           xmassNodeByNode.F90\
           xtoolInit.F90\
-          xtoolOutput.F90
+          xtoolOutput.F90\
+          redistributeRich.F90\
+          vanGenuchten.F90\
+          PressureRich.F90\
+          gradhRich.F90\
+          nexttoSatRich.F90\
+          redist_recvRich.F90\
+          velocalcRich.F90\
+          watercontentRich.F90\
+          PressureNS.F90\
+          velocalcNS.F90\
+          redist_sendRich.F90
+
 
 OBJSF  =  crunchtype.o\
           params.o\
@@ -443,7 +444,6 @@ OBJSF  =  crunchtype.o\
           GIMRTCrunchPETScTolerances.o\
           GlobalArrayAllocation.o\
           GlobalDensity.o\
-	      gradhRich.o\
           graphics3d.o\
           GraphicsKaleidagraph.o\
           GraphicsTecplot.o\
@@ -485,7 +485,6 @@ OBJSF  =  crunchtype.o\
           modread.o\
           ModScan.o\
           movie.o\
-	      nexttoSatRich.o\
           newfile.o\
           nrerror.o\
           NviewInit.o\
@@ -503,8 +502,6 @@ OBJSF  =  crunchtype.o\
           porcalc.o\
           porperm.o\
           Pressure.o\
-	      PressureNS.o\
-	      PressureRich.o\
           PrimarySpeciesCheck.o\
           ratecheck.o\
           reactionTope.o\
@@ -577,9 +574,9 @@ OBJSF  =  crunchtype.o\
           read_toperatio.o\
           read_tortuosityfile.o\
           read_TortuosityByZone.o\
-	      read_vgn.o\
-	      read_vga.o\
-	      read_wcr.o\
+	  read_vgn.o\
+	  read_vga.o\
+	  read_wcr.o\
           readblock.o\
           readbreak.o\
           readCaseSensitive.o\
@@ -596,9 +593,6 @@ OBJSF  =  crunchtype.o\
           readtype3.o\
           readtypescan1.o\
           reallocate.o\
-	      redistributeRich.o\
-	      redist_recvRich.o\
-	      redist_sendRich.o\
           restart.o\
           rocalc.o\
           satcalc.o\
@@ -645,22 +639,29 @@ OBJSF  =  crunchtype.o\
           units_time.o\
           units_timeOutput.o\
           UpdateExchanger.o\
-		  vanGenuchten.o\
           velocalc.o\
-	      velocalcNS.o\
-	      velocalcRich.o\
-	      watercontentRich.o\
           WaterReacted.o\
           WaterReactedNodeByNode.o\
           xmass.o\
           xmassNodeByNode.o\
           xtoolInit.o\
-          xtoolOutput.o
+          xtoolOutput.o\
+          redistributeRich.o\
+          vanGenuchten.o\
+          PressureRich.o\
+          gradhRich.o\
+          nexttoSatRich.o\
+          redist_recvRich.o\
+          velocalcRich.o\
+          watercontentRich.o\
+          PressureNS.o\
+          velocalcNS.o\
+          redist_sendRich.o
 
 LOCDIR   = ${CrunchTope_Dir}
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
 
-CrunchMain :
-	-${FLINKER} -o CrunchTope ${SOURCEF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS} -fbacktrace
+CrunchMain : ${OBJSF} chkopts
+	-${FLINKER} -o CrunchTope ${OBJSF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}
