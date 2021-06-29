@@ -4913,7 +4913,6 @@ netDiffuseX = 0.0d0
 satliq = FixSaturation
 satliqold = FixSaturation
 dstar = 0.0d0
-qg = 0.0d0
 por = 1.0d0
 porin = 1.0d0
 dxy = 1.0d0
@@ -7473,8 +7472,6 @@ END IF
 
   velocityfile = ' '
   gasvelocityfile = ' '
-
-intbnd = 0
 
 IF (isaturate == 1) THEN         !! Unsaturated case
   IF (ALLOCATED(intbndgas)) THEN
