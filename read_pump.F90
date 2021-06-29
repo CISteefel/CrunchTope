@@ -101,13 +101,6 @@ ALLOCATE(jxxPumpZone(500))
 ALLOCATE(jyyPumpZone(500))
 ALLOCATE(jzzPumpZone(500))
 
-IF (ALLOCATED(npump)) THEN
-  DEALLOCATE(npump)
-  ALLOCATE(npump(nx,ny,nz))
-ELSE
-  ALLOCATE(npump(nx,ny,nz))
-END IF
-
 REWIND nout
 
 wells = .FALSE.
