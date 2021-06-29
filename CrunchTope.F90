@@ -2889,7 +2889,6 @@ IF (Richards) THEN
     ELSE IF (delt > dtmax) THEN
         delt = dtmax
     ELSE
-      WRITE(*,*) ' Delt = ',delt
       CONTINUE
     END IF
     
