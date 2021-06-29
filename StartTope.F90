@@ -7521,7 +7521,7 @@ IF (found) THEN
   END IF
 
 !!  Convert pumping rate from liters/sec to m**3/yr
-  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
+!!  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
 
   IF (isaturate == 1) THEN
     gaspump = gaspump*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr

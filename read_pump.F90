@@ -354,33 +354,40 @@ END IF
 
 !!!  Now identify cases where there are multiple wells at same grid cell and fill out array npump(jx,jy,jz)
     
-    npump = 0
+IF (wells) THEN
+  
+  npump = 0
     
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
           
-          do npz = 1,npumpzone
-            jxxtemp = jxxPumpZone(npz)
-            jyytemp = jyyPumpZone(npz)
-            jzztemp = jzzPumpZone(npz)
+        do npz = 1,npumpzone
+          jxxtemp = jxxPumpZone(npz)
+          jyytemp = jyyPumpZone(npz)
+          jzztemp = jzzPumpZone(npz)
             
-            IF (jxxtemp == jx .AND. jyytemp == jy .AND. jzztemp == jz ) THEN
+          IF (jxxtemp == jx .AND. jyytemp == jy .AND. jzztemp == jz ) THEN
 
-              npump(jx,jy,jz) = npump(jx,jy,jz) + 1
-              qg(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
-              intbnd(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
+            npump(jx,jy,jz) = npump(jx,jy,jz) + 1
+            qg(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
+            intbnd(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
               
-            END IF
+          END IF
             
-          END DO
-    
         END DO
+    
       END DO
     END DO
+  END DO
     
-    DEALLOCATE(qgTemp)
-    DEALLOCATE(intbndTemp)
+  !!  Convert pumping rate from liters/sec to m**3/yr
+  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
+    
+END IF
+    
+DEALLOCATE(qgTemp)
+DEALLOCATE(intbndTemp)
               
     
 RETURN
