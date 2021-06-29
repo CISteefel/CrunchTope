@@ -2875,19 +2875,27 @@ IF (Richards) THEN
 
     dtold = delt
     IF (dq_max > 0.02) THEN
+      IF (dq_max > 0.1) THEN
 
         delt = 0.9 * delt
-    ELSE IF (dq_max < 0.01) THEN
-        delt = 1.1 * delt
-    END IF
+        ELSE IF (dq_max < 0.01) THEN
+          delt = 1.1 * delt
+        END IF
 
     IF (delt < deltmin) THEN
         delt = deltmin
     ELSE IF (delt > dtmax) THEN
         delt = dtmax
+    ELSE
+!!      WRITE(*,*) ' Delt = ',delt
+      CONTINUE
     END IF
+    
+  END IF
+    
 ELSE
-      IF (nn > 4) THEN
+  
+    IF (nn > 4) THEN
               dtmax = tstep
               IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
                 deltmin = dtmaxcour

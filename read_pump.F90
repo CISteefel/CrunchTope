@@ -108,13 +108,10 @@ ELSE
   ALLOCATE(npump(nx,ny,nz))
 END IF
 
-
-
 REWIND nout
 
 wells = .FALSE.
 
-npump = 0
 10 READ(nout,'(a)',END=500) zone
 nlen1 = LEN(zone)
 CALL majuscules(zone,nlen1)
@@ -330,6 +327,13 @@ GO TO 10
 500 CONTINUE
     
 IF (npumpzone > 0) THEN
+  
+  IF (ALLOCATED(npump)) THEN
+    DEALLOCATE(npump)
+    ALLOCATE(npump(nx,ny,nz))
+  ELSE
+    ALLOCATE(npump(nx,ny,nz))
+  END IF
       
   IF (ALLOCATED(qg)) THEN
     DEALLOCATE(qg)
