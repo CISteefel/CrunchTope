@@ -394,7 +394,15 @@ REAL(DP)                                                   :: pumpterm
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
 
+! variables for dt adjustment in Richards
 REAL(DP)                                                   :: dq_max
+REAL(DP)                                                   :: dt_co
+REAL(DP)                                                   :: term1
+REAL(DP)                                                   :: term2
+REAL(DP)                                                   :: term3
+REAL(DP)                                                   :: term4
+REAL(DP)                                                   :: term5
+REAL(DP)                                                   :: m
 
 REAL(DP)                                                   :: dist
 REAL(DP)                                                   :: satu
@@ -923,17 +931,17 @@ END IF
         call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
         checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
-        
+
         pumpterm = 0.0d0
         IF (wells) THEN
 
           DO npz = 1,npump(jx,jy,jz)
             pumpterm = pumpterm + qg(npz,jx,jy,jz)
           END DO
-        
+
         END IF
         RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
-        
+
         IF (DABS(RealSum) > MaxDivergence) THEN
             jxmax = jx
             jymax = jy
@@ -1443,7 +1451,7 @@ DO WHILE (nn <= nend)
       END DO
 
       IF (ReadNuft) THEN
-        WRITE(*,*) 
+        WRITE(*,*)
         WRITE(*,*) ' Nuft Read option no longer supported'
         READ(*,*)
         STOP
@@ -1671,7 +1679,9 @@ DO WHILE (nn <= nend)
     END DO loop4001
 
     ! No dt reduction when using Richards solver , Zhi Li 20200708
-    IF (icvg == 1 .AND. .NOT. Richards) THEN
+    ! Enabled dt reduction by Zhi Li 20210630
+    ! IF (icvg == 1 .AND. .NOT. Richards) THEN
+    IF (icvg == 1) THEN
       ddtold = delt
       delt = delt/10.0
       itskip = 1
@@ -2864,25 +2874,60 @@ END DO
 !Adaptive dt, Zhi Li 20200715
 IF (Richards) THEN
     dq_max = 0.0d0
+    dt_co = dtmax
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-            IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale) > dq_max) THEN
-                dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale)
+            ! IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale) > dq_max) THEN
+            !     dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale)
+            ! END IF
+
+            IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
+                dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
+            END IF
+            ! calculate Courant number
+            IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
+                m = 1.0 - 1.0/vgn(jx,jy,jz)
+                ! term1 = saturation
+                IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
+                    term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                ELSE
+                    term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                END IF
+                ! term2 = 1 - saturation^(1/m)
+                term2 = 1.0 - term1**(1.0/m)
+                ! term3 = 1 - (1 - saturation^(1/m))^m
+                term3 = 1.0 - term2**m
+                ! term4 = Ks      Why using permy???
+                term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
+                ! term5 = dK/ds
+                term5 = 0.5*term4*term1**(-0.5)*term3**2.0
+                IF (term2 /= 0.0) THEN
+                    term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
+                END IF
+                ! finally, get max dt by assume max Co=2
+                IF (term5 .NE. 0.0) THEN
+                    IF (dt_co > 2.0 * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
+                        dt_co = 2.0 * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
+                    END IF
+                END IF
             END IF
         END DO
       END DO
     END DO
-    ! WRITE(*,*) '  >>>>> Maximum change in flux = ',dq_max
+    ! WRITE(*,*) '  >>>>> Maximum change in water content = ',dq_max
+    ! WRITE(*,*) '  >>>>> Maximum dt with Courant criteria = ',dt_co, dt_co*365.0*86400.0
 
     dtold = delt
     IF (dq_max > 0.02) THEN
-      IF (dq_max > 0.1) THEN
+        delt = 0.8 * delt
+    ELSE IF (dq_max < 0.01) THEN
+        delt = 1.2 * delt
+    END IF
 
-        delt = 0.9 * delt
-        ELSE IF (dq_max < 0.01) THEN
-          delt = 1.1 * delt
-        END IF
+    IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
+        delt = dt_co
+    END IF
 
     IF (delt < deltmin) THEN
         delt = deltmin
@@ -2891,11 +2936,14 @@ IF (Richards) THEN
     ELSE
       CONTINUE
     END IF
-    
-  END IF
-    
+
+    IF (dtold /= delt) THEN
+        WRITE(*,*) '  >>>>> dt has been adjusted to : ',delt
+    END IF
+
+
 ELSE
-  
+
     IF (nn > 4) THEN
               dtmax = tstep
               IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
@@ -3103,16 +3151,16 @@ ELSE
         call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
         checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
-        
+
         pumpterm = 0.0d0
         IF (wells) THEN
-          
+
           DO npz = 1,npump(jx,jy,jz)
             pumpterm = pumpterm + qg(npz,jx,jy,jz)
           END DO
-          
+
         END IF
-        
+
         RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
 
         IF (DABS(RealSum) > MaxDivergence) THEN

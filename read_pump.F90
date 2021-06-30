@@ -104,6 +104,7 @@ ALLOCATE(jzzPumpZone(500))
 REWIND nout
 
 wells = .FALSE.
+npumpzone = 0
 
 10 READ(nout,'(a)',END=500) zone
 nlen1 = LEN(zone)
@@ -111,6 +112,7 @@ CALL majuscules(zone,nlen1)
 id = 1
 iff = mls
 CALL sschaine(zone,id,iff,ssch,ids,ls)
+
 IF(ls /= 0) THEN
   lzs=ls
   CALL convan(ssch,lzs,res)
@@ -199,7 +201,7 @@ IF(ls /= 0) THEN
         READ(*,*)
         STOP
       END IF
-      
+
       WRITE(*,*)
       WRITE(*,*) ' Jxx location = ', jxxtemp
 
@@ -284,25 +286,25 @@ IF(ls /= 0) THEN
 
         WRITE(*,*)
         WRITE(*,*) ' Jzz location = ', jzztemp
-        
-        
+
+
         npumpzone = npumpzone + 1
-        
+
         IF (npumpzone > 500) THEN
-          WRITE(*,*) 
+          WRITE(*,*)
           WRITE(*,*) ' # pumpzones not dimensioned large enough in read_Pump'
           WRITE(*,*)
           READ(*,*)
         END IF
-        
+
         write(*,*) ' npumpzone = ', npumpzone
-        
+
         jxxPumpZone(npumpzone) = jxxtemp
-        jyyPumpZone(npumpzone) = jyytemp 
-        jzzPumpZone(npumpzone) = jzztemp   
+        jyyPumpZone(npumpzone) = jyytemp
+        jzzPumpZone(npumpzone) = jzztemp
         qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp) = qtemp
         intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp) = intbnd_tmp
-        
+
 
     ELSE
       WRITE(*,*)
@@ -321,16 +323,16 @@ END IF
 GO TO 10
 
 500 CONTINUE
-    
+
 IF (npumpzone > 0) THEN
-  
+
   IF (ALLOCATED(npump)) THEN
     DEALLOCATE(npump)
     ALLOCATE(npump(nx,ny,nz))
   ELSE
     ALLOCATE(npump(nx,ny,nz))
   END IF
-      
+
   IF (ALLOCATED(qg)) THEN
     DEALLOCATE(qg)
     ALLOCATE(qg(5,nx,ny,nz))
@@ -343,48 +345,48 @@ IF (npumpzone > 0) THEN
   ELSE
     ALLOCATE(intbnd(5,nx,ny,nz))
   END IF
-  
+
   wells = .TRUE.
 
 END IF
 
 !!!  Now identify cases where there are multiple wells at same grid cell and fill out array npump(jx,jy,jz)
-    
+
 IF (wells) THEN
-  
+
   npump = 0
-    
+
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-          
+
         do npz = 1,npumpzone
           jxxtemp = jxxPumpZone(npz)
           jyytemp = jyyPumpZone(npz)
           jzztemp = jzzPumpZone(npz)
-            
+
           IF (jxxtemp == jx .AND. jyytemp == jy .AND. jzztemp == jz ) THEN
 
             npump(jx,jy,jz) = npump(jx,jy,jz) + 1
             qg(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
             intbnd(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
-              
+
           END IF
-            
+
         END DO
-    
+
       END DO
     END DO
   END DO
-    
+
   !!  Convert pumping rate from liters/sec to m**3/yr
   qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
-    
+
 END IF
-    
+
 DEALLOCATE(qgTemp)
 DEALLOCATE(intbndTemp)
-              
-    
+
+
 RETURN
 END SUBROUTINE read_pump
