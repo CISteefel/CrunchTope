@@ -91,6 +91,7 @@ INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: jzzPumpZone
 
 INTEGER(I4B)                                                :: npumpzone
 INTEGER(I4B)                                                :: npz
+INTEGER(I4B)                                                :: np
 
 
 nxyz = nx*ny*nz
@@ -332,18 +333,20 @@ IF (npumpzone > 0) THEN
   ELSE
     ALLOCATE(npump(nx,ny,nz))
   END IF
+  npump = 0
 
   IF (ALLOCATED(qg)) THEN
     DEALLOCATE(qg)
-    ALLOCATE(qg(5,nx,ny,nz))
+    ALLOCATE(qg(1,nx,ny,nz))
   ELSE
-    ALLOCATE(qg(5,nx,ny,nz))
+    ALLOCATE(qg(1,nx,ny,nz))
   END IF
+  qg = 0.0d0
   IF (ALLOCATED(intbnd)) THEN
     DEALLOCATE(intbnd)
-    ALLOCATE(intbnd(5,nx,ny,nz))
+    ALLOCATE(intbnd(1,nx,ny,nz))
   ELSE
-    ALLOCATE(intbnd(5,nx,ny,nz))
+    ALLOCATE(intbnd(1,nx,ny,nz))
   END IF
 
   wells = .TRUE.
@@ -368,8 +371,9 @@ IF (wells) THEN
           IF (jxxtemp == jx .AND. jyytemp == jy .AND. jzztemp == jz ) THEN
 
             npump(jx,jy,jz) = npump(jx,jy,jz) + 1
-            qg(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = qgTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
-            intbnd(npump(jx,jy,jz),jxxtemp,jyytemp,jzztemp) = intbndTemp(npumpzone,jxxtemp,jyytemp,jzztemp)
+            np = npump(jx,jy,jz)
+            qg(np,jxxtemp,jyytemp,jzztemp) = qgTemp(npz,jxxtemp,jyytemp,jzztemp)
+            intbnd(np,jxxtemp,jyytemp,jzztemp) = intbndTemp(npz,jxxtemp,jyytemp,jzztemp)
 
           END IF
 
