@@ -337,16 +337,16 @@ IF (npumpzone > 0) THEN
 
   IF (ALLOCATED(qg)) THEN
     DEALLOCATE(qg)
-    ALLOCATE(qg(1,nx,ny,nz))
+    ALLOCATE(qg(5,nx,ny,nz))
   ELSE
-    ALLOCATE(qg(1,nx,ny,nz))
+    ALLOCATE(qg(5,nx,ny,nz))
   END IF
   qg = 0.0d0
   IF (ALLOCATED(intbnd)) THEN
     DEALLOCATE(intbnd)
-    ALLOCATE(intbnd(1,nx,ny,nz))
+    ALLOCATE(intbnd(5,nx,ny,nz))
   ELSE
-    ALLOCATE(intbnd(1,nx,ny,nz))
+    ALLOCATE(intbnd(5,nx,ny,nz))
   END IF
 
   wells = .TRUE.
