@@ -758,8 +758,6 @@ END IF
               END IF
            END IF
 
-
-
          END DO
        END DO
      END DO
@@ -784,6 +782,17 @@ END IF
        END DO
      END DO
      WRITE(*,*) ' Initialization completed!'
+     
+!!! Calculate liquid saturation from water content
+     
+     DO jz = 0,nz+1
+       DO jy = 0,ny+1
+         DO jx = 0,nx+1
+           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+         END DO
+       END DO
+     END DO
+     
  END IF
 
 
@@ -897,6 +906,7 @@ END IF
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
+  
  ! final check of water content
     IF (Richards) THEN
       DO jz = 1,nz
@@ -911,6 +921,16 @@ END IF
         END DO
       END DO
     END IF
+    
+!!! Calculate liquid saturation from water content
+     
+     DO jz = 0,nz+1
+       DO jy = 0,ny+1
+         DO jx = 0,nx+1
+           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+         END DO
+       END DO
+     END DO
 
 
 !!  Check divergence of flow field
@@ -1263,8 +1283,6 @@ DO WHILE (nn <= nend)
       STOP
     END IF
 
-
-
     IF (Richards) THEN
         FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
           head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
@@ -1274,7 +1292,6 @@ DO WHILE (nn <= nend)
           pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
         END FORALL
     END IF
-
 
     IF (NavierStokes) THEN
         CALL velocalcNS(nx,ny,nz,delt)
@@ -1303,6 +1320,16 @@ DO WHILE (nn <= nend)
              ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
                  wc(jx,jy,jz) = wcr(jx,jy,jz)
              END IF
+         END DO
+       END DO
+       END DO
+       
+       !!! Calculate liquid saturation from water content
+     
+     DO jz = 0,nz+1
+       DO jy = 0,ny+1
+         DO jx = 0,nx+1
+           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
          END DO
        END DO
      END DO
@@ -2876,6 +2903,7 @@ END DO
 !  Calculate time step to be used based on various criteria
 !Adaptive dt, Zhi Li 20200715
 IF (Richards) THEN
+  
     dq_max = 0.0d0
     dt_co = dtmax
     DO jz = 1,nz

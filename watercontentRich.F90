@@ -167,6 +167,16 @@ DO jy = 1,ny
   END DO
 END DO
 
+!!! Calculate liquid saturation from water content
+     
+     DO jz = 0,nz+1
+       DO jy = 0,ny+1
+         DO jx = 0,nx+1
+           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+         END DO
+       END DO
+     END DO
+
 
 RETURN
 END SUBROUTINE watercontentRich

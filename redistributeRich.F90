@@ -47,6 +47,7 @@ USE crunchtype
 USE params
 USE medium
 USE flow
+USE transport
 USE CrunchFunctions
 
 IMPLICIT NONE
@@ -87,6 +88,7 @@ loss = 0.0d0
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+      
         IF (activecellPressure(jx,jy,jz) == 1) THEN
             DO jj = -3,3
                 rsend(jj) = 0.0d0
@@ -168,6 +170,16 @@ DO jz = 1,nz
             END IF
         END IF
 
+    END DO
+  END DO
+END DO
+
+!!! Calculate liquid saturation from water content
+     
+DO jz = 0,nz+1
+  DO jy = 0,ny+1
+    DO jx = 0,nx+1
+      satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
     END DO
   END DO
 END DO
