@@ -73,6 +73,8 @@ INTEGER(I4B)                                               :: ik
 INTEGER(I4B)                                               :: it
 INTEGER(I4B)                                               :: ItPoint
 
+CHARACTER (LEN=3)                                          :: ulabPrint
+
 real(dp) :: lambda,    cations_lambda, &
             xi,        cations_xi,     &
             anions_Cl, anions_SO4,     &
@@ -86,7 +88,8 @@ real(dp)             :: ln_fco2, fco2
 ChargeSum = 0.0d0
 TotalMoles = 0.0d0
 DO ik = 1,ncomp+nspec
-  IF (ulab(ik) /= 'H2O' .AND. ulab(ik) /= 'H2O18' .AND. ulab(ik) /= 'H218O') THEN
+  ulabPrint = ulab(ik)
+  IF (ulabPrint(1:3) /= 'H2O') THEN
     TotalMoles = TotalMoles + sptmp10(ik)
     ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
   ELSE
@@ -177,11 +180,12 @@ DO ik = 1,ncomp+nspec
 
   IF (chg(ik) == 0.0D0) THEN
 
-    IF (ulab(ik) == 'H2O' .OR. ulab(ik) == 'H2O18' .OR. ulab(ik) == 'H218O') THEN
+    ulabPrint = ulab(ik)
+    IF (ulabPrint(1:3) == 'H2O') THEN
 
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
-      !!!  Would apply here to H2O (not dissolved species)
-      gamtmp(ik) = DLOG(gamWaterCheck)
+!!!   Assumes molecular weight of H2O of 18.01528
+      gamtmp(ik) = DLOG(gamWaterCheck/55.50843506)
       
     ELSE IF (ulab(ik) == 'CO2(aq)') THEN
 

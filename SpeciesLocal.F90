@@ -72,11 +72,9 @@ DO ksp = 1,nspec
 
     sum = 0.0D0
     DO i = 1,ncomp
-      IF (ulab(i) == 'H2O') THEN
-        sum = sum + muaq(ksp,i)*(gam(i,jx,jy,jz))
-      ELSE
+
         sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-      END IF
+
     END DO
 
   ELSE

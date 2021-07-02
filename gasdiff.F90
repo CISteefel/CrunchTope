@@ -126,8 +126,8 @@ UliGas = 1.0d0
 QuirkGas = 0.0d0
 zero = 0.0d0
 
-  UliGas = 7.0d0/3.0d0
-  QuirkGas = 1.0d0/3.0d0
+UliGas = 7.0d0/3.0d0
+QuirkGas = 1.0d0/3.0d0
 
 jz = 1
 DO jy = 1,ny
@@ -214,6 +214,7 @@ DO jy = 1,ny
       satn = 1.0-satliq(jx,jy+1,jz)
       pors = por(jx,jy-1,jz)
       sats = 1.0-satliq(jx,jy-1,jz)
+
       gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas
       dums = pors*sats*gasd
       gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas

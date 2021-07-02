@@ -69,11 +69,22 @@ REAL(DP)                                                   :: sum
 REAL(DP)                                                   :: sion_tmp
 REAL(DP)                                                   :: tempc
 
+REAL(DP)                                                   :: TotalMoles
+
+REAL(DP)                                                   :: Chargesum
+REAL(DP)                                                   :: aa1
+REAL(DP)                                                   :: GamWaterCheck
+
 INTEGER(I4B)                                               :: ik
+
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 ctotal = 0.0
 DO ik = 1,ncomp+nspec
-  ctotal = ctotal + sp10(ik,jx,jy,jz)
+  ulabPrint = ulab(ik)
+  IF (ulabPrint(1:3) /= 'H2O') THEN
+    ctotal = ctotal + sp10(ik,jx,jy,jz)
+  END IF
 END DO
 
 tempc = t(jx,jy,jz)
@@ -102,11 +113,19 @@ END DO
 sion_tmp = 0.50D0*sum
 
 DO ik = 1,ncomp+nspec
-  IF (chg(ik) == 0.0) THEN
-!!    gam_local(ik) = clg*0.1*sion_tmp
-    gam_local(ik) = 0.0
-    IF (ulab(ik) == 'H2O') THEN
-      gam_local(ik) = LOG(1.0/ctotal)
+  IF (chg(ik) == 0.0D0) THEN
+    
+    ulabPrint = ulab(ik)
+    IF (ulabPrint(1:3) /= 'H2O') THEN
+
+      gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
+!!!   Assumes molecular weight of H2O of 18.01528
+      gam(ik,jx,jy,jz) = DLOG(gamWaterCheck/55.50843506)
+
+    ELSE
+      
+      gam(ik,jx,jy,jz) = clg*0.10d0*sion_tmp
+      
     END IF
   ELSE
     gam_local(ik) = -clg*( (ah*chg(ik)*chg(ik)*SQRT(sion_tmp))/  &

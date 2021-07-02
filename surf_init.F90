@@ -82,11 +82,9 @@ DO ns = 1,nsurf_sec
 !!  Aqueous species
     sum = 0.0d0
     DO i = 1,ncomp
-      IF (ulab(i) == 'H2O') THEN
-      sum = sum + musurf(ns,i)*(gamtmp(i))
-      ELSE
+
       sum = sum + musurf(ns,i)*(sptmp(i) + gamtmp(i))
-      END IF
+
     END DO
 
     LogTotalSites = DLOG(c_surf(islink(ns),nco))
@@ -110,11 +108,9 @@ DO ns = 1,nsurf_sec
 !!  Aqueous species
     sum = 0.0
     DO i = 1,ncomp
-      IF (ulab(i) == 'H2O') THEN
-        sum = sum + musurf(ns,i)*(gamtmp(i))
-      ELSE
+
         sum = sum + musurf(ns,i)*(sptmp(i) + gamtmp(i))
-      END IF
+
     END DO
 
     LogTotalSites = DLOG(c_surf(islink(ns),nco))

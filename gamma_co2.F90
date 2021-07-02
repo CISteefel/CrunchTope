@@ -94,6 +94,8 @@ REAL(DP)                                                   :: tempc
 REAL(DP)                                                   :: sqrt_sion
 REAL(DP)                                                   :: sum
 
+CHARACTER (LEN=3)                                          :: ulabPrint
+
 !_co2
 real(dp) :: lambda,    cations_lambda, &
             xi,        cations_xi,     &
@@ -125,7 +127,8 @@ CALL keqcalcGasOnly(ngas,nspec,jx,jy,jz,pg)
 ChargeSum = 0.0d0
 TotalMoles = 0.0d0
 DO ik = 1,ncomp+nspec
-  IF (ulab(ik) /= 'H2O' .AND. ulab(ik) /= 'H2O18' .AND. ulab(ik) /= 'H218O') THEN
+  ulabPrint = ulab(ik)
+  IF (ulabPrint(1:3) /= 'H2O') THEN
     TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
     ChargeSum = ChargeSum + sp10(ik,jx,jy,jz)*chg(ik)*chg(ik)
   ELSE
@@ -214,10 +217,12 @@ DO ik = 1,ncomp+nspec
 
   IF (chg(ik) == 0.0D0) THEN
 
-    IF (ulab(ik) == 'H2O' .OR. ulab(ik) == 'H2O18' .OR. ulab(ik) == 'H218O') THEN
-      
+    ulabPrint = ulab(ik)
+    IF (ulabPrint(1:3) == 'H2O') THEN
+
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
-      gam(ik,jx,jy,jz) = DLOG(gamWaterCheck)
+!!!   Assumes molecular weight of H2O of 18.01528
+      gam(ik,jx,jy,jz) = DLOG(gamWaterCheck/55.50843506)
       
     ELSE IF (ulab(ik) == 'CO2(aq)') THEN
 

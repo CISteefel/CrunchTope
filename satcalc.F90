@@ -86,11 +86,9 @@ DO k = 1,nrct
 
       sumiap = 0.0D0
       DO i = 1,ncomp
-        IF (ulab(i) == 'H2O') THEN
-          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(gam(i,jx,jy,jz))
-        ELSE
+
           sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-        END IF
+
       END DO
 
     ELSE

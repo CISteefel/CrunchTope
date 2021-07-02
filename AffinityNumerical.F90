@@ -108,21 +108,11 @@ ELSE
   npp = np
 END IF
 
-IF (ikh2o /= 0) THEN
-  sumiap = 0.0D0
-  DO i = 1,ncomp
-    IF (ulab(i) == 'H2O') THEN
-      sumiap = sumiap + mumin(npp,kk,i)*(gam(i,jx,jy,jz))
-    ELSE
-      sumiap = sumiap + mumin(npp,kk,i)*(sppTMP(i)+gam(i,jx,jy,jz))
-    END IF
-  END DO
-ELSE
+
   sumiap = 0.0D0
   DO i = 1,ncomp
     sumiap = sumiap + mumin(npp,kk,i)*(sppTMP(i)+gam(i,jx,jy,jz))
   END DO
-END IF
 
 IF (nIsotopeMineral > 0) THEN
 

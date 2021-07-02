@@ -441,11 +441,9 @@ DO  ktrial = 1,ntrial
 
       sumiap = 0.0D0
       DO  i2 = 1,ncomp
-        if (ulab(i2) == 'H2O') then
-          sumiap = sumiap + mumin(1,k,i2)* (gamtmp(i2))
-        else
+
           sumiap = sumiap + mumin(1,k,i2)* (sptmp(i2)+gamtmp(i2))
-        end if
+
       END DO
 
       feq(i) = sumiap - keqmin_tmp(1,k)
@@ -454,11 +452,9 @@ DO  ktrial = 1,ntrial
 
       sumiap = 0.0D0
       DO i2 = 1,ncomp
-        IF (ulab(i2) == 'H2O') THEN
-          sumiap = sumiap + mugas(kg,i2)* (gamtmp(i2))
-        ELSE
+
           sumiap = sumiap + mugas(kg,i2)* (sptmp(i2)+gamtmp(i2))
-        END IF
+
       END DO
 
       IF (Duan) THEN

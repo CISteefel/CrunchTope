@@ -77,11 +77,9 @@ tempk = tempc + 273.15
 DO kk = 1,ngas
   sum = 0.0
   DO i = 1,ncomp
-    IF (ulab(i) == 'H2O') THEN
-      sum = sum + mugas(kk,i)*(gamtmp(i))
-    ELSE
+
       sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
-    END IF
+
   END DO
 
   ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)

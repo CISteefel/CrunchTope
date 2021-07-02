@@ -66,11 +66,7 @@ REAL(DP)                                                    :: sum
 DO ksp = 1,nspec
   sum = 0.0D0
   DO i = 1,ncomp
-    IF (ulab(i) == 'H2O') THEN
-      sum = sum + muaq(ksp,i)*(gamtmp(i))
-    ELSE
-      sum = sum + muaq(ksp,i)*(sptmp(i) + gamtmp(i))
-    END IF
+    sum = sum + muaq(ksp,i)*(sptmp(i) + gamtmp(i))
   END DO
   nk = ksp + ncomp
   sptmp(nk) = keqaq_tmp(ksp) - gamtmp(nk) + sum

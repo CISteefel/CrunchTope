@@ -84,11 +84,9 @@ IF (iexc == 1) THEN        ! Gaines-Thomas convention
     IF (ikh2o /= 0) THEN
       sum = 0.0
       DO i = 1,ncomp
-        IF (ulab(i) == 'H2O') THEN
-          sum = sum + muexc(nex,i)*(gam(i,jx,jy,jz))
-        ELSE
+
           sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-        END IF
+
       END DO
 
     ELSE
@@ -114,11 +112,9 @@ ELSE IF (iexc == 2) THEN   ! Vanselow convention
     IF (ikh2o /= 0) THEN
       sum = 0.0
       DO i = 1,ncomp
-        IF (ulab(i) == 'H2O') THEN
-          sum = sum + muexc(nex,i)*(gam(i,jx,jy,jz))
-        ELSE
+
           sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-        END IF
+
       END DO
 
     ELSE

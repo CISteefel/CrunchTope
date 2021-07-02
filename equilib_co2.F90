@@ -1,3 +1,4 @@
+
 !!! *** Copyright Notice ***
 !!! �CrunchFlow�, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
 !!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).� All rights reserved.
@@ -452,7 +453,7 @@ DO i = 1,ncomp
     END IF
   END IF
   IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
-    sptmp10(i) = 55.50929781
+    sptmp10(i) = 55.50843506  
     sptmp(i) = DLOG(sptmp10(i))
   END IF
 END DO
@@ -513,11 +514,7 @@ DO  ktrial = 1,ntrial
 
     ChargeSum = 0.0d0
     DO ik = 1,ncomp+nspec
-      IF (ulab(ik) /= 'H2O') THEN
-        ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
-      ELSE
-        CONTINUE
-      END IF
+      ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
     END DO
     sion_tmp = 0.50D0*ChargeSum
     IF (sion_tmp < 25.0d0) THEN
@@ -616,11 +613,7 @@ DO  ktrial = 1,ntrial
       400       CONTINUE
       sumiap = 0.0D0
       DO  i2 = 1,ncomp
-        if (ulab(i2) == 'H2O') then
-          sumiap = sumiap + mumin(1,k,i2)* (gamtmp(i2))
-        else
-          sumiap = sumiap + mumin(1,k,i2)* (sptmp(i2)+gamtmp(i2))
-        end if
+        sumiap = sumiap + mumin(1,k,i2)* (sptmp(i2)+gamtmp(i2))
       END DO
 
       feq(i) = sumiap - keqmin_tmp(1,k)
@@ -668,11 +661,7 @@ DO  ktrial = 1,ntrial
       500       CONTINUE
       sumiap = 0.0D0
       DO i2 = 1,ncomp
-        IF (ulab(i2) == 'H2O') THEN
-          sumiap = sumiap + mugas(kg,i2)* (gamtmp(i2))
-        ELSE
-          sumiap = sumiap + mugas(kg,i2)* (sptmp(i2)+gamtmp(i2))
-        END IF
+        sumiap = sumiap + mugas(kg,i2)* (sptmp(i2)+gamtmp(i2))
       END DO
 
       IF (Duan) THEN
@@ -1299,9 +1288,7 @@ DO  ktrial = 1,ntrial
 
     sum = 0.0D0
     DO ik = 1,ncomp+nspec
-      IF (ulab(ik) /= 'H2O') THEN
-        sum = sum + sptmp10(ik)*chg(ik)*chg(ik)
-      END IF
+      sum = sum + sptmp10(ik)*chg(ik)*chg(ik)
     END DO
     sion_tmp = 0.50D0*sum
 
@@ -1663,18 +1650,16 @@ DO  ktrial = 1,ntrial
     namtemp = 'Aqueous'
     DO ik = 1,ncomp+nspec
       spbase(ik) = DLOG10(sptmp10(ik))
-      IF (ulab(ik) == 'H2O') THEN
-        actprint = gamtmp(ik)/clg
-      ELSE
-        actprint = (sptmp(ik)+gamtmp(ik))/clg
-      END IF
+
+      actprint = (sptmp(ik)+gamtmp(ik))/clg
+
       actprint10 = 10**(actprint)
       actcoeffprint = DEXP(gamtmp(ik))
       WRITE(iunit2,202) ulab(ik),spbase(ik),actprint,sptmp10(ik),actprint10,actcoeffprint,namtemp
     END DO  
 
-202 FORMAT(2X,a18,2X,f8.3,3X,f8.3,2X,1PE12.3,2X,1PE12.3,2X,1PE12.3,2x,a8)
-211 FORMAT(2X,a18,2X,f8.3,3X,f8.3,2X,1PE12.3,2X,1PE12.3,2X,'            ',2x,a8)
+202 FORMAT(2X,a18,2X,f10.5,3X,f10.5,2X,1PE12.5,2X,1PE12.5,2X,1PE12.5,2x,a8)
+211 FORMAT(2X,a18,2X,f10.5,3X,f10.5,2X,1PE12.5,2X,1PE12.5,2X,'            ',2x,a8)
 
     WRITE(iunit2,*)
 
@@ -1712,11 +1697,7 @@ DO  ktrial = 1,ntrial
       kk = k + nspec
       sumiap = 0.0D0
       DO i = 1,ncomp
-        IF (ulab(ik) == 'H2O') THEN
-          sumiap = sumiap + mumin(1,k,i)* (gamtmp(i))
-        ELSE
-          sumiap = sumiap + mumin(1,k,i)* (sptmp(i)+gamtmp(i))
-        END IF
+        sumiap = sumiap + mumin(1,k,i)* (sptmp(i)+gamtmp(i))
       END DO
       silnTMP = sumiap - keqmin_tmp(1,k)
       siprnt = silnTMP/clg

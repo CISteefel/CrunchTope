@@ -433,11 +433,9 @@ DO k = 1,nkin
               
               sumiap = 0.0D0
               DO i2 = 1,ncomp
-                IF (ulab(i2) == 'H2O') THEN
-                  sumiap = sumiap + mumin(1,k,i2)*(gam(i2,jx,jy,jz))
-                ELSE
+
                   sumiap = sumiap + mumin(1,k,i2)*( sppTMP(i2) + gam(i2,jx,jy,jz) )
-                END IF
+
               END DO
               
               silnTMP = (sumiap - keqmin(1,k,jx,jy,jz))

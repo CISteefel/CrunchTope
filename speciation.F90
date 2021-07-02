@@ -404,11 +404,9 @@ DO jz = 1,nz
       namtemp = 'Aqueous'
       DO ik = 1,ncomp+nspec
         spbase = DLOG10(sp10(ik,jx,jy,jz))
-        IF (ulab(ik) == 'H2O') THEN
-          actprint = (gam(ik,jx,jy,jz))/clg
-        ELSE
+
           actprint = (sp(ik,jx,jy,jz)+gam(ik,jx,jy,jz))/clg
-        END IF
+
         actprint10 = 10**(actprint)
         WRITE(8,202) ulab(ik),spbase,actprint,sp10(ik,jx,jy,jz),actprint10,EXP(gam(ik,jx,jy,jz)),namtemp
       END DO  

@@ -370,11 +370,9 @@ DO k = 1,nkin
 
           sumiap = 0.0D0
           DO i = 1,ncomp
-            IF (ulab(i) == 'H2O') THEN
-              sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(gam(i,jx,jy,jz))
-            ELSE
+
               sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-            END IF
+
           END DO
   
         ELSE
@@ -399,11 +397,9 @@ DO k = 1,nkin
 
           sumiap = 0.0D0
           DO i = 1,ncomp
-            IF (ulab(i) == 'H2O') THEN
-              sumiap = sumiap + muminTMP(np,jj,i)*(gam(i,jx,jy,jz))
-            ELSE
+
               sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-            END IF
+
           END DO
 
         ELSE
@@ -426,11 +422,9 @@ DO k = 1,nkin
                      
           sumiap = 0.0D0
           DO i = 1,ncomp
-            IF (ulab(i) == 'H2O') THEN
-              sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(gam(i,jx,jy,jz))
-            ELSE
+
               sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-            END IF
+
           END DO
 
         ELSE
@@ -680,21 +674,17 @@ DO k = 1,nkin
             IF (itot_min(kk,np,k) == 1) THEN
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
-              IF (ulab(i) == 'H2O') THEN
-                term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz))
-              ELSE
+
                 term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz)+sp(i,jx,jy,jz))
-              END IF
+
             END IF
           ELSE
             IF (itot_min(kk,np,k) == 1) THEN
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
-              IF (ulab(i) == 'H2O') THEN
-                term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz))
-              ELSE
+
                 term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz)+sp(i,jx,jy,jz))
-              END IF
+
             END IF
           END IF
         END DO

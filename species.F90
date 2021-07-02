@@ -84,11 +84,9 @@ DO jz = 1,nz
             sum = 0.0D0
             DO i = 1,ncomp
 
-              IF (i == ikh2o) THEN 
-                sum = sum + muaq(ksp,i)*(gam(i,jx,jy,jz))
-              ELSE
+
                 sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-              END IF
+
 
             END DO
            

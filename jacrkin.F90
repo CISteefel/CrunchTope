@@ -164,11 +164,9 @@ DO i2 = 1,ncomp
 !!    IF (muaq(ksp,i2) /= 0.0) THEN  !! If the secondary species is not affectd by primary i2, then skip it
       sum = 0.0D0
       DO ii = 1,ncomp
-        IF (ulab(ii) == 'H2O') THEN
-          sum = sum + muaq(ksp,ii)*(gam(ii,jx,jy,jz))
-        ELSE
+
           sum = sum + muaq(ksp,ii)*(sppTMP(ii) + gam(ii,jx,jy,jz))
-        END IF
+
       END DO
       sppTMP(ksp+ncomp) = keqaq(ksp,jx,jy,jz) - gam(ksp+ncomp,jx,jy,jz) + sum
       sppTMP10(ksp+ncomp) = EXP(sppTMP(ksp+ncomp))  

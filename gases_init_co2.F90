@@ -80,11 +80,9 @@ DO kk = 1,ngas
 
     sum = 0.0
     DO i = 1,ncomp
-      IF (ulab(i) == 'H2O') THEN
-        sum = sum + mugas(kk,i)*(gamtmp(i))
-      ELSE
+
         sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
-      END IF
+
     END DO
 
   ELSE
