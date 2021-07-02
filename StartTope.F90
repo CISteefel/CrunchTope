@@ -7473,21 +7473,7 @@ END IF
   velocityfile = ' '
   gasvelocityfile = ' '
 
-IF (isaturate == 1) THEN         !! Unsaturated case
-  
-  IF (ALLOCATED(intbndgas)) THEN
-    DEALLOCATE(intbndgas)
-  END IF
-  ALLOCATE(intbndgas(5,nx,ny,nz))
-  intbndgas = 0
-  
-  IF (ALLOCATED(gaspump)) THEN
-    DEALLOCATE(gaspump)
-    ALLOCATE(gaspump(5,nx,ny,nz))
-  ELSE
-    ALLOCATE(gaspump(5,nx,ny,nz))
-  END IF
-END IF
+
 
 IF (ALLOCATED(qrecharge)) THEN
   DEALLOCATE(qrecharge)
@@ -7632,6 +7618,22 @@ IF (found) THEN
   IF (Richards) THEN
     isaturate = 1
   END IF
+  
+  IF (isaturate == 1) THEN         !! Unsaturated case
+  
+  IF (ALLOCATED(intbndgas)) THEN
+    DEALLOCATE(intbndgas)
+  END IF
+  ALLOCATE(intbndgas(5,nx,ny,nz))
+  intbndgas = 0
+  
+  IF (ALLOCATED(gaspump)) THEN
+    DEALLOCATE(gaspump)
+    ALLOCATE(gaspump(5,nx,ny,nz))
+  ELSE
+    ALLOCATE(gaspump(5,nx,ny,nz))
+  END IF
+END IF
   
   IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
