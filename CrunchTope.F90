@@ -992,6 +992,10 @@ IF (os3d) then
 
 END IF
 
+IF (Richards) THEN
+  isaturate = 1
+END IF
+
 IF (gimrt) THEN
   call AllocateGIMRT(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny,nz)
 END IF
@@ -1051,7 +1055,6 @@ END IF
 IF (isaturate == 1) THEN            !!  Already treated as a unsaturated problem
   AlreadyUnsaturated = .TRUE.
 END IF
-
 
 IF (gimrt .AND. isaturate == 1 .AND. .NOT. AlreadyUnsaturated) THEN
 

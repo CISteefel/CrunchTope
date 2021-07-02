@@ -7474,6 +7474,7 @@ END IF
   gasvelocityfile = ' '
 
 IF (isaturate == 1) THEN         !! Unsaturated case
+  
   IF (ALLOCATED(intbndgas)) THEN
     DEALLOCATE(intbndgas)
   END IF
@@ -7509,22 +7510,11 @@ IF (found) THEN
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
   CALL read_pump(nout,nx,ny,nz,nchem)
-  
-  IF (isaturate == 1) THEN
-    CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
-  END IF
 
   irecharge = 0
 
   IF (.NOT. modflow) THEN
     CALL read_infiltration(nout,nx,ny,nz)
-  END IF
-
-!!  Convert pumping rate from liters/sec to m**3/yr
-!!  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
-
-  IF (isaturate == 1) THEN
-    gaspump = gaspump*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
   END IF
 
 !  NOTE: Specification of constant flow field overrides all other
@@ -7638,6 +7628,18 @@ IF (found) THEN
 !!!      ELSE
 !!!        ALLOCATE(pres(0:nx+1,0:ny+1,0:nz+1))
 !!!      END IF
+        
+  IF (Richards) THEN
+    isaturate = 1
+  END IF
+  
+  IF (isaturate == 1) THEN
+    CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
+  END IF
+
+  IF (isaturate == 1) THEN
+    gaspump = gaspump*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
+  END IF
 
       IF (ALLOCATED(harx)) THEN
         DEALLOCATE(harx)

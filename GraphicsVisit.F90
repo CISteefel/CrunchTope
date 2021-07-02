@@ -714,6 +714,23 @@ END IF
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+  
+  fn='gasfluxd'
+  ilength = 8
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "',char_time(1:ls),' Years"'
+  WRITE(8,3012)
+  WRITE(8,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+  jz = 1
+  DO jy = 1,ny
+    DO jx = 1,nx
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dg(jx,jy,jz)
+    END DO
+ END DO
+  CLOSE(UNIT=8,STATUS='keep')
+  
+  3012 FORMAT('VARIABLES = " X (meters)", " Y (meters)", "Flux north"')
 
   IF (CalculateFlow) THEN
 
