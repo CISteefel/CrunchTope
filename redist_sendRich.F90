@@ -253,7 +253,7 @@ END IF
 !     delV = 0.0d0
 ! END IF
 
-!!! Calculate liquid saturation from water content
+
      
 
 IF (y_is_vertical) THEN

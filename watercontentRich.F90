@@ -169,9 +169,9 @@ END DO
 
 !!! Calculate liquid saturation from water content
      
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
+     DO jz = 1,nz
+       DO jy = 1,ny
+         DO jx = 1,nx
            satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
          END DO
        END DO

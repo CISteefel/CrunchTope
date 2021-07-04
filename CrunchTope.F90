@@ -785,13 +785,13 @@ END IF
      
 !!! Calculate liquid saturation from water content
      
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
-           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-         END DO
-       END DO
-     END DO
+!!!     DO jz = 1,nz
+!!!       DO jy = 1,ny
+!!!         DO jx = 1,nx
+!!!           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+!!!         END DO
+!!!       END DO
+!!!     END DO
      
  END IF
 
@@ -924,13 +924,13 @@ END IF
     
 !!! Calculate liquid saturation from water content
      
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
-           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-         END DO
-       END DO
-     END DO
+!!!     DO jz = 1,nz
+!!!       DO jy = 1,ny
+!!!         DO jx = 1,nx
+!!!           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+!!!         END DO
+!!!       END DO
+!!!     END DO
 
 
 !!  Check divergence of flow field
@@ -1220,6 +1220,7 @@ DO WHILE (nn <= nend)
     CALL harmonic(nx,ny,nz)
 
     IF (Richards) THEN
+      
         DO jz = 0,nz+1
           DO jy = 0,ny+1
             DO jx = 0,nx+1
@@ -1228,6 +1229,7 @@ DO WHILE (nn <= nend)
             END DO
           END DO
         END DO
+        
     END IF
 
 
@@ -1310,6 +1312,7 @@ DO WHILE (nn <= nend)
     ELSE
         CALL velocalc(nx,ny,nz)
     END IF
+    
     ! final check of water content
      IF (Richards) THEN
        DO jz = 1,nz
@@ -1326,13 +1329,14 @@ DO WHILE (nn <= nend)
        
        !!! Calculate liquid saturation from water content
      
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
+     DO jz = 1,nz
+       DO jy = 1,ny
+         DO jx = 1,nx
            satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
          END DO
        END DO
      END DO
+     
     END IF
 
   END IF
