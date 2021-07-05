@@ -142,7 +142,7 @@ INTEGER(I4B), DIMENSION(:), ALLOCATABLE                    :: iTotNegative
 CHARACTER (LEN=mls)                                        :: namtemp
 CHARACTER (LEN=mls)                                        :: dumstring
 
-REAL(DP), PARAMETER                                        :: tolf=1.e-14
+REAL(DP), PARAMETER                                        :: tolf=2.e-14
 REAL(DP)                                                   :: tk
 REAL(DP)                                                   :: sumchg
 REAL(DP)                                                   :: sum
@@ -570,10 +570,14 @@ DO  ktrial = 1,ntrial
     bagit = .FALSE.
 
     IF (itype(i,nco) == 1) THEN
+      
       IF (ctot(i,nco) /= 0.0) THEN
         check = stmp(i)/ctot(i,nco)  !! Ratio of calculated total concentration to imposed
       END IF
       feq(i) = stmp(i) - ctot(i,nco)
+!!!!      write(*,*) i,feq(i)
+      
+      
       IF (check > 1000000.0 .AND. iTotNegative(i) == 0) THEN
         sptmp(i) = sptmp(i) - clg    !! If calculated total concentration too high, reduce primary species
         sptmp10(i) = DEXP(sptmp(i))
@@ -1238,6 +1242,8 @@ DO  ktrial = 1,ntrial
    if (ktrial == 4999) THEN
      continue
    end if
+   
+!!!   write(*,*) ' fxmaxx =',fxmaxx
   
   IF (fxmaxx < atol .AND. DABS(fxmaxPotential) < 1.0E-08 .AND. ktrial > 20 .AND. ChargeOK) THEN
     

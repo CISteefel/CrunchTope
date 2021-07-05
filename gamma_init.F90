@@ -143,10 +143,14 @@ DO ik = 1,ncomp+nspec
 
     ulabPrint = ulab(ik)
     IF (ulabPrint(1:3) == 'H2O') THEN
-
+      
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
 !!!   Assumes molecular weight of H2O of 18.01528
-      gamtmp(ik) = DLOG(gamWaterCheck/55.50843506)
+      IF (gamWaterCheck < 0.0d0) THEN
+        gamtmp(ik) = DLOG(1.0d0/55.50843506)
+      ELSE
+        gamtmp(ik) = DLOG(gamWaterCheck/55.50843506)
+      END IF
 
     ELSE
         aa1 = 0.10d0*sion_tmp
