@@ -83,23 +83,14 @@ END IF
 
 DO kk = 1,ngas
 
-  IF (ikh2o /= 0) THEN
 
-    sum = 0.0
-    DO i = 1,ncomp
-
-        sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-
-    END DO
-
-  ELSE
 
     sum = 0.0
     DO i = 1,ncomp
       sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
     END DO
 
-  END IF
+
 
   IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)

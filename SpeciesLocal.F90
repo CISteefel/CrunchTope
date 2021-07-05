@@ -68,23 +68,14 @@ REAL(DP)                                                    :: sum
 
 DO ksp = 1,nspec
 
-  IF (ikh2o /= 0) THEN
 
-    sum = 0.0D0
-    DO i = 1,ncomp
-
-        sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-
-    END DO
-
-  ELSE
 
     sum = 0.0D0
     DO i = 1,ncomp
       sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
     END DO
 
-  END IF
+ 
 
 
   nk = ncomp + ksp

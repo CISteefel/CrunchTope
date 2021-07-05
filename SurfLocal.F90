@@ -87,23 +87,14 @@ REAL(DP)                                                    :: LogTotalEquivalen
 
           delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
 
-          IF (ikh2o /= 0) THEN
 
-            sum = 0.0
-            DO i = 1,ncomp
-
-                sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-
-            END DO
-
-          ELSE
 
             sum = 0.0
             DO i = 1,ncomp
               sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
             END DO
 
-          END IF
+
 
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 
@@ -127,23 +118,13 @@ REAL(DP)                                                    :: LogTotalEquivalen
 
         ELSE                                                  !  Non-electrostatic 
 
-          IF (ikh2o /= 0) THEN
 
-            sum = 0.0
-            DO i = 1,ncomp
-
-                sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-
-            END DO
-
-          ELSE
 
             sum = 0.0
             DO i = 1,ncomp
               sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
             END DO
 
-          END IF
 
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 

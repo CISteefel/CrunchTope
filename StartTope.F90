@@ -3586,11 +3586,9 @@ DO nco = 1,nchem
     spsurftmp(is) = DLOG(spsurftmp10(is))
   END DO
   DO ik = 1,ncomp+nspec
-    IF (ulab(ik) == 'H2O') THEN
-      gamtmp(ik) = 0.00
-    ELSE
+
       gamtmp(ik) = 0.0
-    END IF
+
   END DO
 
   LogPotential_tmp = 0.0
@@ -4902,7 +4900,6 @@ IF (ALLOCATED(vs)) THEN
 ELSE
   ALLOCATE(vs(nx+1,ny,nz))
 END IF
-
 dspx = 0.0d0
 dspy = 0.0d0
 dspz = 0.0d0
@@ -5397,6 +5394,7 @@ IF (SaturationFile /= ' ') THEN
       END DO
     ELSE IF (ny > 1 .AND. nz == 1) THEN
       jz = 1
+      jy = 1
       DO jy = 1,ny
         DO jx= 1,nx
           READ(52,*,END=1020) xdum,ydum,satliq(jx,jy,jz)
@@ -5429,24 +5427,6 @@ IF (SaturationFile /= ' ') THEN
   CLOSE(UNIT=52)
 END IF
 satliq(0,1,1) = satliq(1,1,1)
-
-  IF (isaturate == 1) THEN         !! Unsaturated case
-  
-    IF (ALLOCATED(intbndgas)) THEN
-      DEALLOCATE(intbndgas)
-    END IF
-    ALLOCATE(intbndgas(5,nx,ny,nz))
-    intbndgas = 0
-  
-    IF (ALLOCATED(gaspump)) THEN
-      DEALLOCATE(gaspump)
-      ALLOCATE(gaspump(5,nx,ny,nz))
-    ELSE
-      ALLOCATE(gaspump(5,nx,ny,nz))
-    END IF
-    gaspump = 0.0d0
-  
-  END IF
 
 IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
   ALLOCATE(work3(nx,ny,nz))
@@ -7491,6 +7471,8 @@ END IF
   velocityfile = ' '
   gasvelocityfile = ' '
 
+
+
 IF (ALLOCATED(qrecharge)) THEN
   DEALLOCATE(qrecharge)
 END IF
@@ -7501,19 +7483,49 @@ IF (found) THEN
 
 !  Initialize pressure and pumping rate first
 
- CALL units_time(nout,section,time_scale)
+
+  IF (ALLOCATED(intbndgas)) THEN
+    DEALLOCATE(intbndgas)
+  END IF
+  ALLOCATE(intbndgas(5,nx,ny,nz))
+  intbndgas = 0
+  
+  IF (ALLOCATED(gaspump)) THEN
+    DEALLOCATE(gaspump)
+    ALLOCATE(gaspump(5,nx,ny,nz))
+  ELSE
+    ALLOCATE(gaspump(5,nx,ny,nz))
+
+  END IF
+  
+  IF (isaturate == 1) THEN
+    gaspump = 0.0d0
+  END IF
+
+  CALL units_time(nout,section,time_scale)
   CALL units_distance(nout,section,dist_scale)
 
   CALL read_constantflow(nout,nx,ny,nz,constant_flow,qxinit,qyinit,qzinit)
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
   CALL read_pump(nout,nx,ny,nz,nchem)
+  
+!!!  IF (isaturate == 1) THEN
+    CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
+!!!  END IF
 
   irecharge = 0
 
   IF (.NOT. modflow) THEN
     CALL read_infiltration(nout,nx,ny,nz)
   END IF
+
+!!  Convert pumping rate from liters/sec to m**3/yr
+!!  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
+
+!!!  IF (isaturate == 1) THEN
+    gaspump = gaspump*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
+!!!  END IF
 
 !  NOTE: Specification of constant flow field overrides all other
 !        instructions (e.g., file read or flow calculation)
@@ -7550,8 +7562,6 @@ IF (found) THEN
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,CalculateFlow)
     END IF
-    
-!!!  *************   Start of CalculateFlow  *************************
 
     IF (CalculateFlow .AND. nxyz > 1) THEN
 
@@ -7628,35 +7638,8 @@ IF (found) THEN
 !!!      ELSE
 !!!        ALLOCATE(pres(0:nx+1,0:ny+1,0:nz+1))
 !!!      END IF
-        
-  IF (Richards) THEN
-    isaturate = 1
-  END IF
-  
-  IF (isaturate == 1) THEN         !! Unsaturated case
-  
-    IF (ALLOCATED(intbndgas)) THEN
-      DEALLOCATE(intbndgas)
-    END IF
-    ALLOCATE(intbndgas(5,nx,ny,nz))
-    intbndgas = 0
-  
-    IF (ALLOCATED(gaspump)) THEN
-      DEALLOCATE(gaspump)
-      ALLOCATE(gaspump(5,nx,ny,nz))
-    ELSE
-      ALLOCATE(gaspump(5,nx,ny,nz))
-    END IF
-    gaspump = 0.0d0
-  
-  END IF
-  
-  IF (isaturate == 1) THEN
-    CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
-    gaspump = gaspump*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
-  END IF
 
-     IF (ALLOCATED(harx)) THEN
+      IF (ALLOCATED(harx)) THEN
         DEALLOCATE(harx)
         ALLOCATE(harx(0:nx,1:ny,1:nz))
       ELSE
@@ -7749,6 +7732,7 @@ IF (found) THEN
 
 !  Allocate related fields for Richards equations, Li 20200629
      IF (Richards) THEN
+       isaturate = 1
          IF (y_is_vertical) THEN
              IF (ALLOCATED(j_bottom)) THEN
                  DEALLOCATE(j_bottom)
@@ -8649,8 +8633,6 @@ IF (found) THEN
       END IF
 
     END IF   ! End of block within which flow calculation parameters are read
-    
-!!!   **** End of CALCULATE FLOW  ***************************************************
 
   END IF
 

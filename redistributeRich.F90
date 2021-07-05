@@ -88,7 +88,6 @@ loss = 0.0d0
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      
         IF (activecellPressure(jx,jy,jz) == 1) THEN
             DO jj = -3,3
                 rsend(jj) = 0.0d0
@@ -174,15 +173,7 @@ DO jz = 1,nz
   END DO
 END DO
 
-!!! Calculate liquid saturation from water content
-     
-     DO jz = 1,nz
-       DO jy = 1,ny
-         DO jx = 1,nx
-           satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-         END DO
-       END DO
-     END DO
+
 
 
 IF (redistribute_wc) THEN

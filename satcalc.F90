@@ -82,23 +82,13 @@ reft = 1.0/298.15
 DO k = 1,nrct
   DO np = 1,nreactmin(k)
 
-    IF (ikh2o /= 0) THEN
 
-      sumiap = 0.0D0
-      DO i = 1,ncomp
-
-          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-
-      END DO
-
-    ELSE
 
       sumiap = 0.0D0
       DO i = 1,ncomp
         sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
       END DO
 
-    END IF
 
     silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
   END DO

@@ -1,3 +1,4 @@
+
 !!! *** Copyright Notice ***
 !!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
 !!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
@@ -376,11 +377,9 @@ DO  ktrial = 1,ntrial
 
     ChargeSum = 0.0d0
     DO ik = 1,ncomp+nspec
-      IF (ulab(ik) /= 'H2O') THEN
+
         ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
-      ELSE
-        CONTINUE
-      END IF
+
     END DO
     sion_tmp = 0.50D0*ChargeSum
     IF (sion_tmp < 25.0d0) THEN
@@ -454,7 +453,7 @@ DO  ktrial = 1,ntrial
       DO i2 = 1,ncomp
 
           sumiap = sumiap + mugas(kg,i2)* (sptmp(i2)+gamtmp(i2))
-
+ 
       END DO
 
       IF (Duan) THEN

@@ -114,6 +114,7 @@ END IF
     sumiap = sumiap + mumin(npp,kk,i)*(sppTMP(i)+gam(i,jx,jy,jz))
   END DO
 
+
 IF (nIsotopeMineral > 0) THEN
 
   IF (IsotopeMineralRare(k)) THEN

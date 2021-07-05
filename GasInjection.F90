@@ -74,7 +74,7 @@ nco = intbndgas(1,jx,jy,jz)
 DO  i = 1,ncomp
   sum=0.0
   DO kk = 1,ngas
-    sum = sum + mugas(kk,i)*spcondgas10(kk,nco)
+    sum = sum + mugas(kk,i)*spcondgas10(kk,jinit(jx,jy,jz))
   END DO
   scorr(i) = sum     !! NOTE:  Assumes gas is not a basis species
 END DO

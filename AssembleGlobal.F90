@@ -1,3 +1,4 @@
+
 !!! *** Copyright Notice ***
 !!! �CrunchFlow�, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
 !!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).� All rights reserved.
@@ -1531,7 +1532,7 @@ DO jy = 1,ny
       alf(:,ikh2o,:) = 0.0d0
 
       ind = (j-1)*(neqn) + ikh2o
-      fxx(ind) = sp10(ikh2o,jx,jy,jz) - 55.50843506
+      fxx(ind) = sp10(ikh2o,jx,jy,jz) - 55.40d0
 
       ind2 = ikh2o
       alf(ind2,ikh2o,2) = sp10(ikh2o,jx,jy,jz)

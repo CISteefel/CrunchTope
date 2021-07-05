@@ -76,23 +76,14 @@ tempk = tempc + 273.15
 !!denmol = DLOG(1.D05/(8.314d0*tempk))           ! P/RT = n/V, with pressure converted from bars to Pascals
 
 DO kk = 1,ngas
-  IF (ikh2o /= 0) THEN
 
-    sum = 0.0
-    DO i = 1,ncomp
-
-        sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
-
-    END DO
-
-  ELSE
 
     sum = 0.0
     DO i = 1,ncomp
       sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
     END DO
 
-  END IF
+
   
   ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
   if (namg(kk) == 'CO2(g)') then

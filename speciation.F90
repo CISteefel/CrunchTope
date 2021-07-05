@@ -427,11 +427,9 @@ DO jz = 1,nz
       DO k = 1,nrct
         sumiap = 0.0D0
         DO i = 1,ncomp
-          IF (ulab(i) == 'H2O') THEN
-            sumiap = sumiap + mumin(1,k,i)* (gam(i,jx,jy,jz))
-          ELSE
+
             sumiap = sumiap + mumin(1,k,i)* (sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-          END IF
+
         END DO
         silnTMP = sumiap - keqmin(1,k,jx,jy,jz)
         siprnt = silnTMP/clg

@@ -629,9 +629,7 @@ END IF
 
   ! Write head and water content
   IF (calculateflow) THEN
-    
       IF (Richards) THEN
-        
           fn='head'
           ilength = 8
           CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -665,30 +663,7 @@ END IF
             END DO
           END DO
           CLOSE(UNIT=8,STATUS='keep')
-          
       END IF
-      
-  END IF
-  
-  IF (isaturate == 1) THEN
-    
-    fn='liquidsat'
-    ilength = 9
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Liquid saturation" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Liquid Saturation" '
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                        z(jz)*OutputDistanceScale,satliq(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-    
   END IF
 
 
@@ -739,25 +714,6 @@ END IF
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
-  IF (isaturate == 1) THEN
-    fn='gasfluxd'
-  ilength = 8
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "',char_time(1:ls),' Years"'
-  WRITE(8,3012)
-  WRITE(8,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
-  jz = 1
-  DO jy = 1,ny
-    DO jx = 1,nx
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dg(jx,jy,jz)
-    END DO
- END DO
-  CLOSE(UNIT=8,STATUS='keep')
-  END IF
-  
-  3012 FORMAT('VARIABLES = " X (meters)", " Y (meters)", "Flux north"')
 
   IF (CalculateFlow) THEN
 
@@ -881,6 +837,27 @@ IF (nexchange > 0) THEN
   CLOSE(UNIT=8,STATUS='keep')
 
 END IF
+
+  IF (isaturate == 1) THEN
+
+    fn='liquidsat'
+    ilength = 9
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Liquid saturation" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Liquid Saturation" '
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                        z(jz)*OutputDistanceScale,satliq(jx,jy,jz)
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+    
+  END IF
 
 IF (nsurf>0) THEN
 

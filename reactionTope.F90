@@ -366,23 +366,14 @@ DO k = 1,nkin
 
         kk = kcrossaff(np,k)
 
-        IF (ikh2o /= 0) THEN
 
-          sumiap = 0.0D0
-          DO i = 1,ncomp
-
-              sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-
-          END DO
-  
-        ELSE
 
           sumiap = 0.0D0
           DO i = 1,ncomp
             sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
           END DO
 
-        END IF
+
 
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
         
@@ -393,23 +384,12 @@ DO k = 1,nkin
 
         jj = p_cat_min(k)
 
-        IF (ikh2o /= 0) THEN
-
-          sumiap = 0.0D0
-          DO i = 1,ncomp
-
-              sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-
-          END DO
-
-        ELSE
 
           sumiap = 0.0D0
           DO i = 1,ncomp
             sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
           END DO
 
-        END IF
 
         silog(np,k) = (sumiap - keqminTMP(np,jj) - BQ_min(np,jj)/(rgas*Tk))/clg    !!  BQ in kJ/e-mole
         siln(np,k) = clg*silog(np,k)
@@ -418,23 +398,13 @@ DO k = 1,nkin
 !!    Base Case
       ELSE    
             
-        IF (ikh2o /= 0) THEN     
-                     
-          sumiap = 0.0D0
-          DO i = 1,ncomp
 
-              sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-
-          END DO
-
-        ELSE
 
           sumiap = 0.0D0
           DO i = 1,ncomp
             sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
           END DO
 
-        END IF
         
 !!!     *******************************************************************
 !!      Start of isotope section

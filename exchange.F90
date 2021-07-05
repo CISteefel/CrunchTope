@@ -81,22 +81,13 @@ IF (iexc == 1) THEN        ! Gaines-Thomas convention
     ix = ixlink(nex)
     exchangetemp = exchangesites(ix,jx,jy,jz)
 
-    IF (ikh2o /= 0) THEN
-      sum = 0.0
-      DO i = 1,ncomp
 
-          sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-
-      END DO
-
-    ELSE
 
       sum = 0.0
       DO i = 1,ncomp
         sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
       END DO
 
-    END IF
 
     sum = sum + muexc(nex,ix+ncomp)*spex(ix,jx,jy,jz)
     activity = EXP(-keqexc(nex) + sum + bfit(nex)*sion(jx,jy,jz) )
@@ -109,22 +100,14 @@ ELSE IF (iexc == 2) THEN   ! Vanselow convention
   DO nex = 1,nexch_sec
     ix = ixlink(nex)
 
-    IF (ikh2o /= 0) THEN
-      sum = 0.0
-      DO i = 1,ncomp
 
-          sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
-
-      END DO
-
-    ELSE
 
       sum = 0.0
       DO i = 1,ncomp
         sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
       END DO
 
-    END IF
+
     sum = sum + muexc(nex,ix+ncomp)*spex(ix,jx,jy,jz)
     aexch(nex) = EXP(-keqexc(nex) + sum + bfit(nex)*sion(jx,jy,jz))
   END DO

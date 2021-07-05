@@ -85,23 +85,14 @@ denmol = DLOG( (1.0E05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure convert
 
 DO kk = 1,ngas
 
-  IF (ikh2o /= 0) THEN
 
-    sum = 0.0
-    DO i = 1,ncomp
-
-         sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-
-    END DO
-
-  ELSE
 
     sum = 0.0
     DO i = 1,ncomp
       sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
     END DO
 
-  END IF
+
 
   ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
   IF (Duan) THEN

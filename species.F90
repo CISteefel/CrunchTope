@@ -79,25 +79,12 @@ DO jz = 1,nz
 !!        GoBack = .FALSE.
 10      DO ksp = 1,nspec
 
-          IF (ikh2o /= 0) THEN
-
-            sum = 0.0D0
-            DO i = 1,ncomp
-
-
-                sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
-
-
-            END DO
-           
-          ELSE
 
             sum = 0.0D0
             DO i = 1,ncomp
               sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
             END DO
 
-          END IF
 
         sp(ksp+ncomp,jx,jy,jz) = keqaq(ksp,jx,jy,jz) - gam(ksp+ncomp,jx,jy,jz) + sum
         sp10(ksp+ncomp,jx,jy,jz) = DEXP(sp(ksp+ncomp,jx,jy,jz))
