@@ -66,8 +66,10 @@ IF (y_is_vertical) THEN
     IF (jy == 1) THEN
         IF (wc(jx,jy+1,jz) >= wcs(jx,jy+1,jz)) THEN
             nextto_sat = .TRUE.
-        ELSE IF (Kfacy(jx,jy-1,jz) > 0.0d0 .AND. wc(jx,jy-1,jz) >= wcs(jx,jy-1,jz)) THEN
+        ELSE IF (npump(jx,jy,jz) == 0 .AND. head(jx,jy-1,jz) > 0.0d0) THEN
             nextto_sat = .TRUE.
+        ! ELSE IF (Kfacy(jx,jy-1,jz) > 0.0d0 .AND. wc(jx,jy-1,jz) >= wcs(jx,jy-1,jz)) THEN
+        !     nextto_sat = .TRUE.
         END IF
     ELSE IF (jy >= ny) THEN
         IF (wc(jx,jy-1,jz) >= wcs(jx,jy-1,jz)) THEN
