@@ -647,7 +647,7 @@ END IF
 END IF
 
 IF (isaturate == 1) THEN
-  IF (gaspump(1,jx,jy,jz) > 0.0) THEN
+  IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
     call GasInjection(ncomp,nspec,ngas,sgaspump,jx,jy,jz)
   END IF
 END IF
@@ -843,21 +843,24 @@ DO i = 1,ncomp
     END DO
     
   END IF
+  
+  source = 0.0d0
 
   GasSource = 0.0
 
-  IF (isaturate == 1) THEN
-    IF (gaspump(1,jx,jy,jz) > 0.0) THEN
-      IF (cylindrical .OR. spherical) THEN
+!!!  IF (isaturate == 1) THEN
+!!!    IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
+!!!      IF (cylindrical .OR. spherical) THEN
 !!        GasSource = gaspump(jx,jy,jz)*sgaspump(i)
-        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
-      ELSE
-        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
-      END IF
-    ELSE
-      GasSource = 0.0
-    END IF
-  END IF
+!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
+!!!      ELSE
+!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
+!!!      END IF
+!!!    ELSE
+!!!      GasSource = 0.0
+!!!    END IF
+!!!  END IF
+
 
   IF (jy == 1) THEN
     IF (ReadNuft .AND. infiltration /= 0) THEN
@@ -942,15 +945,11 @@ DO i = 1,ncomp
         + xvec_ex*df + yvec_ex*df + xvecgas*df + yvecgas*df  &
         + ex_transport + gas_transport  &
         + xspecdiffw*df + xspecdiffe*df + xspecdiffs*df + xspecdiffn*df ! Species-dependent diffusion
-
-        if (jx==1) then
-          continue
-        end if
         
   END IF
   
-  IF (ABS(fxx(ind)) > fxmax(i)) THEN
-    fxmax(i) = ABS(fxx(ind))
+  IF (DABS(fxx(ind)) > fxmax(i)) THEN
+    fxmax(i) = DABS(fxx(ind))
   END IF
   
 END DO
