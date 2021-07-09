@@ -158,23 +158,28 @@ DO jz = 1,nz
     qy(jx,0,jz) = -2.0d0 * Kfacy(jx,0,jz) * (head(jx,1,jz) - head(jx,0,jz)) / (dyy(1))
     IF (y_is_vertical) THEN
         qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
+        IF (head(jx,0,jz) == 0.0d0) THEN
+            ! no infiltration on dry surface, but exfiltration is ok
+            IF (qy(jx,0,jz) > 0.0d0) THEN
+                qy(jx,0,jz) = 0.0d0
+            END IF
+        END IF
+        ! Switch to flux BC if pressure BC is not defined
         IF (activecellPressure(jx,0,jz) == 1) THEN
-
-          pumpterm = 0.0d0
-          IF (wells) THEN
-
-            DO npz = 1,npump(jx,1,jz)
-              pumpterm = pumpterm + qg(npz,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-!!!  *****************************************************************************************
-!!!           IF (qg(1,jx,1,jz) .NE. 0.0) THEN
-!!!              qy(jx,0,jz) = qg(1,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
-!!!           END IF
-!!!  *****************************************************************************************
-            END DO
-
-          END IF
-          qy(jx,0,jz) = pumpterm
-
+            pumpterm = 0.0d0
+            IF (wells) THEN
+                DO npz = 1,npump(jx,1,jz)
+                    pumpterm = pumpterm + qg(npz,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+                END DO
+                IF (npump(jx,1,jz) > 0) THEN
+                    qy(jx,0,jz) = pumpterm
+                ELSE
+                    qy(jx,0,jz) = 0.0d0
+                END IF
+            ELSE
+                ! If neither pump nor pressure is specified, qy = 0
+                qy(jx,0,jz) = 0.0d0
+            END IF
         END IF
     ELSE
         WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
@@ -206,6 +211,7 @@ DO jz = 1,nz
         END IF
 
       END IF
+
     ELSE
       WRITE(*,*) ' WARNING : Richards solver only works for 2D x-y now!'
     END IF

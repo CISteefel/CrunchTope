@@ -135,7 +135,7 @@ IF (y_is_vertical) THEN
     IF (rsend(-2) > 0.0) THEN
         delVym = delV * rsend(-2)
         iy = jy - 1
-        DO WHILE (activecellPressure(jx,iy,jz) == 1)
+        DO WHILE (activecellPressure(jx,iy,jz) == 1 .AND. iy > 0)
             IF (room(jx,iy,jz) > 0.0) THEN
                 ! if excess moisture < available space
                 IF (room(jx,iy,jz) > delVym) THEN
@@ -191,7 +191,7 @@ ELSE
     IF (rsend(-3) > 0.0) THEN
         delVzm = delV * rsend(-3)
         iz = jz - 1
-        DO WHILE (activecellPressure(jx,jy,iz) == 1)
+        DO WHILE (activecellPressure(jx,jy,iz) == 1 .AND. iz > 0)
             IF (room(jx,jy,iz) > 0.0) THEN
                 ! if excess moisture < available space
                 IF (room(jx,jy,iz) > delVzm) THEN
@@ -254,7 +254,7 @@ END IF
 ! END IF
 
 
-     
+
 
 IF (y_is_vertical) THEN
     delV = delVxm + delVxp + delVym + delVyp
