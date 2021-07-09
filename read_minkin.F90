@@ -1806,8 +1806,8 @@ i = size(mintype,1)
 ALLOCATE(workint(i))
 workint = mintype
 DEALLOCATE(mintype)
-ALLOCATE(mintype(nkin+2))
-IF(nkin /= 0) mintype(1:nkin+2) = workint(1:nkin+2)
+ALLOCATE(mintype(nkin+50))
+IF(nkin /= 0) mintype(1:nkin+50) = workint(1:nkin+50)
 DEALLOCATE(workint)
 
 !!  Check that the "associated" minerals are in the list
