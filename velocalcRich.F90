@@ -118,9 +118,9 @@ DO jz = 1,nz
                 pumpterm = 0.0d0
                 IF (wells) THEN
 
-                  DO npz = 1,npump(jx,jy,jz)
+                  DO npz = 1,npump(jx,jy+1,jz)
 
-                    pumpterm = pumpterm + qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+                    pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
 !!!  *****************************************************************************************
 !!!                 DO npz = 1,npump(jx,jy+1,jz)
 !!!                   pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
@@ -130,8 +130,9 @@ DO jz = 1,nz
 !!!  *****************************************************************************************
                   END DO
 
-                  IF (npump(jx,jy,jz) > 0) THEN
+                  IF (npump(jx,jy+1,jz) > 0) THEN
                       qy(jx,jy,jz) = pumpterm
+                      WRITE(*,*) 'jx,jy,qy = ',jx,jy,qy(jx,jy,jz),qy(jx,jy+1,jz)
                   END IF
 
                 END IF
