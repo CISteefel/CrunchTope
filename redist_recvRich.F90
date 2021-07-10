@@ -86,7 +86,7 @@ delVzp = 0.0d0
 IF (rrecv(-1) > 0.0) THEN
     delVxm = delV * rrecv(1)
     ix = jx
-    DO WHILE (ix .NE. 1)
+    DO WHILE (ix > 0)
         ix = ix - 1
         IF (wc(ix,jy,jz) > wcr(ix,jy,jz)) THEN
             IF ((wc(ix,jy,jz)-wcr(ix,jy,jz)) > delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
@@ -108,7 +108,7 @@ END IF
 IF (rrecv(1) > 0.0) THEN
     delVxp = delV * rrecv(1)
     ix = jx
-    DO WHILE (ix .NE. nx-1)
+    DO WHILE (ix < nx+1)
         ix = ix + 1
         IF (wc(ix,jy,jz) > wcr(ix,jy,jz)) THEN
             IF ((wc(ix,jy,jz)-wcr(ix,jy,jz)) > delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
@@ -160,7 +160,7 @@ IF (y_is_vertical) THEN
     IF (rrecv(2) > 0.0) THEN
         delVyp = delV * rrecv(2)
         iy = jy
-        DO WHILE (iy .NE. ny-1)
+        DO WHILE (iy < ny+1)
             iy = iy + 1
             IF (wc(jx,iy,jz) > wcr(jx,iy,jz)) THEN
                 IF ((wc(jx,iy,jz)-wcr(jx,iy,jz)) > delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))) THEN
@@ -252,6 +252,7 @@ END IF
 
 IF (y_is_vertical) THEN
     delV = delVxm + delVxp + delVym + delVyp
+    ! WRITE(*,*) ' recv called at (jx,jy), - delV, iy = ',jx,jy,delV,iy,wc(jx,jy,jz)
 ELSE
     delV = delVxm + delVxp + delVzm + delVzp
 END IF

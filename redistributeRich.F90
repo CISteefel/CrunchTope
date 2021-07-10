@@ -98,20 +98,24 @@ DO jz = 1,nz
             ! rrecv_zm = 0.0d0
             ! rrecv_zp = 0.0d0
             ! For over-saturated cells
-            IF (wc(jx,jy,jz) >= wcs(jx,jy,jz)) THEN
+            IF (wc(jx,jy,jz) >= wcs(jx,jy,jz) - 1e-7) THEN
                 IF (redistribute_wc) THEN
                     delV = (wc(jx,jy,jz) - wcs(jx,jy,jz)) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
-                    IF (wc(jx,jy,jz)-wcs(jx,jy,jz) > wcs(jx,jy,jz)) THEN
-                        delV = wcs(jx,jy,jz) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
-                        WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
-                    END IF
-                    CALL gradhRich(jx,jy,jz,rsend,rrecv)
-                    CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
-                    IF (delV > 1e-20) THEN
-                        ! CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
-                        IF (delV > 1e-20) THEN
-                            loss = loss + delV
+                    IF (delV > 0.0d0) THEN
+                        IF (wc(jx,jy,jz)-wcs(jx,jy,jz) > wcs(jx,jy,jz)) THEN
+                            delV = wcs(jx,jy,jz) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
+                            WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                         END IF
+                        CALL gradhRich(jx,jy,jz,rsend,rrecv)
+                        CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+                        IF (delV > 1e-20) THEN
+                            ! CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+                            IF (delV > 1e-20) THEN
+                                loss = loss + delV
+                            END IF
+                        END IF
+                    ELSE
+                        loss = loss + delV
                     END IF
                 END IF
                 wc(jx,jy,jz) = wcs(jx,jy,jz)
@@ -176,10 +180,10 @@ END DO
 
 
 
-IF (redistribute_wc) THEN
-    ! WRITE(*,*) '  Redistribution via 4 mechanisms: ',dist_path1,dist_path2,dist_path3,dist_path4, ' loss = ',loss
-    !!WRITE(*,*) '  Total volume loss during redistribution (m^3) = ',loss
-END IF
+! IF (redistribute_wc) THEN
+!     ! WRITE(*,*) '  Redistribution via 4 mechanisms: ',dist_path1,dist_path2,dist_path3,dist_path4, ' loss = ',loss
+!     WRITE(*,*) '  Total volume loss during redistribution (m^3) = ',loss
+! END IF
 
 
 

@@ -669,9 +669,9 @@ END IF
          DO jx = 0,nx+1
 
              wcs(jx,jy,jz) = por(jx,jy,jz)
-             
+
              IF (activecellPressure(jx,jy,jz) == 1) THEN
-               
+
                  ! distance to top surface
                  ! This only works for uniform dyy or dzz now!
                  IF (y_is_vertical) THEN
@@ -730,7 +730,7 @@ END IF
                         wc(jx,jy,jz) = wcr(jx,jy,jz) + (wcs(jx,jy,jz) - wcr(jx,jy,jz)) * satu
                     END IF
                  END IF
-                 
+
             ELSE
                ! initial condition for inactive cells
                wc(jx,jy,jz) = wcr(jx,jy,jz)
@@ -786,7 +786,7 @@ END IF
          END DO
        END DO
      END DO
-     
+
  !!! Calculate liquid saturation from water content
 
 DO jz = 0,nz+1
@@ -796,9 +796,9 @@ DO jz = 0,nz+1
       satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
     END DO
   END DO
-END DO        
-     
-     
+END DO
+
+
      WRITE(*,*) ' Initialization completed!'
  END IF
 
@@ -926,7 +926,7 @@ END DO
           END DO
         END DO
       END DO
-       
+
  !!! Calculate liquid saturation from water content
 
 DO jz = 0,nz+1
@@ -936,7 +936,7 @@ DO jz = 0,nz+1
       satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
     END DO
   END DO
-END DO         
+END DO
 
     END IF
 
@@ -1317,6 +1317,7 @@ DO WHILE (nn <= nend)
     ELSE
         CALL velocalc(nx,ny,nz)
     END IF
+
     ! final check of water content
      IF (Richards) THEN
        DO jz = 1,nz
@@ -1330,7 +1331,16 @@ DO WHILE (nn <= nend)
            END DO
          END DO
        END DO
-       
+
+       ! wc(0,0,0) = 0.0d0
+       !   DO jy = 1,ny
+       !     DO jx = 1,nx
+       !       wc(0,0,0) = wc(0,0,0) + wc(jx,jy,1) * dxx(jx) * dyy(jy)
+       !     END DO
+       !   END DO
+         ! WRITE(*,*) ' >>>>> Total volume = ',wc(0,0,0), dxx(1), dyy(1), dzz(1,1,1)
+
+
  !!! Calculate liquid saturation from water content
 
 DO jz = 0,nz+1
@@ -1340,9 +1350,9 @@ DO jz = 0,nz+1
       satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
     END DO
   END DO
-END DO        
+END DO
 
-     
+
     END IF
 
   END IF
