@@ -89,6 +89,12 @@ DO jz = 0,nz+1
                 Kr(jx,jy,jz) = 1.0d0
             ELSE
                 Kr(jx,jy,jz) = satu**(0.5) * (1.0d0 - (1.0d0 - satu**(1.0/m))**m)**2.0
+                ! top boundary
+                IF (activecellPressure(jx,jy,jz) == 0 .AND. jy <= ny) THEN
+                    IF (activecellPressure(jx,jy+1,jz) == 1) THEN
+                        Kr(jx,jy,jz) = 1.0d0
+                    END IF
+                END IF
                 IF (Kr(jx,jy,jz) > 1.0d0) THEN
                     Kr(jx,jy,jz) = 1.0d0
                 END IF
@@ -153,21 +159,17 @@ DO jz = 1,nz
             IF (ny == 1) THEN
                 Kfacy(jx,jy,jz) = 0.0d0
             ELSE
-                IF (jy == ny) THEN
-                    Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz)*(ro(jx,jy,jz)*grav/visc)
-                ELSE
-                    IF (upstream_weighting) THEN
-                        IF (qy(jx,jy,jz) >= 0.0) THEN
-                            Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
-                        ELSE
-                            Kfacy(jx,jy,jz) = permy(jx,jy+1,jz)*Kr(jx,jy+1,jz) * (ro(jx,jy+1,jz)*grav/visc)
-                        END IF
+                IF (upstream_weighting) THEN
+                    IF (qy(jx,jy,jz) >= 0.0) THEN
+                        Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
                     ELSE
-                        Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                        Kfacy(jx,jy,jz) = permy(jx,jy+1,jz)*Kr(jx,jy+1,jz) * (ro(jx,jy+1,jz)*grav/visc)
                     END IF
-                    IF (permy(jx,jy,jz) == 0.0d0 .OR. permy(jx,jy+1,jz) == 0.0d0) THEN
-                        Kfacy(jx,jy,jz) = 0.0d0
-                    END IF
+                ELSE
+                    Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
+                END IF
+                IF (permy(jx,jy,jz) == 0.0d0 .OR. permy(jx,jy+1,jz) == 0.0d0) THEN
+                    Kfacy(jx,jy,jz) = 0.0d0
                 END IF
             END IF
             ! if 2D x-y

@@ -132,7 +132,6 @@ DO jz = 1,nz
 
                   IF (npump(jx,jy+1,jz) > 0) THEN
                       qy(jx,jy,jz) = pumpterm
-                      WRITE(*,*) 'jx,jy,qy = ',jx,jy,qy(jx,jy,jz),qy(jx,jy+1,jz)
                   END IF
 
                 END IF
