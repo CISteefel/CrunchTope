@@ -182,24 +182,24 @@ ELSE                  ! Zero length trailing string
   STOP
 END IF
 
-IF (ny == 1 .AND. nz == 1) THEN
-  id = ids + ls
-  CALL sschaine(zone,id,iff,ssch,ids,ls)
-  IF (ls /= 0) THEN
-    lzs=ls
-    CALL convan(ssch,lzs,res)
-    IF (ssch == 'fix') THEN
-      jjfix(nhet) = 1
-    ELSE
-      jjfix(nhet) = 0
-    END IF
-  END IF
-  jyylo(nhet) = 1
-  jyyhi(nhet) = 1
-  jzzlo(nhet) = 1
-  jzzhi(nhet) = 1
-  GO TO 10
-END IF
+!!!IF (ny == 1 .AND. nz == 1) THEN
+!!!  id = ids + ls
+!!!  CALL sschaine(zone,id,iff,ssch,ids,ls)
+!!!  IF (ls /= 0) THEN
+!!!    lzs=ls
+!!!    CALL convan(ssch,lzs,res)
+!!!    IF (ssch == 'fix') THEN
+!!!      jjfix(nhet) = 1
+!!!    ELSE
+!!!      jjfix(nhet) = 0
+!!!    END IF
+!!!  END IF
+!!!  jyylo(nhet) = 1
+!!!  jyyhi(nhet) = 1
+!!!  jzzlo(nhet) = 1
+!!!  jzzhi(nhet) = 1
+!!!  GO TO 10
+!!!END IF
 
 id = ids + ls
 CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
@@ -247,22 +247,22 @@ ELSE                  ! Zero length trailing string
   STOP
 END IF
 
-IF (nz == 1) THEN
-  id = ids + ls
-  CALL sschaine(zone,id,iff,ssch,ids,ls)
-  IF (ls /= 0) THEN
-    lzs=ls
-    CALL convan(ssch,lzs,res)
-    IF (ssch == 'fix') THEN
-      jjfix(nhet) = 1
-    ELSE
-      jjfix(nhet) = 0
-    END IF
-  END IF
-  jzzlo(nhet) = 1
-  jzzhi(nhet) = 1
-  GO TO 10
-END IF
+!!!IF (nz == 1) THEN
+!!!  id = ids + ls
+!!!  CALL sschaine(zone,id,iff,ssch,ids,ls)
+!!!  IF (ls /= 0) THEN
+!!!    lzs=ls
+!!!    CALL convan(ssch,lzs,res)
+!!!    IF (ssch == 'fix') THEN
+!!!      jjfix(nhet) = 1
+!!!    ELSE
+!!!      jjfix(nhet) = 0
+!!!    END IF
+!!!  END IF
+!!!  jzzlo(nhet) = 1
+!!!  jzzhi(nhet) = 1
+!!!  GO TO 10
+!!!END IF
 
 id = ids + ls
 CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)

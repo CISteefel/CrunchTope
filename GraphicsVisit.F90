@@ -190,6 +190,8 @@ CHARACTER (LEN=mls),DIMENSION(ncomp+nspec+nrct)                 :: WriteString
 CHARACTER (LEN=mls)                                        :: StringProper
 CHARACTER (LEN=mls)                                        :: StringTemp
 
+REAL(DP), DIMENSION(ncomp)                                 :: sprint
+
 REAL(DP)                                                   :: WritePermx
 REAL(DP)                                                   :: WritePermy
 REAL(DP)                                                   :: WritePermz
@@ -340,7 +342,17 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
+          if (activecell(jx,jy,jz) == 0) THEN
+            do i = 1,ncomp
+              sprint(i) = -0.001 
+            end do
+          ELSE
+            do i = 1,ncomp
+              sprint(i) = s(i,jx,jy,jz)
+            end do
+          END IF
+        
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sprint(i),i = 1,ncomp)
       END DO
     END DO
   END DO

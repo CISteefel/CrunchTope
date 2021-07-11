@@ -2988,7 +2988,7 @@ IF (Richards) THEN
     END IF
 
     IF (dtold /= delt) THEN
-        WRITE(*,*) '  >>>>> dt has been adjusted to : ',delt
+!!!        WRITE(*,*) '  >>>>> dt has been adjusted to : ',delt
     END IF
 
 

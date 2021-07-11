@@ -82,9 +82,9 @@ DO jz = 1,nz
     DO jx = 1,nx
         IF (activecellPressure(jx,jy,jz) == 1) THEN
             coef = 1.0d0 / (1.0d0 + Ss*(head(jx,jy,jz)-headOld(jx,jy,jz))/wcs(jx,jy,jz))
-            wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))     &
-                                        +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))  &
-                                        + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))
+            wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))/secyr     &
+                                        +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))/secyr  &
+                                        + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))/secyr
             ! add source term if not along boundary
             IF (jx > 1 .AND. jx < nx) THEN
               

@@ -104,7 +104,7 @@ DO jz = 1,nz
                     IF (delV > 0.0d0) THEN
                         IF (wc(jx,jy,jz)-wcs(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                             delV = wcs(jx,jy,jz) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
-                            WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
+!!!                            WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                         END IF
                         CALL gradhRich(jx,jy,jz,rsend,rrecv)
                         CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
@@ -138,7 +138,7 @@ DO jz = 1,nz
                             delV = (wch(jx,jy,jz) - wc(jx,jy,jz)) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
                             IF (wch(jx,jy,jz)-wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                                 delV = wcs(jx,jy,jz) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
-                                WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
+!!!                                WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                             END IF
                             CALL gradhRich(jx,jy,jz,rsend,rrecv)
                             CALL redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv)
@@ -154,7 +154,7 @@ DO jz = 1,nz
                             delV = (wc(jx,jy,jz) - wch(jx,jy,jz)) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
                             IF (wc(jx,jy,jz)-wch(jx,jy,jz) > wcs(jx,jy,jz)) THEN
                                 delV = wcs(jx,jy,jz) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
-                                WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
+!!!                                WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                             END IF
                             CALL gradhRich(jx,jy,jz,rsend,rrecv)
                             CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)

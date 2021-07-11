@@ -646,11 +646,11 @@ END IF
   sumsigma_n = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx,jy+1,jz)*sumwtchg(jx,jy+1,jz))
 END IF
 
-IF (isaturate == 1) THEN
-  IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
-    call GasInjection(ncomp,nspec,ngas,sgaspump,jx,jy,jz)
-  END IF
-END IF
+!!!IF (isaturate == 1) THEN
+!!!  IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
+!!!    call GasInjection(ncomp,nspec,ngas,sgaspump,jx,jy,jz)
+!!!  END IF
+!!!END IF
 
 DO i = 1,ncomp
   
@@ -783,13 +783,25 @@ DO i = 1,ncomp
         yvecgas = 0.0
       END IF
     END IF
+    
   ELSE
+    
     yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
+    
+    IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+      continue
+    END IF
+    
     IF (isaturate == 1) THEN
       yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
     ELSE
       yvecgas = 0.0
     END IF
+    
+    if (jy == 6 .and. jx == 5) then
+      continue
+    end if
+    
   END IF
   
   IF (ierode == 1) THEN
@@ -825,7 +837,7 @@ DO i = 1,ncomp
   
 !!NOTE:  "GIMRT" source term in m**3/year
   source = 0.0d0
-  IF (wells) THEN
+  IF (wells .AND. .not. Richards) THEN
    
     DO npz = 1,npump(jx,jy,jz)
     
@@ -836,6 +848,7 @@ DO i = 1,ncomp
       ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
+        
       ELSE
         CONTINUE
       END IF
@@ -843,8 +856,6 @@ DO i = 1,ncomp
     END DO
     
   END IF
-  
-  source = 0.0d0
 
   GasSource = 0.0
 

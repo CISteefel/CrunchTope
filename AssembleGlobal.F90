@@ -1000,7 +1000,7 @@ DO jy = 1,ny
 200 CONTINUE
     
     source = 0.0d0
-    IF (wells) THEN
+    IF (wells .AND. .not. Richards) THEN
    
       DO npz = 1,npump(jx,jy,jz)
         IF (qg(npz,jx,jy,jz) > 0.0) THEN       !  Injection well

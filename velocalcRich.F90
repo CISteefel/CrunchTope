@@ -79,6 +79,8 @@ dt = dtyr * 365 * 86400
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+      
+!!  *****    Qz and Qx    **************************
 
       IF (jx /= nx) THEN
         Coordinate = 'X'
@@ -98,6 +100,10 @@ DO jz = 1,nz
             END IF
         END IF
       END IF
+      
+!!  *******             **************************
+      
+!!  *******      Qy     **************************
 
       IF (jy /= ny) THEN
         Coordinate = 'Y'
@@ -105,6 +111,9 @@ DO jz = 1,nz
         IF (y_is_vertical) THEN
             qz(jx,jy,jz) = 0.0d0
             qy(jx,jy,jz) = qy(jx,jy,jz) + Kfacy(jx,jy,jz)
+            
+!! Land surface, "fixed" cell at JY, active cell at JY+1  -- velocity = 0, or set to "pump" term
+            
             IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
 
                 IF (head(jx,jy,jz) == 0.0d0) THEN
@@ -121,13 +130,7 @@ DO jz = 1,nz
                   DO npz = 1,npump(jx,jy+1,jz)
 
                     pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
-!!!  *****************************************************************************************
-!!!                 DO npz = 1,npump(jx,jy+1,jz)
-!!!                   pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
-!!!                 IF (qg(npz,jx,jy+1,jz) .NE. 0.0) THEN
-!!!                   qy(jx,jy,jz) = qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
-!!!                 END IF
-!!!  *****************************************************************************************
+
                   END DO
 
                   IF (npump(jx,jy+1,jz) > 0) THEN
@@ -135,7 +138,6 @@ DO jz = 1,nz
                   END IF
 
                 END IF
-
 
                 ! check if there is enough room available
                 IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN
@@ -152,9 +154,14 @@ DO jz = 1,nz
   END DO
 END DO
 
+!!  ********   End of Darcy flux   ************************
+
 DO jz = 1,nz
   DO jx = 1,nx
       ! jy = 1
+    
+!!  ***  Calculate qy(j,0,jz)  ******************
+    
     qy(jx,0,jz) = -2.0d0 * Kfacy(jx,0,jz) * (head(jx,1,jz) - head(jx,0,jz)) / (dyy(1))
     IF (y_is_vertical) THEN
         qy(jx,0,jz) = qy(jx,0,jz) + Kfacy(jx,0,jz)
@@ -188,7 +195,11 @@ DO jz = 1,nz
     IF (qy(jx,0,jz) > 0.0 .AND. room(jx,1,jz) < qy(jx,0,jz) * dt * dxx(jx)* dzz(jx,1,jz)) THEN
         qy(jx,0,jz) = room(jx,1,jz) / dt * dxx(jx)* dzz(jx,1,jz)
     END IF
+    
+!!  ****   End of qy(jx,0,jz)   ******************
 
+!!  ***  Calculate qy(j,NY,jz)  ******************
+    
     ! jy = ny
     qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
     ! gravity term
@@ -219,9 +230,13 @@ DO jz = 1,nz
     IF (qy(jx,ny,jz) < 0.0 .AND. room(jx,ny,jz) < -qy(jx,ny,jz) * dt * dxx(jx)* dzz(jx,ny,jz)) THEN
       qy(jx,ny,jz) = -room(jx,ny,jz) / dt * dxx(jx)* dzz(jx,ny,jz)
     END IF
+    
+!!  ****   End of qy(jx,NY,jz)   ******************
 
   END DO
 END DO
+
+!!  ***  Calculate qx(0,jy,jz) and qx(NX,jy,jz)  ******************
 
 DO jz = 1,nz
   DO jy = 1,ny
@@ -239,6 +254,7 @@ DO jz = 1,nz
   END DO
 END DO
 
+!!  ***  Calculate qz(jx,jy,0) and qz(jx,jy,NZ)  ******************
 
 DO jy = 1,ny
   DO jx = 1,nx
@@ -255,6 +271,12 @@ DO jy = 1,ny
     qz(jx,jy,nz) = 0.0d0
   END DO
 END DO
+
+!! Convert to m/yr
+qx = qx*secyr
+qy = qy*secyr
+qz = qz*secyr
+
 
 RETURN
 END SUBROUTINE velocalcRich
