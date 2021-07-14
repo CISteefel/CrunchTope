@@ -126,6 +126,7 @@ DO jz = 1,nz
                 ! flux boundary condition
                 pumpterm = 0.0d0
                 IF (wells) THEN
+                  IF (qy(jx,jy,jz) >= 0.0) THEN
 
                   DO npz = 1,npump(jx,jy+1,jz)
 
@@ -135,6 +136,8 @@ DO jz = 1,nz
 
                   IF (npump(jx,jy+1,jz) > 0) THEN
                       qy(jx,jy,jz) = pumpterm
+                  END IF
+                  
                   END IF
 
                 END IF

@@ -5360,6 +5360,7 @@ WRITE(iunit2,*)
 !  ******************* INITIALIZATION OF SPATIAL DOMAIN ***************************
 sexch = 0.0
 fexch = 0.0
+
 IF (SaturationFile /= ' ') THEN
   INQUIRE(FILE=SaturationFile,EXIST=ext)
   IF (.NOT. ext) THEN
