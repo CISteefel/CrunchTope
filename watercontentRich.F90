@@ -87,22 +87,22 @@ DO jz = 1,nz
                                         + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))/secyr
             ! add source term if not along boundary
             IF (jx > 1 .AND. jx < nx) THEN
-              
+
 !!!                IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1 .AND. qg(1,jx,jy,jz) /= 0.0) THEN
                 IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1) THEN
-                  
+
                   pumpterm = 0.0d0
                   IF (wells) THEN
-                    
+
                     DO npz = 1,npump(jx,jy,jz)
                       pumpterm = pumpterm + dt*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                     END DO
-                    
+
                   END IF
                   wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm
-                  
+
                 END IF
-                
+
             END IF
 
             ! IF (activecellPressure(jx,jy-1,jz) == 0) THEN
@@ -120,6 +120,8 @@ DO jz = 1,nz
     END DO
   END DO
 END DO
+
+
 
 DO jz = 1,nz
   DO jx = 1,nx
@@ -167,6 +169,6 @@ DO jy = 1,ny
   END DO
 END DO
 
-     
+
 RETURN
 END SUBROUTINE watercontentRich

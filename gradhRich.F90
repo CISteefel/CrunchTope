@@ -87,25 +87,37 @@ END IF
 ! ! y direction
 IF (Kfacy(jx,jy,jz) > 0.0) THEN
     dhyp = 2.0d0*(head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy+1) + dyy(jy))
+    IF (y_is_vertical) THEN
+        dhyp = dhyp - 1.0d0
+    END IF
 ELSE
     dhyp = 0.0d0
 END IF
 IF (Kfacy(jx,jy-1,jz) > 0.0) THEN
     dhym = 2.0d0*(head(jx,jy,jz) - head(jx,jy-1,jz)) / (dyy(jy) + dyy(jy-1))
+    IF (y_is_vertical) THEN
+        dhym = dhym - 1.0d0
+    END IF
 ELSE
     dhym = 0.0d0
 END IF
 
+
 ! z direction
-IF (Kfacz(jx,jy,jz) > 0.0) THEN
-    dhzp = 2.0d0*(head(jx,jy,jz+1) - head(jx,jy,jz)) / (dzz(jx,jy,jz+1) + dzz(jx,jy,jz)) - 1.0d0
-ELSE
+IF (y_is_vertical) THEN
     dhzp = 0.0d0
-END IF
-IF (Kfacz(jx,jy,jz-1) > 0.0) THEN
-    dhzm = 2.0d0*(head(jx,jy,jz) - head(jx,jy,jz-1)) / (dzz(jx,jy,jz) + dzz(jx,jy,jz-1)) - 1.0d0
-ELSE
     dhzm = 0.0d0
+ELSE
+    IF (Kfacz(jx,jy,jz) > 0.0) THEN
+        dhzp = 2.0d0*(head(jx,jy,jz+1) - head(jx,jy,jz)) / (dzz(jx,jy,jz+1) + dzz(jx,jy,jz)) - 1.0d0
+    ELSE
+        dhzp = 0.0d0
+    END IF
+    IF (Kfacz(jx,jy,jz-1) > 0.0) THEN
+        dhzm = 2.0d0*(head(jx,jy,jz) - head(jx,jy,jz-1)) / (dzz(jx,jy,jz) + dzz(jx,jy,jz-1)) - 1.0d0
+    ELSE
+        dhzm = 0.0d0
+    END IF
 END IF
 
 ! ! ignore horizontal redistribution for now, Zhi Li 20200711

@@ -180,10 +180,7 @@ DO jz = 1,nz
                         IF (headOld(jx,jy,jz) > 0.0) THEN
                             Kfacy(jx,jy,jz) = permy(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
                         ELSE
-                            Kfacy(jx,jy,jz) = 0.5 * (permy(jx,jy,jz)*Kr(jx,jy,jz) + permy(jx,jy+1,jz)*Kr(jx,jy+1,jz)) * (ro(jx,jy,jz)*grav/visc)
-                            IF (upstream_weighting) THEN
-                                Kfacy(jx,jy,jz) = permy(jx,jy,jz)*Kr(jx,jy,jz) * (ro(jx,jy,jz)*grav/visc)
-                            END IF
+                            Kfacy(jx,jy,jz) = permy(jx,jy+1,jz)*Kr(jx,jy+1,jz) * (ro(jx,jy+1,jz)*grav/visc)
                         END IF
                     ELSE
                         Kfacy(jx,jy,jz) = 0.0d0
