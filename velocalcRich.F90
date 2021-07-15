@@ -112,9 +112,11 @@ DO jz = 1,nz
             qz(jx,jy,jz) = 0.0d0
             qy(jx,jy,jz) = qy(jx,jy,jz) + Kfacy(jx,jy,jz)
 
+
 !! Land surface, "fixed" cell at JY, active cell at JY+1  -- velocity = 0, or set to "pump" term
 
             IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+                qy(jx,jy,jz) = 2.0 * (qy(jx,jy,jz) - Kfacy(jx,jy,jz)) + Kfacy(jx,jy,jz)
 
                 IF (head(jx,jy,jz) == 0.0d0) THEN
                     ! no infiltration on dry surface, but exfiltration is ok
@@ -126,18 +128,14 @@ DO jz = 1,nz
                 ! flux boundary condition
                 pumpterm = 0.0d0
                 IF (wells) THEN
-                  IF (qy(jx,jy,jz) >= 0.0) THEN
+                  DO npz = 1,npump(jx,jy+1,jz)
+                    pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
+                  END DO
 
-                      DO npz = 1,npump(jx,jy+1,jz)
-
-                        pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
-
-                      END DO
-
+                  IF (qy(jx,jy,jz) >= 0.0 .AND. pumpterm > 0.0) THEN
                       IF (npump(jx,jy+1,jz) > 0) THEN
                           qy(jx,jy,jz) = pumpterm
                       END IF
-
                   END IF
 
                 END IF

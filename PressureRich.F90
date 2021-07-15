@@ -263,6 +263,7 @@ DO jz = 1,nz
                         IF (activecellPressure(jx,jy-1,jz) == 0) THEN
                             coef(-2) = -2.0d0*dt*Kfacy(jx,jy-1,jz) / (dyy(jy)*dyy(jy))
                             AddPressureY = -coef(-2) * headOld(jx,jy-1,jz)
+                            ! if flow is downward, use zero flux
                             IF (headOld(jx,jy-1,jz) == 0.0d0 .AND. headOld(jx,jy,jz) <= headOld(jx,jy-1,jz)+0.5d0*dyy(jy)) THEN
                                 coef(-2) = 0.0d0
                                 AddPressureY = -(dt/dyy(jy))*Kfacy(jx,jy-1,jz)
@@ -324,7 +325,7 @@ DO jz = 1,nz
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dyy(jy))*(Kfacy(jx,jy,jz)-Kfacy(jx,jy-1,jz)) + &
                                 AddPressureX + AddPressureY
-                    
+
                     pumpterm = 0.0d0
                     IF (wells) THEN
                       DO npz = 1,npump(jx,jy,jz)
@@ -344,9 +345,11 @@ DO jz = 1,nz
                         !     coef(1) = 0.0d0
                         ! END IF
                         IF (jy == 1 .OR. activecellPressure(jx,jy-1,jz) == 0) THEN
-                            coef(0) = coef(0) + coef(-2)
-                            coef(-2) = 0.0d0
-                            BvecCrunchP(j) = BvecCrunchP(j) - (dt/dyy(jy))*Kfacy(jx,jy-1,jz)
+                            IF (headOld(jx,jy-1,jz) /= 0.0d0) THEN
+                                coef(0) = coef(0) + coef(-2)
+                                coef(-2) = 0.0d0
+                                BvecCrunchP(j) = BvecCrunchP(j) - (dt/dyy(jy))*Kfacy(jx,jy-1,jz)
+                            END IF
                         ELSE IF (jy == ny) THEN
                             ! free drainage at bottom
                             coef(0) = coef(0) + coef(2)
@@ -355,22 +358,25 @@ DO jz = 1,nz
                         END IF
                     END IF
 
+                    ! IF (jx == 42 .AND. jy == 43 .AND. jz == 1) THEN
+                    !     WRITE(*,*) 'wc, coef xm, xp, ym, yp, rhs, headbc = ',wc(jx,jy,jz),coef(0),coef(-1),coef(1),coef(-2),coef(2),BvecCrunchP(j),headOld(jx,jy-1,jz)
+                    ! END IF
                 ELSE
                     coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-3) - coef(-2) - coef(-1) - coef(1) - coef(2) - coef(3)
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
                                 (dt/dzz(jx,jy,jz))*(Kfacz(jx,jy,jz)-Kfacz(jx,jy,jz-1)) + &
                                 AddPressureX + AddPressureY + AddPressureZ
-                    
+
                     pumpterm = 0.0d0
                     IF (wells) THEN
                       DO npz = 1,npump(jx,jy,jz)
                         pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                       END DO
                     END IF
-                    
+
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
                 END IF
-                
+
                 XvecCrunchP(j) = head(jx,jy,jz)
 
                 ! Insert coefficients into matrix
