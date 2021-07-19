@@ -143,11 +143,12 @@ DO jz = 1,nz
                     Kfacx(jx,jy,jz) = 0.0d0
                 END IF
                 ! zero conductivity for inactive cells
-                IF (activecellPressure(jx,jy,jz) == 0) THEN
+                IF (activecellPressure(jx,jy,jz) == 0 .AND. jx > 0) THEN
                     Kfacx(jx,jy,jz) = 0.0d0
-                    IF (jx > 0) THEN
-                        Kfacx(jx-1,jy,jz) = 0.0d0
-                    END IF
+                    Kfacx(jx-1,jy,jz) = 0.0d0
+                    ! IF (jx > 0) THEN
+                    !     Kfacx(jx-1,jy,jz) = 0.0d0
+                    ! END IF
                 END IF
             END IF
         END DO

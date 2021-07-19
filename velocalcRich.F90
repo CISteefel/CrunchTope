@@ -253,6 +253,7 @@ DO jz = 1,nz
     ELSE
       qx(nx,jy,jz) = 0.0d0
     END IF
+
   END DO
 END DO
 

@@ -268,6 +268,7 @@ DO jz = 1,nz
                                 coef(-2) = 0.0d0
                                 AddPressureY = -(dt/dyy(jy))*Kfacy(jx,jy-1,jz)
                             ELSE IF (headOld(jx,jy-1,jz) < 0.0d0) THEN
+                                WRITE(*,*) ' jx, jy = ',jx,jy,headOld(jx,jy-1,jz)
                                 WRITE(*,*) ' WARNING : Top head BC should be >= 0 !!!'
                             END IF
                         END IF
