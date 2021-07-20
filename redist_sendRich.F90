@@ -42,11 +42,12 @@
 
 !!!      ****************************************
 
-SUBROUTINE redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+SUBROUTINE redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
 USE crunchtype
 USE params
 USE medium
 USE flow
+USE transport
 USE CrunchFunctions
 
 IMPLICIT NONE
@@ -57,10 +58,12 @@ INTEGER(I4B), INTENT(IN)                                       :: nz
 INTEGER(I4B), INTENT(IN)                                       :: jx
 INTEGER(I4B), INTENT(IN)                                       :: jy
 INTEGER(I4B), INTENT(IN)                                       :: jz
+REAL(DP), INTENT(IN)                                           :: dtyr
 REAL(DP), INTENT(INOUT)                                           :: delV
 ! REAL(DP), INTENT(INOUT)                                          :: rsend_zm
 ! REAL(DP), INTENT(INOUT)                                          :: rsend_zp
 REAL(DP), DIMENSION(-3:3)                                               :: rsend
+REAL(DP)                                                       :: dt
 
 
 !  ****** PARAMETERS  ****************************
@@ -83,7 +86,13 @@ delVyp = 0.0d0
 delVzm = 0.0d0
 delVzp = 0.0d0
 
-! send moisture in x direction
+dt = dtyr * 365 * 86400
+
+! ***************************************************************
+!                   Send in x direction
+! ***************************************************************
+
+! ******************    send moisture in negative x direction
 IF (rsend(-1) > 0.0) THEN
     delVxm = delV * rsend(-1)
     ix = jx - 1
@@ -92,20 +101,75 @@ IF (rsend(-1) > 0.0) THEN
             ! if excess moisture < available space
             IF (room(ix,jy,jz) > delVxm) THEN
                 wc(ix,jy,jz) = wc(ix,jy,jz) + delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix,jy,jz) = qx(ix,jy,jz) - delVxm/(dyy(jy)*dzz(ix,jy,jz))/dt
                 room(ix,jy,jz) = room(ix,jy,jz) - delVxm
                 delVxm = 0.0d0
                 EXIT
             ! if excess moisture > available space
             ELSE
                 wc(ix,jy,jz) = wc(ix,jy,jz) + room(ix,jy,jz)/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix,jy,jz) = qx(ix,jy,jz) - room(ix,jy,jz)/(dyy(jy)*dzz(ix,jy,jz))/dt
                 delVxm = delVxm - room(ix,jy,jz)
                 room(ix,jy,jz) = 0.0d0
             END IF
         END IF
         ix = ix - 1
     END DO
+
+    IF (y_is_vertical) THEN
+        ! if extra water remains, send upward
+        IF (delVxm > 0.0) THEN
+            iy = jy - 1
+            ix = ix + 1
+            DO WHILE (activecellPressure(ix,iy,jz) == 1 .AND. iy > 0)
+                IF (room(ix,iy,jz) > 0.0) THEN
+                    ! if excess moisture < available space
+                    IF (room(ix,iy,jz) > delVxm) THEN
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + delVxm/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy,jz) = qy(ix,iy,jz) - delVxm/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        room(ix,iy,jz) = room(ix,iy,jz) - delVxm
+                        delVxm = 0.0d0
+                        EXIT
+                    ! if excess moisture > available space
+                    ELSE
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + room(ix,iy,jz)/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy,jz) = qy(ix,iy,jz) - room(ix,iy,jz)/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        delVxm = delVxm - room(ix,iy,jz)
+                        room(ix,iy,jz) = 0.0d0
+                    END IF
+                END IF
+                iy = iy - 1
+            END DO
+        END IF
+        ! if extra water still exists, send downward
+        IF (delVxm > 0.0) THEN
+            DO WHILE (iy .NE. ny)
+                iy = iy + 1
+                IF (room(ix,iy,jz) > 0.0) THEN
+                    ! if excess moisture < available space
+                    IF (room(ix,iy,jz) > delVxm) THEN
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + delVxm/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy-1,jz) = qy(ix,iy-1,jz) + delVxm/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        room(ix,iy,jz) = room(ix,iy,jz) - delVxm
+                        delVxm = 0.0d0
+                        EXIT
+                    ! if excess moisture > available space
+                    ELSE
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + room(ix,iy,jz)/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy-1,jz) = qy(ix,iy-1,jz) + room(ix,iy,jz)/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        delVxm = delVxm - room(ix,iy,jz)
+                        room(ix,iy,jz) = 0.0d0
+                    END IF
+                END IF
+            END DO
+        END IF
+    END IF
+
 END IF
 
+
+
+! ******************    send moisture in positive x direction
 IF (rsend(1) > 0.0) THEN
     delVxp = delV * rsend(1)
     ix = jx + 1
@@ -114,20 +178,75 @@ IF (rsend(1) > 0.0) THEN
             ! if excess moisture < available space
             IF (room(ix,jy,jz) > delVxp) THEN
                 wc(ix,jy,jz) = wc(ix,jy,jz) + delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix-1,jy,jz) = qx(ix-1,jy,jz) + delVxp/(dyy(jy)*dzz(ix,jy,jz))/dt
                 room(ix,jy,jz) = room(ix,jy,jz) - delVxp
                 delVxp = 0.0d0
                 EXIT
             ! if excess moisture > available space
             ELSE
                 wc(ix,jy,jz) = wc(ix,jy,jz) + room(ix,jy,jz)/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix-1,jy,jz) = qx(ix-1,jy,jz) + room(ix,jy,jz)/(dyy(jy)*dzz(ix,jy,jz))/dt
                 delVxp = delVxp - room(ix,jy,jz)
                 room(ix,jy,jz) = 0.0d0
             END IF
         END IF
         ix = ix + 1
     END DO
+
+    IF (y_is_vertical) THEN
+        ! if extra water remains, send upward
+        IF (delVxp > 0.0) THEN
+            iy = jy - 1
+            ix = ix - 1
+            DO WHILE (activecellPressure(ix,iy,jz) == 1 .AND. iy > 0)
+                IF (room(ix,iy,jz) > 0.0) THEN
+                    ! if excess moisture < available space
+                    IF (room(ix,iy,jz) > delVxp) THEN
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + delVxp/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy,jz) = qy(ix,iy,jz) - delVxp/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        room(ix,iy,jz) = room(ix,iy,jz) - delVxp
+                        delVxp = 0.0d0
+                        EXIT
+                    ! if excess moisture > available space
+                    ELSE
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + room(ix,iy,jz)/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy,jz) = qy(ix,iy,jz) - room(ix,iy,jz)/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        delVxp = delVxp - room(ix,iy,jz)
+                        room(ix,iy,jz) = 0.0d0
+                    END IF
+                END IF
+                iy = iy - 1
+            END DO
+        END IF
+        ! if extra water still exists, send downward
+        IF (delVxp > 0.0) THEN
+            DO WHILE (iy .NE. ny)
+                iy = iy + 1
+                IF (room(ix,iy,jz) > 0.0) THEN
+                    ! if excess moisture < available space
+                    IF (room(ix,iy,jz) > delVxp) THEN
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + delVxp/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy-1,jz) = qy(ix,iy-1,jz) + delVxp/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        room(ix,iy,jz) = room(ix,iy,jz) - delVxp
+                        delVxp = 0.0d0
+                        EXIT
+                    ! if excess moisture > available space
+                    ELSE
+                        wc(ix,iy,jz) = wc(ix,iy,jz) + room(ix,iy,jz)/(dxx(ix)*dyy(iy)*dzz(ix,iy,jz))
+                        qy(ix,iy-1,jz) = qy(ix,iy-1,jz) + room(ix,iy,jz)/(dxx(ix)*dzz(ix,iy,jz))/dt
+                        delVxp = delVxp - room(ix,iy,jz)
+                        room(ix,iy,jz) = 0.0d0
+                    END IF
+                END IF
+            END DO
+        END IF
+    END IF
+
 END IF
 
+! ***************************************************************
+!                   Send in y direction
+! ***************************************************************
 
 ! 2D x-y
 IF (y_is_vertical) THEN
@@ -140,12 +259,14 @@ IF (y_is_vertical) THEN
                 ! if excess moisture < available space
                 IF (room(jx,iy,jz) > delVym) THEN
                     wc(jx,iy,jz) = wc(jx,iy,jz) + delVym/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy,jz) = qy(jx,iy,jz) - delVym/(dxx(jx)*dzz(jx,iy,jz))/dt
                     room(jx,iy,jz) = room(jx,iy,jz) - delVym
                     delVym = 0.0d0
                     EXIT
                 ! if excess moisture > available space
                 ELSE
                     wc(jx,iy,jz) = wc(jx,iy,jz) + room(jx,iy,jz)/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy,jz) = qy(jx,iy,jz) - room(jx,iy,jz)/(dxx(jx)*dzz(jx,iy,jz))/dt
                     delVym = delVym - room(jx,iy,jz)
                     room(jx,iy,jz) = 0.0d0
                 END IF
@@ -168,12 +289,14 @@ IF (y_is_vertical) THEN
                 ! if excess moisture < available space
                 IF (room(jx,iy,jz) > delVyp) THEN
                     wc(jx,iy,jz) = wc(jx,iy,jz) + delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy-1,jz) = qy(jx,iy-1,jz) + delVyp/(dxx(jx)*dzz(jx,iy,jz))/dt
                     room(jx,iy,jz) = room(jx,iy,jz) - delVyp
                     delVyp = 0.0d0
                     EXIT
                 ! if excess moisture > available space
                 ELSE
                     wc(jx,iy,jz) = wc(jx,iy,jz) + room(jx,iy,jz)/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy-1,jz) = qy(jx,iy-1,jz) + room(jx,iy,jz)/(dxx(jx)*dzz(jx,iy,jz))/dt
                     delVyp = delVyp - room(jx,iy,jz)
                     room(jx,iy,jz) = 0.0d0
                 END IF
@@ -244,14 +367,28 @@ END IF
 
 
 ! If excess moisture remains, reverse sending directions
-! IF (delVzm + delVzp > 0.0) THEN
-!     delV = delVzm + delVzp
-!     temp = rsend(-3)
-!     rsend(-3) = rsend(3)
-!     rsend(3) = temp
-! ELSE
-!     delV = 0.0d0
-! END IF
+IF (y_is_vertical) THEN
+    IF (delVym + delVyp > 0.0) THEN
+        temp = rsend(-2)
+        rsend(-2) = rsend(2)
+        rsend(2) = temp
+    END IF
+    IF (delVxm + delVxp > 0.0) THEN
+        temp = rsend(-1)
+        rsend(-1) = rsend(1)
+        rsend(1) = temp
+    END IF
+
+ELSE
+    IF (delVzm + delVzp > 0.0) THEN
+        delV = delVzm + delVzp
+        temp = rsend(-3)
+        rsend(-3) = rsend(3)
+        rsend(3) = temp
+    ELSE
+        delV = 0.0d0
+    END IF
+END IF
 
 
 

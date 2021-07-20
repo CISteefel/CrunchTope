@@ -42,11 +42,12 @@
 
 !!!      ****************************************
 
-SUBROUTINE redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv)
+SUBROUTINE redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv,dtyr)
 USE crunchtype
 USE params
 USE medium
 USE flow
+USE transport
 USE CrunchFunctions
 
 IMPLICIT NONE
@@ -57,10 +58,12 @@ INTEGER(I4B), INTENT(IN)                                       :: nz
 INTEGER(I4B), INTENT(IN)                                       :: jx
 INTEGER(I4B), INTENT(IN)                                       :: jy
 INTEGER(I4B), INTENT(IN)                                       :: jz
+REAL(DP), INTENT(IN)                                           :: dtyr
 REAL(DP), INTENT(INOUT)                                           :: delV
 ! REAL(DP), INTENT(INOUT)                                          :: rrecv_zm
 ! REAL(DP), INTENT(INOUT)                                          :: rrecv_zp
 REAL(DP), DIMENSION(-3:3)                                               :: rrecv
+REAL(DP)                                                       :: dt
 
 !  ****** PARAMETERS  ****************************
 INTEGER(I4B)                                                          :: ix
@@ -81,6 +84,7 @@ delVyp = 0.0d0
 delVzm = 0.0d0
 delVzp = 0.0d0
 
+dt = dtyr * 365 * 86400
 
 ! extract moisture in x direction
 IF (rrecv(-1) > 0.0) THEN
@@ -91,11 +95,13 @@ IF (rrecv(-1) > 0.0) THEN
         IF (wc(ix,jy,jz) > wcr(ix,jy,jz)) THEN
             IF ((wc(ix,jy,jz)-wcr(ix,jy,jz)) > delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
                 wc(ix,jy,jz) = wc(ix,jy,jz) - delVxm/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix,jy,jz) = qx(ix,jy,jz) + delVxm/(dyy(jy)*dzz(ix,jy,jz))/dt
                 room(ix,jy,jz) = room(ix,jy,jz) + delVxm
                 delVxm = 0.0d0
                 EXIT
             ELSE
                 delVxm = delVxm - (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix,jy,jz) = qx(ix,jy,jz) + (wc(ix,jy,jz)-wcr(ix,jy,jz))*dxx(ix)/dt
                 room(ix,jy,jz) = room(ix,jy,jz) + (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
                 wc(ix,jy,jz) = wcr(ix,jy,jz)
             END IF
@@ -113,11 +119,13 @@ IF (rrecv(1) > 0.0) THEN
         IF (wc(ix,jy,jz) > wcr(ix,jy,jz)) THEN
             IF ((wc(ix,jy,jz)-wcr(ix,jy,jz)) > delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))) THEN
                 wc(ix,jy,jz) = wc(ix,jy,jz) - delVxp/(dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix-1,jy,jz) = qx(ix-1,jy,jz) - delVxp/(dyy(jy)*dzz(ix,jy,jz))/dt
                 room(ix,jy,jz) = room(ix,jy,jz) + delVxp
                 delVxp = 0.0d0
                 EXIT
             ELSE
                 delVxp = delVxp - (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
+                qx(ix-1,jy,jz) = qx(ix-1,jy,jz) - (wc(ix,jy,jz)-wcr(ix,jy,jz))*dxx(ix)/dt
                 room(ix,jy,jz) = room(ix,jy,jz) + (wc(ix,jy,jz)-wcr(ix,jy,jz)) * (dxx(ix)*dyy(jy)*dzz(ix,jy,jz))
                 wc(ix,jy,jz) = wcr(ix,jy,jz)
             END IF
@@ -140,11 +148,13 @@ IF (y_is_vertical) THEN
                     IF (activecellPressure(jx,iy,jz) == 1) THEN
                         wc(jx,iy,jz) = wc(jx,iy,jz) - delVym/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
                     END IF
+                    qy(jx,iy,jz) = qy(jx,iy,jz) + delVym/(dxx(jx)*dzz(jx,iy,jz))/dt
                     room(jx,iy,jz) = room(jx,iy,jz) + delVym
                     delVym = 0.0d0
                     EXIT
                 ELSE
                     delVym = delVym - (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy,jz) = qy(jx,iy,jz) + (wc(jx,iy,jz)-wcr(jx,iy,jz))*dyy(iy)/dt
                     room(jx,iy,jz) = room(jx,iy,jz) + (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
                     IF (activecellPressure(jx,jy,jz) == 1) THEN
                         wc(jx,iy,jz) = wcr(jx,iy,jz)
@@ -165,11 +175,13 @@ IF (y_is_vertical) THEN
             IF (wc(jx,iy,jz) > wcr(jx,iy,jz)) THEN
                 IF ((wc(jx,iy,jz)-wcr(jx,iy,jz)) > delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))) THEN
                     wc(jx,iy,jz) = wc(jx,iy,jz) - delVyp/(dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy-1,jz) = qy(jx,iy-1,jz) - delVyp/(dxx(jx)*dzz(jx,iy,jz))/dt
                     room(jx,iy,jz) = room(jx,iy,jz) + delVyp
                     delVyp = 0.0d0
                     EXIT
                 ELSE
                     delVyp = delVyp - (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
+                    qy(jx,iy-1,jz) = qy(jx,iy-1,jz) - (wc(jx,iy,jz)-wcr(jx,iy,jz))*dyy(iy)/dt
                     room(jx,iy,jz) = room(jx,iy,jz) + (wc(jx,iy,jz)-wcr(jx,iy,jz)) * (dxx(jx)*dyy(iy)*dzz(jx,iy,jz))
                     wc(jx,iy,jz) = wcr(jx,iy,jz)
                 END IF

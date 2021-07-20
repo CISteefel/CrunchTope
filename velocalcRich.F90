@@ -254,8 +254,16 @@ DO jz = 1,nz
       qx(nx,jy,jz) = 0.0d0
     END IF
 
+    ! IF (jy > 41 .AND. jy < 46) THEN
+    !     IF (jz == 1) THEN
+    !         WRITE(*,*) ' actv, K, h1, h2, q = ',activecellPressure(nx+1,jy,jz),Kfacx(nx,jy,jz),head(nx+1,jy,jz),head(nx,jy,jz),qx(nx,jy,jz)
+    !     END IF
+    ! END IF
+
   END DO
 END DO
+
+! WRITE(*,*) ' -------- '
 
 !!  ***  Calculate qz(jx,jy,0) and qz(jx,jy,NZ)  ******************
 

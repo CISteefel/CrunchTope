@@ -42,7 +42,7 @@
 
 !!!      ****************************************
 
-SUBROUTINE redistributeRich(nx,ny,nz)
+SUBROUTINE redistributeRich(nx,ny,nz,dtyr)
 USE crunchtype
 USE params
 USE medium
@@ -55,6 +55,7 @@ IMPLICIT NONE
 INTEGER(I4B), INTENT(IN)                                       :: nx
 INTEGER(I4B), INTENT(IN)                                       :: ny
 INTEGER(I4B), INTENT(IN)                                       :: nz
+REAL(DP), INTENT(IN)                                           :: dtyr
 
 
 !  Internal variables and arrays
@@ -66,6 +67,9 @@ INTEGER(I4B)                                                          :: jj
 !  ****** PARAMETERS  ****************************
 REAL(DP)                                                              :: delV
 REAL(DP)                                                                :: loss
+REAL(DP)                                                                :: loss1
+REAL(DP)                                                                :: loss2
+REAL(DP)                                                                :: loss3
 ! REAL(DP)                                                              :: rsend_zp
 ! REAL(DP)                                                              :: rsend_zm
 ! REAL(DP)                                                              :: rrecv_zp
@@ -83,8 +87,11 @@ dist_path2 = 0
 dist_path3 = 0
 dist_path4 = 0
 loss = 0.0d0
+loss1 = 0.0d0
+loss2 = 0.0d0
+loss3 = 0.0d0
 
-
+! WRITE(*,*) ' ----- '
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -98,7 +105,7 @@ DO jz = 1,nz
             ! rrecv_zm = 0.0d0
             ! rrecv_zp = 0.0d0
             ! For over-saturated cells
-            IF (wc(jx,jy,jz) >= wcs(jx,jy,jz) - 1e-7) THEN
+            IF (wc(jx,jy,jz) >= wcs(jx,jy,jz) - 1e-9) THEN
                 IF (redistribute_wc) THEN
                     delV = (wc(jx,jy,jz) - wcs(jx,jy,jz)) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
                     IF (delV > 0.0d0) THEN
@@ -107,15 +114,17 @@ DO jz = 1,nz
 !!!                            WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                         END IF
                         CALL gradhRich(jx,jy,jz,rsend,rrecv)
-                        CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+                        CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                         IF (delV > 1e-20) THEN
-                            ! CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+                            CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                             IF (delV > 1e-20) THEN
                                 loss = loss + delV
+                                loss1 = loss1 + delV
                             END IF
                         END IF
                     ELSE
                         loss = loss + delV
+                        loss1 = loss1 + delV
                     END IF
                 END IF
                 wc(jx,jy,jz) = wcs(jx,jy,jz)
@@ -141,11 +150,12 @@ DO jz = 1,nz
 !!!                                WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                             END IF
                             CALL gradhRich(jx,jy,jz,rsend,rrecv)
-                            CALL redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv)
+                            CALL redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv,dtyr)
                             IF (delV > 1e-20) THEN
-                                ! CALL redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv)
+                                ! CALL redist_recvRich(nx,ny,nz,jx,jy,jz,delV,rrecv,dtyr)
                                 IF (delV > 1e-20) THEN
                                     loss = loss - delV
+                                    loss2 = loss2 + delV
                                 END IF
                             END IF
                             dist_path3 = dist_path3 + 1
@@ -157,11 +167,12 @@ DO jz = 1,nz
 !!!                                WRITE(*,*) ' WARNING : Too much water needs to be redistributed. Should consider reducing dt!'
                             END IF
                             CALL gradhRich(jx,jy,jz,rsend,rrecv)
-                            CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+                            CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                             IF (delV > 1e-20) THEN
-                                ! CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend)
+                                CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                                 IF (delV > 1e-20) THEN
                                     loss = loss + delV
+                                    loss3 = loss3 + delV
                                 END IF
                             END IF
                             dist_path4 = dist_path4 + 1
@@ -182,7 +193,7 @@ END DO
 
 ! IF (redistribute_wc) THEN
 !     ! WRITE(*,*) '  Redistribution via 4 mechanisms: ',dist_path1,dist_path2,dist_path3,dist_path4, ' loss = ',loss
-!     WRITE(*,*) '  Total volume loss during redistribution (m^3) = ',loss
+!     WRITE(*,*) '  Total volume loss during redistribution (m^3) = ',loss, loss1, loss2, loss3
 ! END IF
 
 

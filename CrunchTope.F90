@@ -905,7 +905,7 @@ END DO
       CALL velocalcRich(nx,ny,nz,dtflow)
       CALL watercontentRich(nx,ny,nz,dtflow)
       CALL vanGenuchten(nx,ny,nz)
-      CALL redistributeRich(nx,ny,nz)
+      CALL redistributeRich(nx,ny,nz,dtflow)
       FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
       END FORALL
@@ -1309,7 +1309,7 @@ DO WHILE (nn <= nend)
         CALL velocalcRich(nx,ny,nz,delt)
         CALL watercontentRich(nx,ny,nz,delt)
         CALL vanGenuchten(nx,ny,nz)
-        CALL redistributeRich(nx,ny,nz)
+        CALL redistributeRich(nx,ny,nz,delt)
         FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
           pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
         END FORALL
@@ -1338,7 +1338,7 @@ DO WHILE (nn <= nend)
        !       wc(0,0,0) = wc(0,0,0) + wc(jx,jy,1) * dxx(jx) * dyy(jy)
        !     END DO
        !   END DO
-         ! WRITE(*,*) ' >>>>> Total volume = ',wc(0,0,0), dxx(1), dyy(1), dzz(1,1,1)
+       !   WRITE(*,*) ' >>>>> Total volume = ',wc(0,0,0), ' dt(sec) = ', delt*365.0*86400.0
 
 
  !!! Calculate liquid saturation from water content
