@@ -91,10 +91,12 @@ loss1 = 0.0d0
 loss2 = 0.0d0
 loss3 = 0.0d0
 
+
 ! WRITE(*,*) ' ----- '
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+
         IF (activecellPressure(jx,jy,jz) == 1) THEN
             DO jj = -3,3
                 rsend(jj) = 0.0d0

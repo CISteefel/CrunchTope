@@ -86,6 +86,10 @@ delVzp = 0.0d0
 
 dt = dtyr * 365 * 86400
 
+qx = qx/secyr
+qy = qy/secyr
+qz = qz/secyr
+
 ! extract moisture in x direction
 IF (rrecv(-1) > 0.0) THEN
     delVxm = delV * rrecv(1)
@@ -270,7 +274,9 @@ ELSE
 END IF
 
 
-
+qx = qx*secyr
+qy = qy*secyr
+qz = qz*secyr
 
 RETURN
 END SUBROUTINE redist_recvRich

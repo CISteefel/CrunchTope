@@ -88,6 +88,10 @@ delVzp = 0.0d0
 
 dt = dtyr * 365 * 86400
 
+qx = qx/secyr
+qy = qy/secyr
+qz = qz/secyr
+
 ! ***************************************************************
 !                   Send in x direction
 ! ***************************************************************
@@ -115,6 +119,10 @@ IF (rsend(-1) > 0.0) THEN
         END IF
         ix = ix - 1
     END DO
+
+    IF (delVxm > 0.0 .AND. activecellPressure(0,jy,jz) == 1) THEN
+        delVxm = 0.0d0
+    END IF
 
     IF (y_is_vertical) THEN
         ! if extra water remains, send upward
@@ -192,6 +200,10 @@ IF (rsend(1) > 0.0) THEN
         END IF
         ix = ix + 1
     END DO
+
+    IF (delVxp > 0.0 .AND. activecellPressure(nx+1,jy,jz) == 1) THEN
+        delVxp = 0.0d0
+    END IF
 
     IF (y_is_vertical) THEN
         ! if extra water remains, send upward
@@ -398,6 +410,10 @@ IF (y_is_vertical) THEN
 ELSE
     delV = delVxm + delVxp + delVzm + delVzp
 END IF
+
+qx = qx*secyr
+qy = qy*secyr
+qz = qz*secyr
 
 
 RETURN

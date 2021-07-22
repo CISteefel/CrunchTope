@@ -254,9 +254,9 @@ DO jz = 1,nz
       qx(nx,jy,jz) = 0.0d0
     END IF
 
-    ! IF (jy > 41 .AND. jy < 46) THEN
+    ! IF (jy > 41) THEN
     !     IF (jz == 1) THEN
-    !         WRITE(*,*) ' actv, K, h1, h2, q = ',activecellPressure(nx+1,jy,jz),Kfacx(nx,jy,jz),head(nx+1,jy,jz),head(nx,jy,jz),qx(nx,jy,jz)
+    !         WRITE(*,*) ' jy, actv, K, h1, h2, q = ',jy, activecellPressure(nx+1,jy,jz),Kfacx(nx,jy,jz),head(nx+1,jy,jz),head(nx,jy,jz),qx(nx,jy,jz)
     !     END IF
     ! END IF
 
@@ -282,6 +282,11 @@ DO jy = 1,ny
     qz(jx,jy,nz) = 0.0d0
   END DO
 END DO
+
+! WRITE(*,*) '  ---->  h = ',head(1,44,1), head(0,44,1), head(2,44,1), head(1,43,1), head(1,45,1)
+! WRITE(*,*) '  ---->  q = ',qx(1,44,1), qx(0,44,1), qy(1,44,1), qy(1,43,1), wc(1,44,1)
+! WRITE(*,*) '  ----  '
+
 
 !! Convert to m/yr
 qx = qx*secyr
