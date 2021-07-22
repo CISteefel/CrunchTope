@@ -62,6 +62,36 @@ INTEGER(I4B), INTENT(IN)                                                  :: jz
 LOGICAL(LGT), INTENT(INOUT)                                     :: nextto_sat
 
 ! Check if a grid cell is adjacent to a saturated grid cell
+!   Check in x direction
+IF (jx == 1) THEN
+    IF (wc(jx-1,jy,jz) >= wcs(jx-1,jy,jz)) THEN
+        nextto_sat = .TRUE.
+    ELSE IF (activecellPressure(jx-1,jy,jz) == 0 .AND. head(jx-1,jy,jz) > 0.0d0) THEN
+        nextto_sat = .TRUE.
+    END IF
+    IF (wc(jx+1,jy,jz) >= wcs(jx+1,jy,jz)) THEN
+        nextto_sat = .TRUE.
+    END IF
+ELSE IF (jx == nx) THEN
+    IF (wc(jx+1,jy,jz) >= wcs(jx+1,jy,jz)) THEN
+        nextto_sat = .TRUE.
+    ELSE IF (activecellPressure(jx+1,jy,jz) == 0 .AND. head(jx+1,jy,jz) > 0.0d0) THEN
+        nextto_sat = .TRUE.
+    END IF
+    IF (wc(jx-1,jy,jz) >= wcs(jx-1,jy,jz)) THEN
+        nextto_sat = .TRUE.
+    END IF
+ELSE
+    IF (wc(jx-1,jy,jz) >= wcs(jx-1,jy,jz)) THEN
+        nextto_sat = .TRUE.
+    END IF
+    IF (wc(jx+1,jy,jz) >= wcs(jx+1,jy,jz)) THEN
+        nextto_sat = .TRUE.
+    END IF
+END IF
+
+
+!   Check in y direction
 IF (y_is_vertical) THEN
     IF (jy == 1) THEN
         IF (wc(jx,jy+1,jz) >= wcs(jx,jy+1,jz)) THEN
