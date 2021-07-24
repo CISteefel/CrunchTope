@@ -76,9 +76,12 @@ INTEGER(I4B)                                                :: ls_b
 
 nxyz = nx*ny*nz
 
+ReadInitialConditions = .FALSE.
+
 REWIND nout
 
 nhet = 0
+
 10  READ(nout,'(a)',END=500) zone
 nlen1 = LEN(zone)
 CALL majuscules(zone,nlen1)
@@ -86,12 +89,38 @@ id = 1
 iff = mls
 CALL sschaine(zone,id,iff,ssch,ids,ls)
 IF(ls /= 0) THEN
+  
   lzs=ls
   CALL convan(ssch,lzs,res)
-  
+    
+  IF (ssch == 'readinitialconditions' .or. ssch == 'readinitialcondition') THEN         
+     !! Read initial condition distribution from file
+    
+    ReadInitialConditions = .TRUE.
+    
+!!  Looking for initial conditions file name 
+    
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      CALL stringtype(ssch,lzs,res)
+      InitialConditionsFile = ssch
+!!!      lfile = ls
+    
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' No file name following "ReadInitialConditions" in INITIAL_CONDITIONS section '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    RETURN
+  END IF
 
-!  Check to see that heterogeneity label matches one of the labels
-!  for geochemical conditions (condlabel)
+    
+!     Check to see that heterogeneity label matches one of the labels
+!       for geochemical conditions (condlabel)
   
   DO nco = 1,nchem
     IF (ssch == condlabel(nco)) THEN
@@ -105,11 +134,8 @@ IF(ls /= 0) THEN
   WRITE(*,*)
   READ(*,*)
   STOP
+  
 50 nhet = nhet + 1
-   
-  if (condlabel(nco) == 'boomlaka') then
-   continue
-  end if
   
   ndist(nhet) = nco
   IF (nxyz == 1) THEN      ! If NXYZ = 1
@@ -321,6 +347,7 @@ IF (ls /= 0) THEN
     jjfix(nhet) = 0
   END IF
 END IF
+
 
 GO TO 10
 

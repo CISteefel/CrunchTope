@@ -325,7 +325,7 @@ GO TO 10
 
 500 CONTINUE
 
-IF (npumpzone > 0) THEN
+
 
   IF (ALLOCATED(npump)) THEN
     DEALLOCATE(npump)
@@ -334,6 +334,8 @@ IF (npumpzone > 0) THEN
     ALLOCATE(npump(nx,ny,nz))
   END IF
   npump = 0
+  
+  IF (npumpzone > 0) THEN
 
   IF (ALLOCATED(qg)) THEN
     DEALLOCATE(qg)

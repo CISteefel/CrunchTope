@@ -788,9 +788,13 @@ DO i = 1,ncomp
     
     yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
     
-    IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
-      continue
-    END IF
+!!!    IF (jx==42 .and. jy==43 .and. i==1) THEN
+!!!      write(*,*)
+!!!      write(*,*) ' d(north) = ',d(jx,jy,jz),scn(i)
+!!!      write(*,*) ' f(south) = ',f(jx,jy,jz),scs(i)
+!!!      write(*,*)
+!!!    END IF
+      
     
     IF (isaturate == 1) THEN
       yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
@@ -1016,6 +1020,7 @@ DO is = 1,nsurf
 END DO
 
 800 IF (activecell(jx,jy,jz) == 0) THEN
+
   DO i = 1,ncomp
     ind = (j-1)*(neqn) + i
     fxx(ind) = sp10(i,jx,jy,jz) - spcond10(i,jinit(jx,jy,jz))

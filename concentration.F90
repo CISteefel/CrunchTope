@@ -49,6 +49,11 @@ MODULE  concentration
 
   LOGICAL(LGT)                                      :: O2Found  
   LOGICAL(LGT)                                      :: IncludeBdot
+  
+  LOGICAL(LGT)                                      :: ReadInitialConditions
+  
+  CHARACTER (LEN=mls)                               :: InitialConditionsFile
+  
 
   INTEGER(I4B)                                      :: ikh2o  !  integer pointer for species number for H2O
   INTEGER(I4B)                                      :: nplot  !  number of time series plot files

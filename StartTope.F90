@@ -4974,6 +4974,37 @@ ELSE
 END IF
 
 CALL read_het(nout,nchem,nhet,nx,ny,nz)
+
+IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
+  
+  ALLOCATE(work3(nx,ny,nz))
+  INQUIRE(FILE=InitialConditionsFile,EXIST=ext)
+  IF (.NOT. ext) THEN
+    CALL stringlen(InitialConditionsFile,ls)
+    WRITE(*,*)
+    WRITE(*,*) ' InitialConditionsFile not found: ', InitialConditionsFile(1:ls)
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+  OPEN(UNIT=52,FILE=InitialConditionsFile,STATUS='OLD',ERR=6001)
+  FileTemp = InitialConditionsFile
+  CALL stringlen(FileTemp,FileNameLength)
+    jz = 1
+    nhet = 0
+    DO jy = 1,ny
+      DO jx= 1,nx
+        nhet = nhet + 1
+        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
+        jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+        activecell(jx,jy,jz) = 1
+      END DO
+    END DO
+    
+  CLOSE(UNIT=52)
+  
+END IF
+  
 IF (nhet == 0) THEN
   WRITE(*,*)
   WRITE(*,*) ' No initial conditions found'
@@ -4983,50 +5014,8 @@ IF (nhet == 0) THEN
   STOP
 END IF
 
-!!  The following (mhet) does not seem to be used anymore
-!!IF (nhet > mhet) THEN
-!!  WRITE(*,*)
-!!  WRITE(*,*) ' Too many initial conditions specified'
-!!  WRITE(*,*) ' Redimension MHET in paramsos.inc'
-!!  WRITE(*,*) ' Number of heterogeneities = ',nhet
-!!  WRITE(*,*) ' MHET dimensioned to       = ',mhet
-!!  WRITE(*,*)
-!!  READ(*,*)
-!!  STOP
-!!END IF
 
-!  First, check to see if any of the conditions are labelled
-!    "default" (if so, use this as the default)
-
-!      jdefault = 0
-!      do nco = 1,nchem
-!        if (condlabel(nco).eq.'Default' .or.
-!     &    condlabel(nco).eq.'DEFAULT' .or.
-!     &    condlabel(nco).eq.'default') then
-!          jdefault = nco
-!        endif
-!      end do
-
-!  Initialize the domain to the default geochemical condition
-!  (jdefault) if it exists, otherwise assume first condition as default
-
-!      do jz = 1,nz
-!        do jy = 1,ny
-!          do jx = 1,nx
-!            j = (jz-1)*nx*ny + (jy-1)*nx + jx
-!            if (jdefault.gt.0) then
-!              jinit(jx,jy,jz) = jdefault
-!            else
-!              jinit(jx,jy,jz) = 1
-!            endif
-!          end do
-!        end do
-!      end do
-
-!  Check to see that the grid locations of corners of heterogeneity
-!    blocks don't exceed specified grid dimensions (nx,ny,nz)
-
-IF (nhet > 0) THEN
+IF (nhet > 0 .and. .not. ReadInitialConditions) THEN
   DO l = 1,nhet
     IF (jxxhi(l) > nx) THEN
       WRITE(*,*)
@@ -5201,12 +5190,17 @@ IF (nhet > 0) THEN
 
 
 ELSE
-  WRITE(*,*)
-  WRITE(*,*) ' Initial conditions must be specified'
-  WRITE(*,*) ' No DEFAULT condition assumed'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
+  IF (ReadInitialConditions) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Initial conditions read from file'
+  ELSE 
+    WRITE(*,*)
+    WRITE(*,*) ' Initial conditions must be specified'
+    WRITE(*,*) ' No DEFAULT condition assumed'
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
 END IF
 
 
