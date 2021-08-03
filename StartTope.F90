@@ -618,6 +618,8 @@ INTEGER(I4B)                                                  :: nvgn
 INTEGER(I4B)                                                  :: nvga
 INTEGER(I4B)                                                  :: nwcr
 
+CHARACTER (LEN=mls)                                           :: pumpfile
+CHARACTER (LEN=mls)                                           :: PumpFileFormat
 
 
 #if defined(ALQUIMIA)
@@ -7503,7 +7505,18 @@ IF (found) THEN
   CALL read_constantflow(nout,nx,ny,nz,constant_flow,qxinit,qyinit,qzinit)
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
-  CALL read_pump(nout,nx,ny,nz,nchem)
+
+    
+  
+  pumptimeseries=.false.
+  CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
+  IF (pumptimeseries) THEN
+    
+  CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
+  
+  else
+    CALL read_pump(nout,nx,ny,nz,nchem)
+  ENDIF
   
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)

@@ -195,6 +195,8 @@ REAL(DP)        :: check2
 REAL(DP)        :: check3
 REAL(DP)        :: check4
 
+REAL(DP)                                                  :: qgtinterp
+
 
 !********************* PETSc declarations ********************************
 PetscFortranAddr                                                    user(6)
@@ -1011,7 +1013,19 @@ DO jy = 1,ny
           CONTINUE
         END IF
       END DO
+
+    ELSEIF (pumptimeseries .AND. .not. Richards) THEN
     
+      CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
+      qg(1,jx,jy,jz)=qgtinterp
+      IF (qg(1,jx,jy,jz) > 0.0) THEN       !  Injection well
+        CONTINUE                ! Source term on R.H.S.
+      ELSE IF (qg(1,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
+        source = source + xgram(jx,jy,jz)*qg(1,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
+      ELSE
+        CONTINUE
+      END IF
+
     END IF
     
     IF (species_diffusion) THEN

@@ -328,7 +328,10 @@ SOURCEF = \
           watercontentRich.F90\
           PressureNS.F90\
           velocalcNS.F90\
-          redist_sendRich.F90
+          redist_sendRich.F90\
+          interp2.F90\
+          read_pumpfile.F90\
+          read_pump_timeseries.F90
 
 
 OBJSF  =  crunchtype.o\
@@ -656,7 +659,10 @@ OBJSF  =  crunchtype.o\
           watercontentRich.o\
           PressureNS.o\
           velocalcNS.o\
-          redist_sendRich.o
+          redist_sendRich.o\
+          interp2.o\
+          read_pumpfile.o\
+          read_pump_timeseries.o
 
 LOCDIR   = ${CrunchTope_Dir}
 

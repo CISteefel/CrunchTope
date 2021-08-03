@@ -184,4 +184,9 @@ INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: XvecCrunchP
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: BvecCrunchP
 
+!! Pump time series variable
+REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qgt
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
+LOGICAL(LGT)                                   :: pumptimeseries
+
 END MODULE flow

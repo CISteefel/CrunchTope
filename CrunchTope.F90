@@ -407,6 +407,9 @@ REAL(DP)                                                   :: m
 REAL(DP)                                                   :: dist
 REAL(DP)                                                   :: satu
 
+! variables pump time series
+
+REAL(DP)                                                  :: qgtinterp
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -960,13 +963,24 @@ END DO
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
 
         pumpterm = 0.0d0
-        IF (wells) THEN
-
-          DO npz = 1,npump(jx,jy,jz)
-            pumpterm = pumpterm + qg(npz,jx,jy,jz)
-          END DO
-
-        END IF
+        !! 1) pump time series
+        IF (pumptimeseries) THEN
+      
+          CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
+          
+          
+          qg(1,jx,jy,jz)=qgtinterp
+  
+          pumpterm = pumpterm + qg(1,jx,jy,jz)
+            
+          !! 2) normal pump
+          ELSEIF (wells) THEN
+   
+            DO npz = 1,npump(jx,jy,jz)
+              pumpterm = pumpterm + qg(npz,jx,jy,jz)
+            END DO
+  
+          END IF
         RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
 
         IF (DABS(RealSum) > MaxDivergence) THEN
@@ -3202,9 +3216,22 @@ ELSE
         checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
 
+        !! Allocate pump
         pumpterm = 0.0d0
-        IF (wells) THEN
+        
+        !! 1) pump time series
+        IF (pumptimeseries) THEN
+      
+        CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
+        
+        
+        qg(1,jx,jy,jz)=qgtinterp
 
+        pumpterm = pumpterm + qg(1,jx,jy,jz)
+          
+        !! 2) normal pump
+        ELSEIF (wells) THEN
+ 
           DO npz = 1,npump(jx,jy,jz)
             pumpterm = pumpterm + qg(npz,jx,jy,jz)
           END DO
