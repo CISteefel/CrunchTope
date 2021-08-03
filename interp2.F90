@@ -146,8 +146,8 @@ yout=sum(ydatdum2)
 
     END IF      
 
-    if (tstart>2) then
-      WRITE(*,*) 'I am stopping'
-      stop
-      end if
+!!    if (tstart>2) then
+!!      WRITE(*,*) 'I am stopping'
+!!      stop
+!!     end if
     end subroutine interp2
