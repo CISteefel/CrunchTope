@@ -618,8 +618,8 @@ INTEGER(I4B)                                                  :: nvgn
 INTEGER(I4B)                                                  :: nvga
 INTEGER(I4B)                                                  :: nwcr
 
-CHARACTER (LEN=mls)                                           :: pumpfile
-CHARACTER (LEN=mls)                                           :: PumpFileFormat
+CHARACTER (LEN=mls)                          :: pumpfile
+CHARACTER (LEN=mls)                          :: PumpFileFormat
 
 
 #if defined(ALQUIMIA)
@@ -813,6 +813,16 @@ IF (found) THEN
     petscon = .FALSE.
   END IF
 
+ nmmLogical = .FALSE.
+  parchar = 'nmm'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
+  
+  parchar = 'saltcreep'
+  parfind = ' '
+  SaltCreep = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,SaltCreep)
+  
   parchar = 'courant_number'
   parfind = ' '
   realjunk = 0.0
@@ -3051,7 +3061,8 @@ IF (found) THEN
     WRITE(*,*) ' Reading porosity from file: ',PorosityFile(1:ls)
 !!!    jpor = 2
 !!!    porosity_update = .FALSE.
-!!  New feature:  check to see if porosity update is set to true with read of porosity.  If so, renormalize volume fractions to porosity that is read in.
+!!!  New feature:  check to see if porosity update is set to true with read of porosity.  
+!!!	 If so, renormalize volume fractions to porosity that is read in.																			  
     parchar = 'porosity_update'
     parfind = ' '
     porosity_update = .false.
@@ -3402,7 +3413,12 @@ DO ik = 1,ncomp+nspec
   IF(ulab(ik) == 'O2(aq)' .OR. ulab(ik) == 'o2(aq)') THEN
     ikO2 = ik
   END IF
-
+  IF (ulab(ik) == 'Na+') THEN
+    ikNa = ik
+  END IF
+  IF (ulab(ik) == 'Cl-') THEN
+    ikCl= ik
+  END IF
 END DO
 
 !!IF (ikFe2 /= 0 .and. ikFe3 /= 0 .and. iko2 /= 0) THEN
@@ -3587,11 +3603,8 @@ DO nco = 1,nchem
     spsurftmp10(is) = guess_surf(is,nco)
     spsurftmp(is) = DLOG(spsurftmp10(is))
   END DO
-  DO ik = 1,ncomp+nspec
-
-      gamtmp(ik) = 0.0
-
-  END DO
+  
+  gamtmp = 0.0
 
   LogPotential_tmp = 0.0
   spgastmp = -100.0d0
@@ -4992,17 +5005,28 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
   OPEN(UNIT=52,FILE=InitialConditionsFile,STATUS='OLD',ERR=6001)
   FileTemp = InitialConditionsFile
   CALL stringlen(FileTemp,FileNameLength)
+  
+  if (nmmLogical) then
+    
     jz = 1
+    ALLOCATE(stress(nx,ny,1))
+    ALLOCATE(CrankLogK(nx,ny,1))
+  
     nhet = 0
     DO jy = 1,ny
       DO jx= 1,nx
         nhet = nhet + 1
-        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-        jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
+!!!                         x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig3
+        IF (stress(jx,jy,jz) == 0.0) THEN
+          stress(jx,jy,jz) = 1.0E05
+        END IF
+        
+        jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
         activecell(jx,jy,jz) = 1
       END DO
     END DO
-    
+	
   CLOSE(UNIT=52)
   
 END IF
@@ -9919,6 +9943,57 @@ dspz = 0.0
 !      end do
 !      write(*,*)
 !      pause
+
+!!!   ******************  NMM Coupling  ****************************************************
+  
+IF (nmmLogical) THEN
+
+!!!    OPEN(UNIT=53,FILE='NMMtoCrunch_JustData.txt',STATUS='UNKNOWN')
+  
+!!!    do jy = 1,ny
+!!!      do jx = 1,nx
+!!!        read(53,*) stress(jx,jy,jz)
+!!!        stress(jx,jy,jz) = DABS(stress(jx,jy,jz))
+!!!      end do
+!!!    end do
+  
+    StressMaxVal = 1.0E-06*MaxVal(stress)
+    write(*,*)
+    write(*,*) ' StressMaxVal (mPa) = ',StressMaxVal
+    write(*,*)
+!!!    read(*,*)
+    
+    
+!!!    stress = stress/StressMaxVal
+    jz = 1
+    CrankSolubility = 4.45459E-29/1.3806E-23
+    
+    
+    DO jy = 1,ny
+      DO jx= 1,nx
+        IF (por(jx,jy,jz) == 1.0d0) THEN              !! pore space
+          crankLogK(jx,jy,jz) = 0.0d0
+        ELSE
+          crankLogKtemp = CrankSolubility*stress(jx,jy,jz)
+          crankLogK(jx,jy,jz) = 2.0*crankLogKtemp/298.15
+!!!         write(*,*)
+!!!         write(*,*) 'crankLogK = ', crankLogK(jx,jy,jz)
+!!!         read(*,*)
+
+        END IF
+      END DO
+    END DO
+    
+    crankLogKmax = MaxVal(crankLogK)
+    write(*,*) 
+    write(*,*) ' crankLogKmax = ', crankLogKmax
+    write(*,*)
+    
+!!!    DEALLOCATE(stress)
+    
+END IF
+  
+!!!   ******************  NMM Coupling  ****************************************************!!! 
 
 call BreakthroughInitialize(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,nseries,  &
                         nexchange,nexch_sec,nsurf,nsurf_sec,ikpH,nplotsurface,nplotexchange )

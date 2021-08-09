@@ -381,6 +381,7 @@ IF (found) THEN
     ELSE                ! For other concentrations
       
       guess(i,nchem) = 1.E-06
+    
       
 !     write(*,*)
 !     write(*,*) ' Starting to read concentrations'

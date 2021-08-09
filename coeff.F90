@@ -632,6 +632,20 @@ DO jy = 1,ny
       fs = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
       as = DMAX1(fs,0.0D0) + ds
       
+!!!    IF (jx==42 .and. jy==43 .and. qy(jx,jy,jz) < 0.0) THEN
+!!!      write(*,*)
+!!!      write(*,*) ' north = ',an
+!!!      write(*,*) ' south = ',as
+!!!      write(*,*) ' west = ',aw
+!!!      write(*,*) ' east = ',ae
+!!!      write(*,*) ' qy(jx,jy,jz) = ',qy(jx,jy,jz)
+!!!      write(*,*) ' qy(jx,jy-1,jz) = ',qy(jx,jy-1,jz)
+!!!      write(*,*) ' qx(jx,jy,jz) = ',qx(jx,jy,jz)
+!!!      write(*,*) ' qx(jx-1,jy,jz) = ',qx(jx-1,jy,jz)
+!!!!!!      write(*,*)
+!!!      read(*,*)
+!!!    END IF
+      
       apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
       
     END IF

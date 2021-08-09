@@ -483,14 +483,13 @@ DO k = 1,nkin
 
         silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
         
-!!!        if (silog(np,k) < 0.0d0) then
-!!!          if (crankLogK(jx,jy,jz) /= 0.0) then
-!!!             silog(np,k) = (sumiap - (crankLogK(jx,jy,jz)+keqmin(1,k,jx,jy,jz)))/clg
-!!!           else
-!!!             silog(np,k) = (sumiap - (keqmin(1,k,jx,jy,jz)))/clg
-!!!           end if    
-!!!        end if
+        IF (nmmLogical) THEN
+        
+!!!       if (silog(np,k) < 0.0d0) then
+!!!            silog(np,k) = (sumiap - (crankLogK(jx,jy,jz) + keqmin(1,k,jx,jy,jz)))/clg 
+!!!       end if
           
+        END IF        
           
 !!!        silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
         silogGlobal(np,k,jx,jy,jz) = silog(np,k)
@@ -1096,7 +1095,7 @@ DO k = 1,nkin
         
         IF (nIsotopeMineral > 0) THEN
             
-          IF (IsotopeMineralCommon(k)) THEN
+          IF (IsotopeMineralCommon(k) .or. IsotopeMineralRare(k)) THEN
             
             kIsotopologue = kPointerIsotope(k)
             KMineralCommon = kIsotopeCommon(kIsotopologue)
@@ -1108,7 +1107,7 @@ DO k = 1,nkin
             END IF
             
           ELSE
-            rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm            
+            rmin(np,k) =   MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm            
             
           END IF
           

@@ -9210,45 +9210,6 @@ IF (found) THEN
     END IF     
   END IF
   
-!!!   ******************  NMM Coupling  ****************************************************
-  
-!!!  ALLOCATE(stress(nx,ny,1))
-!!!  ALLOCATE(CrankLogK(nx,ny,1))
-!!!  jz = 1
-!!!  IF (nmmLogical) then
-!!!    OPEN(UNIT=53,FILE='NMMtoCrunch_JustData.txt',STATUS='UNKNOWN')
-!!!    do jy = 1,ny
-!!!      do jx = 1,nx
-!!!        read(53,*) stress(jx,jy,jz)
-!!!        stress(jx,jy,jz) = DABS(stress(jx,jy,jz))
-!!!      end do
-!!!    end do
-!!!    StressMaxVal = maxval(stress)
-    
-!!!    do jy = 1,ny
-!!!      do jx = 1,nx
-!!!        stress(jx,jy,jz) = stress(jx,jy,jz)/StressMaxVal
-!!!      end do
-!!!    end do
-    
-!!!    CrankSolubility = 1.0d0
-!!!    DO jy = 1,ny
-!!!      DO jx= 1,nx
-!!!        IF (por(jx,jy,jz) == 1.0d0) THEN              !! pore space
-!!!          crankLogK(jx,jy,jz) = 0.0d0
-!!!        ELSE
-!!!          crankLogK(jx,jy,jz) = CrankSolubility*stress(jx,jy,jz)
-!!!        END IF
-!!!      END DO
-!!!    END DO
-    
-!!!    CLOSE(UNIT=53,STATUS='keep')
-    
-!!!    DEALLOCATE(stress)
-    
-!!!    ENDIF
-  
-!!!   ******************  NMM Coupling  ****************************************************
 
   parchar = 'anisotropy_ratioY'
   parfind = ' '
@@ -9463,6 +9424,49 @@ dspz = 0.0
 !      end do
 !      write(*,*)
 !      pause
+  
+!!!   ******************  NMM Coupling  ****************************************************
+  
+IF (nmmLogical) THEN
+  
+  jz = 1
+  ALLOCATE(stress(nx,ny,1))
+  ALLOCATE(CrankLogK(nx,ny,1))
+
+!!!    OPEN(UNIT=53,FILE='NMMtoCrunch_JustData.txt',STATUS='UNKNOWN')
+    do jy = 1,ny
+      do jx = 1,nx
+!!!        read(53,*) stress(jx,jy,jz)
+        stress(jx,jy,jz) = DABS(stress(jx,jy,jz))
+      end do
+    end do
+    StressMaxVal = maxval(stress)
+    
+    do jy = 1,ny
+      do jx = 1,nx
+        stress(jx,jy,jz) = stress(jx,jy,jz)/StressMaxVal
+      end do
+    end do
+    
+    CrankSolubility = 1.0d0
+    DO jy = 1,ny
+      DO jx= 1,nx
+        IF (por(jx,jy,jz) == 1.0d0) THEN              !! pore space
+          crankLogK(jx,jy,jz) = 0.0d0
+        ELSE
+          crankLogK(jx,jy,jz) = CrankSolubility*stress(jx,jy,jz)
+        END IF
+      END DO
+    END DO
+    
+    CLOSE(UNIT=53,STATUS='keep')
+    
+    DEALLOCATE(stress)
+    
+END IF
+  
+!!!   ******************  NMM Coupling  ****************************************************!!! 
+  
 
 call BreakthroughInitialize(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,nseries,  &
                         nexchange,nexch_sec,nsurf,nsurf_sec,ikpH,nplotsurface,nplotexchange )

@@ -61,6 +61,7 @@ INTEGER(I4B), INTENT(IN)                             :: nsurf_sec
 
 REAL(DP), INTENT(IN)                                 :: tempc
 
+
 !  Internal variables
 
 REAL(DP)                                             :: temp
@@ -71,7 +72,40 @@ REAL(DP)                                             :: x3
 REAL(DP)                                             :: x4
 REAL(DP)                                             :: x5
 
+REAL(DP)                                              :: DeltaV_r
+REAL(DP),PARAMETER                                    :: AvogadroNumber=6.02214E23
+REAL(DP),PARAMETER                                    :: BoltzmannConstant=1.36E-23
+REAL(DP)                                              :: U1
+REAL(DP)                                              :: U2
+REAL(DP)                                              :: U3
+REAL(DP)                                              :: U4
+REAL(DP)                                              :: U5
+REAL(DP)                                              :: U6
+REAL(DP)                                              :: U7
+REAL(DP)                                              :: U8
+REAL(DP)                                              :: U9
+REAL(DP)                                              :: C_BradleyPitz
+REAL(DP)                                              :: D1000_bradleyPitz
+REAL(DP)                                              :: B_BradleyPitz
+REAL(DP)                                              :: partialEpsInverse
+REAL(DP)                                              :: partialLogEps
+REAL(DP)                                              :: Vm_Na
+REAL(DP)                                              :: Vm_Cl
+REAL(DP)                                              :: Vm_NaCl
+REAL(DP)                                              :: Vm_Na_zero
+REAL(DP)                                              :: Vm_Cl_zero
+REAL(DP)                                              :: bh
+REAL(DP)                                              :: Chargesum
+REAL(DP)                                              :: sqrt_sion
+REAL(DP)                                              :: sion_tmp
+REAL(DP)                                              :: P_appelo
+REAL(DP)                                              :: Av
+REAL(DP)                                              :: DebyeLengthFactor
+REAL(DP)                                              :: eps_r
+REAL(DP)                                              :: RgasAppelo
+
 INTEGER(I4B)                                         :: ksp
+INTEGER(I4B)                                         :: ik
 INTEGER(I4B)                                         :: kg
 INTEGER(I4B)                                         :: k
 INTEGER(I4B)                                         :: msub
@@ -80,6 +114,15 @@ INTEGER(I4B)                                         :: np
 
 temp = tempc + 273.15
 temp2 = temp*temp
+
+ChargeSum = 0.0d0
+
+DO ik = 1,ncomp+nspec
+  ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
+END DO
+
+sion_tmp = 0.50D0*ChargeSum
+sqrt_sion = DSQRT(sion_tmp)
 
 DO ksp = 1,nspec
   IF (ntemp == 1 .OR. RunIsothermal) THEN
@@ -128,6 +171,91 @@ DO k = 1,nrct
     END IF
   END DO
 END DO
+
+!!! For SaltCreep
+IF (SaltCreep) THEN
+  
+  P_appelo = 0.986923*10.00
+  
+  bh = 0.3288
+  
+  U1 = 3.4279E2
+  U2 = -5.0866E-3
+  U3 = 9.4690E-7
+  U4 = -2.0525
+  U5 = 3.1159E3
+  U6 = -1.8289E2
+  U7 = -8.0325E3
+  U8 = 4.2142E6
+  U9 = 2.1417
+  
+  C_BradleyPitz = U4 + U5/(U6 + temp)
+  D1000_bradleyPitz = U1 *EXP(U2*temp + U3*temp*temp)
+  B_BradleyPitz = U7 + U8/temp + U9*temp
+  
+  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) )  
+  
+  partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_appelo) *    &
+              ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
+  
+  partialLogEps = C_BradleyPitz/       &
+        (  (B_BradleyPitz + P_appelo) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )  )
+  
+!!!  write(*,*) ' partialLogEps = ', partialLogEps
+  !!!read(*,*)
+
+  RgasAppelo = 82.06      !! (atm cm^3 mol^-1 K^-1)
+  
+  Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))
+  
+!!!  write(*,*) ' eps_r = ', eps_r
+!!!  write(*,*) ' Av = ',Av
+!!!  write(*,*) ' Sion = ',sion_tmp
+ !!! read(*,*)
+  
+  Vm_Na_zero = 41.84 * ( 0.1 * 2.28 + 100.0*(-4.38)/(2600.0 + P_appelo) + (-4.10)/(temp-228.0) +  &
+                 10000.0*(-0.586)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 0.09*1.0E+05 * partialEpsInverse )
+  
+!!!  write(*,*) ' Vm_Na_zero = ', Vm_na_zero
+!!!  read(*,*)
+  
+  Vm_Cl_zero = 41.84 * (0.1 * 4.465 + 100.0*(4.801)/(2600.0 + P_appelo) + (4.325)/(temp-228.0) +   &
+                 10000.0*(-2.847)/( (2600.0 + P_appelo)*(temp-228.0) ) - 1.748*1.0E+05 * partialEpsInverse)
+  
+!!!  write(*,*) ' Vm_Cl_zero = ', Vm_Cl_zero
+!!!  read(*,*)
+
+!!!  write(*,*) ' Intrinsic molar volumes'
+!!!  write(*,*) ' Vm_Na_zero = ', Vm_Na_zero
+!!!  write(*,*) ' Vm_Cl_zero = ', Vm_Cl_zero
+  
+  !!! *********************************************************************************************
+  
+  Vm_Na = Vm_Na_zero + Av*0.5*chg(ikNa)*chg(ikNa) * sqrt_sion/(1.0d0 + 4.0*0.3288*sqrt_sion)     &
+                 + ( 0.30 + 52.0/(temp - 228.0)   + -3.33E-03 * (temp - 228.0) )*sion_tmp**0.566
+
+  Vm_Cl = Vm_Cl_zero + Av*0.5*chg(ikCl)*chg(ikCl) * sqrt_sion/(1.0d0 + 0.0*sqrt_sion)     &
+                + ( -0.331 + 20.16/(temp - 228.0) + 0.0 * (temp - 228.0) )*sion_tmp**1.00
+  
+!!!  write(*,*) ' Vm_Na = ', Vm_Na
+!!!  write(*,*) ' Vm_Cl = ', Vm_Cl
+  !!!!read(*,*)
+  
+  Vm_NaCl = 27.1
+
+  DeltaV_r = Vm_Na + Vm_Cl - Vm_NaCl
+  
+  keqmin_tmp(1,1) = ( 1.570 - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
+  
+!!!    write(*,*) ' DeltaV_r =   ', DeltaV_r
+!!!    write(*,*) ' keqmin_tmp = ', keqmin_tmp(1,1)
+!!!    write(*,*)
+!!!    write(*,*)
+  !!!read(*,*)
+  
+  keqmin_tmp(1,1) = clg*keqmin_tmp(1,1)
+  
+END IF
 
 DO ns = 1,nsurf_sec
   ksp = msub + ngas + nspec + ns

@@ -2218,8 +2218,14 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
             ELSE
               tolmax = atol
             END IF
-            IF (DABS(delt*fxx(ind)) > tolmax) THEN
-              icvg = 1
+            IF (SaltCreep) THEN
+              IF (DABS(fxx(ind)) > tolmax) THEN
+                icvg = 1
+              END IF   
+            ELSE
+              IF (DABS(delt*fxx(ind)) > tolmax) THEN
+                icvg = 1
+              END IF
             END IF
           END DO
           DO ix = 1,nexchange
@@ -2251,7 +2257,13 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
       END IF
 
 !! If electrochemical migration is considered, always carry out at least two Newton iterations
-      IF (species_diffusion .AND. iterat<=2) icvg = 1
+      IF (species_diffusion .AND. iterat<=2) THEN
+        icvg = 1
+      ELSE IF (iterat <= 1) THEN
+        icvg = 1
+      ELSE
+        continue
+      END IF
 !!      if (iterat<=1) icvg=1
 
 

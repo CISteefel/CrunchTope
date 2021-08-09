@@ -371,7 +371,7 @@ DO  ktrial = 1,ntrial
     if (Duan .OR. Duan2006) then
       call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
     else
-      CALL gamma_init(ncomp,nspec,tempc,sqrt_sion)
+      CALL gamma_init(ncomp,nspec,tempc,sqrt_sion,sion_tmp)
     end if
   ELSE
 

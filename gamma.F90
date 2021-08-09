@@ -48,6 +48,7 @@ USE params
 USE concentration
 USE temperature
 USE runtime, ONLY: Benchmark
+USE mineral
 
 IMPLICIT NONE
 
@@ -189,6 +190,20 @@ DO ik = 1,ncomp+nspec
   END IF
 
 END DO
+
+IF (SaltCreep) THEN
+  
+  aa1 = -(ah*chg(ikNa)*chg(ikNa)*sqrt_sion)/            &
+              (1.0d0 + 4.08*bh*sqrt_sion)                   &         
+              + 0.082*sion_tmp
+  gam(ikNa,jx,jy,jz) = clg*aa1
+  
+  aa1 = -(ah*chg(ikCl)*chg(ikCl)*sqrt_sion)/            &
+              (1.0d0 + 3.63*bh*sqrt_sion)                   &         
+              + 0.017*sion_tmp
+  gam(ikCl,jx,jy,jz) = clg*aa1
+  
+END IF
 
 RETURN
 END SUBROUTINE gamma

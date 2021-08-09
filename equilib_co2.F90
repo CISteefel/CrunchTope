@@ -508,15 +508,13 @@ DO  ktrial = 1,ntrial
     if (Duan .OR. Duan2006) then
       call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
     else
-      CALL gamma_init(ncomp,nspec,tempc,sqrt_sion)
+      CALL gamma_init(ncomp,nspec,tempc,sqrt_sion,sion_tmp)
     end if
   ELSE
 
     ChargeSum = 0.0d0
     DO ik = 1,ncomp+nspec
-
-        ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
-
+      ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
     END DO
     sion_tmp = 0.50D0*ChargeSum
     IF (sion_tmp < 25.0d0) THEN
@@ -525,6 +523,10 @@ DO  ktrial = 1,ntrial
       sqrt_sion = 0.0d0
     END IF
 
+  END IF
+  
+  IF (SaltCreep) THEN
+    call keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc)
   END IF
 
   CALL species_init(ncomp,nspec)
@@ -1251,7 +1253,7 @@ DO  ktrial = 1,ntrial
       if (Duan .OR. Duan2006) then
         call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
       else
-        CALL gamma_init(ncomp,nspec,tempc,sqrt_sion)
+        CALL gamma_init(ncomp,nspec,tempc,sqrt_sion,sion_tmp)
       end if
     END IF
     

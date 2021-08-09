@@ -68,6 +68,7 @@ MODULE medium
   REAL(DP), dimension(:,:,:), allocatable         :: porin
   REAL(DP), dimension(:,:,:), allocatable         :: por
   REAL(DP), dimension(:,:,:), allocatable         :: porOld
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: stress
   REAL(DP), dimension(:), allocatable             :: x
   REAL(DP), dimension(:), allocatable             :: y
   REAL(DP), dimension(:), allocatable             :: z

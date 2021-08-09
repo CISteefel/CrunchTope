@@ -80,6 +80,8 @@ MODULE  concentration
 
   INTEGER(I4B)                                      :: ikFe2
   INTEGER(I4B)                                      :: ikFe3
+  INTEGER(I4B)                                      :: ikNa
+  INTEGER(I4B)                                      :: ikCl
 
 !  Temporary arrays used in the initialization (can be deallocated)
 

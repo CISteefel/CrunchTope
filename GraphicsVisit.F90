@@ -140,6 +140,7 @@ REAL(DP), DIMENSION(nrct)                          :: dsat
 REAL(DP), DIMENSION(nrct)                          :: dvolpr
 REAL(DP)                                           :: sum
 REAL(DP)                                           :: porprt
+REAL(DP)                                           :: StressPrt
 REAL(DP)                                           :: phprt
 REAL(DP)                                           :: porcalc
 
@@ -727,6 +728,25 @@ END IF
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+  
+  if (nmmLogical) THEN
+    fn = 'stress'
+    ilength = 6
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Porosity" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Stress (mPa)" '
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          StressPrt = stress(jx,jy,jz)*1.0E-06    !! in mPa
+          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,StressPrt
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+  END IF
 
   IF (CalculateFlow) THEN
 

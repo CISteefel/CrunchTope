@@ -42,12 +42,13 @@
 
 !!!      ****************************************
     
-SUBROUTINE gamma_init(ncomp,nspec,tempc,sqrt_sion)
+SUBROUTINE gamma_init(ncomp,nspec,tempc,sqrt_sion,sion_tmp)
 USE crunchtype
 USE params
 USE runtime, ONLY: Benchmark
 USE concentration
 USE temperature
+USE mineral
 
 IMPLICIT NONE
 
@@ -181,6 +182,20 @@ DO ik = 1,ncomp+nspec
   END IF
 
 END DO
+
+IF (SaltCreep) THEN
+  
+  aa1 = -(ah*chg(ikNa)*chg(ikNa)*sqrt_sion)/            &
+              (1.0d0 + 4.08*bh*sqrt_sion)                   &         
+              + 0.082*sion_tmp
+  gamtmp(ikNa) = clg*aa1
+  
+  aa1 = -(ah*chg(ikCl)*chg(ikCl)*sqrt_sion)/            &
+              (1.0d0 + 3.63*bh*sqrt_sion)                   &         
+              + 0.017*sion_tmp
+  gamtmp(ikCl) = clg*aa1
+  
+END IF
 
 RETURN
 END SUBROUTINE gamma_init
