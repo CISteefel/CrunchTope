@@ -100,8 +100,8 @@ REAL(DP)                                              :: Chargesum
 REAL(DP)                                              :: sqrt_sion
 REAL(DP)                                              :: sion_tmp
 REAL(DP)                                              :: P_appelo
+REAL(DP)                                              :: P_bars
 REAL(DP)                                              :: Av
-REAL(DP)                                              :: DebyeLengthFactor
 REAL(DP)                                              :: eps_r
 REAL(DP)                                              :: RgasAppelo
 REAL(DP)                                              :: ConvertBarsToAtm
@@ -182,7 +182,16 @@ IF (SaltCreep) THEN
   ConvertPaToBars = 1.0E-05
   RgasAppelo = 82.06      !! (atm cm^3 mol^-1 K^-1)
   
+  IF (P_bars > 2000.0) THEN
+    P_bars = 2000.0
+  END IF
+  
   P_appelo = stress(jx,jy,jz) * ConvertBarsToAtm * ConvertPaToBars   !! Conversion to ATM
+  P_bars = stress(jx,jy,jz) * ConvertPaToBars                        !! Conversion to bars
+  
+  IF (P_bars > 2000.0) THEN
+    P_bars = 2000.0
+  END IF
   
   bh = 0.3288
   
@@ -200,12 +209,10 @@ IF (SaltCreep) THEN
   D1000_bradleyPitz = U1 *EXP(U2*temp + U3*temp*temp)
   B_BradleyPitz = U7 + U8/temp + U9*temp
   
-  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) )  
-  partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_appelo) *    &
-              ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) +    &
-                D1000_bradleyPitz )**2  )  
+  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) )  
+
   partialLogEps = C_BradleyPitz/       &
-      (  (B_BradleyPitz + P_appelo) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) +   &
+      (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) +   &
           D1000_bradleyPitz )  )
   
   Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))

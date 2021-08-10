@@ -61,6 +61,7 @@ MODULE medium
 
   REAL(DP), DIMENSION(:), ALLOCATABLE             :: porcond
   REAL(DP), DIMENSION(:), ALLOCATABLE             :: SaturationCond
+  REAL(DP), DIMENSION(:), ALLOCATABLE             :: PressureCond
   REAL(DP), DIMENSION(:), ALLOCATABLE             :: AqueousToBulkCond
 
 ! Allocatable arrays dimensioned over spatial domain
@@ -76,6 +77,8 @@ MODULE medium
   REAL(DP), dimension(:), allocatable             :: dyy
   REAL(DP), dimension(:,:,:), allocatable         :: dzz
   REAL(DP), dimension(:,:,:), allocatable         :: dxy
+  
+  LOGICAL(LGT)                                                 :: PressureFound
 
 
 END MODULE medium

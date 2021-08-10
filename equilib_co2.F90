@@ -111,6 +111,7 @@ INTEGER(I4B), INTENT(IN)                                   :: neqn
 REAL(DP), INTENT(IN)                                       :: tempc
 REAL(DP), INTENT(IN)                                       :: portemp
 
+
 CHARACTER (LEN=mls)                                        :: DensityModule
 
 INTEGER(I4B), INTENT(IN)                                   :: ipest
@@ -120,6 +121,8 @@ LOGICAL(LGT), INTENT(IN)                                   :: pest
 !  Internal variables and arrays
 
 REAL(DP)                                                   :: pg
+
+REAL(DP)                                                   :: PressureTemp
 
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: u
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: feq
@@ -526,7 +529,8 @@ DO  ktrial = 1,ntrial
   END IF
   
   IF (SaltCreep) THEN
-    call keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc)
+    PressureTemp = PressureCond(nco)
+    call keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc,PressureTemp)
   END IF
 
   CALL species_init(ncomp,nspec)
@@ -1373,6 +1377,8 @@ DO  ktrial = 1,ntrial
       END IF
       WRITE(iunit2,511) ulab(i),stmp(i),namtemp,ncon(i,nco)
     END DO
+    
+    write(123,*) PressureTemp,stmp(1)
 
     namtemp = 'Exchange'
     IF (nexchange > 0) THEN
@@ -1806,7 +1812,7 @@ STOP
 
 
 512 FORMAT(' Basis species    ','     Molality  ', '  Constraint type')
-511 FORMAT(1X,a18,1X,1PE12.4,5X,a13,1X,a18)
+511 FORMAT(1X,a18,1X,1PE12.5,5X,a13,1X,a18)
 
 542  FORMAT(5X,'Primary species ',a18,1X,'at grid pt. ',i5)
 544  FORMAT(5X,'Check geochem. condition # ',i2)

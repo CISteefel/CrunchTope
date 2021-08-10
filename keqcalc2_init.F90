@@ -42,12 +42,14 @@
 
 !!!      ****************************************
 
-SUBROUTINE keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc)
+SUBROUTINE keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc,PressureTemp)
 USE crunchtype
 USE params
 USE concentration
 USE mineral
 USE temperature
+USE medium, ONLY: PressureFound
+USE CrunchFunctions
 
 IMPLICIT NONE
 
@@ -60,6 +62,7 @@ INTEGER(I4B), INTENT(IN)                             :: ngas
 INTEGER(I4B), INTENT(IN)                             :: nsurf_sec
 
 REAL(DP), INTENT(IN)                                 :: tempc
+REAL(DP), INTENT(IN)                                 :: PressureTemp
 
 
 !  Internal variables
@@ -99,10 +102,19 @@ REAL(DP)                                              :: Chargesum
 REAL(DP)                                              :: sqrt_sion
 REAL(DP)                                              :: sion_tmp
 REAL(DP)                                              :: P_appelo
+REAL(DP)                                              :: P_bars
 REAL(DP)                                              :: Av
-REAL(DP)                                              :: DebyeLengthFactor
 REAL(DP)                                              :: eps_r
 REAL(DP)                                              :: RgasAppelo
+REAL(DP)                                              :: ConvertBarsToAtm
+REAL(DP)                                              :: ConvertPaToBars
+REAL(DP)                                              :: kReal
+
+CHARACTER*1          :: string1
+CHARACTER*2          :: string2
+CHARACTER*3          :: string3
+CHARACTER*4          :: string4
+
 
 INTEGER(I4B)                                         :: ksp
 INTEGER(I4B)                                         :: ik
@@ -111,9 +123,14 @@ INTEGER(I4B)                                         :: k
 INTEGER(I4B)                                         :: msub
 INTEGER(I4B)                                         :: ns
 INTEGER(I4B)                                         :: np
+INTEGER(I4B)                                         :: kkk
+
+LOGICAL(LGT)                                         :: WriteInput
 
 temp = tempc + 273.15
 temp2 = temp*temp
+
+WriteInput = .FALSE.
 
 ChargeSum = 0.0d0
 
@@ -172,10 +189,80 @@ DO k = 1,nrct
   END DO
 END DO
 
-!!! For SaltCreep
+!!  For SaltCreep
 IF (SaltCreep) THEN
+    
+  ConvertBarsToAtm = 0.986923
+  ConvertPaToBars = 1.0E-05
+  RgasAppelo = 82.0574587      !! (atm cm^3 mol^-1 K^-1)
   
-  P_appelo = 0.986923*10.00
+  if (WriteINput) THEN
+  do kkk = 1,3500,2
+    kReal = FLOAT(kkk)
+    IF (kkk < 10) THEN
+      string1 = IntegerToCharacter(kkk)
+      
+      
+      write(122,111) string1(1:1)
+      write(122,112) string1(1:1)
+      
+111   format('Condition Halite',a1)
+112   format('Pressure    ',a1)
+      
+    ELSE IF (kkk >= 10 .and. kkk<100) THEN
+      
+      string2 = IntegerToCharacter(kkk)
+      write(122,113) string2
+      write(122,114) string2
+113   format('Condition Halite',a2)
+114   format('Pressure    ',a2)
+      
+    ELSE IF (kkk >= 100 .and. kkk<1000) THEN
+      string3 = IntegerToCharacter(kkk)
+      write(122,115) string3
+      write(122,116) string3
+115   format('Condition Halite',a3)
+116   format('Pressure    ',a3) 
+
+    ELSE
+      string4 = IntegerToCharacter(kkk)
+      write(122,117) string4
+      write(122,118) string4
+117   format('Condition Halite',a4)
+118   format('Pressure    ',a4) 
+    ENDIF
+
+    write(122,*) 'temperature     25.0'
+    write(122,*) 'set_porosity    0.001'
+    write(122,*) 'units           mol/kg'
+    write(122,*) 'Na+             Halite'
+    write(122,*) 'Cl-             charge'
+    write(122,*) 'Tracer          1.0E-06'
+    write(122,*) 'Halite          0.10  bsa 1.0'
+    write(122,*) 'END'
+    write(122,*)
+
+  END DO
+  
+  write(*,*) ' Finished writing'
+  read(*,*)
+  
+  ENDIF
+  
+  
+  IF (PressureFound) THEN
+    P_bars = PressureTemp
+  ELSE
+    P_bars = 1.0
+  END IF
+  
+  IF (P_bars > 2000.0) THEN
+    P_bars = 2000.0
+  END IF
+  
+  write(*,*) ' Pressure (bars) = ',P_bars
+  
+  P_appelo = P_bars * ConvertBarsToAtm                        !! Conversion to bars
   
   bh = 0.3288
   
@@ -193,13 +280,13 @@ IF (SaltCreep) THEN
   D1000_bradleyPitz = U1 *EXP(U2*temp + U3*temp*temp)
   B_BradleyPitz = U7 + U8/temp + U9*temp
   
-  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) )  
+  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) )  
   
   partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_appelo) *    &
               ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
-  
+    
   partialLogEps = C_BradleyPitz/       &
-        (  (B_BradleyPitz + P_appelo) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )  )
+        (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )  )
   
 !!!  write(*,*) ' partialLogEps = ', partialLogEps
   !!!read(*,*)

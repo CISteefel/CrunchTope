@@ -416,6 +416,7 @@ REAL(DP)                                                      :: time
 REAL(DP)                                                      :: sumpor
 REAL(DP)                                                      :: portemp
 REAL(DP)                                                      :: portemp1
+REAL(DP)                                                      :: PressureTemp
 REAL(DP)                                                    :: term1
 REAL(DP)                                                    :: term2
 REAL(DP)                                                    :: termA
@@ -595,6 +596,8 @@ INTEGER(I4B)                                                  :: nucleationpaths
 INTEGER(I4B)                                                  :: kFlag
 INTEGER(I4B)                                                  :: npFlag
 INTEGER(I4B)                                                  :: jPoint
+
+REAL(DP)                                           :: StressMaxVal
 
 INTEGER(I4B)                                                  :: nBoundaryConditionZone
 
@@ -2743,6 +2746,7 @@ if (.not.allocated(tempcond)) ALLOCATE(tempcond(mchem))
 if (.not.allocated(rocond)) ALLOCATE(rocond(mchem))
 if (.not.allocated(porcond)) ALLOCATE(porcond(mchem))
 if (.not.allocated(SaturationCond)) ALLOCATE(SaturationCond(mchem))
+if (.not.allocated(PressureCond)) ALLOCATE(PressureCond(mchem))
 if (.not.allocated(ctot)) ALLOCATE(ctot(ncomp,mchem))
 if (.not.allocated(guess)) ALLOCATE(guess(ncomp,mchem))
 if (.not.allocated(itype)) ALLOCATE(itype(ncomp,mchem))
@@ -3587,8 +3591,9 @@ DO nco = 1,nchem
 !!  END IF
 
   portemp = porcond(nco)
+  PressureTemp = PressureCond(nco)
 
-  CALL keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc)
+  CALL keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc,PressureTemp)
 
   DO i = 1,ncomp
     namtemp = ulab(i)
@@ -5010,24 +5015,54 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
     
     jz = 1
     ALLOCATE(stress(nx,ny,1))
-    ALLOCATE(CrankLogK(nx,ny,1))
   
     nhet = 0
     DO jy = 1,ny
       DO jx= 1,nx
         nhet = nhet + 1
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-!!!                         x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig3
-        IF (stress(jx,jy,jz) == 0.0) THEN
-          stress(jx,jy,jz) = 1.0E05
-        END IF
+!!!                         x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
         
         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
         activecell(jx,jy,jz) = 1
       END DO
     END DO
+    
+    DO jy = 1,ny
+      DO jx= 1,nx
+
+        IF (jinit(jx,jy,jz) == 1) THEN    !! Check for mineral in neighboring grid cells if in a porefluid cell
+          
+          IF (jinit(jx-1,jy,jz) == 2 .and. jx /= 1) THEN
+            jinit(jx,jy,jz) = 4
+            stress(jx,jy,jz) = stress(jx-1,jy,jz)
+          END IF
+          IF (jinit(jx+1,jy,jz) == 2 .and. jx /= nx) THEN
+            jinit(jx,jy,jz) = 4
+            stress(jx,jy,jz) = stress(jx+1,jy,jz)
+          END IF
+          IF (jinit(jx,jy-1,jz) == 2 .and. jy /= 1) THEN
+            jinit(jx,jy,jz) = 4
+            stress(jx,jy,jz) = stress(jx,jy-1,jz)
+          END IF
+          IF (jinit(jx,jy+1,jz) == 2 .and. jy /= ny) THEN
+            jinit(jx,jy,jz) = 4
+            stress(jx,jy,jz) = stress(jx,jy+1,jz)
+          END IF
+          
+        END IF
+          
+      END DO
+    END DO
 	
   CLOSE(UNIT=52)
+  
+  END IF
+  
+  StressMaxVal= MaxVal(ABS(stress*1.0E-06))
+  write(*,*)
+  write(*,*) ' StressMaxVal =', StressMaxVal
+  write(*,*)
   
 END IF
   
@@ -7530,13 +7565,11 @@ IF (found) THEN
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
 
-    
-  
   pumptimeseries=.false.
-  CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
+ !!! CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
   IF (pumptimeseries) THEN
     
-  CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
+ !!! CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
   
   else
     CALL read_pump(nout,nx,ny,nz,nchem)
@@ -9946,53 +9979,7 @@ dspz = 0.0
 
 !!!   ******************  NMM Coupling  ****************************************************
   
-IF (nmmLogical) THEN
 
-!!!    OPEN(UNIT=53,FILE='NMMtoCrunch_JustData.txt',STATUS='UNKNOWN')
-  
-!!!    do jy = 1,ny
-!!!      do jx = 1,nx
-!!!        read(53,*) stress(jx,jy,jz)
-!!!        stress(jx,jy,jz) = DABS(stress(jx,jy,jz))
-!!!      end do
-!!!    end do
-  
-    StressMaxVal = 1.0E-06*MaxVal(stress)
-    write(*,*)
-    write(*,*) ' StressMaxVal (mPa) = ',StressMaxVal
-    write(*,*)
-!!!    read(*,*)
-    
-    
-!!!    stress = stress/StressMaxVal
-    jz = 1
-    CrankSolubility = 4.45459E-29/1.3806E-23
-    
-    
-    DO jy = 1,ny
-      DO jx= 1,nx
-        IF (por(jx,jy,jz) == 1.0d0) THEN              !! pore space
-          crankLogK(jx,jy,jz) = 0.0d0
-        ELSE
-          crankLogKtemp = CrankSolubility*stress(jx,jy,jz)
-          crankLogK(jx,jy,jz) = 2.0*crankLogKtemp/298.15
-!!!         write(*,*)
-!!!         write(*,*) 'crankLogK = ', crankLogK(jx,jy,jz)
-!!!         read(*,*)
-
-        END IF
-      END DO
-    END DO
-    
-    crankLogKmax = MaxVal(crankLogK)
-    write(*,*) 
-    write(*,*) ' crankLogKmax = ', crankLogKmax
-    write(*,*)
-    
-!!!    DEALLOCATE(stress)
-    
-END IF
-  
 !!!   ******************  NMM Coupling  ****************************************************!!! 
 
 call BreakthroughInitialize(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,nseries,  &
@@ -10131,6 +10118,7 @@ DEALLOCATE(SkipAdjust)
 DEALLOCATE(rocond)
 DEALLOCATE(porcond)
 DEALLOCATE(SaturationCond)
+DEALLOCATE(PressureCond)
 DEALLOCATE(equilibrate)
 DEALLOCATE(fsurftmp)
 #endif

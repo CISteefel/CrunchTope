@@ -155,6 +155,7 @@ LOGICAL(LGT)                                                 :: mineralfound
 LOGICAL(LGT)                                                 :: tempfound
 LOGICAL(LGT)                                                 :: PorFound
 LOGICAL(LGT)                                                 :: SaturationFound
+REAL(DP)                                                     :: PressureTemp
 LOGICAL(LGT)                                                 :: equilfound
 LOGICAL(LGT)                                                 :: complexfound
 LOGICAL(LGT)                                                 :: topefound
@@ -294,6 +295,16 @@ IF (found) THEN
       WRITE(*,*)
     END IF
     SaturationCond(nchem) = FixSaturation
+  END IF
+  
+  !!  Search for thermodynamic pressure within geochemical condition
+
+  PressureFound = .FALSE. 
+  CALL ReadPressureCondition(nout,nchem,PressureTemp,PressureFound)
+  IF (PressureFound) THEN
+    PressureCond(nchem) = PressureTemp
+  ELSE
+    PressureCond(nchem) = 1.0
   END IF
 
 !  Look for concentration units
@@ -481,6 +492,7 @@ IF (found) THEN
   tempc = tempcond(nchem) 
   CALL rocalc(tempc,rotemp,nchem,DensityModule,unitsflag)
   rocond(nchem) = rotemp
+  
 
   IF (unitsflag(nchem) == 5) THEN              !  Units in molarity 
 
@@ -550,20 +562,16 @@ IF (found) THEN
 !!    Bulk surface area specified      
       ELSE                             !!  Bulk surface area specified
 
-        if (mintype(k) == 1) then ! biomass - convert to mol/m3-bulk from mol/L-H2O
-          volin(k,nchem) = volin(k,nchem) * 1.d3 * porcond(nchem)
-        end if
+!!!        if (mintype(k) == 1) then ! biomass - convert to mol/m3-bulk from mol/L-H2O
+!!!          volin(k,nchem) = volin(k,nchem) * 1.d3 * porcond(nchem)
+!!!   Porcond not known yet, so just assume 1.0 for now
+!!!          volin(k,nchem) = volin(k,nchem) * 1.d3 
+!!!        end if
 
         IF (volin(k,nchem) /= 0.0) THEN
           specific(k,nchem) = areain(k,nchem)*volmol(k)/(volin(k,nchem)*wtmin(k))
         ELSE
           specific(k,nchem) = 0.0
-!!          WRITE(*,*)
-!!          WRITE(*,*) ' Use specific surface area option with a zero initial volume fraction'
-!!          WRITE(*,*) ' For mineral: ',dumstring(1:ls)
-!!          WRITE(*,*) ' In geochemical condition: ', labeltemp(1:lcond)
-!!          WRITE(*,*)
-!!          STOP
         END IF
         
       END IF
@@ -594,10 +602,20 @@ IF (found) THEN
   IF (jpor == 1 .OR. jpor == 0 .OR. jpor== 3) THEN
     sum = 0.0
     DO k = 1,nkin
-      sum = sum + volin(k,nchem)
+      IF (mintype(k) /= 1) THEN 
+        sum = sum + volin(k,nchem)
+      END IF
     END DO
     porcond(nchem) = 1.0 - sum
   END IF
+  
+!!! Convert biomass to account for the porosity (but left in units of mol/m^3 bulk)
+  
+  DO k = 1,nkin
+    IF (mintype(k) == 1) THEN    ! biomass - convert to mol/m^3-bulk from mol/L-H2O    ???  Volin should be m^3/m^3 (like porosity)
+      volin(k,nchem) = volin(k,nchem) * 1000.0 * porcond(nchem)
+    END IF
+  END DO
 
 
 !! Look for specification of solid density
