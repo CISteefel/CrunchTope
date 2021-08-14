@@ -316,7 +316,7 @@ ELSE                !!  2D or 3D problem
           CALL AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
           coef(-2) = -2.0d0*RoAveLeft*hary(jx,jy-1,jz)/(dyy(jy)*(dyy(jy)+dyy(jy-1))) 
           coef(2)  = -2.0d0*RoAveRight*hary(jx,jy,jz)/(dyy(jy) *(dyy(jy+1)+dyy(jy) )) 
-          BodyForceY = -COSD(y_angle)*grav*SignGravity*(RoAveRight*RoAveRight*hary(jx,jy,jz) - RoAveLeft*RoAveLeft*hary(jx,jy-1,jz))/dyy(jy) 
+          BodyForceY = -COSD(y_angle)*grav*SignGravity*( RoAveRight*RoAveRight*hary(jx,jy,jz) - RoAveLeft*RoAveLeft*hary(jx,jy-1,jz) )/dyy(jy) 
  
  !!!         tdepend = ScaleFactor*visc*ct*por(jx,jy,jz)/(dt*secyr)
           tdepend = (visc*ro(jx,jy,jz)*alphaBear*(1.0d0-por(jx,jy,jz)) + visc*ct*por(jx,jy,jz) ) / (dt*secyr)

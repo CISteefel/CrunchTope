@@ -537,11 +537,12 @@ DO k = 1,nkin
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
 
-        IF (MineralID(k) < k) THEN                  !!  NOTE: This requires that the mineral that is associated with is earlier in list
-          surf(np,k) = surf(np,MineralID(k))
-        ELSE
-          surf(np,k) = areain(MineralID(k),jinit(jx,jy,jz))*porfactor
-        END IF
+!!!        IF (MineralID(k) < k) THEN                  !!  NOTE: This requires that the mineral that is associated with is earlier in list
+!!!          surf(np,k) = surf(np,MineralID(k))
+!!!        ELSE
+!!!          surf(np,k) = areain(MineralID(k),jinit(jx,jy,jz))*porfactor
+          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
+!!!        END IF
 
       ELSE
 
@@ -552,8 +553,6 @@ DO k = 1,nkin
           surf(np,k) = area(k,jx,jy,jz)*porfactor            
         END IF
 
-        surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
-
       END IF
 
 !!  Case where either undersaturated OR using the specific_surface_area option  
@@ -562,15 +561,15 @@ DO k = 1,nkin
 
       IF (MineralAssociate(k)) THEN
 
-        IF (MineralID(k) < k) THEN
-          surf(np,k) = surf(np,MineralID(k))
-        ELSE
+!!!        IF (MineralID(k) < k) THEN
+!!!          surf(np,k) = surf(np,MineralID(k))
+!!!        ELSE
           IF (porfactor < 0.01d0) THEN
             surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
           ELSE
             surf(np,k) = area(MineralID(k),jx,jy,jz)
           END IF
-        END IF
+!!!        END IF
 
       ELSE
 
@@ -589,12 +588,12 @@ DO k = 1,nkin
 !!             write(*,*) TimeHours, InhibitTerm    
 !!         END IF
 !!  End armoring
-
-!!!        IF (SetSurfaceAreaConstant) THEN
-!!!          surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
-!!!        ELSE
-!!!          surf(np,k) = area(k,jx,jy,jz)*porfactor
-!!!        END IF
+        
+        IF (SetSurfaceAreaConstant) THEN
+          surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
+        ELSE
+          surf(np,k) = area(k,jx,jy,jz)*porfactor
+        END IF
 
       END IF
 

@@ -257,6 +257,7 @@ SOURCEF = \
           ReadFlowField.F90\
           readModFlowParameters.F90\
           readModFlowStress.F90\
+		  ReadPressureCondition.F90\
           readRecharge.F90\
           ReadSaturation.F90\
           readSingleString.F90\
@@ -588,6 +589,7 @@ OBJSF  =  crunchtype.o\
           ReadFlowField.o\
           readModFlowParameters.o\
           readModFlowStress.o\
+		  ReadPressureCondition.o\
           readRecharge.o\
           ReadSaturation.o\
           readSingleString.o\

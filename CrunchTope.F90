@@ -619,7 +619,7 @@ IF (CalculateFlow) THEN
   WRITE(*,*) ' Minimum X permeability: ',MinPermeabilityX
   WRITE(*,*) ' Minimum Y permeability: ',MinPermeabilityY
   WRITE(*,*)
-  InitializeHydrostatic = .false.
+!!!!  InitializeHydrostatic = .false.
 
   IF (InitializeHydrostatic) THEN
     WRITE(*,*) ' Initializing to hydrostatic'
