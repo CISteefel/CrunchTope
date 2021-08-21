@@ -821,6 +821,8 @@ END IF
 
 !  Write out Darcy fluxes
 
+IF (CalculateFlow) THEN
+  
 write(*,*) ' Writing velocity file '
 fn='velocity'
 ilength = 8
@@ -835,6 +837,8 @@ DO jx = 0,nx
   WRITE(8,184) x(jx)*OutputDistanceScale,qx(jx,1,1)
 END DO
 CLOSE(UNIT=8,STATUS='keep')
+
+END IF
 
 502 FORMAT('temperature    ' ,f8.2)
 503 FORMAT(a20,4X,1PE12.4)

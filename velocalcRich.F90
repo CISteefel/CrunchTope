@@ -107,6 +107,9 @@ DO jz = 1,nz
 
       IF (jy /= ny) THEN
         Coordinate = 'Y'
+        if (jy == ny-1 .and. jx == nx-1) then
+          continue
+        end if
         qy(jx,jy,jz) = -2.0d0 * Kfacy(jx,jy,jz) * (head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy)+dyy(jy+1))
         IF (y_is_vertical) THEN
             qz(jx,jy,jz) = 0.0d0
@@ -207,6 +210,9 @@ DO jz = 1,nz
     ! gravity term
     IF (y_is_vertical) THEN
       qy(jx,ny,jz) = qy(jx,ny,jz) + Kfacy(jx,ny,jz)
+      if (qy(jx,ny,jz) > 0.0) THEN
+        continue
+      END IF
       ! pump source term
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
 
@@ -253,17 +259,8 @@ DO jz = 1,nz
     ELSE
       qx(nx,jy,jz) = 0.0d0
     END IF
-
-    ! IF (jy > 41) THEN
-    !     IF (jz == 1) THEN
-    !         WRITE(*,*) ' jy, actv, K, h1, h2, q = ',jy, activecellPressure(nx+1,jy,jz),Kfacx(nx,jy,jz),head(nx+1,jy,jz),head(nx,jy,jz),qx(nx,jy,jz)
-    !     END IF
-    ! END IF
-
   END DO
 END DO
-
-! WRITE(*,*) ' -------- '
 
 !!  ***  Calculate qz(jx,jy,0) and qz(jx,jy,NZ)  ******************
 
@@ -282,11 +279,6 @@ DO jy = 1,ny
     qz(jx,jy,nz) = 0.0d0
   END DO
 END DO
-
-! WRITE(*,*) '  ---->  h = ',head(1,44,1), head(0,44,1), head(2,44,1), head(1,43,1), head(1,45,1)
-! WRITE(*,*) '  ---->  q = ',qx(1,44,1), qx(0,44,1), qy(1,44,1), qy(1,43,1), wc(1,44,1)
-! WRITE(*,*) '  ----  '
-
 
 !! Convert to m/yr
 qx = qx*secyr

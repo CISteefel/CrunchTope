@@ -378,9 +378,12 @@ DO jy = 1,ny
     200     CONTINUE
     IF (nx == 1) GO TO 300
     
+  !!!  ************** JX coordinate direction **************************
+    
     IF (jx == 1) THEN
       
       avgro = 0.5*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dume,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -388,6 +391,7 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
+      
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       dspe = avgro*dspx(jx,jy,jz)
       de = AreaE*dspe/dxe
@@ -437,12 +441,15 @@ DO jy = 1,ny
       dspe = avgro*dspx(jx,jy,jz)
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
+      
       IF (jc(2) == 2) THEN
         ae = DMAX1(-fe,zero)
       ELSE
         ae = DMAX1(-fe,zero) + de
       END IF
+      
       netflowx(jx,jy,jz) = qx(jx,jy,jz) + FluidBuryX(jx)
+      
       IF (jc(2) == 2) THEN
         de_d = 0.0
         ae_d = de_d
@@ -452,6 +459,7 @@ DO jy = 1,ny
       END IF
       
       avgro = 0.5*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumw,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -459,6 +467,7 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
+      
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       dspw = avgro*dspx(jx-1,jy,jz)
       dw = AreaW*dspw/dxw
@@ -475,9 +484,10 @@ DO jy = 1,ny
         apx_d = de_d + dw_d
       END IF
       
-    ELSE
+    ELSE     !!!  JX /= 1 or NX
       
       avgro = 0.5*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dume,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -485,6 +495,7 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
+      
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       dspe = avgro*dspx(jx,jy,jz)
       de = AreaE*dspe/dxe
@@ -495,6 +506,7 @@ DO jy = 1,ny
       ae_d = de_d
       
       avgro = 0.5*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumw,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -502,6 +514,7 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
+      
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       dspw = avgro*dspx(jx-1,jy,jz)
       dw = AreaW*dspw/dxw

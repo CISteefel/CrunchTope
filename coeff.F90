@@ -165,7 +165,8 @@ DO jy = 1,ny
     j = (jy-1)*nx+jx
     
     porp = por(jx,jy,jz)
-    satp = satliq(jx,jy,jz)
+!!!    satp = satliq(jx,jy,jz)
+    satp = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
     
     IF (nx == 1) GO TO 100
     
@@ -175,8 +176,10 @@ DO jy = 1,ny
       dxw = 0.5d0*dxx(1)
       pore = por(jx+1,jy,jz)
       porw = por(jx,jy,jz)
-      sate = satliq(jx+1,jy,jz)
-      satw = satliq(jx,jy,jz)
+!!!      sate = satliq(jx+1,jy,jz)
+!!!      satw = satliq(jx,jy,jz)
+      sate = 0.5*(satliq(jx+1,jy,jz) + satliqold(jx+1,jy,jz) )
+      satw = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -205,8 +208,10 @@ DO jy = 1,ny
       dxe = 0.5d0*dxx(nx)
       pore = por(jx,jy,jz)
       porw = por(jx-1,jy,jz)
-      sate = satliq(jx,jy,jz)
-      satw = satliq(jx-1,jy,jz)
+!!!      sate = satliq(jx,jy,jz)
+!!!      satw = satliq(jx-1,jy,jz)
+      sate = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      satw = 0.5*(satliq(jx-1,jy,jz) + satliqold(jx-1,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (porw > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -235,8 +240,10 @@ DO jy = 1,ny
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
       pore = por(jx+1,jy,jz)
       porw = por(jx-1,jy,jz)
-      sate = satliq(jx+1,jy,jz)
-      satw = satliq(jx-1,jy,jz)
+!!!      sate = satliq(jx+1,jy,jz)
+!!!      satw = satliq(jx-1,jy,jz)
+      sate = 0.5*(satliq(jx+1,jy,jz) + satliqold(jx+1,jy,jz) )
+      satw = 0.5*(satliq(jx-1,jy,jz) + satliqold(jx-1,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -275,8 +282,10 @@ DO jy = 1,ny
       dys = 0.5d0*dyy(1)
       porn = por(jx,jy+1,jz)
       pors = por(jx,jy,jz)
-      satn = satliq(jx,jy+1,jz)
-      sats = satliq(jx,jy,jz)
+!!!      satn = satliq(jx,jy+1,jz)
+!!!      sats = satliq(jx,jy,jz)
+      satn = 0.5*(satliq(jx,jy+1,jz) + satliqold(jx,jy+1,jz) )
+      sats = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (porn > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -305,8 +314,10 @@ DO jy = 1,ny
       dyn = 0.5d0*dyy(ny)
       porn = por(jx,jy,jz)
       pors = por(jx,jy-1,jz)
-      satn = satliq(jx,jy,jz)
-      sats = satliq(jx,jy-1,jz)
+!!!      satn = satliq(jx,jy,jz)
+!!!      sats = satliq(jx,jy-1,jz)
+      satn = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      sats = 0.5*(satliq(jx,jy-1,jz) + satliqold(jx,jy-1,jz) )
       IF (UseThresholdPorosity) THEN
         IF (pors > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -323,20 +334,23 @@ DO jy = 1,ny
         dumn = dumpy
       ELSE IF (MillingtonQuirk) THEN
         dums = ro(jx,jy-1,jz)*(sats)**(quirk)*(pors)**(uli)*dstar(jx,jy-1,jz)*anisotropyY
-        dumpy = ro(jx,jy,jz)*(satp)**(quirk)*(por(jx,jy,jz))**(uli)*dstar(jx,jy,jz)*anisotropyY
+        dumpy = ro(jx,jy,jz) *(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyY
         dumn = dumpy
       ELSE
         dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
-        dumpy = ro(jx,jy,jz)*satp*porP*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
+        dumpy = ro(jx,jy,jz) *satp*porP*dstar(jx,jy,jz)  *anisotropyY*tortuosity(jx,jy,jz)
         dumn = dumpy
       END IF
     ELSE
+      
       dyn = 0.5d0*(dyy(jy)+dyy(jy+1))
       dys = 0.5d0*(dyy(jy)+dyy(jy-1))
       porn = por(jx,jy+1,jz)
       pors = por(jx,jy-1,jz)
-      satn = satliq(jx,jy+1,jz)
-      sats = satliq(jx,jy-1,jz)
+!!!      satn = satliq(jx,jy+1,jz)
+!!!      sats = satliq(jx,jy-1,jz)
+      satn = 0.5*(satliq(jx,jy+1,jz) + satliqold(jx,jy+1,jz) )
+      sats = 0.5*(satliq(jx,jy-1,jz) + satliqold(jx,jy-1,jz) )
 
       IF (UseThresholdPorosity) THEN
         IF (porn > ThresholdPorosity) THEN
@@ -358,9 +372,9 @@ DO jy = 1,ny
         END IF
         dumpy = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyY
       ELSE IF (MillingtonQuirk) THEN
-        dumn = ro(jx,jy+1,jz)*(satn)**(quirk)*(porn)**(uli)*dstar(jx,jy+1,jz)*anisotropyY
-        dums = ro(jx,jy-1,jz)*(sats)**(quirk)*(pors)**(uli)*dstar(jx,jy-1,jz)*anisotropyY
-        dumpy = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyY
+        dumn = ro(jx,jy+1,jz) *(satn)**(quirk)* (porn)**(uli) *dstar(jx,jy+1,jz)*anisotropyY
+        dums = ro(jx,jy-1,jz) *(sats)**(quirk)* (pors)**(uli) *dstar(jx,jy-1,jz)*anisotropyY
+        dumpy = ro(jx,jy,jz)  *(satp)**(quirk)* (porp)**(uli) *dstar(jx,jy,jz)  *anisotropyY
       ELSE
         dumn = ro(jx,jy+1,jz)*satn*porn*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
         dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
@@ -374,7 +388,7 @@ DO jy = 1,ny
     IF (jx == 1) THEN
       
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
-!!      dharm = GeometricMean(dume,dumpx)
+
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dume,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -382,20 +396,13 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
-!!CIS      dharm = ArithmeticMean(dume,dumpx)
-!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
-!!!      AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
-      !!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
-      IF (qx(jx,jy,jz) > 0.0d0) THEN
-        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
-      ELSE
-        AreaE = dyy(jy)*dzz(jx,jy,jz)
-      END IF
+
+      AreaE = dyy(jy)*dzz(jx,jy,jz)
+      
       dspe = avgro*dspx(jx,jy,jz) + dharm
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       ae = DMAX1(-fe,0.0D0) + de
-!!      netflowx(1,jy,jz) = qx(jx,jy,jz) + FluidBuryX(jx)
       netflowX(1,jy,jz) = fe
       netDiffuseX(1,jy,jz) = de
       
@@ -405,13 +412,13 @@ DO jy = 1,ny
       dspw = avgro*dspx(jx,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
+      
       IF (jc(1) == 2) THEN  
         aw = DMAX1(fw,0.0D0)       !  Pure advective boundary
       ELSE
         aw = DMAX1(fw,0.0D0) + dw
       END IF
       
-!!      netflowx(0,jy,jz) = qx(jx-1,jy,jz) + FluidBuryX(jx-1)
       netflowX(0,jy,jz) = fw
       IF (jc(1) == 2) THEN    !! No diffusion/dispersion across boundary
         netDiffuseX(jx,jy,jz) = 0.0d0
@@ -433,14 +440,14 @@ DO jy = 1,ny
       dspe = avgro*dspx(jx,jy,jz) + dharm
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
+      
       IF (jc(2) == 2) THEN
         ae = DMAX1(-fe,0.0D0)      !  Pure advective boundary
       ELSE
         ae = DMAX1(-fe,0.0D0) + de
       END IF
-!!      netflowx(jx,jy,jz) = qx(jx,jy,jz) + FluidBuryX(jx)
+      
       netflowX(jx,jy,jz) = fe
-      netDiffuseX(jx,jy,jz) = de
       IF (jc(2) == 2) THEN    !! No diffusion/dispersion across boundary
         netDiffuseX(jx,jy,jz) = 0.0d0
       ELSE
@@ -448,8 +455,7 @@ DO jy = 1,ny
       END IF
       
       avgro = 0.5d0*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
-!!      dharm = ArithmeticMean(dumw,dumpx)
-!!      dharm = GeometricMean(dumw,dumpx)
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumw,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -457,18 +463,13 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
-!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
-!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
-      IF (qx(jx,jy,jz) > 0.0d0) THEN
-        AreaW = dyy(jy)*dzz(jx,jy,jz)
-      ELSE
-        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
-      END IF
+      
+      AreaW = dyy(jy)*dzz(jx,jy,jz)
+      
       dspw = avgro*dspx(jx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       aw = DMAX1(fw,0.0D0) + dw
-!!      netflowx(jx-1,jy,jz) = qx(jx-1,jy,jz) + FluidBuryX(jx-1)
       
       IF (jc(2) == 2) THEN
         apx = dw + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)      !  Pure advective boundary
@@ -479,7 +480,7 @@ DO jy = 1,ny
     ELSE
       
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
-!!      dharm = GeometricMean(dume,dumpx)
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dume,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -487,23 +488,18 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
-!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
-!!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
-      IF (qx(jx,jy,jz) > 0.0d0) THEN
-        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
-      ELSE
-        AreaE = dyy(jy)*dzz(jx,jy,jz)
-      END IF
+      
+      AreaE = dyy(jy)*dzz(jx,jy,jz)
+      
       dspe = avgro*dspx(jx,jy,jz) + dharm
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       ae = DMAX1(-fe,0.0D0) + de
-!!      netflowx(jx,jy,jz) = qx(jx,jy,jz) + FluidBuryX(jx)
       netflowX(jx,jy,jz) = fe
       netDiffuseX(jx,jy,jz) = de
       
       avgro = 0.5d0*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
-!!      dharm = GeometricMean(dumw,dumpx)
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumw,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -511,23 +507,19 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
-!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
-!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
-      IF (qx(jx,jy,jz) > 0.0d0) THEN
-        AreaW = dyy(jy)*dzz(jx,jy,jz)
-      ELSE
-        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
-      END IF
+      
+      AreaW = dyy(jy)*dzz(jx,jy,jz)
       
       dspw = avgro*dspx(jx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       aw = DMAX1(fw,0.0D0) + dw
- !!     netflowx(jx-1,jy,jz) = qx(jx-1,jy,jz) + FluidBuryX(jx-1)
       
       apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       
     END IF
+    
+!!!   ********* Now JY coordinate direction *****************************
     
     300     CONTINUE
     IF (ny == 1) GO TO 400
@@ -535,7 +527,7 @@ DO jy = 1,ny
     IF (jy == 1) THEN
       
       avgro = 0.5d0*( ro(jx,jy+1,jz) + ro(jx,jy,jz) )
-!!      dharm = GeometricMean(dumn,dumpy)
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumn,dumpy)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -543,6 +535,7 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumn,dumpy)
       END IF
+      
       AreaN = dxx(jx)*dzz(jx,jy,jz)
       dspn = avgro*dspy(jx,jy,jz) + dharm
       dn = AreaN*dspn/dyn
@@ -555,6 +548,7 @@ DO jy = 1,ny
       dsps = avgro*dspy(jx,jy,jz) + dharm
       ds = AreaS*dsps/dys
       fs = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
+      
       IF (jc(3) == 2) THEN
         as = DMAX1(fs,0.0D0)      ! Pure advective boundary
       ELSE
@@ -572,9 +566,10 @@ DO jy = 1,ny
       avgro = ro(jx,jy,jz)
       dharm = dumpy
       AreaN = dxx(jx)*dzz(jx,jy,jz)
-      dspn = avgro*dspy(jx,jy-1,jz) + dharm
-      dn = AreaN*dspn/dyn
-      fn = AreaN*avgro*(qy(jx,jy,jz) + FluidBuryY(jy))
+      dspn  = avgro*dspy(jx,jy-1,jz) + dharm
+      dn    = AreaN*dspn/dyn
+      fn    = AreaN*avgro*(qy(jx,jy,jz) + FluidBuryY(jy))
+      
       IF (jc(4) == 2) THEN
         an = DMAX1(-fn,0.0D0)     ! Pure advective boundary
       ELSE
@@ -582,7 +577,7 @@ DO jy = 1,ny
       END IF
       
       avgro = 0.5d0*( ro(jx,jy-1,jz) + ro(jx,jy,jz) )
-!!      dharm = GeometricMean(dums,dumpy)
+
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dums,dumpy)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -590,11 +585,12 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dums,dumpy)
       END IF
+      
       AreaS = dxx(jx)*dzz(jx,jy,jz)
-      dsps = avgro*dspy(jx,jy-1,jz) + dharm
-      ds = AreaS*dsps/dys
-      fs = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
-      as = DMAX1(fs,0.0D0) + ds
+      dsps  = avgro*dspy(jx,jy-1,jz) + dharm
+      ds    = AreaS*dsps/dys
+      fs    = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
+      as    = DMAX1(fs,0.0D0) + ds
       
       IF (jc(4) == 2) THEN
         apy = ds + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0) ! Pure advective boundary
@@ -602,9 +598,10 @@ DO jy = 1,ny
         apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
       END IF
       
-    ELSE
+    ELSE     !!! JY /= 1 or NY
       
       avgro = 0.5d0*( ro(jx,jy+1,jz) + ro(jx,jy,jz) )
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumn,dumpy)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -612,6 +609,7 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumn,dumpy)
       END IF
+      
       AreaN = dxx(jx)*dzz(jx,jy,jz)
       dspn = avgro*dspy(jx,jy,jz) + dharm
       dn = AreaN*dspn/dyn
@@ -619,6 +617,7 @@ DO jy = 1,ny
       an = DMAX1(-fn,0.0D0) + dn
       
       avgro = 0.5d0*( ro(jx,jy-1,jz) + ro(jx,jy,jz) )
+      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dums,dumpy)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -626,25 +625,12 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dums,dumpy)
       END IF
+      
       AreaS = dxx(jx)*dzz(jx,jy,jz)
       dsps = avgro*dspy(jx,jy-1,jz) + dharm
       ds = AreaS*dsps/dys
       fs = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
       as = DMAX1(fs,0.0D0) + ds
-      
-!!!    IF (jx==42 .and. jy==43 .and. qy(jx,jy,jz) < 0.0) THEN
-!!!      write(*,*)
-!!!      write(*,*) ' north = ',an
-!!!      write(*,*) ' south = ',as
-!!!      write(*,*) ' west = ',aw
-!!!      write(*,*) ' east = ',ae
-!!!      write(*,*) ' qy(jx,jy,jz) = ',qy(jx,jy,jz)
-!!!      write(*,*) ' qy(jx,jy-1,jz) = ',qy(jx,jy-1,jz)
-!!!      write(*,*) ' qx(jx,jy,jz) = ',qx(jx,jy,jz)
-!!!      write(*,*) ' qx(jx-1,jy,jz) = ',qx(jx-1,jy,jz)
-!!!!!!      write(*,*)
-!!!      read(*,*)
-!!!    END IF
       
       apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
       

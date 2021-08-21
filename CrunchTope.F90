@@ -389,6 +389,13 @@ REAL(DP)                                                   :: sumCO2
 REAL(DP)                                                   :: sumPlagioclaseArea
 REAL(DP)                                                   :: denominator
 
+REAL(DP)                                                   :: totPor
+REAL(DP)                                                   :: totVol
+REAL(DP)                                                   :: totCheck
+REAL(DP)                                                   :: totChange
+REAL(DP)                                                   :: totCheckInitial
+
+
 REAL(DP)                                                   :: pumpterm
 
 INTEGER(I4B)                                               :: nBoundaryConditionZone
@@ -619,6 +626,7 @@ IF (CalculateFlow) THEN
   WRITE(*,*) ' Minimum X permeability: ',MinPermeabilityX
   WRITE(*,*) ' Minimum Y permeability: ',MinPermeabilityY
   WRITE(*,*)
+  
 !!!!  InitializeHydrostatic = .false.
 
   IF (InitializeHydrostatic) THEN
@@ -1301,8 +1309,6 @@ DO WHILE (nn <= nend)
       STOP
     END IF
 
-
-
     IF (Richards) THEN
         FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
           head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
@@ -1312,7 +1318,6 @@ DO WHILE (nn <= nend)
           pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
         END FORALL
     END IF
-
 
     IF (NavierStokes) THEN
         CALL velocalcNS(nx,ny,nz,delt)
@@ -2891,6 +2896,25 @@ END DO
       END IF
     ELSE
       IF (MOD(nn,ScreenInterval) == 0) THEN
+        
+        totPor = 0.0
+        totVol = 0.0
+        totChange = 0.0
+
+        do jy = 1,ny
+          do jx = 1,nx
+            IF (jinit(jx,jy,1) /= 3) THEN
+              totVol = totVol + dxx(jx)*dyy(jy)
+              totPor = totPor + por(jx,jy,1)*dxx(jx)*dyy(jy)
+              totChange = totChange + ( porin(jx,jy,1) - por(jx,jy,1) ) * dxx(jx)*dyy(jy)
+            END IF
+          end do
+        end do
+        totCheck = totPor/totVol
+        totCheckInitial = totChange/totVol
+!!!        write(128,*) time,totCheck
+!!!        write(129,*) time,totCheckInitial
+        
         WRITE(*,*) 'Time step # ',nn
           IF (OutputTimeUnits == 'years') THEN
             WRITE(*,225) time,delt
@@ -2928,6 +2952,7 @@ END DO
   END IF
 
   IF (Benchmark) THEN
+    
 !!!    nbnd = 1
 !!!    CALL bdgas(ncomp,nspec,nrct,ngas,nbnd,sgw)
 !!!    CumulativeSulfate = CumulativeSulfate + s(9,100,1,1)*ro(100,1,1)*qx(100,1,1)*delt*1.0d0
@@ -3001,9 +3026,9 @@ IF (Richards) THEN
         delt = 1.2 * delt
     END IF
 
-    IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
-        delt = dt_co
-    END IF
+!!!    IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
+!!!        delt = dt_co
+!!!    END IF
 
     IF (delt < deltmin) THEN
         delt = deltmin
@@ -3016,7 +3041,6 @@ IF (Richards) THEN
     IF (dtold /= delt) THEN
 !!!        WRITE(*,*) '  >>>>> dt has been adjusted to : ',delt
     END IF
-
 
 ELSE
 

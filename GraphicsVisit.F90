@@ -729,6 +729,25 @@ END IF
   END DO
   CLOSE(UNIT=8,STATUS='keep')
   
+  fn = 'porositychange'
+  ilength = 14
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Porosity Change" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "PorosityChange" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        porprt = (porin(jx,jy,jz) - por(jx,jy,jz))
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,porprt
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+  
+  
+  
   if (nmmLogical) THEN
     fn = 'stress'
     ilength = 6

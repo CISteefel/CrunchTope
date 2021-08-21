@@ -141,13 +141,13 @@ dt = dtyr * 365 * 86400
 
 !! *********************** Calculate head from pressure ***************************
 
-DO jz = 0,nz+1
-  DO jy = 0,ny+1
-    DO jx = 0,nx+1
-      head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * grav)
-    END DO
-  END DO
-END DO
+!!! DO jz = 0,nz+1
+!!!   DO jy = 0,ny+1
+!!!     DO jx = 0,nx+1
+!!!       head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * grav)
+!!!     END DO
+!!!   END DO
+!!! END DO
 
 
 !*********************begin Matrix Coefficients ******************************
@@ -268,7 +268,6 @@ DO jz = 1,nz
                                 coef(-2) = 0.0d0
                                 AddPressureY = -(dt/dyy(jy))*Kfacy(jx,jy-1,jz)
                             ELSE IF (headOld(jx,jy-1,jz) < 0.0d0) THEN
-                                WRITE(*,*) ' jx, jy = ',jx,jy,headOld(jx,jy-1,jz)
                                 WRITE(*,*) ' WARNING : Top head BC should be >= 0 !!!'
                             END IF
                         END IF
