@@ -626,7 +626,7 @@ IF (CalculateFlow) THEN
   WRITE(*,*) ' Minimum X permeability: ',MinPermeabilityX
   WRITE(*,*) ' Minimum Y permeability: ',MinPermeabilityY
   WRITE(*,*)
-  
+
 !!!!  InitializeHydrostatic = .false.
 
   IF (InitializeHydrostatic) THEN
@@ -973,21 +973,21 @@ END DO
         pumpterm = 0.0d0
         !! 1) pump time series
         IF (pumptimeseries) THEN
-      
+
 !!!          CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
-          
-          
+
+
           qg(1,jx,jy,jz)=qgtinterp
-  
+
           pumpterm = pumpterm + qg(1,jx,jy,jz)
-            
+
           !! 2) normal pump
           ELSEIF (wells) THEN
-   
+
             DO npz = 1,npump(jx,jy,jz)
               pumpterm = pumpterm + qg(npz,jx,jy,jz)
             END DO
-  
+
           END IF
         RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
 
@@ -2226,7 +2226,7 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
             IF (SaltCreep) THEN
               IF (DABS(fxx(ind)) > tolmax) THEN
                 icvg = 1
-              END IF   
+              END IF
             ELSE
               IF (DABS(delt*fxx(ind)) > tolmax) THEN
                 icvg = 1
@@ -2896,7 +2896,7 @@ END DO
       END IF
     ELSE
       IF (MOD(nn,ScreenInterval) == 0) THEN
-        
+
         totPor = 0.0
         totVol = 0.0
         totChange = 0.0
@@ -2914,7 +2914,7 @@ END DO
         totCheckInitial = totChange/totVol
 !!!        write(128,*) time,totCheck
 !!!        write(129,*) time,totCheckInitial
-        
+
         WRITE(*,*) 'Time step # ',nn
           IF (OutputTimeUnits == 'years') THEN
             WRITE(*,225) time,delt
@@ -2952,7 +2952,7 @@ END DO
   END IF
 
   IF (Benchmark) THEN
-    
+
 !!!    nbnd = 1
 !!!    CALL bdgas(ncomp,nspec,nrct,ngas,nbnd,sgw)
 !!!    CumulativeSulfate = CumulativeSulfate + s(9,100,1,1)*ro(100,1,1)*qx(100,1,1)*delt*1.0d0
@@ -3008,8 +3008,8 @@ IF (Richards) THEN
                 END IF
                 ! finally, get max dt by assume max Co=2
                 IF (term5 .NE. 0.0) THEN
-                    IF (dt_co > 2.0 * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
-                        dt_co = 2.0 * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
+                    IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
+                        dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
                     END IF
                 END IF
             END IF
@@ -3026,9 +3026,9 @@ IF (Richards) THEN
         delt = 1.2 * delt
     END IF
 
-!!!    IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
-!!!        delt = dt_co
-!!!    END IF
+   IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
+       delt = dt_co
+   END IF
 
     IF (delt < deltmin) THEN
         delt = deltmin
@@ -3254,20 +3254,20 @@ ELSE
 
         !! Allocate pump
         pumpterm = 0.0d0
-        
+
         !! 1) pump time series
         IF (pumptimeseries) THEN
-      
+
 !!!        CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
-        
-        
+
+
         qg(1,jx,jy,jz)=qgtinterp
 
         pumpterm = pumpterm + qg(1,jx,jy,jz)
-          
+
         !! 2) normal pump
         ELSEIF (wells) THEN
- 
+
           DO npz = 1,npump(jx,jy,jz)
             pumpterm = pumpterm + qg(npz,jx,jy,jz)
           END DO

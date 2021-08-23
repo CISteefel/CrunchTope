@@ -107,7 +107,7 @@ DO jz = 1,nz
             ! rrecv_zm = 0.0d0
             ! rrecv_zp = 0.0d0
             ! For over-saturated cells
-            IF (wc(jx,jy,jz) >= wcs(jx,jy,jz) - 1e-9) THEN
+            IF (wc(jx,jy,jz) >= wcs(jx,jy,jz) - 1e-20) THEN
                 IF (redistribute_wc) THEN
                     delV = (wc(jx,jy,jz) - wcs(jx,jy,jz)) * dzz(jx,jy,jz) * dxx(jx) * dyy(jy)
                     IF (delV > 0.0d0) THEN
@@ -118,7 +118,7 @@ DO jz = 1,nz
                         CALL gradhRich(jx,jy,jz,rsend,rrecv)
                         CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                         IF (delV > 1e-20) THEN
-                            CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
+                            ! CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                             IF (delV > 1e-20) THEN
                                 loss = loss + delV
                                 loss1 = loss1 + delV
@@ -171,7 +171,7 @@ DO jz = 1,nz
                             CALL gradhRich(jx,jy,jz,rsend,rrecv)
                             CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                             IF (delV > 1e-20) THEN
-                                CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
+                                ! CALL redist_sendRich(nx,ny,nz,jx,jy,jz,delV,rsend,dtyr)
                                 IF (delV > 1e-20) THEN
                                     loss = loss + delV
                                     loss3 = loss3 + delV
@@ -180,7 +180,12 @@ DO jz = 1,nz
                             dist_path4 = dist_path4 + 1
                         END IF
                     END IF
-                    wc(jx,jy,jz) = wch(jx,jy,jz)
+                    ! wc(jx,jy,jz) = wch(jx,jy,jz)
+                    IF (delV < 1e-20) THEN
+                        wc(jx,jy,jz) = wch(jx,jy,jz)
+                    ELSE
+                        head(jx,jy,jz) = hwc(jx,jy,jz)
+                    END IF
                     room(jx,jy,jz) = (wcs(jx,jy,jz) - wc(jx,jy,jz)) * dxx(jx) * dyy(jy) * dzz(jx,jy,jz)
                 END IF
             END IF

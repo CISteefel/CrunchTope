@@ -820,12 +820,12 @@ IF (found) THEN
   parchar = 'nmm'
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
-  
+
   parchar = 'saltcreep'
   parfind = ' '
   SaltCreep = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SaltCreep)
-  
+
   parchar = 'courant_number'
   parfind = ' '
   realjunk = 0.0
@@ -3065,8 +3065,8 @@ IF (found) THEN
     WRITE(*,*) ' Reading porosity from file: ',PorosityFile(1:ls)
 !!!    jpor = 2
 !!!    porosity_update = .FALSE.
-!!!  New feature:  check to see if porosity update is set to true with read of porosity.  
-!!!	 If so, renormalize volume fractions to porosity that is read in.																			  
+!!!  New feature:  check to see if porosity update is set to true with read of porosity.
+!!!	 If so, renormalize volume fractions to porosity that is read in.
     parchar = 'porosity_update'
     parfind = ' '
     porosity_update = .false.
@@ -3608,7 +3608,7 @@ DO nco = 1,nchem
     spsurftmp10(is) = guess_surf(is,nco)
     spsurftmp(is) = DLOG(spsurftmp10(is))
   END DO
-  
+
   gamtmp = 0.0
 
   LogPotential_tmp = 0.0
@@ -4996,7 +4996,7 @@ END IF
 CALL read_het(nout,nchem,nhet,nx,ny,nz)
 
 IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
-  
+
   ALLOCATE(work3(nx,ny,nz))
   INQUIRE(FILE=InitialConditionsFile,EXIST=ext)
   IF (.NOT. ext) THEN
@@ -5010,29 +5010,29 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
   OPEN(UNIT=52,FILE=InitialConditionsFile,STATUS='OLD',ERR=6001)
   FileTemp = InitialConditionsFile
   CALL stringlen(FileTemp,FileNameLength)
-  
+
   if (nmmLogical) then
-    
+
     jz = 1
     ALLOCATE(stress(nx,ny,1))
-  
+
     nhet = 0
     DO jy = 1,ny
       DO jx= 1,nx
         nhet = nhet + 1
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
 !!!                         x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-        
+
         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
         activecell(jx,jy,jz) = 1
       END DO
     END DO
-    
+
     DO jy = 1,ny
       DO jx= 1,nx
 
         IF (jinit(jx,jy,jz) == 1) THEN    !! Check for mineral in neighboring grid cells if in a porefluid cell
-          
+
           IF (jinit(jx-1,jy,jz) == 2 .and. jx /= 1) THEN
             jinit(jx,jy,jz) = 4
             stress(jx,jy,jz) = stress(jx-1,jy,jz)
@@ -5049,23 +5049,23 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
             jinit(jx,jy,jz) = 4
             stress(jx,jy,jz) = stress(jx,jy+1,jz)
           END IF
-          
+
         END IF
-          
+
       END DO
     END DO
-	
+
   CLOSE(UNIT=52)
-  
+
   END IF
-  
+
   StressMaxVal= MaxVal(ABS(stress*1.0E-06))
   write(*,*)
   write(*,*) ' StressMaxVal =', StressMaxVal
   write(*,*)
-  
+
 END IF
-  
+
 IF (nhet == 0) THEN
   WRITE(*,*)
   WRITE(*,*) ' No initial conditions found'
@@ -5254,7 +5254,7 @@ ELSE
   IF (ReadInitialConditions) THEN
     WRITE(*,*)
     WRITE(*,*) ' Initial conditions read from file'
-  ELSE 
+  ELSE
     WRITE(*,*)
     WRITE(*,*) ' Initial conditions must be specified'
     WRITE(*,*) ' No DEFAULT condition assumed'
@@ -7545,7 +7545,7 @@ IF (found) THEN
   END IF
   ALLOCATE(intbndgas(5,nx,ny,nz))
   intbndgas = 0
-  
+
   IF (ALLOCATED(gaspump)) THEN
     DEALLOCATE(gaspump)
     ALLOCATE(gaspump(5,nx,ny,nz))
@@ -7553,7 +7553,7 @@ IF (found) THEN
     ALLOCATE(gaspump(5,nx,ny,nz))
 
   END IF
-  
+
   IF (isaturate == 1) THEN
     gaspump = 0.0d0
   END IF
@@ -7568,13 +7568,13 @@ IF (found) THEN
   pumptimeseries=.false.
  !!! CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
   IF (pumptimeseries) THEN
-    
+
  !!! CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
-  
+
   else
     CALL read_pump(nout,nx,ny,nz,nchem)
   ENDIF
-  
+
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
 !!!  END IF
@@ -7668,6 +7668,12 @@ IF (found) THEN
         parchar = 'upstream_weighting'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,upstream_weighting)
+        ! Courant number for adjusting dt
+        parchar = 'co_richards'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        co_richards = realjunk
 
         ! Soil parameters
         ! parchar = 'wc_residual'
@@ -9978,9 +9984,9 @@ dspz = 0.0
 !      pause
 
 !!!   ******************  NMM Coupling  ****************************************************
-  
 
-!!!   ******************  NMM Coupling  ****************************************************!!! 
+
+!!!   ******************  NMM Coupling  ****************************************************!!!
 
 call BreakthroughInitialize(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,nseries,  &
                         nexchange,nexch_sec,nsurf,nsurf_sec,ikpH,nplotsurface,nplotexchange )

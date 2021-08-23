@@ -111,7 +111,7 @@ IF (rrecv(-1) > 0.0) THEN
             END IF
         END IF
         ! limit recv within 1 cell
-        EXIT
+        ! EXIT
     END DO
 END IF
 
@@ -135,7 +135,7 @@ IF (rrecv(1) > 0.0) THEN
             END IF
         END IF
         ! limit recv within 1 cell
-        EXIT
+        ! EXIT
     END DO
 END IF
 
@@ -166,7 +166,7 @@ IF (y_is_vertical) THEN
                 END IF
             END IF
             ! limit recv within 1 cell
-            EXIT
+            ! EXIT
         END DO
     END IF
 
@@ -191,7 +191,7 @@ IF (y_is_vertical) THEN
                 END IF
             END IF
             ! limit recv within 1 cell
-            EXIT
+            ! EXIT
         END DO
     END IF
 
