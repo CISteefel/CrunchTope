@@ -5028,33 +5028,6 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
       END DO
     END DO
 
-    DO jy = 1,ny
-      DO jx= 1,nx
-
-        IF (jinit(jx,jy,jz) == 1) THEN    !! Check for mineral in neighboring grid cells if in a porefluid cell
-
-          IF (jinit(jx-1,jy,jz) == 2 .and. jx /= 1) THEN
-            jinit(jx,jy,jz) = 4
-            stress(jx,jy,jz) = stress(jx-1,jy,jz)
-          END IF
-          IF (jinit(jx+1,jy,jz) == 2 .and. jx /= nx) THEN
-            jinit(jx,jy,jz) = 4
-            stress(jx,jy,jz) = stress(jx+1,jy,jz)
-          END IF
-          IF (jinit(jx,jy-1,jz) == 2 .and. jy /= 1) THEN
-            jinit(jx,jy,jz) = 4
-            stress(jx,jy,jz) = stress(jx,jy-1,jz)
-          END IF
-          IF (jinit(jx,jy+1,jz) == 2 .and. jy /= ny) THEN
-            jinit(jx,jy,jz) = 4
-            stress(jx,jy,jz) = stress(jx,jy+1,jz)
-          END IF
-
-        END IF
-
-      END DO
-    END DO
-
   CLOSE(UNIT=52)
 
   END IF
@@ -7663,11 +7636,13 @@ IF (found) THEN
         realjunk = 0.0
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         watertable_init = realjunk
+        
         ! perm averaging method
         upstream_weighting = .FALSE.
         parchar = 'upstream_weighting'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,upstream_weighting)
+        
         ! Courant number for adjusting dt
         parchar = 'co_richards'
         parfind = ' '
