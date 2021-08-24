@@ -3010,7 +3010,7 @@ IF (Richards) THEN
                 IF (term5 .NE. 0.0) THEN
                     IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
                         dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
-                    END IF
+                  END IF
                 END IF
             END IF
         END DO

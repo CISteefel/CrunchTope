@@ -396,6 +396,17 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
+      
+!!! Check here
+!!CIS      dharm = ArithmeticMean(dume,dumpx)
+!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
+!!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
+!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
+!!!8-24        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
+!!!8-24      ELSE
+!!!8-24        AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!8-24      END IF
 
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       
@@ -464,7 +475,16 @@ DO jy = 1,ny
         dharm = GeometricMean(dumw,dumpx)
       END IF
       
-      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!! Check here
+!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
+!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
+!!!8-24        AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!8-24      ELSE
+!!!8-24        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
+!!!8-24      END IF
+      
+     AreaW = dyy(jy)*dzz(jx,jy,jz)
       
       dspw = avgro*dspx(jx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
@@ -489,6 +509,15 @@ DO jy = 1,ny
         dharm = GeometricMean(dume,dumpx)
       END IF
       
+!!! Check here
+!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
+!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
+!!!8-24        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
+!!!8-24      ELSE
+!!!8-24        AreaE = dyy(jy)*dzz(jx,jy,jz)
+!!!8-24      END IF
+      
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       
       dspe = avgro*dspx(jx,jy,jz) + dharm
@@ -507,6 +536,15 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
+      
+!!! Check here
+!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
+!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
+!!!8-24        AreaW = dyy(jy)*dzz(jx,jy,jz)
+!!!8-24      ELSE
+!!!8-24        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
+!!!8-24      END IF
       
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       

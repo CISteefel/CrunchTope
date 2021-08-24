@@ -7630,6 +7630,7 @@ IF (found) THEN
         realjunk = 0.0
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         wc_init = realjunk
+        
         ! Initial water table
         parchar = 'watertable_init'
         parfind = ' '

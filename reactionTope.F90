@@ -521,7 +521,7 @@ DO k = 1,nkin
 
     END IF
     
-!!!  ******************  End of thermodynamic calculation ********************************
+!!!  *********************  End of thermodynamic calculation ********************************
 
 !!!  *********************  Start of calculation of surface area  **************************
     
@@ -537,16 +537,19 @@ DO k = 1,nkin
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
 
-!!!        IF (MineralID(k) < k) THEN                  !!  NOTE: This requires that the mineral that is associated with is earlier in list
-!!!          surf(np,k) = surf(np,MineralID(k))
-!!!        ELSE
-!!!          surf(np,k) = areain(MineralID(k),jinit(jx,jy,jz))*porfactor
-          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
-!!!        END IF
+        IF (MineralID(k) < k) THEN     !!  NOTE: This requires that the mineral that is associated with is earlier in list
+          surf(np,k) = surf(np,MineralID(k))
+        ELSE
+          write(*,*) ' Associated mineral should be earlier in mineral list'
+          write(*,*)
+          stop
+!!!8-24          surf(np,k) = areain(MineralID(k),jinit(jx,jy,jz))*porfactor
+!!!          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
+        END IF
 
       ELSE
 
-!! NOTE:  Perhaps should change this to a specific option for supersaturation, with default = .TRUE.  ??
+!!    NOTE:  Perhaps should change this to a specific option for supersaturation, with default = .TRUE.  ??
         IF (SetSurfaceAreaConstant) THEN
           surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
         ELSE
@@ -561,15 +564,18 @@ DO k = 1,nkin
 
       IF (MineralAssociate(k)) THEN
 
-!!!        IF (MineralID(k) < k) THEN
-!!!          surf(np,k) = surf(np,MineralID(k))
-!!!        ELSE
-          IF (porfactor < 0.01d0) THEN
-            surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
-          ELSE
-            surf(np,k) = area(MineralID(k),jx,jy,jz)
-          END IF
-!!!        END IF
+        IF (MineralID(k) < k) THEN
+          surf(np,k) = surf(np,MineralID(k))
+
+        ELSE
+!!!          IF (porfactor < 0.01d0) THEN
+!!!             surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
+!!!           ELSE
+!!!             surf(np,k) = area(MineralID(k),jx,jy,jz)
+          write(*,*) ' Associated mineral should be earlier in mineral list'
+          write(*,*)
+          stop
+        END IF
 
       ELSE
 
@@ -579,21 +585,12 @@ DO k = 1,nkin
           surf(np,k) = area(k,jx,jy,jz)
         END IF
 
-!!  Armoring  
-!!       IF (k==1 .and. umin(k) == 'GlassNagaokaCore' .AND. umin(2) == 'SmectiteGlass') THEN
-!!             
-!!             InhibitTerm = 1.0d0 * (1.0d0 - ( volfx(2,jx,jy,jz)/volin(2,jinit(jx,jy,jz)) )**0.60)
-!!             surf(np,k) = area(k,jx,jy,jz) * InhibitTerm
-!!             TimeHours = time*365.0*24.0     
-!!             write(*,*) TimeHours, InhibitTerm    
-!!         END IF
-!!  End armoring
         
-        IF (SetSurfaceAreaConstant) THEN
-          surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
-        ELSE
-          surf(np,k) = area(k,jx,jy,jz)*porfactor
-        END IF
+!!!8-24       IF (SetSurfaceAreaConstant) THEN
+!!!8-24          surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
+!!!8-24        ELSE
+!!!8-24          surf(np,k) = area(k,jx,jy,jz)*porfactor
+!!!8-24        END IF
 
       END IF
 
