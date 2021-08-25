@@ -334,9 +334,9 @@ DO jz = 1,nz
               
             IF (vinit == 0.0d0) THEN
               area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/0.01)**0.6666
-              if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz)
+              if (mintype(k) == 0 .and. .NOT. MineralAssociate(k)) sum = sum + volfx(k,jx,jy,jz)
             ELSE
-              if (mintype(k) == 0) then 
+              if (mintype(k) == 0 .and. .NOT. MineralAssociate(k)) then 
                 area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
                 sum = sum + volfx(k,jx,jy,jz)
               end if
@@ -349,7 +349,7 @@ DO jz = 1,nz
             ELSE
               area(k,jx,jy,jz) = volfx(k,jx,jy,jz)*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
             END IF
-            if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz)
+            if (mintype(k) == 0 .and. .NOT. MineralAssociate(k)) sum = sum + volfx(k,jx,jy,jz)
             
           END IF
           
@@ -367,25 +367,7 @@ DO jz = 1,nz
 
       END DO
 
-!!  Ripening
-        IF (ForsteriteCapillary) THEN
 
-          RipeningRate = 1.0E-31
-          DeltaKeq = 0.05
-           
-!!!          RipenRate2 = volmol(2) * area(1,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
-!!!            ( (Keqmin(1,2,jx,jy,jz)+DeltaKeq)/Keqmin(1,2,jx,jy,jz) - 1.0 )
-!!!          RipenRate3 = volmol(3) * area(2,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
-!!!            ( (Keqmin(1,3,jx,jy,jz)+DeltaKeq)/Keqmin(1,3,jx,jy,jz) - 1.0 )
-!!!          RipenRate4 = volmol(4) * area(3,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
-!!!            ( (Keqmin(1,4,jx,jy,jz)+DeltaKeq)/Keqmin(1,4,jx,jy,jz) - 1.0 )
-!!!          RipenRate5 = volmol(5) * area(4,jx,jy,jz) * RipeningRate * (3600.0*24.0*365.0)  * &
-!!!            ( (Keqmin(1,5,jx,jy,jz)+DeltaKeq)/Keqmin(1,5,jx,jy,jz) - 1.0 )     
-          
- 
-              
-        END IF
-      
 !!  Update porosity, with a save of the porosity to porOld
 
       porold(jx,jy,jz) = por(jx,jy,jz)

@@ -217,7 +217,7 @@ IF (nIsotopePrimary > 0) THEN
  UseAqueousMoleFraction = .FALSE.
 END IF
 
-!!porfactor = 1.0d0
+porfactor = 1.0d0
 
 !! For isotopes, calculate mole fractions based on aqueous geochemistry (for No Back Reaction case)
 
@@ -538,7 +538,7 @@ DO k = 1,nkin
       IF (MineralAssociate(k)) THEN
 
         IF (MineralID(k) < k) THEN     !!  NOTE: This requires that the mineral that is associated with is earlier in list
-          surf(np,k) = surf(np,MineralID(k))
+          surf(np,k) = surf(np,MineralID(k))*porfactor
         ELSE
           write(*,*) ' Associated mineral should be earlier in mineral list'
           write(*,*)
@@ -565,7 +565,7 @@ DO k = 1,nkin
       IF (MineralAssociate(k)) THEN
 
         IF (MineralID(k) < k) THEN
-          surf(np,k) = surf(np,MineralID(k))
+          surf(np,k) = surf(np,MineralID(k))*porfactor
 
         ELSE
 !!!          IF (porfactor < 0.01d0) THEN

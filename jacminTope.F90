@@ -286,7 +286,7 @@ IF (DampRateInLowPorosity .AND. por(jx,jy,jz) < 0.001) THEN
   porfactor = porfactor*PorosityDamp
 END IF
 
-!!porfactor = 1.0d0
+porfactor = 1.0d0
 
 IF (nIsotopeMineral > 0) THEN
   dMoleFractionAqueousCommon = 0.0d0

@@ -269,7 +269,7 @@ IF(ls /= 0) THEN
           
         ELSE                !  A number--so bag it.
           WRITE(*,*)
-          WRITE(*,*) ' Cant interpret string following permeability value'
+          WRITE(*,*) ' Cant interpret string following Y permeability value'
           WRITE(*,*) ' Looking for ASCII string'
           WRITE(*,*)
           STOP
