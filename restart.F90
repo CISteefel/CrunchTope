@@ -93,6 +93,7 @@ LOGICAL(LGT)                                :: TrueFalse
 REAL(DP)                                    :: DummyReal
 REAL(DP), DIMENSION(:), ALLOCATABLE         :: tempreal
 REAL(DP), DIMENSION(:), ALLOCATABLE         :: RealDummyArray
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: IntegerDummyArray
 INTEGER(I4B)                                :: nxyz
 
 
@@ -177,7 +178,12 @@ END IF
     READ(iures) spsurfold 
     READ(iures) raq_tot
     READ(iures) sion
-    READ(iures) jinit
+    IF (ALLOCATED(IntegerDummyArray)) THEN
+      DEALLOCATE(IntegerDummyArray)
+    END IF
+    ALLOCATE(IntegerDummyArray(nxyz))
+    READ(iures) IntegerDummyArray
+!!!    READ(iures) jinit
 
 !!    READ(iures) mumin_decay
     READ(iures) keqmin
