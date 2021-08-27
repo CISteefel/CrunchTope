@@ -2897,23 +2897,27 @@ END DO
     ELSE
       IF (MOD(nn,ScreenInterval) == 0) THEN
 
-        totPor = 0.0
-        totVol = 0.0
-        totChange = 0.0
+        if (SaltCreep) THEN
+          totPor = 0.0
+          totVol = 0.0
+          totChange = 0.0
 
-        do jy = 1,ny
-          do jx = 1,nx
-            IF (jinit(jx,jy,1) /= 3) THEN
-              totVol = totVol + dxx(jx)*dyy(jy)
-              totPor = totPor + por(jx,jy,1)*dxx(jx)*dyy(jy)
-              totChange = totChange + ( porin(jx,jy,1) - por(jx,jy,1) ) * dxx(jx)*dyy(jy)
-            END IF
+          do jy = 1,ny
+            do jx = 1,nx
+              IF (jinit(jx,jy,1) /= 3) THEN
+                totVol = totVol + dxx(jx)*dyy(jy)
+                totPor = totPor + por(jx,jy,1)*dxx(jx)*dyy(jy)
+                totChange = totChange + ( porin(jx,jy,1) - por(jx,jy,1) ) * dxx(jx)*dyy(jy)
+              END IF
+           end do
           end do
-        end do
-        totCheck = totPor/totVol
-        totCheckInitial = totChange/totVol
-!!!        write(128,*) time,totCheck
-!!!        write(129,*) time,totCheckInitial
+          
+          totCheck = totPor/totVol
+          totCheckInitial = totChange/totVol
+!!!          write(128,*) time,totCheck
+!!!          write(129,*) time,totCheckInitial
+          
+        END IF
 
         WRITE(*,*) 'Time step # ',nn
           IF (OutputTimeUnits == 'years') THEN
