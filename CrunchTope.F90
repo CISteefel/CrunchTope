@@ -413,6 +413,7 @@ REAL(DP)                                                   :: m
 
 REAL(DP)                                                   :: dist
 REAL(DP)                                                   :: satu
+REAL(DP)                                                   :: watertable
 
 ! variables pump time series
 
@@ -695,7 +696,6 @@ END IF
                    END IF
                    dist = dist - 0.5*dyy(jyCheck)
 
-
                    ! distCheck = 0.0d0
                    !
                    ! DO jydum = 0,jycheck
@@ -719,15 +719,26 @@ END IF
                  ELSE
                      dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
                  END IF
+
+                 !  Use flat initial water table
+                 IF (watertable_flat) THEN
+                     ! watertable_init = -(INT(j_bottom(jx,1)) - INT(j_bottom(nx,1))) * dyy(1)
+                     watertable = watertable_init - INT(j_bottom(jx,1)) * dyy(1)
+                     dist = dist - 0.5d0
+                 ELSE
+                     watertable = watertable_init
+                 END IF
+
+
                  ! set initial water table
-                 IF (dist > watertable_init) THEN
+                 IF (dist > watertable) THEN
                      wc(jx,jy,jz) = wcs(jx,jy,jz)
-                     head(jx,jy,jz) = dist - watertable_init
+                     head(jx,jy,jz) = dist - watertable
                  ELSE
                      ! Assume head is hydrostatic above the water table
                      ! This makes wc_init useless!
                     ! wc(jx,jy,jz) = wc_init
-                    head(jx,jy,jz) = dist - watertable_init
+                    head(jx,jy,jz) = dist - watertable
                     satu = (1 + abs(vga(jx,jy,jz)*head(jx,jy,jz))**vgn(jx,jy,jz)) ** (1.0d0/vgn(jx,jy,jz)-1.0d0)
                     IF (satu > 1) THEN
                         satu = 1.0d0
@@ -2911,12 +2922,12 @@ END DO
               END IF
            end do
           end do
-          
+
           totCheck = totPor/totVol
           totCheckInitial = totChange/totVol
 !!!          write(128,*) time,totCheck
 !!!          write(129,*) time,totCheckInitial
-          
+
         END IF
 
         WRITE(*,*) 'Time step # ',nn

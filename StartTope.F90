@@ -7630,20 +7630,26 @@ IF (found) THEN
         realjunk = 0.0
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         wc_init = realjunk
-        
+
         ! Initial water table
         parchar = 'watertable_init'
         parfind = ' '
         realjunk = 0.0
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         watertable_init = realjunk
-        
+        ! Use flat initial water table
+        watertable_flat = .FALSE.
+        parchar = 'watertable_flat'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,watertable_flat)
+
+
         ! perm averaging method
         upstream_weighting = .FALSE.
         parchar = 'upstream_weighting'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,upstream_weighting)
-        
+
         ! Courant number for adjusting dt
         parchar = 'co_richards'
         parfind = ' '
