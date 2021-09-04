@@ -810,10 +810,10 @@ DO jz = 0,nz+1
 END DO
 
 
+
+
      WRITE(*,*) ' Initialization completed!'
  END IF
-
-
 
 !!  atolksp = 1.D-50
 !!  rtolksp = 1.D-25
