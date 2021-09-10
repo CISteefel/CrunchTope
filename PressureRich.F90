@@ -358,6 +358,13 @@ DO jz = 1,nz
                         END IF
                     END IF
 
+                    IF (jx == 0 .AND. activecellPressure(0,jy,jz) == 0) THEN
+                        coef(-1) = 0.0d0
+                    END IF
+                    IF (jx == nx .AND. activecellPressure(nx+1,jy,jz) == 0) THEN
+                        coef(1) = 0.0d0
+                    END IF
+
                     ! IF (jx == 42 .AND. jy == 43 .AND. jz == 1) THEN
                     !     WRITE(*,*) 'wc, coef xm, xp, ym, yp, rhs, headbc = ',wc(jx,jy,jz),coef(0),coef(-1),coef(1),coef(-2),coef(2),BvecCrunchP(j),headOld(jx,jy-1,jz)
                     ! END IF
