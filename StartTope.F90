@@ -9427,8 +9427,7 @@ anisotropyY = 1.0d0
 anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
-MillingtonQuirk = .TRUE.
-MillingtonQuirk = .FALSE.
+    MillingtonQuirk = .TRUE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
@@ -9441,6 +9440,7 @@ END IF
 tortuosity = 1.0d0
 
 IF (found) THEN
+  
   WRITE(*,*)
   WRITE(*,*) ' Transport block found'
   WRITE(*,*)
@@ -9515,7 +9515,7 @@ IF (found) THEN
     WRITE(*,*)
     WRITE(*,*) ' Constant tortuosity option specified'
     WRITE(*,*)
-    MillingtonQuirk = .FALSE.
+    MillingtonQuirk = .TRUE.
     IF (TortuosityOption /= 'none') THEN
       CALL stringlen(TortuosityOption,ls)
       WRITE(*,*)
@@ -9562,7 +9562,7 @@ IF (found) THEN
 !!        STOP
 
       ELSE
-        MillingtonQuirk = .FALSE.
+    MillingtonQuirk = .TRUE.
         WRITE(*,*)
         WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
         WRITE(*,*)
@@ -9571,7 +9571,7 @@ IF (found) THEN
 ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
       IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-        MillingtonQuirk = .FALSE.
+    MillingtonQuirk = .TRUE.
         Tortuosity = TortuosityZone(0)
 
 !       Next, initialize tortuosity from various zones
@@ -9600,7 +9600,7 @@ IF (found) THEN
         END IF
 
       ELSE
-        MillingtonQuirk = .TRUE.
+    MillingtonQuirk = .TRUE.
       END IF
 
       DEALLOCATE(TortuosityZone)
@@ -9623,7 +9623,7 @@ IF (found) THEN
           READ(*,*)
           STOP
         END IF
-        MillingtonQuirk = .FALSE.
+    MillingtonQuirk = .TRUE.
         OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
         FileTemp = TortuosityFile
         CALL stringlen(FileTemp,FileNameLength)
@@ -9794,7 +9794,7 @@ IF (found) THEN
     UseThresholdPorosity = .FALSE.
   ELSE
     UseThresholdPorosity = .TRUE.
-    MillingtonQuirk = .FALSE.
+    MillingtonQuirk = .TRUE.
     parchar = 'tortuosity_below'
     parfind = ' '
     realjunk = 0.0

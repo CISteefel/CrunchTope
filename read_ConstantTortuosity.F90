@@ -92,6 +92,7 @@ IF(ls /= 0) THEN
 ! Check to see if initial substring is "constant_tortuosity"
   
   IF (ssch == 'constant_tortuosity') THEN
+    
     IF (nxyz == 1) THEN    
       TortuosityConstant = 1.0d0
       constant_tortuosity = .TRUE.

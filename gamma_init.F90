@@ -134,9 +134,11 @@ ELSE
 
 END IF
 
-tconv = 273.15d0
-tempk = tempc + tconv
-call dhconst(ah,bh,tempk,tconv)
+IF (Benchmark) THEN
+  tconv = 273.15d0
+  tempk = tempc + tconv
+  call dhconst(ah,bh,tempk,tconv)
+END IF
 
 DO ik = 1,ncomp+nspec
 
@@ -151,6 +153,7 @@ DO ik = 1,ncomp+nspec
         gamtmp(ik) = DLOG(1.0d0/55.50843506)
       ELSE
         gamtmp(ik) = DLOG(gamWaterCheck/55.50843506)
+!!!                                        55.50843506
       END IF
 
     ELSE
@@ -185,12 +188,12 @@ END DO
 
 IF (SaltCreep) THEN
   
-  aa1 = -(ah*chg(ikNa)*chg(ikNa)*sqrt_sion)/            &
+  aa1 = -(ah*chg(ikNa)*chg(ikNa)*sqrt_sion)/                &
               (1.0d0 + 4.08*bh*sqrt_sion)                   &         
               + 0.082*sion_tmp
   gamtmp(ikNa) = clg*aa1
   
-  aa1 = -(ah*chg(ikCl)*chg(ikCl)*sqrt_sion)/            &
+  aa1 = -(ah*chg(ikCl)*chg(ikCl)*sqrt_sion)/                &
               (1.0d0 + 3.63*bh*sqrt_sion)                   &         
               + 0.017*sion_tmp
   gamtmp(ikCl) = clg*aa1

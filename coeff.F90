@@ -198,10 +198,12 @@ DO jy = 1,ny
         dume = ro(jx+1,jy,jz)*(sate)**(quirk)*(pore)**(uli)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
         dumw = dumpx
+
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
         dumw = dumpx
+
       END IF
     ELSE IF (jx == nx) THEN
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))

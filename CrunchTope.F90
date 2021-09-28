@@ -141,7 +141,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                        :: csave
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: aaaTemp
 
 
-REAL(DP), PARAMETER                                        :: atol=1.e-09
+REAL(DP), PARAMETER                                        :: atol=1.e-10
 REAL(DP), PARAMETER                                        :: rtol=1.e-06
 REAL(DP), PARAMETER                                        :: correx=1.0
 REAL(DP), PARAMETER                                        :: tiny=1.0E-13
@@ -2240,6 +2240,7 @@ newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
               END IF
             ELSE
               IF (DABS(delt*fxx(ind)) > tolmax) THEN
+!!!              IF (DABS(fxx(ind)) > tolmax) THEN
                 icvg = 1
               END IF
             END IF
