@@ -7619,6 +7619,11 @@ IF (found) THEN
         parchar = 'y_is_vertical'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,y_is_vertical)
+        ! Condition leverettscaling read in input file LucienStolze 20211020
+        leverettscaling = .FALSE.
+        parchar = 'leverettscaling'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,leverettscaling)
         ! Invoke moisture residtribution
         redistribute_wc = .FALSE.
         parchar = 'redistribute_wc'

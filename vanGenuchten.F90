@@ -68,7 +68,25 @@ DO jz = 0,nz+1
     DO jy = 0,ny+1
         DO jx = 0,nx+1
             m = 1.0d0 - 1.0d0/vgn(jx,jy,jz)
-            h = head(jx,jy,jz)
+            IF (leverettscaling) THEN
+                if (jx==0) THEN
+                h = head(jx,jy,jz)
+                ELSEIF (jy==0) THEN
+                h = head(jx,jy,jz)
+                ELSEIF (jz==0)  THEN
+                h = head(jx,jy,jz)    
+                ELSEIF (jx==nx+1) THEN
+                h = head(jx,jy,jz)
+                ELSEIF (jy==ny+1) THEN
+                h = head(jx,jy,jz)
+                ELSEIF (jz==nz+1)  THEN
+                h = head(jx,jy,jz)
+                ELSE
+                h = SQRT((perminy(jx,jy,jz)*por(jx,jy,jz))/(permy(jx,jy,jz)*porin(jx,jy,jz)))*head(jx,jy,jz)
+                END IF
+                ELSE
+                h = head(jx,jy,jz)
+               END IF 
             !!! Get saturation from head
             satu = (1 + abs(vga(jx,jy,jz)*h)**vgn(jx,jy,jz)) ** (-m)
             ! satu = (wc(jx,jy,jz)- wcr(jx,jy,jz)) / (wcs(jx,jy,jz)- wcr(jx,jy,jz))

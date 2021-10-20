@@ -73,6 +73,8 @@ LOGICAL(LGT)                                 :: redistribute_wc
 LOGICAL(LGT)                                 :: upstream_weighting
 LOGICAL(LGT)                                 :: watertable_flat
 REAL(DP)                                     :: co_richards
+! Leverett scaling option added by Lucien Stolze 20211020
+LOGICAL(LGT)                                 :: leverettscaling
 
 INTEGER(I4B)                                 :: infiltration
 
