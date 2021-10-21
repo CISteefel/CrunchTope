@@ -380,25 +380,28 @@ DO jx = 1,nx
 END DO
 CLOSE(UNIT=8,STATUS='keep')
 
-
-117 FORMAT('# Units: mol gas/m2/year')
-write(*,*) ' Writing gasdiffflux file '
-fn='gasdiffflux'
-ilength = 11
-CALL newfile(fn,suf1,fnv,nint,ilength)
-OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-WRITE(8,2283) PrintTime
-WRITE(8,117)
-WRITE(8,2285) (namg(kk),kk=1,ngas)
-jy = 1
-jz = 1
-DO jx = 1,nx
-  DO i = 1,ngas
-    gflux_hor(i)=-(bg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+IF (isaturate==1) THEN
+  
+  117 FORMAT('# Units: mol gas/m2/year')
+  write(*,*) ' Writing gasdiffflux file '
+  fn='gasdiffflux'
+  ilength = 11
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,117)
+  WRITE(8,2285) (namg(kk),kk=1,ngas)
+  jy = 1
+  jz = 1
+  DO jx = 1,nx
+    DO i = 1,ngas
+      gflux_hor(i)=-(bg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+    END DO
+    WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
   END DO
-  WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
-END DO
-CLOSE(UNIT=8,STATUS='keep')
+  CLOSE(UNIT=8,STATUS='keep')
+  
+END IF
 
 
 
