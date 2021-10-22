@@ -93,7 +93,7 @@ IF(ls /= 0) THEN
   lzs=ls
   CALL convan(ssch,lzs,res)
     
-  IF (ssch == 'readinitialconditions' .or. ssch == 'readinitialcondition') THEN         
+  IF (ssch == 'readinitialconditions' .or. ssch == 'readinitialcondition' .or. ssch=='ReadInitialConditions') THEN         
      !! Read initial condition distribution from file
     
     ReadInitialConditions = .TRUE.
@@ -121,6 +121,10 @@ IF(ls /= 0) THEN
     
 !     Check to see that heterogeneity label matches one of the labels
 !       for geochemical conditions (condlabel)
+  
+  IF (ReadInitialConditions) THEN
+      GO TO 50
+  END IF
   
   DO nco = 1,nchem
     IF (ssch == condlabel(nco)) THEN

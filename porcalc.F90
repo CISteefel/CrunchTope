@@ -87,7 +87,7 @@ DO jz = 1,nz
         IF (LocalEquilibrium(k)) THEN                      !! Local equilibrium fantasy, so don't change the surface area
             
           IF (volfx(k,jx,jy,jz) > 0.0d0) THEN
-            area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))
+            area(k,jx,jy,jz) = areainByGrid(k,jx,jy,jz)
           ELSE
             area(k,jx,jy,jz) = 0.0d0
           END IF
@@ -98,10 +98,10 @@ DO jz = 1,nz
           IF (iarea(k,jinit(jx,jy,jz)) == 0) THEN                     !!  Bulk surface area
               
             IF (vinit == 0.0d0) THEN
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/0.01)**0.6666
+              area(k,jx,jy,jz) = areainByGrid(k,jx,jy,jz)* (volfx(k,jx,jy,jz)/0.01)**0.6666
               sum = sum + volfx(k,jx,jy,jz)
             ELSE
-              area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))* (volfx(k,jx,jy,jz)/vinit)**0.6666
+              area(k,jx,jy,jz) = areainByGrid(k,jx,jy,jz)* (volfx(k,jx,jy,jz)/vinit)**0.6666
               if (mintype(k) == 0) sum = sum + volfx(k,jx,jy,jz) !! exclude biomass
             END IF
             

@@ -141,7 +141,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                        :: csave
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: aaaTemp
 
 
-REAL(DP), PARAMETER                                        :: atol=1.e-10
+REAL(DP), PARAMETER                                        :: atol=1.e-09
 REAL(DP), PARAMETER                                        :: rtol=1.e-06
 REAL(DP), PARAMETER                                        :: correx=1.0
 REAL(DP), PARAMETER                                        :: tiny=1.0E-13
@@ -2507,6 +2507,8 @@ END DO
 
 !         Advect the minerals via burial or erosion
 !           (positive for burial, negative for erosion)
+    
+    !!!  ******* Minerals *******************************
 
     rinv = 1.0/delt
 
@@ -2571,6 +2573,7 @@ END DO
             rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
           END IF
         END DO
+        
         IF (SolidBuryX(1) > 0.0) THEN
           rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
         END IF
@@ -2585,24 +2588,18 @@ END DO
         END DO
 
       END IF
+      
 
-    END DO   ! End of mineral loop for erosion/burial
-
-    CALL porcalc(nx,ny,nz,nkin,jpor)     ! Updates porosity and surface area
-
-    IF (KateMaher) THEN
-
-      rinv = 1.0/delt
-
-      jz = 1
-      jy = 1
-
-!!  ******************
-
-      call CalciteStoichiometryBoundary(1)
-
+    END DO   ! End of Mineral loop for erosion/burial
+    
+    rinv = 1.0/delt
+    jz = 1
+    jy = 1
+    
+    DO k = 1,nkin
+    
       DO jx = 1,nx
-        ctvd(jx,jy,jz) = specificByGrid(k,jx,jy,jz)
+        ctvd(jx,jy,jz) = specificByGrid(k,jx,1,1)
       END DO
 
       DO jx = 1,nx
@@ -2616,158 +2613,32 @@ END DO
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
           dxw = 0.5*(dxx(jx)+dxx(jx-1))
         END IF
+      
         IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+        
           aabur(jx) = -SolidburyX(jx-1)
           bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
           ccbur(jx) = 0.0
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
         ELSE                         ! Erosion case
+        
           aabur(jx) = 0.0
           bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
           ccbur(jx) = SolidburyX(jx)/dxx(jx)
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv
-        END IF
-      END DO
-
-      IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*muUranium234Boundary(1)
-      END IF
-
-      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
-
-      DO jx = 1,nx
-        muUranium234Bulk(jx,1,1) = uubur(jx)
-      END DO
-
-!!   *************
-
-      DO jx = 1,nx
-        ctvd(jx,jy,jz) = muUranium238Bulk(jx,jy,jz)
-      END DO
-
-      DO jx = 1,nx
-        IF (jx == 1) THEN
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*dxx(1)
-        ELSE IF (jx == nx) THEN
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-          dxe = 0.5*dxx(nx)
-        ELSE
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-        END IF
-        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-          aabur(jx) = -SolidburyX(jx-1)
-          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
-          ccbur(jx) = 0.0
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-        ELSE                         ! Erosion case
-          aabur(jx) = 0.0
-          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
-          ccbur(jx) = SolidburyX(jx)/dxx(jx)
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv
+          
         END IF
       END DO
 
       IF (SolidBuryX(1) > 0.0) THEN
          rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
-
       END IF
-
-      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
-
-      DO jx = 1,nx
-        muUranium238Bulk(jx,1,1) = uubur(jx)
-      END DO
-
-!!  *****************
-
-      DO jx = 1,nx
-        ctvd(jx,jy,jz) = muCalciumBulk(jx,jy,jz)
-      END DO
-
-      DO jx = 1,nx
-        IF (jx == 1) THEN
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*dxx(1)
-        ELSE IF (jx == nx) THEN
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-          dxe = 0.5*dxx(nx)
-        ELSE
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-        END IF
-        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-          aabur(jx) = -SolidburyX(jx-1)
-          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
-          ccbur(jx) = 0.0
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-        ELSE                         ! Erosion case
-          aabur(jx) = 0.0
-          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
-          ccbur(jx) = SolidburyX(jx)/dxx(jx)
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv
-        END IF
-      END DO
-
-      IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*muCalciumBoundary(1)
-      END IF
-
-      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
-
-      DO jx = 1,nx
-        muCalciumBulk(jx,1,1) = uubur(jx)
-      END DO
-
-      muCalciumBulk = 0.97*muCalciumBulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
-      muUranium234Bulk = 0.97*muUranium234Bulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
-     muUranium238Bulk = 0.97*muUranium238Bulk/(muCalciumBulk+muUranium234Bulk+muUranium238Bulk)
-
-!!  *****************
-
-    IF (nradmax > 0) THEN
-      DO jx = 1,nx
-        ctvd(jx,jy,jz) = mumin_decay(1,kUPlag,ik234U,jx,jy,jz)
-      END DO
-
-      DO jx = 1,nx
-        IF (jx == 1) THEN
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*dxx(1)
-        ELSE IF (jx == nx) THEN
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-          dxe = 0.5*dxx(nx)
-        ELSE
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-        END IF
-        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-          aabur(jx) = -SolidburyX(jx-1)
-          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
-          ccbur(jx) = 0.0
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-        ELSE                         ! Erosion case
-          aabur(jx) = 0.0
-          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
-          ccbur(jx) = SolidburyX(jx)/dxx(jx)
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv
-        END IF
-      END DO
-
-      IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*1.40e-10
-      END IF
+      
       IF (SolidBuryX(nx) < 0.0) THEN
-       rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
       END IF
 
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
@@ -2775,57 +2646,40 @@ END DO
       DO jx = 1,nx
         specificByGrid(k,jx,1,1) = uubur(jx)
       END DO
-
-!!  *****************
-
+      
+!!   ********************************************
+      
       DO jx = 1,nx
-        ctvd(jx,jy,jz) = mumin_decay(1,kUPlag,ik238U,jx,jy,jz)
+        ctvd(jx,jy,jz) = areainByGrid(k,jx,1,1)
       END DO
-
-      DO jx = 1,nx
-        IF (jx == 1) THEN
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*dxx(1)
-        ELSE IF (jx == nx) THEN
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-          dxe = 0.5*dxx(nx)
-        ELSE
-          dxe = 0.5*(dxx(jx)+dxx(jx+1))
-          dxw = 0.5*(dxx(jx)+dxx(jx-1))
-        END IF
-        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-          aabur(jx) = -SolidburyX(jx-1)
-          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
-          ccbur(jx) = 0.0
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-        ELSE                         ! Erosion case
-          aabur(jx) = 0.0
-          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
-          ccbur(jx) = SolidburyX(jx)/dxx(jx)
-          uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv
-        END IF
-      END DO
-
+      
       IF (SolidBuryX(1) > 0.0) THEN
-        rrbur(1) = rrbur(1) - aabur(1)*2.84e-06
+         rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
       END IF
+      
       IF (SolidBuryX(nx) < 0.0) THEN
-        rrbur(nx) = rrbur(nx) - ccbur(nx)*muCalciumBulk(nx,1,1)
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
       END IF
-
+      
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
 
       DO jx = 1,nx
-        mumin_decay(1,kUPlag,ik238U,jx,jy,jz) = uubur(jx)
+        areainByGrid(k,jx,1,1) = uubur(jx)
       END DO
+      
+    END DO !  Loop through minerals
+    
+    CALL porcalc(nx,ny,nz,nkin,jpor)     ! Updates porosity and surface area
 
-     END IF    !!  Nradmax > 0
-
-    END IF      !!  End of KateMaher block
 
   END IF   !  End of erosion/burial block (for GIMRT only)
+  
+  IF (KateMaher) THEN
+      write(*,*)
+      write(*,*) ' KateMaher option no longer supported'
+      write(*,*)
+      stop
+  END IF
 
 
 !  **********   END OF EROSION/BURIAL BLOCK FOR MINERALS  *****************
@@ -2910,6 +2764,7 @@ END DO
       IF (MOD(nn,ScreenInterval) == 0) THEN
 
         if (SaltCreep) THEN
+          
           totPor = 0.0
           totVol = 0.0
           totChange = 0.0

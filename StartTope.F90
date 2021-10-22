@@ -5022,8 +5022,10 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
         nhet = nhet + 1
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
 !!!                         x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-
+!!!        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
+!!!                         x    y    bn    mt              
         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+!!!        jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
         activecell(jx,jy,jz) = 1
       END DO
     END DO
@@ -7619,11 +7621,6 @@ IF (found) THEN
         parchar = 'y_is_vertical'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,y_is_vertical)
-        ! Condition leverettscaling read in input file LucienStolze 20211020
-        leverettscaling = .FALSE.
-        parchar = 'leverettscaling'
-        parfind = ' '
-        CALL read_logical(nout,lchar,parchar,parfind,leverettscaling)
         ! Invoke moisture residtribution
         redistribute_wc = .FALSE.
         parchar = 'redistribute_wc'
@@ -8571,6 +8568,18 @@ IF (found) THEN
         END IF
 
         IF (nz == 1) THEN
+          
+          do jy = 1,ny
+             do jx = 1,nx
+               if (jinit(jx,jy,1) == 2) then
+                 perminx(jx,jy,1) = 1.0D-11
+                 permx(jx,jy,1) = 1.0D-11  
+                 perminy(jx,jy,1) = 1.0D-11
+                 permy(jx,jy,1) = 1.0D-11
+               end if
+             end do
+           end do
+                     
           permz = 0.0
           perminz = 0.0
           DEALLOCATE(permzonez)
@@ -8627,6 +8636,9 @@ IF (found) THEN
           permmaxz = 0.0
           permz = perminz
           permmaxz = MAXVAL(DABS(permz))
+          
+          
+
 
           DEALLOCATE(permzonez)
           DEALLOCATE(jxxpermz_lo)
@@ -9391,6 +9403,11 @@ END IF
     DEALLOCATE(specificByGrid)
   END IF
   ALLOCATE(specificByGrid(nrct,0:nx+1,0:ny+1,0:nz+1))
+  
+  IF (ALLOCATED(areainByGrid)) THEN
+    DEALLOCATE(areainByGrid)
+  END IF
+  ALLOCATE(areainByGrid(nrct,0:nx+1,0:ny+1,0:nz+1))
 
   DO jz = 1,nz
     DO jy = 1,ny
@@ -9400,6 +9417,7 @@ END IF
         DO k = 1,nrct
           jpoint = jinit(jx,jy,jz)
           specificByGrid(k,jx,jy,jz) = specific(k,jpoint)
+          areainByGrid(k,jx,jy,jz) = areain(k,jpoint)
         END DO
 
       END DO
@@ -9411,8 +9429,10 @@ END IF
     DO k = 1,nrct
       jPoint = jinit(0,1,1)
       specificByGrid(k,0,1,1) = specific(k,jPoint)
+      areainByGrid(k,0,jy,jz) = areain(k,jpoint)
       jPoint = jinit(nx+1,1,1)
       specificByGrid(k,nx+1,1,1) = specific(k,jPoint)
+      areainByGrid(k,nx+1,jy,jz) = areain(k,jpoint)
     END DO
   END IF
 

@@ -217,7 +217,6 @@ IF (nIsotopePrimary > 0) THEN
  UseAqueousMoleFraction = .FALSE.
 END IF
 
-porfactor = 1.0d0
 
 !! For isotopes, calculate mole fractions based on aqueous geochemistry (for No Back Reaction case)
 
@@ -549,9 +548,13 @@ DO k = 1,nkin
 
       ELSE
 
-!!    NOTE:  Perhaps should change this to a specific option for supersaturation, with default = .TRUE.  ??
+!!      NOTE:  Perhaps should change this to a specific option for supersaturation, with default = .TRUE.  ??
         IF (SetSurfaceAreaConstant) THEN
-          surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
+          IF (por(jx,jy,jz) < 0.0001) THEN
+            surf(np,k) = areainByGrid(k,jx,jy,jz)*PorosityDamp
+          ELSE
+            surf(np,k) = areainByGrid(k,jx,jy,jz)*porfactor
+          END IF
         ELSE
           surf(np,k) = area(k,jx,jy,jz)*porfactor            
         END IF
@@ -587,7 +590,7 @@ DO k = 1,nkin
 
         
 !!!8-24       IF (SetSurfaceAreaConstant) THEN
-!!!8-24          surf(np,k) = areain(k,jinit(jx,jy,jz))*porfactor
+!!!8-24          surf(np,k) = areainByGrid(k,jx,jy,jz)*porfactor
 !!!8-24        ELSE
 !!!8-24          surf(np,k) = area(k,jx,jy,jz)*porfactor
 !!!8-24        END IF
