@@ -201,6 +201,7 @@ MODULE mineral
   
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: specificByGrid
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: areainByGrid
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: volinByGrid
 
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: muUranium234
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: muUranium238

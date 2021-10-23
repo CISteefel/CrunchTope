@@ -9408,6 +9408,11 @@ END IF
     DEALLOCATE(areainByGrid)
   END IF
   ALLOCATE(areainByGrid(nrct,0:nx+1,0:ny+1,0:nz+1))
+  
+  IF (ALLOCATED(volinByGrid)) THEN
+    DEALLOCATE(volinByGrid)
+  END IF
+  ALLOCATE(volinByGrid(nrct,0:nx+1,0:ny+1,0:nz+1))
 
   DO jz = 1,nz
     DO jy = 1,ny
@@ -9418,6 +9423,7 @@ END IF
           jpoint = jinit(jx,jy,jz)
           specificByGrid(k,jx,jy,jz) = specific(k,jpoint)
           areainByGrid(k,jx,jy,jz) = areain(k,jpoint)
+          volinByGrid(k,jx,jy,jz) = volin(k,jpoint)
         END DO
 
       END DO
@@ -9426,14 +9432,23 @@ END IF
 
 !!  Now the boundaries, if NX > 1
   IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN
+    
     DO k = 1,nrct
+      
       jPoint = jinit(0,1,1)
       specificByGrid(k,0,1,1) = specific(k,jPoint)
-      areainByGrid(k,0,jy,jz) = areain(k,jpoint)
+      areainByGrid(k,0,1,1) = areain(k,jpoint)
+      volinByGrid(k,0,jy,jz) = volin(k,jpoint)
+      area(k,0,1,1) = areain(k,jpoint)
+      
       jPoint = jinit(nx+1,1,1)
       specificByGrid(k,nx+1,1,1) = specific(k,jPoint)
-      areainByGrid(k,nx+1,jy,jz) = areain(k,jpoint)
+      areainByGrid(k,nx+1,1,1) = areain(k,jpoint)
+      volinByGrid(k,nx+1,jy,jz) = volin(k,jpoint)
+      area(k,nx+1,1,1) = areain(k,jpoint)
+      
     END DO
+
   END IF
 
 

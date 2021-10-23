@@ -579,9 +579,9 @@ ELSE
 END IF
 IF (ALLOCATED(area)) THEN
   DEALLOCATE(area)
-  ALLOCATE(area(nrct,nx,ny,nz))
+  ALLOCATE(area(nrct,0:nx+1,ny,nz))
 ELSE
-  ALLOCATE(area(nrct,nx,ny,nz))
+  ALLOCATE(area(nrct,0:nx+1,ny,nz))
 END IF
 IF (ALLOCATED(jinit)) THEN
   DEALLOCATE(jinit)

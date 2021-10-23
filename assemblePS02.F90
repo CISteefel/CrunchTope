@@ -1259,7 +1259,7 @@ DO jy = 1,ny
       ncol = npt + ncomp + nexchange + nsurf
       k = kpot(npt)       !!  One to one correspondence between potential and mineral surface (k)
 
-      IF (volin(k,jinit(jx,jy,jz)) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
+      IF (volinByGrid(k,jx,jy,jz) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
         correct = wtmin(k)*specific(k,jinit(jx,jy,jz))*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
       ELSE
         volMinimum = volfx(k,jx,jy,jz)

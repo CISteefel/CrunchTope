@@ -613,7 +613,7 @@ DO k = 1,nkin
 !! Reset surface area to 1.0 for irreversible cases (imintype = 6, 7)
     
     IF (imintype(np,k) == 6 .OR. imintype(np,k) == 7) THEN  
-      surf(np,k) = 1.0d0
+      surf(np,k) = area(k,jx,jy,jz)
     END IF
     
 !! Reset surface area of nucleation case (imintype =10)

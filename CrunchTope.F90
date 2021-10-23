@@ -2596,6 +2596,8 @@ END DO
     jz = 1
     jy = 1
     
+    rrbur = 0.0d0
+    
     DO k = 1,nkin
     
       DO jx = 1,nx
@@ -2625,10 +2627,10 @@ END DO
         ELSE                         ! Erosion case
         
           aabur(jx) = 0.0
-          bbbur(jx) = -SolidburyX(jx)/dxx(jx) + rinv
-          ccbur(jx) = SolidburyX(jx)/dxx(jx)
+          bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
+          ccbur(jx) = SolidburyX(jx)
           uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
           
         END IF
       END DO
@@ -2653,18 +2655,160 @@ END DO
         ctvd(jx,jy,jz) = areainByGrid(k,jx,1,1)
       END DO
       
+      DO jx = 1,nx
+        
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+      
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+        
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
+          
+        ELSE                         ! Erosion case
+        
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
+          ccbur(jx) = SolidburyX(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
+        END IF
+      END DO
+      
+      
       IF (SolidBuryX(1) > 0.0) THEN
-         rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
+         rrbur(1) = rrbur(1) - aabur(1)*areainByGrid(k,0,1,1)
       END IF
       
       IF (SolidBuryX(nx) < 0.0) THEN
-        rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*areainByGrid(k,nx+1,1,1)
       END IF
       
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
 
       DO jx = 1,nx
         areainByGrid(k,jx,1,1) = uubur(jx)
+      END DO
+      
+!!   ********************************************
+      
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = volinByGrid(k,jx,1,1)
+      END DO
+      
+      DO jx = 1,nx
+        
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+      
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+        
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
+          
+        ELSE                         ! Erosion case
+        
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
+          ccbur(jx) = SolidburyX(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
+        END IF
+      END DO
+      
+      
+      IF (SolidBuryX(1) > 0.0) THEN
+         rrbur(1) = rrbur(1) - aabur(1)*volinByGrid(k,0,1,1)
+      END IF
+      
+      IF (SolidBuryX(nx) < 0.0) THEN
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*volinByGrid(k,nx+1,1,1)
+      END IF
+      
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
+
+      DO jx = 1,nx
+        volinByGrid(k,jx,1,1) = uubur(jx)
+      END DO
+      
+!!   ********************************************
+      
+      DO jx = 1,nx
+        ctvd(jx,jy,jz) = area(k,jx,1,1)
+      END DO
+      
+      DO jx = 1,nx
+        
+        IF (jx == 1) THEN
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*dxx(1)
+        ELSE IF (jx == nx) THEN
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+          dxe = 0.5*dxx(nx)
+        ELSE
+          dxe = 0.5*(dxx(jx)+dxx(jx+1))
+          dxw = 0.5*(dxx(jx)+dxx(jx-1))
+        END IF
+      
+        IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
+        
+          aabur(jx) = -SolidburyX(jx-1)
+          bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
+          ccbur(jx) = 0.0
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
+          
+        ELSE                         ! Erosion case
+        
+          aabur(jx) = 0.0
+          bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
+          ccbur(jx) = SolidburyX(jx)
+          uubur(jx) = ctvd(jx,1,1)
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+          
+        END IF
+      END DO
+      
+      
+      IF (SolidBuryX(1) > 0.0) THEN
+         rrbur(1) = rrbur(1) - aabur(1)*area(k,0,1,1)
+      END IF
+      
+      IF (SolidBuryX(nx) < 0.0) THEN
+        rrbur(nx) = rrbur(nx) - ccbur(nx)*area(k,nx+1,1,1)
+      END IF
+      
+      CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
+
+      DO jx = 1,nx
+        area(k,jx,1,1) = uubur(jx)
       END DO
       
     END DO !  Loop through minerals

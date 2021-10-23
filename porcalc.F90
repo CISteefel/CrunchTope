@@ -82,7 +82,7 @@ DO jz = 1,nz
       sum = 0.0
       DO k = 1,nkin
 
-        vinit = volin(k,jinit(jx,jy,jz))
+        vinit = volinByGrid(k,jx,jy,jz)
         
         IF (LocalEquilibrium(k)) THEN                      !! Local equilibrium fantasy, so don't change the surface area
             
@@ -107,7 +107,7 @@ DO jz = 1,nz
             
           ELSE                                                        !!  Specific surface area
               
-            IF ( volin(k,jinit(jx,jy,jz)) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN   !!  Initially a zero volume fraction, so use "threshold" volume fraction
+            IF ( volinByGrid(k,jx,jy,jz) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN   !!  Initially a zero volume fraction, so use "threshold" volume fraction
               area(k,jx,jy,jz) = voltemp(k,jinit(jx,jy,jz))*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
             ELSE
               area(k,jx,jy,jz) = volfx(k,jx,jy,jz)*specificByGrid(k,jx,jy,jz)*wtmin(k)/volmol(k)
