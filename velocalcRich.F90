@@ -67,10 +67,13 @@ INTEGER(I4B)                                                          :: npz
 REAL(DP)                                                       :: dt,pumpterm
 REAL(DP), INTENT(IN)                                           :: dtyr
 
+
+REAL(DP)                                                  :: qgtinterp
+
 !  ****** PARAMETERS  ****************************
 
-CHARACTER (LEN=1)                                                     :: Coordinate
 
+CHARACTER (LEN=1)                                                     :: Coordinate
 
 dt = dtyr * 365 * 86400
 
@@ -141,6 +144,11 @@ DO jz = 1,nz
                       END IF
                   END IF
 
+
+                ELSEIF (pumptimeseries) THEN
+                
+                  pumpterm = pumpterm + qg(1,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
+                  qy(jx,jy,jz) = pumpterm
                 END IF
 
                 ! check if there is enough room available
@@ -188,9 +196,13 @@ DO jz = 1,nz
                 ELSE
                     qy(jx,0,jz) = 0.0d0
                 END IF
+            
+            ELSEIF (pumptimeseries) THEN
+              pumpterm = pumpterm + qg(1,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
+              qy(jx,0,jz) = pumpterm
             ELSE
-                ! If neither pump nor pressure is specified, qy = 0
-                qy(jx,0,jz) = 0.0d0
+              ! If neither pump nor pressure is specified, qy = 0
+              qy(jx,0,jz) = 0.0d0
             END IF
         END IF
     ELSE
@@ -216,7 +228,7 @@ DO jz = 1,nz
       ! pump source term
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
 
-        IF (wells) THEN
+        IF (wells .or. pumptimeseries) THEN
 
           IF (qg(1,jx,ny,jz) /= 0.0) THEN
               ! free drainage
@@ -285,6 +297,11 @@ qx = qx*secyr
 qy = qy*secyr
 qz = qz*secyr
 
-
+!!if (time>0.9) then
+ !! WRITE(*,*) 'I am stopping'
+ !! stop
+!! end if
 RETURN
+
+
 END SUBROUTINE velocalcRich

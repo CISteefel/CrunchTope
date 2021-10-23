@@ -985,7 +985,7 @@ END DO
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-!!!          CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
+          CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
 
 
           qg(1,jx,jy,jz)=qgtinterp
@@ -3129,7 +3129,7 @@ ELSE
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-!!!        CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
+        CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
 
 
         qg(1,jx,jy,jz)=qgtinterp
