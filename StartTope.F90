@@ -7540,11 +7540,13 @@ IF (found) THEN
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
 
-  pumptimeseries=.false.
- !!! CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
+  
+  pumptimeseries = .FALSE.
+  
+  CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
   IF (pumptimeseries) THEN
 
- !!! CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
+  CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
 
   else
     CALL read_pump(nout,nx,ny,nz,nchem)
@@ -7621,6 +7623,11 @@ IF (found) THEN
         parchar = 'y_is_vertical'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,y_is_vertical)
+        ! Condition leverettscaling read in input file LucienStolze 20211020
+        leverettscaling = .FALSE.
+        parchar = 'leverettscaling'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,leverettscaling)
         ! Invoke moisture residtribution
         redistribute_wc = .FALSE.
         parchar = 'redistribute_wc'

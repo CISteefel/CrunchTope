@@ -95,9 +95,10 @@ DO jz = 1,nz
                   IF (wells) THEN
 
                     DO npz = 1,npump(jx,jy,jz)
-                      pumpterm = pumpterm + dt*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                     END DO
-
+                  ELSEIF (pumptimeseries) THEN
+                      pumpterm = pumpterm + dt*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                   END IF
                   wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm
 
