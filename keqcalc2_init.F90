@@ -282,16 +282,14 @@ IF (SaltCreep) THEN
   
   eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) )  
   
-  partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_appelo) *    &
-              ( C_BradleyPitz * Log( (B_BradleyPitz + P_appelo)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
+  partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_bars) *    &
+              ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
     
   partialLogEps = C_BradleyPitz/       &
         (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )  )
   
 !!!  write(*,*) ' partialLogEps = ', partialLogEps
   !!!read(*,*)
-
-  RgasAppelo = 82.06      !! (atm cm^3 mol^-1 K^-1)
   
   Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))
   

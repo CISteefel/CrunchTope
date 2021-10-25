@@ -180,14 +180,11 @@ IF (SaltCreep) THEN
   
   ConvertBarsToAtm = 0.986923
   ConvertPaToBars = 1.0E-05
-  RgasAppelo = 82.06      !! (atm cm^3 mol^-1 K^-1)
+  RgasAppelo = 82.0574587      !! (atm cm^3 mol^-1 K^-1)
+
   
-  IF (P_bars > 2000.0) THEN
-    P_bars = 2000.0
-  END IF
-  
-  P_appelo = stress(jx,jy,jz) * ConvertBarsToAtm * ConvertPaToBars   !! Conversion to ATM
-  P_bars = stress(jx,jy,jz) * ConvertPaToBars                        !! Conversion to bars
+  P_appelo = ABS(stress(jx,jy,jz)) * ConvertBarsToAtm * ConvertPaToBars   !! Conversion to ATM
+  P_bars = ABS(stress(jx,jy,jz)) * ConvertPaToBars                        !! Conversion to bars
   
   IF (P_bars > 2000.0) THEN
     P_bars = 2000.0
@@ -214,6 +211,10 @@ IF (SaltCreep) THEN
   partialLogEps = C_BradleyPitz/       &
       (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) +   &
           D1000_bradleyPitz )  )
+  
+  partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_bars) *    &
+              ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
+  
   
   Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))
   
