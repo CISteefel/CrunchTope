@@ -280,51 +280,28 @@ IF (SaltCreep) THEN
   D1000_bradleyPitz = U1 *EXP(U2*temp + U3*temp*temp)
   B_BradleyPitz = U7 + U8/temp + U9*temp
   
+    
   eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) )  
+
+  partialLogEps = C_BradleyPitz/       &
+      (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) +   &
+          D1000_bradleyPitz )  )
   
   partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_bars) *    &
               ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
-    
-  partialLogEps = C_BradleyPitz/       &
-        (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )  )
   
-!!!  write(*,*) ' partialLogEps = ', partialLogEps
-  !!!read(*,*)
   
   Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))
   
-!!!  write(*,*) ' eps_r = ', eps_r
-!!!  write(*,*) ' Av = ',Av
-!!!  write(*,*) ' Sion = ',sion_tmp
- !!! read(*,*)
-  
   Vm_Na_zero = 41.84 * ( 0.1 * 2.28 + 100.0*(-4.38)/(2600.0 + P_appelo) + (-4.10)/(temp-228.0) +  &
                  10000.0*(-0.586)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 0.09*1.0E+05 * partialEpsInverse )
-  
-!!!  write(*,*) ' Vm_Na_zero = ', Vm_na_zero
-!!!  read(*,*)
-  
   Vm_Cl_zero = 41.84 * (0.1 * 4.465 + 100.0*(4.801)/(2600.0 + P_appelo) + (4.325)/(temp-228.0) +   &
                  10000.0*(-2.847)/( (2600.0 + P_appelo)*(temp-228.0) ) - 1.748*1.0E+05 * partialEpsInverse)
   
-!!!  write(*,*) ' Vm_Cl_zero = ', Vm_Cl_zero
-!!!  read(*,*)
-
-!!!  write(*,*) ' Intrinsic molar volumes'
-!!!  write(*,*) ' Vm_Na_zero = ', Vm_Na_zero
-!!!  write(*,*) ' Vm_Cl_zero = ', Vm_Cl_zero
-  
-  !!! *********************************************************************************************
-  
   Vm_Na = Vm_Na_zero + Av*0.5*chg(ikNa)*chg(ikNa) * sqrt_sion/(1.0d0 + 4.0*0.3288*sqrt_sion)     &
                  + ( 0.30 + 52.0/(temp - 228.0)   + -3.33E-03 * (temp - 228.0) )*sion_tmp**0.566
-
   Vm_Cl = Vm_Cl_zero + Av*0.5*chg(ikCl)*chg(ikCl) * sqrt_sion/(1.0d0 + 0.0*sqrt_sion)     &
                 + ( -0.331 + 20.16/(temp - 228.0) + 0.0 * (temp - 228.0) )*sion_tmp**1.00
-  
-!!!  write(*,*) ' Vm_Na = ', Vm_Na
-!!!  write(*,*) ' Vm_Cl = ', Vm_Cl
-  !!!!read(*,*)
   
   Vm_NaCl = 27.1
 
