@@ -417,6 +417,12 @@ IF (ALLOCATED(volb)) THEN
 ELSE
   ALLOCATE(volb(mrct,6))
 END IF
+IF (ALLOCATED(areab)) THEN
+  DEALLOCATE(areab)
+  ALLOCATE(areab(mrct,6))
+ELSE
+  ALLOCATE(areab(mrct,6))
+END IF
 IF (ALLOCATED(as1)) THEN
   DEALLOCATE(as1)
   ALLOCATE(as1(ndim,5))

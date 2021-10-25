@@ -132,6 +132,7 @@ IF(ls /= 0) THEN
           END DO
           DO k = 1,nkin
             volb(k,1) = volin(k,nco)
+            areab(k,1) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
             spexb(nex,1) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
@@ -215,6 +216,7 @@ IF(ls /= 0) THEN
           END DO
           DO k = 1,nkin
             volb(k,2) = volin(k,nco)
+            areab(k,2) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
             spexb(nex,2) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
@@ -298,6 +300,7 @@ IF(ls /= 0) THEN
           END DO
           DO k = 1,nkin
             volb(k,3) = volin(k,nco)
+            areab(k,3) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
             spexb(nex,3) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
@@ -381,6 +384,7 @@ IF(ls /= 0) THEN
           END DO
           DO k = 1,nkin
             volb(k,4) = volin(k,nco)
+            areab(k,4) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
             spexb(nex,4) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
@@ -464,6 +468,7 @@ IF(ls /= 0) THEN
           END DO
           DO k = 1,nkin
             volb(k,5) = volin(k,nco)
+            areab(k,5) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
             spexb(nex,5) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
@@ -547,6 +552,7 @@ IF(ls /= 0) THEN
           END DO
           DO k = 1,nkin
             volb(k,6) = volin(k,nco)
+            areab(k,6) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
             spexb(nex,6) = spcondex10(nex,nco)*AqueousToBulkCond(nco)

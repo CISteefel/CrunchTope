@@ -89,6 +89,7 @@ MODULE mineral
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: alnk
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: sumrd
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: volb
+  REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: areab
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: dependex
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: dependsurf
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: mumin

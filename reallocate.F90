@@ -935,6 +935,17 @@ ALLOCATE(volb(ndim1,6))
 IF(ndim1 /= 0 .AND. ndim2 /= 0)volb(1:ndim1,1:6) = work2(1:ndim1,1:6)
 DEALLOCATE(work2)
 
+ndim1 = nrct
+ndim2 = 6
+i = size(areab,1)
+j = size(areab,2)
+ALLOCATE(work2(i,j))
+work2 = areab
+DEALLOCATE(areab)
+ALLOCATE(areab(ndim1,6))
+IF(ndim1 /= 0 .AND. ndim2 /= 0)areab(1:ndim1,1:6) = work2(1:ndim1,1:6)
+DEALLOCATE(work2)
+
 nbig = ncomp+nspec+ngas+nrct+nsurf_sec
 !!  Since the equilibrium constant coefficients cycle over parallel reactions for minerals, count the total number needed
 ncount = 0
