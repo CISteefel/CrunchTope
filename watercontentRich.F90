@@ -85,7 +85,24 @@ DO jz = 1,nz
             wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))/secyr     &
                                         +(dt*coef/dyy(jy))*(-qy(jx,jy,jz) + qy(jx,jy-1,jz))/secyr  &
                                         + (dt*coef/dzz(jx,jy,jz))*(-qz(jx,jy,jz) + qz(jx,jy,jz-1))/secyr
-            ! add source term if not along boundary
+            
+!If extraction pump define at top boundary cells (lucienstolze 27102021):
+  IF (activecellPressure(jx,jy-1,jz) == 0) THEN
+    pumpterm = 0.0d0
+    IF (wells) THEN
+      DO npz = 1,npump(jx,jy,jz)
+        IF (qg(npz,jx,jy,jz) < 0) THEN !
+        pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+        ENDIF
+      END DO
+    IF (room(jx,ny,jz) < pumpterm) THEN
+   pumpterm = -room(jx,ny,jz) / dt * dxx(jx)* dzz(jx,ny,jz)
+   END IF
+    wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm  
+    ENDIF
+  ENDIF 
+
+! add source term if not along boundary
             IF (jx > 1 .AND. jx < nx) THEN
 
 !!!                IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1 .AND. qg(1,jx,jy,jz) /= 0.0) THEN
