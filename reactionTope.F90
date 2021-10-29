@@ -537,7 +537,7 @@ DO k = 1,nkin
       IF (MineralAssociate(k)) THEN
 
         IF (MineralID(k) < k) THEN     !!  NOTE: This requires that the mineral that is associated with is earlier in list
-          surf(np,k) = surf(np,MineralID(k))*porfactor
+          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
         ELSE
           write(*,*) ' Associated mineral should be earlier in mineral list'
           write(*,*)
@@ -568,7 +568,8 @@ DO k = 1,nkin
       IF (MineralAssociate(k)) THEN
 
         IF (MineralID(k) < k) THEN
-          surf(np,k) = surf(np,MineralID(k))*porfactor
+!!!          surf(np,k) = surf(np,MineralID(k))*porfactor
+          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
 
         ELSE
 !!!          IF (porfactor < 0.01d0) THEN
