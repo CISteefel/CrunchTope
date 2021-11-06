@@ -166,7 +166,6 @@ DO jz = 1,nz
   END DO
 END DO
 
-
 !!  ********   End of Darcy flux   ************************
 
 DO jz = 1,nz
