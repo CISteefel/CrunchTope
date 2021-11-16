@@ -155,6 +155,11 @@ dt = dtyr * 365 * 86400
 DO jz = 1,nz
     DO jy = 1,ny
         DO jx = 1,nx
+
+            IF (qy(jx,ny,jz)<=0 .AND. back_flow_closed) then
+                Kfacy(jx,ny,jz)=0
+              END IF
+
           pumpterm = 0.0
             j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
             ! Inactive cells
@@ -225,6 +230,7 @@ DO jz = 1,nz
 
                     IF (jy == ny) THEN
                         IF (activecellPressure(jx,ny+1,jz) == 0) THEN
+
                             coef(2) = -2.0d0*dt*Kfacy(jx,jy,jz) / (dyy(jy)*dyy(jy))
                             AddPressureY =  -coef(2) * headOld(jx,ny+1,jz)
                         ELSE

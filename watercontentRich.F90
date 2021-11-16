@@ -80,6 +80,9 @@ dt = dtyr * 365 * 86400
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+      IF (qy(jx,ny,jz)<=0 .and. back_flow_closed) then
+        qy(jx,ny,jz)=0
+      END IF
         IF (activecellPressure(jx,jy,jz) == 1) THEN
             coef = 1.0d0 / (1.0d0 + Ss*(head(jx,jy,jz)-headOld(jx,jy,jz))/wcs(jx,jy,jz))
             wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))/secyr     &

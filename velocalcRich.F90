@@ -166,7 +166,6 @@ DO jz = 1,nz
   END DO
 END DO
 
-
 !!  ********   End of Darcy flux   ************************
 
 DO jz = 1,nz
@@ -217,6 +216,11 @@ DO jz = 1,nz
 
 !!  ***  Calculate qy(j,NY,jz)  ******************
 
+    IF (head(jx,ny+1,jz)>=head(jx,ny,jz) .AND. back_flow_closed) then
+      qy(jx,ny,jz)=0
+      Kfacy(jx,ny,jz)=0
+    END IF
+
     ! jy = ny
     qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))
     ! gravity term
@@ -225,6 +229,10 @@ DO jz = 1,nz
       if (qy(jx,ny,jz) > 0.0) THEN
         continue
       END IF
+
+      !forbid back flow
+
+
       ! pump source term
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
 

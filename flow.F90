@@ -192,5 +192,6 @@ REAL(DP), DIMENSION(:),ALLOCATABLE           :: BvecCrunchP
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qgt
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
 LOGICAL(LGT)                                   :: pumptimeseries
-
+!! Boundary open in single direction only Lucien Stolze 20211108
+LOGICAL(LGT)                                   :: back_flow_closed
 END MODULE flow
