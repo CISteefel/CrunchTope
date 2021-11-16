@@ -3365,6 +3365,9 @@ ELSE
     WRITE(iures) volfx
     WRITE(iures) dppt
     WRITE(iures) area
+    WRITE(iures) areainByGrid
+    WRITE(iures) volinByGrid
+    WRITE(iures) specificByGrid
     WRITE(iures) LogPotential
 
     WRITE(iures) t

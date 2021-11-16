@@ -190,6 +190,9 @@ END IF
     READ(iures) volfx
     READ(iures) dppt
     READ(iures) area
+    READ(iures) areainByGrid
+    READ(iures) volinByGrid
+    READ(iures) specificByGrid
     READ(iures) LogPotential
 
 !!!    IF (NoReadRestart-T) THEN
