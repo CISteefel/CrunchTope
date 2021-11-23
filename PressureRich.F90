@@ -366,16 +366,13 @@ DO jz = 1,nz
                         END IF
                     END IF
 
-                    IF (jx == 0 .AND. activecellPressure(0,jy,jz) == 0) THEN
+                    IF (jx == 1 .AND. activecellPressure(0,jy,jz) == 0) THEN
                         coef(-1) = 0.0d0
                     END IF
                     IF (jx == nx .AND. activecellPressure(nx+1,jy,jz) == 0) THEN
                         coef(1) = 0.0d0
                     END IF
 
-                    ! IF (jx == 42 .AND. jy == 43 .AND. jz == 1) THEN
-                    !     WRITE(*,*) 'wc, coef xm, xp, ym, yp, rhs, headbc = ',wc(jx,jy,jz),coef(0),coef(-1),coef(1),coef(-2),coef(2),BvecCrunchP(j),headOld(jx,jy-1,jz)
-                    ! END IF
                 ELSE
                     coef(0) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz)) - coef(-3) - coef(-2) - coef(-1) - coef(1) - coef(2) - coef(3)
                     BvecCrunchP(j) = (Ch(jx,jy,jz)+Ss*wc(jx,jy,jz)/wcs(jx,jy,jz))*headOld(jx,jy,jz) - &
@@ -447,8 +444,6 @@ DO jz = 1,nz
         END DO
     END DO
 END DO
-
-
 
 DO j = 0,nx*ny-1
     IF (DABS(BvecCrunchP(j)) < 1e-40) THEN
