@@ -50,6 +50,7 @@ USE concentration
 USE temperature
 USE params
 USE CrunchFunctions
+USE flow
 
 IMPLICIT NONE
 

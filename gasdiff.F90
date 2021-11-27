@@ -260,7 +260,7 @@ DO jy = 1,ny
     apx = dw + de + DMAX1(-fw,zero) + DMAX1(fe,zero)
 !!  **************************************************************
 
-      netflowx(0,jy,jz) = qx(jx-1,jy,jz) + FluidBuryX(jx-1)
+      !!!netflowx(0,jy,jz) = qx(jx-1,jy,jz) + FluidBuryX(jx-1)
       
       IF (jc(1) == 2) THEN
         apx = de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)  !  Pure advective boundary
