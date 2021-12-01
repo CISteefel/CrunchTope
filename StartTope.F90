@@ -1,3 +1,4 @@
+!!!StartTope-Lucien.F90
 !!! *** Copyright Notice ***
 !!! �CrunchFlow�, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory
 !!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).� All rights reserved.
@@ -8576,16 +8577,16 @@ IF (found) THEN
 
         IF (nz == 1) THEN
           
-          do jy = 1,ny
-             do jx = 1,nx
-               if (jinit(jx,jy,1) == 2) then
-                 perminx(jx,jy,1) = 1.0D-11
-                 permx(jx,jy,1) = 1.0D-11  
-                 perminy(jx,jy,1) = 1.0D-11
-                 permy(jx,jy,1) = 1.0D-11
-               end if
-             end do
-           end do
+   !!       do jy = 1,ny
+   !!          do jx = 1,nx
+  !!             if (jinit(jx,jy,1) == 2) then
+   !!              perminx(jx,jy,1) = 1.0D-11
+   !!              permx(jx,jy,1) = 1.0D-11  
+   !!              perminy(jx,jy,1) = 1.0D-11
+   !!              permy(jx,jy,1) = 1.0D-11
+  !!             end if
+  !!           end do
+ !!          end do
                      
           permz = 0.0
           perminz = 0.0
