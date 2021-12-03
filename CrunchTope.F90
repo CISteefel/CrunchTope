@@ -416,6 +416,8 @@ REAL(DP)                                                   :: satu
 REAL(DP)                                                   :: watertable
 
 ! variables pump time series
+!! Time normalized used if time series only defined for 1 representative year:
+REAL(DP)        :: time_norm
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -994,7 +996,12 @@ END DO
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
+          IF (TS_1year) THEN
+            time_norm=time-floor(time)
+          CALL  interp3(time_norm,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+            ELSE
           CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+            END IF
 
 
           pumpterm = pumpterm + qg(1,jx,jy,jz)
@@ -3229,7 +3236,12 @@ ELSE
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-        CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+          IF (TS_1year) THEN
+            time_norm=time-floor(time)
+          CALL  interp3(time_norm,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+            ELSE
+          CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+            END IF
 
         pumpterm = pumpterm + qg(1,jx,jy,jz)
 

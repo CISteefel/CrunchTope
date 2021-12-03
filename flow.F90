@@ -192,6 +192,7 @@ REAL(DP), DIMENSION(:),ALLOCATABLE           :: BvecCrunchP
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qgt
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
 LOGICAL(LGT)                                   :: pumptimeseries
+LOGICAL(LGT)                                   :: TS_1year
 !! Boundary open in single direction only Lucien Stolze 20211108
 LOGICAL(LGT)                                   :: back_flow_closed
 !! Dynamic water table Lucien Stolze 20211201

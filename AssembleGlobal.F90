@@ -195,6 +195,8 @@ REAL(DP)        :: check2
 REAL(DP)        :: check3
 REAL(DP)        :: check4
 
+!! Time normalized used if time series only defined for 1 representative year:
+REAL(DP)        :: time_norm
 
 !********************* PETSc declarations ********************************
 PetscFortranAddr                                                    user(6)
@@ -1023,8 +1025,13 @@ DO jy = 1,ny
         CONTINUE
       END IF
       ELSEIF (pumptimeseries .AND. Richards) THEN
-    
-        CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+
+        IF (TS_1year) THEN
+          time_norm=time-floor(time)
+          CALL interp3(time_norm,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+          ELSE
+          CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+          END IF
           CONTINUE                ! Source term on R.H.S.
     END IF
     

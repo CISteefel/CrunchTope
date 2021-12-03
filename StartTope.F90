@@ -7567,6 +7567,11 @@ IF (found) THEN
     CALL read_pump(nout,nx,ny,nz,nchem)
   ENDIF
 
+  TS_1year = .FALSE.
+  parchar = 'pumptimeseries1year'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
+  
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
 !!!  END IF
