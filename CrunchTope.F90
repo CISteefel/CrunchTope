@@ -417,8 +417,6 @@ REAL(DP)                                                   :: watertable
 
 ! variables pump time series
 
-REAL(DP)                                                  :: qgtinterp
-
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
 Mat                  amatpetsc,amatD,amatP
@@ -588,6 +586,17 @@ WRITE(*,*)
 !  *********************FLOW CALCULATION******************************
 
 IF (CalculateFlow) THEN
+
+  IF (watertabletimeseries) THEN
+    jz=1
+    jx=0
+    DO jy = 1,ny
+  CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+  if (pres(jx,jy,jz)==0) then
+    permx(jx,jy,jz)=0
+  end if
+    END DO
+  END IF
 
   SteadyFlow = .TRUE.
 
@@ -985,10 +994,8 @@ END DO
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-!!!          CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
+          CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
 
-
-          qg(1,jx,jy,jz)=qgtinterp
 
           pumpterm = pumpterm + qg(1,jx,jy,jz)
 
@@ -3222,10 +3229,7 @@ ELSE
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-!!!        CALL interp2(time,delt,qgt(:,jx,jy,jz),qgtinterp,size(qgt(:,jx,jy,jz)))
-
-
-        qg(1,jx,jy,jz)=qgtinterp
+        CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
 
         pumpterm = pumpterm + qg(1,jx,jy,jz)
 

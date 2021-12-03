@@ -332,7 +332,10 @@ SOURCEF = \
           redist_sendRich.F90\
           interp2.F90\
           read_pumpfile.F90\
-          read_pump_timeseries.F90
+          read_pump_timeseries.F90\
+          read_watertablefile.F90\
+          read_watertable_timeseries.F90\
+          interp3.F90\
 
 
 OBJSF  =  crunchtype.o\
@@ -664,7 +667,10 @@ OBJSF  =  crunchtype.o\
           redist_sendRich.o\
           interp2.o\
           read_pumpfile.o\
-          read_pump_timeseries.o
+          read_pump_timeseries.o\
+          read_watertablefile.o\
+          read_watertable_timeseries.o\
+          interp3.o\
 
 LOCDIR   = ${CrunchTope_Dir}
 

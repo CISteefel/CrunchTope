@@ -126,7 +126,7 @@ IF (xflow .OR. yflow .OR. zflow) THEN
       jz = jzNuftSource(i)
       porsatro = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
       
-      IF (wells) THEN
+      IF (wells .OR. pumptimeseries) THEN
         
         pumpterm = 0.0d0
         DO npz = 1,npump(jx,jy,jz)
@@ -137,13 +137,6 @@ IF (xflow .OR. yflow .OR. zflow) THEN
         ELSE
           dtemp=ABS(0.5*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)*porsatro/pumpterm)
         END IF
-      ELSEIF (pumptimeseries) THEN
-        pumpterm = pumpterm + qg(1,jx,jy,jz)
-        IF (pumpterm == 0.0d0) THEN
-          dtemp = 1.0E-30
-        ELSE
-          dtemp=ABS(0.5*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)*porsatro/pumpterm)
-        END IF  
       END IF
       
       dtmin=MIN(dtemp,dtmin)

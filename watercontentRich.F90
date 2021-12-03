@@ -92,14 +92,14 @@ DO jz = 1,nz
 !If extraction pump define at top boundary cells (lucienstolze 27102021):
   IF (activecellPressure(jx,jy-1,jz) == 0) THEN
     pumpterm = 0.0d0
-    IF (wells) THEN
+    IF (wells .OR. pumptimeseries) THEN
       DO npz = 1,npump(jx,jy,jz)
         IF (qg(npz,jx,jy,jz) < 0) THEN !
         pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
         ENDIF
       END DO
-    IF (room(jx,ny,jz) < pumpterm) THEN
-   pumpterm = -room(jx,ny,jz) / dt * dxx(jx)* dzz(jx,ny,jz)
+    IF (wc(jx,jy,jz) + pumpterm < 0) THEN
+   pumpterm = -wc(jx,jy,jz)
    END IF
     wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm  
     ENDIF
@@ -112,13 +112,11 @@ DO jz = 1,nz
                 IF (jy > 1 .AND. jy < ny .AND. activecellPressure(jx,jy-1,jz) == 1) THEN
 
                   pumpterm = 0.0d0
-                  IF (wells) THEN
+                  IF (wells .OR. pumptimeseries) THEN
 
                     DO npz = 1,npump(jx,jy,jz)
                       pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                     END DO
-                  ELSEIF (pumptimeseries) THEN
-                      pumpterm = pumpterm + dt*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                   END IF
                   wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm
 

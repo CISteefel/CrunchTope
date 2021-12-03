@@ -624,7 +624,10 @@ INTEGER(I4B)                                                  :: nwcr
 
 CHARACTER (LEN=mls)                          :: pumpfile
 CHARACTER (LEN=mls)                          :: PumpFileFormat
+CHARACTER (LEN=mls)                          :: watertablefile
+CHARACTER (LEN=mls)                          :: WatertableFileFormat
 
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check3
 
 #if defined(ALQUIMIA)
 
@@ -8698,6 +8701,18 @@ IF (found) THEN
       DEALLOCATE(jzzPressure_lo)
       DEALLOCATE(jzzPressure_hi)
 
+     
+
+      watertabletimeseries = .FALSE.
+      CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
+      IF (watertabletimeseries) THEN
+      CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
+      !!else
+      !!  CALL read_pump(nout,nx,ny,nz,nchem)
+      ENDIF
+
+      check3=pres
+      
       parchar = 'initialize_hydrostatic'
       parfind = ' '
       InitializeHydrostatic = .FALSE.

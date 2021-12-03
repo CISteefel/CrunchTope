@@ -296,7 +296,7 @@ DO jz=1,nz
       IF (activecell(jx,jy,jz) /= 0) THEN
 
         sourceTerm = 0.d0
-        IF (wells) THEN
+        IF (wells .OR. pumptimeseries) THEN
           
           DO npz = 1,npump(jx,jy,jz)
             IF (qg(npz,jx,jy,jz) > 0.0) THEN
@@ -307,14 +307,6 @@ DO jz=1,nz
               CONTINUE
             END IF      
           END DO
-        ELSEIF (pumptimeseries) THEN
-          IF (qg(1,jx,jy,jz) > 0.0) THEN
-            sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(1,jx,jy,jz)*scond(icomp,intbnd(1,jx,jy,jz))*delt/cellvolume
-          ELSEIF (qg(1,jx,jy,jz) < 0.0d0) THEN
-            sourceTerm = sourceTerm + ro(jx,jy,jz)*qg(1,jx,jy,jz)*ctvd(jx,jy,jz)*delt/cellvolume
-          ELSE
-            CONTINUE
-          END IF
         END IF
             
         accumulationTerm = satliq(jx,jy,jz)*ro(jx,jy,jz)*PorSorp*ctvd(jx,jy,jz)

@@ -194,4 +194,9 @@ REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
 LOGICAL(LGT)                                   :: pumptimeseries
 !! Boundary open in single direction only Lucien Stolze 20211108
 LOGICAL(LGT)                                   :: back_flow_closed
+!! Dynamic water table Lucien Stolze 20211201
+REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
+LOGICAL(LGT)                                   :: watertabletimeseries
+
 END MODULE flow

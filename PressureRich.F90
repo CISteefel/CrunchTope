@@ -333,12 +333,10 @@ DO jz = 1,nz
                                 AddPressureX + AddPressureY
 
                     pumpterm = 0.0d0
-                    IF (wells) THEN
+                    IF (wells .OR. pumptimeseries) THEN
                       DO npz = 1,npump(jx,jy,jz)
                         pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                       END DO
-                    ELSEIF (pumptimeseries) then
-                        pumpterm=visc*ro(jx,jy,jz)*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                     END IF
 
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
@@ -380,12 +378,10 @@ DO jz = 1,nz
                                 AddPressureX + AddPressureY + AddPressureZ
 
                     pumpterm = 0.0d0
-                    IF (wells) THEN
+                    IF (wells .OR. pumptimeseries) THEN
                       DO npz = 1,npump(jx,jy,jz)
                         pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                       END DO
-                    ELSEIF (pumptimeseries) THEN
-                        pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(1,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                     END IF
 
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
