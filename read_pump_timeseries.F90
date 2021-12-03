@@ -47,11 +47,6 @@ INTEGER(I4B)                                                   :: tp
 INTEGER(I4B)                                                  :: FileNameLength
 LOGICAL(LGT)                                               :: ext
 
-REAL(DP), DIMENSION(:), ALLOCATABLE             :: check1
-REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: check2
-REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: check3
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check4
-REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qgdummy
 REWIND nout
 
 !! Time discretization (in years) and geochemical conditions of the wells
@@ -197,15 +192,12 @@ IF (PumpFileFormat == 'SingleFile3D') THEN
         DO jx = 1,nx
           DO tp = 1,int(tpdis)
           READ(23,*,END=1020) xdum,ydum,zdum,tpump(tp),qgt(tp,jx,jy,jz)
-          if (qgt(tp,jx,jy,jz)>-30 .AND. qgt(tp,jx,jy,jz)/=500) then
-          qgt(tp,jx,jy,jz)=(10**qgt(tp,jx,jy,jz))*secyr/1000.0d0 
-          npump(jx,jy,jz)=1
-          elseif (qgt(tp,jx,jy,jz)==-30) then
-          qgt(tp,jx,jy,jz)=0
-          npump(jx,jy,jz)=1
-          elseif (qgt(tp,jx,jy,jz)==500) then
-          qgt(tp,jx,jy,jz)=0
-          npump(jx,jy,jz)=0
+          if (qgt(tp,jx,jy,jz)/=-1000) then
+            qgt(tp,jx,jy,jz)=(qgt(tp,jx,jy,jz))*secyr/1000.0d0 
+            npump(jx,jy,jz)=1
+            else
+            qgt(tp,jx,jy,jz)=0
+            npump(jx,jy,jz)=0
           end if
             END DO
             intbnd(1,jx,jy,jz)=intbnd_tmp
@@ -213,10 +205,6 @@ IF (PumpFileFormat == 'SingleFile3D') THEN
         END DO
       END DO
     END DO
-    check1=tpump
-  check2=qgt
-check3=intbnd
-check4=npump
 
     CLOSE(UNIT=23,STATUS='keep')
 END IF
