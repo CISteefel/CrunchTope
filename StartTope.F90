@@ -829,6 +829,11 @@ IF (found) THEN
   parfind = ' '
   SaltCreep = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SaltCreep)
+  
+  parchar = 'fracturenetwork'
+  parfind = ' '
+  FractureNetwork = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,FractureNetwork)
 
   parchar = 'courant_number'
   parfind = ' '
@@ -5024,12 +5029,18 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
     DO jy = 1,ny
       DO jx= 1,nx
         nhet = nhet + 1
-        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-!!!                         x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-!!!        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-!!!                         x    y    bn    mt              
-        jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
-!!!        jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+        IF (SaltCreep) THEN
+          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
+!!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
+            
+          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+        ELSE IF (FractureNetwork) THEN
+          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
+!!!                            x    y    bn    mt  
+          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+        ELSE
+          CONTINUE
+        ENDIF 
         activecell(jx,jy,jz) = 1
       END DO
     END DO
@@ -8580,16 +8591,20 @@ IF (found) THEN
 
         IF (nz == 1) THEN
           
-   !!       do jy = 1,ny
-   !!          do jx = 1,nx
-  !!             if (jinit(jx,jy,1) == 2) then
-   !!              perminx(jx,jy,1) = 1.0D-11
-   !!              permx(jx,jy,1) = 1.0D-11  
-   !!              perminy(jx,jy,1) = 1.0D-11
-   !!              permy(jx,jy,1) = 1.0D-11
-  !!             end if
-  !!           end do
- !!          end do
+          IF (nmmLogical .and. FractureNetwork) THEN
+          
+            do jy = 1,ny
+              do jx = 1,nx
+                if (jinit(jx,jy,1) == 2) then
+                  perminx(jx,jy,1) = 1.0D-11
+                  permx(jx,jy,1) = 1.0D-11  
+                  perminy(jx,jy,1) = 1.0D-11
+                  permy(jx,jy,1) = 1.0D-11
+                end if
+              end do
+            end do
+            
+          END IF
                      
           permz = 0.0
           perminz = 0.0
