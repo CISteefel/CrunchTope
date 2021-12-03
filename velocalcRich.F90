@@ -225,6 +225,12 @@ DO jz = 1,nz
 
       ! pump source term
       IF (activecellPressure(jx,ny+1,jz) == 1) THEN
+! fix bug for free drainage lucien 03/12/2021
+        qy(jx,ny,jz) = Kfacy(jx,ny,jz)
+              ! qy(jx,ny,jz) = qg(1,jx,jy,jz)/(secyr*dxx(jx)*dzz(jx,jy,jz))
+              IF (qy(jx,ny,jz) * dt > wc(jx,ny,jz) * dyy(ny)) THEN
+                  qy(jx,ny,jz) = wc(jx,ny,jz) * dyy(ny) / dt
+              END IF
 
         IF (wells .OR. pumptimeseries) THEN
 
