@@ -193,7 +193,7 @@ IF (PumpFileFormat == 'SingleFile3D') THEN
           DO tp = 1,int(tpdis)
           READ(23,*,END=1020) xdum,ydum,zdum,tpump(tp),qgt(tp,jx,jy,jz)
           if (qgt(tp,jx,jy,jz)/=-1000) then
-            qgt(tp,jx,jy,jz)=(qgt(tp,jx,jy,jz))*secyr/1000.0d0 
+            qgt(tp,jx,jy,jz)=(qgt(tp,jx,jy,jz))/1000.0d0 
             npump(jx,jy,jz)=1
             else
             qgt(tp,jx,jy,jz)=0
