@@ -7571,7 +7571,12 @@ IF (found) THEN
   parchar = 'pumptimeseries1year'
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
-  
+
+  back_flow_closed = .FALSE.
+  parchar = 'backflowclosed'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,back_flow_closed)
+
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
 !!!  END IF
