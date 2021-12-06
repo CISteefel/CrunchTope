@@ -206,6 +206,8 @@ REAL(DP)                                                   :: totRare
 REAL(DP)                                                   :: totCommon
 REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
 
+REAL(DP), DIMENSION(ncomp)                         :: gflux_ver
+REAL(DP), DIMENSION(nrct)                          :: MineralPercent
 !!!jz = 1
 PrintTime = realtime*OutputTimeScale
 rone = 1.0d0
@@ -766,6 +768,60 @@ END IF
     END DO
     CLOSE(UNIT=8,STATUS='keep')
   END IF
+
+  IF (isaturate==1) THEN
+  
+    117 FORMAT('# Units: mol gas/m2/year')
+    write(*,*) ' Writing gasdiffflux file '
+    fn='gasdiffflux Ydir'
+    ilength = 11
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,2283) PrintTime
+    WRITE(8,117)
+    WRITE(8,2285) (namg(kk),kk=1,ngas)
+    jz = 1
+    DO jy = 1,ny
+    DO jx = 1,nx
+      DO i = 1,ngas
+        gflux_ver(i)=-(eg(jx,jy,jz))*(spgas10(i,jx,jy+1,jz)-spgas10(i,jx,jy,jz))/((dyy(jy)+dyy(jy+1))/2)
+      END DO
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
+      (gflux_ver(i),i=1,ngas)
+    END DO
+  END DO
+    CLOSE(UNIT=8,STATUS='keep')
+    
+  END IF
+
+  fn='MineralPercent'
+  ilength = 14
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,107)
+107 FORMAT('# Units: Weight % Mineral')
+  WRITE(8,2285)  (uminprnt(k),k=1,nrct)
+  jz = 1
+  DO jy = 1,ny
+  DO jx = 1,nx
+    sum = 0.0
+    DO k = 1,nrct
+      sum = sum + wtmin(k)*volfx(k,jx,jy,jz)/volmol(k)
+    END DO 
+    DO k = 1,nrct
+      IF (volmol(k) /= 0.0 .AND. sum /= 0.0) THEN
+        MineralPercent(k) = 100.0*wtmin(k)*volfx(k,jx,jy,jz)/volmol(k)/sum
+        IF (MineralPercent(k) < 1.0E-30) THEN
+          MineralPercent(k) = 1.0E-30
+        END IF
+      END IF
+    END DO
+    WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
+    (MineralPercent(k),k = 1,nrct)
+  END DO
+END DO
+  CLOSE(UNIT=8,STATUS='keep')
 
   IF (Richards) THEN
 
