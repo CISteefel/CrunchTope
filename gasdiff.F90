@@ -126,8 +126,17 @@ UliGas = 1.0d0
 QuirkGas = 0.0d0
 zero = 0.0d0
 
+jz = 1
 UliGas = 7.0d0/3.0d0
 QuirkGas = 1.0d0/3.0d0
+
+DO jy = 1,ny
+  DO jx = 1,nx
+    IF (satliq(jx,jy,jz) > 1.0d0) THEN
+      satliq(jx,jy,jz) = 1.0d0
+    END IF
+  END DO
+END DO
 
 jz = 1
 DO jy = 1,ny
@@ -137,7 +146,8 @@ DO jy = 1,ny
     tk = 273.15 + t(jx,jy,jz)
     
     porp = por(jx,jy,jz)
-    satp = 1.0-satliq(jx,jy,jz)
+  
+    satp = 1.0-satliq(jx,jy,jz)    
     
     IF (nx == 1) GO TO 100
     
@@ -178,6 +188,7 @@ DO jy = 1,ny
       dumw = porw*satw*gasd
       gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas
       dumpx = porp*satp*gasd
+      
     END IF
     
     100     CONTINUE

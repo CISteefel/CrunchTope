@@ -156,6 +156,7 @@ IF(ls /= 0) THEN
       READ(*,*)
       STOP
     END IF
+    
 !   Look for the type of boundary condition (Dirichlet, flux, etc.)
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -492,6 +493,7 @@ IF(ls /= 0) THEN
       READ(*,*)
       STOP
     END IF
+    
 !   Look for the type of boundary condition (Dirichlet, flux, etc.)
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)

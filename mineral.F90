@@ -258,7 +258,9 @@ MODULE mineral
   REAL(DP), dimension(4,31)                        :: rate0Prime
   
   REAL(DP),DIMENSION(:,:,:), ALLOCATABLE    :: crankLogK
+  
   LOGICAL(LGT)                              :: nmmLogical
   LOGICAL(LGT)                              :: SaltCreep
+  LOGICAL(LGT)                              :: CriticalZone
 
 END MODULE mineral

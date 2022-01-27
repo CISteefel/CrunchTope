@@ -416,8 +416,6 @@ REAL(DP)                                                   :: satu
 REAL(DP)                                                   :: watertable
 
 ! variables pump time series
-!! Time normalized used if time series only defined for 1 representative year:
-REAL(DP)        :: time_norm
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -510,6 +508,8 @@ str_min = 0
 str_sec = 0
 str_millisec = 0
 
+
+
 ! ************ Initialize PETSc stuff ***************************************
 if( InputFileCounter == 1) then
   call PetscInitialize(PETSC_NULL_CHARACTER,ierr)
@@ -593,11 +593,15 @@ IF (CalculateFlow) THEN
     jz=1
     jx=0
     DO jy = 1,ny
-  CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-  if (pres(jx,jy,jz)==0) then
-    permx(jx,jy,jz)=0
-  end if
+      CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+      if (pres(jx,jy,jz)==0) then
+        permx(jx,jy,jz)=0
+      end if
     END DO
+  END IF
+  
+  IF (FractureNetwork) THEN
+    call rmesh51(nx,ny)
   END IF
 
   SteadyFlow = .TRUE.
@@ -605,7 +609,7 @@ IF (CalculateFlow) THEN
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 
     !ZhiLi
-    dtflow = delt
+  dtflow = delt
 !  dtflow = 1.0D-10
   WRITE(*,*)
   WRITE(*,*) ' Running flow field to steady state prior to chemistry'
@@ -831,9 +835,6 @@ DO jz = 0,nz+1
   END DO
 END DO
 
-
-
-
      WRITE(*,*) ' Initialization completed!'
  END IF
 
@@ -996,12 +997,7 @@ END DO
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-          IF (TS_1year) THEN
-            time_norm=time-floor(time)
-          CALL  interp3(time_norm,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
-            ELSE
           CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
-            END IF
 
 
           pumpterm = pumpterm + qg(1,jx,jy,jz)
@@ -1255,7 +1251,9 @@ DO WHILE (nn <= nend)
     ro(:,:,nz+1) = ro(:,:,nz)
 
     IF (jpor == 1 .OR. jpor == 3) THEN
-      CALL porperm(nx,ny,nz)
+      IF (.not. FractureNetwork) THEN
+ !!!       CALL porperm(nx,ny,nz)
+      END IF
     END IF
 
     atolksp = 1.D-50
@@ -1305,14 +1303,14 @@ DO WHILE (nn <= nend)
 !    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
 !    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
     CALL KSPSolve(ksp,BvecP,XvecP,ierr)
-    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+!!!    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
 !    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
 
 
-    IF (MOD(nn,ScreenInterval) == 0) THEN
-      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
-    END IF
+!!!    IF (MOD(nn,ScreenInterval) == 0) THEN
+!!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
+!!!    END IF
 
     IF (ierr /= 0) then
       WRITE(*,*)
@@ -2462,6 +2460,9 @@ END DO
     CONTINUE
   ELSE
     CALL mineral_update(nx,ny,nz,nrct,delt,dtnewest,ineg,jpor,deltmin)
+    IF (FractureNetwork) THEN
+      call rmesh51(nx,ny)
+    END IF
     IF (KateMaher) THEN
       CALL CalciteBulkStoichiometry(nx,ny,nz,delt)
     END IF
@@ -3138,6 +3139,10 @@ ELSE
 
 
   END IF
+  
+    IF (FractureNetwork) THEN
+      !!!call rmesh51(nx,ny)
+    END IF
 
   IF (iprnt == 1) THEN
     IF (ny == 1 .AND. nz == 1) THEN
@@ -3165,6 +3170,7 @@ ELSE
           nsurf_sec,ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,ikO2,master,delt)
       END IF
       IF (tecplot) THEN
+
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
 !!!        CALL GraphicsTecplot(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
@@ -3187,9 +3193,11 @@ ELSE
         CALL NviewOutput(ncomp,nrct,nkin,nspec,nexchange,nexch_sec,nsurf,  &
           nsurf_sec,ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,ikO2,master,delt)
       ELSE IF (visit) THEN
+               
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
       ELSE
+
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
 !!!        CALL GraphicsTecplot(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
@@ -3236,12 +3244,7 @@ ELSE
         !! 1) pump time series
         IF (pumptimeseries) THEN
 
-          IF (TS_1year) THEN
-            time_norm=time-floor(time)
-          CALL  interp3(time_norm,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
-            ELSE
-          CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
-            END IF
+        CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
 
         pumpterm = pumpterm + qg(1,jx,jy,jz)
 

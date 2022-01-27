@@ -340,7 +340,8 @@ IF (jx == 1) THEN
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jdum2,jy,jz,sgw)
     END IF
 
-    IF (jc(1) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
+!!!    IF (jc(1) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
+    IF (JcByGrid(jx-1,jy,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jdum2,jy,jz,scw)
     END IF
 
@@ -402,7 +403,8 @@ ELSE IF (jx == nx) THEN
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jdum2,jy,jz,sge)
     END IF
 
-    IF (jc(2) == 1 .OR. netflowx(nx,jy,jz) < 0.0) THEN
+!!!    IF (jc(2) == 1 .OR. netflowx(nx,jy,jz) < 0.0) THEN
+    IF (JcByGrid(jx+1,jy,jz) == 1 .OR. netflowx(nx,jy,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jdum2,jy,jz,sce)
     END IF
 
@@ -509,7 +511,8 @@ IF (jy == 1) THEN
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jx,jdum2,jz,sgs)
     END IF
 
-    IF (jc(3) == 1 .OR. qy(jx,0,jz) > 0.0) THEN
+!!!    IF (jc(3) == 1 .OR. qy(jx,0,jz) > 0.0) THEN
+    IF (JcByGrid(jx,jy-1,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jx,jdum2,jz,scs)
     END IF
 
@@ -570,7 +573,8 @@ IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jx,jdum2,jz,sgn)
     END IF
 
-    IF (jc(4) == 1 .OR. qy(jx,ny,jz) < 0.0) THEN
+!!!    IF (jc(4) == 1 .OR. qy(jx,ny,jz) < 0.0) THEN
+    IF (JcByGrid(jx,jy+1,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jx,jdum2,jz,scn)
     END IF
 
@@ -685,7 +689,8 @@ DO i = 1,ncomp
   IF (nx == 1) GO TO 300
   
   IF (jx == 1) THEN
-    IF (jc(1) == 1) THEN    ! Dirichlet bdy
+!!!    IF (jc(1) == 1) THEN    ! Dirichlet bdy
+    IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
@@ -701,8 +706,10 @@ DO i = 1,ncomp
         xvecgas = 0.0
       END IF
     END IF
+    
   ELSE IF (jx == nx) THEN
-    IF (jc(2) == 1) THEN
+!!!    IF (jc(2) == 1) THEN
+    IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
@@ -711,7 +718,6 @@ DO i = 1,ncomp
       END IF
     ELSE
         
-   
       xvectors = a(jx,jy,jz)*scw(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
@@ -776,7 +782,8 @@ DO i = 1,ncomp
   IF (ny == 1) GO TO 400
   
   IF (jy == 1) THEN
-    IF (jc(3) == 1) THEN    ! Dirichlet bdy
+!!!    IF (jc(3) == 1) THEN    ! Dirichlet bdy
+    IF (jc(3) == 1 .or. JcByGrid(jx,jy-1,jz) == 1) THEN    ! Dirichlet bdy
       yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
       IF (isaturate == 1) THEN
         yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
@@ -793,7 +800,8 @@ DO i = 1,ncomp
       END IF
     END IF
   ELSE IF (jy == ny) THEN
-    IF (jc(4) == 1) THEN
+!!!    IF (jc(4) == 1) THEN
+    IF (jc(4) == 1 .or. JcByGrid(jx,jy+1,jz) == 1) THEN    ! Dirichlet bdy
       yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
       IF (isaturate == 1) THEN
         yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
@@ -828,10 +836,6 @@ DO i = 1,ncomp
       yvecgas = 0.0
     END IF
     
-    if (jy == 6 .and. jx == 5) then
-      continue
-    end if
-    
   END IF
   
   IF (ierode == 1) THEN
@@ -844,10 +848,14 @@ DO i = 1,ncomp
   
   IF (nx == 1) GO TO 500
   
-  IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0 .AND. jc(1) /= 1) THEN
-    xbdflux = a(jx,jy,jz)*scw(i)
-  ELSE IF (jx == nx .AND. netflowx(nx,jy,jz) < 0.0 .AND. jc(2) /= 1) THEN
-    xbdflux = c(jx,jy,jz)*sce(i)
+  IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0) THEN
+    IF (jc(1) /= 1 .or. JcByGrid(jx-1,jy,jz) /= 1) THEN
+      xbdflux = a(jx,jy,jz)*scw(i)
+    END IF
+  ELSE IF (jx == nx .AND. netflowx(jx,jy,jz) < 0.0) THEN
+    IF (jc(2) /= 1 .or. JcByGrid(jx+1,jy,jz) /= 1) THEN
+      xbdflux = c(jx,jy,jz)*sce(i)
+    END IF
   ELSE
     xbdflux = 0.0
   END IF
@@ -855,10 +863,14 @@ DO i = 1,ncomp
   500   CONTINUE
   IF (ny == 1) GO TO 600
   
-  IF (jy == 1 .AND. qy(jx,0,jz) > 0.0 .AND. jc(3) /= 1) THEN
-    ybdflux = f(jx,jy,jz)*scs(i)
-  ELSE IF (jy == ny .AND. qy(jx,ny,jz) < 0.0 .AND. jc(4) /= 1) THEN
-    ybdflux = d(jx,jy,jz)*scn(i)
+  IF (jy == 1 .AND. qy(jx,0,jz) > 0.0) THEN
+    IF (jc(3) /= 1 .or. JcByGrid(jx,jy-1,jz) /= 1) THEN
+      ybdflux = f(jx,jy,jz)*scs(i)
+    END IF
+  ELSE IF (jy == ny .AND. qy(jx,ny,jz) < 0.0) THEN
+    IF (jc(4) /= 1 .or. JcByGrid(jx,jy+1,jz) /= 1) THEN
+      ybdflux = d(jx,jy,jz)*scn(i)
+    END IF
   ELSE
     ybdflux = 0.0
   END IF

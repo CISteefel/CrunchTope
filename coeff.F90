@@ -390,6 +390,8 @@ DO jy = 1,ny
     
     IF (jx == 1) THEN
       
+      !!!  EAST
+      
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
 
       IF (MeanDiffusion == 1) THEN
@@ -399,17 +401,6 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
-      
-!!! Check here
-!!CIS      dharm = ArithmeticMean(dume,dumpx)
-!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
-!!!      AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
-!!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
-!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
-!!!8-24        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
-!!!8-24      ELSE
-!!!8-24        AreaE = dyy(jy)*dzz(jx,jy,jz)
-!!!8-24      END IF
 
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       
@@ -420,27 +411,26 @@ DO jy = 1,ny
       netflowX(1,jy,jz) = fe
       netDiffuseX(1,jy,jz) = de
       
+      !!!  WEST
+      
+      avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaW = dyy(jy)*dzz(jx,jy,jz)
-      avgro = ro(jx,jy,jz)
       dspw = avgro*dspx(jx,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       
-      IF (jc(1) == 2) THEN  
+      IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN  
         aw = DMAX1(fw,0.0D0)       !  Pure advective boundary
+        netDiffuseX(jx,jy,jz) = 0.0d0
       ELSE
         aw = DMAX1(fw,0.0D0) + dw
+        netDiffuseX(jx,jy,jz) = dw
       END IF
       
       netflowX(0,jy,jz) = fw
-      IF (jc(1) == 2) THEN    !! No diffusion/dispersion across boundary
-        netDiffuseX(jx,jy,jz) = 0.0d0
-      ELSE
-        netDiffuseX(jx,jy,jz) = dw
-      END IF
      
-      IF (jc(1) == 2) THEN
+      IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN  
         apx = de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)  !  Pure advective boundary
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
@@ -448,28 +438,7 @@ DO jy = 1,ny
       
     ELSE IF (jx == nx) THEN
       
-      AreaE = dyy(jy)*dzz(jx,jy,jz)
-      dharm = dumpx
       avgro = ro(jx,jy,jz)
-      dspe = avgro*dspx(jx,jy,jz) + dharm
-      de = AreaE*dspe/dxe
-      fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
-      
-      IF (jc(2) == 2) THEN
-        ae = DMAX1(-fe,0.0D0)      !  Pure advective boundary
-      ELSE
-        ae = DMAX1(-fe,0.0D0) + de
-      END IF
-      
-      netflowX(jx,jy,jz) = fe
-      IF (jc(2) == 2) THEN    !! No diffusion/dispersion across boundary
-        netDiffuseX(jx,jy,jz) = 0.0d0
-      ELSE
-        netDiffuseX(jx,jy,jz) = de
-      END IF
-      
-      avgro = 0.5d0*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
-      
       IF (MeanDiffusion == 1) THEN
         dharm = ArithmeticMean(dumw,dumpx)
       ELSE IF (MeanDiffusion == 2) THEN
@@ -478,14 +447,23 @@ DO jy = 1,ny
         dharm = GeometricMean(dumw,dumpx)
       END IF
       
-!!! Check here
-!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
-!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
-!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
-!!!8-24        AreaW = dyy(jy)*dzz(jx,jy,jz)
-!!!8-24      ELSE
-!!!8-24        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
-!!!8-24      END IF
+      AreaE = dyy(jy)*dzz(jx,jy,jz)
+      dharm = dumpx
+      dspe = avgro*dspx(jx,jy,jz) + dharm
+      de = AreaE*dspe/dxe
+      fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
+      
+      IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
+        ae = DMAX1(-fe,0.0D0)      !  Pure advective boundary
+        netDiffuseX(jx,jy,jz) = 0.0d0
+      ELSE
+        ae = DMAX1(-fe,0.0D0) + de
+        netDiffuseX(jx,jy,jz) = de
+      END IF
+      
+      netflowX(jx,jy,jz) = fe
+      
+      avgro = 0.5d0*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
       
      AreaW = dyy(jy)*dzz(jx,jy,jz)
       
@@ -494,13 +472,13 @@ DO jy = 1,ny
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       aw = DMAX1(fw,0.0D0) + dw
       
-      IF (jc(2) == 2) THEN
+      IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
         apx = dw + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)      !  Pure advective boundary
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       END IF
       
-    ELSE
+    ELSE     !!! Not jx==1 .or. jx==nx
       
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
       
@@ -511,15 +489,6 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
-      
-!!! Check here
-!!!      AreaE = dyy(jy)*dzz(jx,jy,jz)
-!!!       AreaE = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx+1,jy,jz))
-!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
-!!!8-24        AreaE = dyy(jy)*dzz(jx+1,jy,jz)
-!!!8-24      ELSE
-!!!8-24        AreaE = dyy(jy)*dzz(jx,jy,jz)
-!!!8-24      END IF
       
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       
@@ -539,15 +508,6 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dumw,dumpx)
       END IF
-      
-!!! Check here
-!!!      AreaW = dyy(jy)*dzz(jx,jy,jz)
-!!!      AreaW = dyy(jy)*MIN(dzz(jx,jy,jz),dzz(jx-1,jy,jz))
-!!!8-24      IF (qx(jx,jy,jz) > 0.0d0) THEN
-!!!8-24        AreaW = dyy(jy)*dzz(jx,jy,jz)
-!!!8-24      ELSE
-!!!8-24        AreaW = dyy(jy)*dzz(jx-1,jy,jz)
-!!!8-24      END IF
       
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       
@@ -590,13 +550,13 @@ DO jy = 1,ny
       ds = AreaS*dsps/dys
       fs = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
       
-      IF (jc(3) == 2) THEN
+      IF (jc(3) == 2 .or. JcByGrid(jx,jy-1,jz) == 2) THEN  
         as = DMAX1(fs,0.0D0)      ! Pure advective boundary
       ELSE
         as = DMAX1(fs,0.0D0) + ds
       END IF
       
-      IF (jc(3) == 2) THEN
+      IF (jc(3) == 2 .or. JcByGrid(jx,jy-1,jz) == 2) THEN  
         apy = dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0) ! Pure advective boundary
       ELSE
         apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
@@ -611,7 +571,7 @@ DO jy = 1,ny
       dn    = AreaN*dspn/dyn
       fn    = AreaN*avgro*(qy(jx,jy,jz) + FluidBuryY(jy))
       
-      IF (jc(4) == 2) THEN
+     IF (jc(4) == 2 .or. JcByGrid(jx,jy+1,jz) == 2) THEN  
         an = DMAX1(-fn,0.0D0)     ! Pure advective boundary
       ELSE
         an = DMAX1(-fn,0.0D0) + dn
@@ -633,7 +593,7 @@ DO jy = 1,ny
       fs    = AreaS*avgro*(qy(jx,jy-1,jz) + FluidBuryY(jy-1))
       as    = DMAX1(fs,0.0D0) + ds
       
-      IF (jc(4) == 2) THEN
+    IF (jc(4) == 2 .or. JcByGrid(jx,jy+1,jz) == 2) THEN  
         apy = ds + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0) ! Pure advective boundary
       ELSE
         apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
@@ -677,7 +637,6 @@ DO jy = 1,ny
       
     END IF
     
-    
     400     CONTINUE
 
     IF (nx == 1) THEN
@@ -708,7 +667,6 @@ DO jy = 1,ny
     
   END DO
 END DO
-
 
 RETURN
 END SUBROUTINE coeff

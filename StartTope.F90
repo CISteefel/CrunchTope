@@ -824,6 +824,11 @@ IF (found) THEN
   parchar = 'nmm'
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
+  
+ CriticalZone = .FALSE.
+  parchar = 'criticalzone'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,CriticalZone)
 
   parchar = 'saltcreep'
   parfind = ' '
@@ -5034,10 +5039,14 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
 !!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
             
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+          
         ELSE IF (FractureNetwork) THEN
+          
           READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-!!!                            x    y    bn    mt  
+!!!                            x    y    bn    mt 
+
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+          
         ELSE
           CONTINUE
         ENDIF 
@@ -5808,8 +5817,13 @@ ELSE
   WRITE(*,*)
 END IF
 
+IF (ALLOCATED(JcByGrid)) THEN
+  DEALLOCATE(JcByGrid)
+END IF
+ALLOCATE(JcByGrid(0:nx+1,0:ny+1,0:nz+1))
+JcByGrid = 0
+  
 CALL read_BoundaryConditionByZone(nout,nx,ny,nz,nBoundaryConditionZone)
-
 
 IF (nBoundaryConditionZone > 0) THEN
 
@@ -5845,13 +5859,16 @@ IF (nBoundaryConditionZone > 0) THEN
           END IF
 
           jinit(jx,jy,jz) = ConditionNumber
+          
+          JcByGrid(jx,jy,jz) = JcByBoundaryZone(l)
 
         END DO
       END DO
     END DO
 
   END DO
-
+  
+  DEALLOCATE (JcByBoundaryZone)
 
   jx = 0
   DO jz = 1,nz
@@ -5868,6 +5885,7 @@ IF (nBoundaryConditionZone > 0) THEN
         READ(*,*)
         STOP
       END IF
+      
 
       DO ik = 1,ncomp+nspec
         sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
@@ -7567,16 +7585,6 @@ IF (found) THEN
     CALL read_pump(nout,nx,ny,nz,nchem)
   ENDIF
 
-  TS_1year = .FALSE.
-  parchar = 'pumptimeseries1year'
-  parfind = ' '
-  CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
-
-  back_flow_closed = .FALSE.
-  parchar = 'backflowclosed'
-  parfind = ' '
-  CALL read_logical(nout,lchar,parchar,parfind,back_flow_closed)
-
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
 !!!  END IF
@@ -8602,17 +8610,51 @@ IF (found) THEN
         IF (nz == 1) THEN
           
           IF (nmmLogical .and. FractureNetwork) THEN
+            
+            IF (CriticalZone) THEN
           
-            do jy = 1,ny
-              do jx = 1,nx
-                if (jinit(jx,jy,1) == 2) then
-                  perminx(jx,jy,1) = 1.0D-11
-                  permx(jx,jy,1) = 1.0D-11  
-                  perminy(jx,jy,1) = 1.0D-11
-                  permy(jx,jy,1) = 1.0D-11
-                end if
+              do jy = 1,ny
+                do jx = 1,nx
+                  
+                  if (jinit(jx,jy,1) == 2) then      
+                    perminx(jx,jy,1) = 1.0D-11
+                    permx(jx,jy,1) = 1.0D-11  
+                    perminy(jx,jy,1) = 1.0D-11
+                    permy(jx,jy,1) = 1.0D-11
+                  end if
+                  
+                end do
               end do
-            end do
+              
+              do jy = 1,2
+                do jx = 1,nx          !!! Soil layer 2 grid cells deep
+                     
+                    perminx(jx,jy,1) = 1.0D-11
+                    permx(jx,jy,1) = 1.0D-11  
+                    perminy(jx,jy,1) = 1.0D-11
+                    permy(jx,jy,1) = 1.0D-11
+                    jinit(jx,jy,1) = 3 
+                  
+                end do
+              end do
+              
+            ELSE
+              
+              do jy = 1,ny
+                do jx = 1,nx
+                  
+                  if (jinit(jx,jy,1) == 2) then          
+                    perminx(jx,jy,1) = 1.0D-11
+                    permx(jx,jy,1) = 1.0D-11  
+                    perminy(jx,jy,1) = 1.0D-11
+                    permy(jx,jy,1) = 1.0D-11
+                  end if
+                  
+                end do
+              end do
+            
+            END IF
+            
             
           END IF
                      

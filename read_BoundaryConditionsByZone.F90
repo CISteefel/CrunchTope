@@ -50,6 +50,7 @@ USE runtime
 USE params
 USE transport
 USE strings
+USE concentration,only: JcByBoundaryZone
 
 IMPLICIT NONE
 
@@ -79,6 +80,11 @@ INTEGER(I4B)                                                :: ncond
 CHARACTER (LEN=mls)                                         :: GeochemicalConditionName
 
 INTEGER(I4B), PARAMETER                                     :: mBoundaryConditionZone=500
+
+IF (ALLOCATED(JcByBoundaryZone)) THEN
+  DEALLOCATE(JcByBoundaryZone)
+END IF
+ALLOCATE( JcByBoundaryZone(1000) )
 
 IF (ALLOCATED(BoundaryConditionName)) THEN
   DEALLOCATE(BoundaryConditionName)
@@ -131,6 +137,7 @@ DO nCond = 1,mBoundaryConditionZone
   CALL convan(ssch,lzs,res)
 
   IF (ssch == 'boundarycondition' .OR. ssch == 'BoundaryCondition' .OR. ssch == 'BOUNDARYCONDITION') THEN
+    
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     IF(ls /= 0) THEN
@@ -166,7 +173,7 @@ DO nCond = 1,mBoundaryConditionZone
 
             END IF
             
-            BoundaryConditionName(nBoundaryConditionZone) = GeochemicalConditionName
+            BoundaryConditionName(nBoundaryConditionZone) = GeochemicalConditionName        
             
             id = ids + ls
             CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
@@ -300,6 +307,37 @@ DO nCond = 1,mBoundaryConditionZone
       END IF
 
     END IF
+    
+!   Look for the type of boundary condition (Dirichlet, flux, etc.)
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF (ls /= 0) THEN
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (ssch == 'dirichlet') THEN
+        JcByBoundaryZone(nBoundaryConditionZone) = 1
+      ELSE IF (ssch == 'first') THEN
+        JcByBoundaryZone(nBoundaryConditionZone) = 1
+      ELSE IF (ssch == 'flux') THEN
+        JcByBoundaryZone(nBoundaryConditionZone) = 2
+      ELSE IF (ssch == 'second') THEN
+        JcByBoundaryZone(nBoundaryConditionZone) = 2
+      ELSE IF (ssch == 'neumann') THEN
+        JcByBoundaryZone(nBoundaryConditionZone) = 2
+      ELSE IF (ssch == 'third') THEN
+        JcByBoundaryZone(nBoundaryConditionZone) = 3
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' Dont recognize this type of boundary condition'
+        WRITE(*,*) ' Trying to read ByGrid', nBoundaryConditionZone
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+    ELSE
+      JcByBoundaryZone(nBoundaryConditionZone) = 2    !!  Assume no flux
+    END IF
+    
 
   END IF
   

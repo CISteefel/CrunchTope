@@ -140,6 +140,9 @@ MODULE  concentration
   REAL(DP), DIMENSION(6)                           :: xgrambnd
   INTEGER(I4B), DIMENSION(6)                       :: jc 
   INTEGER(I4B), DIMENSION(2)                       :: MeanSalt
+  
+  INTEGER(I4b), DIMENSION(:), ALLOCATABLE          :: JcByBoundaryZone
+  INTEGER(I4b), DIMENSION(:,:,:), ALLOCATABLE          :: JcByGrid
 
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: ulab
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: namg
