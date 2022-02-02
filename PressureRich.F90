@@ -364,6 +364,14 @@ DO jz = 1,nz
                         END IF
                     END IF
 
+                    ! Make free drainage the default option, ZhiLi20220202
+                    IF (jy == ny .AND. activecellPressure(jx,ny+1,jz) == 1) THEN
+                        ! free drainage at bottom
+                        coef(0) = coef(0) + coef(2)
+                        coef(2) = 0.0d0
+                        BvecCrunchP(j) = BvecCrunchP(j) - pumpterm
+                    END IF
+
                     IF (jx == 1 .AND. activecellPressure(0,jy,jz) == 0) THEN
                         coef(-1) = 0.0d0
                     END IF
