@@ -380,10 +380,28 @@ DO jx = 1,nx
 END DO
 CLOSE(UNIT=8,STATUS='keep')
 
+fn='gases_conc'
+ilength = 10
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,2283) PrintTime
+WRITE(8,130)
+130 FORMAT('# Units: mol/m3')
+WRITE(8,2285) (namg(kk),kk=1,ngas)
+jy = 1
+jz = 1
+DO jx = 0,nx
+  if (jx==0) THEN
+  WRITE(8,184) x(jx)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,jz)),kk = 1,ngas)
+  else
+  WRITE(8,184) x(jx)*OutputDistanceScale,(spgas10(kk,jx,1,1),kk = 1,ngas)
+  END IF
+END DO
+CLOSE(UNIT=8,STATUS='keep')
+
 IF (isaturate==1) THEN
   
   117 FORMAT('# Units: mol gas/m2/year')
-  write(*,*) ' Writing gasdiffflux file '
   fn='gasdiffflux'
   ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -393,16 +411,25 @@ IF (isaturate==1) THEN
   WRITE(8,2285) (namg(kk),kk=1,ngas)
   jy = 1
   jz = 1
-  DO jx = 1,nx
+  DO jx = 0,nx
     DO i = 1,ngas
-      gflux_hor(i)=-(bg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+      if (jx==0) THEN
+      gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))/((dxx(jx)+dxx(jx+1))/2)
+      elseif (jx==nx) THEN
+      gflux_hor(i)=0*(ag(jx+1,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+      else
+      gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+      END IF
     END DO
+    if (jx==0) THEN
     WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
+    else
+    WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
+    END IF
   END DO
   CLOSE(UNIT=8,STATUS='keep')
   
 END IF
-
 
 
 IF (nexchange > 0) THEN
@@ -580,7 +607,22 @@ IF (nrct > 0) THEN
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-!  Write out the reaction rates in units of mol/m**3(bulk vol.)/sec
+  fn='MineralVolfraction'
+  ilength = 18
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,107)
+131 FORMAT('# Units: % of vol occupied by mineral')
+  WRITE(8,2285)  (uminprnt(k),k=1,nrct)
+  jy = 1
+  jz = 1
+  DO jx = 1,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale,(volfx(k,jx,jy,jz),k = 1,nrct)
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
+  !  Write out the reaction rates in units of mol/m**3(bulk vol.)/sec
 
   fn='rate'
   ilength = 4

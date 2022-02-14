@@ -417,6 +417,9 @@ REAL(DP)                                                   :: watertable
 
 ! variables pump time series
 
+REAL(DP)        :: time_norm
+REAL(DP)        :: qgdum
+
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
 Mat                  amatpetsc,amatD,amatP
@@ -593,16 +596,26 @@ IF (CalculateFlow) THEN
     jz=1
     jx=0
     DO jy = 1,ny
-      CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      if (pres(jx,jy,jz)==0) then
-        permx(jx,jy,jz)=0
-      end if
+      IF (TS_1year) THEN
+        time_norm=time-floor(time)
+  CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+      ELSE
+  CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+      END IF
+  if (pres(jx,jy,jz)==0) then
+    permx(jx,jy,jz)=0
+  end if
     END DO
   END IF
-  
-  IF (FractureNetwork) THEN
-    call rmesh51(nx,ny)
-  END IF
+
+  IF (pumptimeseries) THEN
+    IF (TS_1year) THEN
+      time_norm=time-floor(time)
+    CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+      ELSE
+    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+      END IF
+    END IF
 
   SteadyFlow = .TRUE.
 
@@ -994,11 +1007,14 @@ END DO
         checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
 
         pumpterm = 0.0d0
+
         !! 1) pump time series
         IF (pumptimeseries) THEN
-
-          CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
-
+          IF (npump(jx,jy,jz)>0) THEN
+            qg(1,jx,jy,jz)=qgdum
+          ELSE
+            qg(1,jx,jy,jz)=0  
+          END IF
 
           pumpterm = pumpterm + qg(1,jx,jy,jz)
 
@@ -3145,6 +3161,100 @@ ELSE
     END IF
 
   IF (iprnt == 1) THEN
+    !!Stolze Lucien: to create and overwrite the restart file at each printout
+    iures = 131
+
+    INQUIRE(FILE=RestartOutputFile,OPENED=truefalse)
+    IF (truefalse) then
+      CLOSE(UNIT=iures)
+      OPEN(UNIT=iures,FILE=RestartOutputFile,FORM='unformatted',STATUS='unknown')
+    ELSE
+      OPEN(UNIT=iures,FILE=RestartOutputFile,FORM='unformatted',STATUS='unknown')
+    END IF
+
+    WRITE(iures) time
+    WRITE(iures) nn
+    WRITE(iures) nint
+    WRITE(iures) delt,dtold,tstep,deltmin,dtmaxcour,dtmax
+
+    WRITE(iures) keqaq
+    WRITE(iures) keqgas
+    WRITE(iures) keqsurf
+    WRITE(iures) xgram
+    WRITE(iures) spnO2
+    WRITE(iures) spnnO2
+    WRITE(iures) sp
+    WRITE(iures) s
+    WRITE(iures) sn
+    WRITE(iures) sp10
+    WRITE(iures) spold
+    WRITE(iures) spex
+    WRITE(iures) spex10
+    WRITE(iures) gam
+    WRITE(iures) exchangesites
+    WRITE(iures) spexold
+!!    WRITE(iures) sch
+    WRITE(iures) spgas
+    WRITE(iures) spgasold
+    WRITE(iures) spgas10
+    IF (isaturate==1) then
+      WRITE(iures) sgas
+      WRITE(iures) sgasn
+    ENDIF
+    if (ierode==1) then
+      WRITE(iures) ssurf
+      WRITE(iures) ssurfn
+    endif
+    WRITE(iures) sexold
+    WRITE(iures) ssurfold
+    WRITE(iures) spsurf
+    WRITE(iures) spsurf10
+    WRITE(iures) spsurfold
+    WRITE(iures) raq_tot
+    WRITE(iures) sion
+    WRITE(iures) jinit
+
+!!    WRITE(iures) mumin_decay
+    WRITE(iures) keqmin
+    WRITE(iures) volfx
+    WRITE(iures) dppt
+    WRITE(iures) area
+    WRITE(iures) areainByGrid
+    WRITE(iures) volinByGrid
+    WRITE(iures) specificByGrid
+    WRITE(iures) LogPotential
+
+    WRITE(iures) t
+    WRITE(iures) told
+    WRITE(iures) ro
+
+    WRITE(iures) por
+
+    WRITE(iures) satliq
+    WRITE(iures) qxgas
+    WRITE(iures) qygas
+    WRITE(iures) qzgas
+    WRITE(iures) pres
+  !!!  WRITE(iures) dspy
+  !!!  WRITE(iures) dspz
+  !!!  WRITE(iures) qg
+    WRITE(iures) ActiveCell
+    WRITE(iures) VolSaveByTimeStep
+    WRITE(iures) Volsave
+    WRITE(iures) ncounter
+
+    !! Write Richards, Zhi Li 20200705
+    IF (Richards) THEN
+        WRITE(iures) head
+        WRITE(iures) wc
+    END IF
+
+!!    WRITE(iures) tauZero
+
+!    CLOSE(UNIT=intfile,STATUS='keep')
+
+    CLOSE(UNIT=iures,STATUS='keep')
+
     IF (ny == 1 .AND. nz == 1) THEN
 
       CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
@@ -3243,9 +3353,11 @@ ELSE
 
         !! 1) pump time series
         IF (pumptimeseries) THEN
-
-        CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
-
+          IF (npump(jx,jy,jz)>0) THEN
+            qg(1,jx,jy,jz)=qgdum
+          ELSE
+         qg(1,jx,jy,jz)=0  
+          END IF
         pumpterm = pumpterm + qg(1,jx,jy,jz)
 
         !! 2) normal pump

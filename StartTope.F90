@@ -622,8 +622,11 @@ INTEGER(I4B)                                                  :: nvgn
 INTEGER(I4B)                                                  :: nvga
 INTEGER(I4B)                                                  :: nwcr
 
-CHARACTER (LEN=mls)                          :: pumpfile
-CHARACTER (LEN=mls)                          :: PumpFileFormat
+CHARACTER (LEN=mls)                          :: pumptimeseriesfile
+CHARACTER (LEN=mls)                          :: PumptimeseriesFileFormat
+CHARACTER (LEN=mls)                          :: pumplocationsfile
+CHARACTER (LEN=mls)                          :: PumplocationsFileFormat
+INTEGER(I4B)                                                  :: lfile2
 CHARACTER (LEN=mls)                          :: watertablefile
 CHARACTER (LEN=mls)                          :: WatertableFileFormat
 
@@ -7574,16 +7577,27 @@ IF (found) THEN
     qxgasinit,qygasinit,qzgasinit)
 
   
-  pumptimeseries = .FALSE.
+    pumptimeseries = .FALSE.
   
-  CALL read_pumpfile(nout,nx,ny,nz,pumpfile,lfile,pumptimeseries,PumpFileFormat)
-  IF (pumptimeseries) THEN
-
-  CALL  read_pump_timeseries(nout,nx,ny,nz,nchem,lfile,pumpfile,PumpFileFormat)
-
-  else
-    CALL read_pump(nout,nx,ny,nz,nchem)
-  ENDIF
+    CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
+    CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
+    IF (pumptimeseries) THEN
+  
+    CALL  read_pump_timeseries2(nout,nx,ny,nz,nchem,lfile,pumptimeseriesfile,PumptimeseriesFileFormat,lfile2,pumplocationsfile,PumplocationsFileFormat)
+  
+    else
+      CALL read_pump(nout,nx,ny,nz,nchem)
+    ENDIF
+  
+    TS_1year = .FALSE.
+    parchar = 'pumptimeseries1year'
+    parfind = ' '
+    CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
+  
+    back_flow_closed = .FALSE.
+    parchar = 'backflowclosed'
+    parfind = ' '
+    CALL read_logical(nout,lchar,parchar,parfind,back_flow_closed)
 
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)

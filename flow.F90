@@ -189,7 +189,7 @@ REAL(DP), DIMENSION(:),ALLOCATABLE           :: XvecCrunchP
 REAL(DP), DIMENSION(:),ALLOCATABLE           :: BvecCrunchP
 
 !! Pump time series variable Lucien Stolze 20211022
-REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: qgt
+REAL(DP), DIMENSION(:), ALLOCATABLE      :: qgt
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
 LOGICAL(LGT)                                   :: pumptimeseries
 LOGICAL(LGT)                                   :: TS_1year

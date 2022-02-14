@@ -194,6 +194,7 @@ REAL(DP)        :: check1
 REAL(DP)        :: check2
 REAL(DP)        :: check3
 REAL(DP)        :: check4
+REAL(DP)        :: qgdum
 
 !! Time normalized used if time series only defined for 1 representative year:
 REAL(DP)        :: time_norm
@@ -251,6 +252,16 @@ IF (npot > 0) THEN
 END IF
 
 TempFlux = 0.0d0
+
+IF (pumptimeseries .AND. Richards) THEN
+  IF (TS_1year) THEN
+    time_norm=time-floor(time)
+    CALL interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+    ELSE
+    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+  END IF
+END IF
+
 
 !!!  Do the boundaries first
 
@@ -1015,8 +1026,11 @@ DO jy = 1,ny
       END DO
 
     ELSEIF (pumptimeseries .AND. .not. Richards) THEN
-    
-      CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+      IF (npump(jx,jy,jz)>0) THEN
+        CALL interp3(time,delt,tpump,qgt(:),qg(1,jx,jy,jz),size(qgt(:)))
+        ELSE
+        qg(1,jx,jy,jz)=0
+        END IF
       IF (qg(1,jx,jy,jz) > 0.0) THEN       !  Injection well
         CONTINUE                ! Source term on R.H.S.
       ELSE IF (qg(1,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
@@ -1025,12 +1039,10 @@ DO jy = 1,ny
         CONTINUE
       END IF
       ELSEIF (pumptimeseries .AND. Richards) THEN
-
-        IF (TS_1year) THEN
-          time_norm=time-floor(time)
-          CALL interp3(time_norm,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+        IF (npump(jx,jy,jz)>0) THEN
+          qg(1,jx,jy,jz)=qgdum
           ELSE
-          CALL interp3(time,delt,tpump,qgt(:,jx,jy,jz),qg(1,jx,jy,jz),size(qgt(:,jx,jy,jz)))
+          qg(1,jx,jy,jz)=0
           END IF
           CONTINUE                ! Source term on R.H.S.
     END IF
