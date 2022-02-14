@@ -100,6 +100,7 @@ MODULE runtime
   LOGICAL(LGT)                                                :: Benchmark
   LOGICAL(LGT)                                                :: DampRateInLowPorosity
   LOGICAL(LGT)                                                :: FractureNetwork
+  LOGICAL(LGT)                                                :: CubicLaw
 
   LOGICAL(LGT)                                                :: Switcheroo
   LOGICAL(LGT)                                                :: ReadGridVolumes

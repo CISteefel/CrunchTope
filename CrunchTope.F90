@@ -1267,8 +1267,8 @@ DO WHILE (nn <= nend)
     ro(:,:,nz+1) = ro(:,:,nz)
 
     IF (jpor == 1 .OR. jpor == 3) THEN
-      IF (.not. FractureNetwork) THEN
- !!!       CALL porperm(nx,ny,nz)
+      IF (.not. CubicLaw) THEN
+        CALL porperm(nx,ny,nz)
       END IF
     END IF
 
@@ -2476,7 +2476,7 @@ END DO
     CONTINUE
   ELSE
     CALL mineral_update(nx,ny,nz,nrct,delt,dtnewest,ineg,jpor,deltmin)
-    IF (FractureNetwork) THEN
+    IF (FractureNetwork .and. CubicLaw) THEN
       call rmesh51(nx,ny)
     END IF
     IF (KateMaher) THEN
@@ -3156,8 +3156,8 @@ ELSE
 
   END IF
   
-    IF (FractureNetwork) THEN
-      !!!call rmesh51(nx,ny)
+    IF (FractureNetwork .and. CubicLaw) THEN
+      call rmesh51(nx,ny)
     END IF
 
   IF (iprnt == 1) THEN

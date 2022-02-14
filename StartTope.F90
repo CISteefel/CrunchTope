@@ -842,6 +842,11 @@ IF (found) THEN
   parfind = ' '
   FractureNetwork = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,FractureNetwork)
+  
+  parchar = 'cubiclaw'
+  parfind = ' '
+  CubicLaw = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,cubiclaw)
 
   parchar = 'courant_number'
   parfind = ' '
@@ -7579,7 +7584,7 @@ IF (found) THEN
   
     pumptimeseries = .FALSE.
   
-    CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
+    CALL read_pump_timeseries2(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
     CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
     IF (pumptimeseries) THEN
   
@@ -8631,10 +8636,10 @@ IF (found) THEN
                 do jx = 1,nx
                   
                   if (jinit(jx,jy,1) == 2) then      
-                    perminx(jx,jy,1) = 1.0D-11
-                    permx(jx,jy,1) = 1.0D-11  
-                    perminy(jx,jy,1) = 1.0D-11
-                    permy(jx,jy,1) = 1.0D-11
+                    perminx(jx,jy,1) = 1.0D-12
+                    permx(jx,jy,1) = 1.0D-12  
+                    perminy(jx,jy,1) = 1.0D-12
+                    permy(jx,jy,1) = 1.0D-12
                   end if
                   
                 end do
@@ -8643,10 +8648,10 @@ IF (found) THEN
               do jy = 1,2
                 do jx = 1,nx          !!! Soil layer 2 grid cells deep
                      
-                    perminx(jx,jy,1) = 1.0D-11
-                    permx(jx,jy,1) = 1.0D-11  
-                    perminy(jx,jy,1) = 1.0D-11
-                    permy(jx,jy,1) = 1.0D-11
+                    perminx(jx,jy,1) = 1.0D-12
+                    permx(jx,jy,1) = 1.0D-12  
+                    perminy(jx,jy,1) = 1.0D-12
+                    permy(jx,jy,1) = 1.0D-12
                     jinit(jx,jy,1) = 3 
                   
                 end do
