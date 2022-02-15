@@ -7584,7 +7584,7 @@ IF (found) THEN
   
     pumptimeseries = .FALSE.
   
-    CALL read_pump_timeseries2(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
+    CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
     CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
     IF (pumptimeseries) THEN
   

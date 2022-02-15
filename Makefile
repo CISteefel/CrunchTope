@@ -336,6 +336,7 @@ SOURCEF = \
           read_watertablefile.F90\
           read_watertable_timeseries.F90\
           interp3.F90\
+          FRACTUREAPERTURE.F90\
 
 
 OBJSF  =  crunchtype.o\
@@ -671,6 +672,7 @@ OBJSF  =  crunchtype.o\
           read_watertablefile.o\
           read_watertable_timeseries.o\
           interp3.o\
+          FRACTUREAPERTURE.o\
 
 LOCDIR   = ${CrunchTope_Dir}
 
