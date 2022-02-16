@@ -48,11 +48,13 @@ REAL(DP)                                                      :: ydum
 REAL(DP)                                                      :: zdum
 REAL(DP)                                                      :: tottime
 REAL(DP)                                                      :: check
-REAL(DP)                                                      :: dummy
 INTEGER(I4B)                                                   :: tp
 INTEGER(I4B)                                                   :: locp
 INTEGER(I4B)                                                  :: FileNameLength
 LOGICAL(LGT)                                               :: ext
+real(DP),dimension(:), ALLOCATABLE     :: xdum1
+real(DP),dimension(:), ALLOCATABLE     :: ydum1
+real(DP),dimension(:), ALLOCATABLE     :: zdum1
 
 REWIND nout
 
@@ -201,6 +203,71 @@ WRITE(iunit2,*)
     ALLOCATE(qg(1,nx,ny,nz))
   END IF
 
+  IF (ALLOCATED(xdum1)) THEN
+    DEALLOCATE(xdum1)
+    ALLOCATE(xdum1(1:int(locpdis)))
+  ELSE
+    ALLOCATE(xdum1(1:int(locpdis)))
+  END IF
+
+  IF (ALLOCATED(ydum1)) THEN
+    DEALLOCATE(ydum1)
+    ALLOCATE(ydum1(1:int(locpdis)))
+  ELSE
+    ALLOCATE(ydum1(1:int(locpdis)))
+  END IF
+
+  IF (ALLOCATED(zdum1)) THEN
+    DEALLOCATE(zdum1)
+    ALLOCATE(zdum1(1:int(locpdis)))
+  ELSE
+    ALLOCATE(zdum1(1:int(locpdis)))
+  END IF
+
+
+  !! READ PUMP LOCATIONS:
+
+IF (PumplocationsFileFormat == 'SingleFile3D') THEN
+
+  INQUIRE(FILE=pumplocationsfile,EXIST=ext)
+  IF (.NOT. ext) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' 3D pump file not found: ',pumplocationsfile(1:lfile2)
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+
+  OPEN(UNIT=23,FILE=pumplocationsfile,STATUS='old',ERR=8005)
+  FileTemp = pumplocationsfile
+  CALL stringlen(FileTemp,FileNameLength)
+  DO locp = 1,int(locpdis)
+  !!READ(23,*,END=1020) xdum,ydum,zdum
+  READ(23,*,END=1020) xdum1(locp),ydum1(locp),zdum1(locp)
+END DO
+
+jz=1
+
+DO jy = 1,ny
+  DO jx = 1,nx
+    npump(jx,jy,jz)=0
+  END DO 
+END DO
+
+    DO jy = 1,ny
+      DO jx = 1,nx
+        DO locp = 1,int(locpdis)
+        if (jx==int(xdum1(locp)) .and. jy==int(ydum1(locp))) then
+          npump(jx,jy,jz)=1
+          intbnd(1,jx,jy,jz)=intbnd_tmp
+        end if
+          
+      END DO
+      END DO
+    END DO
+
+  CLOSE(UNIT=23,STATUS='keep')
+END IF
 
 
 !! READ PUMP TIMESERIES:
@@ -234,41 +301,10 @@ END IF
 
 
 
-!! READ PUMP LOCATIONS:
 
 
-IF (PumplocationsFileFormat == 'SingleFile3D') THEN
 
-  INQUIRE(FILE=pumplocationsfile,EXIST=ext)
-  IF (.NOT. ext) THEN
-    WRITE(*,*)
-    WRITE(*,*) ' 3D pump file not found: ',pumplocationsfile(1:lfile2)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
 
-  OPEN(UNIT=23,FILE=pumplocationsfile,STATUS='old',ERR=8005)
-  FileTemp = pumplocationsfile
-  CALL stringlen(FileTemp,FileNameLength)
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-        DO locp = 1,int(locpdis)
-        READ(23,*,END=1020) xdum,ydum,zdum
-        if (jx==xdum .and. jy==ydum .and. jz==zdum) then
-          npump(jx,jy,jz)=1
-          else
-          npump(jx,jy,jz)=0
-        end if
-          END DO
-          intbnd(1,jx,jy,jz)=intbnd_tmp
-      END DO
-    END DO
-  END DO
-
-  CLOSE(UNIT=23,STATUS='keep')
-END IF
 
 
 RETURN
