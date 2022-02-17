@@ -73,7 +73,7 @@ INTEGER(I4B)                                  :: kk
 DO i = 1,ncomp
   sum = 0.0
   DO kk = 1,ngas
-    sum = sum + mugas(kk,i)*spgas(kk,jx,jy,jz)
+    sum = sum + mugas(kk,i)*spgas10(kk,jx,jy,jz)
   END DO
   scorr(i) = sum     ! Assumes gas is not a basis species
 END DO
