@@ -512,7 +512,7 @@ IF (jy == 1) THEN
     END IF
 
 !!!    IF (jc(3) == 1 .OR. qy(jx,0,jz) > 0.0) THEN
-    IF (JcByGrid(jx,jy-1,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
+    IF (JcByGrid(jx,jy-1,jz) == 1) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jx,jdum2,jz,scs)
     END IF
 
@@ -568,13 +568,13 @@ IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
     jdum2 = ny+1
     IF (isaturate == 1) THEN
       DO i = 1,ncomp
-        sgs(i) = sgas(i,jdum,jy,jz)
+        sgs(i) = sgas(i,jx,jdum2,jz)
       END DO
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jx,jdum2,jz,sgn)
     END IF
 
 !!!    IF (jc(4) == 1 .OR. qy(jx,ny,jz) < 0.0) THEN
-    IF (JcByGrid(jx,jy+1,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
+    IF (JcByGrid(jx,jy+1,jz) == 1) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jx,jdum2,jz,scn)
     END IF
 

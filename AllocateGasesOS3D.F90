@@ -64,7 +64,7 @@ INTEGER(I4B), INTENT(IN)                               :: ncomp
 IF (ALLOCATED(sgas)) THEN
   DEALLOCATE(sgas)
 END IF
-ALLOCATE(sgas(ncomp,nx,ny,nz))
+ALLOCATE(sgas(ncomp,0:nx+1,0:ny+1,0:nz+1))
 
 IF (ALLOCATED(sgasn)) THEN
   DEALLOCATE(sgasn)
