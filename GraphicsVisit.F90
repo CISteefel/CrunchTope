@@ -834,22 +834,33 @@ END IF
 
   IF (isaturate==1) THEN
   
-    117 FORMAT('# Units: mol gas/m2/year')
-    write(*,*) ' Writing gasdiffflux file '
-    fn='gasdiffflux Ydir'
-    ilength = 11
+    
+    !!write(*,*) ' Writing gasdiffflux file '
+    fn='gasdifffluxY'
+    ilength = 12
     CALL newfile(fn,suf1,fnv,nint,ilength)
     OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
     WRITE(8,2283) PrintTime
+    117 FORMAT('# Units: mol gas/m2/year')
     WRITE(8,117)
     WRITE(8,2285) (namg(kk),kk=1,ngas)
     jz = 1
-    DO jy = 1,ny
+    DO jy = 0,ny
     DO jx = 1,nx
       DO i = 1,ngas
-        gflux_ver(i)=-(eg(jx,jy,jz))*(spgas10(i,jx,jy+1,jz)-spgas10(i,jx,jy,jz))/((dyy(jy)+dyy(jy+1))/2)
+        IF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
+        gflux_ver(i)=0
+        ELSEIF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
+        gflux_ver(i)=0
+        ELSEIF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))/((dyy(jy)+dyy(jy+1))/2)
+        ELSEIF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))/((dyy(jy)+dyy(jy+1))/2)
+        ELSE
+        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spgas10(i,jx,jy,1))/((dyy(jy)+dyy(jy+1))/2)
+        END IF
       END DO
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale+dyy(jy)/2,z(jz)*OutputDistanceScale, &
       (gflux_ver(i),i=1,ngas)
     END DO
   END DO
@@ -886,6 +897,59 @@ END IF
 END DO
   CLOSE(UNIT=8,STATUS='keep')
 
+  fn = 'Temperature'
+    ilength = 11
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Temperature (C)" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "Wcres" '
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
+        t(jx,jy,jz)
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+
+    fn='MineralVolfraction'
+    ilength = 18
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,2283) PrintTime
+    WRITE(8,107)
+  131 FORMAT('# Units: % of vol occupied by mineral')
+    WRITE(8,2285)  (uminprnt(k),k=1,nrct)
+    jz = 1
+    DO jy = 1,ny
+    DO jx = 1,nx
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(volfx(k,jx,jy,jz),k = 1,nrct)
+    END DO
+   END DO
+    CLOSE(UNIT=8,STATUS='keep')
+
+    fn='gases_conc'
+    ilength = 10
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,2283) PrintTime
+    WRITE(8,130)
+    130 FORMAT('# Units: mol/m3')
+    WRITE(8,2285) (namg(kk),kk=1,ngas)
+    jz = 1
+    DO jy = 1,ny
+    DO jx = 1,nx
+      IF (activecellPressure(jx,jy,jz) == 0) THEN
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,1)),kk = 1,ngas)
+      ELSE
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spgas10(kk,jx,jy,1),kk = 1,ngas)
+      END IF
+    END DO
+  END DO
+    CLOSE(UNIT=8,STATUS='keep')
+    
   IF (Richards) THEN
 
     fn = 'VG_alpha'
