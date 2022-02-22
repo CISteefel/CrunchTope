@@ -1177,7 +1177,7 @@ IF (os3d .AND. nxyz > 1) THEN
       IF (ALLOCATED(ag)) THEN
         DEALLOCATE(ag)
       END IF
-      ALLOCATE(ag(nx,ny,nz))
+      ALLOCATE(ag(1:nx+1,ny,nz))
       IF (ALLOCATED(bg)) THEN
         DEALLOCATE(bg)
       END IF
@@ -1197,7 +1197,7 @@ IF (os3d .AND. nxyz > 1) THEN
       IF (ALLOCATED(fg)) THEN
         DEALLOCATE(fg)
       END IF
-      ALLOCATE(fg(nx,ny,nz))
+      ALLOCATE(fg(nx,1:ny+1,nz))
       ag = 0.0
       bg = 0.0
       cg = 0.0
