@@ -413,14 +413,17 @@ IF (isaturate==1) THEN
   jz = 1
   DO jx = 0,nx
     DO i = 1,ngas
+      
       if (jx==0) THEN
-      gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))/((dxx(jx)+dxx(jx+1))/2)
+        gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))/((dxx(jx)+dxx(jx+1))/2)
       elseif (jx==nx) THEN
-      gflux_hor(i)=(ag(jx+1,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+        gflux_hor(i)=0*(cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
       else
-      gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+        gflux_hor(i)=(cg(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
       END IF
+      
     END DO
+    
     if (jx==0) THEN
     WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
     else
