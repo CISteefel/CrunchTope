@@ -4845,7 +4845,7 @@ IF (nxyz > nx .OR. nxyz == 1) THEN
 END IF
 
 ! Zhi Li 20200708
-IF (nx == 1 .OR. nx == 2) THEN
+IF (Richards .and. nx == 1 .OR. nx == 2) THEN
     WRITE(*,*)
     WRITE(*,*) ' Need at least 3 grid cells for transport in X direction'
     WRITE(*,*)
