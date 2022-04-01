@@ -941,11 +941,11 @@ END DO
     jz = 1
     DO jy = 1,ny
     DO jx = 1,nx
-      IF (activecellPressure(jx,jy,jz) == 0) THEN
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,1)),kk = 1,ngas)
-      ELSE
+      !!IF (activecellPressure(jx,jy,jz) == 0) THEN
+      !!WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,1)),kk = 1,ngas)
+      !!ELSE
       WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spgas10(kk,jx,jy,1),kk = 1,ngas)
-      END IF
+      !!END IF
     END DO
   END DO
     CLOSE(UNIT=8,STATUS='keep')
