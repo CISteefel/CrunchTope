@@ -73,6 +73,7 @@ LOGICAL(LGT)                                 :: redistribute_wc
 LOGICAL(LGT)                                 :: upstream_weighting
 LOGICAL(LGT)                                 :: watertable_flat
 REAL(DP)                                     :: co_richards
+LOGICAL(LGT)                                 :: dt_sync
 ! Leverett scaling option added by Lucien Stolze 20211020
 LOGICAL(LGT)                                 :: leverettscaling
 

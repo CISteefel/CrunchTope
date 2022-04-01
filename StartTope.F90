@@ -827,7 +827,7 @@ IF (found) THEN
   parchar = 'nmm'
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
-  
+
  CriticalZone = .FALSE.
   parchar = 'criticalzone'
   parfind = ' '
@@ -837,12 +837,12 @@ IF (found) THEN
   parfind = ' '
   SaltCreep = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SaltCreep)
-  
+
   parchar = 'fracturenetwork'
   parfind = ' '
   FractureNetwork = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,FractureNetwork)
-  
+
   parchar = 'cubiclaw'
   parfind = ' '
   CubicLaw = .FALSE.
@@ -5045,19 +5045,19 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
         IF (SaltCreep) THEN
           READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
 !!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-            
+
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
-          
+
         ELSE IF (FractureNetwork) THEN
-          
+
           READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-!!!                            x    y    bn    mt 
+!!!                            x    y    bn    mt
 
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
-          
+
         ELSE
           CONTINUE
-        ENDIF 
+        ENDIF
         activecell(jx,jy,jz) = 1
       END DO
     END DO
@@ -5830,7 +5830,7 @@ IF (ALLOCATED(JcByGrid)) THEN
 END IF
 ALLOCATE(JcByGrid(0:nx+1,0:ny+1,0:nz+1))
 JcByGrid = 0
-  
+
 CALL read_BoundaryConditionByZone(nout,nx,ny,nz,nBoundaryConditionZone)
 
 IF (nBoundaryConditionZone > 0) THEN
@@ -5867,7 +5867,7 @@ IF (nBoundaryConditionZone > 0) THEN
           END IF
 
           jinit(jx,jy,jz) = ConditionNumber
-          
+
           JcByGrid(jx,jy,jz) = JcByBoundaryZone(l)
 
         END DO
@@ -5875,7 +5875,7 @@ IF (nBoundaryConditionZone > 0) THEN
     END DO
 
   END DO
-  
+
   DEALLOCATE (JcByBoundaryZone)
 
   jx = 0
@@ -5893,7 +5893,7 @@ IF (nBoundaryConditionZone > 0) THEN
         READ(*,*)
         STOP
       END IF
-      
+
 
       DO ik = 1,ncomp+nspec
         sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
@@ -7581,24 +7581,24 @@ IF (found) THEN
   CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
     qxgasinit,qygasinit,qzgasinit)
 
-  
+
     pumptimeseries = .FALSE.
-  
+
     CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
     CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
     IF (pumptimeseries) THEN
-  
+
     CALL  read_pump_timeseries2(nout,nx,ny,nz,nchem,lfile,pumptimeseriesfile,PumptimeseriesFileFormat,lfile2,pumplocationsfile,PumplocationsFileFormat)
-  
+
     else
       CALL read_pump(nout,nx,ny,nz,nchem)
     ENDIF
-  
+
     TS_1year = .FALSE.
     parchar = 'pumptimeseries1year'
     parfind = ' '
     CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
-  
+
     back_flow_closed = .FALSE.
     parchar = 'backflowclosed'
     parfind = ' '
@@ -7704,6 +7704,11 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,watertable_flat)
 
+        ! asynchronous time stepping
+        dt_sync = .FALSE.
+        parchar = 'dt_sync'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,dt_sync)
 
         ! perm averaging method
         upstream_weighting = .FALSE.
@@ -8627,56 +8632,56 @@ IF (found) THEN
         END IF
 
         IF (nz == 1) THEN
-          
+
           IF (nmmLogical .and. FractureNetwork) THEN
-            
+
             IF (CriticalZone) THEN
-          
+
               do jy = 1,ny
                 do jx = 1,nx
-                  
-                  if (jinit(jx,jy,1) == 2) then      
+
+                  if (jinit(jx,jy,1) == 2) then
                     perminx(jx,jy,1) = 1.0D-12
-                    permx(jx,jy,1) = 1.0D-12  
+                    permx(jx,jy,1) = 1.0D-12
                     perminy(jx,jy,1) = 1.0D-12
                     permy(jx,jy,1) = 1.0D-12
                   end if
-                  
+
                 end do
               end do
-              
+
               do jy = 1,2
                 do jx = 1,nx          !!! Soil layer 2 grid cells deep
-                     
+
                     perminx(jx,jy,1) = 1.0D-12
-                    permx(jx,jy,1) = 1.0D-12  
+                    permx(jx,jy,1) = 1.0D-12
                     perminy(jx,jy,1) = 1.0D-12
                     permy(jx,jy,1) = 1.0D-12
-                    jinit(jx,jy,1) = 3 
-                  
+                    jinit(jx,jy,1) = 3
+
                 end do
               end do
-              
+
             ELSE
-              
+
               do jy = 1,ny
                 do jx = 1,nx
-                  
-                  if (jinit(jx,jy,1) == 2) then          
+
+                  if (jinit(jx,jy,1) == 2) then
                     perminx(jx,jy,1) = 1.0D-11
-                    permx(jx,jy,1) = 1.0D-11  
+                    permx(jx,jy,1) = 1.0D-11
                     perminy(jx,jy,1) = 1.0D-11
                     permy(jx,jy,1) = 1.0D-11
                   end if
-                  
+
                 end do
               end do
-            
+
             END IF
-            
-            
+
+
           END IF
-                     
+
           permz = 0.0
           perminz = 0.0
           DEALLOCATE(permzonez)
@@ -8733,8 +8738,8 @@ IF (found) THEN
           permmaxz = 0.0
           permz = perminz
           permmaxz = MAXVAL(DABS(permz))
-          
-          
+
+
 
 
           DEALLOCATE(permzonez)
@@ -8787,7 +8792,7 @@ IF (found) THEN
       DEALLOCATE(jzzPressure_lo)
       DEALLOCATE(jzzPressure_hi)
 
-     
+
 
       watertabletimeseries = .FALSE.
       CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
@@ -8798,7 +8803,7 @@ IF (found) THEN
       ENDIF
 
       check3=pres
-      
+
       parchar = 'initialize_hydrostatic'
       parfind = ' '
       InitializeHydrostatic = .FALSE.
@@ -9512,12 +9517,12 @@ END IF
     DEALLOCATE(specificByGrid)
   END IF
   ALLOCATE(specificByGrid(nrct,0:nx+1,0:ny+1,0:nz+1))
-  
+
   IF (ALLOCATED(areainByGrid)) THEN
     DEALLOCATE(areainByGrid)
   END IF
   ALLOCATE(areainByGrid(nrct,0:nx+1,0:ny+1,0:nz+1))
-  
+
   IF (ALLOCATED(volinByGrid)) THEN
     DEALLOCATE(volinByGrid)
   END IF
@@ -9541,21 +9546,21 @@ END IF
 
 !!  Now the boundaries, if NX > 1
   IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN
-    
+
     DO k = 1,nrct
-      
+
       jPoint = jinit(0,1,1)
       specificByGrid(k,0,1,1) = specific(k,jPoint)
       areainByGrid(k,0,1,1) = areain(k,jpoint)
       volinByGrid(k,0,jy,jz) = volin(k,jpoint)
       area(k,0,1,1) = areain(k,jpoint)
-      
+
       jPoint = jinit(nx+1,1,1)
       specificByGrid(k,nx+1,1,1) = specific(k,jPoint)
       areainByGrid(k,nx+1,1,1) = areain(k,jpoint)
       volinByGrid(k,nx+1,jy,jz) = volin(k,jpoint)
       area(k,nx+1,1,1) = areain(k,jpoint)
-      
+
     END DO
 
   END IF
@@ -9589,7 +9594,7 @@ END IF
 tortuosity = 1.0d0
 
 IF (found) THEN
-  
+
   WRITE(*,*)
   WRITE(*,*) ' Transport block found'
   WRITE(*,*)

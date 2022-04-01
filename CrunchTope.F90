@@ -204,6 +204,9 @@ REAL(DP)                                                   :: MaximumCorrection
 REAL(DP)                                                   :: TotalMass
 REAL(DP)                                                   :: InitialTotalMass
 
+REAL(DP)                                                   :: dtrich
+REAL(DP)                                                   :: t_rich
+
 INTEGER(I4B)                                               :: reason
 INTEGER(I4B)                                               :: nflow
 INTEGER(I4B)                                               :: nt
@@ -414,6 +417,8 @@ REAL(DP)                                                   :: m
 REAL(DP)                                                   :: dist
 REAL(DP)                                                   :: satu
 REAL(DP)                                                   :: watertable
+
+INTEGER(I4B), PARAMETER                                    :: n_substep=15
 
 ! variables pump time series
 
@@ -1013,7 +1018,7 @@ END DO
           IF (npump(jx,jy,jz)>0) THEN
             qg(1,jx,jy,jz)=qgdum
           ELSE
-            qg(1,jx,jy,jz)=0  
+            qg(1,jx,jy,jz)=0
           END IF
 
           pumpterm = pumpterm + qg(1,jx,jy,jz)
@@ -1223,7 +1228,6 @@ iteration_tot = 0
 nn = 0
 
 DO WHILE (nn <= nend)
-
     ! Zhi Li 20200715
     IF (nn == 0 .AND. dtflow > 1.0E-15 ) THEN
         delt = dtflow
@@ -1258,160 +1262,229 @@ DO WHILE (nn <= nend)
 
 
   IF (CalculateFlow) THEN
-
-    ro(0,:,:) = ro(1,:,:)
-    ro(nx+1,:,:) = ro(nx,:,:)
-    ro(:,0,:) = ro(:,1,:)
-    ro(:,ny+1,:) = ro(:,ny,:)
-    ro(:,:,0) = ro(:,:,1)
-    ro(:,:,nz+1) = ro(:,:,nz)
-
-    IF (jpor == 1 .OR. jpor == 3) THEN
-      IF (.not. CubicLaw) THEN
-        CALL porperm(nx,ny,nz)
+      t_rich = 0.0d0
+      IF (dt_sync) THEN
+          dtrich = delt
+      ELSE
+          dtrich = deltmin / n_substep
       END IF
-    END IF
 
-    atolksp = 1.D-50
-    rtolksp = GimrtRTOLKSP
-    rtolksp = 1.0D-25
-    dtolksp = 1.0D-30
+      DO WHILE (t_rich < delt)
 
-    pc%v = userP(5)
-    ksp%v = userP(6)
 
-    SteadyFlow = .FALSE.
-    CALL KSPSetOperators(ksp,amatP,amatP,ierr)
-    CALL harmonic(nx,ny,nz)
+          IF (delt - t_rich < dtrich) THEN
+              dtrich = delt - t_rich
+          END IF
 
-    IF (Richards) THEN
+        ro(0,:,:) = ro(1,:,:)
+        ro(nx+1,:,:) = ro(nx,:,:)
+        ro(:,0,:) = ro(:,1,:)
+        ro(:,ny+1,:) = ro(:,ny,:)
+        ro(:,:,0) = ro(:,:,1)
+        ro(:,:,nz+1) = ro(:,:,nz)
+
+        IF (jpor == 1 .OR. jpor == 3) THEN
+          IF (.not. CubicLaw) THEN
+            CALL porperm(nx,ny,nz)
+          END IF
+        END IF
+
+        atolksp = 1.D-50
+        rtolksp = GimrtRTOLKSP
+        rtolksp = 1.0D-25
+        dtolksp = 1.0D-30
+
+        pc%v = userP(5)
+        ksp%v = userP(6)
+
+        SteadyFlow = .FALSE.
+        CALL KSPSetOperators(ksp,amatP,amatP,ierr)
+        CALL harmonic(nx,ny,nz)
+
+        IF (Richards) THEN
+            DO jz = 0,nz+1
+              DO jy = 0,ny+1
+                DO jx = 0,nx+1
+                  headOld(jx,jy,jz) = head(jx,jy,jz)
+                  wcOld(jx,jy,jz) = wc(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+        END IF
+
+
+        IF (NavierStokes) THEN
+            CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
+        ELSE IF (Richards) THEN
+            CALL vanGenuchten(nx,ny,nz)
+            CALL pressureRich(nx,ny,nz,dtrich,amatP,SteadyFlow)
+        ELSE
+            CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
+        END IF
+
+        CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
+
+
+    !!!!  To invoke direct solve
+    !!    call KSPGetPC(ksp,pc,ierr)
+    !!    call PCSetType(pc,PCLU,ierr)
+
+        IF (SolverMethod /= 'direct') THEN
+          CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
+        END IF
+
+    !    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
+    !    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
+        CALL KSPSolve(ksp,BvecP,XvecP,ierr)
+    !!!    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+
+    !    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
+
+
+    !!!    IF (MOD(nn,ScreenInterval) == 0) THEN
+    !!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
+    !!!    END IF
+
+        IF (ierr /= 0) then
+          WRITE(*,*)
+          WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
+
+    !     ***** PETSc closeout**************
+          IF (petscon) then
+            call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
+          END IF
+          IF (CalculateFlow) then
+            call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
+          END IF
+          IF (os3dpetsc) then
+            call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
+          END IF
+          call PetscFinalize(ierr)
+    !     ****** PETSc closeout finished *********
+          READ(*,*)
+          STOP
+        END IF
+
+        IF (Richards) THEN
+            FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+              head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+            END FORALL
+        ELSE
+            FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+              pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+            END FORALL
+        END IF
+
+        IF (NavierStokes) THEN
+            CALL velocalcNS(nx,ny,nz,delt)
+        ELSE IF (Richards) THEN
+            ! Disable os3d for now, Zhi Li 20200714
+            ! os3d = .FALSE.
+            CALL vanGenuchten(nx,ny,nz)
+            CALL velocalcRich(nx,ny,nz,dtrich)
+            CALL watercontentRich(nx,ny,nz,dtrich)
+            CALL vanGenuchten(nx,ny,nz)
+            CALL redistributeRich(nx,ny,nz,dtrich)
+            FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+              pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
+            END FORALL
+            ! CALL velocalcRich(nx,ny,nz)
+        ELSE
+            CALL velocalc(nx,ny,nz)
+        END IF
+
+        ! final check of water content
+         IF (Richards) THEN
+           DO jz = 1,nz
+             DO jy = 1,ny
+               DO jx = 1,nx
+                 IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
+                     wc(jx,jy,jz) = wcs(jx,jy,jz)
+                 ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
+                     wc(jx,jy,jz) = wcr(jx,jy,jz)
+                 END IF
+               END DO
+             END DO
+           END DO
+
+           t_rich = t_rich + dtrich
+           ! Adjust dt
+           dq_max = 0.0d0
+           dt_co = dtmax
+           DO jz = 1,nz
+             DO jy = 1,ny
+               DO jx = 1,nx
+                   IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
+                       dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
+                   END IF
+                   ! calculate Courant number
+                   IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
+                       m = 1.0 - 1.0/vgn(jx,jy,jz)
+                       ! term1 = saturation
+                       IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
+                           term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                       ELSE
+                           term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                       END IF
+                       ! term2 = 1 - saturation^(1/m)
+                       term2 = 1.0 - term1**(1.0/m)
+                       ! term3 = 1 - (1 - saturation^(1/m))^m
+                       term3 = 1.0 - term2**m
+                       ! term4 = Ks      Why using permy???
+                       term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
+                       ! term5 = dK/ds
+                       term5 = 0.5*term4*term1**(-0.5)*term3**2.0
+                       IF (term2 /= 0.0) THEN
+                           term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
+                       END IF
+                       ! finally, get max dt by assume max Co=2
+                       IF (term5 .NE. 0.0) THEN
+                           IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
+                               dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
+                         END IF
+                       END IF
+                   END IF
+               END DO
+             END DO
+           END DO
+
+           dtold = dtrich
+           IF (dq_max > 0.02) THEN
+               dtrich = 0.7 * dtrich
+           ELSE IF (dq_max < 0.01) THEN
+               dtrich = 1.3 * dtrich
+           END IF
+
+          IF (dtrich > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin/10.0) THEN
+              dtrich = dt_co
+          END IF
+
+           IF (dtrich < deltmin/n_substep) THEN
+               dtrich = deltmin/n_substep
+           ELSE IF (dtrich > dtmax) THEN
+               dtrich = dtmax
+           ELSE
+             CONTINUE
+           END IF
+
+           ! WRITE(*,*) '     >> Substep completed with t, dt (in min) = ',t_rich*365.0*24.0*60.0,dtrich*365.0*24.0*60.0
+
+
+         !!! Calculate liquid saturation from water content
+
         DO jz = 0,nz+1
           DO jy = 0,ny+1
             DO jx = 0,nx+1
-              headOld(jx,jy,jz) = head(jx,jy,jz)
-              wcOld(jx,jy,jz) = wc(jx,jy,jz)
+              satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+              satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
             END DO
           END DO
         END DO
-    END IF
-
-
-    IF (NavierStokes) THEN
-        CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
-    ELSE IF (Richards) THEN
-        CALL vanGenuchten(nx,ny,nz)
-        CALL pressureRich(nx,ny,nz,delt,amatP,SteadyFlow)
-    ELSE
-        CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
-    END IF
-
-    CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
-
-
-!!!!  To invoke direct solve
-!!    call KSPGetPC(ksp,pc,ierr)
-!!    call PCSetType(pc,PCLU,ierr)
-
-    IF (SolverMethod /= 'direct') THEN
-      CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
-    END IF
-
-!    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
-!    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-    CALL KSPSolve(ksp,BvecP,XvecP,ierr)
-!!!    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
-
-!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
-
-!!!    IF (MOD(nn,ScreenInterval) == 0) THEN
-!!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
-!!!    END IF
-
-    IF (ierr /= 0) then
-      WRITE(*,*)
-      WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
-
-!     ***** PETSc closeout**************
-      IF (petscon) then
-        call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
-      END IF
-      IF (CalculateFlow) then
-        call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
-      END IF
-      IF (os3dpetsc) then
-        call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
-      END IF
-      call PetscFinalize(ierr)
-!     ****** PETSc closeout finished *********
-      READ(*,*)
-      STOP
-    END IF
-
-    IF (Richards) THEN
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-        END FORALL
-    ELSE
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-        END FORALL
-    END IF
-
-    IF (NavierStokes) THEN
-        CALL velocalcNS(nx,ny,nz,delt)
-    ELSE IF (Richards) THEN
-        ! Disable os3d for now, Zhi Li 20200714
-        ! os3d = .FALSE.
-        CALL vanGenuchten(nx,ny,nz)
-        CALL velocalcRich(nx,ny,nz,delt)
-        CALL watercontentRich(nx,ny,nz,delt)
-        CALL vanGenuchten(nx,ny,nz)
-        CALL redistributeRich(nx,ny,nz,delt)
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
-        END FORALL
-        ! CALL velocalcRich(nx,ny,nz)
-    ELSE
-        CALL velocalc(nx,ny,nz)
-    END IF
-
-    ! final check of water content
-     IF (Richards) THEN
-       DO jz = 1,nz
-         DO jy = 1,ny
-           DO jx = 1,nx
-             IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
-                 wc(jx,jy,jz) = wcs(jx,jy,jz)
-             ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
-                 wc(jx,jy,jz) = wcr(jx,jy,jz)
-             END IF
-           END DO
-         END DO
-       END DO
-
-       ! wc(0,0,0) = 0.0d0
-       !   DO jy = 1,ny
-       !     DO jx = 1,nx
-       !       wc(0,0,0) = wc(0,0,0) + wc(jx,jy,1) * dxx(jx) * dyy(jy)
-       !     END DO
-       !   END DO
-       !   WRITE(*,*) ' >>>>> Total volume = ',wc(0,0,0), ' dt(sec) = ', delt*365.0*86400.0
-
-
- !!! Calculate liquid saturation from water content
-
-DO jz = 0,nz+1
-  DO jy = 0,ny+1
-    DO jx = 0,nx+1
-      satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-      satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-    END DO
-  END DO
-END DO
-
 
     END IF
+
+    END DO ! end richards loop
+    ! WRITE(*,*) '   >> Global step ',nn,' completed with dt (in min) = ',delt*365.0*24.0*60.0
 
   END IF
 
@@ -1426,7 +1499,6 @@ END DO
   END IF
 
 !  **************  OS3D BLOCK    **********************
-
   IF (os3d) THEN
 
     IF (.NOT. modflow) THEN
@@ -2538,7 +2610,7 @@ END DO
 
 !         Advect the minerals via burial or erosion
 !           (positive for burial, negative for erosion)
-    
+
     !!!  ******* Minerals *******************************
 
     rinv = 1.0/delt
@@ -2604,7 +2676,7 @@ END DO
             rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
           END IF
         END DO
-        
+
         IF (SolidBuryX(1) > 0.0) THEN
           rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
         END IF
@@ -2619,18 +2691,18 @@ END DO
         END DO
 
       END IF
-      
+
 
     END DO   ! End of Mineral loop for erosion/burial
-    
+
     rinv = 1.0/delt
     jz = 1
     jy = 1
-    
+
     rrbur = 0.0d0
-    
+
     DO k = 1,nkin
-    
+
       DO jx = 1,nx
         ctvd(jx,jy,jz) = specificByGrid(k,jx,1,1)
       END DO
@@ -2646,30 +2718,30 @@ END DO
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
           dxw = 0.5*(dxx(jx)+dxx(jx-1))
         END IF
-      
+
         IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-        
+
           aabur(jx) = -SolidburyX(jx-1)
           bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
           ccbur(jx) = 0.0
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-          
+
         ELSE                         ! Erosion case
-        
+
           aabur(jx) = 0.0
           bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
           ccbur(jx) = SolidburyX(jx)
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-          
+
         END IF
       END DO
 
       IF (SolidBuryX(1) > 0.0) THEN
          rrbur(1) = rrbur(1) - aabur(1)*specificByGrid(k,0,1,1)
       END IF
-      
+
       IF (SolidBuryX(nx) < 0.0) THEN
         rrbur(nx) = rrbur(nx) - ccbur(nx)*specificByGrid(k,nx+1,1,1)
       END IF
@@ -2679,15 +2751,15 @@ END DO
       DO jx = 1,nx
         specificByGrid(k,jx,1,1) = uubur(jx)
       END DO
-      
+
 !!   ********************************************
-      
+
       DO jx = 1,nx
         ctvd(jx,jy,jz) = areainByGrid(k,jx,1,1)
       END DO
-      
+
       DO jx = 1,nx
-        
+
         IF (jx == 1) THEN
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
           dxw = 0.5*dxx(1)
@@ -2698,48 +2770,48 @@ END DO
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
           dxw = 0.5*(dxx(jx)+dxx(jx-1))
         END IF
-      
+
         IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-        
+
           aabur(jx) = -SolidburyX(jx-1)
           bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
           ccbur(jx) = 0.0
           uubur(jx) = ctvd(jx,1,1)
-          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)  
-          
+          rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
+
         ELSE                         ! Erosion case
-        
+
           aabur(jx) = 0.0
           bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
           ccbur(jx) = SolidburyX(jx)
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-          
+
         END IF
       END DO
-      
+
       IF (SolidBuryX(1) > 0.0) THEN
          rrbur(1) = rrbur(1) - aabur(1)*areab(k,1)
       END IF
-      
+
       IF (SolidBuryX(nx) < 0.0) THEN
         rrbur(nx) = rrbur(nx) - ccbur(nx)*areab(k,2)
       END IF
-      
+
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
 
       DO jx = 1,nx
         areainByGrid(k,jx,1,1) = uubur(jx)
       END DO
-      
+
 !!   ********************************************
-      
+
       DO jx = 1,nx
         ctvd(jx,jy,jz) = volinByGrid(k,jx,1,1)
       END DO
-      
+
       DO jx = 1,nx
-        
+
         IF (jx == 1) THEN
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
           dxw = 0.5*dxx(1)
@@ -2750,54 +2822,54 @@ END DO
           dxe = 0.5*(dxx(jx)+dxx(jx+1))
           dxw = 0.5*(dxx(jx)+dxx(jx-1))
         END IF
-      
+
         IF (SolidburyX(jx) > 0.0) THEN      ! Burial case
-        
+
           aabur(jx) = -SolidburyX(jx-1)
           bbbur(jx) = SolidburyX(jx-1) + rinv*dxx(jx)
           ccbur(jx) = 0.0
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-          
-          
+
+
         ELSE                         ! Erosion case
-        
+
           aabur(jx) = 0.0
           bbbur(jx) = -SolidburyX(jx) + rinv*dxx(jx)
           ccbur(jx) = SolidburyX(jx)
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
-          
+
         END IF
       END DO
-      
-      
+
+
       IF (SolidBuryX(1) > 0.0) THEN
 !!!         rrbur(1) = rrbur(1) - aabur(1)*volinByGrid(k,0,1,1)
                 rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
       END IF
-      
+
       IF (SolidBuryX(nx) < 0.0) THEN
         rrbur(nx) = rrbur(nx) - ccbur(nx)**volb(k,2)
       END IF
-      
+
       CALL tridag_ser(aabur,bbbur,ccbur,rrbur,uubur)
 
       DO jx = 1,nx
         volinByGrid(k,jx,1,1) = uubur(jx)
       END DO
-      
-!!   ********************************************
-      
 
-      
+!!   ********************************************
+
+
+
     END DO !  Loop through minerals
-    
+
     CALL porcalc(nx,ny,nz,nkin,jpor)     ! Updates porosity and surface area
 
 
   END IF   !  End of erosion/burial block (for GIMRT only)
-  
+
   IF (KateMaher) THEN
       write(*,*)
       write(*,*) ' KateMaher option no longer supported'
@@ -2888,7 +2960,7 @@ END DO
       IF (MOD(nn,ScreenInterval) == 0) THEN
 
         if (SaltCreep) THEN
-          
+
           totPor = 0.0
           totVol = 0.0
           totChange = 0.0
@@ -2969,61 +3041,59 @@ END DO
 !  Calculate time step to be used based on various criteria
 !Adaptive dt, Zhi Li 20200715
 IF (Richards) THEN
-    dq_max = 0.0d0
-    dt_co = dtmax
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-            ! IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale) > dq_max) THEN
-            !     dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))*dzz(jx,jy,jz)/(delt*OutputTimeScale)
-            ! END IF
-
-            IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
-                dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
-            END IF
-            ! calculate Courant number
-            IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
-                m = 1.0 - 1.0/vgn(jx,jy,jz)
-                ! term1 = saturation
-                IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
-                    term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                ELSE
-                    term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+    IF (dt_sync) THEN
+        ! Adjust dt
+        dq_max = 0.0d0
+        dt_co = dtmax
+        DO jz = 1,nz
+          DO jy = 1,ny
+            DO jx = 1,nx
+                IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
+                    dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
                 END IF
-                ! term2 = 1 - saturation^(1/m)
-                term2 = 1.0 - term1**(1.0/m)
-                ! term3 = 1 - (1 - saturation^(1/m))^m
-                term3 = 1.0 - term2**m
-                ! term4 = Ks      Why using permy???
-                term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
-                ! term5 = dK/ds
-                term5 = 0.5*term4*term1**(-0.5)*term3**2.0
-                IF (term2 /= 0.0) THEN
-                    term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
+                ! calculate Courant number
+                IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
+                    m = 1.0 - 1.0/vgn(jx,jy,jz)
+                    ! term1 = saturation
+                    IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
+                        term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                    ELSE
+                        term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                    END IF
+                    ! term2 = 1 - saturation^(1/m)
+                    term2 = 1.0 - term1**(1.0/m)
+                    ! term3 = 1 - (1 - saturation^(1/m))^m
+                    term3 = 1.0 - term2**m
+                    ! term4 = Ks      Why using permy???
+                    term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
+                    ! term5 = dK/ds
+                    term5 = 0.5*term4*term1**(-0.5)*term3**2.0
+                    IF (term2 /= 0.0) THEN
+                        term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
+                    END IF
+                    ! finally, get max dt by assume max Co=2
+                    IF (term5 .NE. 0.0) THEN
+                        IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
+                            dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
+                      END IF
+                    END IF
                 END IF
-                ! finally, get max dt by assume max Co=2
-                IF (term5 .NE. 0.0) THEN
-                    IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
-                        dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
-                  END IF
-                END IF
-            END IF
+            END DO
+          END DO
         END DO
-      END DO
-    END DO
-    ! WRITE(*,*) '  >>>>> Maximum change in water content = ',dq_max
-    ! WRITE(*,*) '  >>>>> Maximum dt with Courant criteria = ',dt_co, dt_co*365.0*86400.0
 
-    dtold = delt
-    IF (dq_max > 0.02) THEN
-        delt = 0.8 * delt
-    ELSE IF (dq_max < 0.01) THEN
-        delt = 1.2 * delt
+        dtold = delt
+        IF (dq_max > 0.02) THEN
+            delt = 0.7 * delt
+        ELSE IF (dq_max < 0.01) THEN
+            delt = 1.3 * delt
+        END IF
+
+       IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
+           delt = dt_co
+       END IF
+
     END IF
-
-   IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
-       delt = dt_co
-   END IF
 
     IF (delt < deltmin) THEN
         delt = deltmin
@@ -3031,10 +3101,6 @@ IF (Richards) THEN
         delt = dtmax
     ELSE
       CONTINUE
-    END IF
-
-    IF (dtold /= delt) THEN
-!!!        WRITE(*,*) '  >>>>> dt has been adjusted to : ',delt
     END IF
 
 ELSE
@@ -3064,11 +3130,12 @@ ELSE
                   dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
                 END IF
               END IF
-
               CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
               dtold = delt
           END IF
   END IF
+
+
 
 !!  OPEN(unit=98,file='vxSonnenthal.dat',status='unknown')
 !!  WRITE(98,*)(((qx(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
@@ -3155,7 +3222,7 @@ ELSE
 
 
   END IF
-  
+
     IF (FractureNetwork .and. CubicLaw) THEN
       call rmesh51(nx,ny)
     END IF
@@ -3303,7 +3370,7 @@ ELSE
         CALL NviewOutput(ncomp,nrct,nkin,nspec,nexchange,nexch_sec,nsurf,  &
           nsurf_sec,ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,ikO2,master,delt)
       ELSE IF (visit) THEN
-               
+
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
       ELSE
@@ -3356,7 +3423,7 @@ ELSE
           IF (npump(jx,jy,jz)>0) THEN
             qg(1,jx,jy,jz)=qgdum
           ELSE
-         qg(1,jx,jy,jz)=0  
+         qg(1,jx,jy,jz)=0
           END IF
         pumpterm = pumpterm + qg(1,jx,jy,jz)
 
