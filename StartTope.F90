@@ -7705,7 +7705,7 @@ IF (found) THEN
         CALL read_logical(nout,lchar,parchar,parfind,watertable_flat)
 
         ! asynchronous time stepping
-        dt_sync = .FALSE.
+        dt_sync = .TRUE.
         parchar = 'dt_sync'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,dt_sync)
