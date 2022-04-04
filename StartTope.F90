@@ -7710,6 +7710,12 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,dt_sync)
 
+        parchar = 'n_substep'
+        parfind = ' '
+        realjunk = 1
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        n_substep = realjunk
+
         ! perm averaging method
         upstream_weighting = .FALSE.
         parchar = 'upstream_weighting'

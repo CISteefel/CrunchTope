@@ -204,7 +204,7 @@ REAL(DP)                                                   :: MaximumCorrection
 REAL(DP)                                                   :: TotalMass
 REAL(DP)                                                   :: InitialTotalMass
 
-REAL(DP)                                                   :: dtrich
+REAL(DP)                                                   :: dt_gimrt
 REAL(DP)                                                   :: t_rich
 
 INTEGER(I4B)                                               :: reason
@@ -418,7 +418,7 @@ REAL(DP)                                                   :: dist
 REAL(DP)                                                   :: satu
 REAL(DP)                                                   :: watertable
 
-INTEGER(I4B), PARAMETER                                    :: n_substep=15
+INTEGER(I4B)                                               :: i_substep
 
 ! variables pump time series
 
@@ -1226,12 +1226,14 @@ END IF
 iteration_tot = 0
 
 nn = 0
-
+i_substep = 0
 DO WHILE (nn <= nend)
     ! Zhi Li 20200715
     IF (nn == 0 .AND. dtflow > 1.0E-15 ) THEN
         delt = dtflow
     END IF
+
+    i_substep = i_substep + 1
 
   nn = nn + 1
 
@@ -1262,19 +1264,6 @@ DO WHILE (nn <= nend)
 
 
   IF (CalculateFlow) THEN
-      t_rich = 0.0d0
-      IF (dt_sync) THEN
-          dtrich = delt
-      ELSE
-          dtrich = deltmin / n_substep
-      END IF
-
-      DO WHILE (t_rich < delt)
-
-
-          IF (delt - t_rich < dtrich) THEN
-              dtrich = delt - t_rich
-          END IF
 
         ro(0,:,:) = ro(1,:,:)
         ro(nx+1,:,:) = ro(nx,:,:)
@@ -1317,7 +1306,7 @@ DO WHILE (nn <= nend)
             CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
         ELSE IF (Richards) THEN
             CALL vanGenuchten(nx,ny,nz)
-            CALL pressureRich(nx,ny,nz,dtrich,amatP,SteadyFlow)
+            CALL pressureRich(nx,ny,nz,delt,amatP,SteadyFlow)
         ELSE
             CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
         END IF
@@ -1378,17 +1367,14 @@ DO WHILE (nn <= nend)
         IF (NavierStokes) THEN
             CALL velocalcNS(nx,ny,nz,delt)
         ELSE IF (Richards) THEN
-            ! Disable os3d for now, Zhi Li 20200714
-            ! os3d = .FALSE.
             CALL vanGenuchten(nx,ny,nz)
-            CALL velocalcRich(nx,ny,nz,dtrich)
-            CALL watercontentRich(nx,ny,nz,dtrich)
+            CALL velocalcRich(nx,ny,nz,delt)
+            CALL watercontentRich(nx,ny,nz,delt)
             CALL vanGenuchten(nx,ny,nz)
-            CALL redistributeRich(nx,ny,nz,dtrich)
+            CALL redistributeRich(nx,ny,nz,delt)
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
             END FORALL
-            ! CALL velocalcRich(nx,ny,nz)
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
@@ -1406,68 +1392,8 @@ DO WHILE (nn <= nend)
                END DO
              END DO
            END DO
+       END IF
 
-           t_rich = t_rich + dtrich
-           ! Adjust dt
-           dq_max = 0.0d0
-           dt_co = dtmax
-           DO jz = 1,nz
-             DO jy = 1,ny
-               DO jx = 1,nx
-                   IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
-                       dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
-                   END IF
-                   ! calculate Courant number
-                   IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
-                       m = 1.0 - 1.0/vgn(jx,jy,jz)
-                       ! term1 = saturation
-                       IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
-                           term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                       ELSE
-                           term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                       END IF
-                       ! term2 = 1 - saturation^(1/m)
-                       term2 = 1.0 - term1**(1.0/m)
-                       ! term3 = 1 - (1 - saturation^(1/m))^m
-                       term3 = 1.0 - term2**m
-                       ! term4 = Ks      Why using permy???
-                       term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
-                       ! term5 = dK/ds
-                       term5 = 0.5*term4*term1**(-0.5)*term3**2.0
-                       IF (term2 /= 0.0) THEN
-                           term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
-                       END IF
-                       ! finally, get max dt by assume max Co=2
-                       IF (term5 .NE. 0.0) THEN
-                           IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
-                               dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
-                         END IF
-                       END IF
-                   END IF
-               END DO
-             END DO
-           END DO
-
-           dtold = dtrich
-           IF (dq_max > 0.02) THEN
-               dtrich = 0.7 * dtrich
-           ELSE IF (dq_max < 0.01) THEN
-               dtrich = 1.3 * dtrich
-           END IF
-
-          IF (dtrich > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin/10.0) THEN
-              dtrich = dt_co
-          END IF
-
-           IF (dtrich < deltmin/n_substep) THEN
-               dtrich = deltmin/n_substep
-           ELSE IF (dtrich > dtmax) THEN
-               dtrich = dtmax
-           ELSE
-             CONTINUE
-           END IF
-
-           ! WRITE(*,*) '     >> Substep completed with t, dt (in min) = ',t_rich*365.0*24.0*60.0,dtrich*365.0*24.0*60.0
 
 
          !!! Calculate liquid saturation from water content
@@ -1480,11 +1406,6 @@ DO WHILE (nn <= nend)
             END DO
           END DO
         END DO
-
-    END IF
-
-    END DO ! end richards loop
-    ! WRITE(*,*) '   >> Global step ',nn,' completed with dt (in min) = ',delt*365.0*24.0*60.0
 
   END IF
 
@@ -1858,9 +1779,7 @@ DO WHILE (nn <= nend)
       END DO
     END DO loop4001
 
-    ! No dt reduction when using Richards solver , Zhi Li 20200708
-    ! Enabled dt reduction by Zhi Li 20210630
-    ! IF (icvg == 1 .AND. .NOT. Richards) THEN
+
     IF (icvg == 1) THEN
       ddtold = delt
       delt = delt/10.0
@@ -1921,581 +1840,595 @@ DO WHILE (nn <= nend)
 
 !  ***********  START GIMRT BLOCK  *********************
 
-  6000   IF (gimrt) THEN
+6000   IF (gimrt) THEN
 
-    jz = 1
-!!!    WRITE(*,*) 'GIMRT invoked!'
-!           Calculate finite difference coefficients
-    CALL dispersivity(nx,ny,nz)
 
-    IF (TortuosityOption /= 'none') THEN
-      CALL CalculateTortuosity(nx,ny,nz)
-    END IF
-
-!!  Diffusion block for GIMRT
-
-    IF (species_diffusion) THEN
-      IF (spherical) THEN
-        IF (xflow .OR. yflow .OR. zflow) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Spherical coordinates for diffusion problems only at present'
-          WRITE(*,*) ' Aborting run'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        ELSE
-          CALL coeffSphericalNew_d(nx,ny,nz,ncomp,nspec)
-        END IF
-      ELSE IF (cylindrical) THEN
-        CALL coeffCylinder_d(nx,ny,nz,ncomp,nspec)
-      ELSE
-        CALL coeff_d(nx,ny,nz,ncomp,nspec)
-      END IF
+  ! ****    Async time loop, ZhiLi20220404      ****
+    IF (dt_sync) THEN
+        i_substep = 1
+        n_substep = 1
+        dt_gimrt = delt
     ELSE
-      IF (ReadNuft) THEN
-        IF (cylindrical) THEN
-          CALL coeffCylinderNUFT(nx,ny,nz)
-        ELSE
-          CALL coeffNuft(nx,ny,nz)
+        dt_gimrt = dt_gimrt + delt
+    END IF
+
+    IF (i_substep == n_substep) THEN
+        ! Invoke GIMRT calculation
+        jz = 1
+    !           Calculate finite difference coefficients
+        CALL dispersivity(nx,ny,nz)
+
+        IF (TortuosityOption /= 'none') THEN
+          CALL CalculateTortuosity(nx,ny,nz)
         END IF
-      ELSE
-        IF (cylindrical) THEN
-          CALL coeffCylinder(nx,ny,nz)
-        ELSE IF (spherical) THEN
-          CALL coeffSphericalNew(nx,ny,nz)
+
+        !!  Diffusion block for GIMRT
+        IF (species_diffusion) THEN
+          IF (spherical) THEN
+            IF (xflow .OR. yflow .OR. zflow) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Spherical coordinates for diffusion problems only at present'
+              WRITE(*,*) ' Aborting run'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            ELSE
+              CALL coeffSphericalNew_d(nx,ny,nz,ncomp,nspec)
+            END IF
+          ELSE IF (cylindrical) THEN
+            CALL coeffCylinder_d(nx,ny,nz,ncomp,nspec)
+          ELSE
+            CALL coeff_d(nx,ny,nz,ncomp,nspec)
+          END IF
         ELSE
-          CALL coeff(nx,ny,nz)
+          IF (ReadNuft) THEN
+            IF (cylindrical) THEN
+              CALL coeffCylinderNUFT(nx,ny,nz)
+            ELSE
+              CALL coeffNuft(nx,ny,nz)
+            END IF
+          ELSE
+            IF (cylindrical) THEN
+              CALL coeffCylinder(nx,ny,nz)
+            ELSE IF (spherical) THEN
+              CALL coeffSphericalNew(nx,ny,nz)
+            ELSE
+              CALL coeff(nx,ny,nz)
+            END IF
+          END IF
         END IF
-      END IF
-    END IF
 
-    IF (isaturate == 1) THEN
-      IF (cylindrical) THEN
-!!        CALL gasdiffCylinder(nx,ny,nz)
-        CALL gascoeffCylinder(nx,ny,nz)
-      ELSE
-        CALL gasdiff(nx,ny,nz)
-      END IF
-    END IF
-
-    IF (ierode == 1) THEN
-      CALL erosion(nx,ny,nz)
-    END IF
-
-    jz = 1
-    DO jy = 1,ny
-      DO jx = 1,nx
-        CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
-      END DO
-    END DO
-
-    jz = 1
-    DO jy = 1,ny
-      DO jx = 1,nx
-        CALL oldcon(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
         IF (isaturate == 1) THEN
-          CALL oldcongas(ncomp,ngas,jx,jy,jz)
-        END IF
-        CALL oldsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
-      END DO
-    END DO
-
-    IF (KateMaher) THEN
-      CALL CalciteStoichiometry(nx,ny,nz)
-    END IF
-
-    IF (igamma == 3) THEN
-      jz = 1
-      DO jy = 1,ny
-        DO jx = 1,nx
-            IF (Duan .OR. Duan2006) THEN
-              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-            ELSE
-              CALL gamma(ncomp,nspec,jx,jy,jz)
-            END IF
-        END DO
-      END DO
-    END IF
-! **************  START NEWTON LOOP  *******************
-
-    5000     NE = 0
-    icvg = 1
-    iterat = 0
-
-
-newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
-      NE = NE + 1
-      iterat = iterat + 1
-
-      CALL species(ncomp,nspec,nx,ny,nz)
-      CALL jacobian(ncomp,nspec,nx,ny,nz)
-      IF (ierode == 1) THEN
-        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-        CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-      END IF
-
-      jz = 1
-      DO jy = 1,ny
-        DO jx = 1,nx
-          IF (igamma == 2) THEN
-            IF (Duan .OR. Duan2006) THEN
-              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-            ELSE
-              CALL gamma(ncomp,nspec,jx,jy,jz)
-            END IF
-          END IF
-
-          IF (isaturate == 1) THEN
-            CALL gases(ncomp,ngas,jx,jy,jz)
-          END IF
-          IF (ierode == 1) THEN
-            CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
-          END IF
-          IF (species_diffusion) THEN
-            CALL jacobian_plus(ncomp,nspec,jx,jy,jz)
+          IF (cylindrical) THEN
+    !!        CALL gasdiffCylinder(nx,ny,nz)
+            CALL gascoeffCylinder(nx,ny,nz)
           ELSE
-
+            CALL gasdiff(nx,ny,nz)
           END IF
-          IF (isaturate == 1) THEN
-            CALL jacgas(ncomp,ngas,jx,jy,jz)
-          END IF
-
-          IF (ierode == 1) THEN
-            CALL jac_exchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,neqn,jx,jy,jz)
-          END IF
-        END DO
-      END DO
-
-      jz = 1
-      DO jy = 1,ny
-        DO jx = 1,nx
-          IF (species_diffusion) THEN
-            CALL totconc_plus(ncomp,nspec,jx,jy,jz)
-          ELSE
-            CALL totconc(ncomp,nspec,jx,jy,jz)
-          END IF
-          IF (isaturate == 1) THEN
-            CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
-          END IF
-          IF (ierode == 1) THEN
-            CALL totexchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
-            CALL totsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
-          END IF
-        END DO  ! end of J loop
-      END DO
-
-      CALL xmass(nx,ny,nz,ncomp,nspec)
-
-!************************ Start PETSC changes for matrix fill ********************
-      if(petscon) then
-        call MatZeroEntries(amatpetsc,ierr)
-      endif
-
-      CALL AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,                   &
-         nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time, &
-         userC,amatpetsc,nBoundaryConditionZone)
-
-      if ((nn.eq.1) .and. (ne.eq.1) .and. petscon) then
-!!          call MatSetOption(amatpetsc,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
-      endif
-!**************  End PETSC changes *********************************************
-
-
-      IF (nxyz == 1) THEN
-
-        bb = -fxx
-
-!!        CALL ludcmp90(aaa,indd,det,neqn)
-!!        CALL lubksb90(aaa,indd,bb,neqn)
-
-        CALL dgetrf(neqn,neqn,aaa,neqn,indd,info)
-        CALL dgetrs(trans,neqn,ione,aaa,neqn,indd,bb,neqn,info)
-
-        xn = bb
-        continue
-
-      ELSE       !  One-dimensional case
-
-        IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
-
-        IF (switcheroo) then
-          write(*,*) ' Using Hindmarsh solver with PETSc constructed arrays'
-        end if
-
-          DO jx = 1,nx
-            j = jx
-            DO i = 1,neqn
-              ind = (j-1)*(neqn) + i
-              yh(i,jx) = -fxx(ind)
-            END DO
-          END DO
-
-
-          CALL decbt90(neqn,nx,ier)
-          CALL solbt90(neqn,nx)
-
-        ELSE IF (ihindmarsh == 2) THEN
-
-!         ***** PETSc closeout**************
-          IF (petscon) then
-            call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
-          END IF
-          IF (CalculateFlow) then
-            call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
-          END IF
-          IF (os3dpetsc) then
-            call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
-          END IF
-          call PetscFinalize(ierr)
-!         ****** PETSc closeout finished *********
-          READ(*,*)
-          STOP
-
-        ELSE         !  Run PETSc
-
-          fxx = -fxx
-
-!************* Invoke PETSc solver *****************************************************
-          if (petscon) then
-
-            atolksp = 1.D-50
-!!            rtolksp = 1.D-09
-            rtolksp = GimrtRTOLKSP
-            dtolksp = 1.D+05
-
-            pc%v = userC(5)
-            ksp%v = userC(6)
-
-            call KSPSetOperators(ksp,amatpetsc,amatpetsc,ierr)
-            CALL GIMRTCrunchPETScTolerances(userC,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
-
-            call KSPSolve(ksp,bvec,xvec,ierr)
-            CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
-
-            if(ierr.ne.0) then
-                icvg = 1
-                write(*,*) ' KSPSolve error, reducing timestep,ierr=',ierr
-                exit newtonloop
-            endif
-          endif
-
-!      xn now contains the solution to amatpetsc * xvec = bvec
-!      unless the solver failed in which case the time step will be halved
-!******************  PETSc solver exit **************************************************
-
         END IF
 
-      END IF
+        IF (ierode == 1) THEN
+          CALL erosion(nx,ny,nz)
+        END IF
 
-      IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
-
-        errmax = 0.0
         jz = 1
         DO jy = 1,ny
           DO jx = 1,nx
-            j = (jy-1)*nx+jx
-            DO i = 1,ncomp
-              IF (ulab(i) == "O2(aq)") THEN
-                MaximumCorrection = corrmax
-              ELSE
-                MaximumCorrection = 2.0
-              END IF
-              IF (ABS(yh(i,jx)) > errmax) THEN
-                errmax = ABS(yh(i,jx))
-              END IF
-              IF (ABS(yh(i,jx)) > MaximumCorrection) THEN
-                yh(i,jx) = SIGN(MaximumCorrection,yh(i,jx))
-              ELSE
-                CONTINUE
-              END IF
-              sp(i,jx,jy,jz) = sp(i,jx,jy,jz) + yh(i,jx)
-              sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
-            END DO
-
-            DO ix = 1,nexchange
-              IF (DABS(yh(ix+ncomp,jx)) > errmax) THEN
-                errmax = DABS(yh(ix+ncomp,jx))
-              END IF
-              IF (DABS(yh(ix+ncomp,jx)) > MaximumCorrection) THEN
-                yh(ix+ncomp,jx) = SIGN(MaximumCorrection,yh(ix+ncomp,jx))
-              ELSE
-                CONTINUE
-              END IF
-              spex(ix,jx,jy,jz) = spex(ix,jx,jy,jz) + yh(ix+ncomp,jx)
-              spex10(ix,jx,jy,jz) = DEXP(spex(ix,jx,jy,jz))
-            END DO
-
-            DO is = 1,nsurf
-              IF (DABS(yh(is+ncomp+nexchange,jx)) > errmax) THEN
-                errmax = DABS(yh(is+ncomp+nexchange,jx))
-              END IF
-              IF (DABS(yh(is+ncomp+nexchange,jx)) > MaximumCorrection) THEN
-                yh(is+ncomp+nexchange,jx) = SIGN(MaximumCorrection,yh(is+ncomp+nexchange,jx))
-              ELSE
-                CONTINUE
-              END IF
-              spsurf(is,jx,jy,jz) = spsurf(is,jx,jy,jz) + yh(is+ncomp+nexchange,jx)
-              spsurf10(is,jx,jy,jz) = DEXP(spsurf(is,jx,jy,jz))
-            END DO
-
-            DO npt = 1,npot
-              IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.9d0) THEN
-                yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.9d0,yh(npt+ncomp+nexchange+nsurf,jx))
-              ELSE
-                CONTINUE
-              END IF
-              LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) +   &
-                  yh(npt+ncomp+nexchange+nsurf,jx)
-            END DO
+            CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
           END DO
         END DO
-
-      ELSE
 
         jz = 1
-        errmax = 0.0D0
         DO jy = 1,ny
           DO jx = 1,nx
-            j = (jy-1)*nx+jx
-            DO i = 1,ncomp
-              IF (ulab(i) == "O2(aq)") THEN
-                MaximumCorrection = corrmax
-              ELSE
-                MaximumCorrection = 2.0d0
-              END IF
-              ind = (j-1)*(neqn) + i
-              IF (DABS(xn(ind)) > errmax) THEN
-                errmax = DABS(xn(ind))
-              END IF
-              IF (DABS(xn(ind)) > MaximumCorrection) THEN
-                xn(ind) = SIGN(MaximumCorrection,xn(ind))
-              ELSE
-                CONTINUE
-              END IF
-              sp(i,jx,jy,jz) = sp(i,jx,jy,jz) + xn(ind)
-              sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
-            END DO
-
-            DO ix = 1,nexchange
-              ind = (j-1)*(neqn) + ix+ncomp
-              IF (DABS(xn(ind)) > errmax) THEN
-                errmax = DABS(xn(ind))
-              END IF
-              IF (DABS(xn(ind)) > MaximumCorrection) THEN
-                xn(ind) = SIGN(MaximumCorrection,xn(ind))
-              ELSE
-                CONTINUE
-              END IF
-              spex(ix,jx,jy,jz) = spex(ix,jx,jy,jz) + xn(ind)
-              spex10(ix,jx,jy,jz) = DEXP(spex(ix,jx,jy,jz))
-            END DO
-
-            DO is = 1,nsurf
-              ind = (j-1)*(neqn) + is+ncomp+nexchange
-              IF (DABS(xn(ind)) > errmax) THEN
-                errmax = DABS(xn(ind))
-              END IF
-              IF (DABS(xn(ind)) > MaximumCorrection) THEN
-                xn(ind) = SIGN(MaximumCorrection,xn(ind))
-              ELSE
-                CONTINUE
-              END IF
-              spsurf(is,jx,jy,jz) = spsurf(is,jx,jy,jz) + xn(ind)
-              spsurf10(is,jx,jy,jz) = DEXP(spsurf(is,jx,jy,jz))
-            END DO
-
-            DO npt = 1,npot
-              ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
-             IF (DABS(xn(ind)) > errmax) THEN
-                errmax = DABS(xn(ind))
-             END IF
-!!!             IF (DABS(xn(ind)) > 0.9d0) THEN
-!!!               xn(ind) = SIGN(0.9d0,xn(ind))
-!!!               CONTINUE
-!!!              ELSE
-!!!                CONTINUE
-!!!              END IF
-              LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) + xn(ind)
-            END DO
+            CALL oldcon(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
+            IF (isaturate == 1) THEN
+              CALL oldcongas(ncomp,ngas,jx,jy,jz)
+            END IF
+            CALL oldsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
           END DO
         END DO
 
-      END IF
+        IF (KateMaher) THEN
+          CALL CalciteStoichiometry(nx,ny,nz)
+        END IF
 
-      icvg = 0
-      jz = 1
-      DO jy = 1,ny
-        DO jx = 1,nx
-          j = (jy-1)*nx+jx
-          DO i = 1,ncomp
-            ind = (j-1)*(neqn) + i
-            IF (ResidualTolerance /= 0.0d0) THEN
-              tolmax = ResidualTolerance
-            ELSE
-              tolmax = atol
-            END IF
-            IF (SaltCreep) THEN
-              IF (DABS(fxx(ind)) > tolmax) THEN
-                icvg = 1
-              END IF
-            ELSE
-              IF (DABS(delt*fxx(ind)) > tolmax) THEN
-!!!              IF (DABS(fxx(ind)) > tolmax) THEN
-                icvg = 1
-              END IF
-            END IF
-          END DO
-          DO ix = 1,nexchange
-            tolmax = 1.e-10
-            ind = (j-1)*(neqn) + ix+ncomp
-            IF (DABS(delt*fxx(ind)) > tolmax) THEN
-                icvg = 1
-            END IF
-          END DO
-          DO is = 1,nsurf
-            tolmax = atol
-            ind = (j-1)*(neqn) + is+ncomp+nexchange
-            IF (DABS(delt*fxx(ind)) > tolmax) THEN
-                icvg = 1
-            END IF
-          END DO
-          DO npt = 1,npot
-            tolmax = 1.e-10
-            ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
-            IF (DABS(fxx(ind)) > tolmax) THEN
-                icvg = 1
-            END IF
-          END DO
-        END DO
-      END DO
-
-      IF (ABS(errmax) < 1.e-15) THEN
-        icvg = 0
-      END IF
-
-!! If electrochemical migration is considered, always carry out at least two Newton iterations
-      IF (species_diffusion .AND. iterat<=2) THEN
-        icvg = 1
-      ELSE IF (iterat <= 1) THEN
-        icvg = 1
-      ELSE
-        continue
-      END IF
-!!      if (iterat<=1) icvg=1
-
-
-    END DO  newtonloop    ! end of Newton iteration loop
-
-!  Halve the timestep if convergence not achieved
-
-5017 CONTINUE
-    IF (icvg == 1) THEN
-      MaxFx = MaxLoc(fxx)
-!!      MaxValFx = MaxVal(fxx)
-
-      ddtold = delt
-      delt = delt/10.0
-      itskip = 1
-
-      jz = 1
-      DO jy = 1,ny
-        DO jx = 1,nx
-          DO i = 1,ncomp+nspec
-            sp(i,jx,jy,jz) = spold(i,jx,jy,jz)
-            sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
-          END DO
-          DO ix = 1,nexchange+nexch_sec
-            spex(ix,jx,jy,jz) = spexold(ix,jx,jy,jz)
-          END DO
-          DO nex = 1,nexch_sec
-            spex10(nex+nexchange,jx,jy,jz) = DEXP(spex(nex+nexchange,jx,jy,jz))
-          END DO
-          DO is = 1,nsurf+nsurf_sec
-            spsurf(is,jx,jy,jz) = spsurfold(is,jx,jy,jz)
-            spsurf10(is,jx,jy,jz) = DEXP(spsurf(is,jx,jy,jz))
-          END DO
-          IF (ierode == 1) THEN
-            CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
-          END IF
-          CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
-          IF (isaturate == 1) THEN
-            CALL gases(ncomp,ngas,jx,jy,jz)
-          END IF
-        END DO
-      END DO
-
-!!      CALL species(ncomp,nspec,nx,ny,nz)
-!!      IF (ierode == 1) THEN
-!!        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-!!      END IF
-
-      jz = 1
-      DO jy = 1,ny
-        DO jx = 1,nx
-          spno2(jx,jy,jz) = spnno2(jx,jy,jz)
-        END DO
-      END DO
-
-      IF (igamma == 2) THEN
-        DO jz = 1,nz
+        IF (igamma == 3) THEN
+          jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
-            IF (Duan .OR. Duan2006) THEN
-              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-            ELSE
-              CALL gamma(ncomp,nspec,jx,jy,jz)
-            END IF
+                IF (Duan .OR. Duan2006) THEN
+                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+                ELSE
+                  CALL gamma(ncomp,nspec,jx,jy,jz)
+                END IF
             END DO
           END DO
+        END IF
+    ! **************  START NEWTON LOOP  *******************
+
+        5000     NE = 0
+        icvg = 1
+        iterat = 0
+
+    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
+          NE = NE + 1
+          iterat = iterat + 1
+
+          CALL species(ncomp,nspec,nx,ny,nz)
+          CALL jacobian(ncomp,nspec,nx,ny,nz)
+          IF (ierode == 1) THEN
+            CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+            CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+          END IF
+
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
+              IF (igamma == 2) THEN
+                IF (Duan .OR. Duan2006) THEN
+                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+                ELSE
+                  CALL gamma(ncomp,nspec,jx,jy,jz)
+                END IF
+              END IF
+
+              IF (isaturate == 1) THEN
+                CALL gases(ncomp,ngas,jx,jy,jz)
+              END IF
+              IF (ierode == 1) THEN
+                CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
+              END IF
+              IF (species_diffusion) THEN
+                CALL jacobian_plus(ncomp,nspec,jx,jy,jz)
+              ELSE
+
+              END IF
+              IF (isaturate == 1) THEN
+                CALL jacgas(ncomp,ngas,jx,jy,jz)
+              END IF
+
+              IF (ierode == 1) THEN
+                CALL jac_exchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,neqn,jx,jy,jz)
+              END IF
+            END DO
+          END DO
+
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
+              IF (species_diffusion) THEN
+                CALL totconc_plus(ncomp,nspec,jx,jy,jz)
+              ELSE
+                CALL totconc(ncomp,nspec,jx,jy,jz)
+              END IF
+              IF (isaturate == 1) THEN
+                CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
+              END IF
+              IF (ierode == 1) THEN
+                CALL totexchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
+                CALL totsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
+              END IF
+            END DO  ! end of J loop
+          END DO
+
+          CALL xmass(nx,ny,nz,ncomp,nspec)
+
+    !************************ Start PETSC changes for matrix fill ********************
+          if(petscon) then
+            call MatZeroEntries(amatpetsc,ierr)
+          endif
+
+          CALL AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,                   &
+             nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_gimrt,time, &
+             userC,amatpetsc,nBoundaryConditionZone)
+
+          if ((nn.eq.1) .and. (ne.eq.1) .and. petscon) then
+    !!          call MatSetOption(amatpetsc,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
+          endif
+    !**************  End PETSC changes *********************************************
+
+
+          IF (nxyz == 1) THEN
+
+            bb = -fxx
+
+    !!        CALL ludcmp90(aaa,indd,det,neqn)
+    !!        CALL lubksb90(aaa,indd,bb,neqn)
+
+            CALL dgetrf(neqn,neqn,aaa,neqn,indd,info)
+            CALL dgetrs(trans,neqn,ione,aaa,neqn,indd,bb,neqn,info)
+
+            xn = bb
+            continue
+
+          ELSE       !  One-dimensional case
+
+            IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
+
+            IF (switcheroo) then
+              write(*,*) ' Using Hindmarsh solver with PETSc constructed arrays'
+            end if
+
+              DO jx = 1,nx
+                j = jx
+                DO i = 1,neqn
+                  ind = (j-1)*(neqn) + i
+                  yh(i,jx) = -fxx(ind)
+                END DO
+              END DO
+
+
+              CALL decbt90(neqn,nx,ier)
+              CALL solbt90(neqn,nx)
+
+            ELSE IF (ihindmarsh == 2) THEN
+
+    !         ***** PETSc closeout**************
+              IF (petscon) then
+                call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
+              END IF
+              IF (CalculateFlow) then
+                call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
+              END IF
+              IF (os3dpetsc) then
+                call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
+              END IF
+              call PetscFinalize(ierr)
+    !         ****** PETSc closeout finished *********
+              READ(*,*)
+              STOP
+
+            ELSE         !  Run PETSc
+
+              fxx = -fxx
+
+    !************* Invoke PETSc solver *****************************************************
+              if (petscon) then
+
+                atolksp = 1.D-50
+    !!            rtolksp = 1.D-09
+                rtolksp = GimrtRTOLKSP
+                dtolksp = 1.D+05
+
+                pc%v = userC(5)
+                ksp%v = userC(6)
+
+                call KSPSetOperators(ksp,amatpetsc,amatpetsc,ierr)
+                CALL GIMRTCrunchPETScTolerances(userC,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
+
+                call KSPSolve(ksp,bvec,xvec,ierr)
+                CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+
+                if(ierr.ne.0) then
+                    icvg = 1
+                    write(*,*) ' KSPSolve error, reducing timestep,ierr=',ierr
+                    exit newtonloop
+                endif
+              endif
+
+    !      xn now contains the solution to amatpetsc * xvec = bvec
+    !      unless the solver failed in which case the time step will be halved
+    !******************  PETSc solver exit **************************************************
+
+            END IF
+
+          END IF
+
+          IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
+
+            errmax = 0.0
+            jz = 1
+            DO jy = 1,ny
+              DO jx = 1,nx
+                j = (jy-1)*nx+jx
+                DO i = 1,ncomp
+                  IF (ulab(i) == "O2(aq)") THEN
+                    MaximumCorrection = corrmax
+                  ELSE
+                    MaximumCorrection = 2.0
+                  END IF
+                  IF (ABS(yh(i,jx)) > errmax) THEN
+                    errmax = ABS(yh(i,jx))
+                  END IF
+                  IF (ABS(yh(i,jx)) > MaximumCorrection) THEN
+                    yh(i,jx) = SIGN(MaximumCorrection,yh(i,jx))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  sp(i,jx,jy,jz) = sp(i,jx,jy,jz) + yh(i,jx)
+                  sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
+                END DO
+
+                DO ix = 1,nexchange
+                  IF (DABS(yh(ix+ncomp,jx)) > errmax) THEN
+                    errmax = DABS(yh(ix+ncomp,jx))
+                  END IF
+                  IF (DABS(yh(ix+ncomp,jx)) > MaximumCorrection) THEN
+                    yh(ix+ncomp,jx) = SIGN(MaximumCorrection,yh(ix+ncomp,jx))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  spex(ix,jx,jy,jz) = spex(ix,jx,jy,jz) + yh(ix+ncomp,jx)
+                  spex10(ix,jx,jy,jz) = DEXP(spex(ix,jx,jy,jz))
+                END DO
+
+                DO is = 1,nsurf
+                  IF (DABS(yh(is+ncomp+nexchange,jx)) > errmax) THEN
+                    errmax = DABS(yh(is+ncomp+nexchange,jx))
+                  END IF
+                  IF (DABS(yh(is+ncomp+nexchange,jx)) > MaximumCorrection) THEN
+                    yh(is+ncomp+nexchange,jx) = SIGN(MaximumCorrection,yh(is+ncomp+nexchange,jx))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  spsurf(is,jx,jy,jz) = spsurf(is,jx,jy,jz) + yh(is+ncomp+nexchange,jx)
+                  spsurf10(is,jx,jy,jz) = DEXP(spsurf(is,jx,jy,jz))
+                END DO
+
+                DO npt = 1,npot
+                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.9d0) THEN
+                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.9d0,yh(npt+ncomp+nexchange+nsurf,jx))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) +   &
+                      yh(npt+ncomp+nexchange+nsurf,jx)
+                END DO
+              END DO
+            END DO
+
+          ELSE
+
+            jz = 1
+            errmax = 0.0D0
+            DO jy = 1,ny
+              DO jx = 1,nx
+                j = (jy-1)*nx+jx
+                DO i = 1,ncomp
+                  IF (ulab(i) == "O2(aq)") THEN
+                    MaximumCorrection = corrmax
+                  ELSE
+                    MaximumCorrection = 2.0d0
+                  END IF
+                  ind = (j-1)*(neqn) + i
+                  IF (DABS(xn(ind)) > errmax) THEN
+                    errmax = DABS(xn(ind))
+                  END IF
+                  IF (DABS(xn(ind)) > MaximumCorrection) THEN
+                    xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  sp(i,jx,jy,jz) = sp(i,jx,jy,jz) + xn(ind)
+                  sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
+                END DO
+
+                DO ix = 1,nexchange
+                  ind = (j-1)*(neqn) + ix+ncomp
+                  IF (DABS(xn(ind)) > errmax) THEN
+                    errmax = DABS(xn(ind))
+                  END IF
+                  IF (DABS(xn(ind)) > MaximumCorrection) THEN
+                    xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  spex(ix,jx,jy,jz) = spex(ix,jx,jy,jz) + xn(ind)
+                  spex10(ix,jx,jy,jz) = DEXP(spex(ix,jx,jy,jz))
+                END DO
+
+                DO is = 1,nsurf
+                  ind = (j-1)*(neqn) + is+ncomp+nexchange
+                  IF (DABS(xn(ind)) > errmax) THEN
+                    errmax = DABS(xn(ind))
+                  END IF
+                  IF (DABS(xn(ind)) > MaximumCorrection) THEN
+                    xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                  ELSE
+                    CONTINUE
+                  END IF
+                  spsurf(is,jx,jy,jz) = spsurf(is,jx,jy,jz) + xn(ind)
+                  spsurf10(is,jx,jy,jz) = DEXP(spsurf(is,jx,jy,jz))
+                END DO
+
+                DO npt = 1,npot
+                  ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
+                 IF (DABS(xn(ind)) > errmax) THEN
+                    errmax = DABS(xn(ind))
+                 END IF
+    !!!             IF (DABS(xn(ind)) > 0.9d0) THEN
+    !!!               xn(ind) = SIGN(0.9d0,xn(ind))
+    !!!               CONTINUE
+    !!!              ELSE
+    !!!                CONTINUE
+    !!!              END IF
+                  LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) + xn(ind)
+                END DO
+              END DO
+            END DO
+
+          END IF
+
+          icvg = 0
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
+              j = (jy-1)*nx+jx
+              DO i = 1,ncomp
+                ind = (j-1)*(neqn) + i
+                IF (ResidualTolerance /= 0.0d0) THEN
+                  tolmax = ResidualTolerance
+                ELSE
+                  tolmax = atol
+                END IF
+                IF (SaltCreep) THEN
+                  IF (DABS(fxx(ind)) > tolmax) THEN
+                    icvg = 1
+                  END IF
+                ELSE
+                  IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
+    !!!              IF (DABS(fxx(ind)) > tolmax) THEN
+                    icvg = 1
+                  END IF
+                END IF
+              END DO
+              DO ix = 1,nexchange
+                tolmax = 1.e-10
+                ind = (j-1)*(neqn) + ix+ncomp
+                IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
+                    icvg = 1
+                END IF
+              END DO
+              DO is = 1,nsurf
+                tolmax = atol
+                ind = (j-1)*(neqn) + is+ncomp+nexchange
+                IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
+                    icvg = 1
+                END IF
+              END DO
+              DO npt = 1,npot
+                tolmax = 1.e-10
+                ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
+                IF (DABS(fxx(ind)) > tolmax) THEN
+                    icvg = 1
+                END IF
+              END DO
+            END DO
+          END DO
+
+          IF (ABS(errmax) < 1.e-15) THEN
+            icvg = 0
+          END IF
+
+    !! If electrochemical migration is considered, always carry out at least two Newton iterations
+          IF (species_diffusion .AND. iterat<=2) THEN
+            icvg = 1
+          ELSE IF (iterat <= 1) THEN
+            icvg = 1
+          ELSE
+            continue
+          END IF
+    !!      if (iterat<=1) icvg=1
+
+
+        END DO  newtonloop    ! end of Newton iteration loop
+
+    !  Halve the timestep if convergence not achieved
+
+    5017 CONTINUE
+        IF (icvg == 1) THEN
+          MaxFx = MaxLoc(fxx)
+    !!      MaxValFx = MaxVal(fxx)
+
+          ddtold = dt_gimrt
+          dt_gimrt = dt_gimrt/10.0
+          itskip = 1
+
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
+              DO i = 1,ncomp+nspec
+                sp(i,jx,jy,jz) = spold(i,jx,jy,jz)
+                sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
+              END DO
+              DO ix = 1,nexchange+nexch_sec
+                spex(ix,jx,jy,jz) = spexold(ix,jx,jy,jz)
+              END DO
+              DO nex = 1,nexch_sec
+                spex10(nex+nexchange,jx,jy,jz) = DEXP(spex(nex+nexchange,jx,jy,jz))
+              END DO
+              DO is = 1,nsurf+nsurf_sec
+                spsurf(is,jx,jy,jz) = spsurfold(is,jx,jy,jz)
+                spsurf10(is,jx,jy,jz) = DEXP(spsurf(is,jx,jy,jz))
+              END DO
+              IF (ierode == 1) THEN
+                CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
+              END IF
+              CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,dt_gimrt,time)
+              IF (isaturate == 1) THEN
+                CALL gases(ncomp,ngas,jx,jy,jz)
+              END IF
+            END DO
+          END DO
+
+    !!      CALL species(ncomp,nspec,nx,ny,nz)
+    !!      IF (ierode == 1) THEN
+    !!        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+    !!      END IF
+
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
+              spno2(jx,jy,jz) = spnno2(jx,jy,jz)
+            END DO
+          END DO
+
+          IF (igamma == 2) THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx = 1,nx
+                IF (Duan .OR. Duan2006) THEN
+                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+                ELSE
+                  CALL gamma(ncomp,nspec,jx,jy,jz)
+                END IF
+                END DO
+              END DO
+            END DO
+          END IF
+
+          WRITE(*,*)
+          WRITE(*,*) '***** NO CONVERGENCE OF NEWTON ITERATIONS IN GIMRT *****'
+          WRITE(*,*) '                REDUCING TIME STEP'
+          WRITE(*,5086) ddtold*OutputTimeScale
+          WRITE(*,5085) dt_gimrt*OutputTimeScale
+          WRITE(*,*)
+          GO TO 5000   ! Loop back to start the time step over
+
+        END IF   !  End of IF block for case where no Newton convergence
+
+    !  Correct for change in water concentration
+
+        IF (nn == 1) THEN
+          IF (ALLOCATED(lrow)) DEALLOCATE(lrow)
+          IF (ALLOCATED(levptr)) DEALLOCATE(levptr)
+        END IF
+
+    !    IF (ikh2o /= 0) THEN
+    !      jz = 1
+    !      DO jy = 1,ny
+    !        DO jx = 1,nx
+    !          j = (jy-1)*nx + jx
+    !          waterold = EXP(spold(ikh2o,jx,jy,jz))*wtaq(ikh2o)/1000.0
+    !          waternew = sp10(ikh2o,jx,jy,jz)*wtaq(ikh2o)/1000.0
+    !          ratio = waterold/waternew
+    !                write(*,*) ratio
+    !          DO ik = 1,ncomp
+    !            IF (ikh2o /= ik) THEN
+    !              sp10(ik,jx,jy,jz) = sp10(ik,jx,jy,jz)*ratio
+    !              sp(ik,jx,jy,jz) = LOG(sp10(ik,jx,jy,jz))
+    !            END IF
+    !          END DO
+    !        END DO
+    !      END DO
+    !    END IF
+
+        CALL species(ncomp,nspec,nx,ny,nz)
+        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+
+        jz = 1
+        DO jy = 1,ny
+          DO jx = 1,nx
+            CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
+    !!        CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt)
+          END DO
         END DO
-      END IF
 
-      WRITE(*,*)
-      WRITE(*,*) '***** NO CONVERGENCE OF NEWTON ITERATIONS IN GIMRT *****'
-      WRITE(*,*) '                REDUCING TIME STEP'
-      WRITE(*,5086) ddtold*OutputTimeScale
-      WRITE(*,5085) delt*OutputTimeScale
-      WRITE(*,*)
-      GO TO 5000   ! Loop back to start the time step over
 
-    END IF   !  End of IF block for case where no Newton convergence
-
-!  Correct for change in water concentration
-
-    IF (nn == 1) THEN
-      IF (ALLOCATED(lrow)) DEALLOCATE(lrow)
-      IF (ALLOCATED(levptr)) DEALLOCATE(levptr)
-    END IF
-
-!    IF (ikh2o /= 0) THEN
-!      jz = 1
-!      DO jy = 1,ny
-!        DO jx = 1,nx
-!          j = (jy-1)*nx + jx
-!          waterold = EXP(spold(ikh2o,jx,jy,jz))*wtaq(ikh2o)/1000.0
-!          waternew = sp10(ikh2o,jx,jy,jz)*wtaq(ikh2o)/1000.0
-!          ratio = waterold/waternew
-!                write(*,*) ratio
-!          DO ik = 1,ncomp
-!            IF (ikh2o /= ik) THEN
-!              sp10(ik,jx,jy,jz) = sp10(ik,jx,jy,jz)*ratio
-!              sp(ik,jx,jy,jz) = LOG(sp10(ik,jx,jy,jz))
-!            END IF
-!          END DO
-!        END DO
-!      END DO
-!    END IF
-
-    CALL species(ncomp,nspec,nx,ny,nz)
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-
-    jz = 1
-    DO jy = 1,ny
-      DO jx = 1,nx
-        CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
-!!        CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt)
-      END DO
-    END DO
+        dt_gimrt = 0.0d0
+        i_substep = 0
+    END IF ! end i_substep == n_substep
 
   END IF    !  END OF GIMRT NEWTON LOOP
 
@@ -3041,59 +2974,56 @@ END DO
 !  Calculate time step to be used based on various criteria
 !Adaptive dt, Zhi Li 20200715
 IF (Richards) THEN
-    IF (dt_sync) THEN
-        ! Adjust dt
-        dq_max = 0.0d0
-        dt_co = dtmax
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-                IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
-                    dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
+    ! Adjust dt
+    dq_max = 0.0d0
+    dt_co = dtmax
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+            IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
+                dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
+            END IF
+            ! calculate Courant number
+            IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
+                m = 1.0 - 1.0/vgn(jx,jy,jz)
+                ! term1 = saturation
+                IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
+                    term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
+                ELSE
+                    term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
                 END IF
-                ! calculate Courant number
-                IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
-                    m = 1.0 - 1.0/vgn(jx,jy,jz)
-                    ! term1 = saturation
-                    IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
-                        term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                    ELSE
-                        term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                    END IF
-                    ! term2 = 1 - saturation^(1/m)
-                    term2 = 1.0 - term1**(1.0/m)
-                    ! term3 = 1 - (1 - saturation^(1/m))^m
-                    term3 = 1.0 - term2**m
-                    ! term4 = Ks      Why using permy???
-                    term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
-                    ! term5 = dK/ds
-                    term5 = 0.5*term4*term1**(-0.5)*term3**2.0
-                    IF (term2 /= 0.0) THEN
-                        term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
-                    END IF
-                    ! finally, get max dt by assume max Co=2
-                    IF (term5 .NE. 0.0) THEN
-                        IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
-                            dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
-                      END IF
-                    END IF
+                ! term2 = 1 - saturation^(1/m)
+                term2 = 1.0 - term1**(1.0/m)
+                ! term3 = 1 - (1 - saturation^(1/m))^m
+                term3 = 1.0 - term2**m
+                ! term4 = Ks      Why using permy???
+                term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
+                ! term5 = dK/ds
+                term5 = 0.5*term4*term1**(-0.5)*term3**2.0
+                IF (term2 /= 0.0) THEN
+                    term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
                 END IF
-            END DO
-          END DO
+                ! finally, get max dt by assume max Co=2
+                IF (term5 .NE. 0.0) THEN
+                    IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
+                        dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
+                  END IF
+                END IF
+            END IF
         END DO
+      END DO
+    END DO
 
-        dtold = delt
-        IF (dq_max > 0.02) THEN
-            delt = 0.7 * delt
-        ELSE IF (dq_max < 0.01) THEN
-            delt = 1.3 * delt
-        END IF
-
-       IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
-           delt = dt_co
-       END IF
-
+    dtold = delt
+    IF (dq_max > 0.02) THEN
+        delt = 0.7 * delt
+    ELSE IF (dq_max < 0.01) THEN
+        delt = 1.3 * delt
     END IF
+
+   IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
+       delt = dt_co
+   END IF
 
     IF (delt < deltmin) THEN
         delt = deltmin
@@ -3106,34 +3036,34 @@ IF (Richards) THEN
 ELSE
 
     IF (nn > 4) THEN
-              dtmax = tstep
-              IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
-                deltmin = dtmaxcour
-              END IF
-              IF (dtmaxcour /= 0.0) THEN
-                dtmax = MIN(dtmax,dtmaxcour)
-              END IF
-              dtmax = MAX(dtmax,deltmin)
-              IF (ReadNuft) THEN
-                dtNuft = timeNuft - time
-                IF (dtNuft < eps) THEN
-                  dtmax = delt
-                ELSE
-                  dtmax = MIN(dtNuft,dtmax)
-                END IF
-              END IF
-              IF (modflow) THEN
-                dtModFlow = timeModFlow - time
-                IF (dtModFlow(NumModFlowSteps) < eps) THEN
-                  dtmax = delt
-                ELSE
-                  dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
-                END IF
-              END IF
-              CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
-              dtold = delt
+          dtmax = tstep
+          IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
+            deltmin = dtmaxcour
           END IF
-  END IF
+          IF (dtmaxcour /= 0.0) THEN
+            dtmax = MIN(dtmax,dtmaxcour)
+          END IF
+          dtmax = MAX(dtmax,deltmin)
+          IF (ReadNuft) THEN
+            dtNuft = timeNuft - time
+            IF (dtNuft < eps) THEN
+              dtmax = delt
+            ELSE
+              dtmax = MIN(dtNuft,dtmax)
+            END IF
+          END IF
+          IF (modflow) THEN
+            dtModFlow = timeModFlow - time
+            IF (dtModFlow(NumModFlowSteps) < eps) THEN
+              dtmax = delt
+            ELSE
+              dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
+            END IF
+          END IF
+          CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
+          dtold = delt
+      END IF
+END IF
 
 
 

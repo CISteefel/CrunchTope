@@ -74,6 +74,7 @@ LOGICAL(LGT)                                 :: upstream_weighting
 LOGICAL(LGT)                                 :: watertable_flat
 REAL(DP)                                     :: co_richards
 LOGICAL(LGT)                                 :: dt_sync
+INTEGER(I4B)                                 :: n_substep
 ! Leverett scaling option added by Lucien Stolze 20211020
 LOGICAL(LGT)                                 :: leverettscaling
 
