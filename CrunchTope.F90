@@ -1844,13 +1844,21 @@ DO WHILE (nn <= nend)
 
 
   ! ****    Async time loop, ZhiLi20220404      ****
-    IF (dt_sync) THEN
-        i_substep = 1
-        n_substep = 1
-        dt_gimrt = delt
-    ELSE
-        dt_gimrt = dt_gimrt + delt
+  IF (Richards) THEN
+     IF (dt_sync) THEN
+      i_substep = 1
+      n_substep = 1
+      dt_gimrt = delt
+    ELSE 
+      dt_gimrt = dt_gimrt + delt
     END IF
+  ELSE
+    i_substep = 1
+      n_substep = 1
+      dt_gimrt = delt
+  END IF
+
+  
 
     IF (i_substep == n_substep) THEN
         ! Invoke GIMRT calculation
