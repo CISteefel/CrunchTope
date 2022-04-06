@@ -832,6 +832,7 @@ END IF
     CLOSE(UNIT=8,STATUS='keep')
   END IF
 
+  IF (Richards) THEN
   IF (isaturate==1) THEN
   
     
@@ -867,6 +868,7 @@ END IF
     CLOSE(UNIT=8,STATUS='keep')
     
   END IF
+END if
 
   fn='MineralPercent'
   ilength = 14
