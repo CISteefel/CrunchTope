@@ -353,7 +353,11 @@ END IF
             end do
           ELSE
             do i = 1,ncomp
-              sprint(i) = s(i,jx,jy,jz)
+              if (s(i,jx,jy,jz) < 1.0E-30) THEN
+                sprint(i) = 1.0E-30
+                ELSE
+                sprint(i) = s(i,jx,jy,jz)
+                END IF
             end do
           END IF
         
@@ -859,6 +863,9 @@ END IF
         gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))/((dyy(jy)+dyy(jy+1))/2)
         ELSE
         gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spgas10(i,jx,jy,1))/((dyy(jy)+dyy(jy+1))/2)
+        END IF
+        if (gflux_ver(i)<1.0E-30 .and. gflux_ver(i)>-1.0E-30) THEN
+          gflux_ver(i)=1.0E-30
         END IF
       END DO
       WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale+dyy(jy)/2,z(jz)*OutputDistanceScale, &
