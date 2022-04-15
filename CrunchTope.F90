@@ -1392,7 +1392,7 @@ DO WHILE (nn <= nend)
                END DO
              END DO
            END DO
-       END IF
+
 
 
 
@@ -1406,6 +1406,8 @@ DO WHILE (nn <= nend)
             END DO
           END DO
         END DO
+        
+    ENDIF
 
   END IF
 
@@ -3198,7 +3200,6 @@ END IF
     WRITE(iures) gam
     WRITE(iures) exchangesites
     WRITE(iures) spexold
-!!    WRITE(iures) sch
     WRITE(iures) spgas
     WRITE(iures) spgasold
     WRITE(iures) spgas10
@@ -3218,8 +3219,6 @@ END IF
     WRITE(iures) raq_tot
     WRITE(iures) sion
     WRITE(iures) jinit
-
-!!    WRITE(iures) mumin_decay
     WRITE(iures) keqmin
     WRITE(iures) volfx
     WRITE(iures) dppt
@@ -3228,21 +3227,16 @@ END IF
     WRITE(iures) volinByGrid
     WRITE(iures) specificByGrid
     WRITE(iures) LogPotential
-
     WRITE(iures) t
     WRITE(iures) told
     WRITE(iures) ro
-
     WRITE(iures) por
-
     WRITE(iures) satliq
     WRITE(iures) qxgas
     WRITE(iures) qygas
     WRITE(iures) qzgas
     WRITE(iures) pres
-  !!!  WRITE(iures) dspy
-  !!!  WRITE(iures) dspz
-  !!!  WRITE(iures) qg
+    
     WRITE(iures) ActiveCell
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
@@ -3254,7 +3248,6 @@ END IF
         WRITE(iures) wc
     END IF
 
-!!    WRITE(iures) tauZero
 
 !    CLOSE(UNIT=intfile,STATUS='keep')
 
