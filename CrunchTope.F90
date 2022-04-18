@@ -598,19 +598,21 @@ WRITE(*,*)
 IF (CalculateFlow) THEN
 
   IF (watertabletimeseries) THEN
+    
     jz=1
     jx=0
     DO jy = 1,ny
       IF (TS_1year) THEN
         time_norm=time-floor(time)
-  CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+        CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
       ELSE
-  CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+        CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
       END IF
-  if (pres(jx,jy,jz)==0) then
-    permx(jx,jy,jz)=0
-  end if
+      if (pres(jx,jy,jz)==0) then
+        permx(jx,jy,jz)=0
+      end if
     END DO
+    
   END IF
 
   IF (pumptimeseries) THEN
@@ -622,7 +624,7 @@ IF (CalculateFlow) THEN
       END IF
     END IF
 
-  SteadyFlow = .TRUE.
+  SteadyFlow = .FALSE.
 
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 
@@ -667,7 +669,7 @@ IF (CalculateFlow) THEN
     WRITE(*,*) ' Initializing to hydrostatic'
     DO jz = 1,nz
       DO jy = 1,ny
-		DO jx = 1,nx
+		    DO jx = 1,nx
           harx(jx,jy,jz) = (1.0d0 - COSD(x_angle))*1.0D-22 + COSD(x_angle)*harx(jx,jy,jz)
           hary(jx,jy,jz) = (1.0d0 - COSD(y_angle))*1.0D-22 + COSD(y_angle)*hary(jx,jy,jz)
           harz(jx,jy,jz) = (1.0d0 - COSD(z_angle))*1.0D-22 + COSD(z_angle)*harz(jx,jy,jz)
@@ -816,8 +818,6 @@ END IF
               END IF
            END IF
 
-
-
          END DO
        END DO
      END DO
@@ -844,16 +844,15 @@ END IF
 
  !!! Calculate liquid saturation from water content
 
-DO jz = 0,nz+1
-  DO jy = 0,ny+1
-    DO jx = 0,nx+1
-      satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-      satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-    END DO
-  END DO
-END DO
+     DO jy = 0,ny+1
+       DO jx = 0,nx+1
+         satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+         satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+       END DO
+     END DO
 
      WRITE(*,*) ' Initialization completed!'
+     
  END IF
 
 !!  atolksp = 1.D-50
@@ -870,8 +869,6 @@ END DO
 
   CALL KSPSetOperators(ksp,amatP,amatP,ierr)
 
-
-
   IF (NavierStokes) THEN
     CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
   ELSE IF (Richards) THEN
@@ -881,12 +878,11 @@ END DO
     CALL pressure(nx,ny,nz,dtflow,amatP,SteadyFlow)
   END IF
 
-
   CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
 !!!!  To invoke direct solve
-!!    call KSPGetPC(ksp,pc,ierr)
-!!    call PCSetType(pc,PCLU,ierr)
+!!!!    call KSPGetPC(ksp,pc,ierr)
+!!!!    call PCSetType(pc,PCLU,ierr)
 
    ! CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
    ! CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
@@ -948,7 +944,7 @@ END DO
         pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
       END FORALL
   END IF
-
+  
 
   IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
@@ -965,6 +961,7 @@ END DO
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
+  
  ! final check of water content
     IF (Richards) THEN
       DO jz = 1,nz
@@ -1314,9 +1311,9 @@ DO WHILE (nn <= nend)
         CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
 
-    !!!!  To invoke direct solve
-    !!    call KSPGetPC(ksp,pc,ierr)
-    !!    call PCSetType(pc,PCLU,ierr)
+!!!!  To invoke direct solve
+!!!!    call KSPGetPC(ksp,pc,ierr)
+!!!!    call PCSetType(pc,PCLU,ierr)
 
         IF (SolverMethod /= 'direct') THEN
           CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
@@ -1392,9 +1389,6 @@ DO WHILE (nn <= nend)
                END DO
              END DO
            END DO
-
-
-
 
          !!! Calculate liquid saturation from water content
 

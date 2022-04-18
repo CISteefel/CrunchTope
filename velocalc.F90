@@ -98,8 +98,6 @@ DO jz = 1,nz
       IF (jy /= ny) THEN
         Coordinate = 'Y'
         call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        term1 = -2.0d0*vv*(pres(jx,jy+1,jz)-pres(jx,jy,jz))*hary(jx,jy,jz) /(dyy(jy)+dyy(jy+1))
-        term2 = SignGravity*vv*hary(jx,jy,jz)*RoAveRight*grav*COSD(y_angle)
         qy(jx,jy,jz)= -2.0d0*vv*(pres(jx,jy+1,jz)-pres(jx,jy,jz))*hary(jx,jy,jz) /(dyy(jy)+dyy(jy+1))     &
                      + SignGravity*vv*hary(jx,jy,jz)*RoAveRight*grav*COSD(y_angle)
       END IF
