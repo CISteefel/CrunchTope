@@ -46,8 +46,9 @@ subroutine CrunchPETScTolerances(user,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 USE crunchtype
 USE solver, ONLY:  level, SolverMethod, PCMethod
  
-#include "petsc/finclude/petscksp.h"
 USE petscksp
+#include <petsc/finclude/petscksp.h>
+
 
 IMPLICIT NONE
 

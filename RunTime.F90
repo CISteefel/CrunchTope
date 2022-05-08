@@ -101,6 +101,7 @@ MODULE runtime
   LOGICAL(LGT)                                                :: DampRateInLowPorosity
   LOGICAL(LGT)                                                :: FractureNetwork
   LOGICAL(LGT)                                                :: CubicLaw
+  LOGICAL(LGT)                                                :: MontTerri
 
   LOGICAL(LGT)                                                :: Switcheroo
   LOGICAL(LGT)                                                :: ReadGridVolumes

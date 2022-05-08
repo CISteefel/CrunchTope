@@ -46,10 +46,11 @@ subroutine CrunchPETScInitializeChemistry(nx,ny,nz,neqn,xvec,bvec,amatpetsc,user
 USE crunchtype
 USE solver, ONLY:  xn,fxx
 
-#include "petsc/finclude/petscksp.h"
-#include "petsc/finclude/petscmat.h"
 USE petscksp
 USE petscmat
+#include <petsc/finclude/petscksp.h>
+#include <petsc/finclude/petscmat.h>
+
  
 IMPLICIT NONE
 

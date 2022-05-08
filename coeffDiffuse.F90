@@ -373,19 +373,19 @@ DO jz = 1,nz
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumup = ro(jx,jy,jz+1)*dstar(jx,jy,jz+1)*satup*porup*tort*anisotropyZ
+        dumup = ro(jx,jy,jz+1)*dstar(jx,jy,jz+1)*satup*porup*tort*anisotropyZ(jx,jy,jz+1)
         IF (por(jx,jy,jz) > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumpz = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyZ
+        dumpz = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyZ(jx,jy,jz)
       ELSE IF (MillingtonQuirk) THEN
-        dumup = ro(jx,jy,jz+1)*(satup)**(quirk)*(porup)**(uli)*dstar(jx,jy,jz+1)*anisotropyZ
-        dumpz = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyZ
+        dumup = ro(jx,jy,jz+1)*(satup)**(quirk)*(porup)**(uli)*dstar(jx,jy,jz+1)*anisotropyZ(jx,jy,jz+1)
+        dumpz = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)
       ELSE
-        dumup = ro(jx,jy,jz+1)*satup*porup*dstar(jx,jy,jz+1)*anisotropyZ*tortuosity(jx,jy,jz+1)
-        dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ*tortuosity(jx,jy,jz)
+        dumup = ro(jx,jy,jz+1)*satup*porup*dstar(jx,jy,jz+1)*anisotropyZ(jx,jy,jz+1)*tortuosity(jx,jy,jz+1)
+        dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)*tortuosity(jx,jy,jz)
       END IF
 
       dumdn = dumpz
@@ -403,19 +403,19 @@ DO jz = 1,nz
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumdn = ro(jx,jy,jz-1)*dstar(jx,jy,jz-1)*satdn*pordn*tort*anisotropyZ
+        dumdn = ro(jx,jy,jz-1)*dstar(jx,jy,jz-1)*satdn*pordn*tort*anisotropyZ(jx,jy,jz-1)
         IF (por(jx,jy,jz) > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumpz = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyZ
+        dumpz = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyZ(jx,jy,jz)
       ELSE IF (MillingtonQuirk) THEN
-        dumdn = ro(jx,jy,jz-1)*(satdn)**(quirk)*(pordn)**(uli)*dstar(jx,jy,jz-1)*anisotropyZ
-        dumpz = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyZ
+        dumdn = ro(jx,jy,jz-1)*(satdn)**(quirk)*(pordn)**(uli)*dstar(jx,jy,jz-1)*anisotropyZ(jx,jy,jz-1)
+        dumpz = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)
       ELSE
-        dumdn = ro(jx,jy,jz-1)*satdn*pordn*dstar(jx,jy,jz-1)*anisotropyZ*tortuosity(jx,jy,jz-1)
-        dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ*tortuosity(jx,jy,jz)
+        dumdn = ro(jx,jy,jz-1)*satdn*pordn*dstar(jx,jy,jz-1)*anisotropyZ(jx,jy,jz-1)*tortuosity(jx,jy,jz-1)
+        dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)*tortuosity(jx,jy,jz)
       END IF
 
       dumup = dumpz
@@ -433,27 +433,27 @@ DO jz = 1,nz
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumup = ro(jx,jy,jz+1)*dstar(jx,jy,jz+1)*satup*porup*tort*anisotropyZ
+        dumup = ro(jx,jy,jz+1)*dstar(jx,jy,jz+1)*satup*porup*tort*anisotropyZ(jx,jy,jz+1)
         IF (pordn > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumdn = ro(jx,jy,jz-1)*dstar(jx,jy,jz-1)*satdn*pordn*tort*anisotropyZ
+        dumdn = ro(jx,jy,jz-1)*dstar(jx,jy,jz-1)*satdn*pordn*tort*anisotropyZ(jx,jy,jz-1)
         IF (por(jx,jy,jz) > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
           tort = TortuosityBelowThreshold
         END IF
-        dumpz = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyZ
+        dumpz = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyZ(jx,jy,jz)
       ELSE IF (MillingtonQuirk) THEN
-        dumup = ro(jx,jy,jz+1)*(satup)**(quirk)*(porup)**(uli)*dstar(jx,jy,jz+1)*anisotropyZ
-        dumdn = ro(jx,jy,jz-1)*(satdn)**(quirk)*(pordn)**(uli)*dstar(jx,jy,jz-1)*anisotropyZ
-        dumpz = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyZ
+        dumup = ro(jx,jy,jz+1)*(satup)**(quirk)*(porup)**(uli)*dstar(jx,jy,jz+1)*anisotropyZ(jx,jy,jz+1)
+        dumdn = ro(jx,jy,jz-1)*(satdn)**(quirk)*(pordn)**(uli)*dstar(jx,jy,jz-1)*anisotropyZ(jx,jy,jz-1)
+        dumpz = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)
       ELSE
-        dumup = ro(jx,jy,jz+1)*satup*porup*dstar(jx,jy,jz+1)*anisotropyZ*tortuosity(jx,jy,jz+1)
-        dumdn = ro(jx,jy,jz-1)*satdn*pordn*dstar(jx,jy,jz-1)*anisotropyZ*tortuosity(jx,jy,jz-1)
-        dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ*tortuosity(jx,jy,jz)
+        dumup = ro(jx,jy,jz+1)*satup*porup*dstar(jx,jy,jz+1)*anisotropyZ(jx,jy,jz+1)*tortuosity(jx,jy,jz+1)
+        dumdn = ro(jx,jy,jz-1)*satdn*pordn*dstar(jx,jy,jz-1)*anisotropyZ(jx,jy,jz-1)*tortuosity(jx,jy,jz-1)
+        dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)*tortuosity(jx,jy,jz)
       END IF
     END IF
     

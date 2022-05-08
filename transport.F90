@@ -74,7 +74,7 @@ MODULE transport
   REAL(DP)                                         :: dgrads
   REAL(DP)                                         :: dgradn
   REAL(DP)                                         :: anisotropyY
-  REAL(DP)                                         :: anisotropyZ
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: anisotropyZ
   REAL(DP)                                         :: ThresholdPorosity
   REAL(DP)                                         :: TortuosityBelowThreshold
   REAL(DP)                                         :: TortuosityAboveThreshold

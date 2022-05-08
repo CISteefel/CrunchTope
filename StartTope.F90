@@ -828,7 +828,7 @@ IF (found) THEN
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,nmmLogical)
 
- CriticalZone = .FALSE.
+  CriticalZone = .FALSE.
   parchar = 'criticalzone'
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,CriticalZone)
@@ -837,6 +837,11 @@ IF (found) THEN
   parfind = ' '
   SaltCreep = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SaltCreep)
+  
+  parchar = 'montterri'
+  parfind = ' '
+  MontTerri = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,MontTerri)
 
   parchar = 'fracturenetwork'
   parfind = ' '
@@ -5029,9 +5034,31 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
     READ(*,*)
     STOP
   END IF
+  
   OPEN(UNIT=52,FILE=InitialConditionsFile,STATUS='OLD',ERR=6001)
   FileTemp = InitialConditionsFile
   CALL stringlen(FileTemp,FileNameLength)
+  
+  IF (MontTerri) THEN
+
+    nhet = 0
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx= 1,nx
+          
+          nhet = nhet + 1
+          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
+!!!                            x    y    z    condition #             
+          jinit(jx,jy,jz) = work3(jx,jy,jz) 
+          activecell(jx,jy,jz) = 1
+
+        END DO
+      END DO
+    END DO
+
+    CLOSE(UNIT=52)
+
+  END IF
 
   if (nmmLogical) then
 
@@ -5062,14 +5089,14 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
       END DO
     END DO
 
-  CLOSE(UNIT=52)
+    CLOSE(UNIT=52)
+    
+    StressMaxVal= MaxVal(ABS(stress*1.0E-06))
+    write(*,*)
+    write(*,*) ' StressMaxVal =', StressMaxVal
+    write(*,*)
 
   END IF
-
-  StressMaxVal= MaxVal(ABS(stress*1.0E-06))
-  write(*,*)
-  write(*,*) ' StressMaxVal =', StressMaxVal
-  write(*,*)
 
 END IF
 
@@ -9599,6 +9626,104 @@ END IF
 
 tortuosity = 1.0d0
 
+IF (ALLOCATED(anisotropyZ)) THEN
+  DEALLOCATE(anisotropyZ)
+  ALLOCATE(anisotropyZ(nx,ny,nz))
+ELSE
+  ALLOCATE(anisotropyZ(nx,ny,nz))
+END IF
+
+anisotropyZ = 1.0d0
+
+IF (MontTerri) THEN
+  
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx= 1,nx
+               
+          IF (jinit(jx,jy,jz) == 7) THEN    
+            anisotropyZ(jx,jy,jz) = 3.0   
+            tortuosity(jx,jy,jz) =  0.07  
+          ELSE IF (jinit(jx,jy,jz) == 6) THEN    
+            anisotropyZ(jx,jy,jz) = 3.0   
+            tortuosity(jx,jy,jz) =  0.14   
+          ELSE IF (jinit(jx,jy,jz) == 5 ) THEN
+            anisotropyZ(jx,jy,jz) = 3.0
+            tortuosity(jx,jy,jz) =  0.14
+          ELSE IF (jinit(jx,jy,jz) == 4 ) THEN
+            anisotropyZ(jx,jy,jz) = 1.0
+            tortuosity(jx,jy,jz) =  0.05
+          ELSE IF (jinit(jx,jy,jz) == 3 ) THEN
+            anisotropyZ(jx,jy,jz) = 1.0
+            tortuosity(jx,jy,jz) =  0.05
+          ELSE IF (jinit(jx,jy,jz) == 2 ) THEN
+            anisotropyZ(jx,jy,jz) = 1.0
+            tortuosity(jx,jy,jz) =  1.0E-10
+          ELSE
+            anisotropyZ(jx,jy,jz) = 1.0   !!! CT:
+            tortuosity(jx,jy,jz) =  10.0  !!! CT:
+          END IF
+
+        END DO
+      END DO
+    END DO
+    
+    jz = 0
+    DO jy = 1,ny
+      DO jx= 1,nx             
+        tortuosity(jx,jy,jz) =  0.0
+      END DO
+    END DO
+    
+    jz = nz+1
+    DO jy = 1,ny
+      DO jx= 1,nx             
+        tortuosity(jx,jy,jz) =  0.0
+      END DO
+    END DO
+    
+    jy = 0
+    DO jz = 1,nz
+      DO jx= 1,nx             
+        tortuosity(jx,jy,jz) =  0.0
+      END DO
+    END DO
+    
+    jy = ny+1
+    DO jz = 1,nz
+      DO jx= 1,nx             
+        tortuosity(jx,jy,jz) =  0.0
+      END DO
+    END DO
+    
+    jx = 0
+    DO jz = 1,nz
+      DO jy= 1,ny             
+        tortuosity(jx,jy,jz) =  0.0
+      END DO
+    END DO
+    
+    jx = nx+1
+    DO jz = 1,nz
+      DO jy= 1,ny             
+        tortuosity(jx,jy,jz) =  0.0
+      END DO
+    END DO
+
+    
+    
+
+    
+!!! 1: Chamber
+!!! 2: Not in Chamber
+!!! 3: Cement
+!!! 4: Skin
+!!! 5: Outer disturbed zone
+!!! 6: Inner disturbed zone
+!!! 7: Opalinus Clay (OPA)    
+    
+END IF
+
 IF (found) THEN
 
   WRITE(*,*)
@@ -9653,11 +9778,9 @@ IF (found) THEN
 
 !  Convert units if necessary (converting to years and meters)
 
-
   dcoeff = dcoeff/(time_scale*dist_scale*dist_scale)
   dzero = dzero/(time_scale*dist_scale*dist_scale)
   dgas = dgas/(time_scale*dist_scale*dist_scale)
-
 
   DO ik = 1,ncomp+nspec
     d_sp(ik) = d_sp(ik)/(time_scale*dist_scale*dist_scale)
@@ -9731,7 +9854,7 @@ IF (found) THEN
 ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
       IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-    MillingtonQuirk = .TRUE.
+        MillingtonQuirk = .TRUE.
         Tortuosity = TortuosityZone(0)
 
 !       Next, initialize tortuosity from various zones
@@ -9915,7 +10038,7 @@ IF (found) THEN
   parfind = ' '
   realjunk = 0.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-  IF (parfind == ' ') THEN  ! Parameter "anistropy_ratio" not found
+  IF (parfind == ' ') THEN  ! Parameter "anistropy_ratioY" not found
     anisotropyY = 1.000            ! Use default
   ELSE
     anisotropyY = realjunk
@@ -9925,7 +10048,7 @@ IF (found) THEN
   parfind = ' '
   realjunk = 0.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-  IF (parfind == ' ') THEN  ! Parameter "anistropy_ratio" not found
+  IF (parfind == ' ') THEN  ! Parameter "anistropy_ratioZ" not found
     anisotropyZ = 1.000            ! Use default
   ELSE
     anisotropyZ = realjunk
@@ -10045,7 +10168,7 @@ WRITE(iunit2,1111) alfl
 WRITE(iunit2,1112) alft
 WRITE(iunit2,*)
 
-CALL dispersivity(nx,ny,nz)
+!!!CALL dispersivity(nx,ny,nz)
 dspx = 0.0
 dspy = 0.0
 dspz = 0.0
