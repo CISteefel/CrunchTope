@@ -185,7 +185,8 @@ DO jz = 1,nz
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
-        dumw = dumpx
+        dumw = ro(jx-1,jy,jz)*sate*pore*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
+!!!        dumw = dumpx
       END IF
     ELSE IF (jx == nx) THEN
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
@@ -215,7 +216,8 @@ DO jz = 1,nz
       ELSE
         dumw = ro(jx-1,jy,jz)*satw*porw*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
-        dume = dumpx
+        dume = ro(jx+1,jy,jz)*satw*porw*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
+!!!        dume = dumpx
       END IF
     ELSE
       dxe = 0.5d0*(dxx(jx)+dxx(jx+1))
@@ -285,7 +287,8 @@ DO jz = 1,nz
       ELSE
         dumn = ro(jx,jy+1,jz)*satn*porn*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
         dumpy = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
-        dums = dumpy
+        dums = ro(jx,jy-1,jz)*satn*porn*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
+!!!        dums = dumpy
       END IF
     ELSE IF (jy == ny) THEN
       dys = 0.5d0*(dyy(jy)+dyy(jy-1))
@@ -315,7 +318,8 @@ DO jz = 1,nz
       ELSE
         dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
         dumpy = ro(jx,jy,jz)*satp*porP*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
-        dumn = dumpy
+        dumn = ro(jx,jy+1,jz)*sats*pors*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
+!!!        dumn = dumpy
       END IF
     ELSE
       dyn = 0.5d0*(dyy(jy)+dyy(jy+1))
@@ -386,9 +390,10 @@ DO jz = 1,nz
       ELSE
         dumup = ro(jx,jy,jz+1)*satup*porup*dstar(jx,jy,jz+1)*anisotropyZ(jx,jy,jz+1)*tortuosity(jx,jy,jz+1)
         dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dumdn = ro(jx,jy,jz-1)*satup*porup*dstar(jx,jy,jz-1)*anisotropyZ(jx,jy,jz-1)*tortuosity(jx,jy,jz-1)
       END IF
 
-      dumdn = dumpz
+!!!      dumdn = dumpz
     ELSE IF (jz == nz) THEN
       dzdn = 0.5*(dzz(jx,jy,jz)+dzz(jx,jy,jz-1))
       dzup = 0.5*dzz(jx,jy,jz)
@@ -416,9 +421,10 @@ DO jz = 1,nz
       ELSE
         dumdn = ro(jx,jy,jz-1)*satdn*pordn*dstar(jx,jy,jz-1)*anisotropyZ(jx,jy,jz-1)*tortuosity(jx,jy,jz-1)
         dumpz = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyZ(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dumup = ro(jx,jy,jz+1)*satdn*pordn*dstar(jx,jy,jz+1)*anisotropyZ(jx,jy,jz+1)*tortuosity(jx,jy,jz+1)
       END IF
 
-      dumup = dumpz
+!!!      dumup = dumpz
     ELSE
       dzup = 0.5d0*(dzz(jx,jy,jz)+dzz(jx,jy,jz+1))
       dzdn = 0.5d0*(dzz(jx,jy,jz)+dzz(jx,jy,jz-1))
