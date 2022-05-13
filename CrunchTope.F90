@@ -844,12 +844,14 @@ END IF
 
  !!! Calculate liquid saturation from water content
 
+    DO jz = 0,nz+1
      DO jy = 0,ny+1
        DO jx = 0,nx+1
          satliqold(jx,jy,jz) = satliq(jx,jy,jz)
          satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
        END DO
      END DO
+   END DO
 
      WRITE(*,*) ' Initialization completed!'
      
