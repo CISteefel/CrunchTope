@@ -645,7 +645,7 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 0,nx
-            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+            WRITE(8,192) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
             z(jz)*OutputDistanceScale,qx(jx,jy,jz)
       END DO
     END DO
@@ -662,7 +662,7 @@ END IF
     DO jz = 1,nz
       DO jy = 0,ny
         DO jx = 1,nx
-            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+            WRITE(8,192) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
             z(jz)*OutputDistanceScale,qy(jx,jy,jz)
       END DO
     END DO
@@ -1150,7 +1150,7 @@ END IF
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+          WRITE(8,192) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
                         z(jz)*OutputDistanceScale,satliq(jx,jy,jz)
         END DO
       END DO
@@ -1253,6 +1253,11 @@ IF (isaturate == 1) THEN
         tk = 273.15d0 + t(jx,jy,jz)
         denmol = 1.e05/(8.314*tk)                      ! P/RT = n/V, with pressure converted from bars to Pascals
         CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
+        DO kk = 1,ngas
+          if (gastmp10(kk)<1E-30) THEN
+            gastmp10(kk)=1.0E-30
+          END IF
+        END DO
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
                 z(jz)*OutputDistanceScale,(gastmp10(kk),kk = 1,ngas)
       END DO
@@ -1295,6 +1300,7 @@ END IF
 183 FORMAT(1PE12.4,2X,1PE12.4,2X,1PE12.4)
 
 191 FORMAT(100(1X,1PE16.7))
+192 FORMAT(100(1X,1PE25.16))
 188 FORMAT(100(1X,f15.7))
 
 2283 FORMAT('# Time (yrs) ',2X,1PE12.4)
