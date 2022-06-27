@@ -958,6 +958,48 @@ END DO
     END DO
   END DO
     CLOSE(UNIT=8,STATUS='keep')
+
+    IF (MontTerri) THEN
+    
+      fn = 'MontTerri-Slice1-'
+      ilength = 17
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,*) 'TITLE = "Tracer" '
+      WRITE(8,*) 'VARIABLES = "X"        "Z"     "Tracer"'
+      WRITE(8,*) 'ZONE I=', nx,  ',  K=',nz, ' F=POINT'
+      
+      jy = 30
+      DO jz = 1,nz      
+  !!!      DO jy = 1,ny
+          DO jx = 1,nx
+          WRITE(8,184) x(jx)*OutputDistanceScale, z(jz)*OutputDistanceScale, s(1,jx,jy,jz)
+          END DO
+          
+  !!!      END DO
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+      
+      fn = 'MontTerri-Porosity1-'
+      ilength = 20
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,*) 'TITLE = "Tracer" '
+      WRITE(8,*) 'VARIABLES = "X"        "Z"     "Tracer"'
+      WRITE(8,*) 'ZONE I=', nx,  ',  K=',nz, ' F=POINT'
+      
+      jy = 30
+      DO jz = 1,nz      
+  !!!      DO jy = 1,ny
+          DO jx = 1,nx
+          WRITE(8,184) x(jx)*OutputDistanceScale, z(jz)*OutputDistanceScale, por(jx,jy,jz)
+          END DO
+          
+  !!!      END DO
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+      
+    END IF
     
   IF (Richards) THEN
 
