@@ -481,10 +481,6 @@ DO ir = 1,ikin
   end if
 ! biomass end
     
-
-  if (ir==1 .and. jx==1 .and. time > 0.25) then
-    continue
-  end if
   raq_tot(ir,jx,jy,jz) = sumkin
   
 END DO

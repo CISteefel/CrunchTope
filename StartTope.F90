@@ -8772,9 +8772,6 @@ IF (found) THEN
           permz = perminz
           permmaxz = MAXVAL(DABS(permz))
 
-
-
-
           DEALLOCATE(permzonez)
           DEALLOCATE(jxxpermz_lo)
           DEALLOCATE(jxxpermz_hi)
@@ -9611,7 +9608,7 @@ uli = 1.0d0
 dcoeff = 0
 dgas = 0
 anisotropyY = 1.0d0
-anisotropyZ = 1.0d0
+!!!anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
     MillingtonQuirk = .TRUE.

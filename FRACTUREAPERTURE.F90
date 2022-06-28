@@ -15,6 +15,7 @@ USE concentration, ONLY: jinit
 USE medium, ONLY: dxx,dyy,x,y
 USE flow, ONLY: permx,permy
 USE medium, ONLY: por
+USE mineral, ONLY: area
 
 
 IMPLICIT NONE
@@ -245,7 +246,8 @@ cc = 0.0
       i03 = i00 + i01 * i02
 	                             
       cc(i03,8) = nfs;             !!! Fracture segment number
-      cc(i03,9) = t1 * t1 / 12.0   !!! Permeability						   
+      cc(i03,9) = (0.01*t1 * 0.01*t1 / 12.0)   !!! Permeability		
+!!!      cc(i03,9) = 1.0E-13
 
 	    !!!apert = apert + sqrt(poro[i03]*width of the cell i03)/12.0
 	  
@@ -267,6 +269,11 @@ cc = 0.0
       i = (jy-1) * nx + jx
       permx(jx,jy,1) = cc(i,9)*1.0E-08
       permy(jx,jy,1) = cc(i,9)*1.0E-08
+      permx(jx,jy,1) = cc(i,9)*0.01
+      permy(jx,jy,1) = cc(i,9)*0.01
+      permx(jx,jy,1) = cc(i,9)*0.01
+      permy(jx,jy,1) = cc(i,9)*0.01
+!!!      area(2,jx,jy,1) = 0.01*2.0/cc(i,9)
       if (permx(jx,jy,1) < 1.0E-18) then
         permx(jx,jy,1) = 1.0E-18
       end if
@@ -280,8 +287,8 @@ cc = 0.0
   do jy = 1,ny
     do jx = 1,nx
       if (jy==1 .or. jy==2) then
-        permx(jx,jy,1) = 1.0E-11
-        permy(jx,jy,1) = 1.0E-11
+        permx(jx,jy,1) = 4.15E-13
+        permy(jx,jy,1) = 4.15E-13
       end if
     end do
   end do
