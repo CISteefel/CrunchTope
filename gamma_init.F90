@@ -84,7 +84,7 @@ TotalMoles = 0.0d0
 
 DO ik = 1,ncomp+nspec
   ulabPrint = ulab(ik)
-  IF (ulabPrint(1:3) /= 'H2O') THEN
+  IF (ulabPrint(1:3) /= 'H2O' .or. ulabPrint(1:3) /= 'HHO') THEN
     TotalMoles = TotalMoles + sptmp10(ik)
     ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
   ELSE
@@ -145,7 +145,7 @@ DO ik = 1,ncomp+nspec
   IF (chg(ik) == 0.0d0) THEN
 
     ulabPrint = ulab(ik)
-    IF (ulabPrint(1:3) == 'H2O') THEN
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
       
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
 !!!   Assumes molecular weight of H2O of 18.01528

@@ -2514,8 +2514,8 @@ END IF
 !  601 format(' ',a12,1pe12.4,<ncomp+nsurf>(0pf7.2))
 !  602 format(' ',27x,<ncomp+nsurf>a7)
 599 FORMAT(' ',27X,100A7)
-600 FORMAT(' ',a12,1PE12.4,100(0PF7.2))
-601 FORMAT(' ',a12,1PE12.4,100(0PF7.2))
+600 FORMAT(' ',a18,1PE12.4,100(0PF7.2))
+601 FORMAT(' ',a18,1PE12.4,100(0PF7.2))
 602 FORMAT(' ',27X,100A7)
 
 IF (ncmplx > 0) THEN
