@@ -3032,7 +3032,7 @@ IF (Richards) THEN
 
    IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
        delt = dt_co
-       write(*,*) 'Delt = ', delt
+  !     write(*,*) 'Delt = ', delt
    END IF
 
     IF (delt < deltmin) THEN
