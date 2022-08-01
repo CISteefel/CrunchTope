@@ -631,6 +631,8 @@ CHARACTER (LEN=mls)                          :: watertablefile
 CHARACTER (LEN=mls)                          :: WatertableFileFormat
 
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check3
+CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
+integer :: IERR = 0
 
 #if defined(ALQUIMIA)
 
@@ -6368,6 +6370,22 @@ IF (found) THEN
   parfind = ' '
   realmult= 0.0
   CALL read_snapshot(nout,lchar,parchar,parchar2,parfind,realmult,lenarray,section)
+
+  
+  parchar = 'read_snapshotfile'
+  parfind = ' '
+  CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
+  IF (parfind == 'read_snapshotfile') THEN
+  lenarray=0
+  OPEN(UNIT=23,FILE=dumstring,STATUS='old',ERR=8005)
+  FileTemp = dumstring
+  CALL stringlen(FileTemp,FileNameLength)
+  do while (ierr == 0)
+    lenarray = lenarray + 1
+    READ(23,*,iostat=IERR) realmult(lenarray) 
+  enddo
+  ENDIF
+  
   IF (parfind == ' ') THEN
     WRITE(*,*) ' Timestepping off--initialization only'
     nstop = 0
