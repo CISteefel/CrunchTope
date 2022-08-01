@@ -201,5 +201,6 @@ LOGICAL(LGT)                                   :: back_flow_closed
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
 LOGICAL(LGT)                                   :: watertabletimeseries
-
+!! Disable mineralupdate during model spinup
+LOGICAL(LGT)                                   :: spinup ! Lucien Stolze 20220731
 END MODULE flow

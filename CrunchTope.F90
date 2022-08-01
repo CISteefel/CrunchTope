@@ -2483,6 +2483,9 @@ END DO
 !  Do not update mineral volume fractions in reaction path
 !  mode (ipath = 1 and nxyz = 1)
 
+  !IF (spinup) THEN
+  !  CONTINUE
+  !ELSE
   IF (ipath == 1 .AND. nxyz == 1) THEN
     CONTINUE
   ELSE
@@ -2494,7 +2497,7 @@ END DO
       CALL CalciteBulkStoichiometry(nx,ny,nz,delt)
     END IF
   END IF
-
+  !ENDIF
  !!  MassBalanceError = MassBalanceError + fxx(7)*delt
  !!  RateMassBalanceError = RateMassBalanceError + 0.1*dppt(6,1,1,1)*delt
  !!  aq_accum = 0.1*por(1,1,1)*ro(1,1,1)*(s(7,1,1,1)-sn(7,1,1,1))

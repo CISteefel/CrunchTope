@@ -640,7 +640,7 @@ integer :: rank, ierror
 character(25) :: fn
 #endif
 
-ALLOCATE(realmult(100))
+ALLOCATE(realmult(1000))
 
 pi = DACOS(-1.0d0)
 
@@ -1596,6 +1596,11 @@ parchar = 'kinetic_database'
   parfind = ' '
   SetSurfaceAreaConstant = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SetSurfaceAreaConstant)
+
+  parchar = 'model_spinup'
+  parfind = ' '
+  spinup = .false.
+  CALL read_logical(nout,lchar,parchar,parfind,spinup)
 
   parchar = 'Inagaki'
   parfind = ' '

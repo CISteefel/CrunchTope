@@ -49,6 +49,7 @@ USE runtime, ONLY: voltol,inagaki,inagaki2,ncounter,ReadGautier,ForsteriteCapill
 USE concentration
 USE mineral
 USE medium
+USE flow
 
 IMPLICIT NONE
 
@@ -140,7 +141,11 @@ DO jz = 1,nz
         IF (MineralAssociate(k)) THEN
             
           kk = MineralID(k)
+          IF (spinup) THEN
+          VolumeUpdate = 0  
+          ELSE
           VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
+          ENDIF
           voldiff = VolumeUpdate + volfx(kk,jx,jy,jz)
           IF (voldiff < volneg) THEN
             volneg = voldiff
@@ -151,8 +156,12 @@ DO jz = 1,nz
           END IF
           
         ELSE
-            
+          
+          IF (spinup) THEN
+            VolumeUpdate = 0  
+          ELSE
           VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
+          ENDIF
           voldiff = VolumeUpdate + volfx(k,jx,jy,jz)
           IF (voldiff < volneg) THEN
             volneg = voldiff
@@ -223,15 +232,23 @@ DO jz = 1,nz
         IF (MineralAssociate(k)) THEN
             
           kk = MineralID(k)
+          IF (spinup) THEN
+            VolumeUpdate = 0  
+            ELSE
           VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
+            ENDIF
           volfx(kk,jx,jy,jz) = volfx(kk,jx,jy,jz) + VolumeUpdate
           IF (volfx(kk,jx,jy,jz) < 0.0) THEN
             volfx(kk,jx,jy,jz) = 0.0
           END IF
           
         ELSE
-            
+          
+          IF (spinup) THEN
+          VolumeUpdate = 0  
+          ELSE
           VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
+          ENDIF
           volfx(k,jx,jy,jz) = volfx(k,jx,jy,jz) + VolumeUpdate
           volSaveByTimeStep(ncounter,k,jx,jy,jz) = VolumeUpdate
           volSave(k,jx,jy,jz) = volSave(k,jx,jy,jz) + volSaveByTimeStep(ncounter,k,jx,jy,jz)
