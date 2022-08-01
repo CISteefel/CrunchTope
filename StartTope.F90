@@ -6371,7 +6371,9 @@ IF (found) THEN
   realmult= 0.0
   CALL read_snapshot(nout,lchar,parchar,parchar2,parfind,realmult,lenarray,section)
 
-  
+  IF (parfind == 'spatial_profile' .OR. parfind == 'spatial_profile_at_time') THEN
+    CONTINUE
+  ELSE
   parchar = 'read_snapshotfile'
   parfind = ' '
   CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
@@ -6385,7 +6387,8 @@ IF (found) THEN
     READ(23,*,iostat=IERR) realmult(lenarray) 
   enddo
   ENDIF
-  
+  ENDIF
+
   IF (parfind == ' ') THEN
     WRITE(*,*) ' Timestepping off--initialization only'
     nstop = 0
