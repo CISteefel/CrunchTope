@@ -336,13 +336,13 @@ DO jz = 1,nz
                                 pumpterm = 0.0d0
                                 pumpterm1 = 0.0d0
                                 IF (wells .OR. pumptimeseries) THEN
-                                DO npz = 1,npump(jx,jy+1,jz)
-                                        pumpterm1 = pumpterm1 + dt*qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy+1,jz))
+                                DO npz = 1,npump(jx,jy,jz)
+                                        pumpterm1 = pumpterm1 + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
                                 END DO    
-                                IF (pumpterm1 > 0.0d0 .AND.(wc(jx,jy+1,jz) + pumpterm1 >= wcs(jx,jy+1,jz))) then
-                                    pumpterm1 = (wcs(jx,jy+1,jz) - wc(jx,jy+1,jz))
-                                ELSEIF (pumpterm1 < 0.0d0 .AND. (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3) + pumpterm1 <=0) then
-                                    pumpterm1 = (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3)
+                                IF (pumpterm1 > 0.0d0 .AND.(wc(jx,jy,jz) + pumpterm1 >= wcs(jx,jy,jz))) then
+                                    pumpterm1 = (wcs(jx,jy,jz) - wc(jx,jy,jz))
+                                ELSEIF (pumpterm1 < 0.0d0 .AND. (wc(jx,jy,jz)-wcr(jx,jy,jz)-1e-3) + pumpterm1 <=0) then
+                                    pumpterm1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)-1e-3)
                                 ENDIF
                                     pumpterm = visc*ro(jx,jy,jz)*pumpterm1/dt
                                 END IF
