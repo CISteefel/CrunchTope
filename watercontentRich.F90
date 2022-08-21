@@ -115,8 +115,13 @@ DO jz = 1,nz
                   IF (wells .OR. pumptimeseries) THEN
 
                     DO npz = 1,npump(jx,jy,jz)
-                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)) ! unitless
                     END DO
+                    IF (pumpterm < 0 .AND. (wc(jx,jy,jz) - wcr(jx,jy,jz) + pumpterm) <= 1e-3) THEN
+                    pumpterm = -(wc(jx,jy,jz)-wcr(jx,jy,jz)-1e-3)
+                    ELSEIF (pumpterm >=0 .AND. (wc(jx,jy+1,jz) + pumpterm >= wcs(jx,jy+1,jz))) THEN
+                    pumpterm = wcs(jx,jy+1,jz)-wc(jx,jy+1,jz)
+                    END IF
                   END IF
                   wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm
 

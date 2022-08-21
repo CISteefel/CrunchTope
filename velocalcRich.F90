@@ -133,14 +133,14 @@ DO jz = 1,nz
                 pumpterm = 0.0d0
                 IF (wells .OR. pumptimeseries) THEN
                   DO npz = 1,npump(jx,jy+1,jz)
-                    pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
+                    pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz)) !m/sec
                   END DO
 
-                  IF (pumpterm > 0.0d0 .AND. room(jx,jy+1,jz) == 0.0d0) then
-                    pumpterm = 0.0d0
-                    ELSEIF (pumpterm < 0.0d0 .AND. wc(jx,jy+1,jz) == wcr(jx,jy+1,jz)) THEN
-                    pumpterm = 0.0d0
-                    ENDIF
+                  IF (pumpterm > 0.0d0 .AND. (wc(jx,jy+1,jz) + dt*pumpterm/dyy(jy) >= wcs(jx,jy+1,jz))) then
+                    pumpterm = (wcs(jx,jy+1,jz) - wc(jx,jy+1,jz))*dyy(jy)/dt
+                  ELSEIF (pumpterm < 0.0d0 .AND. (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3) + dt*pumpterm/dyy(jy) <=0) THEN
+                    pumpterm = (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3)*dyy(jy)/dt
+                  ENDIF
     
                     IF (pumpterm /= 0.0d0) THEN
                         qy(jx,jy,jz) = pumpterm
@@ -150,9 +150,9 @@ DO jz = 1,nz
                 
                 ENDIF
 
-                IF (qy(jx,jy,jz) < 0.0 .AND. wc(jx,jy+1,jz) == wcr(jx,jy+1,jz)) THEN
-                  qy(jx,jy,jz) = 0
-                END IF
+                !IF (qy(jx,jy,jz) < 0.0 .AND. wc(jx,jy+1,jz) == wcr(jx,jy+1,jz)) THEN
+                !  qy(jx,jy,jz) = 0
+                !END IF
 
                 ! check if there is enough room available in case of infiltration
                 IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN

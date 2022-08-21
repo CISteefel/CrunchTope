@@ -92,6 +92,7 @@ REAL(DP)                                                              :: AddPres
 REAL(DP)                                                              :: AddPressureY
 REAL(DP)                                                              :: AddPressureZ
 REAL(DP)                                                              :: pumpterm
+REAL(DP)                                                              :: pumpterm1
 
 !  ****** PARAMETERS  ****************************
 
@@ -332,12 +333,19 @@ DO jz = 1,nz
                                 (dt/dyy(jy))*(Kfacy(jx,jy,jz)-Kfacy(jx,jy-1,jz)) + &
                                 AddPressureX + AddPressureY
 
-                    pumpterm = 0.0d0
-                    IF (wells .OR. pumptimeseries) THEN
-                      DO npz = 1,npump(jx,jy,jz)
-                        pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
-                      END DO
-                    END IF
+                                pumpterm = 0.0d0
+                                pumpterm1 = 0.0d0
+                                IF (wells .OR. pumptimeseries) THEN
+                                DO npz = 1,npump(jx,jy+1,jz)
+                                        pumpterm1 = pumpterm1 + dt*qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy+1,jz))
+                                END DO    
+                                IF (pumpterm1 > 0.0d0 .AND.(wc(jx,jy+1,jz) + pumpterm1 >= wcs(jx,jy+1,jz))) then
+                                    pumpterm1 = (wcs(jx,jy+1,jz) - wc(jx,jy+1,jz))
+                                ELSEIF (pumpterm1 < 0.0d0 .AND. (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3) + pumpterm1 <=0) then
+                                    pumpterm1 = (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3)
+                                ENDIF
+                                    pumpterm = visc*ro(jx,jy,jz)*pumpterm1/dt
+                                END IF
 
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm
 
