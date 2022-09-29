@@ -157,9 +157,6 @@ DO jz = 1,nz
     DO jy = 1,ny
         DO jx = 1,nx
 
-            IF (qy(jx,ny,jz)<=0 .AND. back_flow_closed) then
-                Kfacy(jx,ny,jz)=0
-              END IF
 
           pumpterm = 0.0
             j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
@@ -344,7 +341,8 @@ DO jz = 1,nz
                                 ELSEIF (pumpterm1 < 0.0d0 .AND. (wc(jx,jy,jz)-wcr(jx,jy,jz)-1e-3) + pumpterm1 <=0) then
                                     pumpterm1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)-1e-3)
                                 ENDIF
-                                    pumpterm = visc*ro(jx,jy,jz)*pumpterm1/dt
+                                    !pumpterm = visc*ro(jx,jy,jz)*pumpterm1/dt
+                                    pumpterm = pumpterm1
                                 END IF
 
                     BvecCrunchP(j) = BvecCrunchP(j) + pumpterm

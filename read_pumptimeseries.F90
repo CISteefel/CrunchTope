@@ -43,11 +43,15 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,readwatertable,FileFormatType)
+SUBROUTINE read_pumptimeseries(nout,nx,ny,nz)
+
 USE crunchtype
+USE CrunchFunctions
+USE medium
 USE params
 USE flow
 USE strings
+USE io
 
 IMPLICIT NONE
 
@@ -57,10 +61,6 @@ INTEGER(I4B), INTENT(IN)                                    :: nout
 INTEGER(I4B), INTENT(IN)                                    :: nx
 INTEGER(I4B), INTENT(IN)                                    :: ny
 INTEGER(I4B), INTENT(IN)                                    :: nz
-INTEGER(I4B), INTENT(OUT)                                   :: lfile
-CHARACTER (LEN=mls), INTENT(OUT)                            :: watertablefile
-LOGICAL(LGT), INTENT(IN OUT)                                :: readwatertable
-CHARACTER (LEN=mls), INTENT(OUT)                            :: FileFormatType
 
 !  Internal variables and arrays
 
@@ -69,12 +69,18 @@ INTEGER(I4B)                                                :: iff
 INTEGER(I4B)                                                :: ids
 INTEGER(I4B)                                                :: ls
 INTEGER(I4B)                                                :: lzs
-INTEGER(I4B)                                                :: nxyz
 INTEGER(I4B)                                                :: nlen1
-INTEGER(I4B)                                                :: lenformat
+INTEGER(I4B)                                                :: lfile
+LOGICAL(LGT)                                                :: ext
+CHARACTER (LEN=mls)                                           :: FileTemp
+INTEGER(I4B)                                                   :: tp
+INTEGER(I4B)                                                  :: FileNameLength
 
-nxyz = nx*ny*nz
-watertablefile = ' '
+CHARACTER (LEN=mls)                                         :: pumptimeseriesfile
+REAL(DP)                                                    :: tslength
+
+
+pumptimeseriesfile = ' '
 
 REWIND nout
 
@@ -88,61 +94,106 @@ IF(ls /= 0) THEN
   lzs=ls
   CALL convan(ssch,lzs,res)
   
-  IF (ssch == 'read_watertablefile') THEN
-    
-!  Looking for permeability file name
+  IF (ssch == 'read_pumptimeseries') THEN
+    pumptimeseries = .true.
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!Looking for time series length
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (res == 'n') THEN
+        tslength = DNUM(ssch)
+      ELSE                
+        WRITE(*,*)
+        WRITE(*,*) ' Cant interpret string following "read_pumptimeseries"'
+        WRITE(*,*) ' Looking for length time_series' 
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!Looking for file name
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     IF(ls /= 0) THEN
       lzs=ls
       CALL stringtype(ssch,lzs,res)
-      watertablefile = ssch
+      pumptimeseriesfile = ssch
       lfile = ls
-      watertabletimeseries = .true.
-
-!!  *****************************************************************
-!!    Now, check for a file format
-      id = ids + ls
-      CALL sschaine(zone,id,iff,ssch,ids,ls)
-      lenformat = ls
-      CALL majuscules(ssch,lenformat)
-      IF (ls /= 0) THEN
-        IF (ssch == 'singlecolumn') THEN
-          FileFormatType = 'SingleColumn'
-        ELSE IF (ssch == 'continuousread') THEN
-          FileFormatType = 'ContinuousRead'
-        ELSE IF (ssch == 'unformatted') THEN
-          FileFormatType = 'Unformatted' 
-        ELSE IF (ssch == 'distanceplusvariable' .OR. ssch == 'fullform' .OR. ssch == 'full') THEN
-          FileFormatType = 'FullForm'    
-        ELSE IF (ssch == 'singlefile3d') THEN
-          FileFormatType = 'SingleFile3D'
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' File format not recognized: ', ssch(1:lenformat)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        ENDIf
-      ELSE    !! No file format provided, so assume default
-        !!FileFormatType = 'SingleColumn'
-        WRITE(*,*)
-        WRITE(*,*) ' No file format following "read_watertablefile" in FLOW section '
-        WRITE(*,*)
-        READ(*,*)
-      STOP
-      ENDIF
-!!  *****************************************************************
-
     ELSE
       WRITE(*,*)
-      WRITE(*,*) ' No file name following "read_watertablefile" in FLOW section '
+      WRITE(*,*) ' No file name provided in "read_pumptimeseries"'
       WRITE(*,*)
       READ(*,*)
       STOP
     END IF
-    
+      
+
+!!  *****************************************************************
+
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' No information provided following "read_pumptimeseries" '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+  IF (pumptimeseries) THEN
+
+    WRITE(iunit2,*)
+    WRITE(iunit2,*) '  Reading pumptimeseries from file: ',pumptimeseriesfile(1:lfile)
+    WRITE(iunit2,*)
+
+    IF (ALLOCATED(tpump)) THEN
+      DEALLOCATE(tpump)
+      ALLOCATE(tpump(1:int(tslength)))
+    ELSE
+      ALLOCATE(tpump(1:int(tslength)))
+    END IF
+  
+    IF (ALLOCATED(qgt)) THEN
+      DEALLOCATE(qgt)
+      ALLOCATE(qgt(1:int(tslength)))
+    ELSE
+      ALLOCATE(qgt(1:int(tslength)))
+    END IF
+
+
+    INQUIRE(FILE=pumptimeseriesfile,EXIST=ext)
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' 3D pump file not found: ',pumptimeseriesfile(1:lfile)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+
+    OPEN(UNIT=23,FILE=pumptimeseriesfile,STATUS='old',ERR=8005)
+    FileTemp = pumptimeseriesfile
+    CALL stringlen(FileTemp,FileNameLength)
+          DO tp = 1,int(tslength)
+            READ(23,*,END=1020) tpump(tp),qgt(tp)
+            qgt(tp)=((qgt(tp))/1000.0d0)*dxx(nx)*dzz(1,1,1) !! Converting from mm/year to m3/year
+          END DO
+            !qg(1,nx,ny,nz)=qgt(1)
+
+    CLOSE(UNIT=23,STATUS='keep')
+  
+  ENDIF
+
+
+
   ELSE
     GO TO 10
   END IF
@@ -152,5 +203,20 @@ ELSE         ! No string found
   GO TO 10
 END IF
 
+GO TO 10
+!!!!!!!!!!!!!!!!!!!!
+
+RETURN
+
+1020  WRITE(*,*) ' End of file during read'
+WRITE(*,*) ' Trying to read the file: ', FileTemp(1:FileNameLength)
+READ(*,*)
+STOP
+
+8005   WRITE(*,*) ' Error opening pumptimeseries file'
+        READ(*,*)
+STOP
+
 1000 RETURN
-END SUBROUTINE read_watertablefile
+
+END SUBROUTINE read_pumptimeseries
