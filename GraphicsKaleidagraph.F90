@@ -376,11 +376,6 @@ DO jx = 1,nx
   tk = 273.15d0 + t(jx,jy,jz)
   denmol = 1.e05/(8.314*tk)                      ! P/RT = n/V, with pressure converted from bars to Pascals
   CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
-  DO kk = 1,ngas
-    if (gastmp10(kk)<1.0E-50) THEN
-      gastmp10(kk)=1.0E-50
-    END IF
-  END DO
   WRITE(8,184) x(jx)*OutputDistanceScale,(gastmp10(kk),kk = 1,ngas)
 END DO
 CLOSE(UNIT=8,STATUS='keep')
@@ -426,9 +421,7 @@ IF (isaturate==1) THEN
       else
         gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
       END IF
-      if (gflux_hor(i)<1.0E-30 .and. gflux_hor(i)>-1.0E-30) THEN
-        gflux_hor(i)=1.0E-30
-      END IF      
+      
     END DO
     
     if (jx==0) THEN
@@ -683,11 +676,6 @@ IF (ikin > 0) THEN
   jz = 1
   DO jx = 1,nx
     sum = 0.0
-    DO ir=1,ikin
-      IF (raq_tot(ir,jx,jy,jz)<1.0E-30) THEN
-        raq_tot(ir,jx,jy,jz)=1.0E-30
-      END IF
-    END DO
     WRITE(8,184) x(jx)*OutputDistanceScale,(raq_tot(ir,jx,jy,jz),ir=1,ikin)
   END DO
   CLOSE(UNIT=8,STATUS='keep')

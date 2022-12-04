@@ -231,7 +231,7 @@ IF (ny == 1 .AND. nz == 1) THEN
   END IF
   IF (ALLOCATED(spgas)) THEN
     DEALLOCATE(spgas)
-    ALLOCATE(spgas(ngas,0:nx+1,ny,nz))
+    ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,nz))
   ELSE
     ALLOCATE(spgas(ngas,0:nx+1,ny,nz))
   END IF

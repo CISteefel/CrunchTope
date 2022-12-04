@@ -188,6 +188,8 @@ IF (SaltCreep) THEN
   
   IF (P_bars > 2000.0) THEN
     P_bars = 2000.0
+  ELSE
+    P_bars = 1.0
   END IF
   
   bh = 0.3288
@@ -232,7 +234,9 @@ IF (SaltCreep) THEN
 
   DeltaV_r = Vm_Na + Vm_Cl - Vm_NaCl
   
-  keqmin(1,1,jx,jy,jz) = ( 1.570 - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
+  keqmin(1,1,jx,jy,jz) = ( keqmin(1,1,jx,jy,jz)/clg - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
+  
+!!!  keqmin(1,1,jx,jy,jz) = ( 1.570 - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
   
 !!!  write(*,*) 'Pressure (atm) = ', P_appelo
   

@@ -121,6 +121,7 @@ jz = 1
 
 quirk = 10.0d0/3.0d0
 
+
 IF (idiffus == 0) THEN
   d_25 = dzero
 ELSE
@@ -197,9 +198,8 @@ DO jy = 1,ny
         dumw = dumpx
       ELSE IF (MillingtonQuirk) THEN
         dume = ro(jx+1,jy,jz)*(sate)**(quirk)*(pore)**(uli)*dstar(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
+        dumpx = ro(jx,jy,jz)*(satp)**(quirk) * (porp)**(uli)*dstar(jx,jy,jz)
         dumw = dumpx
-
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)

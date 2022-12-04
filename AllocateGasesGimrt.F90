@@ -89,7 +89,7 @@ ALLOCATE(eg(nx,ny,nz))
 IF (ALLOCATED(fg)) THEN
   DEALLOCATE(fg)
 END IF
-ALLOCATE(fg(nx,ny,nz))
+ALLOCATE(fg(0:nx+1,0:ny+1,nz))
 
 ag = 0.0
 bg = 0.0

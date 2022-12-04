@@ -127,6 +127,8 @@ REAL(DP)                                             :: tmp2
 REAL(DP)                                             :: tmp3
 REAL(DP)                                             :: tmp4
 
+REAL(DP)                                             :: satL
+
 REAL(DP), DIMENSION(ikin)                            :: MoleFraction
 REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
 
@@ -136,6 +138,7 @@ REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
 ALLOCATE(stmp(ncomp))
 
 tk = t(jx,jy,jz) + 273.15D0
+satL = satliq(jx,jy,jz)
 
 ! biomass end
 
@@ -532,20 +535,20 @@ DO ir = 1,ikin
 !   pointer to biomass for current reaction
 !!    ib = ibiomass_kin(p_cat_kin(ir))
     ib = ibiomass_kin(ir)
-
-! note on units: dividing by por and ro below to convert units to mol/Kg-H2O/yr (see note in reactkin.F90)
+    
+    vol_temp = volfx(ib,jx,jy,jz) / (volmol(ib) * satL * por(jx,jy,jz) * ro(jx,jy,jz) )
     
     IF (UseMetabolicLagAqueous(jj)) THEN
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(jj,jx,jy,jz)*volfx(ib,jx,jy,jz) * ratek(ll,ir) / por(jx,jy,jz) / ro(jx,jy,jz) *  &
+          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(jj,jx,jy,jz)*volfx(ib,jx,jy,jz) * vol_temp*ratek(ll,ir) **  &
             (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity + pre_raq(ll,ir)*affinity )
         END DO
       END DO
     ELSE
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + volfx(ib,jx,jy,jz) * ratek(ll,ir) / por(jx,jy,jz) / ro(jx,jy,jz) *  &
+          rdkin(ir,i) = rdkin(ir,i) + vol_temp*ratek(ll,ir) *  &
             (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
         END DO
       END DO

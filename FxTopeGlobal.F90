@@ -820,15 +820,7 @@ DO i = 1,ncomp
     
   ELSE
     
-    yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
-    
-!!!    IF (jx==42 .and. jy==43 .and. i==1) THEN
-!!!      write(*,*)
-!!!      write(*,*) ' d(north) = ',d(jx,jy,jz),scn(i)
-!!!      write(*,*) ' f(south) = ',f(jx,jy,jz),scs(i)
-!!!      write(*,*)
-!!!    END IF
-      
+    yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)   
     
     IF (isaturate == 1) THEN
       yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
@@ -898,6 +890,7 @@ DO i = 1,ncomp
     END DO
     
   END IF
+
 
   GasSource = 0.0
 

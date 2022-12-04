@@ -77,13 +77,10 @@ tempk = tempc + 273.15
 
 DO kk = 1,ngas
 
-
     sum = 0.0
     DO i = 1,ncomp
       sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
     END DO
-
-
   
   ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
   if (namg(kk) == 'CO2(g)') then

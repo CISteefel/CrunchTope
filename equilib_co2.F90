@@ -1378,7 +1378,8 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,511) ulab(i),stmp(i),namtemp,ncon(i,nco)
     END DO
     
-    write(123,*) PressureTemp,stmp(1)
+!!!    write(123,*) PressureTemp,stmp(1)
+    write(123,*) tempc,stmp(1)
 
     namtemp = 'Exchange'
     IF (nexchange > 0) THEN
@@ -1726,6 +1727,7 @@ DO  ktrial = 1,ntrial
       silnTMP = sumiap - keqmin_tmp(1,k)
       siprnt = silnTMP/clg
       WRITE(iunit2,509) umin(k),siprnt
+      WRITE(iunit2,*) ' Omega                  ', 10**(siprnt)
     END DO
     
     DEALLOCATE(u)

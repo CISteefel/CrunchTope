@@ -71,13 +71,10 @@ denmol = DLOG(1.e05/(8.314*tempk))           ! P/RT = n/V, with pressure convert
 
 DO kk = 1,ngas
 
-
-
     sum = 0.0
     DO i = 1,ncomp
       sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
     END DO
-
 
   spgastmp(kk) = keqgas_tmp(kk) + sum 
   spgastmp10(kk) = DEXP(spgastmp(kk))       !  mole fraction of gases

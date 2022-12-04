@@ -109,11 +109,14 @@ REAL(DP)                                              :: RgasAppelo
 REAL(DP)                                              :: ConvertBarsToAtm
 REAL(DP)                                              :: ConvertPaToBars
 REAL(DP)                                              :: kReal
+REAL(DP)                                              :: tempT
 
 CHARACTER*1          :: string1
 CHARACTER*2          :: string2
 CHARACTER*3          :: string3
 CHARACTER*4          :: string4
+
+CHARACTER*5          :: StringReal
 
 
 INTEGER(I4B)                                         :: ksp
@@ -125,12 +128,14 @@ INTEGER(I4B)                                         :: ns
 INTEGER(I4B)                                         :: np
 INTEGER(I4B)                                         :: kkk
 
-LOGICAL(LGT)                                         :: WriteInput
+LOGICAL(LGT)                                         :: WriteInputP
+LOGICAL(LGT)                                         :: WriteInputT
 
 temp = tempc + 273.15
 temp2 = temp*temp
 
-WriteInput = .FALSE.
+WriteInputP = .FALSE.
+WriteInputT = .FALSE.
 
 ChargeSum = 0.0d0
 
@@ -196,13 +201,14 @@ IF (SaltCreep) THEN
   ConvertPaToBars = 1.0E-05
   RgasAppelo = 82.0574587      !! (atm cm^3 mol^-1 K^-1)
   
-  if (WriteINput) THEN
+  if (WriteInputP) THEN
   do kkk = 1,3500,2
     kReal = FLOAT(kkk)
+    
     IF (kkk < 10) THEN
+      
       string1 = IntegerToCharacter(kkk)
-      
-      
+       
       write(122,111) string1(1:1)
       write(122,112) string1(1:1)
       
@@ -244,8 +250,66 @@ IF (SaltCreep) THEN
 
   END DO
   
-  write(*,*) ' Finished writing'
-  read(*,*)
+  ENDIF
+  
+  if (WriteInputT) THEN
+    
+  do kkk = 40,99
+    
+    IF (kkk < 10) THEN
+      
+      string1 = IntegerToCharacter(kkk)
+      tempT = Real(kkk) 
+!!!      tempT = tempT*0.2 + 22.0
+      temp = tempT + 273.15
+      StringReal = RealToCharacter(tempT)
+      write(122,111) string1(1:1)
+      write(122,121) stringReal
+      
+    ELSE IF (kkk >= 10 .and. kkk<100) THEN
+      
+      string2 = IntegerToCharacter(kkk)
+      tempT = Real(kkk)
+!!!      tempT = tempT*0.2 + 22.0
+      temp = tempT + 273.15
+      StringReal = RealToCharacter(tempT)
+      write(122,113) string2
+      write(122,121) stringReal
+      
+    ELSE IF (kkk >= 100 .and. kkk<1000) THEN
+      
+      string3 = IntegerToCharacter(kkk)
+      tempT = Real(kkk)
+!!!      tempT = tempT*0.2 + 22.0
+      temp = tempT + 273.15
+      StringReal = RealToCharacter(tempT)
+      write(122,115) string3
+      write(122,121) stringReal
+      
+    ELSE
+      
+      write(*,*) 'Temperatures should not be above 100C'
+      write(*,*)
+      read(*,*)
+      stop
+      
+    ENDIF
+    
+119   format('Temperature    ',a1)
+120   format('Temperature    ',a2)
+121   format('Temperature    ',a5) 
+      
+    write(122,*) 'pressure        1.0'
+    write(122,*) 'set_porosity    0.001'
+    write(122,*) 'units           mol/kg'
+    write(122,*) 'Na+             Halite'
+    write(122,*) 'Cl-             charge'
+    write(122,*) 'Tracer          1.0E-06'
+    write(122,*) 'Halite          0.10  bsa 1.0'
+    write(122,*) 'END'
+    write(122,*)
+
+  END DO
   
   ENDIF
   
@@ -307,7 +371,7 @@ IF (SaltCreep) THEN
 
   DeltaV_r = Vm_Na + Vm_Cl - Vm_NaCl
   
-  keqmin_tmp(1,1) = ( 1.570 - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
+  keqmin_tmp(1,1) = ( keqmin_tmp(1,1)/clg  - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
   
 !!!    write(*,*) ' DeltaV_r =   ', DeltaV_r
 !!!    write(*,*) ' keqmin_tmp = ', keqmin_tmp(1,1)

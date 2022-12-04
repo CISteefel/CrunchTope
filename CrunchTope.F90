@@ -597,6 +597,23 @@ WRITE(*,*)
 
 IF (CalculateFlow) THEN
 
+  IF (watertabletimeseries) THEN
+    
+    jz=1
+    jx=0
+    DO jy = 1,ny
+      IF (TS_1year) THEN
+        time_norm=time-floor(time)
+        CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+      ELSE
+        CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+      END IF
+      if (pres(jx,jy,jz)==0) then
+        permx(jx,jy,jz)=0
+      end if
+    END DO
+    
+  END IF
 
   IF (pumptimeseries) THEN
     IF (TS_1year) THEN
@@ -942,6 +959,7 @@ END IF
       FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
       END FORALL
+      ! CALL velocalcRich(nx,ny,nz)
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
@@ -1183,7 +1201,8 @@ IF (os3d .AND. nxyz > 1) THEN
       IF (ALLOCATED(fg)) THEN
         DEALLOCATE(fg)
       END IF
-      ALLOCATE(fg(nx,1:ny+1,nz))
+ALLOCATE(fg(0:nx+1,0:ny+1,nz))
+
       ag = 0.0
       bg = 0.0
       cg = 0.0
@@ -1356,8 +1375,6 @@ DO WHILE (nn <= nend)
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
             END FORALL
-            CALL vanGenuchten(nx,ny,nz)
-            CALL velocalcRich(nx,ny,nz,dtflow)
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF

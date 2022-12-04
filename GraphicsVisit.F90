@@ -751,6 +751,7 @@ END IF
 
 
   IF (MakeMovie) THEN
+    
     IF (FirstCall) THEN
       fn='VelocityEvolve'
       ilength = 14
@@ -778,8 +779,9 @@ END IF
         END DO
       END DO
     END IF
-
+    
   END IF
+    
 
   fn = 'porosity'
   ilength = 8
@@ -817,7 +819,7 @@ END IF
   
   
   
-  if (nmmLogical) THEN
+  if (nmmLogical .and. .not. FractureNetwork) THEN
     fn = 'stress'
     ilength = 6
     CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -835,6 +837,7 @@ END IF
     END DO
     CLOSE(UNIT=8,STATUS='keep')
   END IF
+
 
   IF (Richards) THEN
   IF (isaturate==1) THEN

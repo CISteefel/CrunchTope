@@ -138,7 +138,6 @@ END IF
     READ(iures) time
     READ(iures) nn
     READ(iures) nint
-!!    READ(iures) delt,dtold,tstep,deltmin,dtmaxcour,dtmax
     READ(iures) DummyReal,dtold,DummyReal,DummyReal,DummyReal,dtmax
 
     READ(iures) keqaq
@@ -157,7 +156,6 @@ END IF
     READ(iures) gam
     READ(iures) exchangesites
     READ(iures) spexold
-!!    READ(iures) sch
     READ(iures) spgas
     READ(iures) spgasold
     READ(iures) spgas10
@@ -165,8 +163,6 @@ END IF
       READ(iures) sgas
       READ(iures) sgasn
     ENDIF
-!!    READ(iures) sgas
-!!    READ(iures) sgasn
     if (ierode==1) then
       READ(iures) ssurf
       READ(iures) ssurfn
@@ -184,8 +180,6 @@ END IF
     ALLOCATE(IntegerDummyArray(nxyz))
     READ(iures) IntegerDummyArray
 !!!    READ(iures) jinit
-
-!!    READ(iures) mumin_decay
     READ(iures) keqmin
     READ(iures) volfx
     READ(iures) dppt
@@ -195,137 +189,29 @@ END IF
     READ(iures) specificByGrid
     READ(iures) LogPotential
 
-!!!    IF (NoReadRestart-T) THEN
-!!!      i = size(t,1)
-!!!      j = size(t,2)
-!!!      k = size(t,3)
-!!!      ndim = i*j*k
-!!!      ALLOCATE(RealDummyArray)
-!!!      READ(iures) RealDummyArray
-!!!      READ(iures) RealDummyArray
-!!!      READ(iures) RealDummyArray
-!!!      DEALLOCATE(RealDummyArray)
-!!!    ELSE
-      READ(iures) t
-      READ(iures) told
-      READ(iures) ro   
-!!!    END IF
- 
+    READ(iures) t
+    READ(iures) told
+    READ(iures) ro   
     READ(iures) por 
-
     READ(iures) satliq
     READ(iures) qxgas
     READ(iures) qygas
     READ(iures) qzgas
     READ(iures) pres
-!!!    READ(iures) dspx
-!!!    READ(iures) dspy
-!!!    READ(iures) dspz
-!!!    READ(iures) qg
     
-    nxyz = nx*ny*nz
-    IF (ALLOCATED(RealDummyArray)) THEN
-      DEALLOCATE(RealDummyArray)
-    END IF
-    ALLOCATE(RealDummyArray(nxyz))
-
-!!!    READ(iures) RealDummyArray
-!!!    READ(iures) RealDummyArray
-!!!    READ(iures) RealDummyArray
-    
-
-    
-    DEALLOCATE(RealDummyArray)
     READ(iures) ActiveCell
     READ(iures) VolSaveByTimeStep
     READ(iures) Volsave
     READ(iures) ncounter
     
-        !! Write Richards, Zhi Li 20200705
+  !! Write Richards, Zhi Li 20200705
     IF (Richards) THEN
         READ (iures) head
         READ (iures) wc
     END IF
-    
-!!    READ(iures) tauZero
+  
+  porin = por
 
-
-!!READ(iures) time
-!!READ(iures) nn
-!!READ(iures) nint
-!!READ(iures) DummyReal,DummyReal,DummyReal,DummyReal,DummyReal,DummyReal
-!!  READ(iures) delt,dtold,DummyReal,deltmin,dtmaxcour,dtmax
-
-!  READ(iures) DummyReal
-!  READ(iures) DummyInteger
-!  READ(iures) DummyInteger
-!  READ(iures)  DummyReal,DummyReal,DummyReal,DummyReal,DummyReal,DummyReal
-
-!!READ(iures) keqaq
-!!READ(iures) keqgas
-!!READ(iures) keqsurf
-!!READ(iures) xgram
-!!READ(iures) spnO2
-!!READ(iures) spnnO2
-!!READ(iures) sp
-!!READ(iures) s
-!!READ(iures) sn
-!!READ(iures) sp10
-!!READ(iures) spold
-!!READ(iures) spex
-!!READ(iures) spex10
-!!READ(iures) gam
-!!ALLOCATE(FlexibleArray(nexchange*nx*ny*nz))
-!!READ(iures) FlexibleArray
-!!DEALLOCATE(FlexibleArray)
-!!  READ(iures) exchangesites
-!!READ(iures) spexold
-!!READ(iures) sch
-!!READ(iures) spgas
-!!READ(iures) spgasold
-!!READ(iures) spgas10
-!!READ(iures) sgas
-!!READ(iures) sgasn
-!!READ(iures) ssurf
-!!READ(iures) ssurfn
-!!READ(iures) sexold
-!!READ(iures) ssurfold
-!!READ(iures) spsurf
-!!READ(iures) spsurf10
-!!READ(iures) spsurfold 
-!!READ(iures) raq_tot
-!!READ(iures) sion
-!!  READ(iures) jinit
-!!READ(iures) IntegerArray
-
-!!READ(iures) mumin_decay
-!!READ(iures) keqmin
-!!READ(iures) volfx
-!!READ(iures) dppt
-!!READ(iures) area
-!!READ(iures) LogPotential
-
-!!READ(iures) t
-!!READ(iures) told
-!!READ(iures) RealArray     !  Dimensioned (nx,ny,nz)
-!!READ(iures) RealArray     !  Dimensioned (nx,ny,nz)
-!!READ(iures) ro   
- 
-!!READ(iures) por 
-porin = por
-
-!!READ(iures) satliq
-!!READ(iures) qxgas
-!!READ(iures) qygas
-!!READ(iures) qzgas
-!!READ(iures) dspx
-!!READ(iures) dspy
-!!READ(iures) dspz
-!!  READ(iures) qg
-!!READ(iures) RealArray
-!!  READ(iures) ActiveCell
-!!READ(iures) IntegerArray 
-!!READ(iures) tauZero   
 CLOSE(UNIT=iures,STATUS='keep')
 
 ! Update file counter 

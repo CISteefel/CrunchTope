@@ -115,9 +115,12 @@ REAL(DP)                                                       :: termTMP
 REAL(DP)                                                       :: snormAqueous
 
 real(dp)                                                       :: vol_temp
+real(dp)                                                       :: satL
+
 !!REAL(DP), DIMENSION(ikin)                                      :: MoleFraction
 
 tk = t(jx,jy,jz) + 273.15D0
+satL = satliq(jx,jy,jz)
 
 !!MoleFractionCommon = 1.0d0
 !!MoleFractionRare = 1.0d0
@@ -447,14 +450,16 @@ DO ir = 1,ikin
     ! note on units:
     ! 
     ! Convert units of rate constant for micr.-mediated react. to mol/Kg-H2O/yr:
-    !   raq_tot will later be multiplied by por * ro (in assemble_local and assmeblePS02)
+    !   raq_tot will later be multiplied by por * *satL * ro (in assemble_local and assmeblePS02)
     !   There the mass balance is expressed per bulk volume (mol/m3-bulk/yr).
     !
     ! Rate constants for non-biomass reactions are defined as mol/Kg-H2O/yr. 
     ! For  microbially-mediated reactions with a biomass term, rate constants in input
-    !   are in units of mol-reaction/mol-biomass/yr
+    !    are in units of mol-reaction/mol-biomass/yr
+    !  The volume fraction of the biomass is divided by the molar volume, the liquid saturation, the porosity,
+    !    and the fluid density
 
-    vol_temp = volfx(ib,jx,jy,jz) / por(jx,jy,jz) / ro(jx,jy,jz)
+    vol_temp = volfx(ib,jx,jy,jz) / ( volmol(ib) * satL * por(jx,jy,jz) * ro(jx,jy,jz) )
 
     IF (UseMetabolicLagAqueous(jj)) THEN
       sumkin = 0.0

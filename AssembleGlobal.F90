@@ -257,7 +257,7 @@ IF (pumptimeseries .AND. Richards) THEN
   IF (TS_1year) THEN
     time_norm=time-floor(time)
     CALL interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-    ELSE
+  ELSE
     CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
   END IF
 END IF
@@ -1025,7 +1025,7 @@ DO jy = 1,ny
         END IF
       END DO
 
-    ELSEIF (pumptimeseries .AND. .not. Richards) THEN
+    ELSE IF (pumptimeseries .AND. .not. Richards) THEN
       IF (npump(jx,jy,jz)>0) THEN
         CALL interp3(time,delt,tpump,qgt(:),qg(1,jx,jy,jz),size(qgt(:)))
         ELSE
@@ -1038,7 +1038,7 @@ DO jy = 1,ny
       ELSE
         CONTINUE
       END IF
-      ELSEIF (pumptimeseries .AND. Richards) THEN
+    ELSE IF (pumptimeseries .AND. Richards) THEN
         IF (npump(jx,jy,jz)>0) THEN
           qg(1,jx,jy,jz)=qgdum
           ELSE

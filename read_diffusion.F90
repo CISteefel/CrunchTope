@@ -79,7 +79,7 @@ dzero = 0.0d0
 dcoeff = 0.0d0
 activation = 5.0d0
 formation = 1.0d0
-uli = 4.0d0/3.0d0
+uli =  .0d0/3.0d0
 
 REWIND nout
 

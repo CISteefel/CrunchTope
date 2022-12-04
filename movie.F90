@@ -52,6 +52,7 @@ USE concentration
 USE mineral
 USE solver
 USE medium
+USE mineral, ONLY: dppt
 USE transport
 USE flow
 USE temperature
@@ -186,6 +187,75 @@ ELSE
   END IF
 END IF
 
+    IF (FirstCall) THEN
+      
+      OPEN(UNIT=91,FILE='HaliteMovie.out', ACCESS='sequential',STATUS='unknown')
+      WRITE(91,1019)
+      WRITE(91,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+    
+
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(91,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,volfx(1,jx,jy,1)
+          END DO
+        END DO
+
+    ELSE
+      WRITE(91,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(91,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,volfx(1,jx,jy,1)
+          END DO
+        END DO
+
+    END IF
+    
+    IF (FirstCall) THEN
+      
+      OPEN(UNIT=92,FILE='HaliteRateMovie.out', ACCESS='sequential',STATUS='unknown')
+      WRITE(92,1019)
+      WRITE(92,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+    
+
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(92,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dppt(1,jx,jy,1)
+          END DO
+        END DO
+
+    ELSE
+      WRITE(92,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(92,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dppt(1,jx,jy,1)
+          END DO
+        END DO
+
+    END IF
+    
+    IF (FirstCall) THEN
+      
+      OPEN(UNIT=93,FILE='PorosityMovie.out', ACCESS='sequential',STATUS='unknown')
+      WRITE(93,1020)
+      WRITE(93,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+    
+
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(93,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,por(jx,jy,1)
+          END DO
+        END DO
+
+    ELSE
+      WRITE(93,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(93,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,por(jx,jy,1)
+          END DO
+        END DO
+
+    END IF
+
 
 185 FORMAT(1PE12.5,12x,100(1X,1PE13.5))
 1010 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Porosity"')
@@ -196,6 +266,8 @@ END IF
 1016 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Acetate"')
 1017 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Goethite"')
 1018 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Calcite"')
+1019 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Halite"')
+1020 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Porosity"')
 
 1009 FORMAT('VARIABLES = " X (meters)", "  Y (meters)  "',100(', "',A10,'"'))
 2009 FORMAT('VARIABLES = " X (meters)", "  Z (meters)  "',100(', "',A10,'"'))
