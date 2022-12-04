@@ -622,7 +622,15 @@ INTEGER(I4B)                                                  :: nvgn
 INTEGER(I4B)                                                  :: nvga
 INTEGER(I4B)                                                  :: nwcr
 
+CHARACTER (LEN=mls)                          :: pumptimeseriesfile
+CHARACTER (LEN=mls)                          :: PumptimeseriesFileFormat
+CHARACTER (LEN=mls)                          :: pumplocationsfile
+CHARACTER (LEN=mls)                          :: PumplocationsFileFormat
+INTEGER(I4B)                                                  :: lfile2
+CHARACTER (LEN=mls)                          :: watertablefile
+CHARACTER (LEN=mls)                          :: WatertableFileFormat
 
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check3
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
 integer :: IERR = 0
 
@@ -5069,17 +5077,10 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
       DO jx= 1,nx
         nhet = nhet + 1
         IF (SaltCreep) THEN
-!!!          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
+          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
 !!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-!!!          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
-          
-          READ(52,*,END=1020) xdum,ydum,zdum,work3(jx,jy,jz) 
-!!!                            x    y    bn    mt               
-         IF (work3(jx,jy,jz) >= 2.0) THEN
-           work3(jx,jy,jz) = 2.0
-         END IF
-         
-         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+
+          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
 
         ELSE IF (FractureNetwork) THEN
 
@@ -7636,12 +7637,13 @@ IF (found) THEN
 
     pumptimeseries = .FALSE.
 
-    CALL read_pumptimeseries(nout,nx,ny,nz)
-
+    CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
+    CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
     IF (pumptimeseries) THEN
 
-    CALL read_pumplocations(nout,nx,ny,nz,nchem)
-    ELSE
+    CALL  read_pump_timeseries2(nout,nx,ny,nz,nchem,lfile,pumptimeseriesfile,PumptimeseriesFileFormat,lfile2,pumplocationsfile,PumplocationsFileFormat)
+
+    else
       CALL read_pump(nout,nx,ny,nz,nchem)
     ENDIF
 
@@ -7650,6 +7652,10 @@ IF (found) THEN
     parfind = ' '
     CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
 
+    back_flow_closed = .FALSE.
+    parchar = 'backflowclosed'
+    parfind = ' '
+    CALL read_logical(nout,lchar,parchar,parfind,back_flow_closed)
 
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
@@ -8844,7 +8850,15 @@ IF (found) THEN
 
 
 
+      watertabletimeseries = .FALSE.
+      CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
+      IF (watertabletimeseries) THEN
+      CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
+      !!else
+      !!  CALL read_pump(nout,nx,ny,nz,nchem)
+      ENDIF
 
+      check3=pres
 
       parchar = 'initialize_hydrostatic'
       parfind = ' '
