@@ -63,6 +63,7 @@ USE medium
 USE temperature, ONLY: ro,T
 USE strings
 USE runtime, ONLY: JennyDruhan,Maggi
+USE transport, ONLY: satliq,satliqold
 USE isotope
 
 IMPLICIT NONE

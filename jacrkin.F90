@@ -50,6 +50,7 @@ USE concentration
 USE mineral
 USE solver
 USE medium
+USE transport, ONLY: satliq,satliqold
 USE isotope
 
 ! biomass
@@ -128,6 +129,7 @@ REAL(DP)                                             :: tmp3
 REAL(DP)                                             :: tmp4
 
 REAL(DP)                                             :: satL
+REAL(DP)                                             :: vol_temp
 
 REAL(DP), DIMENSION(ikin)                            :: MoleFraction
 REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
@@ -541,14 +543,14 @@ DO ir = 1,ikin
     IF (UseMetabolicLagAqueous(jj)) THEN
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(jj,jx,jy,jz)*volfx(ib,jx,jy,jz) * vol_temp*ratek(ll,ir) **  &
+          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(jj,jx,jy,jz) * vol_temp * ratek(ll,ir) *  &
             (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity + pre_raq(ll,ir)*affinity )
         END DO
       END DO
     ELSE
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + vol_temp*ratek(ll,ir) *  &
+          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) *  &
             (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
         END DO
       END DO
