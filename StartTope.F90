@@ -5077,10 +5077,17 @@ IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
       DO jx= 1,nx
         nhet = nhet + 1
         IF (SaltCreep) THEN
-          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
+!!!          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
 !!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-
-          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+!!!          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+          
+          READ(52,*,END=1020) xdum,ydum,zdum,work3(jx,jy,jz) 
+!!!                            x    y    bn    mt               
+         IF (work3(jx,jy,jz) >= 2.0) THEN
+           work3(jx,jy,jz) = 2.0
+         END IF
+         
+         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
 
         ELSE IF (FractureNetwork) THEN
 
