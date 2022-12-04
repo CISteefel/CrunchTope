@@ -110,19 +110,20 @@ DO jz = 1,nz
         if (jy == ny-1 .and. jx == nx-1) then
           continue
         end if
+
         qy(jx,jy,jz) = -2.0d0 * Kfacy(jx,jy,jz) * (head(jx,jy+1,jz) - head(jx,jy,jz)) / (dyy(jy)+dyy(jy+1))
+
         IF (y_is_vertical) THEN
             qz(jx,jy,jz) = 0.0d0
             qy(jx,jy,jz) = qy(jx,jy,jz) + Kfacy(jx,jy,jz)
 
-
 !! Land surface, "fixed" cell at JY, active cell at JY+1  -- velocity = 0, or set to "pump" term
-
             IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
+
                 qy(jx,jy,jz) = 2.0 * (qy(jx,jy,jz) - Kfacy(jx,jy,jz)) + Kfacy(jx,jy,jz)
 
                 IF (head(jx,jy,jz) == 0.0d0) THEN
-                    ! no infiltration on dry surface, but exfiltration is ok
+                    ! no infiltration from dry surface, but exfiltration is ok
                     IF (qy(jx,jy,jz) > 0.0d0) THEN
                         qy(jx,jy,jz) = 0.0d0
                     END IF
@@ -132,16 +133,26 @@ DO jz = 1,nz
                 pumpterm = 0.0d0
                 IF (wells .OR. pumptimeseries) THEN
                   DO npz = 1,npump(jx,jy+1,jz)
-                    pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz))
+                    pumpterm = pumpterm + qg(npz,jx,jy+1,jz)/(secyr*dxx(jx)*dzz(jx,jy+1,jz)) !m/sec
                   END DO
 
-                  qy(jx,jy,jz) = pumpterm
+                  IF (pumpterm > 0.0d0 .AND. (wc(jx,jy+1,jz) + dt*pumpterm/dyy(jy) >= wcs(jx,jy+1,jz))) then
+                    pumpterm = (wcs(jx,jy+1,jz) - wc(jx,jy+1,jz))*dyy(jy)/dt
+                  ELSEIF (pumpterm < 0.0d0 .AND. (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3) + dt*pumpterm/dyy(jy) <=0) THEN
+                    pumpterm = (wc(jx,jy+1,jz)-wcr(jx,jy+1,jz)-1e-3)*dyy(jy)/dt
+                  ENDIF
+    
+                    IF (pumpterm /= 0.0d0) THEN
+                        qy(jx,jy,jz) = pumpterm
+                    !ELSE
+                    !    qy(jx,jy,jz) = 0.0d0
+                    END IF
                 
                 ENDIF
 
-                  IF (qy(jx,jy,jz) < 0.0 .AND. head(jx,jy+1,jz) == 0.0d0) THEN
-                    qy(jx,jy,jz) = 0
-                  END IF
+                !IF (qy(jx,jy,jz) < 0.0 .AND. wc(jx,jy+1,jz) == wcr(jx,jy+1,jz)) THEN
+                !  qy(jx,jy,jz) = 0
+                !END IF
 
                 ! check if there is enough room available in case of infiltration
                 IF (qy(jx,jy,jz) > 0.0 .AND. room(jx,jy+1,jz) < qy(jx,jy,jz) * dt * dxx(jx)* dzz(jx,jy+1,jz)) THEN
@@ -182,7 +193,16 @@ DO jz = 1,nz
                 DO npz = 1,npump(jx,1,jz)
                     pumpterm = pumpterm + qg(npz,jx,1,jz)/(secyr*dxx(jx)*dzz(jx,0,jz))
                 END DO
-                    qy(jx,0,jz) = pumpterm
+            IF (pumpterm > 0.0d0 .AND. room(jx,1,jz) == 0.0d0) then
+                pumpterm = 0.0d0
+              ELSEIF (pumpterm < 0.0d0 .AND. wc(jx,1,jz) == wcr(jx,1,jz)) THEN
+                pumpterm = 0.0d0
+              ENDIF
+              IF (pumpterm /= 0) THEN
+                  qy(jx,0,jz) = pumpterm
+              !ELSE
+              !    qy(jx,0,jz) = 0.0d0
+              END IF
             ELSE
               ! If neither pump nor pressure is specified, qy = 0
               qy(jx,0,jz) = 0.0d0
@@ -193,7 +213,7 @@ DO jz = 1,nz
     END IF
 
     !Cannot extract anymore if cell is dry:
-    IF (qy(jx,0,jz) < 0.0 .AND. head(jx,1,jz) == 0.0d0) THEN
+    IF (qy(jx,0,jz) < 0.0 .AND. wc(jx,1,jz) == wcr(jx,1,jz)) THEN
       qy(jx,0,jz) = 0
     END IF
     ! check if there is enough room available
@@ -204,12 +224,6 @@ DO jz = 1,nz
 !!  ****   End of qy(jx,0,jz)   ******************
 
 !!  ***  Calculate qy(j,NY,jz)  ******************
-
-    !forbid back flow
-    !IF (head(jx,ny+1,jz)>=head(jx,ny,jz) .AND. back_flow_closed) then
-    !  qy(jx,ny,jz)=0
-    !  Kfacy(jx,ny,jz)=0
-    !END IF
 
     ! jy = ny
     qy(jx,ny,jz) = -2.0d0 * Kfacy(jx,ny,jz) * (head(jx,ny+1,jz) - head(jx,ny,jz)) / (dyy(ny))

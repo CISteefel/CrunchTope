@@ -80,9 +80,6 @@ dt = dtyr * 365 * 86400
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      !IF (qy(jx,ny,jz)<=0 .and. back_flow_closed) then
-      !  qy(jx,ny,jz)=0
-      !END IF
         IF (activecellPressure(jx,jy,jz) == 1) THEN
             coef = 1.0d0 / (1.0d0 + Ss*(head(jx,jy,jz)-headOld(jx,jy,jz))/wcs(jx,jy,jz))
             wc(jx,jy,jz) = wcOld(jx,jy,jz)*coef + (dt*coef/dxx(jx))*(-qx(jx,jy,jz) + qx(jx-1,jy,jz))/secyr     &
@@ -115,8 +112,13 @@ DO jz = 1,nz
                   IF (wells .OR. pumptimeseries) THEN
 
                     DO npz = 1,npump(jx,jy,jz)
-                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
+                      pumpterm = pumpterm + dt*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)) ! unitless
                     END DO
+                    IF (pumpterm < 0 .AND. (wc(jx,jy,jz) - wcr(jx,jy,jz) + pumpterm) <= 1e-3) THEN
+                    pumpterm = -(wc(jx,jy,jz)-wcr(jx,jy,jz)-1e-3)
+                    ELSEIF (pumpterm >=0 .AND. (wc(jx,jy+1,jz) + pumpterm >= wcs(jx,jy+1,jz))) THEN
+                    pumpterm = wcs(jx,jy+1,jz)-wc(jx,jy+1,jz)
+                    END IF
                   END IF
                   wc(jx,jy,jz) = wc(jx,jy,jz) + pumpterm
 
