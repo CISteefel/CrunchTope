@@ -39,6 +39,8 @@
 !!! Enhancements, then you hereby grant the following license: a  non-exclusive, royalty-free perpetual license to install, use,
 !!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or
 !!! derivative works thereof, in binary and source code form.
+  
+!! December 31, 2022:  Fixed flow.F90
 
 !!!      ****************************************
 
@@ -195,6 +197,12 @@ REAL(DP), DIMENSION(:), ALLOCATABLE          :: qgt
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
 LOGICAL(LGT)                                   :: pumptimeseries
 LOGICAL(LGT)                                   :: TS_1year
+!! Boundary open in single direction only Lucien Stolze 20211108
+LOGICAL(LGT)                                   :: back_flow_closed
+!! Dynamic water table Lucien Stolze 20211201
+REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
+LOGICAL(LGT)                                   :: watertabletimeseries
 !! Disable mineralupdate during model spinup
 LOGICAL(LGT)                                   :: spinup ! Lucien Stolze 20220731
 END MODULE flow
