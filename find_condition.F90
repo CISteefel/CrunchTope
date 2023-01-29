@@ -562,12 +562,6 @@ IF (found) THEN
 !!    Bulk surface area specified      
       ELSE                             !!  Bulk surface area specified
 
-!!!        if (mintype(k) == 1) then ! biomass - convert to mol/m3-bulk from mol/L-H2O
-!!!          volin(k,nchem) = volin(k,nchem) * 1.d3 * porcond(nchem)
-!!!   Porcond not known yet, so just assume 1.0 for now
-!!!          volin(k,nchem) = volin(k,nchem) * 1.d3 
-!!!        end if
-
         IF (volin(k,nchem) /= 0.0) THEN
           specific(k,nchem) = areain(k,nchem)*volmol(k)/(volin(k,nchem)*wtmin(k))
         ELSE
@@ -612,8 +606,9 @@ IF (found) THEN
 !!! Convert biomass to account for the porosity (but left in units of mol/m^3 bulk)
   
   DO k = 1,nkin
-    IF (mintype(k) == 1) THEN    ! biomass - convert to mol/m^3-bulk from mol/L-H2O    ???  Volin should be m^3/m^3 (like porosity)
-      volin(k,nchem) = volin(k,nchem) * 1000.0 * porcond(nchem)
+    IF (mintype(k) == 1) THEN    ! biomass - convert to mol/m^3-bulk from mol/L-H2O    
+      volin(k,nchem) = volin(k,nchem) * rocond(nchem) * porcond(nchem) * SaturationCond(nchem)
+!! For case where input is in mol/m^3 bulk, again assuming molar volume = 1.0      volin(k,nchem) = volin(k,nchem) 
     END IF
   END DO
 

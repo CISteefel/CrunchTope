@@ -626,6 +626,7 @@ IF(ls /= 0) THEN
         STOP
       END IF
     END IF
+    
   ELSE IF (ssch == '-biomass') THEN
 ! label this mineral as biomass
     id = ids + ls

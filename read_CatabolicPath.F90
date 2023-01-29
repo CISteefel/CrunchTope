@@ -57,8 +57,8 @@
                        UseMetabolicLagMineral,LagTimeMineral,         &
                        RampTimeMineral,ThresholdConcentrationMineral, &
                        SubstrateForLagMineral,                        &
-                       nMonodBiomassMineral
-
+                       nMonodBiomassMineral,                          &
+                       CatabolicKineticFile
     
 
     implicit none
@@ -151,24 +151,16 @@ LOGICAL(LGT)                                                :: ext
 
     if_read_catabolic_min: if (nx > 0) then
 
-!     open file
-
-      if (data3 == ' ') then
-
-      INQUIRE(FILE='CatabolicControl.ant',EXIST=ext)
-      IF (EXT) THEN          !!  Catabolic Control file exists, so read input filename from it rather than prompting user
-        OPEN(113,FILE='CatabolicControl.ant',STATUS='old',ERR=708)
-        READ(113,'(a)') filename
-        CLOSE(113,STATUS='keep')
-      ELSE                   !!  No CatabolicControl.ant file, so just use "CatabolicPathways.in" 
-        filename = 'CatabolicPathways.in'
+      IF (CatabolicKineticFile == ' ') THEN
+        write(*,*) '  --> For catabolic aqueous kinetics, give catabolic filename in RUNTIME block'
+        write(*,*) '  "CatabolicControl.ant" no longer used '
+        write(*,*) '  Example syntax: catabolicdatabase  CatabolicPathways_RifleColumn.dbs'
+        write(*,*)
+        stop
+      ELSE
+        filename = CatabolicKineticFile
       END IF
 
-      else
-        
-        filename = data3
-
-      end if
       
       OPEN(UNIT=112,FILE=filename,STATUS='old')
  !!     open(unit=112,file='CatabolicPathways.in',status='unknown')

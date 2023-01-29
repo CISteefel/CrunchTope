@@ -350,6 +350,7 @@ DO ir = 1,ikin
 !! Normal Monod terms
 
     DO id = 1,nmonodaq(ir)
+      
       i = imonodaq(id,ir)        !! Pointer to the primary species in the Monod expression (e.g., electron donor or acceptor)
 
 !!!      IF (nIsotopePrimary > 0) THEN
@@ -392,29 +393,29 @@ DO ir = 1,ikin
         
       END IF
 
-      DO i2 = 1,ncomp
-
-!! Now do the numerical perturbation       
+!!!   ***************** NOW DO NUMERICAL PERTURBATION ***************************************************  
+      
+!!!      DO i2 = 1,ncomp
 
 !!!        IF (nIsotopePrimary > 0) THEN
             
-          IF (IsotopePrimaryCommon(i)) THEN
+!!!          IF (IsotopePrimaryCommon(i)) THEN
 
-            IsotopologueOther = isotopeRare(iPointerIsotope(i))
-            IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
-              MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir)*(1.0d0+sTMPperturb(i2,IsotopologueOther)/halfsataq(id,ir)) )
-            ELSE                                               ! Dependence on individual species
-              MonodTermPerturb = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz)+ halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir)) )
-            END IF
-
-          ELSE IF (IsotopePrimaryRare(i)) THEN
-
-            IsotopologueOther = isotopeCommon(iPointerIsotope(i))
-            IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
-              MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir)*(1.0d0+sTMPperturb(i2,IsotopologueOther)/halfsataq(id,ir)) )
-            ELSE                                               ! Dependence on individual species
-              MonodTermPerturb = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz)+ halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir)) )
-            END IF
+!!!            IsotopologueOther = isotopeRare(iPointerIsotope(i))
+!!!            IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
+!!!              MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir)*(1.0d0+sTMPperturb(i2,IsotopologueOther)/halfsataq(id,ir)) )
+!!!            ELSE                                               ! Dependence on individual species
+!!!              MonodTermPerturb = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz)+ halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir)) )
+!!!            END IF
+!!!
+!!!          ELSE IF (IsotopePrimaryRare(i)) THEN
+!!!
+!!!            IsotopologueOther = isotopeCommon(iPointerIsotope(i))
+!!!            IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
+!!!              MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir)*(1.0d0+sTMPperturb(i2,IsotopologueOther)/halfsataq(id,ir)) )
+!!!            ELSE                                               ! Dependence on individual species
+!!!              MonodTermPerturb = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz)+ halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir)) )
+!!!            END IF
             
 !!!          ELSE
           
@@ -426,32 +427,34 @@ DO ir = 1,ikin
         
 !!!          END IF
 
-        ELSE    !general case - no isotopes
-            
-          IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
-            MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir) )
-          ELSE
-            IF (i == i2) THEN 
-              MonodTermPerturb = sppTMP10perturb(i)/(halfsataq(id,ir)+sppTMP10perturb(i))
-            ELSE
-              MonodTermPerturb = sp10(i,jx,jy,jz)/(halfsataq(id,ir)+sp10(i,jx,jy,jz))
-            END IF
-          END IF
-          
-        END IF         
+!!!        ELSE    !general case - no isotopes
+!!!            
+!!!          IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
+!!!            MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir) )
+!!!          ELSE
+!!!            IF (i == i2) THEN 
+!!!              MonodTermPerturb = sppTMP10perturb(i)/(halfsataq(id,ir)+sppTMP10perturb(i))
+!!!            ELSE
+!!!              MonodTermPerturb = sp10(i,jx,jy,jz)/(halfsataq(id,ir)+sp10(i,jx,jy,jz))
+!!!            END IF
+!!!          END IF
+!!!          
+!!!        END IF         
 
-        OtherMonodTerms = 1.0d0
-        DO idDummy = 1,nmonodaq(ir)
-          IF (id /= idDummy) THEN
-            OtherMonodTerms = OtherMonodTerms*termMonod(idDummy,ir)
-          END IF
-        END DO
+!!!        OtherMonodTerms = 1.0d0
+!!!        DO idDummy = 1,nmonodaq(ir)
+!!!          IF (id /= idDummy) THEN
+!!!            OtherMonodTerms = OtherMonodTerms*termMonod(idDummy,ir)
+!!!          END IF
+!!!        END DO
 
-        DerivativeMonodTerm = (MonodTermPerturb - MonodTerm )/perturb 
+!!!       DerivativeMonodTerm = (MonodTermPerturb - MonodTerm )/perturb 
 
-        jac_prekin(i2,1) = jac_prekin(i2,1) + OtherMonodTerms*DerivativeMonodTerm
+!!!        jac_prekin(i2,1) = jac_prekin(i2,1) + OtherMonodTerms*DerivativeMonodTerm
 
-      END DO
+!!!      END DO
+      
+!!    ************** END OF NUMERICAL PERTURBATION ********************************   
 
     END DO
 
@@ -492,7 +495,7 @@ DO ir = 1,ikin
       END IF
 
      END DO
-!end add
+!  end add
 
 !! No inhibition terms here, so calculate thermodynamic factor, F_T
 
@@ -538,7 +541,7 @@ DO ir = 1,ikin
 !!    ib = ibiomass_kin(p_cat_kin(ir))
     ib = ibiomass_kin(ir)
     
-    vol_temp = volfx(ib,jx,jy,jz) / (volmol(ib) * satL * por(jx,jy,jz) * ro(jx,jy,jz) )
+    vol_temp = volfx(ib,jx,jy,jz) / (satL * por(jx,jy,jz) * ro(jx,jy,jz) )
     
     IF (UseMetabolicLagAqueous(jj)) THEN
       DO i = 1,ncomp
@@ -550,8 +553,7 @@ DO ir = 1,ikin
     ELSE
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) *  &
-            (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
+          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
         END DO
       END DO
     END IF

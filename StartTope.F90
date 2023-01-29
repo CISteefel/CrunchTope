@@ -921,25 +921,26 @@ IF (found) THEN
     data1 = dumstring
   END IF
 
-parchar = 'kinetic_database'
+  parchar = 'aqueousdatabase'
   parfind = ' '
-  data2 = ' '
+  AqueousKineticFile = ' '
   CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
   IF (parfind == ' ') THEN  !
-    data2 = ' '             ! Use default
+    AqueousKineticFile = ' '
   ELSE
-    data2 = dumstring
+    AqueousKineticFile = dumstring
   END IF
 
-  parchar = 'catabolic_database'
+  parchar = 'catabolicdatabase'
   parfind = ' '
-  data3 = ' '
+  CatabolicKineticFile = ' '
   CALL readCaseSensitive(nout,lchar,parchar,parfind,dumstring,section)
   IF (parfind == ' ') THEN  !
-    data3 = ' '             ! Use default
+    CatabolicKineticFile = ' '
   ELSE
-    data3 = dumstring
+    CatabolicKineticFile = dumstring
   END IF
+  
   IF (NumInputFiles > 1) THEN
     CONTINUE
   ELSE

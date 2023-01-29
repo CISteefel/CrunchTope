@@ -451,7 +451,7 @@ DO ir = 1,ikin
     ! note on units:
     ! 
     ! Convert units of rate constant for micr.-mediated react. to mol/Kg-H2O/yr:
-    !   raq_tot will later be multiplied by por * *satL * ro (in assemble_local and assmeblePS02)
+    !   raq_tot will later be multiplied by por * satL * ro (in assemble_local and assmeblePS02)
     !   There the mass balance is expressed per bulk volume (mol/m3-bulk/yr).
     !
     ! Rate constants for non-biomass reactions are defined as mol/Kg-H2O/yr. 
@@ -459,8 +459,11 @@ DO ir = 1,ikin
     !    are in units of mol-reaction/mol-biomass/yr
     !  The volume fraction of the biomass is divided by the molar volume, the liquid saturation, the porosity,
     !    and the fluid density
+    
 
-    vol_temp = volfx(ib,jx,jy,jz) / ( volmol(ib) * satL * por(jx,jy,jz) * ro(jx,jy,jz) )
+    vol_temp = volfx(ib,jx,jy,jz) / ( satL * por(jx,jy,jz) * ro(jx,jy,jz) )
+    
+!!!    m3_min/m3_pm* mol/ m3_min * m3_pm/m3_fluid * m3_fluid/kgw = mol/kgw * mol/kgw/yr   -->  mol / kgw / yr
 
     IF (UseMetabolicLagAqueous(jj)) THEN
       sumkin = 0.0

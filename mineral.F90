@@ -262,5 +262,9 @@ MODULE mineral
   LOGICAL(LGT)                              :: nmmLogical
   LOGICAL(LGT)                              :: SaltCreep
   LOGICAL(LGT)                              :: CriticalZone
+  
+  CHARACTER (LEN=mlen)                      :: AqueousKineticFile
+  
+  CHARACTER (LEN=mlen)                      :: CatabolicKineticFile
 
 END MODULE mineral
