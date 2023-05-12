@@ -170,7 +170,7 @@ REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: headOld
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wc
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcOld
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcs
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kr
+!REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kr ! commented out by Toshiyuki Bandai
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kfacx
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kfacy
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kfacz
@@ -186,6 +186,26 @@ REAL(DP), DIMENSION(:),ALLOCATABLE             :: vgazone
 REAL(DP), DIMENSION(:),ALLOCATABLE             :: wcrzone
 
 INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
+
+! *************************************************
+! For Richards solver by Toshiyuki Bandai May, 2023
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi ! water potential [L]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential psi from previous line search trial [L]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_alpha ! van Genuchten alpha parameter [L-1]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_n ! van Genuchten n parameter [-]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water potential [L], refer to modified van Genuchten model
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
+REAL(DP), DIMENSION(:), ALLOCATABLE         :: psi_lb ! water potential at the lower boundary [L]
+REAL(DP), DIMENSION(:), ALLOCATABLE         :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]
+! End of edits by Toshiyuki Bandai May, 2023
+! *************************************************
 
 !!  PETSc arrays for solver
 
