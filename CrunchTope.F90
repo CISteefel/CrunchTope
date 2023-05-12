@@ -708,7 +708,7 @@ IF (CalculateFlow) THEN
 END IF
 
  !! Initialize pressure head, ZhiLi20210526
- IF (Richards) THEN
+ ZhiLi_Richards_initialization: IF (Richards) THEN
 
      WRITE(*,*) ' Initializing head and water content for Richards equation'
      DO jz = 0,nz+1
@@ -855,8 +855,18 @@ END IF
 
      WRITE(*,*) ' Initialization completed!'
      
- END IF
-
+ END IF ZhiLi_Richards_initialization
+ 
+ ! Edit by Toshiyuki Bandai 2023 May
+ ! Because Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
+ PETSc_if: IF (Richards_Toshi) THEN
+ ! ******************************************************************
+ ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
+   WRITE(*,*) 'This is just a test.'
+   WRITE(*,*) 'This is just a test2.'
+ ! End of edit by Toshiyuki Bandai, 2023 May
+ ! ******************************************************************
+ ELSE PETSc_if
 !!  atolksp = 1.D-50
 !!  rtolksp = 1.D-25
 !!  dtolksp = 1.D+05
@@ -914,6 +924,9 @@ END IF
     WRITE(*,*) ' Steady state flow failed to converge '
   END IF
 
+ END If PETSc_if
+ ! End of If construct for solvers needing PETSc or not
+ 
 !     ***** PETSc closeout*******
 
   IF (ierr /= 0) then

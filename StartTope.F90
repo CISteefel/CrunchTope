@@ -7711,7 +7711,7 @@ IF (found) THEN
       CALL read_logical(nout,lchar,parchar,parfind,CalculateFlow)
     END IF
 
-    IF (CalculateFlow .AND. nxyz > 1) THEN
+    flow_if: IF (CalculateFlow .AND. nxyz > 1) THEN
 
         ! Select NS solver or Darcy solver, added by Zhi Li
         NavierStokes = .FALSE.
@@ -7724,6 +7724,14 @@ IF (found) THEN
         parchar = 'richards'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards)
+        ! ***************************************************
+        ! Select Richards solver by Toshiyuki Bandai, 2023 May
+        Richards_Toshi = .FALSE.
+        parchar = 'Richards_Toshi'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,Richards_Toshi)
+        ! End of Edit by Toshiyuki Bandai, 2023 May
+        ! ***************************************************
         ! True if 2D x-y, added by ZhiLi20210527
         y_is_vertical = .FALSE.
         parchar = 'y_is_vertical'
@@ -8873,7 +8881,7 @@ IF (found) THEN
         CONTINUE
       END IF
 
-    END IF   ! End of block within which flow calculation parameters are read
+    END IF flow_if  ! End of block within which flow calculation parameters are read
 
   END IF
 

@@ -202,8 +202,8 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_alpha ! van Genuchten alph
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_n ! van Genuchten n parameter [-]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water potential [L], refer to modified van Genuchten model
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
-REAL(DP), DIMENSION(:), ALLOCATABLE         :: psi_lb ! water potential at the lower boundary [L]
-REAL(DP), DIMENSION(:), ALLOCATABLE         :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: psi_lb ! water potential at the lower boundary [L]
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]
 ! End of edits by Toshiyuki Bandai May, 2023
 ! *************************************************
 
