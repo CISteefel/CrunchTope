@@ -7918,7 +7918,7 @@ IF (found) THEN
       WRITE(*,*)
 
 !  Allocate related fields for Richards equations, Li 20200629
-     IF (Richards) THEN
+     Zhili_allocate: IF (Richards) THEN
        isaturate = 1
          IF (y_is_vertical) THEN
              IF (ALLOCATED(j_bottom)) THEN
@@ -8175,7 +8175,52 @@ IF (found) THEN
          DEALLOCATE(jzzwcr_lo)
          DEALLOCATE(jzzwcr_hi)
 
-     END IF
+     END IF Zhili_allocate
+     
+     Toshi_allocate: IF (Richards_Toshi) THEN
+       ! allocate van-Genuchten parameters
+       ! residual water content theta_r
+       IF (ALLOCATED(theta_r)) THEN
+         DEALLOCATE(theta_r)
+         ALLOCATE(theta_r(nx, ny, nz))
+       ELSE
+         ALLOCATE(theta_r(nx, ny, nz))
+       END IF
+
+      ! saturated water content theta_s (=porosity)
+       IF (ALLOCATED(theta_s)) THEN
+         DEALLOCATE(theta_s)
+         ALLOCATE(theta_s(nx, ny, nz))
+       ELSE
+        ALLOCATE(theta_s(nx, ny, nz))
+      END IF
+
+      ! alpha parameter in the van Genuchten model
+      IF (ALLOCATED(VG_alpha)) THEN
+        DEALLOCATE(VG_alpha)
+        ALLOCATE(VG_alpha(nx, ny, nz))
+      ELSE
+        ALLOCATE(VG_alpha(nx, ny, nz))
+      END IF
+
+      ! n parameter in the van Genuchten model
+      IF (ALLOCATED(VG_n)) THEN
+        DEALLOCATE(VG_n)
+        ALLOCATE(VG_n(nx, ny, nz))
+      ELSE
+        ALLOCATE(VG_n(nx, ny, nz))
+      END IF
+
+      ! psi_s parameter in the van Genuchten model
+      IF (ALLOCATED(psi_s)) THEN
+        DEALLOCATE(psi_s)
+        ALLOCATE(psi_s(nx, ny, nz))
+      ELSE
+        ALLOCATE(psi_s(nx, ny, nz))
+      END IF
+
+     END IF Richards_Toshi
+       
 
 !  Look for information on permeability, pressure, and pumping or injection wells
 !  First, check to see whether permeability distribution is to be read from file
