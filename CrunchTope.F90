@@ -858,10 +858,16 @@ END IF
  END IF ZhiLi_Richards_initialization
  
  ! Edit by Toshiyuki Bandai 2023 May
- ! Because Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
+ ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  PETSc_if: IF (Richards_Toshi) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
+   ! lower Dirichlet boundary condition
+   
+   ! upper flux boundary condition
+   
+   ! solve the 1D state-state Richards equation
+   !CALL solve_Richards_steady(nx, ny, nz, psi_lb_value, qx_ub_value)
    WRITE(*,*) 'This is just a test.'
    WRITE(*,*) 'This is just a test2.'
  ! End of edit by Toshiyuki Bandai, 2023 May
