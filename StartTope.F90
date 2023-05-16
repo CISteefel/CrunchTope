@@ -634,6 +634,14 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check3
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
 integer :: IERR = 0
 
+! ************************************
+! Edit by Toshiyuki Bandai, 2023 May
+INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
+REAL(DP)                                     :: numerator ! used to compute permeability at faces
+REAL(DP)                                     :: denominator ! used to compute permeability at faces
+! End of edit by Toshiyuki Bandai, 2023 May
+! ************************************
+
 #if defined(ALQUIMIA)
 
 
@@ -8177,49 +8185,113 @@ IF (found) THEN
 
      END IF Zhili_allocate
      
-     Toshi_allocate: IF (Richards_Toshi) THEN
-       ! allocate van-Genuchten parameters
-       ! residual water content theta_r
-       IF (ALLOCATED(theta_r)) THEN
-         DEALLOCATE(theta_r)
-         ALLOCATE(theta_r(nx, ny, nz))
-       ELSE
-         ALLOCATE(theta_r(nx, ny, nz))
-       END IF
-
-      ! saturated water content theta_s (=porosity)
-       IF (ALLOCATED(theta_s)) THEN
-         DEALLOCATE(theta_s)
-         ALLOCATE(theta_s(nx, ny, nz))
-       ELSE
-        ALLOCATE(theta_s(nx, ny, nz))
-      END IF
-
-      ! alpha parameter in the van Genuchten model
-      IF (ALLOCATED(VG_alpha)) THEN
-        DEALLOCATE(VG_alpha)
-        ALLOCATE(VG_alpha(nx, ny, nz))
+    ! ********************************************
+    ! Edit by Toshiyuki Bandai 2023 May
+    Toshi_allocate: IF (Richards_Toshi) THEN
+    ! allocate state variable for the Richards equation
+    ! water potential psi
+      IF (ALLOCATED(psi)) THEN
+        DEALLOCATE(psi)
+        ALLOCATE(psi(0:nx+1, ny, nz))
       ELSE
-        ALLOCATE(VG_alpha(nx, ny, nz))
+        ALLOCATE(psi(0:nx+1, ny, nz))
       END IF
-
-      ! n parameter in the van Genuchten model
-      IF (ALLOCATED(VG_n)) THEN
-        DEALLOCATE(VG_n)
-        ALLOCATE(VG_n(nx, ny, nz))
+       
+      ! volumetric water content theta
+      IF (ALLOCATED(theta)) THEN
+        DEALLOCATE(theta)
+        ALLOCATE(theta(0:nx+1, ny, nz))
       ELSE
-        ALLOCATE(VG_n(nx, ny, nz))
+        ALLOCATE(theta(0:nx+1, ny, nz))
       END IF
 
-      ! psi_s parameter in the van Genuchten model
-      IF (ALLOCATED(psi_s)) THEN
-        DEALLOCATE(psi_s)
-        ALLOCATE(psi_s(nx, ny, nz))
+      ! derivative of volumetric water content theta
+      IF (ALLOCATED(dtheta)) THEN
+        DEALLOCATE(dtheta)
+        ALLOCATE(dtheta(nx, ny, nz))
       ELSE
-        ALLOCATE(psi_s(nx, ny, nz))
+        ALLOCATE(dtheta(nx, ny, nz))
       END IF
 
-     END IF Richards_Toshi
+      ! head values
+      IF (ALLOCATED(head)) THEN
+        DEALLOCATE(head)
+        ALLOCATE(head(nx, ny, nz))
+      ELSE
+        ALLOCATE(head(nx, ny, nz))
+      END IF
+
+      ! relative permeability
+      IF (ALLOCATED(kr)) THEN
+        DEALLOCATE(kr)
+        ALLOCATE(kr(nx, ny, nz))
+      ELSE
+        ALLOCATE(kr(nx, ny, nz))
+      END IF
+
+      ! derivative of relative permeability
+      IF (ALLOCATED(dkr)) THEN
+        DEALLOCATE(dkr)
+        ALLOCATE(dkr(nx, ny, nz))
+      ELSE
+        ALLOCATE(dkr(nx, ny, nz))
+      END IF
+       
+      ! allocate and read van-Genuchten parameters
+      VG_error = 0
+      ! residual water content theta_r
+      parchar = 'vg_theta_r'
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      IF (VG_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+        WRITE(*,*)
+        STOP
+      END IF
+      
+    ! saturated water content theta_s (=porosity)
+      parchar = 'vg_theta_s'
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      IF (VG_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+        WRITE(*,*)
+        STOP
+      END IF
+
+    ! alpha parameter in the van Genuchten model
+      parchar = 'vg_alpha'
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      IF (VG_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+        WRITE(*,*)
+        STOP
+      END IF
+
+    ! n parameter in the van Genuchten model
+      parchar = 'vg_theta_n'
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      IF (VG_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+        WRITE(*,*)
+        STOP
+      END IF
+
+    ! psi_s parameter in the van Genuchten model
+      parchar = 'vg_theta_psi_s'
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      IF (VG_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+        WRITE(*,*)
+        STOP
+      END IF
+
+    END IF Toshi_allocate
+    ! ***************************************************
+    ! End of Edit by Toshiyuki Bandai 2023 May
        
 
 !  Look for information on permeability, pressure, and pumping or injection wells
@@ -8861,7 +8933,35 @@ IF (found) THEN
           DEALLOCATE(jzzpermz_hi)
 
         END IF
+      
+      ! ********************************************
+      ! Edit by Toshiyuki Bandai, 2023 May
+      Toshi_permeability: IF (Richards_Toshi) THEN
+        ! allocate permeability at faces
+        IF (ALLOCATED(K_faces_x)) THEN
+          DEALLOCATE(K_faces_x)
+          ALLOCATE(K_faces_x(0:nx, ny, nz))
+        ELSE
+          ALLOCATE(K_faces_x(0:nx, ny, nz))
+        END IF
 
+        K_faces_x(0, 1, 1) = permx(1, 1, 1)
+        K_faces_x(nx, 1, 1) = permx(nx, 1, 1)
+
+        ! compute face permeability
+        DO i = 1, nx - 1
+          IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
+            K_faces_x(i, 1, 1) = permx(i, 1, 1)
+          ELSE
+            numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (x(i+1) - x(i))
+            denominator = 0.5d0 * permx(i, 1, 1) * dxx(i) + 0.5d0 * permx(i+1, 1, 1) * dxx(i+1)
+            K_faces_x(i, 1, 1) = numerator / denominator
+          END IF
+        END DO
+      END IF Toshi_permeability
+      ! End of edit by Toshiyuki Bandai, 2023 May
+      ! ********************************************
+        
 !!!  End of section where choosing between perm file read and zone specification      END IF
 
       CALL read_gravity(nout)
