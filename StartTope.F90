@@ -8295,7 +8295,6 @@ IF (found) THEN
         STOP
       END IF
     
-      psi = -3.0
     END IF Toshi_allocate
     ! ***************************************************
     ! End of Edit by Toshiyuki Bandai 2023 May

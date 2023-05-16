@@ -52,6 +52,9 @@ ldb = nx
 iteration = 0
 total_line = 0
 
+! initialize psi
+psi = 0.0d0
+
 ! Evaluate the residual
 CALL flux_Richards(nx, ny, nz, psi_lb_value, qx_ub_value)
 
