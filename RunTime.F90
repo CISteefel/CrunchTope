@@ -103,6 +103,7 @@ MODULE runtime
   LOGICAL(LGT)                                                :: CubicLaw
   LOGICAL(LGT)                                                :: MontTerri
   LOGICAL(LGT)                                                :: Richards_Toshi ! When solving the Richards equation with Toshi's code
+  LOGICAL(LGT)                                                :: Richards_steady ! When solving the steady-state Richards equation with Toshi's code
 
   LOGICAL(LGT)                                                :: Switcheroo
   LOGICAL(LGT)                                                :: ReadGridVolumes

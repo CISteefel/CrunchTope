@@ -862,14 +862,14 @@ END IF
  PETSc_if: IF (Richards_Toshi) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
-   ! lower Dirichlet boundary condition
-   
-   ! upper flux boundary condition
-   
+   steady_Richards: IF (Richards_steady) THEN
+   WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
-   !CALL solve_Richards_steady(nx, ny, nz, psi_lb_value, qx_ub_value)
-   WRITE(*,*) 'This is just a test.'
-   WRITE(*,*) 'This is just a test2.'
+   CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
+      
+   ELSE steady_Richards
+     WRITE(*,*) 'Setting initial condition for the transient solution. Not developed yet.'
+   END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May
  ! ******************************************************************
  ELSE PETSc_if
@@ -960,6 +960,8 @@ END IF
       FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
       END FORALL
+  ELSE IF (Richards_Toshi) THEN
+    CONTINUE
   ELSE
       FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
@@ -979,6 +981,9 @@ END IF
         pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
       END FORALL
       ! CALL velocalcRich(nx,ny,nz)
+  ELSE IF (Richards_Toshi) THEN
+    ! the velocity was already calcuated in the stead-state program
+    CONTINUE
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
@@ -999,16 +1004,36 @@ END IF
 
  !!! Calculate liquid saturation from water content
 
-DO jz = 0,nz+1
-  DO jy = 0,ny+1
-    DO jx = 0,nx+1
-      satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-      satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+  DO jz = 0,nz+1
+    DO jy = 0,ny+1
+      DO jx = 0,nx+1
+        satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+        satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
+      END DO
     END DO
   END DO
-END DO
 
     END IF
+    
+  ! **********************************************
+  ! Edit by Toshiyuki Bandai, 2023 May
+  ! calculate saturation from volumetric water content
+  IF (Richards_Toshi) THEN
+    theta(0, ny, nz) = theta(1, ny, nz)
+    theta(nx+1, ny, nz) = theta(nx, ny, nz)
+    
+    jy = 1
+    jz = 1
+    DO jx = 0, nx+1
+        satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+        satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+    END DO
+  
+    WRITE(*,*) theta
+  
+  END IF
+  ! End of Edit by Toshiyuki Bandai, 2023 May
+  ! **********************************************
 
 !!  Check divergence of flow field
 

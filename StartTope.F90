@@ -7738,6 +7738,12 @@ IF (found) THEN
         parchar = 'Richards_Toshi'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards_Toshi)
+        
+        Richards_steady = .FALSE.
+        parchar = 'Richards_steady'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,Richards_steady)
+        
         ! End of Edit by Toshiyuki Bandai, 2023 May
         ! ***************************************************
         ! True if 2D x-y, added by ZhiLi20210527
@@ -8270,7 +8276,7 @@ IF (found) THEN
       END IF
 
     ! n parameter in the van Genuchten model
-      parchar = 'vg_theta_n'
+      parchar = 'vg_n'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
       IF (VG_error == 1) THEN
         WRITE(*,*)
@@ -8280,7 +8286,7 @@ IF (found) THEN
       END IF
 
     ! psi_s parameter in the van Genuchten model
-      parchar = 'vg_theta_psi_s'
+      parchar = 'vg_psi_s'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
       IF (VG_error == 1) THEN
         WRITE(*,*)
@@ -8288,7 +8294,8 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-
+    
+      psi = -3.0
     END IF Toshi_allocate
     ! ***************************************************
     ! End of Edit by Toshiyuki Bandai 2023 May
@@ -8959,6 +8966,32 @@ IF (found) THEN
           END IF
         END DO
       END IF Toshi_permeability
+      
+      ! Read upper and lower boundary conditions for steady-state problem
+      IF (Richards_steady) THEN
+        parchar = 'psi_lb_steady'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        IF (parfind == ' ') THEN  ! Parameter psi_lb_steady not found
+          WRITE(*,*) ' The lower boundary condition was not found. '
+          psi_lb_steady = 0.0d0 ! default lower Dirichlet boundary condition
+        ELSE
+          psi_lb_steady = realjunk
+        END IF
+        
+        parchar = 'q_ub_steady'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        IF (parfind == ' ') THEN  ! Parameter q_ub_steady not found
+          WRITE(*,*) ' The upper boundary condition was not found. '
+          qx_ub_steady = 0.0d0 ! default lower Dirichlet boundary condition
+        ELSE
+          qx_ub_steady = realjunk
+        END IF
+        
+      END IF
       ! End of edit by Toshiyuki Bandai, 2023 May
       ! ********************************************
         
