@@ -77,7 +77,8 @@ LOGICAL(LGT)                                 :: watertable_flat
 REAL(DP)                                     :: co_richards
 LOGICAL(LGT)                                 :: dt_sync
 INTEGER(I4B)                                 :: n_substep
-! Leverett scaling option added by Lucien Stolze 20211020
+! Leverett scaling option added by Lucien Stolze 2021
+
 LOGICAL(LGT)                                 :: leverettscaling
 
 INTEGER(I4B)                                 :: infiltration

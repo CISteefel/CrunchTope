@@ -868,7 +868,10 @@ END IF
    CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
       
    ELSE steady_Richards
-     WRITE(*,*) 'Setting initial condition for the transient solution. Not developed yet.'
+     WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
+     ! compute water flux from the initial condition and the initial boundary conditions
+     ! CALL flux_Richards(nx, ny, nz, psi_lb_value, qx_ub_value)
+
    END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May
  ! ******************************************************************
@@ -1019,16 +1022,15 @@ END IF
   ! Edit by Toshiyuki Bandai, 2023 May
   ! calculate saturation from volumetric water content
   IF (Richards_Toshi) THEN
-    theta(0, ny, nz) = theta(1, ny, nz)
-    theta(nx+1, ny, nz) = theta(nx, ny, nz)
     
     jy = 1
     jz = 1
-    DO jx = 0, nx+1
+    DO jx = 1, nx
         satliqold(jx,jy,jz) = satliq(jx,jy,jz)
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
-  
+    
+    
     WRITE(*,*) theta
   
   END IF

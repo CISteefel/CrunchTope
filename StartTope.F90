@@ -639,6 +639,8 @@ integer :: IERR = 0
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
 REAL(DP)                                     :: numerator ! used to compute permeability at faces
 REAL(DP)                                     :: denominator ! used to compute permeability at faces
+CHARACTER (LEN=mls)                          :: Richards_IC_File ! file name for Richards initial condition
+CHARACTER (LEN=mls)                          :: Richards_IC_FileFormat ! file name for Richards initial condition (only single column is supported)
 ! End of edit by Toshiyuki Bandai, 2023 May
 ! ************************************
 
@@ -8198,17 +8200,17 @@ IF (found) THEN
     ! water potential psi
       IF (ALLOCATED(psi)) THEN
         DEALLOCATE(psi)
-        ALLOCATE(psi(0:nx+1, ny, nz))
+        ALLOCATE(psi(nx, ny, nz))
       ELSE
-        ALLOCATE(psi(0:nx+1, ny, nz))
+        ALLOCATE(psi(nx, ny, nz))
       END IF
        
       ! volumetric water content theta
       IF (ALLOCATED(theta)) THEN
         DEALLOCATE(theta)
-        ALLOCATE(theta(0:nx+1, ny, nz))
+        ALLOCATE(theta(-1:nx+2, ny, nz))
       ELSE
-        ALLOCATE(theta(0:nx+1, ny, nz))
+        ALLOCATE(theta(-1:nx+2, ny, nz))
       END IF
 
       ! derivative of volumetric water content theta
@@ -8264,7 +8266,22 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-
+      
+    ! if theta_s does not match porosity, make a warning
+      DO jx = 1, nx
+        DO jy = 1, ny
+          DO jz = 1, nz
+            IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
+              WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
+              WRITE(*,*) ' porosity = ',por(jx,jy,jz)
+              WRITE(*,*)
+            END IF
+          END DO
+        END DO
+      END DO
+      
     ! alpha parameter in the van Genuchten model
       parchar = 'vg_alpha'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
@@ -8274,7 +8291,8 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-
+    ! convert unit
+      VG_alpha = VG_alpha*dist_scale
     ! n parameter in the van Genuchten model
       parchar = 'vg_n'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
@@ -8294,7 +8312,9 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-    
+      ! convert unit
+      psi_s = psi_s/dist_scale
+      
     END IF Toshi_allocate
     ! ***************************************************
     ! End of Edit by Toshiyuki Bandai 2023 May
@@ -8976,7 +8996,7 @@ IF (found) THEN
           WRITE(*,*) ' The lower boundary condition was not found. '
           psi_lb_steady = 0.0d0 ! default lower Dirichlet boundary condition
         ELSE
-          psi_lb_steady = realjunk
+          psi_lb_steady = realjunk/dist_scale
         END IF
         
         parchar = 'q_ub_steady'
@@ -8987,10 +9007,57 @@ IF (found) THEN
           WRITE(*,*) ' The upper boundary condition was not found. '
           qx_ub_steady = 0.0d0 ! default lower Dirichlet boundary condition
         ELSE
-          qx_ub_steady = realjunk
+          qx_ub_steady = realjunk/(dist_scale * time_scale)
         END IF
         
       END IF
+      
+      ! Read initial condition for steady-state or transient problem
+      parchar = 'read_richards_ic_file'
+      parfind = ' '
+      Richards_IC_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
+      IF (parfind == ' ') THEN
+        WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
+        psi = 0.0d0
+      ELSE
+        Richards_IC_File = dumstring
+        CALL stringlen(Richards_IC_File,ls)
+        WRITE(*,*) ' Reading initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
+      END IF
+        
+      read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
+        INQUIRE(FILE=Richards_IC_File,EXIST=ext)
+      IF (.NOT. ext) THEN
+        CALL stringlen(Richards_IC_File,ls)
+        WRITE(*,*)
+        WRITE(*,*) ' Porosity file not found: ', Richards_IC_File(1:ls)
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+        OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
+        FileTemp = Richards_IC_File
+        CALL stringlen(FileTemp,FileNameLength)
+        IF (Richards_IC_FileFormat == 'SingleColumn') THEN
+          DO jz = 1,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(52,*,END=1020) psi(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+          ! convert unit
+          psi = psi / dist_scale
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Richards Initial condition file format not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        CLOSE(UNIT=52)
+      END IF read_ic_Rihcards
       ! End of edit by Toshiyuki Bandai, 2023 May
       ! ********************************************
         
