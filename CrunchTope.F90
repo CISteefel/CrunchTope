@@ -866,7 +866,7 @@ END IF
    WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
    CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
-      
+   
    ELSE steady_Richards
      WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
      ! compute water flux from the initial condition and the initial boundary conditions
@@ -1030,8 +1030,25 @@ END IF
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
+    ! fill ghost points by linear extrapolation in x direction
+    satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+    satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+    satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+    satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+    ! fill other ghost points by zero-order extrapolation in y and z directions
+    satliq(:,-1,:) =  satliq(:,1,:)
+    satliq(:,0,:) =  satliq(:,1,:)
+    satliq(:,2,:) =  satliq(:,1,:)
+    satliq(:,3,:) =  satliq(:,1,:)
     
+    satliq(:,:,-1) = satliq(:,:,1)
+    satliq(:,:,0) = satliq(:,:,1)
+    satliq(:,:,2) = satliq(:,:,1)
+    satliq(:,:,3) = satliq(:,:,1)
+
     WRITE(*,*) theta
+    
+    WRITE(*,*) satliq
   
   END IF
   ! End of Edit by Toshiyuki Bandai, 2023 May

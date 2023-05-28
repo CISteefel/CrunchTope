@@ -8208,9 +8208,9 @@ IF (found) THEN
       ! volumetric water content theta
       IF (ALLOCATED(theta)) THEN
         DEALLOCATE(theta)
-        ALLOCATE(theta(-1:nx+2, ny, nz))
+        ALLOCATE(theta(nx, ny, nz))
       ELSE
-        ALLOCATE(theta(-1:nx+2, ny, nz))
+        ALLOCATE(theta(nx, ny, nz))
       END IF
 
       ! derivative of volumetric water content theta
