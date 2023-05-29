@@ -1,4 +1,4 @@
-SUBROUTINE Jacobian_Richards(nx, ny, nz, psi_lb_value, dtflow, J)
+SUBROUTINE Jacobian_Richards(nx, ny, nz, dtflow, J)
 USE crunchtype
 USE io
 USE params
@@ -22,9 +22,9 @@ INTEGER(I4B)                                               :: jz
 REAL(DP), INTENT(IN) :: dtflow
 
 ! variables not declared in CrunchTope
-REAL(DP), INTENT(IN)                                                   :: psi_lb_value
-REAL(DP)                                                   :: head_lb
-REAL(DP)                                                   :: kr_lb
+!REAL(DP), INTENT(IN)                                                   :: psi_lb_value
+!REAL(DP)                                                   :: head_lb
+!REAL(DP)                                                   :: kr_lb
 
 !**************************************************
 ! physical parameters for Richards solver added by Toshiyuki Bandai, 2023, May
@@ -43,19 +43,18 @@ DO jx = 1, nx
   head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
 END DO
 
-jx = 1
-jy = 1
-jz = 1
-head_lb = psi_lb_value + (x(jx) - 0.5d0 * dxx(jx))
-CALL vanGenuchten_model_kr(psi_lb_value, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), psi_s(jx, jy, jz),&
-                              kr_lb)
+!jx = 1
+!jy = 1
+!jz = 1
+!head_lb = psi_lb_value + (x(jx) - 0.5d0 * dxx(jx))
+!CALL vanGenuchten_model_kr(psi_lb_value, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), psi_s(jx, jy, jz),&
+!                              kr_lb)
 
 ! evaluate Jacobian matrix
 J = 0.0 ! initialize Jacobian matrix
 
 ! lower boundary
 J(1, 1) = (dxx(1)/dtflow)*dtheta(1, jy, jz) &
-        + xi*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*MERGE(dkr(1, jy, jz)*(head(1, jy, jz) - head_lb) + kr(1, jy, jz), kr_lb, head(1, jy, jz) - head_lb >= 0)  &
         - xi*K_faces_x(1, jy, jz)/(x(2) - x(1))*MERGE(-kr(2, jy, jz), dkr(1, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) - kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
 ! Jacobian computation
 J(1, 2) = - xi * K_faces_x(1, jy, jz) / (x(2) - x(1)) * MERGE(dkr(2, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) + kr(2, jy, jz), kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
