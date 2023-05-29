@@ -629,8 +629,10 @@ IF (CalculateFlow) THEN
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 
     !ZhiLi
+  
   dtflow = delt
-!  dtflow = 1.0D-10
+  !dtflow = 1.0D-10
+  
   WRITE(*,*)
   WRITE(*,*) ' Running flow field to steady state prior to chemistry'
   WRITE(*,*)
@@ -870,7 +872,7 @@ END IF
    ELSE steady_Richards
      WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
      ! compute water flux from the initial condition and the initial boundary conditions
-     ! CALL flux_Richards(nx, ny, nz, psi_lb_value, qx_ub_value)
+     CALL flux_Richards(nx, ny, nz, psi_lb_unsteady, qx_ub_unsteady)
 
    END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May
@@ -986,6 +988,9 @@ END IF
       ! CALL velocalcRich(nx,ny,nz)
   ELSE IF (Richards_Toshi) THEN
     ! the velocity was already calcuated in the stead-state program
+    FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+        pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
+    END FORALL
     CONTINUE
   ELSE
       CALL velocalc(nx,ny,nz)
@@ -1045,10 +1050,6 @@ END IF
     satliq(:,:,0) = satliq(:,:,1)
     satliq(:,:,2) = satliq(:,:,1)
     satliq(:,:,3) = satliq(:,:,1)
-
-    WRITE(*,*) theta
-    
-    WRITE(*,*) satliq
   
   END IF
   ! End of Edit by Toshiyuki Bandai, 2023 May
@@ -1340,7 +1341,26 @@ DO WHILE (nn <= nend)
             CALL porperm(nx,ny,nz)
           END IF
         END IF
-
+        
+        ! Edit by Toshiyuki Bandai 2023 May
+        ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
+        PETSc_if_time: IF (Richards_Toshi) THEN
+        ! ******************************************************************
+        ! store the previous time step water content
+          jy = 1
+          jz = 1
+          DO jx = 1,nx
+            theta_prev(jx,jy,jz) = theta(jx,jy,jz)
+          END DO
+          WRITE(*,*) ' Solves the time-dependent Richards equation. '
+        ! solve the 1D time-dependenet Richards equation
+        CALL solve_Richards(nx, ny, nz, psi_lb_unsteady, qx_ub_unsteady, delt)
+        
+        
+        ! End of edit by Toshiyuki Bandai, 2023 May
+        ! ******************************************************************
+        ELSE PETSc_if_time
+   
         atolksp = 1.D-50
         rtolksp = GimrtRTOLKSP
         rtolksp = 1.0D-25
@@ -1396,7 +1416,8 @@ DO WHILE (nn <= nend)
     !!!    IF (MOD(nn,ScreenInterval) == 0) THEN
     !!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
     !!!    END IF
-
+        END If PETSc_if_time
+        
         IF (ierr /= 0) then
           WRITE(*,*)
           WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
@@ -1421,6 +1442,8 @@ DO WHILE (nn <= nend)
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
             END FORALL
+        ELSE IF (Richards_Toshi) THEN
+            CONTINUE
         ELSE
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
@@ -1438,6 +1461,11 @@ DO WHILE (nn <= nend)
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
             END FORALL
+        ELSE IF (Richards_Toshi) THEN
+          ! the velocity was already calcuated
+          FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+              pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
+          END FORALL
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
@@ -1467,7 +1495,41 @@ DO WHILE (nn <= nend)
           END DO
         END DO
         
-    ENDIF
+         ENDIF
+         
+         
+    ! **********************************************
+    ! Edit by Toshiyuki Bandai, 2023 May
+    ! calculate saturation from volumetric water content
+    IF (Richards_Toshi) THEN
+    
+      jy = 1
+      jz = 1
+      DO jx = 1, nx
+          satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+      END DO
+    
+      ! fill ghost points by linear extrapolation in x direction
+      satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+      satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+      satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+      satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+      ! fill other ghost points by zero-order extrapolation in y and z directions
+      satliq(:,-1,:) =  satliq(:,1,:)
+      satliq(:,0,:) =  satliq(:,1,:)
+      satliq(:,2,:) =  satliq(:,1,:)
+      satliq(:,3,:) =  satliq(:,1,:)
+    
+      satliq(:,:,-1) = satliq(:,:,1)
+      satliq(:,:,0) = satliq(:,:,1)
+      satliq(:,:,2) = satliq(:,:,1)
+      satliq(:,:,3) = satliq(:,:,1)
+    
+    END IF
+    ! End of Edit by Toshiyuki Bandai, 2023 May
+    ! **********************************************
+  
 
   END IF
 
@@ -3311,6 +3373,15 @@ END IF
         WRITE(iures) head
         WRITE(iures) wc
     END IF
+    
+    !********************************************
+    ! Edit by Toshiyuki Bandai 2023 May
+    IF (Richards_Toshi) THEN
+        WRITE(iures) head
+        WRITE(iures) theta
+    END IF
+    ! End of Edit by Toshiyuki Bandai 2023 May
+    !*********************************************
 
 
 !    CLOSE(UNIT=intfile,STATUS='keep')
@@ -3587,6 +3658,15 @@ END IF
         WRITE(iures) head
         WRITE(iures) wc
     END IF
+    
+    !********************************************
+    ! Edit by Toshiyuki Bandai 2023 May
+    IF (Richards_Toshi) THEN
+        WRITE(iures) head
+        WRITE(iures) theta
+    END IF
+    ! End of Edit by Toshiyuki Bandai 2023 May
+    !*********************************************
 
 !!    WRITE(iures) tauZero
 

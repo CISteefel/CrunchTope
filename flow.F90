@@ -205,8 +205,10 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water poten
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: psi_lb ! water potential at the lower boundary [L]
 REAL(DP)                                        :: psi_lb_steady ! water potential at the lower boundary [L] for steady state problem
+REAL(DP)                                        :: psi_lb_unsteady ! water potential at the lower boundary [L] for time-dependent problem
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]
 REAL(DP)                                        :: qx_ub_steady ! flux in x direction at the upper boundary [L3 T-1] for steady state problem
+REAL(DP)                                        :: qx_ub_unsteady ! flux in x direction at the upper boundary [L3 T-1] for tuime-dependent problem
 ! End of edits by Toshiyuki Bandai May, 2023
 ! *************************************************
 

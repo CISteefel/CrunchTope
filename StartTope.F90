@@ -1536,7 +1536,7 @@ IF (found) THEN
   END IF
 
   xtool = .FALSE.
-  tecplot = .FALSE.
+  tecplot = .TRUE.
   xmgr = .FALSE.
   kaleidagraph = .FALSE.
   nview = .FALSE.
@@ -8212,6 +8212,13 @@ IF (found) THEN
       ELSE
         ALLOCATE(theta(nx, ny, nz))
       END IF
+      
+      IF (ALLOCATED(theta_prev)) THEN
+        DEALLOCATE(theta_prev)
+        ALLOCATE(theta_prev(nx, ny, nz))
+      ELSE
+        ALLOCATE(theta_prev(nx, ny, nz))
+      END IF
 
       ! derivative of volumetric water content theta
       IF (ALLOCATED(dtheta)) THEN
@@ -9009,7 +9016,28 @@ IF (found) THEN
         ELSE
           qx_ub_steady = realjunk/(dist_scale * time_scale)
         END IF
+      ELSE
+        parchar = 'psi_lb_unsteady'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        IF (parfind == ' ') THEN  ! Parameter psi_lb_unsteady not found
+          WRITE(*,*) ' The lower boundary condition was not found. '
+          psi_lb_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
+        ELSE
+          psi_lb_unsteady = realjunk/dist_scale
+        END IF
         
+        parchar = 'q_ub_unsteady'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        IF (parfind == ' ') THEN  ! Parameter q_ub_unsteady not found
+          WRITE(*,*) ' The upper boundary condition was not found. '
+          qx_ub_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
+        ELSE
+          qx_ub_unsteady = realjunk/(dist_scale * time_scale)
+        END IF
       END IF
       
       ! Read initial condition for steady-state or transient problem
