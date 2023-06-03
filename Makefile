@@ -246,9 +246,9 @@ SOURCEF = \
           read_toperatio.F90\
           read_tortuosityfile.F90\
           read_TortuosityByZone.F90\
-	  read_vgn.F90\
-	  read_vga.F90\
-	  read_wcr.F90\
+	      read_vgn.F90\
+	      read_vga.F90\
+	      read_wcr.F90\
           readblock.F90\
           readbreak.F90\
           readCaseSensitive.F90\
@@ -330,10 +330,13 @@ SOURCEF = \
           PressureNS.F90\
           velocalcNS.F90\
           redist_sendRich.F90\
-          read_pumptimeseries.F90\
-          read_pumplocations.F90\
+          read_pumptimeseriesfile.F90\
+          read_pumplocationsfile.F90\
+          read_pump_timeseries2.F90\
+          read_watertablefile.F90\
+          read_watertable_timeseries.F90\
           interp3.F90\
-          FRACTUREAPERTURE.F90\
+          FractureAperture.F90\
 
 
 OBJSF  =  crunchtype.o\
@@ -579,9 +582,9 @@ OBJSF  =  crunchtype.o\
           read_toperatio.o\
           read_tortuosityfile.o\
           read_TortuosityByZone.o\
-	  read_vgn.o\
-	  read_vga.o\
-	  read_wcr.o\
+	      read_vgn.o\
+	      read_vga.o\
+	      read_wcr.o\
           readblock.o\
           readbreak.o\
           readCaseSensitive.o\
@@ -663,10 +666,13 @@ OBJSF  =  crunchtype.o\
           PressureNS.o\
           velocalcNS.o\
           redist_sendRich.o\
-          read_pumptimeseries.o\
-          read_pumplocations.o\
+          read_pumptimeseriesfile.o\
+          read_pumplocationsfile.o\
+          read_pump_timeseries2.o\
+          read_watertablefile.o\
+          read_watertable_timeseries.o\
           interp3.o\
-          FRACTUREAPERTURE.o\
+          FractureAperture.o\
 
 LOCDIR   = ${CrunchTope_Dir}
 

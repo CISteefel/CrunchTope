@@ -10397,7 +10397,7 @@ DEALLOCATE(dpsi)
 DEALLOCATE(ctot)
 DEALLOCATE(guess)
 DEALLOCATE(itype)
-DEALLOCATE(c_surf)
+!!!DEALLOCATE(c_surf)
 DEALLOCATE(guess_surf)
 #endif
 DEALLOCATE(gaspp)

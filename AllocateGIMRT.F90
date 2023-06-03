@@ -303,10 +303,12 @@ IF (ierode == 1) THEN
     DEALLOCATE(sch)
   END IF
   ALLOCATE(sch(ncomp,nx,ny,nz))
+  
   IF (ALLOCATED(ssurf)) THEN
     DEALLOCATE(ssurf)
   END IF
   ALLOCATE(ssurf(nsurf,nx,ny,nz))
+  
   IF (ALLOCATED(fch)) THEN
     DEALLOCATE(fch)
   END IF

@@ -43,7 +43,7 @@
 !!!      ****************************************
 
     
-SUBROUTINE restart(time,nn,nint,nexchange,nsurf,nx,ny,nz,nstop,nstopsave, &
+SUBROUTINE restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave, &
      delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
      amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
 USE crunchtype
@@ -70,6 +70,7 @@ INTEGER(I4B), INTENT(OUT)                     :: nn
 INTEGER(I4B), INTENT(OUT)                     :: nint
 INTEGER(I4B), INTENT(IN)                      :: nexchange
 INTEGER(I4B), INTENT(IN)                      :: nsurf
+INTEGER(I4B), INTENT(IN)                      :: nrct
 INTEGER(I4B), INTENT(IN)                      :: nx
 INTEGER(I4B), INTENT(IN)                      :: ny
 INTEGER(I4B), INTENT(IN)                      :: nz
@@ -184,9 +185,17 @@ END IF
     READ(iures) volfx
     READ(iures) dppt
     READ(iures) area
-    READ(iures) areainByGrid
-    READ(iures) volinByGrid
-    READ(iures) specificByGrid
+    IF (ALLOCATED(RealDummyArray)) THEN
+      DEALLOCATE(RealDummyArray)
+    END IF
+    ALLOCATE(RealDummyArray(nrct*nxyz))
+    
+    READ(iures) RealDummyArray
+    READ(iures) RealDummyArray
+    READ(iures) RealDummyArray
+!!!    READ(iures) areainByGrid
+!!!    READ(iures) volinByGrid
+!!!    READ(iures) specificByGrid
     READ(iures) LogPotential
 
     READ(iures) t
@@ -213,6 +222,13 @@ END IF
   porin = por
 
 CLOSE(UNIT=iures,STATUS='keep')
+
+IF (ALLOCATED(RealDummyArray)) THEN
+  DEALLOCATE(RealDummyArray)
+END IF
+IF (ALLOCATED(IntegerDummyArray)) THEN
+  DEALLOCATE(IntegerDummyArray)
+END IF
 
 ! Update file counter 
 

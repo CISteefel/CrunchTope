@@ -76,7 +76,7 @@ INTEGER(I4B)                                  :: ns
 DO is = 1,nsurf
 
   k = ksurf(is)
-  permole = site_density(is,jinit(jx,jy,jz))*specificByGrid(k,jx,jy,jz)*wtmin(k)    !  Mole sites/Mole mineral
+  permole = site_density(is,jinit(jx,jy,jz))*specificByGrid(k,jx,jy,jz)*wtmin(k)    !  Mole sites/Mole mineral = site/m^2 * m^2/g * g/mol
 
   IF (volinByGrid(k,jx,jy,jz) == 0.0d0 .AND. volfx(k,jx,jy,jz)< voltemp(k,jinit(jx,jy,jz)) ) THEN
     ssurfn(is,jx,jy,jz) = permole*voltemp(k,jinit(jx,jy,jz))/(volmol(k))
@@ -92,7 +92,10 @@ DO is = 1,nsurf
 !!    ssurfn(is,jx,jy,jz) = 1.D-20
 !!  END IF
 
-  LogTotalSurface(is,jx,jy,jz) = DLOG(ssurfn(is,jx,jy,jz))
+ !!! LogTotalSurface(is,jx,jy,jz) = DLOG(ssurfn(is,jx,jy,jz))
+!!!  IF (c_surf(is,jinit(jx,jy,jz)) > 0.0) THEN
+!!!    LogTotalSurface(is,jx,jy,jz) = DLOG(c_surf(is,jinit(jx,jy,jz)))
+!!!  END IF
 
 END DO
 

@@ -96,22 +96,7 @@ interface
     REAL(DP), INTENT(IN)                                            :: time
   END SUBROUTINE AffinityNumerical
 END interface
-interface
-  SUBROUTINE RateFactorNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,RateFactor)
-    USE crunchtype
-    USE concentration, ONLY: gam
-    IMPLICIT NONE
-    INTEGER(I4B), INTENT(IN)                                        :: ncomp
-    INTEGER(I4B), INTENT(IN)                                        :: nrct
-    INTEGER(I4B), INTENT(IN)                                        :: jx
-    INTEGER(I4B), INTENT(IN)                                        :: jy
-    INTEGER(I4B), INTENT(IN)                                        :: jz
-    INTEGER(I4B), INTENT(IN)                                        :: np
-    INTEGER(I4B), INTENT(IN)                                        :: k
-    REAL(DP),DIMENSION(:),INTENT(IN)                                :: sppTMP
-    REAL(DP), INTENT(OUT)                                           :: RateFactor
-  END SUBROUTINE RateFactorNumerical
-END interface
+
 
 !********  END INTERFACE BLOCKS  *************************
 

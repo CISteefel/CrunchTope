@@ -1128,7 +1128,7 @@ endif   !  PETSc setup
 
 IF (irestart == 1) THEN
 
-  CALL restart(time,nn,nint,nexchange,nsurf,nx,ny,nz,nstop,nstopsave, &
+  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave, &
      delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
      amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
 
