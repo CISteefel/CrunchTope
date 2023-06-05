@@ -37,7 +37,7 @@ REAL(DP), PARAMETER :: xi = rho*g/mu ! constant used to solve the Richards equat
 jy = 1
 jz = 1
 DO jx = 1, nx
-  CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), psi_s(jx, jy, jz), &
+  CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                  theta(jx, jy, jz), kr(jx, jy, jz), dtheta(jx, jy, jz), dkr(jx, jy, jz))
   head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
 END DO
