@@ -622,8 +622,8 @@ IF (CalculateFlow) THEN
       ELSE
     CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
       END IF
-    END IF
-
+  END IF
+  
   SteadyFlow = .FALSE.
 
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
@@ -867,6 +867,7 @@ END IF
    steady_Richards: IF (Richards_steady) THEN
    WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
+   
    CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
    
    ELSE steady_Richards
@@ -1290,6 +1291,15 @@ END IF
 iteration_tot = 0
 
 nn = 0
+!**********************************************
+! record initial state by Toshiyuki Bandai 2023, May
+OPEN(unit = 10, file = 'initial_condition.txt')
+DO jx = 1, nx
+  WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
+END DO
+CLOSE(10)
+
+!**********************************************
 i_substep = 0
 DO WHILE (nn <= nend)
     ! Zhi Li 20200715
@@ -1352,10 +1362,37 @@ DO WHILE (nn <= nend)
           DO jx = 1,nx
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
-          WRITE(*,*) ' Solves the time-dependent Richards equation. '
-        ! solve the 1D time-dependenet Richards equation
-        CALL solve_Richards(nx, ny, nz, 0.0d0, qx_ub_unsteady, delt)
-        
+          WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
+          
+          ! update the upper boundary condition by snowmelt and evaporation
+          IF (pumptimeseries) THEN
+            IF (TS_1year) THEN
+              time_norm=time-floor(time)
+              CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+            ELSE
+              CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+            END IF
+          END IF
+          
+          
+          IF (transpitimeseries) THEN
+            IF (TS_1year) THEN
+              time_norm=time-floor(time)
+              CALL  interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+            END IF
+          END IF
+
+          IF (evapotimeseries) THEN
+            IF (TS_1year) THEN
+              time_norm=time-floor(time)
+            CALL  interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+            END IF
+          END IF
+  
+          !qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1)) - evaporate
+          qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1))
+          ! solve the 1D time-dependenet Richards equation
+          CALL solve_Richards(nx, ny, nz, 0.0d0, qx_ub_unsteady, delt)
         
         ! End of edit by Toshiyuki Bandai, 2023 May
         ! ******************************************************************

@@ -37,4 +37,11 @@ END DO
 ! upper boundary
 F_residual(nx) = (dxx(nx)/dtflow)*(theta(nx, jy, jz) - theta_prev(nx, jy, jz)) - qx(nx-1, jy, jz) + qx(nx, jy, jz)
 
+! add source/sink terms
+IF (transpitimeseries) THEN
+  DO i = 1, transpicells
+    F_residual(nx+1-i) = F_residual(nx+1-i) - transpirate
+  END DO
+END IF
+
 END SUBROUTINE residual_Richards

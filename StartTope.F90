@@ -622,17 +622,35 @@ INTEGER(I4B)                                                  :: nvgn
 INTEGER(I4B)                                                  :: nvga
 INTEGER(I4B)                                                  :: nwcr
 
-CHARACTER (LEN=mls)                          :: pumptimeseriesfile
-CHARACTER (LEN=mls)                          :: PumptimeseriesFileFormat
-CHARACTER (LEN=mls)                          :: pumplocationsfile
-CHARACTER (LEN=mls)                          :: PumplocationsFileFormat
-INTEGER(I4B)                                                  :: lfile2
+!CHARACTER (LEN=mls)                          :: pumptimeseriesfile
+!CHARACTER (LEN=mls)                          :: PumptimeseriesFileFormat
+!CHARACTER (LEN=mls)                          :: pumplocationsfile
+!CHARACTER (LEN=mls)                          :: PumplocationsFileFormat
+!INTEGER(I4B)                                                  :: lfile2
+CHARACTER (LEN=mls)                          :: evapofile
+CHARACTER (LEN=mls)                          :: transpifile
+INTEGER(I4B)                                                  :: tslength
+REAL(DP), DIMENSION(:), ALLOCATABLE      :: realmult_dum
+
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: dummy1
+CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
+
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE              :: temptsfile
+REAL(DP)                                                    :: reg_temp_fix1
+REAL(DP)                                                    :: nb_temp_fix1
+REAL(DP)                                                    :: temp_fix1
+LOGICAL(LGT)                                :: boolfix
+LOGICAL(LGT)                                :: boolreg
+integer :: IERR = 0
+REAL(DP), DIMENSION(:), ALLOCATABLE                :: depth
+INTEGER(I4B)                 :: depthwattab
+
 CHARACTER (LEN=mls)                          :: watertablefile
 CHARACTER (LEN=mls)                          :: WatertableFileFormat
 
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check3
-CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
-integer :: IERR = 0
+!CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
+!integer :: IERR = 0
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
@@ -7648,13 +7666,22 @@ IF (found) THEN
 
     pumptimeseries = .FALSE.
 
-    CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
-    CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
+    !CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
+    !CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
+    !IF (pumptimeseries) THEN
+    !
+    !CALL  read_pump_timeseries2(nout,nx,ny,nz,nchem,lfile,pumptimeseriesfile,PumptimeseriesFileFormat,lfile2,pumplocationsfile,PumplocationsFileFormat)
+    !
+    !ELSE
+    !  CALL read_pump(nout,nx,ny,nz,nchem)
+    !ENDIF
+    
+    CALL read_pumptimeseries(nout,nx,ny,nz)
+
     IF (pumptimeseries) THEN
 
-    CALL  read_pump_timeseries2(nout,nx,ny,nz,nchem,lfile,pumptimeseriesfile,PumptimeseriesFileFormat,lfile2,pumplocationsfile,PumplocationsFileFormat)
-
-    else
+    CALL read_pumplocations(nout,nx,ny,nz,nchem)
+    ELSE
       CALL read_pump(nout,nx,ny,nz,nchem)
     ENDIF
 
@@ -10551,6 +10578,73 @@ dspz = 0.0
 !      end do
 !      write(*,*)
 !      pause
+  
+  !! Evapotranspiration
+
+  evapofix = .FALSE.
+  evapotimeseries = .FALSE.
+  transpifix = .FALSE.
+  transpitimeseries = .FALSE.
+  CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
+  IF (evapotimeseries) THEN
+    IF (ALLOCATED(t_evapo)) THEN
+      DEALLOCATE(t_evapo)
+    END IF
+    IF (ALLOCATED(qt_evapo)) THEN
+      DEALLOCATE(qt_evapo)
+    END IF
+    ALLOCATE(t_evapo(tslength))
+    ALLOCATE(qt_evapo(tslength))
+    CALL read_timeseries2(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
+    evaporate = qt_evapo(1)
+    !STOP
+  ENDIF
+  CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
+  IF (transpitimeseries) THEN
+    IF (ALLOCATED(t_transpi)) THEN
+      DEALLOCATE(t_transpi)
+    END IF
+    IF (ALLOCATED(qt_transpi)) THEN
+      DEALLOCATE(qt_transpi)
+    END IF
+    ALLOCATE(t_transpi(tslength))
+    ALLOCATE(qt_transpi(tslength))
+    CALL read_timeseries2(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
+    qt_transpi=qt_transpi/transpicells 
+    transpirate = qt_transpi(1)
+    !WRITE(*,*) transpirate
+   ! STOP
+  ENDIF
+
+  transpisoluteflux = .FALSE.
+  parchar = 'transpisoluteflux'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,transpisoluteflux)
+  
+  ! IF (transpisoluteflux) THEN
+    IF (ALLOCATED(transpiflux)) THEN
+      DEALLOCATE(transpiflux)
+      ALLOCATE(transpiflux(nx,ny,nz))
+    ELSE
+      ALLOCATE(transpiflux(nx,ny,nz))
+    END IF
+
+    IF (ALLOCATED(evapoflux)) THEN
+      DEALLOCATE(evapoflux)
+      ALLOCATE(evapoflux(nx,ny,nz))
+    ELSE
+      ALLOCATE(evapoflux(nx,ny,nz))
+    END IF
+      
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          transpiflux(jx,jy,jz)=0
+          evapoflux(jx,jy,jz)=0
+        ENDDO
+      ENDDO
+    ENDDO
+
 
 !!!   ******************  NMM Coupling  ****************************************************
 

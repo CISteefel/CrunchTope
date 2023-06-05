@@ -765,6 +765,23 @@ END IF
             END DO
           END DO
           CLOSE(UNIT=8,STATUS='keep')
+          
+          fn='water_potential'
+          ilength = 8
+          CALL newfile(fn,suf1,fnv,nint,ilength)
+          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+          WRITE(8,*) 'TITLE = "Water_potential (m)" '
+          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "water_potential" '
+          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx = 1,nx
+                  WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                        z(jz)*OutputDistanceScale,psi(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+          CLOSE(UNIT=8,STATUS='keep')
 
           fn='watercontent'
           ilength = 8
@@ -778,6 +795,23 @@ END IF
                 DO jx = 1,nx
                   WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
                         z(jz)*OutputDistanceScale,theta(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+          CLOSE(UNIT=8,STATUS='keep')
+          
+          fn='liquid_saturation'
+          ilength = 8
+          CALL newfile(fn,suf1,fnv,nint,ilength)
+          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+          WRITE(8,*) 'TITLE = "Liquid saturation" '
+          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Liquid saturation" '
+          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx = 1,nx
+                  WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                        z(jz)*OutputDistanceScale,satliq(jx,jy,jz)
               END DO
             END DO
           END DO

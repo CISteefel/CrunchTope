@@ -106,7 +106,8 @@ newton_loop: DO
   
   IF (no_backtrack > 100) THEN
     WRITE(*, 100)
-    100 FORMAT(1X, 'Line search failed.') 
+100 FORMAT(1X, 'Line search failed.')
+    READ(*,*)
   END IF
   
   total_line = total_line + no_backtrack

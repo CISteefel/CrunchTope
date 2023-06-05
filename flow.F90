@@ -230,4 +230,21 @@ REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
 LOGICAL(LGT)                                   :: watertabletimeseries
 !! Disable mineralupdate during model spinup
 LOGICAL(LGT)                                   :: spinup ! Lucien Stolze 20220731
+!!Evapotranspiration timeseries
+REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
+REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_transpi
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_transpi
+! Lucien Stolze: evapotranspiration
+LOGICAL(LGT)                                     :: evapofix
+LOGICAL(LGT)                                     :: evapotimeseries
+REAL(DP)                                         :: evaporate
+LOGICAL(LGT)                                     :: transpifix
+LOGICAL(LGT)                                     :: transpitimeseries
+REAL(DP)                                         :: transpirate
+INTEGER(I4B)                                     :: transpicells
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: transpiflux
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: evapoflux
+LOGICAL(LGT)                                     :: transpisoluteflux
+
 END MODULE flow
