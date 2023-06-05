@@ -865,13 +865,13 @@ END IF
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
-   WRITE(*,*) ' Solves the steady state Richards equation. '
+   !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
    
    CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
    
    ELSE steady_Richards
-     WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
+     !WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
      ! compute water flux from the initial condition and the initial boundary conditions
      CALL flux_Richards_noflow(nx, ny, nz, 0.0d0, qx_ub_unsteady)
 
@@ -1362,7 +1362,7 @@ DO WHILE (nn <= nend)
           DO jx = 1,nx
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
-          WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
+          !WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
           
           ! update the upper boundary condition by snowmelt and evaporation
           IF (pumptimeseries) THEN
