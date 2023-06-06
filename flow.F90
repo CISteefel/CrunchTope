@@ -197,18 +197,33 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential ps
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
+
+! soil hydraulic parameters for van Genuchten model
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_alpha ! van Genuchten alpha parameter [L-1]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_n ! van Genuchten n parameter [-]
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water potential [L], refer to modified van Genuchten model
+!REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water potential [L], refer to modified van Genuchten model
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
+
+! boundary conditions
+CHARACTER (LEN=264)                             :: upper_BC_type ! the type of the upper boundary condition
+CHARACTER (LEN=264)                             :: lower_BC_type ! the type of the lower boundary condition
+LOGICAL(LGT)                                    :: upper_constant_BC ! logical variable to determine whether the upper boundary condition is constant or not (time-dependent)
+LOGICAL(LGT)                                    :: lower_constant_BC ! logical variable to determine whether the lower boundary condition is constant or not (time-dependent)
+REAL(DP)                                        :: value_upper_BC ! value of upper boundary condition. the content depends on the type of boundary condition.
+REAL(DP)                                        :: value_lower_BC ! value of lower boundary condition. the content depends on the type of boundary condition.
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_upper_BC ! values of upper boundary condition for time-dependent problem
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_lower_BC ! values of lower boundary condition for time-dependent problem
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_upper_BC ! time of upper boundary condition [T]
+REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_lower_BC ! time of lower boundary condition [T]
+
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: psi_lb ! water potential at the lower boundary [L]
 REAL(DP)                                        :: psi_lb_steady ! water potential at the lower boundary [L] for steady state problem
-REAL(DP)                                        :: psi_lb_unsteady ! water potential at the lower boundary [L] for time-dependent problem
+!REAL(DP)                                        :: psi_lb_unsteady ! water potential at the lower boundary [L] for time-dependent problem
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]
 REAL(DP)                                        :: qx_ub_steady ! flux in x direction at the upper boundary [L3 T-1] for steady state problem
-REAL(DP)                                        :: qx_ub_unsteady ! flux in x direction at the upper boundary [L3 T-1] for tuime-dependent problem
+!REAL(DP)                                        :: qx_ub_unsteady ! flux in x direction at the upper boundary [L3 T-1] for tuime-dependent problem
 ! End of edits by Toshiyuki Bandai May, 2023
 ! *************************************************
 

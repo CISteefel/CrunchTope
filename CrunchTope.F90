@@ -873,7 +873,7 @@ END IF
    ELSE steady_Richards
      WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
      ! compute water flux from the initial condition and the initial boundary conditions
-     CALL flux_Richards_noflow(nx, ny, nz, 0.0d0, qx_ub_unsteady)
+     !CALL flux_Richards_noflow(nx, ny, nz, 0.0d0, qx_ub_unsteady)
 
    END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May
@@ -1390,9 +1390,9 @@ DO WHILE (nn <= nend)
           END IF
   
           !qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1)) - evaporate
-          qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1))
+          !qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1))
           ! solve the 1D time-dependenet Richards equation
-          CALL solve_Richards(nx, ny, nz, 0.0d0, qx_ub_unsteady, delt)
+          !CALL solve_Richards(nx, ny, nz, 0.0d0, qx_ub_unsteady, delt)
         
         ! End of edit by Toshiyuki Bandai, 2023 May
         ! ******************************************************************

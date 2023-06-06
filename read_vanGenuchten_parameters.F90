@@ -1,5 +1,5 @@
 SUBROUTINE read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
-
+! subroutine to read the van Genuchten parameters from the input file
 USE crunchtype
 USE params
 USE flow
@@ -35,19 +35,17 @@ INTEGER(I4B), INTENT(IN)                                     :: nx
 INTEGER(I4B), INTENT(IN)                                     :: ny
 INTEGER(I4B), INTENT(IN)                                     :: nz
 INTEGER(I4B), INTENT(IN)                                     :: nout ! unit number for output file
-INTEGER(I4B)                                                 :: nzone ! number of zones for each VG parameter
-INTEGER(I4B), INTENT(INOUT)                                  :: VG_error ! error flag for reading VG parameters
+INTEGER(I4B)                                                 :: nzone ! number of zones for each van Genuchten parameter
+INTEGER(I4B), INTENT(INOUT)                                  :: VG_error ! error flag for reading van Genuchten parameters
 
-CHARACTER (LEN=mls), INTENT(INOUT)                              :: parchar ! character for each van Genuchten parameter in the input file
+CHARACTER (LEN=mls), INTENT(INOUT)                           :: parchar ! character for each van Genuchten parameter in the input file
 CHARACTER (LEN=mls)                                          :: parfind ! character found in the input file
 
 CHARACTER (LEN=mls), INTENT(IN)                              :: section ! the name of the section
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: realmult
-REAL(DP), DIMENSION(:), ALLOCATABLE                          :: ncells_VG ! arrays for the number of cells for each VG parameter
-REAL(DP), DIMENSION(:), ALLOCATABLE                          :: value_VG ! array for value of VG parameter for each cell
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: ncells_VG ! arrays for the number of cells for each van Genuchten parameter
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: value_VG ! array for value of van Genuchten parameter for each cell
 
-
-!parchar = 'vg_theta_r'
 parfind = ' '
 ALLOCATE(realmult(1000))
 realmult = 0.0
@@ -141,22 +139,23 @@ ELSE
             VG_n(jxx, ny, nz) = value_VG(i)
           END DO
         END DO
-                
-      CASE ('vg_psi_s')
-        IF (ALLOCATED(psi_s)) THEN
-          DEALLOCATE(psi_s)
-          ALLOCATE(psi_s(nx, ny, nz))
-        ELSE
-          ALLOCATE(psi_s(nx, ny, nz))
-        END IF
-        
-        jxx = 0
-        DO i = 1, nzone
-          DO jx = 1, ncells_VG(i)
-            jxx = jxx + 1
-            psi_s(jxx, ny, nz) = value_VG(i)
-          END DO
-        END DO
+      
+      ! this is for modified van Genuchten model        
+      !CASE ('vg_psi_s')
+      !  IF (ALLOCATED(psi_s)) THEN
+      !    DEALLOCATE(psi_s)
+      !    ALLOCATE(psi_s(nx, ny, nz))
+      !  ELSE
+      !    ALLOCATE(psi_s(nx, ny, nz))
+      !  END IF
+      !  
+      !  jxx = 0
+      !  DO i = 1, nzone
+      !    DO jx = 1, ncells_VG(i)
+      !      jxx = jxx + 1
+      !      psi_s(jxx, ny, nz) = value_VG(i)
+      !    END DO
+      !  END DO
         
       CASE DEFAULT
         WRITE(*,*) ' The parameter could not be allocated and inserted. '

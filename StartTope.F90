@@ -659,6 +659,9 @@ REAL(DP)                                     :: numerator ! used to compute perm
 REAL(DP)                                     :: denominator ! used to compute permeability at faces
 CHARACTER (LEN=mls)                          :: Richards_IC_File ! file name for Richards initial condition
 CHARACTER (LEN=mls)                          :: Richards_IC_FileFormat ! file name for Richards initial condition (only single column is supported)
+CHARACTER (LEN=mls)                          :: upper_BC_file ! file name for the upper boundary condition for the Richards equation
+CHARACTER (LEN=mls)                          :: lower_BC_file ! file name for the lower boundary condition for the Richards equation
+
 ! End of edit by Toshiyuki Bandai, 2023 May
 ! ************************************
 
@@ -8337,17 +8340,17 @@ IF (found) THEN
         STOP
       END IF
 
-    ! psi_s parameter in the van Genuchten model
-      parchar = 'vg_psi_s'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
-      IF (VG_error == 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-        WRITE(*,*)
-        STOP
-      END IF
-      ! convert unit
-      psi_s = psi_s/dist_scale
+    ! psi_s parameter in the modified van Genuchten model
+      !parchar = 'vg_psi_s'
+      !CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      !IF (VG_error == 1) THEN
+      !  WRITE(*,*)
+      !  WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+      !  WRITE(*,*)
+      !  STOP
+      !END IF
+      !! convert unit
+      !psi_s = psi_s/dist_scale
       
     END IF Toshi_allocate
     ! ***************************************************
@@ -9044,27 +9047,49 @@ IF (found) THEN
           qx_ub_steady = realjunk/(dist_scale * time_scale)
         END IF
       ELSE
-        parchar = 'psi_lb_unsteady'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        IF (parfind == ' ') THEN  ! Parameter psi_lb_unsteady not found
-          WRITE(*,*) ' The lower boundary condition was not found. '
-          psi_lb_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
-        ELSE
-          psi_lb_unsteady = realjunk/dist_scale
-        END IF
+      
+        ! read upper boundary condition
+        upper_constant_BC = .TRUE.
+      
+         CALL read_upper_boundary_condition(nout, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
         
-        parchar = 'q_ub_unsteady'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        IF (parfind == ' ') THEN  ! Parameter q_ub_unsteady not found
-          WRITE(*,*) ' The upper boundary condition was not found. '
-          qx_ub_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
-        ELSE
-          qx_ub_unsteady = realjunk/(dist_scale * time_scale)
-        END IF
+      
+        ! import time series for upper boundary condition if the boundary condition is time-dependent (variable)
+        
+        IF (.NOT. upper_constant_BC) THEN
+          IF (ALLOCATED(t_upper_BC)) THEN
+            DEALLOCATE(t_upper_BC)
+          END IF
+          IF (ALLOCATED(values_upper_BC)) THEN
+            DEALLOCATE(values_upper_BC)
+          END IF
+          ALLOCATE(t_upper_BC(tslength))
+          ALLOCATE(values_upper_BC(tslength))
+          CALL read_timeseries2(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
+        ENDIF
+  
+  
+        !parchar = 'psi_lb_unsteady'
+        !parfind = ' '
+        !realjunk = 0.0
+        !CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        !IF (parfind == ' ') THEN  ! Parameter psi_lb_unsteady not found
+        !  WRITE(*,*) ' The lower boundary condition was not found. '
+        !  psi_lb_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
+        !ELSE
+        !  psi_lb_unsteady = realjunk/dist_scale
+        !END IF
+        !
+        !parchar = 'q_ub_unsteady'
+        !parfind = ' '
+        !realjunk = 0.0
+        !CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        !IF (parfind == ' ') THEN  ! Parameter q_ub_unsteady not found
+        !  WRITE(*,*) ' The upper boundary condition was not found. '
+        !  qx_ub_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
+        !ELSE
+        !  qx_ub_unsteady = realjunk/(dist_scale * time_scale)
+        !END IF
       END IF
       
       ! Read initial condition for steady-state or transient problem
@@ -9086,7 +9111,7 @@ IF (found) THEN
       IF (.NOT. ext) THEN
         CALL stringlen(Richards_IC_File,ls)
         WRITE(*,*)
-        WRITE(*,*) ' Porosity file not found: ', Richards_IC_File(1:ls)
+        WRITE(*,*) ' Initial condition file not found: ', Richards_IC_File(1:ls)
         WRITE(*,*)
         READ(*,*)
         STOP

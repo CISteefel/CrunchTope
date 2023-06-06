@@ -1,5 +1,6 @@
 SUBROUTINE flux_Richards(nx, ny, nz, psi_lb_value, qx_ub_value)
 ! subroutine to compute water flux based on the Buckingham Darcy's law
+! the computed water flux is positive upward with respect to the x-direction
 USE crunchtype
 USE io
 USE params
@@ -34,6 +35,7 @@ REAL(DP), PARAMETER :: xi = rho*g/mu ! constant used to solve the Richards equat
 ! End of edits by Toshiyuki Bandai, 2023, May
 !**************************************************
 
+! apply van Genuchten model to all grid cells
 jy = 1
 jz = 1
 DO jx = 1, nx
@@ -42,6 +44,14 @@ DO jx = 1, nx
   head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
 END DO
 
+! internal faces
+DO jx = 1, nx - 1
+  qx(jx, jy, jz) = -xi*K_faces_x(jx, jy, jz)/(x(jx+1) - x(jx))*(kr(jx+1, jy, jz)*MAX(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0) &
+                      + kr(jx, jy, jz)*MIN(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0))
+END DO
+
+! lower boundary
+
 jx = 1
 jy = 1
 jz = 1
@@ -49,16 +59,13 @@ head_lb = psi_lb_value + (x(jx) - 0.5d0 * dxx(jx))
 CALL vanGenuchten_model_kr(psi_lb_value, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                               kr_lb)
 
+
+
 jy = 1
 jz = 1
 ! lower boundary
 qx(0, jy, jz) = -xi*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0))
 
-! internal faces
-DO jx = 1, nx - 1
-  qx(jx, jy, jz) = -xi*K_faces_x(jx, jy, jz)/(x(jx+1) - x(jx))*(kr(jx+1, jy, jz)*MAX(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0) &
-                      + kr(jx, jy, jz)*MIN(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0))
-END DO
 
 ! upper boundary
 qx(nx, jy, jz) = qx_ub_value
