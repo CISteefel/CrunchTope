@@ -871,7 +871,7 @@ END IF
    CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
    
    ELSE steady_Richards
-     !WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
+     WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
      ! compute water flux from the initial condition and the initial boundary conditions
      CALL flux_Richards_noflow(nx, ny, nz, 0.0d0, qx_ub_unsteady)
 
@@ -1362,7 +1362,7 @@ DO WHILE (nn <= nend)
           DO jx = 1,nx
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
-          !WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
+          WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
           
           ! update the upper boundary condition by snowmelt and evaporation
           IF (pumptimeseries) THEN
@@ -3249,7 +3249,8 @@ END IF
 !!  close(unit=98)
 
 
-  IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
+  !IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
+  IF (time+delt > prtint(nint) .AND. ABS(prtint(nint) - time) > 1.0d-14) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
     delt = prtint(nint) - time
     WRITE(*,*) ' Adjusting time step to match output file'
     WRITE(*,5085) delt*OutputTimeScale
@@ -3298,7 +3299,8 @@ END IF
 !        if (ulab(iplot(1)).eq.'h+' .or. ulab(iplot(1).eq.'H+' .and. nplot.eq.1) then
 !          phwrite = -(sp(iplot(1),j)+gam(iplot(1),j) )/clg
 
-  IF (time >= prtint(nint) .OR. steady) THEN
+  !IF (time >= prtint(nint) .OR. steady) THEN
+  IF (time >= prtint(nint) .OR. steady .OR. ABS(prtint(nint) - time) <= 1.0d-14) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
 
     iprnt = 1
     WRITE(*,*)

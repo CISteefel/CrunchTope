@@ -120,6 +120,6 @@ IF (iteration > maxitr) THEN
 END IF
 
 
-!WRITE(*,120) iteration, total_line
-!120 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches.')
+WRITE(*,120) iteration, total_line
+120 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches.')
 END SUBROUTINE solve_Richards
