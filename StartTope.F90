@@ -9071,13 +9071,23 @@ IF (found) THEN
         CASE ('constant_dirichlet')
           value_upper_BC = value_upper_BC/dist_scale
         CASE ('constant_neumann')
-          CONTINUE ! no unit conversion
+          WRITE(*,*)
+          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+          !CONTINUE ! no unit conversion
         CASE ('constant_flux')
           value_upper_BC = value_upper_BC/(dist_scale * time_scale)
         CASE ('variable_dirichlet')
           values_upper_BC = values_upper_BC/dist_scale
         CASE ('variable_neumann')
-          CONTINUE ! no unit conversion
+          WRITE(*,*)
+          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+          !CONTINUE ! no unit conversion
         CASE ('variable_flux')
           values_upper_BC = values_upper_BC/(dist_scale * time_scale)
         CASE DEFAULT
