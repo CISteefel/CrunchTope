@@ -83,6 +83,7 @@ IF(ls /= 0) THEN
             STOP  
           ENDIF
         CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux') bc_case
+          constant_BC = .FALSE.
           ! variable boundary condition
           CALL sschaine(zone,id,iff,ssch,ids,ls)
           ! obtain the file name for the variable boundary condition

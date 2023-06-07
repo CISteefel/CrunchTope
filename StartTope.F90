@@ -9063,7 +9063,7 @@ IF (found) THEN
           END IF
           ALLOCATE(t_upper_BC(tslength))
           ALLOCATE(values_upper_BC(tslength))
-          CALL read_timeseries2(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
+          CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
         ENDIF
         
         ! unit conversion
@@ -9113,7 +9113,7 @@ IF (found) THEN
           END IF
           ALLOCATE(t_lower_BC(tslength))
           ALLOCATE(values_lower_BC(tslength))
-          CALL read_timeseries2(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
+          CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
         ENDIF
         
         ! unit conversion
