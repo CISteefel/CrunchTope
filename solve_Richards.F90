@@ -1,4 +1,4 @@
-SUBROUTINE solve_Richards(nx, ny, nz, qx_lb_value, qx_ub_value, dtflow)
+SUBROUTINE solve_Richards(nx, ny, nz, dtflow)
 USE crunchtype
 USE io
 USE params
@@ -22,8 +22,8 @@ INTEGER(I4B)                                               :: jz
 REAL(DP), INTENT(IN) :: dtflow
 
 ! variables not declared in CrunchTope
-REAL(DP), INTENT(IN)                                                   :: qx_lb_value
-REAL(DP), INTENT(IN)                                                   :: qx_ub_value
+!REAL(DP), INTENT(IN)                                                   :: qx_lb_value
+!REAL(DP), INTENT(IN)                                                   :: qx_ub_value
 
 REAL(DP), DIMENSION(nx) :: F_residual ! residual
 REAL(DP), DIMENSION(nx, nx) :: J ! Jacobian matrix
@@ -54,7 +54,7 @@ iteration = 0
 total_line = 0
 
 ! Evaluate the residual
-CALL flux_Richards_noflow(nx, ny, nz, qx_lb_value, qx_ub_value)
+CALL flux_Richards(nx, ny, nz)
 
 CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
 
@@ -86,7 +86,7 @@ newton_loop: DO
       psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
     END DO
     ! evaluate the residual
-    CALL flux_Richards_noflow(nx, ny, nz, qx_lb_value, qx_ub_value)
+    CALL flux_Richards(nx, ny, nz)
     CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
   
     ! update tolerance

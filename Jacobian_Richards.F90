@@ -43,24 +43,10 @@ DO jx = 1, nx
   head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
 END DO
 
-!jx = 1
-!jy = 1
-!jz = 1
-!head_lb = psi_lb_value + (x(jx) - 0.5d0 * dxx(jx))
-!CALL vanGenuchten_model_kr(psi_lb_value, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), psi_s(jx, jy, jz),&
-!                              kr_lb)
-
 ! evaluate Jacobian matrix
 J = 0.0 ! initialize Jacobian matrix
 
-! lower boundary
-J(1, 1) = (dxx(1)/dtflow)*dtheta(1, jy, jz) &
-        - xi*K_faces_x(1, jy, jz)/(x(2) - x(1))*MERGE(-kr(2, jy, jz), dkr(1, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) - kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
-! Jacobian computation
-J(1, 2) = - xi * K_faces_x(1, jy, jz) / (x(2) - x(1)) * MERGE(dkr(2, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) + kr(2, jy, jz), kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
-
-
-! interior nodes
+! interior cells
 inner: DO jx = 2, nx - 1
   J(jx, jx - 1) = xi * K_faces_x(jx-1, jy, jz) / (x(jx) - x(jx - 1))* &
               MERGE(-kr(jx, jy, jz), dkr(jx-1, jy, jz)*(head(jx, jy, jz) - head(jx-1, jy, jz)) - kr(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0)
@@ -73,10 +59,53 @@ inner: DO jx = 2, nx - 1
               * MERGE(dkr(jx+1, jy, jz)*(head(jx+1, jy, jz) - head(jx, jy, jz)) + kr(jx+1, jy, jz), kr(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0)
 END DO inner
 
-! upper boundary
+! lower boundary (the first cell)
+jx = 1
+J(1, 1) = (dxx(1)/dtflow)*dtheta(1, jy, jz) &
+        - xi*K_faces_x(1, jy, jz)/(x(2) - x(1))*MERGE(-kr(2, jy, jz), dkr(1, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) - kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
+
+J(1, 2) = - xi * K_faces_x(1, jy, jz) / (x(2) - x(1)) * MERGE(dkr(2, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) + kr(2, jy, jz), kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
+
+! the derivative of the lower boundary flux with respect to the first cell psi depends on boundary condition
+SELECT CASE (lower_BC_type)
+CASE ('constant_dirichlet', 'variable_dirichlet')
+  CONTINUE
+CASE ('constant_neumann', 'variable_neumann')
+  CONTINUE
+CASE ('constant_flux', 'variable_flux')
+  ! the derivative of the lower boundary flux with respect to the first cell psi is zero, so do nothing
+  CONTINUE
+CASE DEFAULT
+  WRITE(*,*)
+  WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+  
+END SELECT
+! upper boundary (the last cell)
 J(nx, nx - 1) = xi * K_faces_x(nx-1, jy, jz) / (x(nx) - x(nx-1)) * &
                 MERGE(-kr(nx, jy, jz), dkr(nx-1, jy, jz)*(head(nx, jy, jz) - head(nx-1, jy, jz)) - kr(nx-1, jy, jz), head(nx, jy, jz) - head(nx-1, jy, jz) >= 0)
+
 J(nx, nx) = (dxx(nx)/dtflow) * dtheta(nx, jy, jz) + xi * K_faces_x(nx-1, jy, jz) / (x(nx) - x(nx-1)) &
             *MERGE(dkr(nx, jy, jz)*(head(nx, jy, jz) - head(nx-1, jy, jz)) + kr(nx, jy, jz), kr(nx-1, jy, jz), head(nx, jy, jz) - head(nx-1, jy, jz) >= 0)
-           
+
+! the derivative of the upper boundary flux with respect to the lass cell psi depends on boundary condition
+SELECT CASE (upper_BC_type)
+CASE ('constant_dirichlet', 'variable_dirichlet')
+  CONTINUE
+CASE ('constant_neumann', 'variable_neumann')
+  CONTINUE
+CASE ('constant_flux', 'variable_flux')
+  ! the derivative of the upper boundary flux with respect to the last cell psi is zero, so do nothing
+  CONTINUE
+CASE DEFAULT
+  WRITE(*,*)
+  WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+  
+END SELECT
+
 END SUBROUTINE Jacobian_Richards

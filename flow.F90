@@ -218,7 +218,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_lower_BC ! values of l
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_upper_BC ! time of upper boundary condition [T]
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_lower_BC ! time of lower boundary condition [T]
 
-REAL(DP), DIMENSION(:), ALLOCATABLE             :: psi_lb ! water potential at the lower boundary [L]
+!REAL(DP), DIMENSION(:), ALLOCATABLE             :: psi_lb ! water potential at the lower boundary [L]
 REAL(DP)                                        :: psi_lb_steady ! water potential at the lower boundary [L] for steady state problem
 !REAL(DP)                                        :: psi_lb_unsteady ! water potential at the lower boundary [L] for time-dependent problem
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]

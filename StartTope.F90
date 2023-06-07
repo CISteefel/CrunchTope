@@ -9051,11 +9051,9 @@ IF (found) THEN
         ! read upper boundary condition
         upper_constant_BC = .TRUE.
       
-         CALL read_upper_boundary_condition(nout, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
+        CALL read_upper_boundary_condition(nout, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
         
-      
         ! import time series for upper boundary condition if the boundary condition is time-dependent (variable)
-        
         IF (.NOT. upper_constant_BC) THEN
           IF (ALLOCATED(t_upper_BC)) THEN
             DEALLOCATE(t_upper_BC)
@@ -9067,7 +9065,70 @@ IF (found) THEN
           ALLOCATE(values_upper_BC(tslength))
           CALL read_timeseries2(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
         ENDIF
+        
+        ! unit conversion
+        SELECT CASE (upper_BC_type)
+        CASE ('constant_dirichlet')
+          value_upper_BC = value_upper_BC/dist_scale
+        CASE ('constant_neumann')
+          CONTINUE ! no unit conversion
+        CASE ('constant_flux')
+          value_upper_BC = value_upper_BC/(dist_scale * time_scale)
+        CASE ('variable_dirichlet')
+          values_upper_BC = values_upper_BC/dist_scale
+        CASE ('variable_neumann')
+          CONTINUE ! no unit conversion
+        CASE ('variable_flux')
+          values_upper_BC = values_upper_BC/(dist_scale * time_scale)
+        CASE DEFAULT
+          WRITE(*,*)
+          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END SELECT
+        
+        ! read lower boundary condition
+        lower_constant_BC = .TRUE.
+      
+        CALL read_lower_boundary_condition(nout, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
+        
+        ! import time series for lower boundary condition if the boundary condition is time-dependent (variable)
+        IF (.NOT. lower_constant_BC) THEN
+          IF (ALLOCATED(t_lower_BC)) THEN
+            DEALLOCATE(t_lower_BC)
+          END IF
+          IF (ALLOCATED(values_lower_BC)) THEN
+            DEALLOCATE(values_lower_BC)
+          END IF
+          ALLOCATE(t_lower_BC(tslength))
+          ALLOCATE(values_lower_BC(tslength))
+          CALL read_timeseries2(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
+        ENDIF
+        
+        ! unit conversion
+        SELECT CASE (lower_BC_type)
+        CASE ('constant_dirichlet')
+          value_lower_BC = value_lower_BC/dist_scale
+        CASE ('constant_neumann')
+          CONTINUE ! no unit conversion
+        CASE ('constant_flux')
+          value_lower_BC = value_lower_BC/(dist_scale * time_scale)
+        CASE ('variable_dirichlet')
+          values_lower_BC = values_lower_BC/dist_scale
+        CASE ('variable_neumann')
+          CONTINUE ! no unit conversion
+        CASE ('variable_flux')
+          values_lower_BC = values_lower_BC/(dist_scale * time_scale)
+        CASE DEFAULT
+          WRITE(*,*)
+          WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END SELECT
   
+        
   
         !parchar = 'psi_lb_unsteady'
         !parfind = ' '
