@@ -218,12 +218,12 @@ REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_lower_BC ! values of l
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_upper_BC ! time of upper boundary condition [T]
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_lower_BC ! time of lower boundary condition [T]
 
-!REAL(DP), DIMENSION(:), ALLOCATABLE             :: psi_lb ! water potential at the lower boundary [L]
-REAL(DP)                                        :: psi_lb_steady ! water potential at the lower boundary [L] for steady state problem
-!REAL(DP)                                        :: psi_lb_unsteady ! water potential at the lower boundary [L] for time-dependent problem
-REAL(DP), DIMENSION(:), ALLOCATABLE             :: qx_ub ! flux in x direction at the upper boundary [L3 T-1]
-REAL(DP)                                        :: qx_ub_steady ! flux in x direction at the upper boundary [L3 T-1] for steady state problem
-!REAL(DP)                                        :: qx_ub_unsteady ! flux in x direction at the upper boundary [L3 T-1] for tuime-dependent problem
+CHARACTER (LEN=264)                             :: upper_BC_type_steady ! the type of the upper boundary condition for the steady state problem
+CHARACTER (LEN=264)                             :: lower_BC_type_steady ! the type of the lower boundary condition for the steady state problem
+REAL(DP)                                        :: value_upper_BC_steady ! value of upper boundary condition for the steady state problem. the content depends on the type of boundary condition.
+REAL(DP)                                        :: value_lower_BC_steady ! value of lower boundary condition for the steady state problem. the content depends on the type of boundary condition.
+LOGICAL(LGT)                                    :: upper_constant_BC_steady ! logical variable to determine whether the upper boundary condition is constant or not (time-dependent); this must be TRUE
+LOGICAL(LGT)                                    :: lower_constant_BC_steady ! logical variable to determine whether the lower boundary condition is constant or not (time-dependent); this must be TRUE
 ! End of edits by Toshiyuki Bandai May, 2023
 ! *************************************************
 

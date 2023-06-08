@@ -659,6 +659,7 @@ REAL(DP)                                     :: numerator ! used to compute perm
 REAL(DP)                                     :: denominator ! used to compute permeability at faces
 CHARACTER (LEN=mls)                          :: Richards_IC_File ! file name for Richards initial condition
 CHARACTER (LEN=mls)                          :: Richards_IC_FileFormat ! file name for Richards initial condition (only single column is supported)
+INTEGER(I4B)                                 :: BC_location ! ingeger to define the location of the boundary condition (0: lower boundary condition; 1: upper boundary condition)
 CHARACTER (LEN=mls)                          :: upper_BC_file ! file name for the upper boundary condition for the Richards equation
 CHARACTER (LEN=mls)                          :: lower_BC_file ! file name for the lower boundary condition for the Richards equation
 
@@ -9023,53 +9024,17 @@ IF (found) THEN
         END DO
       END IF Toshi_permeability
       
-      ! Read upper and lower boundary conditions for steady-state problem
+      ! Read lower and upper boundary conditions for steady-state problem
       IF (Richards_steady) THEN
-        parchar = 'psi_lb_steady'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        IF (parfind == ' ') THEN  ! Parameter psi_lb_steady not found
-          WRITE(*,*) ' The lower boundary condition was not found. '
-          psi_lb_steady = 0.0d0 ! default lower Dirichlet boundary condition
-        ELSE
-          psi_lb_steady = realjunk/dist_scale
-        END IF
-        
-        parchar = 'q_ub_steady'
-        parfind = ' '
-        realjunk = 0.0
-        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        IF (parfind == ' ') THEN  ! Parameter q_ub_steady not found
-          WRITE(*,*) ' The upper boundary condition was not found. '
-          qx_ub_steady = 0.0d0 ! default lower Dirichlet boundary condition
-        ELSE
-          qx_ub_steady = realjunk/(dist_scale * time_scale)
-        END IF
-      ELSE
-      
-        ! read upper boundary condition
-        upper_constant_BC = .TRUE.
-      
-        CALL read_upper_boundary_condition(nout, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
-        
-        ! import time series for upper boundary condition if the boundary condition is time-dependent (variable)
-        IF (.NOT. upper_constant_BC) THEN
-          IF (ALLOCATED(t_upper_BC)) THEN
-            DEALLOCATE(t_upper_BC)
-          END IF
-          IF (ALLOCATED(values_upper_BC)) THEN
-            DEALLOCATE(values_upper_BC)
-          END IF
-          ALLOCATE(t_upper_BC(tslength))
-          ALLOCATE(values_upper_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
-        ENDIF
+        ! lower boundary condition
+        BC_location = 0
+        ! the arguments upper_BC_file, lfile, tslength are not used for the steady-state problem
+        CALL read_boundary_condition_Richards(nout, Richards_steady, BC_location, lower_BC_type_steady, upper_BC_file, value_lower_BC_steady, lfile, upper_constant_BC_steady, tslength)
         
         ! unit conversion
-        SELECT CASE (upper_BC_type)
+        SELECT CASE (lower_BC_type_steady)
         CASE ('constant_dirichlet')
-          value_upper_BC = value_upper_BC/dist_scale
+          value_lower_BC_steady = value_lower_BC_steady/dist_scale
         CASE ('constant_neumann')
           WRITE(*,*)
           WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
@@ -9078,90 +9043,131 @@ IF (found) THEN
           STOP
           !CONTINUE ! no unit conversion
         CASE ('constant_flux')
-          value_upper_BC = value_upper_BC/(dist_scale * time_scale)
-        CASE ('variable_dirichlet')
-          values_upper_BC = values_upper_BC/dist_scale
-        CASE ('variable_neumann')
-          WRITE(*,*)
-          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-          !CONTINUE ! no unit conversion
-        CASE ('variable_flux')
-          values_upper_BC = values_upper_BC/(dist_scale * time_scale)
+          value_lower_BC_steady = value_lower_BC_steady/(dist_scale * time_scale)
         CASE DEFAULT
           WRITE(*,*)
-          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+          WRITE(*,*) ' The boundary condition type ', lower_BC_type_steady, ' is not supported . '
           WRITE(*,*)
           READ(*,*)
           STOP
         END SELECT
         
-        ! read lower boundary condition
-        lower_constant_BC = .TRUE.
-      
-        CALL read_lower_boundary_condition(nout, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
-        
-        ! import time series for lower boundary condition if the boundary condition is time-dependent (variable)
-        IF (.NOT. lower_constant_BC) THEN
-          IF (ALLOCATED(t_lower_BC)) THEN
-            DEALLOCATE(t_lower_BC)
-          END IF
-          IF (ALLOCATED(values_lower_BC)) THEN
-            DEALLOCATE(values_lower_BC)
-          END IF
-          ALLOCATE(t_lower_BC(tslength))
-          ALLOCATE(values_lower_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
-        ENDIF
+        ! upper boundary condition
+        BC_location = 1
+        ! the arguments upper_BC_file, lfile, upper_constant_BC, tslength are not used for the steady-state problem
+        CALL read_boundary_condition_Richards(nout, Richards_steady, BC_location, upper_BC_type_steady, upper_BC_file, value_upper_BC_steady, lfile, upper_constant_BC_steady, tslength)
         
         ! unit conversion
-        SELECT CASE (lower_BC_type)
+        SELECT CASE (upper_BC_type_steady)
         CASE ('constant_dirichlet')
-          value_lower_BC = value_lower_BC/dist_scale
+          value_upper_BC_steady = value_upper_BC_steady/dist_scale
         CASE ('constant_neumann')
           CONTINUE ! no unit conversion
         CASE ('constant_flux')
-          value_lower_BC = value_lower_BC/(dist_scale * time_scale)
-        CASE ('variable_dirichlet')
-          values_lower_BC = values_lower_BC/dist_scale
-        CASE ('variable_neumann')
-          CONTINUE ! no unit conversion
-        CASE ('variable_flux')
-          values_lower_BC = values_lower_BC/(dist_scale * time_scale)
+          value_upper_BC_steady = value_upper_BC_steady/(dist_scale * time_scale)
         CASE DEFAULT
           WRITE(*,*)
-          WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+          WRITE(*,*) ' The boundary condition type ', upper_BC_type_steady, ' is not supported . '
           WRITE(*,*)
           READ(*,*)
           STOP
         END SELECT
-  
         
-  
-        !parchar = 'psi_lb_unsteady'
-        !parfind = ' '
-        !realjunk = 0.0
-        !CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        !IF (parfind == ' ') THEN  ! Parameter psi_lb_unsteady not found
-        !  WRITE(*,*) ' The lower boundary condition was not found. '
-        !  psi_lb_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
-        !ELSE
-        !  psi_lb_unsteady = realjunk/dist_scale
-        !END IF
-        !
-        !parchar = 'q_ub_unsteady'
-        !parfind = ' '
-        !realjunk = 0.0
-        !CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-        !IF (parfind == ' ') THEN  ! Parameter q_ub_unsteady not found
-        !  WRITE(*,*) ' The upper boundary condition was not found. '
-        !  qx_ub_unsteady = 0.0d0 ! default lower Dirichlet boundary condition
-        !ELSE
-        !  qx_ub_unsteady = realjunk/(dist_scale * time_scale)
-        !END IF
       END IF
+      
+      ! read boundary conditions for transient problem
+      ! read lower boundary condition
+      BC_location = 0
+      lower_constant_BC = .TRUE.
+      
+      CALL read_boundary_condition_Richards(nout, .FALSE., BC_location, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
+      !CALL read_lower_boundary_condition(nout, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
+        
+      ! import time series for lower boundary condition if the boundary condition is time-dependent (variable)
+      IF (.NOT. lower_constant_BC) THEN
+        IF (ALLOCATED(t_lower_BC)) THEN
+          DEALLOCATE(t_lower_BC)
+        END IF
+        IF (ALLOCATED(values_lower_BC)) THEN
+          DEALLOCATE(values_lower_BC)
+        END IF
+        ALLOCATE(t_lower_BC(tslength))
+        ALLOCATE(values_lower_BC(tslength))
+        CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
+      END IF
+        
+      ! unit conversion
+      SELECT CASE (lower_BC_type)
+      CASE ('constant_dirichlet')
+        value_lower_BC = value_lower_BC/dist_scale
+      CASE ('constant_neumann')
+        CONTINUE ! no unit conversion
+      CASE ('constant_flux')
+        value_lower_BC = value_lower_BC/(dist_scale * time_scale)
+      CASE ('variable_dirichlet')
+        values_lower_BC = values_lower_BC/dist_scale
+      CASE ('variable_neumann')
+        CONTINUE ! no unit conversion
+      CASE ('variable_flux')
+        values_lower_BC = values_lower_BC/(dist_scale * time_scale)
+      CASE DEFAULT
+        WRITE(*,*)
+        WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END SELECT
+      
+      ! read upper boundary condition
+      upper_constant_BC = .TRUE.
+      BC_location = 1
+      CALL read_boundary_condition_Richards(nout, .FALSE., BC_location, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
+      !CALL read_upper_boundary_condition(nout, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
+        
+      ! import time series for upper boundary condition if the boundary condition is time-dependent (variable)
+      IF (.NOT. upper_constant_BC) THEN
+        IF (ALLOCATED(t_upper_BC)) THEN
+          DEALLOCATE(t_upper_BC)
+        END IF
+        IF (ALLOCATED(values_upper_BC)) THEN
+          DEALLOCATE(values_upper_BC)
+        END IF
+        ALLOCATE(t_upper_BC(tslength))
+        ALLOCATE(values_upper_BC(tslength))
+        CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
+      ENDIF
+        
+      ! unit conversion
+      SELECT CASE (upper_BC_type)
+      CASE ('constant_dirichlet')
+        value_upper_BC = value_upper_BC/dist_scale
+      CASE ('constant_neumann')
+        WRITE(*,*)
+        WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+        !CONTINUE ! no unit conversion
+      CASE ('constant_flux')
+        value_upper_BC = value_upper_BC/(dist_scale * time_scale)
+      CASE ('variable_dirichlet')
+        values_upper_BC = values_upper_BC/dist_scale
+      CASE ('variable_neumann')
+        WRITE(*,*)
+        WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+        !CONTINUE ! no unit conversion
+      CASE ('variable_flux')
+        values_upper_BC = values_upper_BC/(dist_scale * time_scale)
+      CASE DEFAULT
+        WRITE(*,*)
+        WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END SELECT
       
       ! Read initial condition for steady-state or transient problem
       parchar = 'read_richards_ic_file'
@@ -9174,7 +9180,7 @@ IF (found) THEN
       ELSE
         Richards_IC_File = dumstring
         CALL stringlen(Richards_IC_File,ls)
-        WRITE(*,*) ' Reading initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
+        WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
       END IF
         
       read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN

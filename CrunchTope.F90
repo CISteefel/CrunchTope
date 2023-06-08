@@ -867,11 +867,11 @@ END IF
    steady_Richards: IF (Richards_steady) THEN
    !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
-   
-   CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
+   WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
+   CALL solve_Richards_steady(nx, ny, nz)
    
    ELSE steady_Richards
-     WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
+     WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
      IF (.NOT. lower_constant_BC) THEN
        value_lower_BC = values_lower_BC(1)
@@ -881,7 +881,6 @@ END IF
        value_upper_BC = values_upper_BC(1)
      END IF
      CALL flux_Richards(nx, ny, nz)
-     !CALL flux_Richards_noflow(nx, ny, nz, 0.0d0, qx_ub_unsteady)
 
    END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May

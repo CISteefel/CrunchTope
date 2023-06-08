@@ -1,6 +1,7 @@
-SUBROUTINE flux_Richards(nx, ny, nz)
+SUBROUTINE flux_Richards_steady(nx, ny, nz)
 ! This subroutine computes water flux based on the Buckingham Darcy's law
 ! The computed water flux is positive upward with respect to the x-direction
+! This subroutine is used for the steady-state Richards equation solver (the only difference from the flux_Richards.F90 is boundary condition)
 USE crunchtype
 USE io
 USE params
@@ -54,26 +55,26 @@ END DO
 
 ! lower boundary face
 jx = 1
-SELECT CASE (lower_BC_type)
-CASE ('constant_dirichlet', 'variable_dirichlet')
-  head_lb = value_lower_BC + (x(jx) - 0.5d0 * dxx(jx))
-  CALL vanGenuchten_model_kr(value_lower_BC, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
+SELECT CASE (lower_BC_type_steady)
+CASE ('constant_dirichlet')
+  head_lb = value_lower_BC_steady + (x(jx) - 0.5d0 * dxx(jx))
+  CALL vanGenuchten_model_kr(value_lower_BC_steady, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
   qx(0, jy, jz) = -xi*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0d0))
   
-CASE ('constant_neumann', 'variable_neumann')
+CASE ('constant_neumann')
   ! compute the water potential at the lower boundary from the given gradient of the water potential
   ! this is based on the one-sided finite difference approximation at the boundary
-  psi_lb = psi(1, jy, jz) - value_lower_BC*(0.5d0 * dxx(jx))
+  psi_lb = psi(1, jy, jz) - value_lower_BC_steady*(0.5d0 * dxx(jx))
   head_lb = psi_lb + (x(jx) - 0.5d0 * dxx(jx))
   CALL vanGenuchten_model_kr(psi_lb, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
   qx(0, jy, jz) = -xi*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0d0))
   
-CASE ('constant_flux', 'variable_flux')
-  qx(0, jy, jz) = value_lower_BC
+CASE ('constant_flux')
+  qx(0, jy, jz) = value_lower_BC_steady
   
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', lower_BC_type_steady, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
@@ -82,25 +83,25 @@ END SELECT
 
 ! upper boundary face
 jx = nx
-SELECT CASE (upper_BC_type)
-CASE ('constant_dirichlet', 'variable_dirichlet')
+SELECT CASE (upper_BC_type_steady)
+CASE ('constant_dirichlet')
   
-  head_ub = value_upper_BC + (x(jx) + 0.5d0 * dxx(jx))
-  CALL vanGenuchten_model_kr(value_upper_BC, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_ub)
+  head_ub = value_upper_BC_steady + (x(jx) + 0.5d0 * dxx(jx))
+  CALL vanGenuchten_model_kr(value_upper_BC_steady, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_ub)
   qx(nx, jy, jz) = -xi*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*((kr_ub)*MAX(head_ub - head(nx, jy, jz), 0.0d0) + kr(nx, jy, jz)*MIN(head_ub - head(nx, jy, jz), 0.0d0))
   
-CASE ('constant_neumann', 'variable_neumann')
+CASE ('constant_neumann')
   
-  psi_ub = psi(1, jy, jz) + value_upper_BC*(0.5d0 * dxx(jx))
+  psi_ub = psi(1, jy, jz) + value_upper_BC_steady*(0.5d0 * dxx(jx))
   head_ub = psi_ub + (x(jx) + 0.5d0 * dxx(jx))
   qx(nx, jy, jz) = -xi*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*((kr_ub)*MAX(head_ub - head(nx, jy, jz), 0.0d0) + kr(nx, jy, jz)*MIN(head_ub - head(nx, jy, jz), 0.0d0))
   
-CASE ('constant_flux', 'variable_flux')
-  qx(nx, jy, jz) = value_upper_BC
+CASE ('constant_flux')
+  qx(nx, jy, jz) = value_upper_BC_steady
   
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', upper_BC_type_steady, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
@@ -108,4 +109,4 @@ CASE DEFAULT
 END SELECT
 
 
-END SUBROUTINE flux_Richards
+END SUBROUTINE flux_Richards_steady

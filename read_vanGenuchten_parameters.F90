@@ -1,5 +1,5 @@
 SUBROUTINE read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
-! subroutine to read the van Genuchten parameters from the input file
+! This subroutine reads the van Genuchten parameters from the input file
 USE crunchtype
 USE params
 USE flow

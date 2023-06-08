@@ -1,5 +1,5 @@
 SUBROUTINE residual_Richards(nx, ny, nz, dtflow, F_residual)
-! calculates the residual of the Richards equation
+! This subroutine calculates the residual of the Richards equation
 ! F = d theta / dt + div q - S
 ! S is the source/sink term (positive for source)
 USE crunchtype
@@ -13,17 +13,17 @@ USE transport
 
 IMPLICIT NONE
 
-INTEGER(I4B), INTENT(IN)                                          :: nx
-INTEGER(I4B), INTENT(IN)                                          :: ny
-INTEGER(I4B), INTENT(IN)                                          :: nz
+INTEGER(I4B), INTENT(IN)                                   :: nx
+INTEGER(I4B), INTENT(IN)                                   :: ny
+INTEGER(I4B), INTENT(IN)                                   :: nz
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
-REAL(DP), INTENT(IN) :: dtflow
-REAL(DP), DIMENSION(nx), INTENT(OUT) :: F_residual
+REAL(DP), INTENT(IN)                                       :: dtflow
+REAL(DP), DIMENSION(nx), INTENT(OUT)                       :: F_residual
 
 F_residual= 0.0
 

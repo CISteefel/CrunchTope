@@ -10,10 +10,10 @@ USE transport
 
 IMPLICIT NONE
 
-INTEGER(I4B), INTENT(IN)                                          :: nx
-INTEGER(I4B), INTENT(IN)                                          :: ny
-INTEGER(I4B), INTENT(IN)                                          :: nz
-REAL(DP), INTENT(OUT), DIMENSION(nx, nx) :: J
+INTEGER(I4B), INTENT(IN)                                   :: nx
+INTEGER(I4B), INTENT(IN)                                   :: ny
+INTEGER(I4B), INTENT(IN)                                   :: nz
+REAL(DP), INTENT(OUT), DIMENSION(nx, nx)                   :: J ! Jacobian matrix
 
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
@@ -22,9 +22,6 @@ INTEGER(I4B)                                               :: jz
 REAL(DP), INTENT(IN) :: dtflow
 
 ! variables not declared in CrunchTope
-!REAL(DP), INTENT(IN)                                                   :: psi_lb_value
-!REAL(DP)                                                   :: head_lb
-!REAL(DP)                                                   :: kr_lb
 REAL(DP)                                                   :: psi_lb
 REAL(DP)                                                   :: head_lb
 REAL(DP)                                                   :: theta_lb
