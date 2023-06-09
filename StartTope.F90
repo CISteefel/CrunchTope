@@ -9081,7 +9081,6 @@ IF (found) THEN
       lower_constant_BC = .TRUE.
       
       CALL read_boundary_condition_Richards(nout, .FALSE., BC_location, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
-      !CALL read_lower_boundary_condition(nout, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
         
       ! import time series for lower boundary condition if the boundary condition is time-dependent (variable)
       IF (.NOT. lower_constant_BC) THEN
@@ -9122,7 +9121,6 @@ IF (found) THEN
       upper_constant_BC = .TRUE.
       BC_location = 1
       CALL read_boundary_condition_Richards(nout, .FALSE., BC_location, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
-      !CALL read_upper_boundary_condition(nout, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
         
       ! import time series for upper boundary condition if the boundary condition is time-dependent (variable)
       IF (.NOT. upper_constant_BC) THEN
