@@ -1,6 +1,6 @@
 SUBROUTINE residual_Richards_steady(nx, ny, nz, F_residual)
 ! This subroutine calculates the residual of the steady-state Richards equation
-! F = d theta / dt + div q - S
+! F = div q - S (the unit is m year-1)
 ! S is the source/sink term (positive for source)
 USE crunchtype
 USE io
