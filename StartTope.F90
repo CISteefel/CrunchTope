@@ -9105,10 +9105,16 @@ IF (found) THEN
         value_lower_BC = value_lower_BC/(dist_scale * time_scale)
       CASE ('variable_dirichlet')
         values_lower_BC = values_lower_BC/dist_scale
+        ! unit conversion for the time for the variable boundary condition
+        t_lower_BC = t_lower_BC*time_scale
       CASE ('variable_neumann')
+        ! unit conversion for the time for the variable boundary condition
+        t_lower_BC = t_lower_BC*time_scale
         CONTINUE ! no unit conversion
       CASE ('variable_flux')
         values_lower_BC = values_lower_BC/(dist_scale * time_scale)
+        ! unit conversion for the time for the variable boundary condition
+        t_lower_BC = t_lower_BC*time_scale
       CASE DEFAULT
         WRITE(*,*)
         WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
@@ -9150,6 +9156,8 @@ IF (found) THEN
         value_upper_BC = value_upper_BC/(dist_scale * time_scale)
       CASE ('variable_dirichlet')
         values_upper_BC = values_upper_BC/dist_scale
+        ! unit conversion for the time for the variable boundary condition
+        t_upper_BC = t_upper_BC*time_scale
       CASE ('variable_neumann')
         WRITE(*,*)
         WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
@@ -9159,6 +9167,8 @@ IF (found) THEN
         !CONTINUE ! no unit conversion
       CASE ('variable_flux')
         values_upper_BC = values_upper_BC/(dist_scale * time_scale)
+        ! unit conversion for the time for the variable boundary condition
+        t_upper_BC = t_upper_BC*time_scale
       CASE DEFAULT
         WRITE(*,*)
         WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '

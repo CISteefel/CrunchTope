@@ -25,6 +25,8 @@ INTEGER(I4B)                                               :: jz
 REAL(DP), INTENT(IN)                                       :: dtflow
 REAL(DP), DIMENSION(nx), INTENT(OUT)                       :: F_residual
 
+REAL(DP)                                                   :: upper_water_balance ! water balance in the top cell to prevent the cell from drying out
+
 F_residual= 0.0
 
 jy = 1
@@ -38,7 +40,20 @@ DO jx = 2, nx-1
 END DO
 
 ! upper boundary
-F_residual(nx) = (dxx(nx)/dtflow)*(theta(nx, jy, jz) - theta_prev(nx, jy, jz)) + qx(nx, jy, jz) - qx(nx-1, jy, jz)
+SELECT CASE (upper_BC_type)
+CASE ('constant_flux', 'variable_flux')
+  ! check if the prescribed flux (evaporation) is smaller than the remaining water in the top cell
+  ! note that the flux is positive for evaporation
+  upper_water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - qx(nx, jy, jz)*dtflow/dxx(nx)  ! the unit is dimensionless
+  IF (upper_water_balance <= 0.001d0) THEN
+    ! the top cell is extremely dry, update the flux into the top cell to prevent the cell from drying out
+    qx(nx, jy, jz) = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz) - 0.001d0)*dxx(nx)/dtflow
+  END IF
+  F_residual(nx) = (dxx(nx)/dtflow)*(theta(nx, jy, jz) - theta_prev(nx, jy, jz)) + qx(nx, jy, jz) - qx(nx-1, jy, jz)
+    
+CASE DEFAULT
+  F_residual(nx) = (dxx(nx)/dtflow)*(theta(nx, jy, jz) - theta_prev(nx, jy, jz)) + qx(nx, jy, jz) - qx(nx-1, jy, jz)
+END SELECT
 
 ! add source/sink terms
 !IF (transpitimeseries) THEN
