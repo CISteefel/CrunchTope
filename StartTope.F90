@@ -9038,7 +9038,7 @@ IF (found) THEN
           value_lower_BC_steady = value_lower_BC_steady/dist_scale
         CASE ('constant_neumann')
           WRITE(*,*)
-          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
+          WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition for the steady-state Richards equation. '
           WRITE(*,*)
           READ(*,*)
           STOP
@@ -9047,7 +9047,7 @@ IF (found) THEN
           value_lower_BC_steady = value_lower_BC_steady/(dist_scale * time_scale)
         CASE DEFAULT
           WRITE(*,*)
-          WRITE(*,*) ' The boundary condition type ', lower_BC_type_steady, ' is not supported . '
+          WRITE(*,*) ' The boundary condition type ', lower_BC_type_steady, ' is not supported for the steady-state Richards equation. '
           WRITE(*,*)
           READ(*,*)
           STOP
@@ -9068,7 +9068,7 @@ IF (found) THEN
           value_upper_BC_steady = value_upper_BC_steady/(dist_scale * time_scale)
         CASE DEFAULT
           WRITE(*,*)
-          WRITE(*,*) ' The boundary condition type ', upper_BC_type_steady, ' is not supported . '
+          WRITE(*,*) ' The boundary condition type ', upper_BC_type_steady, ' is not supported for the steady-state Richards equation. '
           WRITE(*,*)
           READ(*,*)
           STOP

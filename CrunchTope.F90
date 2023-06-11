@@ -887,7 +887,7 @@ END IF
        CALL flux_Richards(nx, ny, nz)
      CASE ('environmental_forcing')
        lower_BC_type_steady = lower_BC_type
-       upper_BC_type_steady = 'variable_flux'
+       upper_BC_type_steady = 'constant_flux'
        value_upper_BC = qt_infiltration(1) + qt_evapo(1)
        
        CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
@@ -1384,6 +1384,10 @@ DO WHILE (nn <= nend)
           END DO
           WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
           
+          IF (time > 1.8895d-02) THEN
+            WRITE(*,*) ' Stop !'
+          END IF
+        
           ! update the value used for the lower boundary condition by interpolating time series
           SELECT CASE (lower_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
