@@ -1,5 +1,5 @@
-SUBROUTINE solve_Richards_steady(nx, ny, nz)
-! This subroutine solves the steady-state Richards equation using Newton's method with Armijo line search.
+SUBROUTINE solve_Richards(nx, ny, nz, dtflow)
+! This subroutine solves the Richards equation using Newton's method with Armijo line search.
 USE crunchtype
 USE io
 USE params
@@ -20,6 +20,8 @@ INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
+REAL(DP), INTENT(IN)                                       :: dtflow ! time step for flow
+
 REAL(DP), DIMENSION(nx)                                    :: F_residual ! residual
 REAL(DP), DIMENSION(nx, nx)                                :: J ! Jacobian matrix
 REAL(DP), DIMENSION(nx)                                    :: dpsi_Newton ! Newton step
@@ -29,8 +31,7 @@ INTEGER(I4B)                                               :: info, lda, ldb, nr
 INTEGER(I4B), DIMENSION(nx)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
-! Because the residual has a unit of m year^-1, the meaning of the tolerance for the residual is different from the time-dependent case (dimensionless residula is used).
-REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7 ! tolerance for the residual
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7
 REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
@@ -50,9 +51,9 @@ iteration = 0
 total_line = 0
 
 ! Evaluate the flux and the residual
-CALL flux_Richards_steady(nx, ny, nz)
+CALL flux_Richards(nx, ny, nz)
 
-CALL residual_Richards_steady(nx, ny, nz, F_residual)
+CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
 
 ! update tolerance
 error_old = MAXVAL(ABS(F_residual))
@@ -62,7 +63,7 @@ tol = tau_r * error_old + tau_a
 newton_loop: DO
   IF (error_old < tol) EXIT
   ! Evaluate the Jacobian matrix
-  CALL Jacobian_Richards_steady(nx, ny, nz, J)
+  CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
   
   dpsi_Newton = -F_residual
   ! Solve the linear system
@@ -83,8 +84,8 @@ newton_loop: DO
       psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
     END DO
     ! evaluate the flux and the residual
-    CALL flux_Richards_steady(nx, ny, nz)
-    CALL residual_Richards_steady(nx, ny, nz, F_residual)
+    CALL flux_Richards(nx, ny, nz)
+    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
   
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
@@ -102,7 +103,7 @@ newton_loop: DO
   END DO line
   
   IF (no_backtrack > 100) THEN
-    WRITE(*,*) ' Line search failed in the steady-state Richards solver. '
+    WRITE(*,*) ' Line search failed in the Richards solver. '
     READ(*,*)
     STOP
   END IF
@@ -112,11 +113,12 @@ newton_loop: DO
 END DO newton_loop
 
 IF (iteration > maxitr) THEN
-  WRITE(*,*) ' The Newton method failed to converge in the steady-state Richards solver. '
+  WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '
   READ(*,*)
   STOP
 END IF
 
+
 WRITE(*,100) iteration, total_line
-100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the steady-state Richards solver. ')
-END SUBROUTINE solve_Richards_steady
+100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the Richards solver. ')
+END SUBROUTINE solve_Richards

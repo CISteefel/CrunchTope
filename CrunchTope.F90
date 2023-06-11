@@ -622,15 +622,17 @@ IF (CalculateFlow) THEN
       ELSE
     CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
       END IF
-    END IF
-
+  END IF
+  
   SteadyFlow = .FALSE.
 
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 
     !ZhiLi
+  
   dtflow = delt
-!  dtflow = 1.0D-10
+  !dtflow = 1.0D-10
+  
   WRITE(*,*)
   WRITE(*,*) ' Running flow field to steady state prior to chemistry'
   WRITE(*,*)
@@ -863,15 +865,36 @@ END IF
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
-   WRITE(*,*) ' Solves the steady state Richards equation. '
+   !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
-   CALL solve_Richards_steady(nx, ny, nz, psi_lb_steady, qx_ub_steady)
-      
+   WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
+   CALL solve_Richards_steady(nx, ny, nz)
+   
    ELSE steady_Richards
-     WRITE(*,*) ' Solves the time-dependent Richards equation. Water flux is evaluated from the initial condition. '
-     ! compute water flux from the initial condition and the initial boundary conditions
-     ! CALL flux_Richards(nx, ny, nz, psi_lb_value, qx_ub_value)
-
+     WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
+     ! compute water flux from the initial condition and the boundary conditions at t = 0
+     
+     SELECT CASE (lower_BC_type)
+     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+       value_lower_BC = values_lower_BC(1)
+     CASE DEFAULT
+       CONTINUE ! do nothing for constant boundary conditions
+     END SELECT
+     
+     SELECT CASE (upper_BC_type)
+     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+       value_upper_BC = values_upper_BC(1)
+       CALL flux_Richards(nx, ny, nz)
+     CASE ('environmental_forcing')
+       lower_BC_type_steady = lower_BC_type
+       upper_BC_type_steady = 'constant_flux'
+       value_upper_BC = qt_infiltration(1) + qt_evapo(1)
+       
+       CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
+     CASE DEFAULT
+       CALL flux_Richards(nx, ny, nz)
+     END SELECT
+    
    END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May
  ! ******************************************************************
@@ -986,6 +1009,9 @@ END IF
       ! CALL velocalcRich(nx,ny,nz)
   ELSE IF (Richards_Toshi) THEN
     ! the velocity was already calcuated in the stead-state program
+    FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+        pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
+    END FORALL
     CONTINUE
   ELSE
       CALL velocalc(nx,ny,nz)
@@ -1030,8 +1056,21 @@ END IF
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
+    ! fill ghost points by linear extrapolation in x direction
+    satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+    satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+    satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+    satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+    ! fill other ghost points by zero-order extrapolation in y and z directions
+    satliq(:,-1,:) =  satliq(:,1,:)
+    satliq(:,0,:) =  satliq(:,1,:)
+    satliq(:,2,:) =  satliq(:,1,:)
+    satliq(:,3,:) =  satliq(:,1,:)
     
-    WRITE(*,*) theta
+    satliq(:,:,-1) = satliq(:,:,1)
+    satliq(:,:,0) = satliq(:,:,1)
+    satliq(:,:,2) = satliq(:,:,1)
+    satliq(:,:,3) = satliq(:,:,1)
   
   END IF
   ! End of Edit by Toshiyuki Bandai, 2023 May
@@ -1272,6 +1311,15 @@ END IF
 iteration_tot = 0
 
 nn = 0
+!**********************************************
+! record initial state by Toshiyuki Bandai 2023, May
+OPEN(unit = 10, file = 'initial_condition.txt')
+DO jx = 1, nx
+  WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
+END DO
+CLOSE(10)
+
+!**********************************************
 i_substep = 0
 DO WHILE (nn <= nend)
     ! Zhi Li 20200715
@@ -1323,7 +1371,79 @@ DO WHILE (nn <= nend)
             CALL porperm(nx,ny,nz)
           END IF
         END IF
-
+        
+        ! Edit by Toshiyuki Bandai 2023 May
+        ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
+        PETSc_if_time: IF (Richards_Toshi) THEN
+        ! ******************************************************************
+        ! store the previous time step water content
+          jy = 1
+          jz = 1
+          DO jx = 1,nx
+            theta_prev(jx,jy,jz) = theta(jx,jy,jz)
+          END DO
+          WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
+          
+          IF (time > 1.8895d-02) THEN
+            WRITE(*,*) ' Stop !'
+          END IF
+        
+          ! update the value used for the lower boundary condition by interpolating time series
+          SELECT CASE (lower_BC_type)
+          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+            CALL interp3(time, delt, t_lower_BC, values_lower_BC(:), value_lower_BC, size(values_lower_BC(:)))
+          CASE DEFAULT
+            CONTINUE ! for constant boundary condition, do nothing
+          END SELECT
+          
+          SELECT CASE (upper_BC_type)
+          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+            CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
+          CASE ('environmental_forcing')
+            TS_1year = .TRUE.
+            
+            ! infiltration
+            IF (infiltration_timeseries) THEN
+              IF (TS_1year) THEN
+                time_norm=time-floor(time)
+                CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+              ELSE
+                CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+              END IF
+            END IF
+            
+            ! transpiration            
+            IF (transpitimeseries) THEN
+              IF (TS_1year) THEN
+                time_norm=time-floor(time)
+                CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+              ELSE
+                CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+              END IF
+            END IF
+            
+            ! evaporation
+            IF (evapotimeseries) THEN
+              IF (TS_1year) THEN
+                time_norm=time-floor(time)
+                CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+              ELSE
+                CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+              END IF
+            END IF
+          
+          
+          CASE DEFAULT
+            CONTINUE ! for constant boundary condition, do nothing
+          END SELECT
+          
+          ! solve the 1D time-dependenet Richards equation
+          CALL solve_Richards(nx, ny, nz, delt)
+        
+        ! End of edit by Toshiyuki Bandai, 2023 May
+        ! ******************************************************************
+        ELSE PETSc_if_time
+   
         atolksp = 1.D-50
         rtolksp = GimrtRTOLKSP
         rtolksp = 1.0D-25
@@ -1379,7 +1499,8 @@ DO WHILE (nn <= nend)
     !!!    IF (MOD(nn,ScreenInterval) == 0) THEN
     !!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
     !!!    END IF
-
+        END If PETSc_if_time
+        
         IF (ierr /= 0) then
           WRITE(*,*)
           WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
@@ -1404,6 +1525,8 @@ DO WHILE (nn <= nend)
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
             END FORALL
+        ELSE IF (Richards_Toshi) THEN
+            CONTINUE
         ELSE
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
@@ -1421,6 +1544,11 @@ DO WHILE (nn <= nend)
             FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
             END FORALL
+        ELSE IF (Richards_Toshi) THEN
+          ! the velocity was already calcuated
+          FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+              pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
+          END FORALL
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
@@ -1450,7 +1578,41 @@ DO WHILE (nn <= nend)
           END DO
         END DO
         
-    ENDIF
+         ENDIF
+         
+         
+    ! **********************************************
+    ! Edit by Toshiyuki Bandai, 2023 May
+    ! calculate saturation from volumetric water content
+    IF (Richards_Toshi) THEN
+    
+      jy = 1
+      jz = 1
+      DO jx = 1, nx
+          satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+      END DO
+    
+      ! fill ghost points by linear extrapolation in x direction
+      satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+      satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+      satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+      satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+      ! fill other ghost points by zero-order extrapolation in y and z directions
+      satliq(:,-1,:) =  satliq(:,1,:)
+      satliq(:,0,:) =  satliq(:,1,:)
+      satliq(:,2,:) =  satliq(:,1,:)
+      satliq(:,3,:) =  satliq(:,1,:)
+    
+      satliq(:,:,-1) = satliq(:,:,1)
+      satliq(:,:,0) = satliq(:,:,1)
+      satliq(:,:,2) = satliq(:,:,1)
+      satliq(:,:,3) = satliq(:,:,1)
+    
+    END IF
+    ! End of Edit by Toshiyuki Bandai, 2023 May
+    ! **********************************************
+  
 
   END IF
 
@@ -3133,7 +3295,8 @@ END IF
 !!  close(unit=98)
 
 
-  IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
+  !IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
+  IF (time+delt > prtint(nint) .AND. ABS(prtint(nint) - time) > 1.0d-14) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
     delt = prtint(nint) - time
     WRITE(*,*) ' Adjusting time step to match output file'
     WRITE(*,5085) delt*OutputTimeScale
@@ -3182,7 +3345,8 @@ END IF
 !        if (ulab(iplot(1)).eq.'h+' .or. ulab(iplot(1).eq.'H+' .and. nplot.eq.1) then
 !          phwrite = -(sp(iplot(1),j)+gam(iplot(1),j) )/clg
 
-  IF (time >= prtint(nint) .OR. steady) THEN
+  !IF (time >= prtint(nint) .OR. steady) THEN
+  IF (time >= prtint(nint) .OR. steady .OR. ABS(prtint(nint) - time) <= 1.0d-14) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
 
     iprnt = 1
     WRITE(*,*)
@@ -3294,6 +3458,15 @@ END IF
         WRITE(iures) head
         WRITE(iures) wc
     END IF
+    
+    !********************************************
+    ! Edit by Toshiyuki Bandai 2023 May
+    IF (Richards_Toshi) THEN
+        WRITE(iures) head
+        WRITE(iures) theta
+    END IF
+    ! End of Edit by Toshiyuki Bandai 2023 May
+    !*********************************************
 
 
 !    CLOSE(UNIT=intfile,STATUS='keep')
@@ -3570,6 +3743,15 @@ END IF
         WRITE(iures) head
         WRITE(iures) wc
     END IF
+    
+    !********************************************
+    ! Edit by Toshiyuki Bandai 2023 May
+    IF (Richards_Toshi) THEN
+        WRITE(iures) head
+        WRITE(iures) theta
+    END IF
+    ! End of Edit by Toshiyuki Bandai 2023 May
+    !*********************************************
 
 !!    WRITE(iures) tauZero
 
