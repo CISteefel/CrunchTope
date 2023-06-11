@@ -629,6 +629,7 @@ INTEGER(I4B)                                                  :: nwcr
 !INTEGER(I4B)                                                  :: lfile2
 CHARACTER (LEN=mls)                          :: evapofile
 CHARACTER (LEN=mls)                          :: transpifile
+
 INTEGER(I4B)                                                  :: tslength
 REAL(DP), DIMENSION(:), ALLOCATABLE      :: realmult_dum
 
@@ -662,7 +663,7 @@ CHARACTER (LEN=mls)                          :: Richards_IC_FileFormat ! file na
 INTEGER(I4B)                                 :: BC_location ! ingeger to define the location of the boundary condition (0: lower boundary condition; 1: upper boundary condition)
 CHARACTER (LEN=mls)                          :: upper_BC_file ! file name for the upper boundary condition for the Richards equation
 CHARACTER (LEN=mls)                          :: lower_BC_file ! file name for the lower boundary condition for the Richards equation
-
+CHARACTER (LEN=mls)                          :: infiltration_file ! file with infiltration data for "enviornmental_forcing" upper boundary condition
 ! End of edit by Toshiyuki Bandai, 2023 May
 ! ************************************
 
@@ -9081,9 +9082,17 @@ IF (found) THEN
       lower_constant_BC = .TRUE.
       
       CALL read_boundary_condition_Richards(nout, .FALSE., BC_location, lower_BC_type, lower_BC_file, value_lower_BC, lfile, lower_constant_BC, tslength)
+          
+      ! unit conversion and import time series data if the boundary condition is variable
+      SELECT CASE (lower_BC_type)
+      CASE ('constant_dirichlet')
+        value_lower_BC = value_lower_BC/dist_scale
+      CASE ('constant_neumann')
+        CONTINUE ! no unit conversion
+      CASE ('constant_flux')
+        value_lower_BC = value_lower_BC/(dist_scale * time_scale)
+      CASE ('variable_dirichlet')
         
-      ! import time series for lower boundary condition if the boundary condition is time-dependent (variable)
-      IF (.NOT. lower_constant_BC) THEN
         IF (ALLOCATED(t_lower_BC)) THEN
           DEALLOCATE(t_lower_BC)
         END IF
@@ -9093,25 +9102,37 @@ IF (found) THEN
         ALLOCATE(t_lower_BC(tslength))
         ALLOCATE(values_lower_BC(tslength))
         CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
-      END IF
         
-      ! unit conversion
-      SELECT CASE (lower_BC_type)
-      CASE ('constant_dirichlet')
-        value_lower_BC = value_lower_BC/dist_scale
-      CASE ('constant_neumann')
-        CONTINUE ! no unit conversion
-      CASE ('constant_flux')
-        value_lower_BC = value_lower_BC/(dist_scale * time_scale)
-      CASE ('variable_dirichlet')
         values_lower_BC = values_lower_BC/dist_scale
         ! unit conversion for the time for the variable boundary condition
         t_lower_BC = t_lower_BC*time_scale
       CASE ('variable_neumann')
+        
+        IF (ALLOCATED(t_lower_BC)) THEN
+          DEALLOCATE(t_lower_BC)
+        END IF
+        IF (ALLOCATED(values_lower_BC)) THEN
+          DEALLOCATE(values_lower_BC)
+        END IF
+        ALLOCATE(t_lower_BC(tslength))
+        ALLOCATE(values_lower_BC(tslength))
+        CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
+        
         ! unit conversion for the time for the variable boundary condition
         t_lower_BC = t_lower_BC*time_scale
         CONTINUE ! no unit conversion
       CASE ('variable_flux')
+        
+        IF (ALLOCATED(t_lower_BC)) THEN
+          DEALLOCATE(t_lower_BC)
+        END IF
+        IF (ALLOCATED(values_lower_BC)) THEN
+          DEALLOCATE(values_lower_BC)
+        END IF
+        ALLOCATE(t_lower_BC(tslength))
+        ALLOCATE(values_lower_BC(tslength))
+        CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
+        
         values_lower_BC = values_lower_BC/(dist_scale * time_scale)
         ! unit conversion for the time for the variable boundary condition
         t_lower_BC = t_lower_BC*time_scale
@@ -9128,20 +9149,7 @@ IF (found) THEN
       BC_location = 1
       CALL read_boundary_condition_Richards(nout, .FALSE., BC_location, upper_BC_type, upper_BC_file, value_upper_BC, lfile, upper_constant_BC, tslength)
         
-      ! import time series for upper boundary condition if the boundary condition is time-dependent (variable)
-      IF (.NOT. upper_constant_BC) THEN
-        IF (ALLOCATED(t_upper_BC)) THEN
-          DEALLOCATE(t_upper_BC)
-        END IF
-        IF (ALLOCATED(values_upper_BC)) THEN
-          DEALLOCATE(values_upper_BC)
-        END IF
-        ALLOCATE(t_upper_BC(tslength))
-        ALLOCATE(values_upper_BC(tslength))
-        CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
-      ENDIF
-        
-      ! unit conversion
+      ! unit conversion and import time series for upper boundary condition if the boundary condition is time-dependent (variable)
       SELECT CASE (upper_BC_type)
       CASE ('constant_dirichlet')
         value_upper_BC = value_upper_BC/dist_scale
@@ -9155,6 +9163,17 @@ IF (found) THEN
       CASE ('constant_flux')
         value_upper_BC = value_upper_BC/(dist_scale * time_scale)
       CASE ('variable_dirichlet')
+        ! import time series for upper boundary condition
+        IF (ALLOCATED(t_upper_BC)) THEN
+          DEALLOCATE(t_upper_BC)
+        END IF
+        IF (ALLOCATED(values_upper_BC)) THEN
+          DEALLOCATE(values_upper_BC)
+        END IF
+        ALLOCATE(t_upper_BC(tslength))
+        ALLOCATE(values_upper_BC(tslength))
+        CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
+        
         values_upper_BC = values_upper_BC/dist_scale
         ! unit conversion for the time for the variable boundary condition
         t_upper_BC = t_upper_BC*time_scale
@@ -9166,9 +9185,113 @@ IF (found) THEN
         STOP
         !CONTINUE ! no unit conversion
       CASE ('variable_flux')
+        ! import time series for upper boundary condition
+        IF (ALLOCATED(t_upper_BC)) THEN
+          DEALLOCATE(t_upper_BC)
+        END IF
+        IF (ALLOCATED(values_upper_BC)) THEN
+          DEALLOCATE(values_upper_BC)
+        END IF
+        ALLOCATE(t_upper_BC(tslength))
+        ALLOCATE(values_upper_BC(tslength))
+        CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
+        
         values_upper_BC = values_upper_BC/(dist_scale * time_scale)
         ! unit conversion for the time for the variable boundary condition
         t_upper_BC = t_upper_BC*time_scale
+      
+      CASE ('environmental_forcing')
+        ! import infiltration, evaporation, and transpiration data
+        
+        ! bool for whether the time series is provided or not
+        infiltration_timeseries = .FALSE.
+        evapotimeseries = .FALSE.
+        transpitimeseries = .FALSE.
+        
+        ! bool for whether the forcing is constant or not
+        infiltration_fix = .FALSE.
+        evapofix = .FALSE.
+        transpifix = .FALSE.
+        
+        ! infiltration
+        CALL read_infiltration_2(nout,nx,ny,nz,infiltration_file,infiltration_rate,lfile,infiltration_fix,infiltration_timeseries,tslength)
+        IF (infiltration_timeseries) THEN
+          IF (ALLOCATED(t_infiltration)) THEN
+            DEALLOCATE(t_infiltration)
+          END IF
+          IF (ALLOCATED(qt_infiltration)) THEN
+            DEALLOCATE(qt_infiltration)
+          END IF
+          ALLOCATE(t_infiltration(tslength))
+          ALLOCATE(qt_infiltration(tslength))
+          CALL read_timeseries2(nout,nx,ny,nz,t_infiltration,qt_infiltration,lfile,infiltration_file,tslength)
+          
+          ! unit conversion for the time for the variable boundary condition
+          qt_infiltration = qt_infiltration/(dist_scale * time_scale)
+          t_infiltration = t_infiltration*time_scale
+        ENDIF
+        
+        IF (infiltration_fix) THEN
+          infiltration_rate = infiltration_rate/(dist_scale * time_scale)
+        END IF
+        
+        ! evaporation
+        CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
+        IF (evapotimeseries) THEN
+          IF (ALLOCATED(t_evapo)) THEN
+            DEALLOCATE(t_evapo)
+          END IF
+          IF (ALLOCATED(qt_evapo)) THEN
+            DEALLOCATE(qt_evapo)
+          END IF
+          ALLOCATE(t_evapo(tslength))
+          ALLOCATE(qt_evapo(tslength))
+          CALL read_timeseries2(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
+          
+          ! unit conversion for the time for the variable boundary condition
+          qt_evapo = qt_evapo/(dist_scale * time_scale)
+          t_evapo = t_evapo*time_scale
+          
+          ! evaporate = qt_evapo(1)
+          ! STOP
+        ENDIF
+        
+        IF (evapofix) THEN
+          evaporate = evaporate/(dist_scale * time_scale)
+        END IF
+        
+        ! transpiration
+        CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
+        IF (transpitimeseries) THEN
+          IF (ALLOCATED(t_transpi)) THEN
+            DEALLOCATE(t_transpi)
+          END IF
+          IF (ALLOCATED(qt_transpi)) THEN
+            DEALLOCATE(qt_transpi)
+          END IF
+          ALLOCATE(t_transpi(tslength))
+          ALLOCATE(qt_transpi(tslength))
+          CALL read_timeseries2(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
+          
+          ! allocate arrays to store transpiration rate for each cell
+          IF (ALLOCATED(transpirate_cell)) THEN
+            DEALLOCATE(transpirate_cell)
+          END IF
+          ALLOCATE(transpirate_cell(nx - transpicells + 1:nx))
+          qt_transpi=qt_transpi/transpicells
+          
+          qt_transpi = qt_transpi/(dist_scale * time_scale)
+          t_transpi = t_transpi*time_scale
+          !transpirate = qt_transpi(1)
+          !WRITE(*,*) transpirate
+         ! STOP
+        ENDIF
+        
+        IF (transpifix) THEN
+          !transpirate = transpirate / transpicells
+          transpirate = transpirate/(dist_scale * time_scale)
+        END IF
+        
       CASE DEFAULT
         WRITE(*,*)
         WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
@@ -10691,40 +10814,40 @@ dspz = 0.0
   
   !! Evapotranspiration
 
-  evapofix = .FALSE.
-  evapotimeseries = .FALSE.
-  transpifix = .FALSE.
-  transpitimeseries = .FALSE.
-  CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
-  IF (evapotimeseries) THEN
-    IF (ALLOCATED(t_evapo)) THEN
-      DEALLOCATE(t_evapo)
-    END IF
-    IF (ALLOCATED(qt_evapo)) THEN
-      DEALLOCATE(qt_evapo)
-    END IF
-    ALLOCATE(t_evapo(tslength))
-    ALLOCATE(qt_evapo(tslength))
-    CALL read_timeseries2(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
-    evaporate = qt_evapo(1)
-    !STOP
-  ENDIF
-  CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
-  IF (transpitimeseries) THEN
-    IF (ALLOCATED(t_transpi)) THEN
-      DEALLOCATE(t_transpi)
-    END IF
-    IF (ALLOCATED(qt_transpi)) THEN
-      DEALLOCATE(qt_transpi)
-    END IF
-    ALLOCATE(t_transpi(tslength))
-    ALLOCATE(qt_transpi(tslength))
-    CALL read_timeseries2(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
-    qt_transpi=qt_transpi/transpicells 
-    transpirate = qt_transpi(1)
-    !WRITE(*,*) transpirate
-   ! STOP
-  ENDIF
+  !evapofix = .FALSE.
+  !evapotimeseries = .FALSE.
+  !transpifix = .FALSE.
+  !transpitimeseries = .FALSE.
+  !CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
+  !IF (evapotimeseries) THEN
+  !  IF (ALLOCATED(t_evapo)) THEN
+  !    DEALLOCATE(t_evapo)
+  !  END IF
+  !  IF (ALLOCATED(qt_evapo)) THEN
+  !    DEALLOCATE(qt_evapo)
+  !  END IF
+  !  ALLOCATE(t_evapo(tslength))
+  !  ALLOCATE(qt_evapo(tslength))
+  !  CALL read_timeseries2(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
+  !  evaporate = qt_evapo(1)
+  !  !STOP
+  !ENDIF
+  !CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
+  !IF (transpitimeseries) THEN
+  !  IF (ALLOCATED(t_transpi)) THEN
+  !    DEALLOCATE(t_transpi)
+  !  END IF
+  !  IF (ALLOCATED(qt_transpi)) THEN
+  !    DEALLOCATE(qt_transpi)
+  !  END IF
+  !  ALLOCATE(t_transpi(tslength))
+  !  ALLOCATE(qt_transpi(tslength))
+  !  CALL read_timeseries2(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
+  !  qt_transpi=qt_transpi/transpicells 
+  !  transpirate = qt_transpi(1)
+  !  !WRITE(*,*) transpirate
+  ! ! STOP
+  !ENDIF
 
   transpisoluteflux = .FALSE.
   parchar = 'transpisoluteflux'

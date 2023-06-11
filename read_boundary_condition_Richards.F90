@@ -154,6 +154,8 @@ IF(ls /= 0) THEN
             READ(*,*)
             STOP  
           ENDIF
+        CASE ('environmental_forcing') bc_case
+          constant_BC = .FALSE.
           
         CASE DEFAULT bc_case
           WRITE(*,*)

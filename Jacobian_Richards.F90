@@ -123,6 +123,10 @@ CASE ('constant_neumann', 'variable_neumann')
 CASE ('constant_flux', 'variable_flux')
   ! the derivative of the upper boundary flux with respect to the last cell psi is zero, so do nothing
   CONTINUE
+  
+CASE ('environmental_forcing')
+  ! the derivative of the upper boundary flux with respect to the last cell psi is zero, so do nothing
+  CONTINUE
 CASE DEFAULT
   WRITE(*,*)
   WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '

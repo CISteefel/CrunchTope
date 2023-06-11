@@ -261,5 +261,13 @@ INTEGER(I4B)                                     :: transpicells
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: transpiflux
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: evapoflux
 LOGICAL(LGT)                                     :: transpisoluteflux
+! infiltraiton timeseries added by Toshiyuki Bandai June, 2023
+LOGICAL(LGT)                                     :: infiltration_timeseries
+LOGICAL(LGT)                                     :: infiltration_fix
+REAL(DP)                                         :: infiltration_rate
+REAL(DP), DIMENSION(:), ALLOCATABLE              :: qt_infiltration
+REAL(DP), DIMENSION(:), ALLOCATABLE              :: t_infiltration
+
+REAL(DP), DIMENSION(:), ALLOCATABLE              :: transpirate_cell
 
 END MODULE flow

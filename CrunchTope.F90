@@ -873,15 +873,28 @@ END IF
    ELSE steady_Richards
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
-     IF (.NOT. lower_constant_BC) THEN
-       value_lower_BC = values_lower_BC(1)
-     END IF
      
-     IF (.NOT. upper_constant_BC) THEN
+     SELECT CASE (lower_BC_type)
+     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+       value_lower_BC = values_lower_BC(1)
+     CASE DEFAULT
+       CONTINUE ! do nothing for constant boundary conditions
+     END SELECT
+     
+     SELECT CASE (upper_BC_type)
+     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
        value_upper_BC = values_upper_BC(1)
-     END IF
-     CALL flux_Richards(nx, ny, nz)
-
+       CALL flux_Richards(nx, ny, nz)
+     CASE ('environmental_forcing')
+       lower_BC_type_steady = lower_BC_type
+       upper_BC_type_steady = 'variable_flux'
+       value_upper_BC = qt_infiltration(1) + qt_evapo(1)
+       
+       CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
+     CASE DEFAULT
+       CALL flux_Richards(nx, ny, nz)
+     END SELECT
+    
    END IF steady_Richards
  ! End of edit by Toshiyuki Bandai, 2023 May
  ! ******************************************************************
@@ -1371,48 +1384,57 @@ DO WHILE (nn <= nend)
           END DO
           WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
           
-          ! update the upper boundary condition by snowmelt and evaporation
-          !IF (pumptimeseries) THEN
-          !  IF (TS_1year) THEN
-          !    time_norm=time-floor(time)
-          !    CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-          !  ELSE
-          !    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-          !  END IF
-          !END IF
-          !
-          !
-          !IF (transpitimeseries) THEN
-          !  IF (TS_1year) THEN
-          !    time_norm=time-floor(time)
-          !    CALL  interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-          !  END IF
-          !END IF
-          !
-          !IF (evapotimeseries) THEN
-          !  IF (TS_1year) THEN
-          !    time_norm=time-floor(time)
-          !  CALL  interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-          !  END IF
-          !END IF
-  
-          !qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1)) - evaporate
-          !qx_ub_unsteady = -qgdum/(dxx(nx)*dzz(1,1,1))
+          ! update the value used for the lower boundary condition by interpolating time series
+          SELECT CASE (lower_BC_type)
+          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+            CALL interp3(time, delt, t_lower_BC, values_lower_BC(:), value_lower_BC, size(values_lower_BC(:)))
+          CASE DEFAULT
+            CONTINUE ! for constant boundary condition, do nothing
+          END SELECT
           
-          ! update the upper boundary condition by the specified time-series input data
-          IF (.NOT. lower_constant_BC) THEN
-            time_norm = time - floor(time)
-            CALL interp3(time_norm, delt, t_lower_BC, values_lower_BC(:), value_lower_BC, size(values_lower_BC(:)))
-          END IF
-     
-          IF (.NOT. upper_constant_BC) THEN
-            time_norm = time - floor(time)
-            CALL interp3(time_norm, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
-          END IF
+          SELECT CASE (upper_BC_type)
+          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+            CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
+          CASE ('environmental_forcing')
+            TS_1year = .TRUE.
+            
+            ! infiltration
+            IF (infiltration_timeseries) THEN
+              IF (TS_1year) THEN
+                time_norm=time-floor(time)
+                CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+              ELSE
+                CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+              END IF
+            END IF
+            
+            ! transpiration            
+            IF (transpitimeseries) THEN
+              IF (TS_1year) THEN
+                time_norm=time-floor(time)
+                CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+              ELSE
+                CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+              END IF
+            END IF
+            
+            ! evaporation
+            IF (evapotimeseries) THEN
+              IF (TS_1year) THEN
+                time_norm=time-floor(time)
+                CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+              ELSE
+                CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+              END IF
+            END IF
+          
+          
+          CASE DEFAULT
+            CONTINUE ! for constant boundary condition, do nothing
+          END SELECT
           
           ! solve the 1D time-dependenet Richards equation
           CALL solve_Richards(nx, ny, nz, delt)
-          !CALL solve_Richards(nx, ny, nz, 0.0d0, qx_ub_unsteady, delt)
         
         ! End of edit by Toshiyuki Bandai, 2023 May
         ! ******************************************************************

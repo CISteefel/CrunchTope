@@ -97,6 +97,9 @@ CASE ('constant_neumann', 'variable_neumann')
   
 CASE ('constant_flux', 'variable_flux')
   qx(nx, jy, jz) = value_upper_BC
+
+CASE ('environmental_forcing')
+  CONTINUE
   
 CASE DEFAULT
   WRITE(*,*)

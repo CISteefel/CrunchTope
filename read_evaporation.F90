@@ -104,7 +104,7 @@ IF(ls /= 0) THEN
       IF (res == 'n') THEN
       boolfix = .true.
       rate = DNUM(ssch)
-      rate = (rate/1000)*dxx(nx)*dzz(nx,ny,nz) ! convert in mm/year in m3/year
+      !rate = (rate/1000)*dxx(nx)*dzz(nx,ny,nz) ! convert in mm/year in m3/year
       !!  *****************************************************************
       !!check for the name of timeseries file
       ELSEIF (res /= 'n') THEN
