@@ -1,0 +1,324 @@
+TITLE
+Marcellus shale experiment from Wei Xiong 
+END
+
+RUNTIME
+time_units          hours
+timestep_max    0.001
+timestep_init   1.0E-12
+time_tolerance  0.001
+correction_max  10.0
+save_restart    rateChange.rst
+gimrt               true
+debye-huckel        true
+screen_output       50
+database            datacom_Marcellus.dbs
+kinetic_database    aqueousDB.dbs
+!speciate_only       true
+!database_sweep      true
+!Duan                true
+Qingyun             true
+hindmarsh   false
+!fracture_continuum  true
+master              Tracer
+graphics        tecplot
+gimrt_solver    gmres
+gimrt_pc        bjacobi
+gimrt_pclevel   0
+solver          bcgs
+pc              ilu
+pclevel         5
+END
+ 
+OUTPUT
+time_units           hours 
+spatial_profile      0.000001 0.1 1 5 10 20 30 40 50 60 70 80 90 96   
+!15 20 25 30 35 40
+!!!WriteFluxWeightedConcentration   outlet.out  1-48 127-127 1-1
+!!!FluxWeightedConcentrationSpecies H+ F- Formic_acid(aq) Cl- Br- NO3- SO4-- HPO4-- Acetic_acid(aq) Na+ & 
+!!!NH3(aq) K+ Mg++ Ca++ Sr++ Ba++ Fe++ Fe+++ SiO2(aq) HCO3-
+END
+ 
+TEMPERATURE
+set_temperature 66.0
+! may need to change
+END
+
+POROSITY
+read_porosityFile 127CL5_44_phi.txt 
+porosity_update  true
+END
+
+DISCRETIZATION
+distance_units  millimeters
+xzones  48     0.8
+yzones  127    0.8
+zzones  1     33.8
+END
+ 
+
+!!!MINERALS
+Quartz            -label Marty_nu       -rate   -13.19
+Quartz            -label Marty_oh       -rate   -9.7212
+Pyrite            -label USGS-h+_d       -rate   -7.52 
+Pyrite            -label USGS-O2_d       -rate   -4.55
+Calcite            -label leichou1            -rate    -1.0809 
+Calcite            -label leichou3       -rate   -4.8239
+Calcite            -label leichou2         -rate   -3.9586
+Clinochlore-7A       -label USGS   -rate -12.52
+Clinochlore-7A       -label USGS-h+   -rate -11.11
+Illite            -label USGS  -rate -16.4815
+Illite            -label USGS-h+  -rate -11.0888
+Illite            -label USGS-oh-  -rate -11.4723
+Smectite-high-Fe-Mg          -label Marty_nu       -rate   -14.0315
+Smectite-high-Fe-Mg          -label Marty_h+       -rate   -10.2757
+Smectite-high-Fe-Mg          -label Marty_oh       -rate   -11.5376
+SiO2(am)         -label  USGS -rate -9.42 
+Gypsum           -label   default   -rate   -2.79  
+Barite           -label  USGS -rate -7.9
+Barite           -label  USGS-h+ -rate -6.9
+END 
+
+!!!AQEUOUS_KINETICS
+FeII_oxidation 
+END
+
+!!!GASES
+CO2(g)
+O2(g)
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units     seconds
+fix_diffusion  1.0E-5
+!cementation_exponent  3.1
+!anisotropy_ratioZ 0.3
+dispersivity  0.0 0.0
+END
+
+FLOW
+time_units       seconds
+distance_units   meters
+!!!constant flow   0.001
+!!constant_flow       0.00  0.0001
+!!!read_VelocityFile   inputVelocity_300um
+calculate_flow      true
+permeability_X      1.0E-100  default
+permeability_Y      1.0E-100  default
+read_PermeabilityFile   127CL5_44_perm
+permeability_x   0.000  zone 0-0   1-127  1-1        
+permeability_x   0.000  zone 49-49 1-127  1-1     
+permeability_y   0.000  zone 1-48  0-0    1-1      
+
+pressure            0.000      default
+pressure            0.000      zone  1-48  128-128 1-1 fix
+pump   1.0417e-07 inlet 1 1 1
+pump   1.0417e-07 inlet 2 1 1
+pump   1.0417e-07 inlet 3 1 1
+pump   1.0417e-07 inlet 4 1 1
+pump   1.0417e-07 inlet 5 1 1
+pump   1.0417e-07 inlet 6 1 1
+pump   1.0417e-07 inlet 7 1 1
+pump   1.0417e-07 inlet 8 1 1
+pump   1.0417e-07 inlet 9 1 1
+pump   1.0417e-07 inlet 10 1 1
+pump   1.0417e-07 inlet 11 1 1
+pump   1.0417e-07 inlet 12 1 1
+pump   1.0417e-07 inlet 13 1 1
+pump   1.0417e-07 inlet 14 1 1
+pump   1.0417e-07 inlet 15 1 1
+pump   1.0417e-07 inlet 16 1 1
+pump   1.0417e-07 inlet 17 1 1
+pump   1.0417e-07 inlet 18 1 1
+pump   1.0417e-07 inlet 19 1 1
+pump   1.0417e-07 inlet 20 1 1
+pump   1.0417e-07 inlet 21 1 1
+pump   1.0417e-07 inlet 22 1 1
+pump   1.0417e-07 inlet 23 1 1
+pump   1.0417e-07 inlet 24 1 1
+pump   1.0417e-07 inlet 25 1 1
+pump   1.0417e-07 inlet 26 1 1
+pump   1.0417e-07 inlet 27 1 1
+pump   1.0417e-07 inlet 28 1 1
+pump   1.0417e-07 inlet 29 1 1
+pump   1.0417e-07 inlet 30 1 1
+pump   1.0417e-07 inlet 31 1 1
+pump   1.0417e-07 inlet 32 1 1
+pump   1.0417e-07 inlet 33 1 1
+pump   1.0417e-07 inlet 34 1 1
+pump   1.0417e-07 inlet 35 1 1
+pump   1.0417e-07 inlet 36 1 1
+pump   1.0417e-07 inlet 37 1 1
+pump   1.0417e-07 inlet 38 1 1
+pump   1.0417e-07 inlet 39 1 1
+pump   1.0417e-07 inlet 40 1 1
+pump   1.0417e-07 inlet 41 1 1
+pump   1.0417e-07 inlet 42 1 1
+pump   1.0417e-07 inlet 43 1 1
+pump   1.0417e-07 inlet 44 1 1
+pump   1.0417e-07 inlet 45 1 1
+pump   1.0417e-07 inlet 46 1 1
+pump   1.0417e-07 inlet 47 1 1
+pump   1.0417e-07 inlet 48 1 1
+END
+ 
+PRIMARY_SPECIES
+Tracer
+END
+
+
+
+
+
+
+Condition inlet
+temperature      66.0
+units            mol/kg
+Tracer   0.1
+pH               charge
+Na+              0.287
+NH3(aq)             0.00529
+K+               0.009564 
+Mg++             0.009573
+Ca++             0.052023
+Sr++             0.005812
+Ba++             0.000539
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.26063e-5
+Formic_acid(aq)          1.4e-5
+Cl-              0.455045
+Br-              0.001703
+NO3-             4.96E-5
+SO4--            0.000587
+HPO4--           5.82E-5
+Acetic_acid(aq)  0.000184
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+Tracer             0.1
+END
+
+Condition outlet
+temperature      66.0
+units            mol/kg
+Tracer 0.00001
+pH               charge
+Na+              1.0E-20
+NH3(aq)             1.0E-20
+K+               1.0E-20
+Mg++             1.0E-20
+Ca++             1.0E-20
+Sr++             1.0E-20
+Ba++             1.0E-20
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.0E-20
+Formic_acid(aq)          1.0E-20
+Cl-              1.0E-20
+Br-              1.0E-20
+NO3-             1.0E-20
+SO4--            1.0E-20
+HPO4--           1.0E-20
+Acetic_acid(aq)  1.0E-20
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+Tracer             0.00001
+END
+
+Condition fracture0
+temperature      66.0
+units            mol/kg
+Tracer   0.00001
+pH               charge
+Na+              1.0E-20
+NH3(aq)             1.0E-20
+K+               1.0E-20
+Mg++             1.0E-20
+Ca++             1.0E-20
+Sr++             1.0E-20
+Ba++             1.0E-20
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.0E-20
+Formic_acid(aq)          1.0E-20
+Cl-              1.0E-20
+Br-              1.0E-20
+NO3-             1.0E-20
+SO4--            1.0E-20
+HPO4--           1.0E-20
+Acetic_acid(aq)  1.0E-20
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+Tracer             0.00001
+Quartz            0.20411   12.0775
+Pyrite            0.02667   1.5781 
+Calcite           0.24987   14.7852 
+Clinochlore-7A    0.07741   4.5805 ! using smectite ssa from Marty
+Illite            0.34195   20.2337
+Smectite-high-Fe-Mg       0.06999  4.1414 
+SiO2(am)          0.0    59.1716
+Gypsum            0.0    59.1716 ! using calcite ssa
+Barite            0.0    59.1716 ! ssa 0.0  0.0 
+! to prevent the inlet from clogging
+END
+
+Condition fracture
+temperature      66.0
+units            mol/kg
+Tracer  0.00001
+pH               charge
+Na+              1.0E-20
+NH3(aq)             1.0E-20
+K+               1.0E-20
+Mg++             1.0E-20
+Ca++             1.0E-20
+Sr++             1.0E-20
+Ba++             1.0E-20
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.0E-20
+Formic_acid(aq)          1.0E-20
+Cl-              1.0E-20
+Br-              1.0E-20
+NO3-             1.0E-20
+SO4--            1.0E-20
+HPO4--           1.0E-20
+Acetic_acid(aq)  1.0E-20
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+Tracer             0.00001
+Quartz            0.20411   12.0775
+Pyrite            0.02667   1.5781 
+Calcite           0.24987   14.7852 
+Clinochlore-7A    0.07741   4.5805 ! using smectite ssa from Marty
+Illite            0.34195   20.2337
+Smectite-high-Fe-Mg       0.06999  4.1414 
+SiO2(am)          0.0    59.1716
+Gypsum            0.0    59.1716 ! using calcite ssa
+Barite            0.0    59.1716 ! ssa 0.0  0.0 
+END
+
+INITIAL_CONDITIONS
+fracture0    1-48 1-1 1-1
+fracture    1-48 2-127 1-1
+END
+
+BOUNDARY_CONDITIONS
+x_begin   fracture    flux
+x_end     fracture    flux
+y_begin   inlet       flux
+y_end     outlet      flux
+END

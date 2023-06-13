@@ -1,0 +1,125 @@
+TITLE
+Richards equation tracer
+END
+
+RUNTIME
+time_units      seconds
+timestep_max    10.0
+timestep_init   10.0
+time_tolerance  0.1
+correction_max  1.0
+debye-huckel    false
+database        calcitedata.dbs
+master          Tracer
+speciate_only   false
+database_sweep  false
+screen_output   1000
+hindmarsh       false
+gimrt           false
+courant_number  0.1
+FluxWeightedConcentrationSpecies  Tracer
+END
+
+OUTPUT
+time_units  seconds
+spatial_profile       11700.0 23400.0 46800.0
+time_series           vprofile.out  1 5 1
+!!!time_series_print    Tracer
+END
+
+DISCRETIZATION
+distance_units  centimeters
+xzones  100 0.2
+yzones  100 0.2
+zzones  1 0.2
+END
+
+Condition inlet
+units        mol/kg
+temperature      25.0
+Tracer           0.1
+set_porosity   0.99
+END
+
+Condition effluent
+units        mol/kg
+temperature      25.0
+Tracer           0.00
+set_porosity   0.99
+END
+
+Condition pore
+units      mol/kg
+temperature      25.0
+Tracer           0.00
+set_porosity   0.99
+END
+
+Condition porewall
+units      mol/kg
+Tracer           0.00
+temperature      25.0
+set_porosity   0.99
+END
+
+INITIAL_CONDITIONS
+porewall 1-100  1-100 1-1 
+END
+
+BOUNDARY_CONDITIONS
+X_begin   porewall Flux
+X_end     porewall Flux
+Y_begin   inlet     Flux
+Y_end     porewall Flux
+END
+
+POROSITY
+fix_porosity     0.33
+porosity_update  false
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+FLOW
+time_units      seconds     ! these units specify the units of the flow
+distance_units  centimeters ! velocity to be cm/s
+calculate_flow  TRUE
+ns_solve  FALSE
+Richards  TRUE
+redistribute_wc TRUE
+wc_init 0.033
+wc_residual 0.0
+vangenuchten_alpha 1.43
+vangenuchten_n 1.56
+
+pressure  0.0  zone 1-100 101-101 1-1 fix
+
+permeability_x 1.0e-30 default
+
+permeability_x 0.0 zone 0-0     1-100 1-1 
+permeability_x 0.0 zone 101-101 1-100 1-1  
+
+permeability_y 2.949e-16 default
+permeability_y 0.0       zone 1-100 101-101 1-1
+
+END
+
+
+!!! Geochemistry
+
+PRIMARY_SPECIES
+Tracer
+END
+
+SECONDARY_SPECIES
+END
+
+MINERALS
+END
+
+GASES
+END
+
+

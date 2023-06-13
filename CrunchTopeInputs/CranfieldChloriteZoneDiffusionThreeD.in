@@ -1,0 +1,115 @@
+TITLE
+Tracer test in three dimensions with read of tortuosity
+END
+ 
+DATABASE
+datacom.dbs
+END
+ 
+RUNTIME
+time_units       hours
+timestep_max     0.01
+timestep_init    1.e-06
+time_tolerance   0.1
+hindmarsh        false
+correction_max   2.0
+debye-huckel     false
+database_sweep   no
+speciate_only    false
+gimrt            false
+graphics         tecplot
+solver           bicg
+pc               ilu
+!!solver           gmres
+!!pc               jacobi
+pclevel          1
+screen_output    1
+fix_saturation   1.0
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      1.0E-06  1.0E-05 0.0001 0.001 
+!!!0.01 0.1 0.25 0.5 1.0 
+!!2.0 3.0  4.0  5.0  
+!!!MakeMovie            true
+END
+
+BOUNDARY_CONDITIONS
+x_begin   boundary          flux
+x_end     initial           flux
+y_begin   initial           flux
+y_end     initial           flux
+z_begin   initial           flux
+z_end     initial           flux
+END
+
+TRANSPORT
+distance_units centimeters
+time_units  second
+fix_diffusion  0.00001
+dispersivity   0.00 0.00
+read_tortuosity   chlorite.dat  ContinuousRead
+END
+
+DISCRETIZATION
+distance_units  nanometers
+xzones 125  14
+yzones 125  14
+zzones 125  14
+END
+
+INITIAL_CONDITIONS
+boundary  1-125     1-125   1-125
+!!boundary  1-125    125-125 1-125    fix
+!!boundary  1-125    1-125   1-1      fix
+!!boundary  1-125    1-125   125-125  fix
+!!boundary   1-125    1-1     1-125    fix
+boundary  125-125  1-125   1-125    fix
+initial   1-1      1-125   1-125    fix
+END
+ 
+POROSITY
+fix_porosity     1.0 
+porosity_update  false
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+Tracer
+END
+ 
+SECONDARY_SPECIES
+END
+ 
+ION_EXCHANGE
+END
+
+GASES
+END
+
+MINERALS
+END
+ 
+Condition boundary
+units            mol/kg
+temperature      25.0
+Tracer          1.0E-10
+END
+
+Condition initial
+units            mol/kg
+temperature      25.0
+Tracer           0.01
+END
+ 
+FLOW
+time_units     years
+distance_units meters
+constant_flow  0.0  0.0  0.0
+END
+ 
+

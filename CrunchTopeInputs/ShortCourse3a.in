@@ -1,0 +1,705 @@
+TITLE
+ShortCourse3.in:  Short course carbonate speciation--pH sweep (the hard way)
+END
+
+RUNTIME
+speciate_only   false
+database_sweep  false
+database        datacom-SimonMudd.dbs
+graphics        kaleidagraph
+density_module  temperature
+END
+
+OUTPUT
+time_units               hours
+timestep_init            1.E-10
+timestep_max             1.E-10
+spatial_profile_at_time  1.E-10
+time_series_at_node      pHsweep3a.out 1  1  1
+time_series_print        pH  Ca++  CO2(aq)
+time_series_interval     1  
+END
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Ca++
+Na+
+Cl-
+END
+
+Condition        speciate1   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               2.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate2   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               2.2 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate3   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               2.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate4   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               2.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate5   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               2.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate6   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               3.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate7   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               3.2 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate8   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               3.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate9   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               3.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+Condition        speciate10   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               3.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate11   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               4.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate12   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               4.2
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate13   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               4.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate14   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               4.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate15   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               4.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate16   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               5.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate17   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               5.2 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate18   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               5.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate19   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               5.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate20  Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               5.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate21   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               6.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate22   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               6.2 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate23   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               6.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate24   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               6.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate25   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               6.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate26   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               7.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate27   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               7.2 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate28   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               7.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate29   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               7.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate30   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               7.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate31   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               8.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate32   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               8.2 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate33   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               8.4 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate34  Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               8.6 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate35   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               8.8 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate36   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               9.0 
+CO2(aq)          0.001 
+Na+              0.01
+Cl-              charge
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+
+Condition        speciate37   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               9.2 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate38   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               9.4 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate39   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               9.6 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate40   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               9.8 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate41   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               10.0 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate42   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               10.2 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate43   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               10.4 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate44   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               10.6 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate45   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               10.8 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate46   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               11.0 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate47   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               11.2 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate48  Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               11.4 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate49   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               11.6 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate50   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               11.8 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+Condition        speciate51   Fix pCO2 and pH, adjust Cl to charge balance
+units            mol/kg
+temperature      25.0
+pH               12.0 
+CO2(aq)          0.001 
+Na+             charge
+Cl-              0.01
+Ca++             0.00
+Calcite          0.10   1.0
+END
+
+POROSITY
+fix_porosity     0.90
+END
+
+SECONDARY_SPECIES 
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaOH+                                                                   
+HCl(aq)                                                                 
+NaCl(aq)                                                                
+NaOH(aq)                                                                
+OH-                                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)  
+END
+
+MINERALS
+Calcite     -label default  -rate  -35.00 
+END
+
+GASES
+CO2(g)
+END
+
+DISCRETIZATION 
+xzones  51  1.0
+END
+ 
+INITIAL_CONDITIONS
+speciate1   1-1
+speciate2   2-2
+speciate3   3-3
+speciate4   4-4
+speciate5   5-5
+speciate6   6-6
+speciate7   7-7
+speciate8   8-8
+speciate9   9-9
+speciate10   10-10
+speciate11   11-11
+speciate12   12-12
+speciate13   13-13
+speciate14   14-14
+speciate15   15-15
+speciate16   16-16
+speciate17   17-17
+speciate18   18-18
+speciate19   19-19
+speciate20   20-20
+speciate21   21-21
+speciate22   22-22
+speciate23   23-23
+speciate24   24-24
+speciate25   25-25
+speciate26   26-26
+speciate27   27-27
+speciate28   28-28
+speciate29   29-29
+speciate30   30-30
+speciate31   31-31
+speciate32   32-32
+speciate33   33-33
+speciate34   34-34
+speciate35   35-35
+speciate36   36-36
+speciate37   37-37
+speciate38   38-38
+speciate39   39-39
+speciate40   40-40
+speciate41   41-41
+speciate42   42-42
+speciate43   43-43
+speciate44   44-44
+speciate45   45-45
+speciate46   46-46
+speciate47   47-47
+speciate48   48-48
+speciate49   49-49
+speciate50   50-50
+speciate51   51-51
+END
+
+BOUNDARY_CONDITIONS
+X_begin   speciate1  Flux 
+X_end     speciate51   Flux 
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+TRANSPORT
+distance_units   meters
+time_units       seconds
+fix_diffusion    0.0
+END
+
+FLOW
+distance_units   meters
+time_units       years
+constant_flow    0.0  0.0
+END
+
+

@@ -1,0 +1,90 @@
+TITLE 
+ShortCourse1_lucien.in:  Short course carbonate speciation 
+END 
+
+RUNTIME 
+time_units       years 
+timestep_max     0.01 !!0.010 
+timestep_init    1e-10 !!0.010 
+time_tolerance   0.001 
+ResidualTolerance   1.0E-10 
+hindmarsh        true 
+correction_max   2 
+debye-huckel     yes 
+master           Tracer 
+database_sweep   no 
+speciate_only    false 
+gimrt    true 
+database         Thermoddem_2017_lucien_v2_trycal_sulfide_decoupled3.dbs 
+screen_output    1000 
+END 
+
+OUTPUT 
+time_units years 
+time_series_interval 0 
+spatial_profile 10   
+END 
+
+TRANSPORT 
+distance_units meters 
+time_units     seconds 
+fix_diffusion  1e-9 
+!MilligtonQuirk true 
+!dispersivity   0.1 0 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+constant_flow    0.3 
+END 
+
+BOUNDARY_CONDITIONS    
+boundarycondition   injection  zone 0-0 1-1 1-1     Dirichlet 
+boundarycondition   ambient    zone 81-81 1-1  1-1  flux 
+END 
+
+INITIAL_CONDITIONS    
+ambient   1-80 1-1 1-1 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 80 0.1 1 
+END 
+
+Condition        injection    
+units            mol/kg 
+Tracer 1e-3  
+(CH2O)(NH3)0.05(aq)   2.24e-03   
+(CH2O)(NH3)0.087(aq)b   1.00e-10   
+END 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+Condition        ambient    
+units            mol/kg 
+Tracer                 1e-10  
+(CH2O)(NH3)0.05(aq)    1.00e-09   
+(CH2O)(NH3)0.087(aq)b  1.00e-05  
+Kerogene               0.0412  bsa 14680 
+TOCsoil                1e-9    bsa 1.0 
+END 
+
+POROSITY    
+fix_porosity    0.4    
+!porosity_update true    
+END 
+
+PRIMARY_SPECIES 
+Tracer 
+(CH2O)(NH3)0.05(aq) 
+(CH2O)(NH3)0.087(aq)b  
+END 
+
+MINERALS 
+TOCsoil  -label release3 
+Kerogene  -label release3  
+END 
+
+TEMPERATURE    
+set_temperature 25 
+END 
+

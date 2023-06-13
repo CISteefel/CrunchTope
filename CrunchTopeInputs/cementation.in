@@ -1,0 +1,175 @@
+TITLE
+RTM: bio-augmentation
+END
+
+RUNTIME
+time_units         minutes
+timestep_max       1.0
+timestep_init      1.E-10
+time_tolerance     0.05
+hindmarsh          false
+correction_max     2.0
+debye-huckel       true
+database_sweep     false
+speciate_only      false
+graphics           kaleidagraph
+master             H+
+database           datacom_oliver.dbs
+coordinates        rectangular
+gimrt              false
+screen_output      1
+END
+
+OUTPUT
+time_units            minutes
+spatial_profile       1000
+!port distances are measured from top
+time_series           portA.out   16  31  1
+time_series           portB.out   16  20  1
+time_series           portC.out   16  10  1
+time_series           portD.out   16  1   1
+time_series_print     pH   O2(aq)   CO3--   NH4+   Urea(aq)   C5H7O2N(aq)   Ca++   decay_b_urea2
+time_series_units     N.A.  mol/kgw  mol/kgw  mol/kgw  mol/kgw  mol/kgw  mol/kgw  mol/kgw
+!!time_series_print all
+time_series_interval  1
+END
+
+DISCRETIZATION
+distance_units   centimeters
+xzones           31  10
+yzones           31  10
+zzones           1   1
+END 
+
+FLOW
+distance_units   meters
+time_units       seconds
+calculate_flow   true
+permeability_x   8.19e-11   default
+permeability_y   8.19e-11   default
+pressure         0.00       default
+
+!hydrostatic pressure
+pressure         0.0        zone    1-31  32-32  1-1  fix
+gravity 90.0  0.0  90.0  up
+initialize_hydrostatic   true
+
+!lower boundary pressure
+pressure         30411       zone    1-31     0-0      1-1    fix
+
+!injection pressure
+pressure         50000       zone    16-16    16-16    1-1    fix
+
+!no flow upper boundary
+permeability_y   0.00        zone    1-31     32-32    1-1
+END
+
+POROSITY
+Porosity_update  true
+END
+
+TRANSPORT
+distance_units           centimeters
+time_units               second
+fix_diffusion            2e-5
+cementation_exponent     1.0
+dispersivity             0.5  0.5
+END
+
+PRIMARY_SPECIES
+H+
+O2(aq)
+CO3--
+Ca++
+Cl-
+Na+
+NH4+
+SiO2(aq)
+Urea(aq)
+C5H7O2N(aq)
+decay_b_urea
+decay_b_urea2
+END
+
+SECONDARY_SPECIES
+NH3(aq)
+OH-
+HCO3-
+CaCl+
+CO2(aq)
+CaOH+
+CaCO3(aq)
+CaHCO3+
+END
+
+GASES
+CO2(g)
+O2(g)
+END
+
+MINERALS
+C5H7O2N(s)        -label  default -rate  -2.920818754     
+Calcite           -label  default -rate  -8.00
+Quartz            -label  default -rate  -35.5
+decay_b_urea(s)   -label  default -rate  -6.498           -associate  C5H7O2N(s)
+END
+
+AQUEOUS_KINETICS
+Ureolysis       -label      default     -rate  2081635861
+Biomass_decay   -label      default     -rate  10.028
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+condition initial
+units            mmol/kg            
+temperature      25.0         
+pH               7.0
+O2(aq)           2.594E-1
+CO3--            2.411E-3
+Ca++             0.00
+Cl-              0.00
+Na+              0.00
+NH4+             0.00
+SiO2(aq)         0.00
+Urea(aq)         0.00
+C5H7O2N(aq)      1.0E-20
+decay_b_urea     1.0E-20
+decay_b_urea2    1.0E-20
+!
+C5H7O2N(s)       5.0E-5        bulk_surface_area      380.0
+Calcite          0.00001       bulk_surface_area      370.0
+Quartz           0.61999       bulk_surface_area      100.0
+decay_b_urea(s)  1.0d-8        bulk_surface_area      1.0 
+END
+
+condition cementation
+units            mmol/kg            
+temperature      25.0         
+pH               7.0
+O2(aq)           2.594E-1
+CO3--            0.00
+Ca++             50.00
+Cl-              156.70
+Na+              0.00
+NH4+             56.70
+SiO2(aq)         0.00
+Urea(aq)         50.00
+C5H7O2N(aq)      1.0E-20
+decay_b_urea     1.0E-20
+decay_b_urea2    1.0E-20
+END
+
+INITIAL_CONDITIONS
+initial       1-31     1-31     1-1
+cementation   16-16    16-16    1-1    fix
+END                                    
+                                    
+BOUNDARY_CONDITIONS
+x_begin     initial          flux
+x_end       initial          flux
+y_begin     initial          flux
+y_end       initial          flux
+END

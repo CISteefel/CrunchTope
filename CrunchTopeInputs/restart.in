@@ -1,0 +1,298 @@
+TITLE
+Full RTM for the Riverton synthetic model - Core geochemical model (Fe, S...)
+END
+
+MINERALS
+Gypsum
+Calcite
+Mackinawite  -rate -7.52
+Ferrihydrite -associate Fe(OH)3_HS
+Fe(OH)3_HS   -rate -10.8
+Siderite
+S(s)
+C6H10O5(s)
+C6H10O5_NRZ(s)
+END
+
+AQUEOUS_KINETICS
+O2_acetate
+FeIII_acetate
+SO4_acetate
+O2_FeII
+O2_HS
+END
+ 
+RUNTIME
+time_units              days
+timestep_max            0.5
+timestep_init           0.00001
+time_tolerance          0.001
+debye-huckel            true
+database_sweep          false
+correction_max          2.0
+speciate_only           false
+screen_output           10
+database                datacom_Zach.dbs
+kinetic_database        aqueous_Zach.dbs
+gimrt                   true
+restart                 spinup.rst append
+save_restart            spinup.rst
+master                  o2(aq)
+END
+
+PRIMARY_SPECIES
+H+
+CO3--
+SO4--
+Cl-
+Br-
+Ca++
+Mg++
+Na+
+K+
+Fe++
+Fe+++
+HS-
+CH3COO-
+O2(aq)
+S(aq)
+Dummy0
+Dummy+
+END
+
+SECONDARY_SPECIES
+CH3COOH(aq)                                                             
+CaOH+                                                                   
+CaCH3COO+                                                               
+CaHCO3+                                                                 
+CaCO3(aq)                                                               
+CaSO4(aq)                                                               
+H2CO3(aq)                                                               
+HCO3-                                                                   
+FeOH+                                                                   
+FeCH3COO+                                                               
+FeHCO3+                                                                 
+FeCO3(aq)                                                               
+Fe(CO3)2--                                                              
+FeSO4(aq)                                                               
+FeCl+                                                                   
+Fe(HS)2(aq)                                                             
+Fe(HS)3-                                                                
+H2S(aq)                                                                 
+S--                                                                     
+KSO4-                                                                   
+MgOH+                                                                   
+MgCH3COO+                                                               
+MgHCO3+                                                                 
+MgCO3(aq)                                                               
+MgSO4(aq)                                                               
+NaCH3COO(aq)                                                            
+NaHCO3(aq)                                                              
+NaCO3-                                                                  
+NaSO4-                                                                  
+HSO4-                                                                   
+OH-                                                                 
+END
+
+SURFACE_COMPLEXATION
+END
+
+GASES
+O2(g)
+END
+
+TRANSPORT
+distance_units           centimeters
+time_units               second
+fix_diffusion            1e-05
+dispersivity             0.3 0
+END
+
+BOUNDARY_CONDITIONS
+x_begin   ArtificialGW_corrected   Flux
+x_end     initial_sand             Flux
+y_begin   initial_sand             Flux
+y_end     initial_sand             Flux
+END 
+ 
+TEMPERATURE
+set_temperature  25
+END
+
+ISOTOPES
+END
+ 
+ION_EXCHANGE
+END
+
+POROSITY
+fix_porosity     0.27
+END
+
+! Initial aqueous + solid phase composition inside the sand
+Condition initial_sand
+units            mol/kgw
+temperature      25
+SolidDensity     2700
+fix_porosity     0.27 
+pH               8                            
+CO3--            Calcite     
+SO4--            6.25e-2   
+HS-              0    
+Cl-              1.69e-2    
+Ca++             Gypsum   
+Mg++             1.85e-2    
+Na+              1.04e-1    
+Br-              0      
+K+               5.12e-4    
+Fe++             0  
+Fe+++            Ferrihydrite      
+CH3COO-          1e-8
+O2(aq)           2.5e-8 
+Dummy0           0
+Dummy+           1e-8
+S(aq)            S(s)
+!! Mineral name/ Volume fraction <m**3/m**3 porous medium>/ specific surface area <m**2/g mineral> / threshold mineral volume fraction
+Calcite               9.71e-4      ssa 1e-2    0.0001     !! = 0.16mg(InorgC)/g_bulk, ssa from [Arora, 2016]
+Gypsum                2.98e-3      ssa 1e-2    0.0001     !! = 6.49mg(S)/g_bulk, default ssa
+Mackinawite           0.0          ssa 380     0.0001     !! ssa from [Rickard and Luther, 2007]
+Ferrihydrite          8.61e-3      ssa 332     0.00000001 !! = 7.1mg(Fe)/g_bulk, ssa from ?
+Fe(OH)3_HS            8.61e-3      ssa 332     0.00000001 !! = 7.1mg(Fe)/g_bulk, ssa from ?
+Fe(OH)3_DIRB          8.61e-3      ssa 332     0.00000001 !! = 7.1mg(Fe)/g_bulk, ssa from ?
+Siderite              0.0          ssa 1e-2    0.0001     !! default ssa
+S(s)                  0.0          ssa 1e-2    0.0001     !! default ssa
+END
+
+! Initial aqueous + solid phase composition inside the NRZs
+Condition initial_NRZ
+units            mol/kgw
+temperature      25
+SolidDensity     2700 
+fix_porosity     0.53  
+pH               8              
+CO3--            Calcite      
+SO4--            6.25e-2   
+HS-              Mackinawite   
+Cl-              1.69e-2    
+Ca++             Gypsum   
+Mg++             1.85e-2    
+Na+              1.04e-1    
+Br-              0      
+K+               5.12e-4    
+Fe++             9e-6       
+Fe+++            Ferrihydrite     
+CH3COO-          1e-8
+O2(aq)           1e-10
+Dummy0           0
+Dummy+           1e-8
+S(aq)            S(s)
+!! Mineral name/ Volume fraction <m**3/m**3 porous medium>/ specific surface area <m**2/g mineral> / threshold mineral volume fraction
+Calcite               3.71e-2      ssa 1e-2    0.0001     !! = 9.5mg(InorgC)/g_bulk, ssa from [Arora, 2016]
+Gypsum                0            ssa 1e-2    0.0001     !! ssa from [Arora, 2016]
+Mackinawite           2.15e-3      ssa 380     0.0001     !! = 0.4*6.45mg(S)/g_bulk, ssa from [Rickard and Luther, 2007]
+Ferrihydrite          0            ssa 332     0.00000001 !! not 0 because of sorption, ssa from ?
+Fe(OH)3_HS            0            ssa 332     0.00000001 !! not 0 because of sorption, ssa from ?
+Siderite              0            ssa 1e-2    0.0001     !! default Vf, default ssa
+S(s)                  2.03e-4      ssa 1e-2    0.0001     !! = 0.05*6.45mg(S)/g_bulk, default ssa
+C6H10O5_NRZ(s)        2e-3         ssa 7.5e-2  0.0001     !! Calibrated to yield observed DOC concentrations, ssa from [Arora, 2016]
+END
+
+
+
+! Artificial groundwater composition for column experiments, used as influent water
+Condition ArtificialGW_corrected
+units            mol/kgw
+temperature      25
+pH               8
+SolidDensity     2700             
+CO3--            Calcite     
+SO4--            6.25e-2   
+HS-              0    
+Cl-              1.69e-2    
+Ca++             Gypsum   
+Mg++             1.85e-2    
+Na+              1.04e-1    
+Br-              0
+K+               5.12e-4    
+Fe++             1e-6  
+Fe+++            Ferrihydrite
+!! Flags correspond to the column headers in the spreadsheet for input concentrations  
+CH3COO-          0.000156
+O2(aq)           4.664e-05
+Dummy0           0
+Dummy+           1e-8
+S(aq)            S(s)
+END
+
+DISCRETIZATION
+distance_units meters
+xzones 75 0.2
+yzones 10 0.2
+END
+
+INITIAL_CONDITIONS
+initial_sand 1-75 1-10
+initial_NRZ 18-33 2-2 1-1
+initial_NRZ 18-33 3-3 1-1
+initial_NRZ 63-68 3-3 1-1
+initial_NRZ 63-68 4-4 1-1
+initial_NRZ 63-68 5-5 1-1
+initial_NRZ 3-12 8-8 1-1
+initial_NRZ 31-55 8-8 1-1
+initial_NRZ 31-55 9-9 1-1
+END
+
+FLOW
+distance_units meters
+time_units seconds
+calculate_flow true
+permeability_x 1.804533E-12 default
+permeability_y 1.804533E-12 default
+permeability_x 1.333333E-17 zone 18-33 2-2 1-1
+permeability_y 1.333333E-17 zone 18-33 2-2 1-1
+permeability_x 1.333333E-17 zone 18-33 3-3 1-1
+permeability_y 1.333333E-17 zone 18-33 3-3 1-1
+permeability_x 1.333333E-17 zone 63-68 3-3 1-1
+permeability_y 1.333333E-17 zone 63-68 3-3 1-1
+permeability_x 1.333333E-17 zone 63-68 4-4 1-1
+permeability_y 1.333333E-17 zone 63-68 4-4 1-1
+permeability_x 1.333333E-17 zone 63-68 5-5 1-1
+permeability_y 1.333333E-17 zone 63-68 5-5 1-1
+permeability_x 1.333333E-17 zone 3-12 8-8 1-1
+permeability_y 1.333333E-17 zone 3-12 8-8 1-1
+permeability_x 1.333333E-17 zone 31-55 8-8 1-1
+permeability_y 1.333333E-17 zone 31-55 8-8 1-1
+permeability_x 1.333333E-17 zone 31-55 9-9 1-1
+permeability_y 1.333333E-17 zone 31-55 9-9 1-1
+
+pressure 0.0 default
+pressure 0.0 zone 76-76 1-10 1-1 fix
+pressure 441.830 zone 0-0 1-1 1-1 fix
+END
+
+OUTPUT
+time_units days
+spatial_profile 1063
+time_series_interval 1
+time_series_print
+time_series Well_1_1_1.txt 5 1
+time_series Well_1_2_1.txt 5 3
+time_series Well_1_3_1.txt 5 5
+time_series Well_1_4_1.txt 5 7
+time_series Well_1_5_1.txt 5 9
+time_series Well_2_1_1.txt 25 1
+time_series Well_2_2_1.txt 25 3
+time_series Well_2_3_1.txt 25 5
+time_series Well_2_4_1.txt 25 7
+time_series Well_2_5_1.txt 25 9
+time_series Well_3_1_1.txt 45 1
+time_series Well_3_2_1.txt 45 3
+time_series Well_3_3_1.txt 45 5
+time_series Well_3_4_1.txt 45 7
+time_series Well_3_5_1.txt 45 9
+time_series Well_4_1_1.txt 65 1
+time_series Well_4_2_1.txt 65 3
+time_series Well_4_3_1.txt 65 5
+time_series Well_4_4_1.txt 65 7
+time_series Well_4_5_1.txt 65 9
+END

@@ -1,0 +1,137 @@
+TITLE
+Massimo Rolle Multicomponent Diffusion--2D version
+END
+ 
+RUNTIME
+time_units         hours
+timestep_max       0.01
+timestep_init      0.01
+time_tolerance     0.001
+hindmarsh          false
+correction_max     2.0
+debye-huckel       true
+database_sweep     false
+speciate_only      false
+gimrt              true
+graphics           tecplot
+master             H+
+database           datacom.dbs
+screen_output      10
+solver              bcgs
+pc                  ilu
+pclevel             5
+gimrt_solver        gmres
+gimrt_pc            ilu
+gimrt_pclevel       1
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      16
+time_series          Rolle.out    11  1  1
+time_series_print    K+  Mg++  Cl- 
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units  second
+fix_diffusion  1.000e-09
+D_25   K+      1.77E-09
+D_25   Na+     1.20E-09
+D_25   Mg++    6.26E-10
+D_25   Cl-     1.81E-09
+D_25   Br-     1.86E-09
+D_25   H+      8.57e-09
+D_25   OH-     4.85e-09
+formation_factor         1.00
+cementation_exponent     1.00
+dispersivity   0.0  0.0
+END
+
+DISCRETIZATION
+distance_units    centimeters
+xzones    1  0.1   100  1.0  1 0.1
+!!!yzones    1  0.25  23   0.5  1 0.25
+END
+
+INITIAL_CONDITIONS
+ambient      1-102  1-1  1-1
+END
+
+BOUNDARY_CONDITIONS
+x_begin  ambient         flux
+x_end    ambient         flux
+        
+END
+ 
+FLOW
+time_units       days
+distance_units   centimeters
+calculate_flow   true
+permeability_x   1.00E-10  default
+!!permeability_x   0.000  zone 0-0 1-1 1-1
+
+pressure          0.00  default
+
+!!!pressure          100.00   zone 0-0 1-1 1-1 fix
+pressure          0.00   zone 103-103 1-1 1-1 fix
+initialize_hydrostatic  false
+
+pump             3.71377E-05   ambient   1  1  1
+
+END
+ 
+POROSITY
+fix_porosity    0.41
+END
+ 
+PRIMARY_SPECIES
+H+
+K+    
+Na+   
+Mg++  
+Cl-   
+Br-   
+END
+
+SECONDARY_SPECIES
+OH-
+END
+
+MINERALS
+END
+
+SURFACE_COMPLEXATION
+END
+
+!!AQUEOUS_KINETICS
+!!END 
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+GASES
+END
+
+condition injection
+units            mmol/kg  
+pH               7.0
+K+               0.29
+Na+              0.00
+Mg++             0.29
+Cl-              charge
+Br-              0.00
+END
+
+condition ambient
+units            mmol/kg  
+pH               7.0
+K+               0.000001
+Na+              0.00
+Mg++             0.000001
+Cl-              charge
+Br-              0.00
+END
+

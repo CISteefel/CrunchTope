@@ -1,0 +1,210 @@
+TITLE
+UO2 dissolution in abiotic 5 mL column test (Bio_13)
+!!New label: B3b-R3
+!!Column: 5 mL column
+!!Column length: 4.50 cm
+!!Column ID: 1.30 cm
+!!Volume: 5.97 mL
+!!Flow rate uptake: 0.075 mL/min
+!!Porosity: 0.33
+!!Darcy flux (= (Flow rate uptake)/(Area)): 0.062 cm/min ... input as "constant_flow"
+!!Mean dispersivity (fit): 0.539 (cm)
+!!Estimated dry mass of UO2: 0.84 mg (0.84E-3/238 = 3.52E-6 mol)
+!!Molar volume of UO2: 27 mL/mol (from "The geological setting of early oxygen oases and uranium mobility")
+!!Volume of UO2 in the 5 mL column: 9.49E-5 (mL) => volume fraction 1.59E-5
+!!UO2 surface area: 73.13 m2/g (Mapi)
+!!Protein mass: 153 ug in the column
+!!pH:7.05
+!!5 mM MOPS, 10 mM NaNO3
+!!Na+: 0.005+0.010 = 0.015 M (charge)
+!!NO3-: 0.010 M
+!!Cl-: 0.005 M
+END
+ 
+ 
+DISCRETIZATION
+distance_units        centimeter
+xzones                50    0.09
+END
+ 
+FLOW
+time_units            minute
+distance_units        centimeter
+constant_flow         0.062
+END
+ 
+RUNTIME
+time_units             hour
+timestep_max           0.1
+timestep_init          1E-9
+time_tolerance         0.001
+correction_max         2.0
+lag_activity           true
+debye-huckel           true
+database_sweep         false
+database               datacom_U_updated.dbs
+speciate_only          false
+gimrt                  true
+graphics               kaleidagraph
+density_module         temperature
+screen_output          1000
+!later_inputfiles
+END
+ 
+ 
+OUTPUT
+time_units                 hours
+space_units                centimeters
+spatial_profile            173
+time_series                uo2_d_bio_13.out   50  1  1
+time_series_print          UO2++   U++++   pH   NO3-   H2(aq)
+time_series_interval       1
+time_series_output         12.5  25.0  36.3  40.0  43.8  47.5  51.3  55.0  58.8  62.5 &
+66.3  70.0  73.8  77.5  81.3  85.0  90.0  96.3  103  110  116  123  129  133  139  145 &
+151  158  164  168  173
+END
+ 
+MINERALS
+UO2(am)             -label pH_dependent                 -rate          -1.3970000E+01
+UO2(am)_NO3         -label NO3_oxidative_dissolution    -rate          -1.2800000E+01     -associate UO2(am)
+UO2(am)_NO2         -label NO2_oxidative_dissolution    -rate          -1.1210000E+01     -associate UO2(am)
+!UO2(am)_bio1       -label Andob_dissolution            -rate          -4.0000000E+01     -associate UO2(am)
+!UO2(am)_bio2       -label Andob_dissolution            -rate          -4.0000000E+01     -associate UO2(am)
+Quartz              -label default                      -rate          -4.0000000E+01
+END
+
+AQUEOUS_KINETICS
+!Tracer_decay
+NO3_reduction
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin     UO2_dissolution        flux
+x_end       initial_condition      flux
+END
+ 
+ 
+INITIAL_CONDITIONS
+initial_condition          1-50
+END
+ 
+ 
+Condition    UO2_dissolution
+unites       molar
+temperature  25.0
+pH           7.05
+Tracer       1.00E-4
+Na+          charge
+Cl-          0.005
+NO2-         0.0
+NO3-         0.010
+SiO2(aq)     0.0
+UO2++        0.0
+U++++        0.0
+N2(aq)       0.0
+O2(aq)       0.0
+H2(aq)       1.00E-6   H2(g) 0.05   !1.00E-4
+UO2(am)      1.59E-5   ssa  73.13
+Quartz       0.6699    ssa  0.11
+!Site name     <site density mol/m^2>
+>SiOH        8.1400000E-06
+END
+ 
+ 
+condition    initial_condition
+units        molar
+temperature  25.0
+pH           7.05
+Tracer       1.00E-4
+Na+          charge
+Cl-          0.005
+NO2-         0.0
+NO3-         0.010
+SiO2(aq)     0.0
+UO2++        0.0
+U++++        0.0
+N2(aq)       0.0
+O2(aq)       0.0
+H2(aq)       1.00E-6   H2(g) 0.05   !1.00E-4
+UO2(am)      1.59E-5   ssa  73.13
+Quartz       0.6699    ssa  0.11
+!Site name     <site density mol/m^2>
+>SiOH        8.1400000E-06
+END
+ 
+TRANSPORT
+distance_units               centimeters
+time_units                   seconds
+fix_diffusion                3.60E-6  !Awakura et al. 1986
+dispersivity                 5.39E-1  !Br tracer test
+formation_factor             1.0
+!cementation_exponent        1.0
+END
+
+
+PRIMARY_SPECIES
+Tracer
+H+
+UO2++
+U++++
+SiO2(aq)
+Na+
+NO3-
+NO2-
+Cl-
+H2(aq)
+N2(aq)
+O2(aq)
+END
+ 
+SECONDARY_SPECIES
+H2SiO4--
+HSiO3-
+OH-
+NaOH(aq)
+UO2OH+
+UO2(OH)2(aq)
+UO2(OH)3-
+UO2(OH)4--
+(UO2)2OH+++
+(UO2)2(OH)2++
+(UO2)3(OH)4++
+(UO2)3(OH)5+
+(UO2)3(OH)7-
+(UO2)4(OH)7+
+UO2NO3+
+UO2Cl+
+UO2Cl2(aq)
+UO2SiO(OH)3+
+UOH+++
+U(OH)2++
+U(OH)3+
+U(OH)4(aq)
+UNO3+++
+U(NO3)2++
+UCl+++
+UCl2++
+END
+ 
+GASES
+H2(g)
+N2(g)
+O2(g)
+END
+ 
+TEMPERATURE
+set_temperature    25.0
+END
+ 
+SURFACE_COMPLEXATION
+>SiOH   on Quartz
+END
+ 
+POROSITY
+fix_porosity            0.33
+!!porosity_update       true
+END
+ 
+ 
+ 
+ 

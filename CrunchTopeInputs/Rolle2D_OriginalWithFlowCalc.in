@@ -1,0 +1,176 @@
+TITLE
+Massimo Rolle Multicomponent Diffusion--2D version
+END
+ 
+RUNTIME
+time_units         hours
+timestep_max       0.01
+timestep_init      0.000001
+time_tolerance     0.001
+hindmarsh          false
+correction_max     2.0
+debye-huckel       true
+database_sweep     no
+speciate_only      false
+gimrt              true
+graphics           tecplot
+master             H+
+database           datacom.dbs
+screen_output      10
+JennyDruhan        false
+ChromeTopes        false
+ResidualTolerance  1.0E-08
+solver              bcgs
+pc                  ilu
+pclevel             50
+gimrt_solver        gmres
+gimrt_pc            ilu
+gimrt_pclevel       1
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      1.00
+!!16
+!!500  1000
+time_series          Rolle.out    11  20  1
+time_series_print    K+  Mg++  Cl- 
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units  second
+fix_diffusion  1.000e-29
+D_25  K+    1.77E-29
+D_25  Na+   1.20E-29
+D_25  Mg++  6.26E-30
+D_25  Cl-   1.81E-29
+D_25  Br-   1.86E-29
+D_25  H+        8.57e-29
+D_25  OH-       4.85e-29
+formation_factor         1.00
+cementation_exponent     1.00
+dispersivity   0.0  0.0
+END
+
+DISCRETIZATION
+distance_units    centimeters
+xzones     48  0.25
+!!xzones    1  0.25  23 0.5  1 0.25
+yzones    1  0.1  100  1.0  1 0.1
+END
+
+INITIAL_CONDITIONS
+!!ambient      1-102  1-25  1-1
+ambient      1-48 1-102  1-1
+injection    23-26  1-1  1-1   fix
+END
+
+BOUNDARY_CONDITIONS
+x_begin  ambient         flux
+x_end    ambient         flux
+y_begin  ambient         flux
+y_end    ambient         flux          
+END
+ 
+FLOW
+time_units       days
+distance_units   centimeters
+calculate_flow   false
+constant_flow    0.0  61.5   0.0
+permeability_x   1.00E-10  default
+permeability_y   1.00E-10  default
+!!!permeability_x   0.000  zone 0-0 1-25 1-1
+!!!permeability_y   0.000  zone 1-102 0-0 1-1
+!!!permeability_y   0.000  zone 1-102 26-26 1-1
+
+permeability_x   0.000  zone 0-0   1-102  1-1
+permeability_x   0.000  zone 49-49 1-102  1-1
+permeability_y   0.000  zone 1-48  0-0    1-1
+
+pressure           100.00  default
+
+pressure          0.00   zone 1-25 103-103 1-1 fix
+initialize_hydrostatic  false
+
+pump             3.71377E-05   ambient   2  1   1
+pump             3.71377E-05   ambient   3  1   1
+pump             3.71377E-05   ambient   4  1   1
+pump             3.71377E-05   ambient   5  1   1
+pump             3.71377E-05   ambient   6  1   1
+pump             3.71377E-05   ambient   7  1   1
+pump             3.71377E-05   ambient   8  1   1
+pump             3.71377E-05   ambient   9  1   1
+pump             3.71377E-05   ambient   10 1   1
+pump             3.71377E-05   ambient   11 1   1
+
+pump             3.71377E-05   injection 12 1   1
+pump             3.71377E-05   injection 13 1   1
+
+pump             3.71377E-05   ambient   14 1   1
+pump             3.71377E-05   ambient   15 1   1
+pump             3.71377E-05   ambient   16 1   1
+pump             3.71377E-05   ambient   17 1   1
+pump             3.71377E-05   ambient   18 1   1
+pump             3.71377E-05   ambient   19 1   1
+pump             3.71377E-05   ambient   20 1   1
+pump             3.71377E-05   ambient   21 1   1
+pump             3.71377E-05   ambient   22 1   1
+pump             3.71377E-05   ambient   23 1   1
+pump             3.71377E-05   ambient   24 1   1
+END
+ 
+POROSITY
+fix_porosity    0.41
+END
+ 
+PRIMARY_SPECIES
+K+     
+Mg++  
+Cl- 
+H+
+Na+   
+Br-   
+END
+
+SECONDARY_SPECIES
+OH-
+END
+
+MINERALS
+END
+
+SURFACE_COMPLEXATION
+END
+
+!!AQUEOUS_KINETICS
+!!END 
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+GASES
+END
+
+condition injection
+units            mmol/kg  
+pH               7.0
+K+               0.29
+Na+              0.00
+Mg++             0.29
+Cl-              charge
+Br-              0.00
+END
+
+condition ambient
+units            mmol/kg  
+pH               7.0
+K+               0.000001
+Na+              0.00
+Mg++             0.000001
+Cl-              charge
+Br-              0.00
+END
+

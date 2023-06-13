@@ -1,0 +1,273 @@
+TITLE
+aperture map degradation.
+END
+
+RUNTIME
+time_units          hours
+timestep_max        1.0
+timestep_init       1.0E-10
+time_tolerance      0.01
+correction_max    2.0 
+correction_max    10.0
+gimrt             true
+debye-huckel      true
+screen_output     100
+database          datacom.dbs
+speciate_only     false
+Duan              false
+master            H+
+graphics          tecplot
+gimrt_solver      gmres
+gimrt_pc          bjacobi
+gimrt_pclevel     0
+solver            direct
+pc                direct
+pclevel           50
+END
+ 
+OUTPUT
+time_units           years
+spatial_profile       0.000001 0.005  0.010 0.015 0.020 0.025 0.05 0.060 0.070 0.080  0.090 0.1  0.2  0.3  0.4 0.5
+time_mineralseries    MineralVolumes10.out     10  1 1
+time_mineralseries    MineralVolumes11.out     11  1 1
+time_mineralseries    MineralVolumes12.out     12  1 1
+time_mineralseries    MineralVolumes13.out     13  1 1
+time_mineralseries    MineralVolumes14.out     14  1 1
+time_mineralseries    MineralVolumes15.out     15  1 1
+time_mineralseries    MineralVolumes16.out     16  1 1
+time_mineralseries    MineralVolumes17.out     17  1 1
+time_mineralseries    MineralVolumes18.out     18  1 1
+time_mineralseries    MineralVolumes19.out     19  1 1
+time_mineralseries    MineralVolumes20.out     20  1 1
+time_mineralseries    MineralVolumes43.out     43  1 1
+time_mineralseries    MineralVolumes44.out     44  1 1
+time_mineralseries    MineralVolumes45.out     45  1 1
+time_mineralseries    MineralVolumes46.out     46  1 1
+time_mineralseries    MineralVolumes47.out     47  1 1
+time_mineralseries    MineralVolumes48.out     48  1 1
+time_mineralseries    MineralVolumes49.out     49  1 1
+time_mineralseries    MineralVolumes50.out     50  1 1
+time_mineralseries    MineralVolumes51.out     51  1 1
+time_mineralseries    MineralVolumes52.out     52  1 1
+time_mineralseries    MineralVolumes53.out     53  1 1
+time_mineralseries    MineralVolumes54.out     54  1 1
+!time_series          breakthrough.out  40 100 1
+!time_series_print    pH Ca++ CO2(aq) 
+END
+ 
+Condition inlet
+temperature      25.0
+units            mol/kg
+pH               charge
+CO2(aq)          0.001
+Ca++             0.001
+Na+              0.1
+Cl-              0.1
+Tracer           0.01
+Bogusite          0.80
+Calcite           0.05  specific_surface_area 0.03500  ! Wang05
+END
+
+Condition outlet
+temperature      25.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    0.01
+Ca++             0.00001
+Na+              0.1
+Cl-              0.1
+Tracer           0.000001
+Bogusite          0.80
+Calcite           0.05  specific_surface_area 0.03500  ! Wang05
+END
+
+Condition fracture
+temperature      25.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    0.01
+Ca++             0.00001
+Na+              0.1
+Cl-              0.1
+Tracer           0.000001
+! Mineral name   <volume fraction>   <specific surface area> determined by BET method in m^2/g
+Bogusite          0.80
+Calcite           0.05  specific_surface_area 0.03500  ! Wang05
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units     seconds
+fix_diffusion  0.5E-5
+!cementation_exponent  3.1
+dispersivity  0.0 0.0
+END
+
+BOUNDARY_CONDITIONS
+x_begin   fracture    flux
+x_end     fracture    flux
+y_begin   inlet       flux
+y_end     outlet      flux
+END
+ 
+INITIAL_CONDITIONS
+fracture    1-78 1-183 1-1
+END
+ 
+POROSITY
+!!!fix_porosity    0.85
+porosity_update  true
+END
+
+DISCRETIZATION
+distance_units  millimeters
+xzones  78    0.3
+yzones  183   0.3
+zzones  1     0.24
+END
+ 
+FLOW
+time_units       seconds
+distance_units   meters
+!!constant_flow       0.00  0.0001
+calculate_flow      true
+
+read_PermeabilityFile   inputPermeability_300um
+permeability_x   0.000  zone 0-0   1-183  1-1        
+permeability_x   0.000  zone 79-79 1-183  1-1     
+
+!!! For closed lower boundary case where pumping is used
+!!!permeability_y   0.000  zone 1-78  0-0  1-1     
+  
+permeability_y   1.0E-07  zone 1-78 0-0  1-1  
+permeability_y   1.0E-07  zone 1-78 184-184  1-1 
+
+pressure            0.001      default
+pressure            0.005       zone  1-78   0-0     1-1 fix
+pressure            0.000      zone  1-78   184-184 1-1 fix
+
+!!!pump             0.00000000106837 inlet   1  1   1         
+!!!pump             0.00000000106837   inlet   2  1   1       
+!!!pump             0.00000000106837   inlet   3  1   1
+!!!pump             0.00000000106837   inlet   4  1   1
+!!!pump             0.00000000106837   inlet   5  1   1
+!!!pump             0.00000000106837   inlet   6  1   1
+!!!pump             0.00000000106837   inlet   7  1   1
+!!!pump             0.00000000106837   inlet   8  1   1
+!!!pump             0.00000000106837   inlet   9  1   1
+!!!pump             0.00000000106837   inlet   10 1   1
+
+!!!pump             0.00000000106837   inlet   11  1   1         
+!!!pump             0.00000000106837   inlet   12  1   1       
+!!!pump             0.00000000106837   inlet   13  1   1
+!!!pump             0.00000000106837   inlet   14  1   1
+!!!pump             0.00000000106837   inlet   15  1   1
+!!!pump             0.00000000106837   inlet   16  1   1
+!!!pump             0.00000000106837   inlet   17  1   1
+!!!pump             0.00000000106837   inlet   18  1   1
+!!!pump             0.00000000106837   inlet   19  1   1
+!!!pump             0.00000000106837   inlet   20 1   1
+
+!!!pump             0.00000000106837   inlet   21  1   1         
+!!!pump             0.00000000106837   inlet   22  1   1       
+!!!pump             0.00000000106837   inlet   23  1   1
+!!!pump             0.00000000106837   inlet   24  1   1
+!!!pump             0.00000000106837   inlet   25  1   1
+!!!pump             0.00000000106837   inlet   26  1   1
+!!!pump             0.00000000106837   inlet   27  1   1
+!!!pump             0.00000000106837   inlet   28  1   1
+!!!pump             0.00000000106837   inlet   29  1   1
+!!!pump             0.00000000106837   inlet   30 1   1
+
+!!!pump             0.00000000106837   inlet   31  1   1         
+!!!pump             0.00000000106837   inlet   32  1   1       
+!!!pump             0.00000000106837   inlet   33  1   1
+!!!pump             0.00000000106837   inlet   34  1   1
+!!!pump             0.00000000106837   inlet   35  1   1
+!!!pump             0.00000000106837   inlet   36  1   1
+!!!pump             0.00000000106837   inlet   37  1   1
+!!!pump             0.00000000106837   inlet   38  1   1
+!!!pump             0.00000000106837   inlet   39  1   1
+!!!pump             0.00000000106837   inlet   40 1   1
+
+!!!pump             0.00000000106837   inlet   41  1   1         
+!!!pump             0.00000000106837   inlet   42  1   1       
+!!!pump             0.00000000106837   inlet   43  1   1
+!!!pump             0.00000000106837   inlet   44  1   1
+!!!pump             0.00000000106837   inlet   45  1   1
+!!!pump             0.00000000106837   inlet   46  1   1
+!!!pump             0.00000000106837   inlet   47  1   1
+!!!pump             0.00000000106837   inlet   48  1   1
+!!!pump             0.00000000106837   inlet   49  1   1
+!!!pump             0.00000000106837   inlet   50 1   1
+
+!!!pump             0.00000000106837   inlet   51  1   1         
+!!!pump             0.00000000106837   inlet   52  1   1       
+!!!pump             0.00000000106837   inlet   53  1   1
+!!!pump             0.00000000106837   inlet   54  1   1
+!!!pump             0.00000000106837   inlet   55  1   1
+!!!pump             0.00000000106837   inlet   56  1   1
+!!!pump             0.00000000106837   inlet   57  1   1
+!!!pump             0.00000000106837   inlet   58  1   1
+!!!pump             0.00000000106837   inlet   59  1   1
+!!!pump             0.00000000106837   inlet   60 1   1
+
+!!!pump             0.00000000106837   inlet   61  1   1         
+!!!pump             0.00000000106837   inlet   62  1   1       
+!!!pump             0.00000000106837   inlet   63  1   1
+!!!pump             0.00000000106837   inlet   64  1   1
+!!!pump             0.00000000106837   inlet   65  1   1
+!!!pump             0.00000000106837   inlet   66  1   1
+!!!pump             0.00000000106837   inlet   67  1   1
+!!!pump             0.00000000106837   inlet   68  1   1
+!!!pump             0.00000000106837   inlet   69  1   1
+!!!pump             0.00000000106837   inlet   70 1   1
+
+!!!pump             0.00000000106837   inlet   71  1   1         
+!!!pump             0.00000000106837   inlet   72  1   1       
+!!!pump             0.00000000106837   inlet   73  1   1
+!!!pump             0.00000000106837   inlet   74  1   1
+!!!pump             0.00000000106837   inlet   75  1   1
+!!!pump             0.00000000106837   inlet   76  1   1
+!!!pump             0.00000000106837   inlet   77  1   1
+!!!pump             0.00000000106837   inlet   78  1   1
+
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+
+MINERALS
+Calcite            -label yanglinear -rate  -8.15
+Bogusite           -label default   -rate  -35.00
+END 
+
+GASES
+CO2(g)
+END
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Ca++
+Na+
+Cl-
+Tracer
+END
+
+SECONDARY_SPECIES  
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaOH+                                                                   
+HCl(aq)                                                                 
+NaCl(aq)                                                                
+NaOH(aq)                                                                
+OH-                                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)   
+END

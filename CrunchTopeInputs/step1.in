@@ -1,0 +1,180 @@
+TITLE
+Test of anion exclusion using the benchmark bentonite column experiment
+END
+
+DATABASE
+datacomMC_FMC_corr.dbs
+END
+
+RUNTIME
+time_units      days
+timestep_max    0.05 
+timestep_init   1.e-17
+debye-huckel    true
+lag_activity    true
+database_sweep  false
+hindmarsh       true
+time_tolerance  0.01
+correction_max  10.0
+gimrt           true
+master_variable Tracer
+speciate_only   false
+!!restart         pre1_FMC2.rst
+screen_output   100
+Duan            false
+graphics        tecplot
+END
+
+OUTPUT
+time_units    days
+!!1PV = 18 days
+spatial_profile  0.0001 
+!!6 17 24 31 38 47 59 74 89 103 115 136 168 204 232 253 285 300  
+time_series_at_node      Exclusion.out  25 1 1
+time_series_print        pH Tracer Cl- Na+ K+ Ca++ Mg++ SO4-- HCO3-
+time_series_interval     1
+WriteAqueousFlux         Plane1.out  25-25 1-1 1-1 
+WriteAqueousFlux         Plane2.out  2-3 1-1 1-1  
+FluxSpecies              Tracer  Cl-  Na+  Ca++  Mg++  SO4--  HCO3-
+WriteFluxWeightedConcentration  FluxWeighted1.out  25-25 1-1 1-1
+WriteFluxWeightedConcentration  FluxWeighted2.out  1-1 1-1 1-1
+FluxWeightedConcentrationSpecies  Tracer  Cl-  Na+  Ca++
+END
+
+POROSITY
+!!macroporosity
+!!fix_porosity       0.0714
+fix_porosity       0.0714
+!!porosity_update    false
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+Na+
+Ca++          
+Mg++  
+K+        
+Cl-
+SiO2(aq)
+Al+++
+SO4--
+HCO3-
+H2O
+END
+
+SECONDARY_SPECIES
+OH-
+Al(OH)2+
+AlO2-
+AlOH++
+HAlO2(aq)
+CaCl+
+CaCl2(aq)
+CaSO4(aq) 
+CaCO3(aq)                                                               
+CaHCO3+
+CaHSiO3+
+CaOH+   
+CO3-- 
+CO2(aq) 
+KCl(aq)                                                                
+KSO4-
+KOH(aq)                                                                    
+MgCl+                                                                   
+MgSO4(aq) 
+MgCO3(aq)                                                               
+MgHCO3+
+MgOH+                                                               
+NaCl(aq) 
+NaSO4-  
+NaHSiO3(aq)                                                             
+NaOH(aq)
+NaCO3-                                                                  
+NaHCO3(aq)
+NaAlO2(aq)                                                                 
+H2SiO4--
+HSiO3-
+HCl(aq)
+END
+
+SURFACE_COMPLEXATION
+END
+
+
+MINERALS  
+Calcite
+Gypsum   -rate -3.00
+END
+
+GASES
+END
+
+DISCRETIZATION 
+distance_units  centimeters
+xzones          25  0.2
+END
+ 
+Condition infiltration_solution
+!!Infiltration solution 
+units            mmol/kg 
+:Tracer           200.0
+pH               7.2
+Ca++             58.4
+Mg++             1.52 
+K+               0.25
+Na+              92  
+Cl-              charge
+SiO2(aq)         0.01
+Al+++            0.01
+SO4--            2.02
+HCO3-            0.12  
+!!Tracer            0.37
+Tracer            205
+H2O               55500.0
+END
+
+Condition Bentonite
+units            mmol/kg
+:Tracer           143.3
+pH               8.5
+Ca++              35
+Mg++              25
+K+                 5 
+Na+             charge
+Cl-              500
+SiO2(aq)         0.01
+Al+++            0.01
+SO4--            Gypsum
+HCO3-            Calcite
+Tracer            500
+H2O               55500.
+END
+
+INITIAL_CONDITIONS
+Bentonite   1-25
+END
+
+BOUNDARY_CONDITIONS
+X_begin   infiltration_solution   Flux
+X_end     Bentonite               Flux
+END
+
+TRANSPORT
+distance_units           meters
+time_units               second
+fix_diffusion   1.87e-9
+END
+
+FLOW
+distance_units  meters
+time_units  seconds
+constant_flow  2.3e-9
+!! m/s (Darcy velocity)
+END
+
+

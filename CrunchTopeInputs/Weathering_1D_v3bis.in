@@ -1,0 +1,267 @@
+TITLE 
+ShortCourse1_lucien.in:  Short course carbonate speciation 
+END 
+
+RUNTIME 
+time_units            years 
+timestep_max          1 
+timestep_init         1e-9 
+time_tolerance        0.0001 
+ResidualTolerance     1.0E-13 
+hindmarsh             true 
+correction_max        2 
+debye-huckel          yes 
+master                H+ 
+database_sweep        no 
+speciate_only         false 
+gimrt                 true 
+database              Thermoddem_2017_lucien_v2_trycal_sulfide_decoupled2.dbs 
+read_saturationFile   watersaturation_PLM6_dis10cm.dat  FullForm 
+screen_output         1000 
+graphics              kaleidagraph 
+SetSurfaceAreaConstant true
+END 
+
+OUTPUT    
+time_units               years    
+spatial_profile          0.01
+!!!15000  
+END 
+
+TRANSPORT 
+distance_units meters 
+time_units     seconds 
+fix_diffusion  1e-9 
+!!gas_diffusion  2.1E-05 
+!!gas_diffusion  9E-07 
+gas_diffusion  9E-06 
+MilligtonQuirk true 
+!!Constant_tortuosity CostaRica 
+dispersivity   0.1 
+!!!dispersivity   0.5 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+constant_flow    0.33 
+!!Infiltration 10000 injection X 
+END 
+
+MINERALS 
+Calcite  -label alkattanneut 
+Calcite  -label alkattanh+ 
+Calcite  -label alkattanco2 
+DolomiteO  -label alkattanneut_2 
+DolomiteO  -label alkattanh+_2 
+DolomiteO  -label alkattanco2_2 
+Quartz   -label default  
+Pyrite_ox  -label oxygen 
+Pyrite_fer  -label ferric -associate Pyrite_ox 
+Goethite  -label default 
+Albite(low)  -label default 
+Albite(low)  -label h+ 
+Albite(low)  -label oh- 
+Chlorite_phreeqc  -label h+_palandri 
+Chlorite_phreeqc  -label default_palandri 
+Illite(FeII)_godderis  -label default_godderis 
+Illite(FeII)_godderis  -label h_godderis 
+Illite(FeII)_godderis  -label oh_godderis 
+TOC_soil  -label release3 
+Kerogene  -label release3 
+END 
+
+AQUEOUS_KINETICS 
+Aerobic_respiration6 -pathway Aerobic_respiration6     1  
+Denitrification6a -pathway Denitrification6a     1  
+Denitrification6b -pathway Denitrification6b     1  
+Denitrification6c -pathway Denitrification6c     1  
+Aerobic_respiration6_kero -pathway Aerobic_respiration6_kero     1  
+Denitrification6_keroa -pathway Denitrification6_keroa     1  
+Denitrification6_kerob -pathway Denitrification6_kerob     1  
+Denitrification6_keroc -pathway Denitrification6_keroc     1  
+Nitrificationa -pathway Nitrificationa     1  
+Nitrificationb -pathway Nitrificationb     1  
+Dnra_soil -pathway Dnra_soil     1  
+Dnra_kero -pathway Dnra_kero     1  
+Feox  
+!!Sulfatereduction_soil -pathway Sulfatereduction_soil     1  
+!!Sulfatereduction_kero -pathway Sulfatereduction_kero     1  
+!!HSoxO2 -pathway HSoxO2     1  
+!!HSoxNO3 -pathway HSoxNO3     1  
+!!FeoxNO3 -pathway FeoxNO3     1  
+END 
+
+BOUNDARY_CONDITIONS    
+!!x_begin   injection     Dirichlet 
+!!x_end   ambient     flux 
+boundarycondition   injection  zone 0-0 1-1 1-1  Dirichlet 
+boundarycondition   ambient  zone 81-81 1-1  1-1  flux 
+END 
+
+INITIAL_CONDITIONS    
+ambient   1-80 1-1 1-1 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 80 0.1 
+END 
+
+Condition        injection    
+units            mol/kg 
+temperature      5.5 
+pH 5.31  
+O2(aq) O2(g)   0.168  
+Ca++ 2.8e-6  
+Mg++ 5.36e-7  
+K+ 3.59e-7  
+Na+ charge  
+Cl- 8.39e-6  
+SO4-- 2.48e-6  
+HCO3- CO2(g)   3.17E-04   
+Fe++ 0  
+Fe+++ 0  
+HS- 0  
+NH4+ 1e-9  
+NO3- 6.38e-5  
+NO2- 0  
+N2(aq) N2(g) 0.624  
+H4SiO4(aq) 0  
+Al+++ 0 
+N2O(aq) 0  
+(CH2O)(NH3)0.049(aq) 0.0026038 
+(CH2O)(NH3)0.081(aq)b 0 
+END 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
+
+Condition        ambient    
+units            mol/kg 
+!!temperature      12.0 
+pH 7.24  
+Ca++ 1.28e-03  
+Mg++ 9.19e-04  
+HCO3- 5.01e-03  
+H4SiO4(aq) 2.1e-04 
+Na+ charge 
+Al+++ 1.13e-6 
+Fe++ 9.7e-5 
+Fe+++ 1e-9 
+HS- 0  
+K+ 4.95e-5 
+Cl- 3.43e-5 
+SO4-- 7.76e-4 
+O2(aq) 0 
+(CH2O)(NH3)0.049(aq) 1e-9 
+(CH2O)(NH3)0.081(aq)b 1e-9 
+NO3- 8.16e-7  
+NO2- 1e-8  
+NH4+ 1e-8  
+N2(aq) 0  
+N2O(aq) 0  
+Pyrite_ox 0.0047 bsa 2 
+Pyrite_fer 0 bsa 2 
+DolomiteO 0.126 bsa 1115  
+Quartz 0.4002 bsa 18 
+Calcite 0.0117 bsa 12 
+Albite(low) 0.0674 bsa 30 
+Chlorite_phreeqc 0.0423 bsa 258 
+Illite(FeII)_godderis 0.2965 bsa 60101 
+Kerogene 0.0412 bsa 1000 
+!!set_porosity     0.01 
+!!Goethite 0 ssa 60 
+END 
+
+POROSITY    
+!!fix_porosity     0.10    
+porosity_update true    
+minimum_porosity    0.01    
+porosity_exponent   3.00    
+!!porosity_threshold  0.017    
+END 
+
+TEMPERATURE    
+set_temperature  5.3
+temperature_gradient  0.14625
+!!!Read_TemperatureFile  temperature_gradient_dis10cm.dat FullForm   
+END 
+
+PRIMARY_SPECIES 
+H+ 
+O2(aq) 
+HCO3- 
+Ca++ 
+Mg++ 
+H4SiO4(aq) 
+Na+ 
+Al+++ 
+Fe++ 
+Fe+++ 
+K+ 
+Cl- 
+SO4-- 
+(CH2O)(NH3)0.049(aq) 
+(CH2O)(NH3)0.081(aq)b 
+NO3- 
+N2(aq) 
+NH4+ 
+NO2- 
+HS- 
+N2O(aq) 
+END 
+
+SECONDARY_SPECIES 
+OH-  
+CO2(aq) 
+CO3--  
+MgHCO3+ 
+MgOH+ 
+MgCO3(aq) 
+MgSO4(aq) 
+CaOH+ 
+CaHCO3+ 
+CaCO3(aq) 
+CaSO4(aq) 
+H2SiO4-- 
+NaHCO3(aq)  
+NaCO3- 
+NaOH(aq)  
+NaSO4-  
+Al(OH)2+  
+AlOH++  
+!!Al(OH)3  
+!!Al(OH)4-  
+AlSO4+  
+!!Al(SO4)2-  
+FeCO3(aq)  
+!!!FeHCO3+  
+FeOH+  
+!!Fe(OH)2(aq)  
+!!Fe(OH)3-  
+FeCl+  
+FeSO4(aq)  
+!!Fe(OH)3(aq)  
+!!Fe(OH)4-  
+!!Fe(OH)2+  
+FeOH++  
+FeCl++  
+!!Fe2(OH)2++++  
+FeSO4+  
+!!Fe(SO4)2-  
+!!FeCl2+  
+!!Fe3(OH)4(5+)  
+!!FeCl++  
+!!HS-  
+END 
+
+
+
+GASES    
+CO2(g)    
+O2(g)    
+N2(g)    
+NH3(g)    
+N2O(g)    
+END 
+
+
+

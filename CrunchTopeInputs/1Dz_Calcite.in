@@ -1,0 +1,129 @@
+TITLE
+1D grids along z direction (i.e. perpendicular to the fracture plane)
+exposed to CO2 acidified brine
+To investigate the retreat fronts of different minerals.
+END
+
+RUNTIME
+time_units          hours
+timestep_max    0.01
+timestep_init   1.0E-10
+time_tolerance  0.01
+correction_max  10.0
+time_tolerance      0.001
+gimrt               true
+debye-huckel        true
+screen_output       50
+database            datacom_Steefel_Dol.dbs
+speciate_only       false
+Duan                true
+hindmarsh           true
+master              H+
+graphics        tecplot
+gimrt_solver    gmres
+gimrt_pc        bjacobi
+gimrt_pclevel   0
+solver          bcgs
+pc              ilu
+pclevel         5
+fix_saturation  1.00
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      0.0001 0.01 0.1 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 
+END
+ 
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Ca++
+END
+
+SECONDARY_SPECIES  
+HCO3-                                                                    
+CaOH+                                                                                                                               
+OH-                                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                              
+END
+
+Condition inlet
+temperature      25.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    34.5
+Ca++             1.0E-20
+END
+
+Condition brine
+temperature      25.0
+units            mol/kg
+pH               7.0
+CO2(aq)          1.0E-20
+Ca++             1.0E-20
+END
+
+Condition matrix
+temperature      25.0
+units            mol/kg
+pH               7.0
+CO2(aq)          1.0E-20
+Ca++             1.0E-20
+! bulk surface area
+Calcite           0.9    600
+END
+
+MINERALS
+!! Calcite coefficients from Deng et al.,2015, 
+Calcite            -label leichou1            -rate    -1.0809 
+Calcite            -label leichou3       -rate   -4.8239 
+Calcite            -label leichou2         -rate   -3.9586 
+END 
+
+GASES
+CO2(g)
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units     seconds
+fix_diffusion  1.0E-5
+!!!cementation_exponent  3.1
+dispersivity  0.0 0.0
+END
+
+
+BOUNDARY_CONDITIONS
+x_begin   inlet    Dirichlet
+x_end     matrix    flux
+END
+ 
+INITIAL_CONDITIONS
+brine       1-1 1-1 1-1
+matrix      2-500 1-1 1-1
+END
+ 
+POROSITY
+porosity_update  true
+END
+ 
+DISCRETIZATION
+distance_units  millimeters
+xzones  500 0.004 
+yzones  1   0.054
+zzones  1  0.054
+END
+ 
+FLOW
+time_units       seconds
+distance_units   meters
+constant_flow    0.0  0.0
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+

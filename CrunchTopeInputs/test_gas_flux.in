@@ -1,0 +1,123 @@
+TITLE 
+Test_gas_flux2 
+END 
+
+RUNTIME 
+time_units       years 
+timestep_max     1 
+timestep_init    1e-4 
+time_tolerance   0.01 
+hindmarsh        false 
+correction_max   1 
+debye-huckel     yes 
+master           Tracer 
+screen_output 1000 
+database_sweep   no 
+speciate_only    no 
+gimrt    true 
+read_saturationFile   watersaturation_max.dat  FullForm 
+database         datacom.dbs 
+END 
+
+OUTPUT    
+time_units               years    
+spatial_profile          1  
+END 
+
+TRANSPORT 
+!!distance_units meters 
+!!time_units     seconds 
+!!fix_diffusion  1e-9 
+!!gas_diffusion  9E-06 
+!!MilligtonQuirk true 
+!!dispersivity   0.0 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+!!constant_flow   0 0.3 0 
+!!Pump 1e-11 injection 1 1 1 !! [L/s] equivalent to 300 mm/year
+!!Infiltration 0.3 injection Y 
+!!calculate_flow  TRUE 
+!!PERMEABILITY 
+!!permeability_x 2.1e-13 default 
+!!permeability_y 2.1e-13 default 
+!!permeability_x 2.6e-13 zone 1-3 1-8 1-1 
+!!permeability_y 1e-12 zone 1-3 1-8 1-1 
+!!permeability_z 1.418e-30 default 
+!!permeability_x 0 zone 0-0 1-16 1-1 
+!!permeability_x 0 zone 4-4 1-16 1-1 
+!!permeability_y 0 zone 1-3 17-17 1-1 
+!!permeability_y 0 zone 1-3 0-0 1-1 
+!!RICHARD 
+!!ns_solve FALSE 
+!!Richards        TRUE 
+!!redistribute_wc TRUE 
+!!wc_init         0.4 
+!!wc_residual     0.04 
+!!watertable_init 8 
+!!vangenuchten_alpha 7.5 
+!!vangenuchten_n  1.37 
+!!y_is_vertical   TRUE 
+!!PRESSURE 
+!!pressure 39.24  zone 1-3 17-17 1-1 fix !! [Pa] equivalent to water table 4m bgs 
+!!pressure 0  zone 1-3 17-17 1-1 fix 
+!!pressure  0    default 
+!!pressure  0 zone 4-4 1-16 1-1 
+!!pressure  0 zone 1-3 0-0 1-1 fix  
+END 
+
+BOUNDARY_CONDITIONS    
+x_begin   injection     flux 
+x_end   ambient     flux 
+END 
+
+INITIAL_CONDITIONS    
+ambient   1-16 1-1 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 16 0.5 
+END 
+
+Condition        injection    
+units            mol/kg 
+temperature      8 
+Tracer 0.1  
+pH 5.31  
+!!O2(aq) O2(g)   0.168  
+END 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+Condition        ambient    
+units            mol/kg 
+temperature      12.0 
+pH 7.24  
+Tracer 0  
+!!O2(aq) 0 
+END 
+
+POROSITY    
+!!read_PorosityFile porosity_1D.dat FullForm    
+fix_porosity     0.4    
+porosity_update false    
+END 
+
+PRIMARY_SPECIES 
+Tracer 
+H+ 
+!!O2(aq) 
+END 
+
+SECONDARY_SPECIES 
+OH-  
+END 
+
+GASES    
+!!O2(g)    
+END 
+
+TEMPERATURE    
+!!set_temperature  25.0    
+END 
+

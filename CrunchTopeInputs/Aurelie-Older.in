@@ -1,0 +1,202 @@
+TITLE
+HTO through diffusion in sand without precipitation, 0.03 M NaCl; Pore scale, 50 by 1 mm (FTC 5.30)
+END
+
+RUNTIME
+time_units                 seconds
+timestep_max               1000
+timestep_init              1.0E-10
+correction_max             2.0
+debye-huckel               true
+database                   Thermoddem-Aurelie.dbs
+database_sweep             false
+speciate_only              false
+lag_activity               true
+coordinate                 rectangular
+graphics                   tecplot
+master                     HTO
+screen_output              100
+gimrt                      true
+END
+
+OUTPUT
+time_units                 days
+spatial_profile            1 
+!!!2 3 4 5 6 7 8 9 10
+END
+
+POROSITY
+porosity_update            false
+minimum_porosity           1.0E-14
+read_PorosityFile          LMC001_A_porosity.txt
+END
+
+TEMPERATURE
+set_temperature            25.0
+RunIsothermal              true
+END
+
+DISCRETIZATION
+distance_units   mm
+xzones 25 1 333 0.015 31 1
+yzones 67 0.015
+END
+
+INITIAL_CONDITIONS
+Filter1                   1-5      1-67
+Zone1                     6-25     1-67
+Zone2                     26-358   1-67
+Zone3                     359-383  1-67
+Filter2                   384-388  1-67
+HTO_precip                389-389  1-67
+END
+
+BOUNDARY_CONDITIONS
+x_begin                   Res1         dirichlet
+x_end                     Res2         dirichlet
+y_begin                   Res2         flux
+y_end                     Res2         flux
+END
+
+TRANSPORT
+distance_units             meters
+time_units                 seconds
+fix_diffusion              2.2360e-9
+cementation_exponent       2.0
+!!!D_25                       Na+    1.3300e-9
+!!!D_25                       Cl-    2.0300e-9
+!!!D_25                       Sr++   7.9400e-10
+!!!D_25                       SO4--  1.0700e-9
+!!D_25  H+        8.57e-09
+!!D_25  OH-       4.85e-09
+!!!tortuosity                 0.450  default
+!!!tortuosity                 1.000  zone     1-5      1-67   1-1
+!!!tortuosity                 1.000  zone     26-358   1-67   1-1
+!!!tortuosity                 1.000  zone     384-389  1-67   1-1
+END
+
+FLOW
+distance_units             meters
+time_units                 seconds
+constant_flow              0    0
+END
+
+Condition Res1
+units            mol/kgw
+temperature      25.0
+pH                5.5
+!!!HTO               8.852e-9
+HTO               1.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+Condition Filter1
+units            mol/kgw
+temperature       25.0
+pH                5.5
+HTO               0.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+Condition Zone1
+units            mol/kgw
+temperature       25.0
+pH                5.5
+HTO               0.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+Condition Zone2
+units            mol/kgw
+temperature       25.0
+pH                5.5
+HTO               0.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+Condition Zone3
+units            mol/kgw
+temperature       25.0
+pH                5.5
+HTO               0.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+Condition Filter2
+units            mol/kgw
+temperature       25.0
+pH                5.5
+HTO               0.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+Condition HTO_precip
+units            mol/kgw
+temperature      25.0
+pH                5.5
+HTO               HTO_prec
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1
+END
+
+Condition Res2
+units            mol/kgw
+temperature      25.0
+pH                5.5
+HTO               0.0
+Na+               0.030
+SO4--             0.0
+Cl-               0.030
+Sr++              0.0
+HTO_prec  0  bulk_surface_area 1E-999
+END
+
+MINERALS
+HTO_prec         -label default  -rate  -33.00
+END
+
+PRIMARY_SPECIES
+HTO
+H+
+Cl-
+Na+
+SO4--
+Sr++
+END
+
+SECONDARY_SPECIES                                                                                                                                                                                                         
+HCl
+HSO4-                                                                                                                                   
+NaOH                                                                    
+NaSO4-                                                                                                                                  
+SrCl+                                                                   
+SrOH+
+SrSO4
+END

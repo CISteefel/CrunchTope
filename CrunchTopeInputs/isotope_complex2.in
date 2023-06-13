@@ -1,0 +1,189 @@
+TITLE
+Acetate injection to an initial condition similar to the Rifle aquifer
+END
+
+RUNTIME
+time_units              days
+timestep_max            0.01
+timestep_init           1.E-11
+time_tolerance          0.001
+hindmarsh               true
+correction_max          2.0
+debye-huckel            true
+database_sweep          false
+speciate_only           true
+graphics                kaleidagraph
+master                  H+
+database                Rifle_MB.dbs
+coordinates             rectangular
+gimrt                   false
+screen_output           100
+END
+
+OUTPUT
+time_units  days
+spatial_profile       25 50
+time_series           0cm.out          1  1  1
+time_series           100cm.out        50  1  1
+time_series           200cm.out        100  1  1
+time_series_print     UO2++     U235O2++   pH     CO2(aq)  Acetate
+time_series_units     mol/kgw   mol/kgw    N.A.   mol/kgw  mol/kgw
+time_series_interval  10
+END
+
+MINERALS
+Quartz               -label  default
+C5H7O2NFe(s)         -label  default
+END
+
+ISOTOPES
+!!primary    U235O2++        UO2++         0.00720
+END
+
+SURFACE_COMPLEXATION
+>S(OH)2     on Quartz –no_edl
+>T(OH)2     on Quartz –no_edl
+END
+
+condition   groundwater
+units            mmol/kg             
+temperature      25.0         
+pH               7
+SiO2(aq)         0.43
+CO2(aq)          9.50000
+UO2++            6.9198000E-03
+U235O2++         5.01983E-05
+Acetate          0.0
+C5H7O2NFe        1.0E-20
+SolidDensity     2650
+>S(OH)2          3.84E-10
+>T(OH)2          3.84E-06
+
+Quartz                   0.631  ssa  0.43
+C5H7O2NFe(s)             9E-5
+END
+
+condition   inject
+units            mmol/kg             
+temperature      25.0         
+pH               7
+SiO2(aq)         0.43
+CO2(aq)          9.50000
+UO2++            6.9198000E-03
+U235O2++         5.01983E-05
+C5H7O2NFe        1.0E-20
+Acetate          5.0
+>S(OH)2          3.84E-10
+>T(OH)2          3.84E-06
+
+SolidDensity     2650
+Quartz       0.631  ssa 0.43
+C5H7O2NFe(s)             9E-5
+END
+
+INITIAL_CONDITIONS
+groundwater   1-100
+END                                    
+
+BOUNDARY_CONDITIONS
+x_begin   inject   flux
+x_end     groundwater   flux
+END                                 
+
+DISCRETIZATION
+distance_units      centimeters
+xzones              100  2.0
+END
+
+FLOW
+distance_units      centimeters
+time_units          days
+calculate_flow    true
+permeability_x    1.0756e-12  default
+pressure          3.15e2  zone 0-0  1-1  1-1  fix
+pressure          0  zone 101-101  1-1  1-1  fix
+!constant_flow       15
+END
+
+POROSITY
+fix_porosity 0.32
+END
+
+TRANSPORT
+distance_units           centimeters
+time_units               second
+fix_diffusion            0.919e-05 
+formation_factor         1.00
+cementation_exponent     1.90
+dispersivity             10.25
+END
+
+PRIMARY_SPECIES
+H+
+SiO2(aq)
+CO2(aq)
+UO2++
+U235O2++
+C5H7O2NFe
+Acetate
+END
+
+SECONDARY_SPECIES
+OH-
+HCO3-
+CO3--
+Acetic_acid(aq)
+!! U species
+UO2OH+
+UO2(OH)2(aq)
+UO2(OH)3-
+UO2(OH)4--
+(UO2)2OH+++
+(UO2)2(OH)2++
+(UO2)3(OH)4++
+(UO2)3(OH)5+
+(UO2)3(OH)7-
+(UO2)4(OH)7+
+UO2CO3(aq)
+UO2(CO3)2--
+UO2(CO3)3----
+(UO2)3(CO3)6(6-)
+(UO2)2CO3(OH)3-
+(UO2)3O(OH)2(HCO3)+
+(UO2)11(CO3)6(OH)12--
+!!Ca2UO2(CO3)3(aq)
+!!CaUO2(CO3)3--
+!!CaUO2(CO3)3--
+!!UO2NO3+
+!!UO2SO4(aq)
+!!UO2(SO4)2--
+
+!! U235 species
+U235O2OH+
+U235O2(OH)2(aq)
+U235O2(OH)3-
+U235O2(OH)4--
+(U235O2)2OH+++
+(U235O2)2(OH)2++
+(U235O2)3(OH)4++
+(U235O2)3(OH)5+
+(U235O2)3(OH)7-
+(U235O2)4(OH)7+
+U235O2CO3(aq)
+U235O2(CO3)2--
+U235O2(CO3)3----
+(U235O2)3(CO3)6(6-)
+(U235O2)2CO3(OH)3-
+(U235O2)3O(OH)2(HCO3)+
+(U235O2)11(CO3)6(OH)12--
+!!Ca2U235O2(CO3)3(aq)
+!!CaU235O2(CO3)3--
+!!CaU235O2(CO3)3--
+!!U235O2NO3+
+!!U235O2SO4(aq)
+!!U235O2(SO4)2--
+END
+
+TEMPERATURE
+set_temperature  25.0
+END

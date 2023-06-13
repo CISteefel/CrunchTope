@@ -1,0 +1,282 @@
+TITLE
+Chronosequence Be with new surface complexation, laboratory rates
+END
+ 
+RUNTIME
+time_units        years
+timestep_max      .1
+timestep_init     1.0E-14
+time_tolerance    0.005
+correction_max    2.0
+debye-huckel      true
+speciate_only     false
+database_sweep    false
+database          datacomBe13.dbs
+!Fix_saturation   0.25
+graphics          tecplot
+screen_output     100
+!save_restart     abeflow.rst
+!later_inputfiles abeflowa.in
+gimrt   false
+END
+
+
+FLOW
+time_units      years
+distance_units  meters
+calculate_flow       true
+read_permeabilityfile perm 
+!14 to 19 is low perm zone
+pressure            0 zone 51-51 15-19 1-1 fix
+pressure            0 zone 51-51 1-14 1-1 fix     
+pressure            0 zone 0-51 20-20 1-1 fix     
+gravity    110.0  0.0  110.0 up
+!initialize_hydrostatic true
+
+!pressure 2000 default 
+!pressure 0.0 zone 51-51 15-19 1-1 fix
+!pump             1.2991225   Pulse 1 18 1
+!pump             1.2991225   Pulse 2 18 1
+!pump             1.2991225   Pulse 3 18 1
+!pump             1.2991225   Pulse 4 18 1
+!pump             1.2991225   Pulse 5 18 1
+!pump             1.2991225   Pulse 6 18 1
+!pump             1.2991225   Pulse 7 18 1
+!pump             1.2991225   Pulse 8 18 1
+!pump             1.2991225   Pulse 9 18 1
+!pump             1.2991225   Pulse 10 18 1
+!pump             1.2991225   Pulse 11 18 1
+!pump             1.2991225   Pulse 12 18 1
+END
+
+!EROSION/BURIAL
+!time_units  years
+!distance_units millimeters
+!erode_x  -1
+!END
+ 
+MINERALS
+K-FeldsparBe_9          -label default  -rate  -12.60     
+HalloysiteTD            -label default  -rate  -14.0 !-13.3      
+AlbiteAn20l-lowBe_9     -label default  -rate  -13.0     
+Quartz                  -label default  -rate  -55      
+END
+ 
+GASES
+CO2(g)
+END
+ 
+ 
+TEMPERATURE
+set_temperature 15
+END
+ 
+DISCRETIZATION
+xzones 50 .5
+!!!yzones 19 .5
+END
+ 
+BOUNDARY_CONDITIONS
+X_begin   Profile        flux
+X_end     Profile        flux
+Y_begin   Profile        flux
+Y_end     Profile        flux
+END
+ 
+INITIAL_CONDITIONS
+Profile 1-50 1-18 1-1
+!!!Pulse 1-50 19-19 1-1
+END
+ 
+TRANSPORT
+distance_units       centimeters
+time_units           seconds
+!fix_diffusion        0.919E-05
+!formation_factor      1.0
+!cementation_exponent  1.3
+!dispersivity          0 0
+END
+ 
+ION_EXCHANGE
+!exchange   XKaol- on KaoliniteCIS
+!exchange   XSmect- on Smectite-high-Fe-Mg
+!convention Gaines-Thomas
+END
+ 
+PRIMARY_SPECIES
+H+
+Be_9++
+Be_10++
+Sn++
+CO2(aq)
+Mg++
+Ca++
+K+
+SiO2(aq)
+Na+
+!Al+++
+HAlO2(aq)
+Cl-
+Sr++
+NO3-
+SO4--
+Fe++
+Fe+++
+!HA(aq)
+Tracer
+END
+ 
+Condition Pulse
+temperature      15
+set_porosity     0.9999999999999
+H+                    0
+CO2(aq)        CO2(g)  0.005
+Be_9++            1.65E-10
+Be_10++                  2.8E-17
+Sn++                   1.00E-30
+Na+                    1.00E-04
+Mg++                   1.00E-04
+K+                  1.00E-05
+Ca++                    9.00E-05
+Sr++                      5.00E-07
+Tracer                       1E-5
+HAlO2(aq)               1.6506E-10 
+SiO2(aq)                9.01E-07
+Cl-                        1.00E-04
+NO3-                     1.00E-04
+Fe++                     1.00E-10
+Fe+++                    1.00E-19
+SO4--                      1.61E-04
+HalloysiteTD              1E-10 ssa  1e-9
+END
+
+Condition Rainfall
+temperature      15
+set_porosity     0.9999999999999
+H+                    0
+CO2(aq)        CO2(g)  0.005
+Be_9++                      1.65E-10
+Be_10++                     2.8E-17
+Sn++                      1.00E-30
+Na+                     1.00E-04
+Mg++                       1.00E-04
+K+                       1.00E-05
+Ca++                      9.00E-05
+Sr++                       5.00E-07
+HAlO2(aq)                  1.6506E-10 
+Tracer                      1E-30
+SiO2(aq)                  9.01E-07
+Cl-                       1.00E-04
+NO3-                      1.00E-04
+Fe++                      1.00E-10
+Fe+++                     1.00E-19
+SO4--                       1.61E-04
+HalloysiteTD                  1E-10 ssa  1e-9
+END
+
+
+Condition Profile  !Water at 1.2 m
+temperature    15
+H+                    0
+CO2(aq)         CO2(g)  0.005
+Be_9++                  1E-10
+Be_10++                   1E-30
+Sn++                     1.00E-30
+Na+                          4.25E-04
+Mg++                         1.96E-04
+K+                           1.62E-05
+Ca++                         9.07E-05
+Sr++                          5.07E-07
+HAlO2(aq)                     1.6506E-10 
+SiO2(aq)                      9.01E-07
+Cl-                           4.65E-04
+NO3-                          1.00E-05
+Fe++                          1.00E-10
+Fe+++                         1.00E-19
+SO4--                         1.61E-04
+Tracer                        1E-30
+Quartz                        0.500 ssa   1
+K-FeldsparBe_9                0.150 ssa  .1
+HalloysiteTD                  0.025 ssa  10
+AlbiteAn20l-lowBe_9            0.150 ssa  .1
+SolidDensity                    2650
+!Site name     <site density mol/m**2>  <specific surf area  m**2/g>  
+>AlOH_strong       5E-11             10
+END
+ 
+SURFACE_COMPLEXATION
+!>AlOH_strong on HalloysiteTD  
+END
+
+AQUEOUS_KINETICS
+!Be10_decay
+END
+
+SECONDARY_SPECIES
+Al(OH)2+
+AlO2-
+!HAlO2(aq)
+AlOH++
+CaCl+
+CaCl2(aq)
+CaOH+
+HCO3-
+H2SiO4--
+Al+++
+!HA-Al
+HCl(aq)
+HSiO3-
+KCl(aq)
+MgCl+
+NaAlO2(aq)
+NaCl(aq)
+NaHSiO3(aq)
+NaOH(aq)
+OH-
+CO3--
+CaCO3(aq)
+CaHCO3+
+MgCO3(aq)
+MgHCO3+
+NaCO3-
+NaHCO3(aq)
+SrCO3(aq)
+!Be(OH)2(aq)
+!Be(SO4)2--
+!Be(SO4)3----
+!Be2OH+++
+!Be3(OH)3+++
+!Be5(OH)6++++
+!Be5(OH)7+++
+!Be6(OH)8++++
+!BeBr+
+!BeCO3(aq)
+!BeCl+
+!BeF+
+!BeF2(aq)
+!BeF3-
+!BeF4--
+!BeNO3+
+!BeSO4(aq)
+Be_9(OH)2(aq)
+Be_10(OH)2(aq)
+Be_92OH+++
+Be_102OH+++
+END
+
+
+POROSITY
+read_porosityfile   porositysc.dat
+porosity_update true
+!porosity_min 1E-12
+END
+
+
+OUTPUT 
+spatial_profile      .1  .5 1
+time_series          sapout1.txt  40 13 1
+time_series_print    H+ Tracer SiO2(aq) Na+ Ca++ K+ CO2(aq)
+WriteFluxWeightedConcentration   capture.out  50-50 15-19 1-1
+FLuxWeightedConcentrationSpecies  H+ Tracer 
+!!SiO2(aq) Na+ Ca++ K+ CO2(aq)
+END

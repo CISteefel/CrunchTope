@@ -1,0 +1,283 @@
+TITLE
+Souring-Cloumn Simulations
+END
+
+RUNTIME
+time_units         days
+timestep_max       0.01
+timestep_init      1.0E-10
+time_tolerance     0.001
+hindmarsh          false
+correction_max     10.0
+debye-huckel       true
+database_sweep     false
+speciate_only      false
+graphics           kaleidagraph
+solver             bicg
+pc                 ilu
+pclevel            5
+master_variable    H+ 
+!database           OldRifleDatabaseInhibition.dbs
+database           OldRifleDatabase-BhavnaSep2015.dbs
+coordinates        rectangular
+gimrt              true
+gimrt_solver       gmres
+gimrt_pc           bjacobi
+gimrt_pclevel      2
+screen_output      50
+!!!restart           shutdown.rst append
+save_restart      Souring160.rst
+!later_inputfiles   Souring90.in
+END
+
+OUTPUT
+time_units        days
+spatial_profile   150.1 155 160 165 170 175 180
+!spatial_profile   10.0001 23.0001 30 40 50 60 70 80   
+time_series Dynamic1.out   1
+time_series Dynamic10.out  10 
+time_series Dynamic20.out  20
+time_series Dynamic100.out 100
+time_series_print pH SO4-- ClO4- H2S(aq) S(aq) Acetate NH3(aq) CO2(aq) HCO3- Cl- C5H7O2NSO4 C5H7O2NClO4 C5H7O2NClO4SOB
+time_series_interval 5
+END
+
+
+DISCRETIZATION
+distance_units   meters
+!xzones           100  0.00084
+xzones           100  0.00254
+yzones           1    0.0043
+!yzones           1    0.06557
+!zzones          1    1.0
+END
+
+FLOW
+distance_units      meters
+time_units          second
+calculate_flow      true
+!x-zones permeablity
+permeability_x      144.09E-010  default
+permeability_x      144.09E-010  zone 1-101 1-1 1-1
+permeability_x      0.0          zone 0-0   1-1 1-1
+!pressure   101325.0  default
+!pressure   101338.9  zone 0-0     1-2 1-1 fix
+!pressure   101325.0  zone 101-101 1-1 1-1 fix
+pressure   0.0  zone 101-101 1-1 1-1 fix
+!--------PUMP--------------
+!pump 2.26665E-6 Injection1 1 1 1 
+!pump 0.0E-13 Injection1 1 1 1 
+pump 2.8333E-6 Injection1 1 1 1 
+!pump 1.1667E-12 Injection2 10 1 1 
+!pump 1.1667E-12 Injection2 15 1 1 
+!pump 1.1667E-12 Injection2 20 1 1
+!pump 1.1667E-12 Injection2 25 1 1  
+!pump 1.1667E-12 Injection2 30 1 1
+!pump 1.1667E-12 Injection2 35 1 1  
+!pump 1.1667E-12 Injection2 40 1 1 
+!pump 1.1667E-12 Injection2 45 1 1 
+!pump 1.1667E-12 Injection2 50 1 1 
+!pump 1.1667E-12 Injection2 55 1 1 
+!pump 1.1667E-12 Injection2 60 1 1 
+!pump 1.1667E-12 Injection2 65 1 1 
+!pump 1.1667E-12 Injection2 70 1 1 
+!pump 1.1667E-12 Injection2 75 1 1 
+!pump 1.1667E-12 Injection2 80 1 1 
+!pump 1.1667E-12 Injection2 85 1 1 
+!pump 1.1667E-12 Injection2 90 1 1 
+END
+
+POROSITY
+porosity_update   true
+END
+
+TRANSPORT
+distance_units           centimeters
+time_units               second
+!anisotropy_ratio         0.1
+fix_diffusion            0.919e-05 
+formation_factor         1.00
+cementation_exponent     1.90
+dispersivity       15.0   0.0
+END
+
+PRIMARY_SPECIES
+H+
+!Fe++
+SO4--
+H2S(aq)
+Acetate
+NH3(aq)
+ClO4-
+C5H7O2NSO4
+C5H7O2NClO4
+C5H7O2NClO4SOB
+CO2(aq)
+Na+
+Cl-
+S(aq)
+SiO2(aq)
+O2(aq)
+N2(aq)
+HCO3-
+decay_b_so4
+decay_b_clo4
+END
+
+SECONDARY_SPECIES
+OH-
+CO3--
+Acetic_acid(aq)
+HS-
+NH4+
+S--
+END
+
+MINERALS
+Quartz               -label  default -rate  -35.0
+!FeS(am)              -label  default -rate  -12.5
+!Fe(OH)3H2S           -label  default -rate  -1.0 
+!Siderite             -label  default -rate  -4.0
+C5H7O2NSO4(s)        -label  default -rate  -2.0
+C5H7O2NClO4(s)        -label  default -rate  -2.0
+C5H7O2NClO4SOB(s)        -label  default -rate  -2.0
+decay_b_so4(s)       -label  default -rate  -3.045  -associate  C5H7O2NSO4(s)
+decay_b_clo4(s)       -label  default -rate  -2.6   -associate  C5H7O2NClO4(s)
+!S(s)                 -label  default -rate  -10.0
+END
+
+AQUEOUS_KINETICS
+Sulfate_reduction_inhib_1
+Perchlorate_reduction_SO
+Perchlorate_reduction
+END 
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+GASES
+CO2(g)
+O2(g)
+H2S(g)
+N2(g)
+END
+
+BOUNDARY_CONDITIONS
+x_begin   Initial       flux
+x_end     Initial       flux
+y_begin   Initial       flux
+y_end     Initial       flux
+END
+
+INITIAL_CONDITIONS
+Initial  1-100  1-1  1-1
+END
+
+condition       Initial
+units           mol/kg
+temperature     25.0
+pH              7.0
+Fe++            0.0E-24
+SO4--           25.0E-3
+H2S(aq)         0.0E-24
+Acetate         50.0E-3
+NH3(aq)         40.0E-3
+ClO4-            0.0E-24
+C5H7O2NSO4      1.0E-24
+decay_b_so4      1.0E-13
+decay_b_clo4      1.0E-13
+C5H7O2NClO4      1.0E-24
+C5H7O2NClO4SOB      0.0E-24
+CO2(aq)         0.0E-24
+Na+             1.304927
+Cl-             0.846198
+SiO2(aq)        1.0E-24
+O2(aq)          1.0E-24
+S(aq)           1.0E-24
+N2(aq)          1.0E-24
+HCO3-           1.0E-24
+!----------------------
+Quartz          0.5     specific_surface_area 0.037
+C5H7O2NSO4(s)   1.0E-10
+C5H7O2NClO4(s)   1.0E-10
+C5H7O2NClO4SOB(s)   1.0E-10
+decay_b_so4(s)   1.0d-8        bulk_surface_area  1.0 
+decay_b_clo4(s)   1.0d-8        bulk_surface_area  1.0 
+!C5H7O2NNO3(s)   1.0E-7
+!FeS(am)         0.0E-24    
+!Fe(OH)3H2S      0.0E-24
+!Siderite        0.05E-24
+!S(s)            0.0
+!----------------------
+end
+
+condition       Injection1
+units           mol/kg
+temperature     25.0
+pH              7.0
+!Fe++            0.0E-24
+!SO4--          11.55E-3
+SO4--           19.0E-3
+H2S(aq)         0.0E-24
+Acetate         50.0E-3
+NH3(aq)         40.0E-3
+ClO4-            55.785E-03
+!NO3-            18.839E-04
+!NO3-            18.839E-03
+C5H7O2NSO4      0.00E-15
+C5H7O2NClO4      0.00E-15
+C5H7O2NClO4SOB      0.00E-15
+decay_b_so4      1.0E-13
+decay_b_clo4      1.0E-13
+CO2(aq)         0.0E-3
+Na+             1.304927
+Cl-             0.846198
+SiO2(aq)        1.0E-24
+O2(aq)          1.0E-24
+S(aq)           1.0E-24
+N2(aq)          1.0E-24
+HCO3-           0.0E-3
+decay_b_so4(s)   1.0d-8        bulk_surface_area  1.0 
+decay_b_clo4(s)   1.0d-8        bulk_surface_area  1.0 
+!Quartz          0.8777
+!FeS(am)         1.0E-5       specific_surface_area 0.037
+!Siderite        0.0       
+!C5H7O2NSO4(s)   1.0E-6
+!S(s)            0.0
+end
+
+condition       Injection2
+units           mol/kg
+temperature     25.0
+pH              7.0
+Fe++            0.0E-24
+!SO4--          11.55E-3
+SO4--           27.0E-3
+H2S(aq)         0.0E-24
+Acetate         20.0E-3
+NH3(aq)         0.0E-3
+ClO4-            55.000E-02
+!NO3-            18.839E-04
+!NO3-            18.839E-03
+C5H7O2NSO4      0.00E-24
+C5H7O2NClO4      0.00E-24
+C5H7O2NClO4SOB      0.00E-24
+decay_b_so4      1.0E-13
+decay_b_clo4      1.0E-13
+CO2(aq)         20.0E-3
+Na+             1.304927
+Cl-             0.846198
+SiO2(aq)        1.0E-24
+O2(aq)          1.0E-24
+S(aq)           1.0E-24
+N2(aq)          1.0E-24
+HCO3-           20.0E-3
+decay_b_so4(s)   1.0d-8        bulk_surface_area  1.0 
+decay_b_clo4(s)   1.0d-8        bulk_surface_area  1.0 
+!Quartz          0.8777
+!FeS(am)         1.0E-5       specific_surface_area 0.037
+!Siderite        0.0       
+!C5H7O2NSO4(s)   1.0E-6
+!S(s)            0.0
+end

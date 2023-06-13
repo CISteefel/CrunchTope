@@ -1,0 +1,156 @@
+TITLE
+!!Project: regolith formation by chemical weathering
+END
+
+RUNTIME
+speciate_only      false
+database_sweep     false
+time_units         days
+timestep_max       1.0
+timestep_init      1.E-10
+time_tolerance     0.01
+correction_max     10.0
+debye-huckel       false
+graphics           tecplot
+Hindmarsh          false
+solver             bcgs
+pc                 jacobi
+pclevel            1
+gimrt              true
+master             Tracer
+database           OldRifleDatabaseLiLi.dbs
+coordinates        rectangular
+screen_output      10
+save_restart       Fluo2.rst
+!!later_inputfiles   HL2.in
+END
+
+OUTPUT
+time_units         days
+spatial_profile    1.0
+time_series        breakthroughcurves1.out     25  1   1
+time_series        breakthroughcurves2.out     25  2   1
+time_series        breakthroughcurves3.out     25  3   1
+time_series        breakthroughcurves4.out     25  4   1
+time_series        breakthroughcurves5.out     25  5   1
+time_series        breakthroughcurves6.out     25  6   1
+time_series        breakthroughcurves7.out     25  7   1
+time_series        breakthroughcurves8.out     25  8   1
+time_series_print  all
+time_series_interval  10
+! needs to be primary species, "all" mean all primary species will be printed out
+END
+
+
+
+BOUNDARY_CONDITIONS
+x_begin     rain    flux
+x_end       soil    flux
+y_begin     soil    flux
+y_end       soil    flux
+END
+
+INITIAL_CONDITIONS
+soil    1-25 1-64 1-1
+END
+
+POROSITY
+!!read_PorosityFile     porosityA   SingleColumn
+porosity_update     false
+fix_porosity        0.40
+!!!minimum_porosity    1.0E-06
+END
+
+MINERALS
+END
+
+FLOW
+distance_units  meters
+time_units      seconds
+calculate_flow  true
+permeability_x      1.18602E-18   default
+permeability_y      1.18602E-18   default
+read_PermeabilityFile  permeabilityHill SingleColumn
+permeability_x         1.0E-18  zone  0-0   1-64      1-1
+
+
+
+pump      95.1E-08    rain    12 32         1
+pump    95.1E-08    rain   1 64         1
+pump    95.1E-08    rain   2 62         1
+pump    95.1E-08    rain   3 60         1
+pump    95.1E-08    rain   4 58         1
+pump    95.1E-08    rain   5 56         1
+pump    95.1E-08    rain   6 54         1
+pump    95.1E-08    rain   7 52         1
+pump    95.1E-08    rain   8 50         1
+pump    95.1E-08    rain   9 48         1
+pump    95.1E-08    rain   10 46        1
+pump    95.1E-08    rain   11 44        1
+pump    95.1E-08    rain   12 42        1
+pump    95.1E-08    rain   13 40        1
+pump    95.1E-08    rain   14 38        1
+pump    95.1E-08    rain   15 36        1
+pump    95.1E-08    rain   16 34        1
+pump    95.1E-08    rain   17 32        1
+pump    95.1E-08    rain   18 29        1
+pump    95.1E-08    rain   19 26        1
+pump    95.1E-08    rain   20 23        1
+pump    95.1E-08    rain   21 20        1
+pump    95.1E-08    rain   22 17        1
+pump    95.1E-08    rain   23 14        1
+pump    95.1E-08    rain   24 11        1
+pump    95.1E-08    rain   25  8        1
+!!!pump    -4755.0E-08   soil    25    1    1
+!!!pump    -4755.0E-08   soil    25    2    1
+!!!pump    -4755.0E-08   soil    25    3    1
+!!!pump    -4755.0E-08   soil    25    4    1
+!!!pump    -4755.0E-08   soil    25    5    1
+!!!pump    -4755.0E-08   soil    25    6    1
+!!!pump    -4755.0E-08   rain    25    7    1
+!!!pump    -9.90625E-08   soil    25    8    1
+!---Pressure------
+pressure           1.0     default
+pressure           1.0     zone  26-26  1-64  1-1  fix 
+!!pressure         600.0  zone  1-25  65-4  1-1  fix 
+!!pressure         0.0  zone  26-26     1-7  1-1  fix
+gravity 90.0  0.0   90.0 down
+END
+
+DISCRETIZATION
+distance_units  meters
+xzones    25   3.50
+yzones    64   0.25 
+END 
+
+TRANSPORT
+distance_units         meters
+time_units             seconds
+fix_diffusion          6.0E-10
+cementation_exponent   1.5
+dispersivity           0.3   0.003
+END
+
+PRIMARY_SPECIES
+Tracer
+END
+
+SECONDARY_SPECIES
+END
+
+GASES
+END
+
+Condition      rain 
+units          mol/kg
+temperature    25.0
+Tracer    1.0E-01
+END
+
+Condition      soil
+units          mol/kg
+temperature    25.0
+Tracer        1.0E-05
+END
+
+

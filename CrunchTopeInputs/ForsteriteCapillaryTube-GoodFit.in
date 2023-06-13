@@ -1,0 +1,221 @@
+TITLE 
+Li Yang's Capillary Tube Forsterite Experiment
+END
+
+RUNTIME
+time_units      hours
+database        Liz-CIS.dbs
+database_sweep  false
+gimrt           true
+timestep_init   1E-9
+timestep_max    0.005
+screen_output   1000
+speciate_only   false
+hindmarsh       true
+fix_saturation  1.00
+duan            true
+ForsteriteCapillary  true
+graphics        kaleidagraph
+save_restart    NoNucleation.rst
+END
+
+OUTPUT
+time_units   hours
+spatial_profile  50.0 100.0 150.0 200.0 300.0
+time_series       LiYangCapillary-Forsterite.out  100
+time_series_print Tracer Mg++ SiO2(aq)
+time_series_interval  1
+END
+
+
+MINERALS
+!!!Magnesite1              -label nucleate_magnesite1       -rate  -7.00
+!!!Magnesite1              -label nucleate_magnesite1       -rate  -7.25
+Magnesite1              -label nucleate_magnesite1       -rate  -7.35
+!!!Magnesite1              -label ripen                     -rate  -5.22
+!!!Magnesite1              -label ripen                     -rate  -5.35
+!!!Magnesite1              -label ripen                     -rate  -5.45
+!!!Magnesite1              -label ripen                     -rate  -5.37
+!!!Magnesite1              -label ripen                     -rate  -5.375
+!!!Magnesite1              -label ripen                     -rate  -5.38
+!!!Magnesite1              -label ripen                     -rate  -5.3775
+!!!Magnesite1              -label ripen                     -rate  -5.3770
+!!!Magnesite1              -label ripen                     -rate  -5.3772  Plot 24
+!!!Magnesite1              -label ripen                     -rate  -5.3773  Plot 25
+!!!Magnesite1              -label ripen                     -rate  -5.37725  Plot 26
+!!!Magnesite1              -label ripen                     -rate  -5.3772000  Plot 27
+!!!Magnesite1              -label ripen                     -rate  -5.3772200  Plot 29
+!!!Magnesite1              -label ripen                     -rate  -5.3772100  Plot 31
+!!!Magnesite1              -label ripen                     -rate  -5.3772150  Plot 33
+!!!Magnesite1              -label ripen                        -rate  -5.37721750  Plot 34
+!!!Magnesite1              -label ripen                        -rate  -5.37721600  Plot 36
+!!!Magnesite1              -label ripen                        -rate  -5.37721550  Plot 37
+!!!Magnesite1              -label ripen                        -rate  -5.37721557  Plot 38
+!!!Magnesite1              -label ripen                           -rate  -5.37721555  Plot 40
+!!!Magnesite1              -label ripen                           -rate  -5.300  Plot 41
+!!!Magnesite1              -label ripen                           -rate  -5.297  Plot 42
+!!!Magnesite1              -label ripen                           -rate  -5.290  Plot 43
+!!!Magnesite1              -label ripen                           -rate  -5.294  Plot 44
+!!!Magnesite1              -label ripen                           -rate  -5.2925  Plot 45
+!!!Magnesite1              -label ripen                           -rate  -5.2920  Plot 46
+!!!Magnesite1              -label ripen                           -rate  -5.2920  Plot 47
+Magnesite1              -label ripen                           -rate  -35.2917  Plot 48
+
+
+!!!Forsterite              -label pH                        -rate  -7.20
+!!!Forsterite              -label pH                        -rate  -7.15
+!!!Forsterite              -label pH                        -rate  -7.12
+!!!Forsterite              -label pH                        -rate  -7.13
+!!!Forsterite              -label pH                        -rate  -7.135
+!!!Forsterite              -label pH                        -rate  -7.138
+!!!Forsterite              -label pH                        -rate  -7.1375
+!!!Forsterite              -label pH                        -rate  -7.139
+!!!Forsterite              -label pH                        -rate  -7.1395
+Forsterite              -label pH                        -rate  -7.14
+
+!!!Magnesite2              -label ripen                     -rate  -36.00
+!!!Magnesite3              -label ripen                     -rate  -38.00
+!!!Magnesite4              -label ripen                     -rate  -38.00
+!!!Magnesite5              -label ripen                     -rate  -38.00
+!!!Forsterite              -label default                   -rate  -8.95
+
+!!!Hydromagnesite          -label nucleate_hydromagnesite   -rate  -38.00
+END
+
+NUCLEATION
+&Nucleation
+  NameMineral      = Magnesite1
+  label            = nucleate_magnesite1
+  A_zero25C        = 0.1
+  B_nucleation     = 0.0000905
+  Sigma_mJm2       = 150.0
+  SSA_m2g          = 100.0
+  Surface          = Forsterite
+  /
+END
+
+TRANSPORT
+distance_units  meters
+time_units      seconds
+calculate_diffusion   1.3e-09
+!!!diffusion_activation  2.25
+!!!diffusion_activation  2.00
+!!!diffusion_activation  1.75
+!!!diffusion_activation  2.50
+diffusion_activation  2.75
+tortuosity      1.0 default
+dispersivity    0.0 0.0
+D_25  H+       9.0e-09
+D_25  Na+      1.3e-09
+D_25  Cl-      2.1e-09
+D_25  OH-      4.5e-09
+D_25  CO2(aq)  1.6e-09
+
+END
+
+
+
+INITIAL_CONDITIONS
+capillary       1-100  1-1  1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin     co2brine        Dirichlet
+X_end       capillary       flux
+END
+
+TEMPERATURE
+set_temperature      95.0
+END
+
+
+
+POROSITY
+fix_porosity   0.500
+porosity_update  false
+END
+
+FLOW
+distance_units    meters
+time_units        minutes
+constant_flow     0.0
+END
+
+DISCRETIZATION
+space_units   meter
+xzones        100  0.0003
+END
+
+Condition capillary
+temperature        95.0
+set_porosity       0.500
+pH                 charge
+Tracer             0.0000000001
+CO2(aq)            CO2(g)   0.01
+Mg++               0.00095
+Fe++               0.00001
+Na+                0.01
+Cl-                0.01
+SiO2(aq)           1.0E-04 
+Magnesite1         0.0  specific_surface_area 10.0
+Magnesite2         0.0  specific_surface_area 10.0
+Magnesite3         0.0  specific_surface_area 0.000000000004
+Magnesite4         0.0  specific_surface_area 0.000000000001
+Magnesite5         0.0  specific_surface_area 0.000000000006
+Forsterite         0.50 specific_surface_area 0.08
+Hydromagnesite         0.00 specific_surface_area 1.0
+solid_density      2.7
+END
+
+Condition co2brine
+temperature        95.0
+set_porosity       0.50
+pH                 charge
+Tracer             0.0000000001
+CO2(aq)            CO2(g)   100.0
+Mg++               1.0E-08
+Fe++               1.0E-10
+Na+                0.01
+Cl-                0.01
+SiO2(aq)           1.0E-08
+Magnesite1         0.0  specific_surface_area 1.2
+Magnesite2         0.0  specific_surface_area 0.8
+Magnesite3         0.0  specific_surface_area 0.4
+Magnesite4         0.0  specific_surface_area 0.1
+Magnesite5         0.0  specific_surface_area 0.06
+Forsterite         0.60    100.0
+Hydromagnesite         0.00 specific_surface_area 1.0
+solid_density      2.7
+END 
+
+
+PRIMARY_SPECIES
+Tracer
+H+
+CO2(aq)
+Mg++
+Na+
+Cl-
+SiO2(aq)
+END
+
+
+SECONDARY_SPECIES         
+HCO3-                                                                                                                                                                                                                                                   
+HCl(aq)                                                                 
+HSiO3-                                                                                                                            
+MgCl+                                                                   
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+OH-                                                                     
+CO3--                                                                                                                                  
+MgCO3(aq)                                                               
+MgHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)                                             
+END
+
+GASES
+CO2(g)
+END

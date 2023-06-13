@@ -1,0 +1,215 @@
+TITLE
+SLAC Diffusion
+END
+
+RUNTIME
+time_units         days
+timestep_max       0.001
+timestep_init      0.000001
+time_tolerance     0.001
+graphics           tecplot
+database           datacom_bench_with_surf_complexes.dbs
+master             Br-
+gimrt              true
+screen_output      1000
+END
+
+OUTPUT
+time_units           days
+spatial_profile      26.0
+time_series          breakthrough.out     102  1   1
+time_series_print    Br-
+END
+
+TRANSPORT
+distance_units   meters
+time_units       seconds
+fix_diffusion    5.0E-10
+dispersivity     0.00
+
+tortuosity      1.00  zone 1-1     1-1 1-1 
+tortuosity      1.00  zone 102-102 1-1 1-1 
+tortuosity      0.35  zone 2-101   1-1 1-1 
+
+tortuosityMP    1.00  zone 1-1     1-1 1-1 
+tortuosityMP    1.00  zone 102-102 1-1 1-1 
+tortuosityMP    0.35  zone 2-101   1-1 1-1 
+
+D_25   Na+     1.20E-09
+D_25   Br-     1.86E-09
+D_25   H+      8.57e-09
+D_25   Ca++    8.00E-10
+D_25   CO2(aq) 1.0E-09
+D_25   OH-     4.85e-09
+D_25   HCO3-   1.00E-09
+D_25   CO3--   1.00E-09
+
+D_25   Na+     1.20E-09
+D_25   Br-     1.86E-09
+D_25   H+      8.57e-09
+D_25   Ca++    8.00E-10
+D_25   CO2(aq) 1.0E-09
+D_25   OH-     4.85e-09
+D_25   HCO3-   1.00E-09
+D_25   CO3--   1.00E-09
+
+END
+
+POROSITY
+fix_porosity         0.05
+fix_microporosity    0.01
+porosity_update      false
+END
+
+INITIAL_CONDITIONS
+reservoir1   1-1     1-1 1-1
+initial      2-101   1-1 1-1  
+reservoir2   102-102 1-1 1-1 
+END
+
+
+Condition reservoir1
+units            mol/kg
+temperature      25.0
+set_porosity     394905.2484
+set_microporosity 0.01
+pH               4.5
+Na+              1
+Br-              1
+Bogus             Bogusite
+CO2(aq)           0.0001
+Ca++              0.00001
+Calcite           0.00  0.0
+Bogusite          0.00     specific_surface_area  1
+>montmor-         1e-30 
+END
+
+Condition reservoir2
+units            mol/kg
+temperature      25.0
+set_porosity     394905.2484
+set_microporosity 0.01
+pH               7.5
+Na+              0
+Br-              0
+Bogus             Bogusite
+CO2(aq)           0.0001
+Ca++              0.00001
+Calcite           0.00  0.0
+Bogusite          0.00     specific_surface_area  1
+>montmor-         1e-30 
+END
+
+Condition initial
+units            mol/kg
+temperature      25.0
+set_porosity     0.05
+set_microporosity 0.01
+pH               7.5
+Na+              0.0
+Br-              0.0
+Bogus             Bogusite
+CO2(aq)           0.0001
+Ca++              0.00001
+Calcite           0.01  0.1
+Bogusite          0.00     specific_surface_area  1
+>montmor-         1e-30 
+END
+
+
+
+reservoir1
+units             mol/kg
+temperature       25.0
+!!!set_porosity     394905.2484
+set_porosity  1.0
+set_microporosity 0.00001
+pH                4.5
+Na+              0.00
+Br-              charge
+Ca++              0.00001
+CO2(aq)           0.0001
+Bogus             Bogusite
+Calcite           0.00  0.00
+Bogusite          0.01     specific_surface_area  1
+>montmor-         1e-30 
+END
+
+reservoir2
+units            mol/kg
+temperature      25.0
+!!!set_porosity     394905.2484
+set_porosity  1.0
+set_microporosity 0.00001
+pH               7.5
+Na+              charge
+Br-              0.00
+Ca++             0.00001
+CO2(aq)          0.0001
+Bogus            Bogusite
+Calcite          0.00  0.00
+Bogusite          0.01     specific_surface_area  1
+>montmor-         1e-30 
+END
+
+initial
+units             mol/kg
+temperature       25.0
+set_porosity      0.05
+set_microporosity 0.0000004
+pH                7.5
+Na+               charge
+Br-               1.0
+Ca++              Calcite
+CO2(aq)           0.0001
+Bogus             Bogusite
+Calcite           0.01  0.1
+Bogusite          0.98     specific_surface_area  1
+>montmor-         5.0e-28 
+END
+
+FLOW
+time_units       seconds
+distance_units   meters
+constant_flow    0.0  0.0
+END
+
+BOUNDARY_CONDITIONS
+x_begin   initial            flux
+x_end     initial            flux
+END
+
+DISCRETIZATION
+distance_units   mm
+xzones           102  0.01 
+END
+
+!!!!**************** CHEMISTRY *******************************
+
+PRIMARY_SPECIES
+Br-
+H+
+Na+
+Ca++
+CO2(aq)
+Bogus
+END
+
+SECONDARY_SPECIES
+OH-
+HCO3-
+CO3--
+END
+
+MINERALS
+Calcite   -label default  -rate  -37.00
+Bogusite  -label default  -rate  -37.00
+END
+
+GASES
+CO2(g)
+END
+
+SURFACE_COMPLEXATION
+>montmor- on Bogusite 
+END

@@ -1,0 +1,143 @@
+TITLE
+CIM: HTO
+END
+ 
+DATABASE
+dcpep.dbs
+END
+ 
+RUNTIME
+!!  Output files will be in same time units
+time_units          days
+timestep_max        1.0
+timestep_init       1.0e-8
+time_tolerance      0.001
+lag_activity        on
+debye-huckel        true
+database_sweep      off
+speciate_only       off
+hindmarsh           off
+gimrt               on
+master              trac
+graphics            tecplot
+screen_output 100
+coordinates cylindrical
+!!!coordinates rectangular
+gimrt_solver   gmres
+gimrt_pc       bjacobi
+gimrt_pc_level 2
+END
+ 
+OUTPUT
+time_units         days
+spatial_profile    0.0362  182.5 365.0 730.0 1095.0
+time_series        hole.out 1 1
+!!  "all" writes all total concentrations, pH, and then all species concentrations
+!!  Total concentrations in molality, species in log molality
+!!  Listing of primary species will give total concentrations for that species only
+time_series_print  trac
+END
+ 
+POROSITY
+!!!fix_porosity      0.004
+fix_porosity   0.04
+!porosity_update   true
+END
+ 
+TEMPERATURE
+!!read_temperature   filename
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+trac
+H+
+END
+ 
+SECONDARY_SPECIES
+OH-
+END
+
+MINERALS
+END
+
+DISCRETIZATION
+space_units meters
+!!  May be continued on next line using an "&" at the end of the preceding line
+xzones  5 5.0e-3  3 1.0e-3   3 1.0e-3  5 5.0e-3  11 1.0e-2 5 5.0e-3  3 1.0e-3 &
+10 1.0e-3  10 5.0e-3  10 1.0e-2  15 2.0e-2  10 5.0e-2
+!        ------ open ------   ---------------------- mortar ------------------
+! ------------ rock/fracture ------------- ----------
+yzones 20 2.0e-2  10 1.0e-2  20 1.0e-2  10 2.0e-2  10 5.0e-2
+!      ------- open -------  -------- rock ------ ----------
+END
+ 
+CONDITION rock
+units            mol/kg
+temperature      25.0
+set_porosity     0.004
+trac             1.0E-15
+pH   7.0
+END
+
+CONDITION borehole
+units            mol/kg
+temperature      25.0
+set_porosity     2.03
+trac             1.0e-6
+pH   7.0
+END
+
+CONDITION mortar
+units            mol/kg
+temperature      25.0
+set_porosity     0.263
+trac             1.0E-15
+pH   7.0
+END
+
+CONDITION packer
+units            mol/kg
+temperature      25.0
+set_porosity     0.001
+trac             1.0E-15
+pH   7.0
+END
+
+INITIAL_CONDITIONS
+!!  NOTE:  1st condition above no longer assumed to be default.  Use the following form to initialize
+!!    first the whole domain to "initial_condition" and then the following specification (commented here)
+!!    to selectively initialize parts of the internal domain
+rock         1-90 1-70
+borehole     1-8  1-30
+packer       1-8  31-70
+mortar       9-35 1-70
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   borehole  flux
+x_end     rock      flux
+y_begin   borehole  flux
+y_end     rock      flux
+END
+ 
+TRANSPORT
+space_units meters
+time_units  seconds
+fix_diffusion  1.0e-9
+MeanDiffusion HarmonicMean
+tortuosity 0.825 default
+tortuosity 492.61 zone 1-8 1-30 1-1
+tortuosity 0.01 zone 1-8 31-70 1-1
+tortuosity 0.544 zone 9-35 1-70 1-1
+!De(rock)=3.3e-12 m2/s
+!De(borehole)=1.0e-6 m2/s
+!De(packer)=1.0e-14 m2/s
+!De(mortar)=1.43e-10 m2/s
+END
+
+FLOW
+distance_units    meters
+time_units    second
+constant_flow		0.0  0.0
+END

@@ -1,0 +1,296 @@
+TITLE
+Acetate injection to an initial condition similar to the Rifle aquifer
+END
+
+RUNTIME
+time_units              days
+timestep_max            0.01
+timestep_init           1.E-10
+time_tolerance          0.001
+hindmarsh               false
+correction_max          2.0
+debye-huckel            true
+database_sweep          false
+speciate_only           false
+graphics                tecplot
+!!!graphics                originlab
+master                  H+
+database                Fox.dbs
+coordinates             rectangular
+gimrt                   true
+screen_output           10
+save_restart            init.rst
+!!!later_inputfiles        fox_fit2.in  fox_fit3.in
+END
+
+OUTPUT
+time_units  days
+spatial_profile       10
+!!2
+time_series           0cm.out          1  1  1
+time_series           200cm.out        79  1  1
+time_series           200cm_2.out      79  2  1
+time_series_print     SO4--    H2S(aq)  Fe++     CO2(aq)   Ca++     Br-       pH    UO2++     Na+      Mg++     Cl-
+time_series_units     mol/kgw  mol/kgw  mol/kgw  mol/kgw   mol/kgw  mol/kgw   N.A.  mol/kgw   mol/kgw  mol/kgw  mol/kgw
+time_series_interval  10
+WriteFluxWeightedConcentration   capture.txt  79-79 1-5 1-1
+FluxWeightedConcentrationSpecies  Tracer
+!!!Br-  UO2++  CO2(aq)  Ca++
+MakeMovie   true
+END
+
+MINERALS 
+Goethite             -label  default -rate  -35.00
+CalciteRifle         -label  default -rate  -6.784
+!!!  2 per mil kinetic fractionation
+MagnesiteRifle       -label  default -rate  -9.38
+FeS(am)              -label  default -rate  -6.0
+S32                  -label  default -rate  -3.0
+Fe(OH)3              -label  default -rate  -9.43
+Quartz               -label  default -rate  -35.5
+Uraninite            -label  default
+END
+
+SURFACE_COMPLEXATION
+>S(OH)2     on Quartz –no_edl
+>T(OH)2     on Quartz –no_edl
+END
+
+condition   groundwater
+units            mmol/kg             
+temperature      25.0         
+temperature      25.0 
+Tracer            0.000001         
+pH               7.19           
+Fe++             4.7E-3
+Fe+++            Fe(OH)3
+SiO2(aq)         0.43
+Na+              6.00
+Ca++             4.48
+Mg++             4.27
+SO4--            6.23
+Cl-              charge
+CO2(aq)          8.20
+H2S(aq)          1.0444E-15
+O2(aq)           0.5E-3
+Br-              0.00
+K+               0.15
+
+UO2++            0.00
+U++++            0.0
+
+XRifle-      -cec    1.14E-5
+SolidDensity     2650
+>S(OH)2          3.84E-50
+>T(OH)2          3.84E-50
+
+! Mineral name <volume fraction m3/m3>
+Goethite                 3.63E-4     specific_surface_area  55.2
+CalciteRifle             0.04717647  bulk_surface_area 1.333E-02
+MagnesiteRifle           1.0E-6  1.0
+FeS(am)                  0.00  1.0
+S32                      0.00  1.0
+Fe(OH)3                  0.000939526  1.00
+Quartz                   0.6318451311  specific_surface_area  2.70
+Uraninite                0
+END
+
+condition   groundwater_lowflow
+units            mmol/kg             
+temperature      25.0   
+Tracer            0.000001      
+pH               7.19           
+Fe++             4.7E-3
+Fe+++            Fe(OH)3
+SiO2(aq)         0.43
+Na+              6.00
+Ca++             4.48
+Mg++             4.27
+SO4--            6.23
+Cl-              charge
+CO2(aq)          8.20
+H2S(aq)          1.0444E-15
+O2(aq)           0.5E-3
+Br-              0.00
+K+               0.15
+
+UO2++            0.76E-3
+U++++            0.0
+
+XRifle-      -cec    1.14E-5
+SolidDensity     2650
+>S(OH)2          3.84E-10
+>T(OH)2          3.84E-06
+
+! Mineral name <volume fraction m3/m3>
+Goethite                 3.63E-4     specific_surface_area  55.2
+CalciteRifle             0.04717647  bulk_surface_area 1.333E-02
+MagnesiteRifle           1.0E-6  1.0
+FeS(am)                  0.00  1.0
+S32                      0.00  1.0
+Fe(OH)3                  0.000939526  1.00
+Quartz                   0.6318451311  specific_surface_area  2.70
+Uraninite                0
+END
+
+condition   amendment_fox
+units            mmol/kg             
+temperature      25.0   
+Tracer            0.01      
+pH               7.45           
+Fe++             0.00
+Fe+++            Fe(OH)3
+SiO2(aq)         0.43
+Na+              41.2
+Ca++             0.05
+Mg++             0.01
+SO4--            0.01
+Cl-              charge
+CO2(aq)          18.5
+H2S(aq)          0.00
+O2(aq)           9E-3
+Br-              5.6
+K+               0.01
+C5H7O2NFe        1.0E-12
+C5H7O2NSO4       1.0E-12
+decay_b_so4      1.0E-12
+
+UO2++            0.00
+U++++            0.0
+
+XRifle-      -cec    0.0
+
+>S(OH)2          3.84E-50
+>T(OH)2          3.84E-50
+Quartz           0.6318451311  specific_surface_area  2.70  0.01
+END
+
+INITIAL_CONDITIONS
+groundwater            1-79  1-5  1-1
+!!groundwater_lowflow    1-79  2-4  1-1
+!!groundwater            1-79  5-5  1-1
+END                                    
+                                    
+BOUNDARY_CONDITIONS
+x_begin   amendment_fox   flux
+x_end     groundwater   flux
+y_begin   groundwater   flux
+y_end     groundwater   flux
+END                                 
+
+DISCRETIZATION
+distance_units      centimeters
+xzones              79  4
+yzones              5  1.0
+END
+
+FLOW
+distance_units      centimeters
+time_units          days
+calculate_flow    true
+permeability_x    1.0756e-12  default
+permeability_x    1.0756e-18  zone 0-80  2-4  1-1
+!!permeability_x    0.00  zone 0-0  2-4  1-1
+permeability_y    1.0756e-12  default
+permeability_y    1.0756e-18  zone 1-79  2-4  1-1
+!!permeability_y    1.0756e-18  zone 1-79  2-4  1-1
+permeability_y    0.00  zone 1-79  0-0  1-1
+permeability_y    0.00  zone 1-79  6-6  1-1
+pressure          3.7e3  zone 0-0  1-5  1-1  fix
+pressure          0      zone 80-80  1-5  1-1  fix
+!!pump    0.0       amendment_fox     1  1  1
+!!pump    0.0       amendment_fox     1  5  1
+!!!!constant_flow       23.8
+END
+
+POROSITY
+fix_porosity 0.25
+END
+
+TRANSPORT
+distance_units           centimeters
+time_units               second
+calculate_diffusion      0.00
+formation_factor         1.00
+cementation_exponent     1.00
+dispersivity             0.1  0.1
+tortuosity               1.0  default
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+Fe++
+Fe+++
+Na+
+Ca++
+Mg++
+Cl-
+SO4--
+H2S(aq)
+CO2(aq)
+SiO2(aq)
+O2(aq)
+Br-
+UO2++
+U++++
+K+
+END
+
+SECONDARY_SPECIES
+OH-
+HCO3-
+CO3--
+FeOH+
+FeS(aq)
+FeCO3(aq)
+CaOH+
+CaCO3(aq)
+CaSO4(aq)
+CaHCO3+
+MgCO3(aq)
+MgCl+
+MgSO4(aq)
+HS-
+S--
+
+!! U species
+UO2OH+
+UO2(OH)2(aq)
+UO2(OH)3-
+UO2(OH)4--
+(UO2)2OH+++
+(UO2)2(OH)2++
+(UO2)3(OH)4++
+(UO2)3(OH)5+
+(UO2)3(OH)7-
+(UO2)4(OH)7+
+UO2CO3(aq)
+UO2(CO3)2--
+UO2(CO3)3----
+(UO2)3(CO3)6(6-)
+(UO2)2CO3(OH)3-
+(UO2)3O(OH)2(HCO3)+
+(UO2)11(CO3)6(OH)12--
+Ca2UO2(CO3)3(aq)
+CaUO2(CO3)3--
+MgUO2(CO3)3--
+UO2SO4(aq)
+UO2(SO4)2--
+END
+
+ION_EXCHANGE
+exchange   XRifle- 
+convention Gaines-Thomas
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+GASES
+CO2(g)
+!!O2(g)
+H2S(g)
+END
+

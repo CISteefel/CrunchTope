@@ -1,0 +1,179 @@
+TITLE
+H1
+END
+ 
+DATABASE
+dcpep-ll.dbs
+END
+ 
+RUNTIME
+!!  Output files will be in same time units
+time_units          Days
+timestep_max        0.01
+timestep_init       1.0e-10
+time_tolerance      0.0001
+lag_activity        true
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+gimrt               true
+screen_output       100
+coordinate          rectangular
+master              O2(aq)
+hindmarsh           true
+END
+
+OUTPUT
+time_units         Days
+spatial_profile      0.01 120.0
+time_series        outlet.out 5
+!!  "all" writes all total concentrations, pH, and then all species concentrations
+!!  Total concentrations in molality, species in log molality
+!!  Listing of primary species will give total concentrations for that species only
+time_series_print  pH Mg++ HCO3- Fe++ SiO2(aq) 
+time_series_interval 5
+END
+ 
+POROSITY
+!fix_porosity      0.13
+porosity_update   true
+END
+ 
+TEMPERATURE
+!!read_temperature   filename
+set_temperature 250.0
+END
+
+
+
+MINERALS
+Forsterite   -label H+ 
+Forsterite   -label OH- 
+Fayalite     -label H+ 
+Fayalite     -label OH- 
+Magnesite    -label pepalk 
+Magnetite    -label default
+Siderite     -label pepalk 
+!Siderite    -label default
+SiO2(am)     -label hpf15c 
+Antigorite   -label H+ 
+Antigorite   -label OH- 
+Chrysotile   -label H+ 
+Chrysotile   -label OH- 
+Brucite      -label empa 
+
+END
+
+GASES
+CO2(g)
+O2(g)
+H2(g)
+END
+
+DISCRETIZATION
+xzones  1 200
+END
+ 
+CONDITION Input
+units            mol/kg
+temperature      250.0
+Mg++             3.85e-5
+HCO3-            0.0000001
+pH               charge
+SiO2(aq)         2.01e-5
+Fe++             1.45e-6
+O2(aq)           9.6570e-10
+Mineral Vol.fr. BSA(m2/m3)  Thresh.vol.fr.
+Magnetite     0.0 bsa 0.0
+Forsterite    0.0 bsa 0.0
+Fayalite      0.0 bsa 0.0
+Magnesite     0.0 bsa 0.0
+Siderite      0.0 bsa 0.0
+SiO2(am)      0.0 bsa 0.0
+Brucite       0.0 bsa 0.0
+Antigorite    0.0 bsa 0.0
+Chrysotile    0.0 bsa 0.0
+END
+
+CONDITION Rock
+units            mol/kg
+temperature      250.0 
+Mg++             3.025e-5
+HCO3-            0.0000001
+pH               charge
+SiO2(aq)         1.561e-5
+Fe++             1.245e-6
+O2(aq)           9.350e-10
+!Mineral Vol.fr. BSA(m2/m3)  Thresh.vol.fr.
+Magnetite      0.0       bsa 1.87e2
+Forsterite     0.088     bsa 6.516e4
+Fayalite       0.012     bsa 1.203e4
+Magnesite      0.0       bsa 1e0
+Siderite       0.0       bsa 1e0
+SiO2(am)       0.0       bsa 1e0
+Brucite        0.000001  bsa 1.0e0
+Antigorite     0.0000001 bsa 1.0e0
+Chrysotile     0.0000001 bsa 1.0e0
+END
+
+INITIAL_CONDITIONS
+!!  NOTE:  1st condition above no longer assumed to be default.  Use the following form to initialize
+!!    first the whole domain to "initial_condition" and then the following specification (commented here)
+!!    to selectively initialize parts of the internal domain
+Rock  1-1
+END
+
+Pressure 15000000.0 default
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   Input flux
+x_end     Rock  flux
+END
+
+PRIMARY_SPECIES
+Mg++
+HCO3-
+H+
+Fe++
+SiO2(aq)
+O2(aq)
+END
+
+SECONDARY_SPECIES                                                                  
+CO2(aq)                                                                 
+CO3--                                                                                                                                                                                                     
+Fe(OH)2(aq)                                                             
+Fe(OH)3-                                                                
+Fe(OH)4--                                                               
+FeCO3(aq)                                                                                                                               
+FeHCO3+                                                                 
+FeOH+                                                                                                                               
+H2SiO4--                                                                
+H4(H2SiO4)4----                                                         
+H6(H2SiO4)4--                                                                                                                             
+HSiO3-                                                                                                                                    
+Mg4(OH)4++++                                                            
+MgCO3(aq)                                                                                                                                  
+MgHCO3+                                                                                                                                  
+OH-  
+H2(aq)                                                                                                                                    
+CO(aq)                                                                                                                                   
+Fe+++                                                                                                                                                                                                                                                                                                                                        
+HO2-                                                                                                                    
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)4-                                                                                                                               
+Fe2(OH)2++++                                                            
+Fe3(OH)4(5+)                                                            
+FeCO3+                                                                                                                                   
+FeOH++                                                                                                                                                      
+END
+
+GASES
+CO2(g)
+O2(g)
+H2(g)
+END
+
+

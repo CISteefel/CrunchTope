@@ -1,0 +1,127 @@
+TITLE
+Massimo Rolle Multicomponent Diffusion--2D version
+END
+ 
+RUNTIME
+time_units         hours
+timestep_max       0.01
+timestep_init      0.000001
+time_tolerance     0.1
+hindmarsh          false
+correction_max     2.0
+debye-huckel       true
+database_sweep     no
+speciate_only      false
+gimrt              true
+graphics           tecplot
+master             Tracer
+database           datacom.dbs
+screen_output      10
+JennyDruhan        false
+ChromeTopes        false
+ResidualTolerance  1.0E-10
+solver              bcgs
+pc                  ilu
+pclevel             50
+gimrt_solver        gmres
+gimrt_pc            ilu
+gimrt_pclevel       1
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      0.1
+!!16
+!!500  1000
+time_series          Rolle.out    11  20  1
+!!time_series_print    K+  Mg++  Cl- 
+time_series_print     Tracer
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units  second
+fix_diffusion  1.000e-29
+!!D_25  K+    1.77E-29
+formation_factor         1.00
+cementation_exponent     1.00
+dispersivity   0.0  0.0
+END
+
+DISCRETIZATION
+distance_units    centimeters
+
+!!xzones    1  0.25  23 0.5  1 0.25
+xzones    1  0.1  100  1.0  1 0.1
+yzones     48  0.25
+END
+
+INITIAL_CONDITIONS
+ambient      1-102  1-48   
+injection    1-1   23-26  fix
+END
+
+BOUNDARY_CONDITIONS
+x_begin  ambient         flux
+x_end    ambient         flux
+y_begin  ambient         flux
+y_end    ambient         flux          
+END
+ 
+FLOW
+time_units       days
+distance_units   centimeters
+calculate_flow   false
+constant_flow    61.5  0.0  0.00
+END
+ 
+POROSITY
+fix_porosity    0.41
+END
+ 
+PRIMARY_SPECIES
+Tracer
+END
+
+SECONDARY_SPECIES
+END
+
+MINERALS
+END
+
+SURFACE_COMPLEXATION
+END
+
+!!AQUEOUS_KINETICS
+!!END 
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+GASES
+END
+
+condition injection
+units            mmol/kg  
+Tracer    1.0
+pH               7.0
+K+               0.29
+Na+              0.00
+Mg++             0.29
+Cl-              charge
+Br-              0.00
+END
+
+condition ambient
+units            mmol/kg  
+Tracer    0.0
+pH               7.0
+K+               0.000001
+Na+              0.00
+Mg++             0.000001
+Cl-              charge
+Br-              0.00
+END
+

@@ -1,0 +1,199 @@
+TITLE
+Diffusion-percolation-DDL
+END
+
+DATABASE
+database.dbs
+END
+
+RUNTIME
+time_units      days
+timestep_max    0.001 
+timestep_init   1.e-50
+debye-huckel    true
+lag_activity    true
+database_sweep  false
+hindmarsh       true
+time_tolerance  0.01
+correction_max  10.0
+gimrt           true
+master_variable H+
+speciate_only   false
+!!restart         case1.rst
+screen_output   100
+END
+
+OUTPUT
+time_units    days
+
+!!1PV = 5 days
+spatial_profile  1 2 
+
+time_series_at_node      Time_profile_start.out  13 1 1
+time_series_at_node      Time_profile_end.out 238 1 1
+time_series_print        Cl- Na+ pH Ca++
+time_series_interval     1
+!!MakeMovie              true
+END
+
+POROSITY
+fix_porosity            0.3
+fix_microporosity       0.3
+UpdateDDL               false
+!CalculateMicroporosity  on Bogusite
+!SumMicroMacroporosity   false
+!DebyeLengths            1.0
+!porosity_update         false
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+
+PRIMARY_SPECIES
+H2O
+Bogus
+H+
+Na+       
+Cl-
+Ca++
+END
+
+SECONDARY_SPECIES
+OH-                                                     
+END
+
+ION_EXCHANGE
+!!UseDoubleLayer   Bogusite 
+END
+
+SURFACE_COMPLEXATION
+>montmor- on Bogusite 
+END
+
+MINERALS  
+Bogusite 
+END
+
+GASES
+!!CO2(g)
+END
+
+DISCRETIZATION 
+distance_units  meters
+xzones          250  0.0004
+END
+ 
+Condition infiltration_solution
+!!Infiltration solution 
+temperature      25.0
+units            mmol/kg 
+H2O              55.5
+pH               5
+Na+              100
+Ca++             50e-12 
+Cl-              charge
+Bogus            Bogusite
+Bogusite 0.1  specific_surface_area  50
+>montmor-    1e-6 !! sites per m2
+END
+
+Condition Bentonite1
+units            mmol/kg
+temperature      25.0
+H2O              55.5
+pH               5
+Ca++            1
+Na+             10
+Cl-             charge
+Bogus          Bogusite
+Bogusite 0.1  specific_surface_area  50
+>montmor-    1e-6 !! sites per m2
+END
+!! Bogusite has 50 cm3/mol and a molar mass of 1000 g/mol
+!! i.e. 20 000 g/dm3bog 
+!! with 0.1 volume fraction --> 2000 g/dm3
+!! we want 1e5 m2 per dm3 --> 50 m2/g
+!! we want -0.1 molc/dm3 --> -0.1/2000 = 5e-5 molc/g
+!! this corresponds to 0.1/1e5 = 1e-6 charged sites per m2
+
+
+Condition Bentonite2
+units            mmol/kg
+temperature      25.0
+H2O              55.5
+pH               5
+Ca++            10
+Na+             10
+Cl-             charge
+Bogus          Bogusite
+Bogusite 0.1  specific_surface_area  50
+>montmor-    1e-6 !! sites per m2
+END
+
+Condition Bentonite3
+units            mmol/kg
+temperature      25.0
+H2O              55.5
+pH               5
+Ca++            10
+Na+             10
+Cl-             charge
+Bogus          Bogusite
+Bogusite 0.1  specific_surface_area  50
+>montmor-    1e-5 !! sites per m2
+END
+
+Condition Bentonite4
+units            mmol/kg
+temperature      25.0
+H2O              55.5
+pH               5
+Ca++            10
+Na+             10
+Cl-             charge
+Bogus          Bogusite
+Bogusite 0.1  specific_surface_area  500
+>montmor-    1e-6 !! sites per m2
+END
+
+INITIAL_CONDITIONS
+Bentonite1   1-10
+Bentonite2   11-20
+Bentonite3   21-30
+Bentonite4   31-250
+!!infiltration_solution   1-1  fix
+END
+
+BOUNDARY_CONDITIONS
+X_begin   infiltration_solution    Dirichlet
+X_end     Bentonite4               Dirichlet
+END
+
+TRANSPORT
+distance_units           meters
+time_units               second
+fix_diffusion  1e-9
+!!!D_MP  H+       1e-9
+!!!D_MP  Na+      1e-9
+!!!D_MP  Cl-      1e-9
+!!!D_MP  Bogus    1e-9
+!!!D_MP OH-       1e-9
+!!!D_MP  Ca++     1e-9
+!!!D_25  H+       1e-9
+!!!D_25  Na+      1e-9
+!!!D_25  Cl-      1e-9
+!!!D_25  Bogus    1e-9
+!!!D_25  OH-      1e-9
+!!!D_25  Ca++     1e-9
+
+END
+
+FLOW
+distance_units  meters
+time_units  seconds
+!!constant_flow  0.694443e-7
+!! m/s (Darcy velocity)
+END
+
+

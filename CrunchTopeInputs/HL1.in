@@ -1,0 +1,163 @@
+TITLE
+!!Project: regolith formation by chemical weathering
+END
+
+!!DATABASE
+!!OldRifleDatabaseHang.dbs
+!!END
+
+RUNTIME
+speciate_only      false
+database_sweep     false
+time_units         days
+timestep_max       1.0
+timestep_init      1.E-4
+time_tolerance     0.1
+correction_max     10.0
+debye-huckel       false
+graphics           tecplot
+Hindmarsh          false
+gimrt              true
+master             H+
+database           OldRifleDatabaseLiLi.dbs
+coordinates        rectangular
+screen_output      10
+save_restart       Fluo2.rst
+!!later_inputfiles   HL2.in
+END
+
+OUTPUT
+time_units         days
+spatial_profile    1.0
+time_series        breakthroughcurves1.out     25  1   1
+time_series        breakthroughcurves2.out     25  2   1
+time_series        breakthroughcurves3.out     25  3   1
+time_series        breakthroughcurves4.out     25  4   1
+time_series        breakthroughcurves5.out     25  5   1
+time_series        breakthroughcurves6.out     25  6   1
+time_series        breakthroughcurves7.out     25  7   1
+time_series        breakthroughcurves8.out     25  8   1
+time_series_print  all
+time_series_interval  10
+! needs to be primary species, "all" mean all primary species will be printed out
+END
+
+DISCRETIZATION
+distance_units  meters
+xzones    25   3.50
+yzones    64   0.25 
+END 
+
+TRANSPORT
+distance_units         meters
+time_units             seconds
+fix_diffusion          6.0E-10
+cementation_exponent   1.5
+dispersivity           0.3   0.003
+END
+
+BOUNDARY_CONDITIONS
+x_begin     rain    flux
+x_end       soil    flux
+y_begin     soil    flux
+y_end       soil    flux
+END
+
+INITIAL_CONDITIONS
+soil    1-25 1-64 1-1
+END
+
+POROSITY
+!!read_PorosityFile     porosityA   SingleColumn
+porosity_update     false
+fix_porosity        0.40
+minimum_porosity    1.0E-06
+END
+
+MINERALS
+! rate constant log10(rate, units mol/m^2/s), quartz from Jefferson94
+! Calcite, dolimite and calculated from U.S. Geological survery
+Quartz               -label  default -rate  -35.0
+END
+
+!!AQUEOUS_KINETICS
+!!END
+
+ISOTOPES
+END 
+
+FLOW
+distance_units  meters
+time_units      seconds
+calculate_flow  true
+read_PermeabilityFile permeabilityHill SingleColumn
+pump    95.1E-08    rain   1 64         1
+pump    95.1E-08    rain   2 62         1
+pump    95.1E-08    rain   3 60         1
+pump    95.1E-08    rain   4 58         1
+pump    95.1E-08    rain   5 56         1
+pump    95.1E-08    rain   6 54         1
+pump    95.1E-08    rain   7 52         1
+pump    95.1E-08    rain   8 50         1
+pump    95.1E-08    rain   9 48         1
+pump    95.1E-08    rain   10 46        1
+pump    95.1E-08    rain   11 44        1
+pump    95.1E-08    rain   12 42        1
+pump    95.1E-08    rain   13 40        1
+pump    95.1E-08    rain   14 38        1
+pump    95.1E-08    rain   15 36        1
+pump    95.1E-08    rain   16 34        1
+pump    95.1E-08    rain   17 32        1
+pump    95.1E-08    rain   18 29        1
+pump    95.1E-08    rain   19 26        1
+pump    95.1E-08    rain   20 23        1
+pump    95.1E-08    rain   21 20        1
+pump    95.1E-08    rain   22 17        1
+pump    95.1E-08    rain   23 14        1
+pump    95.1E-08    rain   24 11        1
+pump    95.1E-08    rain   25  8        1
+pump    -4755.0E-08   soil    25    1    1
+pump    -4755.0E-08   soil    25    2    1
+pump    -4755.0E-08   soil    25    3    1
+pump    -4755.0E-08   soil    25    4    1
+pump    -4755.0E-08   soil    25    5    1
+pump    -4755.0E-08   soil    25    6    1
+pump    -4755.0E-08   rain    25    7    1
+!!pump    -9.90625E-08   soil    25    8    1
+!---Pressure------
+pressure           0.0     default
+!!pressure         600.0  zone  1-25  65-4  1-1  fix 
+!!pressure         0.0  zone  26-26     1-7  1-1  fix
+gravity 90.0  0.0   90.0 down
+END
+
+PRIMARY_SPECIES
+Br-
+!!Na+
+SiO2(aq)
+END
+
+SECONDARY_SPECIES
+END
+
+GASES
+END
+
+Condition      rain 
+units          mol/kg
+temperature    25.0
+Br-            1.00E-05
+!!Na+            1.00E-05
+SiO2(aq)       1.00E-10
+END
+
+Condition      soil
+units          mol/kg
+temperature    25.0
+Br-            1.00E-20
+!!Na+            1.00E-20
+SiO2(aq)       8.00E-5
+Quartz         0.60     specific_surface_area   0.012
+END
+
+

@@ -1,0 +1,122 @@
+TITLE
+carbonation
+END
+
+DATABASE
+QL-datacom03.dbs
+END
+
+RUNTIME
+time_units      days
+timestep_max    0.01
+timestep_init   1E-12
+time_tolerance  0.0001
+correction_max  2.0
+hindmarsh       true
+debye-huckel    true
+database_sweep  false
+master          H+
+speciate_only   false
+gimrt           true
+screen_output   1000
+fix_saturation  0.8
+graphics        kaleidagraph
+Duan            false
+Benchmark       false
+Qingyun         false
+END
+
+OUTPUT
+time_units               years
+spatial_profile          1E-8 1E-7 1E-6 1E-5 1E-4 1E-3 1E-2 1E-1 1E+0 1E+1 2E+1 3E+1 4E+1 5E+1 6E+1 7E+1 8E+1 9E+1 1E+2
+time_series_at_node      TS1.out  1  1  1
+time_series_at_node      TS2.out  10  1  1
+time_series_at_node      TS3.out  100  1  1
+time_series_print        pH
+time_series_interval     1  
+END
+
+POROSITY
+fix_porosity        0.135
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+H+
+Ca++
+CO2(aq) 
+END
+
+SECONDARY_SPECIES
+HCO3-                                                                                                                         
+CaOH+                                                                   
+OH-                                                                     
+CO3--                                                                                                                            
+CaCO3(aq)                                                                                                                         
+CaHCO3+                                                                 
+END
+
+GASES
+CO2(g)
+END
+
+MINERALS
+Calcite          -label default  -rate  -6.5 
+Portlandite      -label default  -rate  -5.0
+Cdiox            -label default  -rate  -38.0 
+END
+
+CONDITION CO2
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)   3.1623e-04
+Ca++             0.001
+Portlandite      0.0 ssa 0.0
+Calcite          0.0 ssa 0.0
+!!!Cdiox            0.9 ssa 1.0
+END
+
+CONDITION Cement
+units            mol/kg
+pH               charge
+CO2(aq)          1E-10
+Ca++             Portlandite
+Portlandite      0.09 ssa 1.0
+Calcite          0.81 ssa 1.0
+Cdiox            0.0 ssa 0.0
+CO2(g)           0.0 ssa 1.0
+END
+
+INITIAL_CONDITIONS
+Cement        1-100
+CO2           1
+END
+
+BOUNDARY_CONDITIONS
+X_begin     CO2          flux 
+X_end       Cement       Flux 
+END
+
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  0
+gas_diffusion         1.1E-7  ! 1.0E-100 !
+fix_diffusion         5.5E-12 ! 1.0E-100 !
+END
+
+DISCRETIZATION 
+distance_units  millimeters
+xzones          100  0.1
+END
+
+FLOW
+distance_units      millimeters
+time_units          second
+constant_flow       0.0
+calculate_flow      false
+END
+

@@ -1,0 +1,240 @@
+TITLE
+Linear TST model updated March 2014
+END
+ 
+RUNTIME
+timestep_max      600.0
+timestep_init     1.e-12
+time_tolerance    0.0005
+correction_max    2.0
+debye-huckel      true
+database_sweep    false
+speciate_only     false
+dissolution_max   0.001
+precipitation_max 0.001
+screen_output     10
+KateMaher         false
+OelkersRateLaw      false
+database          Seawater170bars-July30.dbs
+END
+ 
+OUTPUT
+spatial_profile 1e2 8e5 2e6
+END
+
+Condition Seawater  !reduced U conc. to PW and changed pH, Fe
+temperature      8.0
+set_porosity     0.8462800000000
+pH               8.15  
+CO2(aq)          4.75e-03
+O2(aq)           180.0e-06 
+!!UO2++            1.34534608E-9      
+NH4+             1.480e-09
+Mg++             5.110e-2
+HAlO2(aq)            1.000e-8  
+Fe++             2.600e-8
+Fe+++            1.000e-13
+Ca++             10.02e-03
+K+               1.200e-02
+SO4--            2.810e-02
+B(OH)3(aq)       0.400e-03
+HPO4--           1.700e-06
+H2S(aq)          1.000e-15
+SiO2(aq)         1.57e-04     
+Na+              4.740e-01
+Cl-              charge
+Methane(aq)      1e-08
+orgCSO4_low          0.008        1.00
+orgCmethane_low      0.008        0.200
+Fe(OH)3H2S           0.02         0.25
+FeS(am)              0.0000       0.2
+Pyrite               0.00         0.2
+Hydroxylapatite      0.0000       1.0
+O2(aq)resp           3.34e-03     1.0  
+SiO2(am)             0.00         0.2
+Quartz               0.02         1.0
+Siderite             0.0000       1.0
+HighMg-Calcite       0.00         1.0 
+MarineHighMg-Calcite 0.03     ssa 0.01  
+Plag_U2              0.04     ssa 0.003
+Smectite-high-Fe-Mg  0.08     ssa 55.0
+Illite_DP             0.01     ssa 55.0    
+Sepiolite            0.01     ssa 55.0
+K-Feldspar           0.01     ssa 3.2
+Kaolinite            0.01     ssa 55.0
+!!Falpha               0.04     ssa 3.2
+X-   -cec    2.5E-04         -ss_ratio 1114
+END
+
+MINERALS
+orgCSO4_low             -rate  -13.11        
+orgCmethane_low         -rate  -13.11        
+Fe(OH)3H2S              -rate  -5.0         
+FeS(am)                 -rate  -9.0
+Pyrite                  -rate  -11.00       
+Siderite                -rate  -9.0
+SiO2(am)                -rate  -9.0  
+Quartz    -default      -rate  -30.0          
+HighMg-Calcite          -rate  -7.00 
+MarineHighMg-Calcite    -rate  -6.19   
+!!Plag_U2                 -rate  -14.425
+Plag_U2                 -rate  -17.59
+Illite_DP               -rate  -19.0     
+Smectite-high-Fe-Mg      -rate   -18.5      
+Sepiolite               -rate  -19.0    
+Kaolinite               -rate  -18.0    
+!!Falpha                  -rate  -24.61      
+Hydroxylapatite         -rate  -10.0 
+!K-Feldspar              -rate  -18.0  
+END
+
+AQUEOUS_KINETICS
+!Falpha
+!!U_234_decay
+!!U_238_decay
+CH4_SO4  -pathway CH4_SO4    1.00   -rate  2200000000
+END
+ 
+POROSITY
+!!read_porosityfile  MidAtlanticPorosity.dat
+porosity_update  false
+END
+
+EROSION/BURIAL
+time_units         years
+distance_units     meters
+erode_x            0.0010508361321 
+!!read_burialfile    MidAtlanticBurial.dat
+END  
+
+DISCRETIZATION
+xzones 200 1
+END
+ 
+INITIAL_CONDITIONS
+Seawater    1-200
+END
+ 
+TEMPERATURE
+set_temperature  8.0
+temperature_gradient 0.105
+END
+ 
+PRIMARY_SPECIES
+H+
+HAlO2(aq) 
+CO2(aq)
+NH4+
+Mg++
+Ca++
+Fe++
+Fe+++
+Cl-
+K+
+H2S(aq)
+Na+
+SiO2(aq)
+SO4--
+O2(aq)
+B(OH)3(aq)
+HPO4-- 
+!!UO2++
+Methane(aq)
+END
+ 
+SECONDARY_SPECIES 
+Al(OH)2+                                                                
+Al(SO4)2-                                                                                                                         
+Al+++                                                                
+AlOH++   
+AlO2-                                                                                                                             
+HCO3-    
+CO3--                                                                    
+CaCl+                                                                   
+CaCl2(aq)                                                                                                                                                                                       
+CaOH+                                                                   
+CaSO4(aq)                                                               
+Fe(OH)2(aq)                                                             
+Fe(OH)3-                                                                
+Fe(OH)4--                                                               
+FeCl+                                                                   
+FeCl2(aq)                                                               
+FeCl4--                                                                 
+FeOH+                                                                   
+FeSO4(aq)    
+OH-     
+HS-  
+H2PO4-                                                                                                                                                                                                                                                                                                                                                                                      
+HSO4-                                                                   
+HSiO3-                                                                  
+KCl(aq)                                                                 
+KHSO4(aq)                                                               
+KOH(aq)                                                                 
+KSO4-                                                            
+NH3(aq)
+NaAlO2(aq)                                                              
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+NaSO4-                                                                                                                                                                                                                                                                                                                                 
+H2(aq)                                                                 
+CaHPO4(aq)                                                                                                                              
+CaPO4-                                                                  
+FeCO3(aq)                                                             
+FeH2PO4+                                                                                                                                
+FeHPO4(aq)                                                              
+FePO4-                                                                  
+KHPO4-                                                                                                                              
+PO4---                                                                  
+S--                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+!(U_234O2)2CO3(OH)3-                                                     
+!(U_238O2)2CO3(OH)3-                                                           
+!U_234O2(CO3)2--                                                         
+!U_238O2(CO3)2--                                                         
+!U_234O2(CO3)3----                                                       
+!U_238O2(CO3)3----                                                       
+!U_234O2(H2PO4)2(aq)                                                     
+!U_238O2(H2PO4)2(aq)                                                     
+!U_234O2CO3(aq)                                                          
+!U_238O2CO3(aq)                                                          
+!U_234O2PO4-                                                             
+!U_238O2PO4-       
+BO2- 
+MgB(OH)4+                                                                                                                                                                                                                                                                                                                     
+END
+
+GASES
+CO2(g)
+END
+
+SURFACE_COMPLEXATION
+!>FeOH_weak on Fe(OH)3  -no_edl
+END
+ 
+ION_EXCHANGE
+!!exchange   X-
+convention Gaines-Thomas
+!convention Vanselow
+END
+ 
+BOUNDARY_CONDITIONS
+X_begin   Seawater     Dirichlet
+X_end     Seawater     flux
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units  seconds
+calculate_diffusion  0.919e-05
+diffusion_activation   4.5
+formation_factor       3.0  
+cementation_exponent  0.0
+dispersivity  0.0
+END
+ 
+FLOW
+distance_units     meters
+time_units         years
+constant_flow      0
+END
+ 

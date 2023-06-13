@@ -1,0 +1,161 @@
+!!!!!!!!!!!!!!!!!!!!!!! RUN PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+RUNTIME
+time_units           seconds
+timestep_max         10000 
+timestep_init        1e-10
+debye-huckel         true
+lag_activity         true
+database             datacom_bench_no_surf_complexes.dbs
+database_sweep       false
+correction_max       2.0
+gimrt                true
+master_variable      Cat+
+speciate_only        false
+screen_output        1000
+Duan                 false
+hindmarsh            false
+time_tolerance       5.0E-05
+save_restart         benchmark.rst
+graphics             tecplot
+END
+
+OUTPUT
+time_units              seconds
+time_series_interval    1
+spatial_profile         1  10 100 250 500 1000
+
+!!!time_series_print        pH Cl- Na+ An- Cat+ 
+END
+
+DISCRETIZATION 
+distance_units  millimeters
+xzones          30  0.1
+yzones          21  0.1
+zzones          1  1000.0
+END
+
+INITIAL_CONDITIONS
+!!!Fracture   1-21    1-1 
+!!!Solid2     1-21    2-30
+Fracture   1-1    1-21
+Solid2      2-30   1-21
+END
+
+BOUNDARY_CONDITIONS
+Y_begin   Fracture   Flux
+Y_end     Fracture   Flux
+X_begin   Solid2   Flux
+X_end     Solid2   Flux
+END
+
+FLOW
+space_units                millimeters                       !!Default : meters ; km, cm, mm, um
+time_units                 seconds                           !!Default : years ; days, hours, minutes, seconds
+read_velocity              Case2D-AGUb   singlecolumn
+!!!constant_flow              0.0  0.0                     !!Default : 0.0
+END
+
+POROSITY
+fix_porosity            0.3
+fix_microporosity       0.3
+UpdateDDL               false
+END
+
+ 
+Condition Fracture
+!! Left
+temperature        25.0
+units              mmol/kg 
+H2O                55.5
+pH                 7.00
+Na+                100  
+Cl-                charge
+An-                1e-6
+Cat+               1e-6
+Bogus              Bogusite
+Bogusite           0.05     specific_surface_area  100
+>montmor-          1e-16 
+set_porosity       0.35 
+set_microporosity  0.0001
+END
+
+Condition Solid2
+!! Right
+temperature        25.0
+units              mmol/kg 
+H2O                55.5
+pH                 7.00
+Na+                100  
+Cl-                charge
+An-                1e-30
+Cat+               1e-30
+Bogus              Bogusite
+Bogusite           0.05     specific_surface_area  100
+>montmor-          1e-6 
+set_porosity       0.35 
+set_microporosity  0.30
+END
+!! Bogusite has 50 cm3/mol and a molar mass of 1000 g/mol
+!! i.e. 20 000 g/dm3bog 
+!! with 0.05 volume fraction --> 1000 g/dm3
+!! we want 1e5 m2 per dm3 --> 100 m2/g
+!! if we want -1e-6 molc/m2 --> 5e-5 molc/g
+
+TRANSPORT
+distance_units           meters
+time_units               second
+fix_diffusion  1e-9 
+
+D_25  H+       1e-20
+D_25  Na+      1.3e-9
+D_25  Cl-      2.1e-9
+D_25  Bogus    1e-20
+D_25  OH-      1e-20
+D_25  An-      2.1e-9
+D_25  Cat+     1.3e-9 
+
+D_MP  H+       1e-20
+D_MP  Na+      1.3e-9
+D_MP  Cl-      2.1e-9
+D_MP  Bogus    1e-20
+D_MP  OH-      1e-20
+D_MP  An-      2.1e-9
+D_MP  Cat+     1.3e-9 
+
+END
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!! Chemistry !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+PRIMARY_SPECIES
+An-
+Cat+ 
+H+
+Na+       
+Cl-
+!!!H2O
+Bogus
+END
+
+SECONDARY_SPECIES
+OH-                                                     
+END
+
+ION_EXCHANGE
+END
+
+MINERALS  
+Bogusite 
+END
+
+GASES
+END
+
+SURFACE_COMPLEXATION
+>montmor- on Bogusite 
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+

@@ -1,0 +1,156 @@
+!!!!!!!!!!!!!!!!!!!!!!! RUN PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+RUNTIME
+time_units           seconds
+timestep_max         0.001
+timestep_init        1e-15
+debye-huckel         true
+lag_activity         true
+database             datacom_bench_with_surf_complexes.dbs
+database_sweep       false
+correction_max       2.0
+gimrt                true
+master_variable      Tracer
+speciate_only        false
+screen_output        1000
+Duan                 false
+hindmarsh            false
+time_tolerance       0.01
+save_restart         benchmark.rst
+graphics             tecplot
+ompthreads           4
+END
+
+OUTPUT
+time_units              seconds
+spatial_profile         15
+!!!10 100 250 500 1000
+time_series             FirstCell.out  1 21 1
+time_series             Effluent.out   1 21 1
+time_series_print       Tracer
+
+END
+
+
+DISCRETIZATION 
+distance_units  meters
+xzones          30  0.001
+yzones          21  0.001
+!!!zzones          1   1000.0
+END
+
+INITIAL_CONDITIONS
+!!!FractureInlet      1-1     1-21
+Solid2             1-30     1-21
+!!!FractureInlet      1-30     1-5
+!!!Solid2             1-30     6-21
+END
+
+BOUNDARY_CONDITIONS
+!!!Y_begin   FractureInlet   Flux
+!!!Y_end     Solid2   Flux
+!!!X_begin   Solid2   Flux
+!!!X_end     Solid2   Flux
+
+Y_begin   Solid2   Flux
+Y_end     Solid2   Flux
+X_begin   FractureInlet   Dirichlet
+X_end     Solid2   Flux
+END
+
+FLOW
+space_units                meters                    
+time_units                 seconds                          
+constant_flow              0.001    0.0      
+!!!read_velocity              Case2D-AGUb        singlecolumn
+END
+
+POROSITY
+!!!fix_porosity       0.077 
+!!!fix_microporosity  0.0815
+fix_porosity       0.99
+fix_microporosity  0.0001
+UpdateDDL          false
+END
+
+Condition FractureInlet
+temperature        25.0
+units              mol/kg 
+Tracer             0.1
+An-                0.000001
+Cat+               0.000001
+set_porosity       0.99 
+set_microporosity  0.001
+END
+
+
+Condition Solid2
+temperature        25.0
+units              mol/kg 
+Tracer             1.0E-08
+An-                1.0E-30
+Cat+               1.0E-30
+set_porosity       0.99 
+set_microporosity  0.001
+END
+
+!!!  **********************************************
+!! Bogusite has 50 cm3/mol and a molar mass of 1000 g/mol
+!! i.e. 20 000 g/dm3 bog 
+!! with 0.05 volume fraction --> 1000 g/dm3
+!! we want 1e5 m2 per dm3 --> 100 m2/g
+!! if we want -1e-6 molc/m2 --> 5e-5 molc/g
+!!! ***********************************************
+
+!!!  ***************************
+!!! For illite
+!!!   SSA = 100 m2/g
+!!!   Surface charge = 0.15-0.2 C m-2 that corresponds roughly to a CEC of 0.2 mol / kg illite
+!!!   For illite/smectite, first approach is to consider a mix of the two phases even if it is an incorrect description on a mineralogical point of view.
+!!!   Then lump together the CEC values as a function of total illite vs. smectite content. Total illite = illite + illite from illite/smectite
+!!!   You can then pick the adsorption parameters from Appelo et al., 2010. They are for Opalinus Clay but they should be fine as a first try. Try to start with a Ca dominated surface.
+!!!  ***************************
+
+TRANSPORT
+distance_units           meters
+time_units               second
+fix_diffusion            1.0e-29 
+
+D_25    Tracer  1.0E-29
+D_25  An-       1.0e-29
+D_25  Cat+      1.0e-29 
+
+D_MP    Tracer  1.0E-29
+D_MP  An-       1.0e-29
+D_MP  Cat+      1.0e-29 
+
+END
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!! Chemistry !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+PRIMARY_SPECIES
+Tracer
+An-
+Cat+ 
+END
+
+SECONDARY_SPECIES
+
+END
+
+ION_EXCHANGE
+END
+
+MINERALS  
+END
+
+GASES
+END
+
+SURFACE_COMPLEXATION
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+

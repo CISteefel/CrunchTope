@@ -1,0 +1,381 @@
+TITLE
+essai 1 28 octobre 2014 esai 12 mais avec ph impose pour porphyry a 5 et ph de 7 pour bedrock et avec diffusion threshold change, et debye huckel true, coeff dactivite egaux a 1, porosite changee calculee maintenant a partir des volumes de mineraux, hindmarsh false
+entree de concentrations pour tous les elements
+ajout du vecteur gravite et equilibration des gaz O2 et CO2
+END
+
+RUNTIME
+time_units          years
+timestep_max        100
+timestep_init       1.E-09
+correction_max      2.0
+!valeurs par default de timestep_init et correction_max
+time_tolerance      0.01
+hindmarsh           false
+!hindmarsh utilise avec true pour une resolution lineaire des pbm a une dimension
+!value in examples
+debye-huckel        true
+!model for calculation of activity coefficients
+database_sweep      false
+speciate_only       false
+lag_activity        true
+!permet de charger les coefficients dactivite ioniaue seulement au debut de literation
+gimrt               true
+gimrt_solver        gmres
+!gmres utilise leplus couramment dans les autres exemples avec gimrt et nest pas le choix par defaut
+graphics            tecplot 
+master_variable     O2(aq)
+!O2 car pbm controle par reactions redox 
+!!database            copper_essai1.dbs
+database            datacom.dbs
+screen_output       50
+END
+
+OUTPUT
+time_units            years
+spatial_profile       100000 500000 1000000 3000000 6000000
+time_series           evolution_surface_middle.out  50 100
+time_series           evolution_prof_middle.out     50 50
+time_series           evolution_surface_end.out     100 100
+time_series           evolution_prof_end.out        100 50
+time_series_print
+time_series_interval  1
+END
+
+TRANSPORT
+!valeur par defaut pour diffusion_activation
+!diffusions non specifiees pour chaque espece
+space_units              centimeters
+time_units               second
+fix_diffusion            1.E-08
+diffusion_activation     5.0
+cementation_exponent     2.0
+END
+
+DISCRETIZATION
+xzones              100  10.0 
+yzones              100  1.0
+END
+
+BOUNDARY_CONDITIONS
+x_begin             porphyry      flux
+x_end               bedrock       flux
+y_begin             porphyry      flux
+!y_begin pbm dans lecriture de cette ligne flux         
+y_end               soilwater     dirichlet
+END
+
+INITIAL_CONDITIONS
+bedrock             1-40       1-100
+porphyry            41-60      1-100
+bedrock             61-100     1-100 
+soilwater           1-100      100-100 fix
+END
+
+Condition porphyry
+units               mol/kg
+!!SolidDensity        CalculateFromMinerals
+units               mol/kg
+pH                  7.0
+Al+++               1.E-10
+Ca++                1.E-04
+Cl-                charge
+Cu+                 1.E-10
+Cu++                1.E-10
+Fe++                1.E-10
+Fe+++               1.E-10
+HCO3-               1.E-04
+HS-                 1.E-10
+K+                  1.E-06
+Na+                 0.01
+SO4--               1.E-05
+SiO2(aq)            1.E-06
+!pour chlore et quartz condition de lexemple dalteration granite exercice 11                     
+Albite              0.16     bulk_surface_area  100.0            
+Anorthite           0.17     bulk_surface_area  100.0
+Chalcopyrite        0.03     bulk_surface_area  100.0
+K-Feldspar          0.24     bulk_surface_area  100.0
+Pyrite              0.10     bulk_surface_area  100.0
+Quartz              0.25     bulk_surface_area  100.0
+!proportions mineraux deduites dune composition mixte granodioritique ou monzogranitique
+O2(aq)   O2(g)   0.2
+CO2(aq)  CO2(g)  0.01
+END
+
+Condition bedrock
+units               mol/kg
+pH                  7.0
+Al+++               1.E-10
+!Al+++               Epidote Albite
+Ca++                1.E-04
+!Ca++                Calcite Anorthite Epidote
+Cl-                charge
+!!Cu                  1.E-10
+Cu+                 1.E-10
+Cu++                1.E-10
+!Cu                  Chalcopyrite
+Fe++                1.E-10
+Fe+++               1.E-10
+!!Fe++                Pyrite
+!Fe+++               Goethite Epidote Jarosite 
+HCO3-               1.E-04
+!HCO3-               Calcite Azurite 
+HS-                 1.E-10
+!HS-                 Pyrite Chalcopyrite
+K+                  1.E-06
+Na+                 0.01
+!Na+                 Albite K-Feldspar
+SO4--               1.E-05
+!SO4--               Pyrite 
+SiO2(aq)            1.E-06
+!SiO2(aq)            Quartz K-Feldspar
+! concentration de Cl changee, retrouver larticle dans leauel il est indique qu elle est elevee  
+!pour chlore et quartz condition de lexemple dalteration granite exercice 11                     
+Albite              0.16     bulk_surface_area  100.0            
+Anorthite           0.09     bulk_surface_area  100.0
+Chalcopyrite        0.03     bulk_surface_area  100.0
+Calcite             0.15     bulk_surface_area  100.0
+!quantite de calcite determinee en diminuant celle du quartz et de la pyrite              
+Epidote             0.09     bulk_surface_area  100.0
+!epidote qui resulte de la detruction de la moitie de lanorthite choix arbitraire
+!mais epidote qui resulte de la destruction des plagioclases                 
+K-Feldspar          0.25     bulk_surface_area  100.0
+!doute sur le fait de ne pas changer la quantite de K-feldspath
+Pyrite              0.04     bulk_surface_area  100.0
+Quartz              0.14     bulk_surface_area  100.0
+!proportions mineraux deduites dune composition mixte granodioritique ou monzogranitique
+O2(aq)   O2(g)   0.2
+CO2(aq)  CO2(g)  0.01
+END
+
+Condition soilwater
+!conditions tirees de lexemple de granite mais qui correspond a un sol deja forme
+units               mol/kg
+pH                  7.0
+Al+++               1.E-10
+!Al+++               Epidote Albite
+Ca++                1.E-04
+!Ca++                Calcite Anorthite Epidote
+Cl-                charge
+!!Cu                  1.E-10
+Cu+                 1.E-10
+Cu++                1.E-10
+!Cu                  Chalcopyrite
+Fe++                1.E-10
+Fe+++               1.E-10
+!!Fe++                Pyrite
+!Fe+++               Goethite Epidote Jarosite 
+HCO3-               1.E-04
+!HCO3-               Calcite Azurite 
+HS-                 1.E-10
+!HS-                 Pyrite Chalcopyrite
+K+                  1.E-06
+Na+                 0.01
+!Na+                 Albite K-Feldspar
+SO4--               1.E-05
+!SO4--               Pyrite 
+SiO2(aq)            1.E-06
+!SiO2(aq)            Quartz K-Feldspar
+!voir si cete concentration de chlore est realiste
+O2(aq)   O2(g)   0.2
+CO2(aq)  CO2(g)  0.01
+K+                  1.E-06
+Na+                 4.E-06
+SiO2(aq)            1.E-06
+SO4--               1.E-10
+END
+
+PRIMARY_SPECIES
+H+
+Al+++
+Ca++
+Cl-
+CO2(aq)
+Cu++
+Fe++
+K+
+Na+
+O2(aq)
+SiO2(aq)
+SO4--
+END
+
+SECONDARY_SPECIES
+Cu+
+Al(OH)2+                                                                
+Al(SO4)2-                                                                                                                         
+AlO2-                                                                   
+AlOH++                                                                  
+AlSO4+                                                                  
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaOH+                                                                   
+CaSO4(aq)                                                               
+CuCl+                                                                   
+CuCl2(aq)                                                               
+CuCl4--                                                                 
+CuO2--                                                                  
+CuOH+                                                                   
+CuSO4(aq)                                                               
+Fe(OH)2(aq)                                                             
+Fe(OH)3-                                                                
+Fe(OH)4--                                                               
+FeCl+                                                                   
+FeCl2(aq)                                                               
+FeCl4--                                                                 
+FeOH+                                                                   
+FeSO4(aq)                                                               
+H2SO4(aq)                                                               
+H2SiO4--                                                                                                                       
+HAlO2(aq)                                                               
+HCl(aq)                                                                 
+HSO4-                                                                   
+HSiO3-                                                                  
+KCl(aq)                                                                 
+KHSO4(aq)                                                               
+KOH(aq)                                                                 
+KSO4-                                                                   
+NaAlO2(aq)                                                              
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+NaSO4-                                                                  
+OH-                                                                                                                                                                                                      
+Fe+++                                                                   
+H2(aq)                                                                  
+HSO5-                                                                                                                               
+SO3--                                                                   
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+Cu(CO3)2--                                                              
+CuCO3(OH)2--                                                            
+CuCO3(aq)                                                               
+FeCO3(aq)                                                               
+FeHCO3+                                                                 
+HO2-                                                                    
+HS2O3-                                                                  
+NaCO3-                                                                  
+NaHCO3(aq)                                                                                                                  
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)4-                                                                
+Fe(SO4)2-                                                                                                                       
+FeCO3+                                                                  
+FeCl++                                                                  
+FeCl2+                                                                  
+FeCl4-                                                                  
+FeOH++                                                                  
+FeSO4+                                                                                                                       
+END
+
+GASES
+CO2(g)
+O2(g)
+H2(g)
+END
+
+MINERALS
+Albite         -label default   -rate  -13.00 
+Alunite        -label default   -rate  -7.00 
+Anorthite      -label default   -rate  -13.00 
+Antlerite      -label default   -rate  8.29
+Aragonite      -label default   -rate  -8.10
+Atacamite      -label default   -rate  7.34
+Azurite        -label default   -rate  3.75 
+Brochantite    -label default   -rate  15.34 
+Calcite        -label default   -rate  -6.19
+Calcite        -label h+        -rate  -6.19
+Chalcanthite   -label default   -rate  -2.640
+Chalcedony     -label default   -rate  -13.39 
+Chalcocite     -label default   -rate  -34.62
+Chalcopyrite   -label default   -rate  -35.27
+Chrysocolla    -label default   -rate  -7.00
+Covellite      -label default   -rate  -22.27
+Cuprite        -label default   -rate  -1.55
+Epidote        -label default   -rate  -10.60
+Fe(OH)2        -label default   -rate  -7.90
+Fe(OH)3        -label default   -rate  -11.40
+FeSO4          -label default   -rate  2.25 
+Gibbsite       -label default   -rate  8.11
+Goethite       -label default   -rate  -7.00
+Gypsum         -label default   -rate  -6.00 
+Halite         -label default   -rate  1.58
+Jarosite       -label default   -rate  -6.00 
+Jarosite-Na    -label default   -rate  -5.28
+Kaolinite      -label default   -rate  -10.00 
+K-Feldspar     -label default   -rate  -10.00 
+Malachite      -label default   -rate  5.15
+Magnetite      -label default   -rate  3.75
+Muscovite      -label default   -rate  -13.00 
+Muscovite      -label h+        -rate  -11.38 
+Pyrite         -label default   -rate  -8.00 
+Pyrite         -label oxygen    -rate  -8.00 
+Pyrite         -label ferric    -rate  -4.50 
+Quartz         -label default   -rate  -10.00 
+Quartz         -label pH        -rate  -14.30
+SiO2(am)       -label default   -rate  -11.8 
+Tenorite       -label default   -rate  7.62 
+END
+
+FLOW
+time_units          years
+distance_units      meters
+constant_flow       0.1 -0.2
+gravity   90.0 0.0 90.0 down  
+END
+
+TEMPERATURE
+set_temperature     25.0
+END
+
+POROSITY
+fix_porosity    0.25
+mineral_update    false
+END
+
+!copier coller de la base generee par database sweep true moins les especes dont les ocncentrations sont trop faibles sur phreeaC
+HCO3-
+Cu+
+Fe+++
+HS-
+H2S(aq)
+S--
+Al(OH)2+                                                                                                                       
+Al2(OH)2++++                                                            
+Al3(OH)4(5+)                                                            
+AlO2-                                                                   
+AlOH++                                                                                                                                
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaHCO3+                                                                 
+CaSO4(aq)                                                              
+CuCl2-                                                                  
+CuCl3--                                                                
+CuO2--                                                                 
+FeCO3(aq)                                                               
+FeCO3+                                                                  
+FeCl+                                                                    
+FeCl2(aq)                                                            
+FeHCO3+                                                                 
+FeOH+                                                                  
+FeSO4(aq)                                                                                                                                                                                  
+H2SO4(aq)                                                             
+HAlO2(aq)                                                               
+HCl(aq)                                                                 
+HSO4-                                                                   
+HSiO3-                                                                  
+KCl(aq)                                                                 
+KHSO4(aq)                                                               
+KOH(aq)                                                                 
+KSO4-                                                                   
+NaAlO2(aq)                                                              
+NaCO3-                                                                  
+NaCl(aq)                                                                
+NaHCO3(aq)                                                              
+NaHSiO3(aq)                                                                                                                        
+NaSO4-                                                                  
+OH-             

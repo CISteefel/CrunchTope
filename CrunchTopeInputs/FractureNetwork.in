@@ -1,0 +1,170 @@
+TITLE
+Fracture Network
+END
+
+DATABASE
+Liz-CIS.dbs
+END
+
+RUNTIME
+time_units          days
+timestep_max        0.001
+timestep_init       1.e-10
+corrmax             2.0
+time_tolerance      0.001
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master_variable     H+
+screen_output       10
+nmm                 true
+SaltCreep           false
+solver              direct
+SetSurfaceAreaConstant  true
+FractureNetwork     true
+END
+
+OUTPUT
+time_units               years
+spatial_profile_at_time  0.00001  0.001 0.01  0.02  0.03  0.04 0.05
+!!!! 1.0
+time_series_at_node      halite.out  1  1
+time_series_print        Na+  Cl-
+time_series_interval     1  
+END
+
+POROSITY
+!!!fix_porosity  0.10
+porosity_update  true
+END
+
+MINERALS
+Magnesite              -label default  -rate  -7.00
+Forsterite             -label pH       -rate  -5.00
+Bogusite              -label default   -rate  -30.00
+END
+
+DISCRETIZATION 
+distance_units   cm
+xzones  160   1.0
+yzones  128   1.0
+END
+
+FLOW
+time_units          years
+calculate_flow      true
+distance_units   meters
+permeability_x 2.5e-19 default
+permeability_y 2.5e-19 default
+permeability_x 0 zone 0-0     1-128 1-1
+permeability_x 0 zone 161-161 1-128 1-1
+permeability_y 1.0E-11 zone 1-160   0-0     1-1
+permeability_y 1.0E-11 zone 1-160   129-129 1-1
+
+pressure  0          default
+pressure  0.0        zone 1-160  0-0      1-1 fix
+pressure  100.0    zone 1-160  129-129  1-1 fix
+END
+
+BOUNDARY_CONDITIONS
+X_begin   porezone  Flux 
+X_end     porezone      Flux 
+Y_begin   porezone      Flux 
+Y_end     co2injection      Flux 
+END
+
+INITIAL_CONDITIONS
+ReadInitialConditions  FractureNetwork.dat
+END
+ 
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  5.0
+fix_diffusion         1.3E-09
+meandiffusion         ArithmeticMean
+END
+
+Condition        rockmatrix    
+temperature     25.0
+pressure        10.0
+set_porosity    0.1
+units           mol/kg
+pH              Magnesite
+CO2(aq)         CO2(g)   0.0003
+Mg++            0.001
+Na+             0.1
+Cl-             charge
+SiO2(aq)        0.000001
+Tracer          1.0E-20
+Bogus           Bogusite
+Magnesite       0.00  bsa 0.0
+Forsterite      0.05  bsa 1.0
+Bogusite        0.9495  bsa 1.00
+END
+
+Condition        porezone    
+temperature     25.0
+pressure        10.0
+set_porosity    0.999
+units           mol/kg
+pH              7.5
+CO2(aq)         CO2(g)   0.0003
+Mg++            Magnesite
+Na+             0.1
+Cl-             charge
+SiO2(aq)        0.000001
+Tracer          1.0E-10
+Bogus           Bogusite
+Magnesite       0.00  bsa 1.0
+Forsterite      0.02  bsa 1.0
+Bogusite        0.0000  ssa 0.00
+END
+
+Condition        co2injection    
+temperature     25.0
+pressure        1.0
+set_porosity    0.1
+units           mol/kg
+pH              Magnesite
+CO2(aq)         CO2(g)   0.05
+Mg++            0.001
+Na+             0.1
+Cl-             0.1
+SiO2(aq)        0.0001
+Tracer          0.01
+Bogus           Bogusite
+Magnesite       0.00  bsa 1.0
+Forsterite      0.00  bsa 1.0
+Bogusite        0.00  bsa 1.00
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+CO2(aq)
+Mg++
+Na+
+Cl-
+SiO2(aq)
+Bogus  
+END
+
+SECONDARY_SPECIES
+HCO3-
+CO3--
+OH-   
+END
+
+GASES
+CO2(g)
+END
+
+

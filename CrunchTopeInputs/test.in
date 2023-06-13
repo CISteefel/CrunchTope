@@ -1,0 +1,305 @@
+TITLE
+pfr17.in & flow= 141mL/d, T= 56C, time= 5d [08/28/07 kgk]
+! PFR will start out filled with 1.5m NaCl only, so no initial CaCO3 dump upon heating
+! will NOT flow CO2-free brine for 24 hrs (during heatup and after) like pfr15+
+! fix incoming fO2(g) = 3.28416E-64 (sat wrt 1b CH4(g) at 25C) - degas w/CH4 before filling MFR3
+! the actual fCO2(g) calculated using eq3 folders in this directory - assume sat wrt cc & do initially
+! mineralogy from Frio Pilot Well #1 modan modal analysis for 5462.3 ft = blue sand = Frio2
+! jacked up lab & Kspar geometric ssa values by 8x (match Ab BET SSA from K&W (1986))
+! jacked up all other geometric ssa values by 5x (match quartz BET SSA from K&W (1988))
+! jacked up clino-chlor, musc & kaol ssa values by another 10x => 50x total (per Nagy et al)
+END
+
+RUNTIME
+database            datacom_kk_new.dbs
+! generic_rates       false
+distance_units      meters
+time_units          years
+timestep_max        1.0
+timestep_init       1.e-12
+corrmax             2.0
+time_tolerance      0.001
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master              O2(aq)
+hindmarsh           true
+steady-state        false
+save_restart        run1.rst
+screen_output      100
+duan     true
+END
+
+OUTPUT
+time_units               years
+!  20 min  30 min  1hr  1d  2d  3d  4d  5d
+spatial_profile_at_time  3.8027e-5  5.7040e-5  1.1408e-4  2.7379e-3  5.4757e-3  8.2136e-3  1.0951e-2  1.3689e-2
+! 10 cells of 1mm, 10 cells of 2mm, 10 cells of 4mm, 22 cells of 10mm, 1 cell of 5mm
+! for plotting: cell1 = 0.5mm, cell11 = 11mm, cell21 = 32mm, cell31 = 75mm, cell40 = 165mm, cell53 = 292.5mm
+time_series_at_node      cell1      1
+time_series_at_node      cell11   11
+time_series_at_node      cell21   21
+time_series_at_node      cell31   31
+time_series_at_node      cell40   40
+time_series_at_node      cell53   53
+time_series_print        all
+time_series_interval     1
+END
+
+POROSITY
+porosity_update  true
+END
+
+TEMPERATURE
+set_temperature  56.0
+END
+
+PRIMARY_SPECIES
+Na+
+K+
+Ca++
+Mg++
+H+
+Al+++
+Fe++
+Mn++
+SiO2(aq)
+CO2(aq)
+SO4--
+Cl-
+O2(aq)
+Tracer
+END
+
+SECONDARY_SPECIES
+Al(OH)2+
+AlO2-
+AlOH++
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!AlSO4+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Al(SO4)2-
+CaCl+
+CaCl2(aq)
+CaCO3(aq)
+CaHCO3+
+!   this is the new SUPCRT data for CaOH+
+CaOH+
+CaSO4(aq)
+CO3--
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(OH)2(aq)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(OH)2+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(OH)3-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(OH)3(aq)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(OH)4-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(OH)4--
+Fe+++
+FeCl+
+FeCl++
+FeCl2(aq)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FeCl2+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FeCl4-
+FeCl4--
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FeCO3(aq)
+FeCO3+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FeHCO3+
+!   this is the new SUPCRT data for FeOH+
+FeOH+
+!   this is the new SUPCRT data for FeOH++
+FeOH++
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FeSO4(aq)
+FeSO4+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Fe(SO4)2-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!H2SiO4--
+HAlO2(aq)
+HCl(aq)
+HCO3-
+H2S(aq)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!H2SO4(aq)
+HS-
+HSO4-
+HSiO3-
+KCl(aq)
+!   this is the new SUPCRT data for KOH(aq)
+KOH(aq)
+KHSO4(aq)
+KSO4-
+MgCl+
+MgCO3(aq)
+MgHCO3+
+!   this is the new SUPCRT data for MgSO4(aq)
+MgSO4(aq)
+MnCl+
+!   made all entries = 25C entry for MnCl3-
+MnCl3-
+!   this is the new SUPCRT data for Mn(OH)2(aq)
+Mn(OH)2(aq)
+!   this is the new SUPCRT data for Mn(OH)3-
+Mn(OH)3-
+!   made all entries = 25C entry for MnCO3(aq)
+MnCO3(aq)
+!   this is the new SUPCRT data for Mn(OH)+
+MnOH+
+MnSO4(aq)
+NaAlO2(aq)
+NaCl(aq)
+NaCO3-
+NaHCO3(aq)
+NaHSiO3(aq)
+NaOH(aq)
+!   this is the new SUPCRT data for NaSO4-
+NaSO4-
+OH-
+S--
+H2(aq)
+END
+
+AQUEOUS_KINETICS
+END
+
+ION_EXCHANGE
+END
+
+SURFACE_COMPLEXATION
+END
+
+MINERALS
+Calcite       -label h+_k2
+Calcite       -label default
+Chalcedony    -label default_k2
+Dawsonite     -label default_k2
+Dolomite       -label h+_k2   
+Dolomite     -label default   
+Goethite       -label default
+Goethite-v-fine       -label default_k2
+K-Feldspar    -label h+_k2   -
+K-Feldspar    -label default_k2   
+Kaolinite       -label h+
+Kaolinite       -label default
+Labradorite_kk       -label h+_k2   
+Labradorite_kk       -label default_k2   
+Magnesite     -label h+_k2
+Magnesite     -label default
+Mn(OH)2(am)    -label default_k2
+Mn(OH)2(am)-v-fine    -label default_k2
+Muscovite     -label h+_k2
+Muscovite     -label default
+!!Pyrite        -label default  -rate -8.0
+Pyrite        -label oxygen  -rate -8.0
+Pyrite        -label ferric  -rate -4.50
+Quartz        -label default_k2
+Siderite      -label h+_k2    -rate -3.0
+Siderite     -label default   -rate -8.0
+END
+
+GASES
+O2(g)
+CO2(g)
+H2S(g)
+END
+
+DISCRETIZATION 
+xzones  &
+10 0.001    10 0.002    10 0.004    22 0.01    1 0.005
+END
+ 
+CONDITION formation_fluid   Initial condition for Frio2 formation in NaCl PFR fluids (35% porosity)
+! see D:\Kevin Stuff\My Documents\Crunch\GeoSeq\frio2\pfr\pfr17\eq3_6_stuff\ccdo_56c.3i for eq3 calc
+temperature     56.0
+units           mol/kg
+pH              charge
+Al+++             1e-12
+Ca++             Calcite
+! CO2(aq)          CO2(g)   3.162e-4
+CO2(aq)          1.6415837460E-03
+Fe++              1e-12
+Mn++              1e-12
+K+                 1e-12
+Mg++             Dolomite
+Na+               1.5
+SiO2(aq)         1e-12
+Cl-                  1.5
+SO4--              1e-12
+O2(aq)           O2(g)     0.2
+Tracer              0.00001
+Calcite                  0.0039       ssa    0.0553
+Chalcedony            0.0       100.0
+Dawsonite              0.0       100.0
+! Dolomite               0.0      ssa    0.0524
+Dolomite               0.0       100.0
+Goethite-v-fine        0.0002     ssa   0.0351
+Goethite               0.0050     ssa   0.0351
+K-Feldspar             0.0689      ssa    0.0939
+Kaolinite                0.0039    ssa    0.5782
+Labradorite_kk         0.1963   ssa    0.0869
+Magnesite              0.0       100.0
+Mn(OH)2(am)            0.0002     ssa   0.0377
+Mn(OH)2(am)-v-fine     0.0005     ssa   0.0377
+Muscovite              0.0579    ssa    0.5299
+Quartz                 0.3101    ssa    0.0566
+Siderite               0.0      100.0
+Pyrite                 0.0033    ssa    0.0299
+END
+
+CONDITION co2_solution   Composition of injectate solution in ghost cell (100% porosity)
+! see D:\Kevin Stuff\My Documents\Crunch\GeoSeq\frio2\pfr\pfr17\eq3_6_stuff\co2_35b.6i for eq6 calc
+temperature     56.0
+units           mol/kg
+pH              charge
+Al+++            1e-12
+Ca++              1e-12
+! CO2(aq)          CO2(g)   3.162e-4
+CO2(aq)          8.6375768671E-01
+Fe++              1e-12
+Mn++              1e-12
+K+                 1e-12
+Mg++             1e-12
+Na+               1.5
+SiO2(aq)         1e-12
+Cl-                  1.5
+SO4--              1e-12
+O2(aq)           O2(g)     3.28416E-64
+Tracer              0.1
+Calcite                0.0       100.0
+Chalcedony             0.0       100.0
+Dawsonite              0.0       100.0
+Dolomite               0.0       100.0
+Goethite-v-fine        0.0       100.0
+Goethite               0.0       100.0
+K-Feldspar             0.0       100.0
+Kaolinite              0.0       100.0
+Labradorite_kk         0.0       100.0
+Magnesite              0.0       100.0
+Mn(OH)2(am)            0.0         100.0
+Mn(OH)2(am)-v-fine     0.0         100.0
+Muscovite              0.0       100.0
+Quartz                 0.0       100.0
+Siderite               0.0      100.0
+Pyrite                 0.0       100.0
+END
+
+INITIAL_CONDITIONS
+formation_fluid  1-53
+END
+
+BOUNDARY_CONDITIONS
+X_begin   co2_solution       Flux
+X_end     formation_fluid    Flux 
+END
+
+TRANSPORT
+time_units  years
+diffusion     0.0
+dispersivity  0.0  0.0
+END
+
+FLOW
+time_units  years
+!  m^3/m^2-y => darcy flux = specific discharge NOT linear flow rate
+! actual Frio2 linear velocity was 5479 m/y (30m/48h)
+! the Darcy flux below corresponds to 141 cm^3/d (0.0979 cm^3/min) through PFR and lin. veloc. = 5489 m/y
+! at this linear velocity mean residence time is ~28 mins
+! constant_flow    1921.0
+constant_flow    1921.0
+END

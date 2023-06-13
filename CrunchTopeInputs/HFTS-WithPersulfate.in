@@ -1,0 +1,780 @@
+TITLE
+HFTS shale experiment from Wei Xiong 
+END
+
+RUNTIME
+time_units          hours
+timestep_max    0.1
+timestep_init   1.0E-12
+time_tolerance  0.001
+correction_max  2.0
+save_restart    rateChange.rst
+gimrt               true
+debye-huckel        true
+screen_output       1
+database            datacom_HFTS.dbs
+kinetic_database    ../aqueousDB-Hang.dbs
+!speciate_only       true
+!database_sweep      true
+!Duan                true
+Qingyun             true
+master              O2(aq)
+graphics        tecplot
+gimrt_solver    gmres
+gimrt_pc        bjacobi
+gimrt_pclevel   0
+solver          direct
+pc              ilu
+pclevel         5
+END
+ 
+OUTPUT
+time_units           hours 
+spatial_profile      0.000001 0.001 0.01 0.1 1 5 10 20 30 40 50 60 70 80 90 96   
+!15 20 25 30 35 40
+WriteFluxWeightedConcentration   outlet.out  1-48 127-127 1-1
+FluxWeightedConcentrationSpecies H+ F- Formic_acid(aq) Cl- Br- NO3- S2O8-- HPO4-- Acetic_acid(aq) Na+ & 
+NH3(aq) K+ Mg++ Ca++ Sr++ Ba++ Fe++ Fe+++ SiO2(aq) HCO3- O2(aq)
+END
+ 
+
+TEMPERATURE
+set_temperature  66.0
+! may need to change
+END
+
+
+POROSITY
+!read_porosityFile inputPorosity.txt
+porosity_update  true
+!!!porosity_update  false
+END
+
+DISCRETIZATION
+distance_units  millimeters
+xzones  48     0.8
+yzones  127    0.8
+zzones  1     33.8
+END
+ 
+
+MINERALS
+
+Quartz            -label Marty_nu       -rate   -13.19
+Quartz            -label Marty_oh       -rate   -9.7212
+Pyrite            -label oxygen       -rate   -8.0
+Pyrite            -label ferric       -rate   -4.5
+!Pyrite            -label USGS-h+       -rate   -7.52 
+!Pyrite            -label USGS-O2       -rate   -4.55
+Calcite            -label leichou1            -rate    -1.0809 
+Calcite            -label leichou3       -rate   -4.8239
+Calcite            -label leichou2         -rate   -3.9586
+Clinochlore-7A       -label USGS   -rate -12.52
+Clinochlore-7A       -label USGS-h+   -rate -11.11
+Illite            -label USGS  -rate -16.4815
+Illite            -label USGS-h+  -rate -11.0888
+Illite            -label USGS-oh-  -rate -11.4723
+Dolomite          -label Gautelier-h+ -rate -3.0079 
+Albite            -label h+         -rate -9.343
+!Smectite-high-Fe-Mg          -label Marty_nu       -rate   -14.0315
+!Smectite-high-Fe-Mg          -label Marty_h+       -rate   -10.2757
+!Smectite-high-Fe-Mg          -label Marty_oh       -rate   -11.5376
+SiO2(am)         -label  USGS -rate -9.42 
+Gypsum           -label   default   -rate   -2.79  
+Barite           -label  USGS -rate -7.9
+Barite           -label  USGS-h+ -rate -6.9
+
+Goethite         -label  USGS    -rate -7.94
+Hematite         -label  USGS-h+ -rate -9.39
+Hematite         -label  USGS    -rate -14.6
+Ferrihydrite     -label  default -rate -5.3
+Fe(OH)2          -label  default -rate -7.9
+Fe(OH)3          -label  default -rate -9.43  !-11.4
+FeSO4            -label  default -rate -7
+O2(s)            -label default  -rate -100
+K2S2O8   -label  default   -rate -100.00
+END 
+
+AQUEOUS_KINETICS
+FeII_oxidation 
+END
+
+GASES
+CO2(g)
+O2(g)
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units     seconds
+fix_diffusion  1.0E-5
+!cementation_exponent  3.1
+!anisotropy_ratioZ 0.3
+dispersivity  0.0 0.0
+END
+
+FLOW
+time_units       seconds
+distance_units   meters
+!!constant_flow       0.00  0.0001
+!!read_VelocityFile   inputVelocity_300um
+calculate_flow      true
+permeability_X      7.5e-9  default
+permeability_Y      7.5e-9  default
+!read_PermeabilityFile   inputPermeability
+permeability_x   0.000  zone 0-0   1-127  1-1        
+permeability_x   0.000  zone 49-49 1-127  1-1     
+permeability_y   0.000  zone 1-48  0-0    1-1      
+
+pressure            0.000      default
+pressure            0.000      zone  1-48  128-128 1-1 fix
+pump   1.0417e-07 inlet 1 1 1
+pump   1.0417e-07 inlet 2 1 1
+pump   1.0417e-07 inlet 3 1 1
+pump   1.0417e-07 inlet 4 1 1
+pump   1.0417e-07 inlet 5 1 1
+pump   1.0417e-07 inlet 6 1 1
+pump   1.0417e-07 inlet 7 1 1
+pump   1.0417e-07 inlet 8 1 1
+pump   1.0417e-07 inlet 9 1 1
+pump   1.0417e-07 inlet 10 1 1
+pump   1.0417e-07 inlet 11 1 1
+pump   1.0417e-07 inlet 12 1 1
+pump   1.0417e-07 inlet 13 1 1
+pump   1.0417e-07 inlet 14 1 1
+pump   1.0417e-07 inlet 15 1 1
+pump   1.0417e-07 inlet 16 1 1
+pump   1.0417e-07 inlet 17 1 1
+pump   1.0417e-07 inlet 18 1 1
+pump   1.0417e-07 inlet 19 1 1
+pump   1.0417e-07 inlet 20 1 1
+pump   1.0417e-07 inlet 21 1 1
+pump   1.0417e-07 inlet 22 1 1
+pump   1.0417e-07 inlet 23 1 1
+pump   1.0417e-07 inlet 24 1 1
+pump   1.0417e-07 inlet 25 1 1
+pump   1.0417e-07 inlet 26 1 1
+pump   1.0417e-07 inlet 27 1 1
+pump   1.0417e-07 inlet 28 1 1
+pump   1.0417e-07 inlet 29 1 1
+pump   1.0417e-07 inlet 30 1 1
+pump   1.0417e-07 inlet 31 1 1
+pump   1.0417e-07 inlet 32 1 1
+pump   1.0417e-07 inlet 33 1 1
+pump   1.0417e-07 inlet 34 1 1
+pump   1.0417e-07 inlet 35 1 1
+pump   1.0417e-07 inlet 36 1 1
+pump   1.0417e-07 inlet 37 1 1
+pump   1.0417e-07 inlet 38 1 1
+pump   1.0417e-07 inlet 39 1 1
+pump   1.0417e-07 inlet 40 1 1
+pump   1.0417e-07 inlet 41 1 1
+pump   1.0417e-07 inlet 42 1 1
+pump   1.0417e-07 inlet 43 1 1
+pump   1.0417e-07 inlet 44 1 1
+pump   1.0417e-07 inlet 45 1 1
+pump   1.0417e-07 inlet 46 1 1
+pump   1.0417e-07 inlet 47 1 1
+pump   1.0417e-07 inlet 48 1 1
+
+END
+ 
+Condition inlet
+temperature      66.0
+units            mol/kg
+pH               1.35 !charge
+Na+              0.287
+NH3(aq)          0.00529
+K+               0.009564 
+Mg++             0.009573
+Ca++             0.052023
+Sr++             0.005812
+Ba++             0.000539
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.26063e-5
+Formic_acid(aq)  1.4e-5
+Cl-              0.455045
+Br-              0.001703
+NO3-             4.96E-5
+!SO4--            1.0e-20 
+S2O8--            0.000587
+HPO4--           5.82E-5
+Acetic_acid(aq)  0.000184
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+END
+
+Condition outlet
+temperature      66.0
+units            mol/kg
+pH               charge
+Na+              1.0E-20
+NH3(aq)          1.0E-20
+K+               1.0E-20
+Mg++             1.0E-20
+Ca++             1.0E-20
+Sr++             1.0E-20
+Ba++             1.0E-20
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.0E-20
+Formic_acid(aq)  1.0E-20
+Cl-              1.0E-20
+Br-              1.0E-20
+NO3-             1.0E-20
+!SO4--            1.0E-20
+S2O8--           1.0e-20
+HPO4--           1.0E-20
+Acetic_acid(aq)  1.0E-20
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+END
+
+Condition fracture0
+temperature      66.0
+units            mol/kg
+pH               charge
+Na+              1.0E-20
+NH3(aq)             1.0E-20
+K+               1.0E-20
+Mg++             1.0E-20
+Ca++             1.0E-20
+Sr++             1.0E-20
+Ba++             1.0E-20
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.0E-20
+Formic_acid(aq)          1.0E-20
+Cl-              1.0E-20
+Br-              1.0E-20
+NO3-             1.0E-20
+!SO4--            1.0E-20
+S2O8--            1.0E-20
+HPO4--           1.0E-20
+Acetic_acid(aq)  1.0E-20
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+
+Quartz            0.20411   0.0 !12.0775
+Pyrite            0.02667   0.0 !1.5781 
+Calcite           0.24987   0.0 !14.7852 
+Clinochlore-7A    0.07741   0.0 !4.5805 ! using smectite ssa from Marty
+Illite            0.34195   0.0 !20.2337
+Smectite-high-Fe-Mg       0.06999  0.0 !4.1414 
+SiO2(am)          0.0    0.0 !59.1716
+Gypsum            0.0    0.0 !59.1716 ! using calcite ssa
+Barite            0.0    0.0 ! ssa 0.0  0.0 
+K2S2O8           0.01   ssa 1.0
+
+! to prevent the inlet from clogging
+END
+
+Condition fracture
+temperature      66.0
+units            mol/kg
+pH               charge
+Na+              1.0E-20
+NH3(aq)             1.0E-20
+K+               1.0E-20
+Mg++             1.0E-20
+Ca++             1.0E-20
+Sr++             1.0E-20
+Ba++             1.0E-20
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+!HS-              1.0e-20
+F-               1.0E-20
+Formic_acid(aq)          1.0E-20
+Cl-              1.0E-20
+Br-              1.0E-20
+NO3-             1.0E-20
+!SO4--            1.0E-20
+S2O8--            1.0E-20
+HPO4--           1.0E-20
+Acetic_acid(aq)  1.0E-20
+HCO3-          CO2(g)    3.9e-4
+O2(aq)            O2(g)    0.21
+
+Quartz            0.29792   17.6281
+Illite            0.45703   27.0431
+Clinochlore-7A    0.08506   5.03342 ! using smectite ssa from Marty
+Calcite           0.00873   0.51682 
+Dolomite          0.00000   0.00000
+Pyrite            0.01994   ssa 0.1 !1.17992
+Albite            0.00000   0.00000
+!Smectite-high-Fe-Mg       0.06999  4.1414 
+SiO2(am)          0.0    59.1716
+Gypsum            0.0    59.1716 ! using calcite ssa
+Barite            0.01644  59.1716 ! ssa 0.0  0.0 
+Goethite          0.0    0.0 !59.1716
+Hematite          0.01   59.1716 !59.1716
+Ferrihydrite      0.0    59.1716
+Fe(OH)2           0.0    59.1716
+Fe(OH)3           0.0    59.1716
+FeSO4             0.0    59.1716
+O2(s)             0.0    1.0 
+END
+
+INITIAL_CONDITIONS
+fracture0    1-48 1-1 1-1
+fracture    1-48 2-127 1-1
+END
+
+BOUNDARY_CONDITIONS
+x_begin   fracture    flux
+x_end     fracture    flux
+y_begin   inlet       flux
+y_end     outlet      flux
+END
+
+PRIMARY_SPECIES
+H+
+K+
+HCO3-
+Al+++
+Ca++
+Mg++
+Fe++
+Fe+++
+Na+
+SiO2(aq)
+Formic_acid(aq)
+Acetic_acid(aq)
+Cl-
+!SO4--
+S2O8--
+!HS-
+F-
+Br-
+HPO4--
+NO3-
+NH3(aq)
+Sr++
+Ba++
+O2(aq)
+END
+
+SECONDARY_SPECIES                                                                     
+SO4--
+
+Al(OH)2+                                                                                                                           
+AlO2-                                                                   
+AlOH++                                                                                                                                 
+CO2(aq)                                                                 
+CO3--                                                                                                                                                                                      
+Fe(OH)2(aq)                                                             
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)3-                                                                                                                                                                                            
+FeOH+                                                                   
+FeOH++                                                                  
+H2S(aq)                                                                 
+OH-                                                                                                                                      
+PO4---                                                                  
+S--                                                                                                                              
+HS-
+CaCO3(aq)                                                                                                                                                                                            
+CaOH+ 
+HAlO2(aq)                                                                                                                       
+FeCO3(aq)                                                               
+FeCO3+ 
+FeCl+                                                                   
+FeCl++                                                                  
+FeCl2(aq)                                                               
+CaHCO3+                                                                                                                                 
+NH4+  
+H2(aq) 
+HSO4- 
+Fe(SO4)2-
+
+!!!FeCl2+  
+!!!CaHPO4(aq)                                                                                                                           
+!!!CaNO3+                                                                  
+!!!MgNO3+                                                                                                                                                                                                 
+!!!FeF+  
+
+!!!CIS-FeF++                                                                   
+!!!CIS-FeF2+                                                                   
+
+!!!FeH2PO4+                                                                
+!!!FeH2PO4++                                                               
+!!!FeHCO3+                                                                 
+!!!FeHPO4(aq)   
+!!!FeHPO4+    
+!!!FeNO3++ 
+!!!FePO4-  
+
+
+FeSO4(aq)                                                               
+FeSO4+  
+
+H2PO4-  
+!!!H2SO4(aq)                                                               
+!!!H2SiO4--                                                                                                                           
+                                                          
+HCl(aq)                                                                 
+HF(aq)                                                                  
+                                                                    
+HNO3(aq)   
+                                                                 
+HSiO3-                                                                  
+KBr(aq)                                                                 
+KCl(aq)     
+
+
+!!!KHPO4-  
+
+KHSO4(aq)                                                                                                                            
+KOH(aq)                                                                                                                              
+KSO4-                                                                                                                              
+MgCO3(aq)                                                               
+MgCl+        
+
+MgF+                                                                    
+!!!MgH2PO4+                                                                
+
+MgHCO3+                                                                 
+!!!MgHPO4(aq)                                                              
+                                                               
+!!!MgPO4-                                                                  
+
+MgSO4(aq)                                                               
+                                                                 
+!!!NH4SO4-                                                                 
+                                                              
+NaBr(aq)                                                                
+NaCO3-                                                                  
+NaCl(aq)                                                                
+NaF(aq)                                                                 
+NaHCO3(aq) 
+
+                                                              
+!!!NaHPO4-                                                                 
+
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                                                                              
+
+NaSO4-                                                                  
+                                                                    
+SiF6-- 
+
+SrCO3(aq)                                                               
+SrCl+                                                                   
+SrF+     
+
+!!!SrH2PO4+                                                                
+!!!SrHPO4(aq)                                                              
+!!!SrNO3+                                                                  
+!!!SrOH+                                                                   
+!!!SrP2O7--                                                                
+!!!SrSO4(aq) 
+
+S2--                                                                    
+S2O3--                                                                                                                                  
+                                                                                                                                   
+!!!CIS-N2(aq)                                                                  
+!!!CIS-N3-                                                                     
+!!!CIS-NO2- 
+
+!!!HS2O3-                                                                                                                                                                        
+!!!FeNO2++   
+
+!!!CIS-HN3(aq)                                                                 
+!!!CIS-HNO2(aq)   
+END
+
+!!!SECONDARY_SPECIES  
+
+!!!!SCN-                                                                    
+!!!Al(OH)2+                                                                
+!!!Al(SO4)2-                                                               
+!!!!Al13O4(OH)24(7+)                                                        
+!!!!Al2(OH)2++++                                                            
+!!!!Al3(OH)4(5+)                                                            
+!!!AlF++                                                                   
+!!!AlF2+                                                                   
+!!!AlF3(aq)                                                                
+!!!!AlF4-                                                                   
+!!!AlH2PO4++                                                               
+!!!AlHPO4+                                                                 
+!!!AlO2-                                                                   
+!!!AlOH++                                                                  
+!!!AlSO4+                                                                  
+!!!BaCO3(aq)                                                               
+!!!BaCl+                                                                   
+!!!BaF+                                                                    
+!!!BaNO3+                                                                  
+!!!BaOH+                                                                   
+!!!CO2(aq)                                                                 
+!!!CO3--                                                                   
+!!!CaCO3(aq)                                                               
+!!!CaCl+                                                                   
+!!!CaCl2(aq)                                                               
+!!!CaF+                                                                    
+!!!CaH2PO4+                                                                
+!!!CaHCO3+                                                                 
+!!!CaHPO4(aq)                                                              
+!!!!CaNO3+_orig                                                             
+!!!CaNO3+                                                                  
+!!!MgNO3+                                                                  
+!!!CaOH+                                                                   
+!!!!CaP2O7--                                                                
+!!!CaPO4-                                                                  
+!!!CaSO4(aq)                                                               
+!!!!'Fe(OH)2(aq)'                                                          
+!!!Fe(OH)2(aq)                                                             
+!!!Fe(OH)2+                                                                
+!!!Fe(OH)3(aq)                                                             
+!!!Fe(OH)3-                                                                
+!!!!Fe(OH)4-                                                                
+!!!!Fe(OH)4--                                                               
+!!!Fe(SO4)2-                                                               
+!!!!Fe2(OH)2++++                                                            
+!!!!Fe3(OH)4(5+)                                                            
+!!!FeCO3(aq)                                                               
+!!!FeCO3+                                                                  
+!!!FeCl+                                                                   
+!!!FeCl++                                                                  
+!!!FeCl2(aq)                                                               
+!!!FeCl2+                                                                  
+!!!!FeCl4-                                                                  
+!!!!FeCl4--                                                                 
+!!!FeF+                                                                    
+!!!FeF++                                                                   
+!!!FeF2+                                                                   
+!!!FeH2PO4+                                                                
+!!!FeH2PO4++                                                               
+!!!FeHCO3+                                                                 
+!!!FeHPO4(aq)                                                              
+!!!FeHPO4+                                                                 
+!!!FeNO3++                                                                 
+!!!FeOH+                                                                   
+!!!FeOH++                                                                  
+!!!FePO4-                                                                  
+!!!FeSO4(aq)                                                               
+!!!FeSO4+                                                                  
+!!!!H2F2(aq)                                                                
+!!!!H2P2O7--                                                                
+!!!!H2PO3F(aq)                                                              
+!!!H2PO4-                                                                  
+!!!H2S(aq)                                                                 
+!!!H2SO4(aq)                                                               
+!!!H2SiO4--                                                                
+!!!!H3P2O7-                                                                 
+!!!!H3PO4(aq)                                                               
+!!!!H4(H2SiO4)4----                                                         
+!!!!H4P2O7(aq)                                                              
+!!!!H6(H2SiO4)4--                                                           
+!!!!HAlO2(aq)                                                               
+!!!HCl(aq)                                                                 
+!!!HF(aq)                                                                  
+!!!!HF2-                                                                    
+!!!HNO3(aq)                                                                
+!!!!HP2O7---                                                                
+!!!!HPO3F-                                                                  
+!!!HS-
+!!!HSO4-                                                                   
+!!!HSiO3-                                                                  
+!!!KBr(aq)                                                                 
+!!!KCl(aq)                                                                 
+!!!KHPO4-                                                                  
+!!!KHSO4(aq)                                                               
+!!!!'KOH(aq)'                                                              
+!!!KOH(aq)                                                                 
+!!!!KP2O7---                                                                
+!!!KSO4-                                                                   
+!!!!'Mg4(OH)4++++'                                                         
+!!!!Mg4(OH)4++++                                                            
+!!!MgCO3(aq)                                                               
+!!!MgCl+                                                                   
+!!!MgF+                                                                    
+!!!MgH2PO4+                                                                
+!!!MgHCO3+                                                                 
+!!!MgHPO4(aq)                                                              
+!!!!MgP2O7--                                                                
+!!!MgPO4-                                                                  
+!!!MgSO4(aq)                                                               
+!!!NH4+                                                                    
+!!!NH4SO4-                                                                 
+!!!!Na2P2O7--                                                               
+!!!!NaAlO2(aq)                                                              
+!!!NaBr(aq)                                                                
+!!!NaCO3-                                                                  
+!!!NaCl(aq)                                                                
+!!!NaF(aq)                                                                 
+!!!NaHCO3(aq)                                                              
+!!!!NaHP2O7--                                                               
+!!!NaHPO4-                                                                 
+!!!NaHSiO3(aq)                                                             
+!!!NaOH(aq)                                                                
+!!!!NaP2O7---                                                               
+!!!!'NaSO4-'                                                               
+!!!NaSO4-                                                                  
+!!!OH-                                                                     
+!!!!P2O7----                                                                
+!!!!PO3F--                                                                  
+!!!PO4---                                                                  
+!!!S--                                                                     
+!!!SiF6--                                                                  
+!!!SrCO3(aq)                                                               
+!!!SrCl+                                                                   
+!!!SrF+                                                                    
+!!!SrH2PO4+                                                                
+!!!SrHPO4(aq)                                                              
+!!!SrNO3+                                                                  
+!!!SrOH+                                                                   
+!!!SrP2O7--                                                                
+!!!SrSO4(aq)                                                               
+!!!Urea(aq)                                                                
+!!!NaNO3(aq)                                                               
+!!!!Acetic_acid(aq)                                                         
+!!!S2--                                                                    
+!!!S2O3--                                                                  
+!!!!Br3-                                                                    
+!!!!BrO-                                                                    
+!!!!BrO3-                                                                   
+!!!!BrO4-                                                                   
+!!!CN-                                                                     
+!!!CO(aq)                                                                  
+!!!!ClO-                                                                    
+!!!!ClO2-                                                                   
+!!!!ClO3-                                                                   
+!!!!ClO4-                                                                   
+!!!H2(aq)                                                                  
+!!!!HSO5-                                                                   
+!!!N2(aq)                                                                  
+!!!N3-                                                                     
+!!!NO2-                                                                    
+!!!O2(aq)*                                                                 
+!!!SO3--                                                                   
+!!!!Br2(aq)                                                                 
+!!!HO2-                                                                    
+!!!HS2O3-                                                                  
+!!!PH4+                                                                    
+!!!!Glycine(aq)                                                             
+!!!!Acetone(aq)                                                             
+!!!!Benzene(aq)                                                             
+!!!!Butanoic_acid(aq)                                                       
+!!!!Ethanamine(aq)                                                          
+!!!!Ethane(aq)                                                              
+!!!!Ethanol(aq)                                                             
+!!!!Ethylene(aq)                                                            
+!!!!Ethyne(aq)                                                              
+!!!!Formic_acid(aq)                                                         
+!!!!Glycolic_acid(aq)                                                       
+!!!!Lactic_acid(aq)                                                         
+!!!!Malonic_acid(aq)                                                        
+!!!!Oxalic_acid(aq)                                                         
+!!!!Pentanoic_acid(aq)                                                      
+!!!!Propanoic_acid(aq)                                                      
+!!!!S2O4--                                                                  
+!!!!S2O6--                                                                  
+!!!!S2O8--                                                                  
+!!!!S3--                                                                    
+!!!!S3O6--                                                                  
+!!!!S4--                                                                    
+!!!!S4O6--                                                                  
+!!!!S5--                                                                    
+!!!!S5O6--                                                                  
+!!!!Succinic_acid(aq)                                                       
+!!!!2-Hydroxydecanoate                                                      
+!!!!2-Hydroxydecanoic(aq)                                                   
+!!!!2-Hydroxyheptanoate                                                     
+!!!!2-Hydroxyheptanoic(aq)                                                  
+!!!!2-Hydroxyhexanoate                                                      
+!!!!2-Hydroxyhexanoic(aq)                                                   
+!!!!2-Hydroxynonanoate                                                      
+!!!!2-Hydroxynonanoic(aq)                                                   
+!!!!2-Hydroxyoctanoate                                                      
+!!!!2-Hydroxyoctanoic(aq)                                                   
+!!!!Acetaldehyde(aq)                                                        
+!!!!Acetamide(aq)                                                           
+!!!!Acetate                                                                 
+!!!!Adipate                                                                 
+!!!!Adipic_acid(aq)                                                         
+!!!!Al(CH3COO)2+                                                            
+!!!!AlCH3COO++                                                              
+!!!!Azelaic_acid(aq)                                                        
+!!!!Azelate                                                                 
+!!!!Ba(CH3COO)2(aq)                                                         
+!!!!BaCH3COO+                                                               
+!!!!Benzoate                                                                
+!!!!Benzoic_acid(aq)                                                        
+!!!!Ca(CH3COO)2(aq)                                                         
+!!!!CaCH3COO+                                                               
+!!!!Decanoate                                                               
+!!!!Decanoic_acid(aq)                                                       
+!!!!Dodecanoate                                                             
+!!!!Dodecanoic_acid(aq)                                                     
+!!!!Fe(CH3COO)2(aq)                                                         
+!!!!FeCH3COO+                                                               
+!!!FeNO2++                                                                 
+!!!!Glutarate                                                               
+!!!!Glutaric_acid(aq)                                                       
+!!!!H-Adipate                                                               
+!!!!H-Azelate                                                               
+!!!!H-Glutarate                                                             
+!!!!H-Malonate                                                              
+!!!!H-Oxalate                                                               
+!!!!H-Pimelate                                                              
+!!!!H-Sebacate                                                              
+!!!!H-Suberate                                                              
+!!!!H-Succinate                                                             
+!!!H2SO3(aq)                                                               
+!!!!HBrO(aq)                                                                
+!!!HCN(aq)                                                                 
+!!!!HClO(aq)                                                                
+!!!!HClO2(aq)                                                               
+!!!HN3(aq)                                                                 
+!!!HNO2(aq)                                                                
+!!!HSO3-                                                                   
+!!!!Heptanoate                                                              
+!!!!Heptanoic_acid(aq)                                                      
+!!!!Hexanoate                                                               
+!!!!Hexanoic_acid(aq)                                                       
+!!!!K(CH3COO)2-                                                             
+!!!!KCH3COO(aq)                                                             
+!!!!Malonate                                                                
+!!!!Mg(CH3COO)2(aq)                                                         
+!!!!MgCH3COO+                                                               
+!!!!NH4(CH3COO)2-                                                           
+!!!!NH4CH3COO(aq)                                                           
+!!!!Na(CH3COO)2-                                                            
+!!!!NaCH3COO(aq)                                                            
+!!!!Nonanoate                                                               
+!!!!Nonanoic_acid(aq)                                                       
+!!!!Octanoate                                                               
+!!!!Octanoic_acid(aq)                                                       
+!!!!Oxalate                                                                 
+!!!!Pimelate                                                                
+!!!!Pimelic_acid(aq)                                                        
+!!!!S2O5--                                                                  
+!!!SO2(aq)                                                                 
+!!!!Sebacate                                                                
+!!!!Sebacic_acid(aq)                                                        
+!!!!Sr(CH3COO)2(aq)                                                         
+!!!!SrCH3COO+                                                               
+!!!!Suberate                                                                
+!!!!Suberic_acid(aq)                                                        
+!!!!Succinate                                                               
+!!!!Undecanoate                                                             
+!!!!Undecanoic_acid(aq)                                                     
+!!!!m-Toluate                                                               
+!!!!m-Toluic_acid(aq)                                                       
+!!!!o-Toluate                                                               
+!!!!o-Toluic_acid(aq)                                                       
+!!!!p-Toluate                                                               
+!!!!p-Toluic_acid(aq)                                                       
+!!!END

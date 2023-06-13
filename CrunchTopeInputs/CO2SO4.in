@@ -1,0 +1,156 @@
+TITLE
+CO2SO4 attack on OPC related to GCS
+END
+
+DATABASE
+datacom.dbs
+END
+
+RUNTIME
+time_units      days
+timestep_max    0.01
+timestep_init   0.00001
+time_tolerance  0.005
+correction_max  2.0
+hindmarsh       true
+debye-huckel    true
+database_sweep  false
+speciate_only   false
+gimrt           true
+screen_output   100
+fix_saturation  1.000
+graphics        tecplot
+!!graphics        kaleidagraph
+Duan            true
+Benchmark       false
+END
+
+OUTPUT
+time_units               days
+spatial_profile          0.001  3
+time_series_at_node      CO2SO4_GCS  100 1  1
+time_series_print        Ca++  pH  
+time_series_interval     1  
+END
+
+TEMPERATURE
+set_temperature  95.0
+END
+
+
+INITIAL_CONDITIONS
+RxnSolution        1-100  1 1
+Cement             11-90  1 1
+END
+
+BOUNDARY_CONDITIONS
+X_begin     RxnSolution   Flux 
+X_end       RxnSolution   Flux 
+END
+
+TRANSPORT
+distance_units        centimeters
+time_units            second
+cementation_exponent  1.0
+fix_diffusion         0.00001
+!!dispersivity          0.0  0.0 
+END
+
+MINERALS
+Calcite                -rate  -6.50
+Gypsum                 -rate  -6.0
+Quartz                 -rate  -35.00
+SiO2(am)               -rate  -8.00
+END
+
+
+DISCRETIZATION 
+distance_units  mm
+xzones          100  3
+END
+
+FLOW
+distance_units      meters
+time_units          second
+constant_flow       0.0
+!!calculate_flow      true
+!!permeability_x      1.18567E-11   default
+!!permeability_x      1.18567E-15   zone  11-90    1-1      1-1
+END
+
+
+POROSITY
+fix_porosity     0.35
+porosity_update    false
+END
+
+
+PRIMARY_SPECIES
+H+
+Ca++
+CO2(aq) 
+SiO2(aq)
+SO4--
+Na+
+Cl-
+END
+
+SECONDARY_SPECIES
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+!!CaOH+                                                                   
+CaSO4(aq)                                                               
+!!H2SO4(aq)                                                               
+!!H2SiO4--                                                                
+!!H4(H2SiO4)4----                                                         
+!!H6(H2SiO4)4--                                                           
+!!HCl(aq)                                                                 
+HSO4-                                                                   
+HSiO3-                                                                  
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+!!NaSO4-                                                                  
+OH-                                                                     
+CO3--                                                                
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)                                                                  
+END
+
+GASES
+CO2(g)
+END
+
+
+
+Condition RxnSolution
+temperature      95.0
+units            mol/kg
+pH               charge
+CO2(aq)           CO2(g)   100
+Ca++             0.0
+SiO2(aq)         0.0 
+SO4--            0.01
+Na+              0.52
+Cl-              0.5
+END
+
+
+
+Condition Cement
+temperature      95.0
+pH                   12.5
+CO2(aq)              0.0000001
+Ca++                 0.0000001
+SO4--                0.0000001
+Na+                  0.0000001
+Cl-                  0.0000001
+SiO2(aq)             0.0000001
+Calcite              0.20          1000.0
+Quartz               0.40          1000.0
+CSHMarchand          0.20          1000.0
+Portlandite          0.20          1000.0
+END
