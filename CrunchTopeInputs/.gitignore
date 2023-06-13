@@ -1,10 +1,13 @@
+# ignore all hidden folders
+.*
+!/.gitignore
+
 # ignore visual studio files
 CrunchTope.v12.suo
 CrunchTope.u2d
 CrunchTope.sln
 
 # ignore visual studio output files
-.vs/*
 x64*
 
 # ignore output files
