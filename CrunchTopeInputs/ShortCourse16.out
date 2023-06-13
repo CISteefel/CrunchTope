@@ -167,16 +167,16 @@
  
   Primary species    itype     guess      Total conc.  Constraint phase
   Na+                  1    4.3498E-11    5.0000E-03                       
-  K+                   3    2.5577E-11    1.5380-158     Muscovite         
+  K+                   3    2.5577E-11    0.0000E+00     Muscovite         
   Ca++                 1    2.4951E-11    6.8513E-04                       
-  H+                   7    1.0000E-08    6.0135-154                       
-  Cu++                 3    1.5737E-11    9.4632-159     Chrysocolla       
-  Al+++                3    3.7062E-11    2.2287-158     Kaolinite         
-  Fe++                 3    1.7906E-11    1.0768-158     Goethite          
+  H+                   7    1.0000E-08    0.0000E+00                       
+  Cu++                 3    1.5737E-11    0.0000E+00     Chrysocolla       
+  Al+++                3    3.7062E-11    0.0000E+00     Kaolinite         
+  Fe++                 3    1.7906E-11    0.0000E+00     Goethite          
   SiO2(aq)             1    1.6643E-11    1.8703E-04                       
   HCO3-                4    1.6389E-11    1.0000E-03     CO2(g)            
   SO4--                1    1.0410E-11    5.0000E-04                       
-  Cl-                  2    2.8207E-11    1.6962-158                       
+  Cl-                  2    2.8207E-11    0.0000E+00                       
   O2(aq)               4    3.1251E-11    2.0000E-01     O2(g)             
  
   Porosity for this chemical condition =   0.0500
@@ -188,15 +188,15 @@
  
   Primary species    itype     guess      Total conc.  Constraint phase
   Na+                  1    1.0000E-06    5.0000E-03                       
-  K+                   3    1.0000E-06    6.0135-154     Jarosite          
-  Ca++                 3    1.0000E-06    6.0135-154     Gypsum            
-  H+                   7    1.0000E-01    6.0135-154                       
+  K+                   3    1.0000E-06    0.0000E+00     Jarosite          
+  Ca++                 3    1.0000E-06    0.0000E+00     Gypsum            
+  H+                   7    1.0000E-01    0.0000E+00                       
   Cu++                 1    1.0000E-06    1.0000E-08                       
   Al+++                1    1.0000E-06    2.5000E-02                       
-  Fe++                 3    1.0000E-06    6.0135-154     Goethite          
-  SiO2(aq)             3    1.0000E-06    6.0135-154     SiO2(am)          
+  Fe++                 3    1.0000E-06    0.0000E+00     Goethite          
+  SiO2(aq)             3    1.0000E-06    0.0000E+00     SiO2(am)          
   HCO3-                4    1.0000E-06    1.0000E-02     CO2(g)            
-  SO4--                2    1.0000E-06    6.0135-154                       
+  SO4--                2    1.0000E-06    0.0000E+00                       
   Cl-                  1    1.0000E-06    5.0000E-03                       
   O2(aq)               4    1.0000E-06    2.0000E-01     O2(g)             
  
@@ -311,7 +311,7 @@
   Gypsum                   -2.3327
   Omega                    4.648060642712746E-003
   Jarosite                -24.6093
-  Omega                    2.458821361665503E-025
+  Omega                    2.458821361665825E-025
   Jurbanite                -9.1146
   Omega                    7.680305378962187E-010
   Alunite                 -13.8383
@@ -329,7 +329,7 @@
   Ionic Strength          =      0.497
   Solution pH             =      1.000
   Solution pe and Eh require H2(g) be included
-  Total Charge            =  8.934E-16
+  Total Charge            = -2.168E-16
  
  Total Aqueous Concentrations of Primary Species  
  --------------------------------------- 
@@ -385,7 +385,7 @@
   CuSO4(aq)             -8.455     -8.405     3.508E-09     3.933E-09     1.121E+00  Aqueous 
   Fe(OH)2(aq)          -27.706    -27.656     1.969E-28     2.207E-28     1.121E+00  Aqueous 
   Fe(OH)2+              -5.969     -6.135     1.074E-06     7.320E-07     6.812E-01  Aqueous 
-  Fe(OH)3(aq)          -11.515    -11.466     3.054E-12     3.424E-12     1.121E+00  Aqueous 
+  Fe(OH)3(aq)          -11.515    -11.465     3.054E-12     3.424E-12     1.121E+00  Aqueous 
   Fe(OH)3-             -36.889    -37.056     1.290E-37     8.787E-38     6.812E-01  Aqueous 
   Fe(OH)4-             -19.899    -20.066     1.262E-20     8.600E-21     6.812E-01  Aqueous 
   FeSO4(aq)             -8.849     -8.800     1.415E-09     1.586E-09     1.121E+00  Aqueous 
@@ -407,25 +407,25 @@
   ****** Saturation state of minerals (log[Q/K] *****
  
   Chrysocolla             -13.4134
-  Omega                    3.860451275935432E-014
+  Omega                    3.860451275935416E-014
   Goethite                 -0.0000
   Omega                    0.999999999999996     
   Kaolinite               -12.7079
-  Omega                    1.959120579849936E-013
+  Omega                    1.959120579849928E-013
   Muscovite               -25.5198
-  Omega                    3.021539781457606E-026
+  Omega                    3.021539781457259E-026
   Quartz                    1.2857
   Omega                     19.3063422141620     
   SiO2(am)                  0.0000
   Omega                     1.00000000000000     
   Gypsum                   -0.0000
-  Omega                    0.999999999999991     
+  Omega                    0.999999999999996     
   Jarosite                 -0.0000
-  Omega                    0.999999999999972     
+  Omega                    0.999999999999986     
   Jurbanite                -0.9488
-  Omega                    0.112521963036474     
+  Omega                    0.112521963036475     
   Alunite                 -11.3322
-  Omega                    4.654164723988860E-012
+  Omega                    4.654164723988402E-012
  
                 SPECIATION OF  
       INITIAL AND BOUNDARY CONDITIONS 

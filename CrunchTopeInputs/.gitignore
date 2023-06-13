@@ -6,3 +6,7 @@ CrunchTope.sln
 # ignore visual studio output files
 .vs/*
 x64*
+
+# ignore output files
+*.tec
+*.out

@@ -1312,18 +1312,16 @@ iteration_tot = 0
 
 nn = 0
 !**********************************************
-IF (Richards_toshi) THEN
-  
 ! record initial state by Toshiyuki Bandai 2023, May
-OPEN(unit = 10, file = 'initial_condition.txt')
-DO jx = 1, nx
-  WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
-END DO
-CLOSE(10)
-
+IF (Richards_toshi) THEN
+  OPEN(unit = 10, file = 'initial_condition.txt')
+  DO jx = 1, nx
+    WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
+  END DO
+  CLOSE(10)
 END IF
-
 !**********************************************
+
 i_substep = 0
 DO WHILE (nn <= nend)
     ! Zhi Li 20200715
@@ -1387,11 +1385,7 @@ DO WHILE (nn <= nend)
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
           WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
-          
-          IF (time > 1.8895d-02) THEN
-            WRITE(*,*) ' Stop !'
-          END IF
-        
+                  
           ! update the value used for the lower boundary condition by interpolating time series
           SELECT CASE (lower_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')

@@ -1,0 +1,107 @@
+TITLE
+test_Richard_1D_infiltration_1
+END
+
+RUNTIME
+time_units       days
+timestep_max     0.001
+timestep_init    0.001
+time_tolerance   0.001
+ResidualTolerance   1.0E-9 
+correction_max   2
+debye-huckel     yes
+model_spinup     yes
+master           Tracer
+database_sweep   no
+speciate_only    false
+gimrt            true
+database         Datacom.dbs
+screen_output    1000
+END
+
+OUTPUT
+time_units               days
+spatial_profile          1.0 4.0 6.5
+END
+
+TRANSPORT
+distance_units meters
+time_units     seconds
+fix_diffusion  1e-9
+dispersivity   0.1 0 
+END
+
+FLOW
+time_units       days
+distance_units   meters
+calculate_flow  TRUE
+
+!!PERMEABILITY
+permeability_x 2.95e-13 default
+permeability_y 0 default
+permeability_z 0 default
+
+!!RICHARD
+ns_solve FALSE
+Richards        FALSE
+Richards_Toshi  TRUE
+Richards_steady FALSE
+read_richards_ic_file initial_test_infiltration.csv SingleColumn
+vg_theta_r 120 0.0
+vg_theta_s 120 0.33
+vg_alpha   120 1.43
+vg_n       120 1.506
+upper_bc_type constant_flux -0.2
+lower_bc_type constant_flux 0.0
+
+END
+
+BOUNDARY_CONDITIONS
+x_begin   ambient       flux
+x_end     ambient       flux
+y_begin   injection     flux
+y_end     ambient       flux
+END
+
+INITIAL_CONDITIONS
+ambient   1-120 1-1 1-1
+END
+
+DISCRETIZATION
+distance_units  meters
+xzones 120 0.05
+yzones 1 1
+zzones 1 1
+END
+
+Condition        injection
+units            mol/kg
+temperature      25.0
+Tracer           0.1
+pH               7.00
+END
+
+Condition        ambient
+units            mol/kg
+temperature      25.0
+pH               7.00
+Tracer           1e-25
+END
+
+POROSITY
+fix_porosity 0.33
+porosity_update false
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+END
+
+SECONDARY_SPECIES
+OH-
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
