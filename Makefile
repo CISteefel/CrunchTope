@@ -332,10 +332,17 @@ SOURCEF = \
           redist_sendRich.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
-          read_pump_timeseries2.F90\
+          read_pump_timeseries.F90\
           read_watertablefile.F90\
           read_watertable_timeseries.F90\
+          read_transpiration.F90\
+          read_evaporation.F90\
+          read_timeseries2.F90\
           interp3.F90\
+          read_pumptimeseries.F90\
+          read_pumplocations.F90\
+          read_permxfile.F90\
+          read_permyfile.F90\
           FractureAperture.F90\
 
 
@@ -668,10 +675,17 @@ OBJSF  =  crunchtype.o\
           redist_sendRich.o\
           read_pumptimeseriesfile.o\
           read_pumplocationsfile.o\
-          read_pump_timeseries2.o\
+          read_pump_timeseries.o\
           read_watertablefile.o\
           read_watertable_timeseries.o\
+          read_transpiration.o\
+          read_evaporation.o\
+          read_timeseries2.o\
           interp3.o\
+          read_pumptimeseries.o\
+          read_pumplocations.o\
+          read_permxfile.o\
+          read_permyfile.o\
           FractureAperture.o\
 
 LOCDIR   = ${CrunchTope_Dir}

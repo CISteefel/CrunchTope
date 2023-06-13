@@ -339,16 +339,16 @@ GO TO 10
 
   IF (ALLOCATED(qg)) THEN
     DEALLOCATE(qg)
-    ALLOCATE(qg(1,nx,ny,nz))
+    ALLOCATE(qg(npumpzone,nx,ny,nz))
   ELSE
-    ALLOCATE(qg(1,nx,ny,nz))
+    ALLOCATE(qg(npumpzone,nx,ny,nz))
   END IF
   qg = 0.0d0
   IF (ALLOCATED(intbnd)) THEN
     DEALLOCATE(intbnd)
-    ALLOCATE(intbnd(1,nx,ny,nz))
+    ALLOCATE(intbnd(npumpzone,nx,ny,nz))
   ELSE
-    ALLOCATE(intbnd(1,nx,ny,nz))
+    ALLOCATE(intbnd(npumpzone,nx,ny,nz))
   END IF
 
   wells = .TRUE.
