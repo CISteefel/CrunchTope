@@ -118,7 +118,9 @@ IF (iteration > maxitr) THEN
   STOP
 END IF
 
+IF (Richards_print) THEN
+  WRITE(*,100) iteration, total_line
+  100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the Richards solver. ')
+END IF
 
-WRITE(*,100) iteration, total_line
-100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the Richards solver. ')
 END SUBROUTINE solve_Richards

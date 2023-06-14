@@ -668,14 +668,14 @@ IF (CalculateFlow) THEN
 
  ! Edit by Toshiyuki Bandai 2023 May
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
- PETSc_if: IF (Richards_Toshi) THEN
+ PETSc_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
    !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
-   WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-   CALL solve_Richards_steady(nx, ny, nz)
+     WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
+     CALL solve_Richards_steady(nx, ny, nz)
    
    ELSE steady_Richards
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
@@ -794,7 +794,7 @@ IF (CalculateFlow) THEN
 
   IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
-  ELSE IF (Richards_Toshi) THEN
+  ELSE IF (Richards) THEN
     ! the velocity was already calcuated in the stead-state program
     FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
@@ -808,7 +808,7 @@ IF (CalculateFlow) THEN
   ! **********************************************
   ! Edit by Toshiyuki Bandai, 2023 May
   ! calculate saturation from volumetric water content
-  IF (Richards_Toshi) THEN
+  IF (Richards) THEN
     
     jy = 1
     jz = 1
@@ -1074,7 +1074,7 @@ iteration_tot = 0
 nn = 0
 !**********************************************
 ! record initial state by Toshiyuki Bandai 2023, May
-IF (Richards_toshi) THEN
+IF (Richards) THEN
   OPEN(unit = 10, file = 'initial_condition.txt')
   DO jx = 1, nx
     WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
@@ -1137,7 +1137,7 @@ DO WHILE (nn <= nend)
         
         ! Edit by Toshiyuki Bandai 2023 May
         ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
-        PETSc_if_time: IF (Richards_Toshi) THEN
+        PETSc_if_time: IF (Richards) THEN
         ! ******************************************************************
         ! store the previous time step water content
           jy = 1
@@ -1145,7 +1145,10 @@ DO WHILE (nn <= nend)
           DO jx = 1,nx
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
-          WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
+          
+          IF (Richards_print) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
+          END IF
                   
           ! update the value used for the lower boundary condition by interpolating time series
           SELECT CASE (lower_BC_type)
@@ -1273,7 +1276,7 @@ DO WHILE (nn <= nend)
 
         IF (NavierStokes) THEN
             CALL velocalcNS(nx,ny,nz,delt)
-        ELSE IF (Richards_Toshi) THEN
+        ELSE IF (Richards) THEN
           ! the velocity was already calcuated
           FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
@@ -1286,7 +1289,7 @@ DO WHILE (nn <= nend)
     ! **********************************************
     ! Edit by Toshiyuki Bandai, 2023 May
     ! calculate saturation from volumetric water content
-    IF (Richards_Toshi) THEN
+    IF (Richards) THEN
     
       jy = 1
       jz = 1
@@ -3078,7 +3081,7 @@ END DO
     
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
-    IF (Richards_Toshi) THEN
+    IF (Richards) THEN
         WRITE(iures) head
         WRITE(iures) theta
     END IF
@@ -3357,7 +3360,7 @@ END DO
     
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
-    IF (Richards_Toshi) THEN
+    IF (Richards) THEN
         WRITE(iures) head
         WRITE(iures) theta
     END IF

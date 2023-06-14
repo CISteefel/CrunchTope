@@ -46,8 +46,8 @@ permeability_z 0 default
 
 !!RICHARD
 ns_solve FALSE
-Richards        FALSE
-Richards_Toshi  TRUE
+Richards TRUE
+Richards_print TRUE
 Richards_steady TRUE
 !read_richards_ic_file initial_test_infiltration.csv SingleColumn
 vg_theta_r 53 0.0098 16 0.092 17 0.049 14 0.044

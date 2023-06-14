@@ -712,7 +712,7 @@ END IF
 
   ! Write head and water content
   IF (calculateflow) THEN
-      IF (Richards_Toshi) THEN
+      IF (Richards) THEN
         fn='head'
           ilength = 8
           CALL newfile(fn,suf1,fnv,nint,ilength)

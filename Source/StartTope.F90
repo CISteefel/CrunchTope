@@ -7753,11 +7753,18 @@ IF (found) THEN
         CALL read_logical(nout,lchar,parchar,parfind,NavierStokes)
         ! ***************************************************
         ! Select Richards solver by Toshiyuki Bandai, 2023 May
-        Richards_Toshi = .FALSE.
-        parchar = 'Richards_Toshi'
+        Richards = .FALSE.
+        parchar = 'Richards'
         parfind = ' '
-        CALL read_logical(nout,lchar,parchar,parfind,Richards_Toshi)
+        CALL read_logical(nout,lchar,parchar,parfind,Richards)
         
+        ! True if you want print statement on the screen from the Richards solver
+        Richards_print = .FALSE.
+        parchar = 'Richards_print'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,Richards_print)
+        
+        ! True if steady-state Richards solver is used to obtain the initial condition
         Richards_steady = .FALSE.
         parchar = 'Richards_steady'
         parfind = ' '
@@ -7859,7 +7866,7 @@ IF (found) THEN
      
     ! ********************************************
     ! Edit by Toshiyuki Bandai 2023 May
-    Toshi_allocate: IF (Richards_Toshi) THEN
+    Toshi_allocate: IF (Richards) THEN
     ! allocate state variable for the Richards equation
     ! water potential psi
       IF (ALLOCATED(psi)) THEN
@@ -8633,7 +8640,7 @@ IF (found) THEN
       
       ! ********************************************
       ! Edit by Toshiyuki Bandai, 2023 May
-      Toshi_permeability: IF (Richards_Toshi) THEN
+      Toshi_permeability: IF (Richards) THEN
         ! allocate permeability at faces
         IF (ALLOCATED(K_faces_x)) THEN
           DEALLOCATE(K_faces_x)
@@ -8658,7 +8665,7 @@ IF (found) THEN
       END IF Toshi_permeability
       
       ! Read lower and upper boundary conditions for steady-state problem
-      Toshi_boundary_conditions: IF (Richards_Toshi) THEN
+      Toshi_boundary_conditions: IF (Richards) THEN
         IF (Richards_steady) THEN
           ! lower boundary condition
           BC_location = 0
@@ -8949,7 +8956,7 @@ IF (found) THEN
       
       END IF Toshi_boundary_conditions
       
-      Toshi_initial_conditions: IF (Richards_Toshi) THEN
+      Toshi_initial_conditions: IF (Richards) THEN
         read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
           INQUIRE(FILE=Richards_IC_File,EXIST=ext)
         IF (.NOT. ext) THEN

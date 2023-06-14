@@ -153,31 +153,6 @@ REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permz
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permxOld
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permyOld
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permzOld
-!! For Richards solver, Zhi Li 20200629
-REAL(DP)                                       :: wc_init
-REAL(DP)                                       :: watertable_init
-
-REAL(DP), DIMENSION(:,:),ALLOCATABLE         :: j_bottom
-
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: head
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: headOld
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wc
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcOld
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcs
-!REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kr ! commented out by Toshiyuki Bandai
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kfacx
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kfacy
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Kfacz
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wch
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: hwc
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: Ch
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: room
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: vgn
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: vga
-REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: wcr
-REAL(DP), DIMENSION(:),ALLOCATABLE             :: vgnzone
-REAL(DP), DIMENSION(:),ALLOCATABLE             :: vgazone
-REAL(DP), DIMENSION(:),ALLOCATABLE             :: wcrzone
 
 INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
 
@@ -185,6 +160,7 @@ INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
 ! For Richards solver by Toshiyuki Bandai May, 2023
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]
+REAL(DP), DIMENSION(:,:,:),ALLOCATABLE          :: head ! pressure head [L]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi ! water potential [L]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential psi from previous line search trial [L]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
