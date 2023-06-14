@@ -1,0 +1,212 @@
+TITLE
+Cranfield 2D (based on File15_Figure 8 with 256 by 256 grid
+END
+
+DATABASE
+datacom.dbs
+END
+
+RUNTIME
+time_units                days
+timestep_max              1.00
+timestep_init             1.e-08
+time_tolerance            0.001
+correction_max            2.0
+debye-huckel              true
+graphics                  tecplot
+database_sweep            false
+speciate_only             false
+gimrt                     true
+master                    H+
+screen_output             1
+fix_saturation            1.00
+gimrt_pc                  bjacobi
+gimrt_pclevel             0
+ReadGautier               true
+!!Qingyun                   true
+Duan                      true
+!!restart                   crunch.rst
+END
+
+OUTPUT
+time_units               days
+spatial_profile          0.000001  1.00  2.00  5.00 10.0 50.0 100.0  365.0
+!!1460.0  3650  7300  9125 36500 365000
+time_series_at_node      CranfieldSampleEdge.out  1 1  1
+time_series_print        pH  Tracer Ca++  Mg++
+time_series_interval     1  
+END
+
+INITIAL_CONDITIONS
+noco2       1-256  1-256  1-1
+!!withco2   1-256  1-256  1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin     withco2   Dirichlet 
+X_end       noco2   flux 
+Y_begin     noco2   flux 
+Y_end       noco2   flux 
+END
+
+TRANSPORT
+distance_units   meters
+time_units       second
+fix_diffusion    1.0E-09
+tortuosity  0.1   default
+!!calculate_diffusion   0.919e-06
+!!diffusion_activation   4.5
+END
+
+FLOW
+distance_units    meters
+time_units        years
+!!constant_flow     0.00252288  0.00
+constant_flow     0.0  0.0
+END
+
+POROSITY
+!!fix_porosity     0.20
+porosity_update  false
+minimum_porosity   0.01
+END
+
+TEMPERATURE
+set_temperature  50.0
+END
+
+MINERALS
+Quartz                 -label default     -rate   -11.48
+Chamosite-7A           -label default     -rate   -10.74
+Illite                 -label default     -rate   -13.11095658
+Kaolinite              -label default     -rate   -13.11095658
+Smectite-low-Fe-Mg     -label default     -rate   -13.11095658
+Fe(OH)3                -label default     -rate   -7.00
+Calcite                -label yang        -rate   -6.5
+Magnesite              -label default     -rate   -8.50
+SiO2(am)               -label default     -rate   -10.50
+END
+
+DISCRETIZATION 
+distance_units  microns
+xzones  256  16
+yzones  256  16
+END
+
+Condition noco2 
+temperature      25.0
+pH               8.5
+CO2(aq)          0.0001
+Ca++             0.001
+Mg++             0.0002
+Na+              0.3000
+K+               0.00001
+Cl-              charge
+SiO2(aq)         0.0001
+Fe+++            1.0E-15
+Fe++             1.0E-10
+O2(aq)           1.0E-35
+Al+++            1.0E-10
+Tracer           0.00001
+Calcite              0.000000      specific_surface_area      0.04   0.001
+Magnesite            0.000000      specific_surface_area      0.04   0.001
+Clinochlore-7A       0.01         specific_surface_area       162.5
+Quartz               0.01          specific_surface_area      0.023681223
+SiO2(am)             0.01          specific_surface_area      0.04
+Kaolinite            0.01          specific_surface_area      0.01
+Illite               0.01          specific_surface_area      0.01
+Chamosite-7A         0.01          specific_surface_area      0.01
+Smectite-low-Fe-Mg   0.01          specific_surface_area      0.081
+solid_density      2.7
+END
+
+Condition withco2
+temperature        25.0
+pH                 charge
+CO2(aq)            CO2(g)     5.00
+Ca++               0.001
+Mg++               0.0002
+Na+                0.3000
+K+                 0.00001
+Cl-                0.3000
+SiO2(aq)           0.0001
+Fe+++              1.0E-15
+Fe++               1.0E-10
+O2(aq)             1.0E-35
+Al+++              1.0E-10
+Tracer             0.01
+Calcite              0.000000      specific_surface_area      0.04   0.001
+Magnesite            0.000000      specific_surface_area      0.04   0.001
+Clinochlore-7A       0.01         specific_surface_area       162.5
+Quartz               0.01          specific_surface_area      0.023681223
+SiO2(am)             0.01          specific_surface_area      0.04
+Kaolinite            0.01          specific_surface_area      0.01
+Illite               0.01          specific_surface_area      0.01
+Chamosite-7A         0.01          specific_surface_area      0.01
+Smectite-low-Fe-Mg   0.01          specific_surface_area      0.01
+solid_density        2.7
+END
+
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Ca++
+Mg++
+Na+
+K+
+Cl-
+SiO2(aq)
+Fe+++
+Al+++
+O2(aq)
+Tracer
+END
+
+SECONDARY_SPECIES    
+Al(OH)2+                                                                                                                                                                                
+AlO2-                                                                   
+AlOH++                                                                  
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+!!25Conly_CaOH+                                                                   
+!!25Conly_Fe(OH)2+                                                                
+!!25Conly_Fe(OH)3(aq)                                                             
+!!25Conly_Fe(OH)4-                                                                                                                          
+FeCl++                                                                  
+!!25Conly_FeCl2+                                                                  
+!!25Conly_FeCl4-                                                                  
+!!25Conly_FeOH++                                                                  
+!!25Conly_H2SiO4--                                                                                                                         
+HAlO2(aq)                                                               
+HCl(aq)                                                                 
+HSiO3-                                                                  
+KCl(aq)                                                                 
+!!25Conly_KOH(aq)                                                                                                                           
+MgCl+                                                                   
+NaAlO2(aq)                                                              
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+OH-                                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+FeCO3+                                                                  
+MgCO3(aq)                                                               
+MgHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)
+Fe++   
+!!25Conly_Fe(OH)2(aq)
+!!25Conly_FeOH+                                
+END
+
+GASES
+CO2(g)
+O2(g)
+END
+
+
+

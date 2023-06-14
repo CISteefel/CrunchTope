@@ -1,0 +1,304 @@
+TITLE
+Simulation of pore water composition at different depth
+END
+
+DATABASE
+!!we changed in the thermoddem crunchflow database the Pyrite and vermiculite reaction for thermoddem toughreact database
+Crunch_ThermoddemV1.10_06Jun2017_couple.dbs
+END
+
+RUNTIME
+time_units years
+timestep_max 1e-2
+timestep_init 1e-12
+time_tolerance 0.0001
+correction_max 2.0
+hindmarsh true
+debye-huckel true
+database_sweep false
+speciate_only false
+gimrt true
+master O2(aq)
+graphics tecplot
+screen_output 5000
+fix_saturation 0.95
+!Restart Pyr_dif_lhl_4.rst
+Save_restart Pyr_1.rst
+END
+
+OUTPUT
+time_units years
+time_series genDist1.out 1 1 1
+time_series genDist2.out 10 1 1
+!time_series genDist3.out 15 1 1
+time_series_print pH Fe++ SO4-- HCO3-
+spatial_profile 1 10 20 30 40 50 60 70 80 90 100 110 120 130 140
+END
+
+MINERALS
+!!fixing the Quartz(alpha) word and VermiculiteSO label (h+)
+
+Pyrite        -label oxygen -rate -8.10
+Pyrite        -label ferric -rate -8.58
+Calcite       -label alkattanneut -rate -5.81
+Calcite       -label alkattanh+ -rate -0.3
+Calcite       -label alkattanco2 -rate -3.48
+Dolomite      -label alkattanneut -rate -7.53
+Dolomite      -label alkattanh+ -rate -3.19
+Dolomite      -label alkattanco2 -rate -5.11
+Goethite      -label default -rate -7.94
+Quartz(alpha) -label default -rate -13.99
+Albite(low)   -label default -rate -12.54
+Albite(low)   -label h+ -rate -10.16
+Albite(low)   -label oh- -rate -15.60
+Illite(FeII)  -label default -rate -12.78
+Illite(FeII)  -label h+ -rate -10.98
+Illite(FeII)  -label oh- -rate -16.52
+VermiculiteSO -label h+ -rate -11.38
+Chamosite(Daphnite) -label default -rate -12.52
+Chamosite(Daphnite) -label h+ -rate -11.11
+END
+
+
+DISCRETIZATION 
+!!change the size of the cell to metric scale
+distance_units meters
+!xzones 100 1
+xzones 4 0.25 4 0.30 4 0.4 2 0.5 2 0.75 2 0.85
+END
+
+INITIAL_CONDITIONS
+!!Changed the number of cell
+rock 1-18 1-1 1-1
+END
+
+BOUNDARY_CONDITIONS
+!!As we are calculating flow we have to use both Flux
+x_begin rainwater flux
+x_end rock flux
+END
+
+Condition rainwater
+!!Average rainwater chemistry by National Atmospheric Deposition Program
+!!
+!!NH3(aq) have to be include with a very low concentration 1 e-10 due to it is not reacting with any mineral and the software would acumulate it continiusly
+!!
+!!Na+ 1.4e-6
+!!Cl- 1.19e-6
+!!NH3(aq) 7.38e-6
+
+units mol/kg
+temperature 25.0
+pH         5.31
+K+         3.59e-7
+Na+        1.4e-6
+Ca++       2.80e-6
+Mg++       5.36e-7
+Al+++      1e-20
+SO4--      2.48e-6
+!HS-        1e-20
+!Fe+++      1e-20
+Fe++       1e-20
+Cl-        charge
+H4SiO4(aq) 1e-20
+NH3(aq)    1e-20
+O2(aq)     O2(g) 0.21
+HCO3-      CO2(g) 4e-4
+END
+
+Condition rock
+!!*15th May 2016 PLM3 7.8m
+!!
+!!More than 3 primary components in equilibrium with minerals shows a mistake alert during calculation (too mani interations)
+!!SSA have been changed for values calculated by Bhavna
+!!Fix Fe++ and HCO3- with Pyrite and Dolomite display a error once the mineral is totaly comsumed
+!!NH3(aq) have to be include with a very low concentration 1 e-10 due to it is not reacting with any mineral and the software would acumulate it continiusly
+!!
+!!NH3(aq) 9.68e-5
+!!Na+ 1.62e-2
+!!Al+++ 8.22e-7
+!!Fe++ Pyrite
+!!Cl- 7.93e-3
+!!H4SiO4(aq) 2.69e-4
+!!HCO3- Dolomite
+
+units mol/kg
+temperature 25.0
+pH     7.84
+K+     1.3e-4
+Na+    1.62e-2
+Ca++   1.27e-3
+Mg++   5.91e-4
+Al+++  Illite(FeII)
+SO4--  7.71e-3
+!HS-    1e-20
+!Fe+++  Goethite
+Fe++   5.03e-5
+Cl-    charge
+H4SiO4(aq) Quartz(alpha)
+NH3(aq) 1e-20
+O2(aq)  1e-50
+HCO3-   2.29-3
+Dolomite            0.092 ssa 0.0021
+Pyrite              0.013 ssa 0.0119
+Quartz(alpha)       0.324 ssa 0.0023
+Albite(low)         0.071 ssa 0.0023
+Illite(FeII)        0.365 ssa 0.1516
+Chamosite(Daphnite) 0.035 ssa 0.012
+Calcite             0.0   1.0
+Goethite            0.0   1.0
+VermiculiteSO       0.0   1.0
+END
+
+TRANSPORT
+!!diffusion value from Bhavna's Lake paper
+!!fix_diffusion 4.27e-10
+!!Cementation_exponent  2 form Armatas (2006), 1.333 for Xie et al (2015), 1 for Arora et al. (2015)
+!!porosity vs tortuosity
+!!
+!!diffusion = 1e-9 is tortuosity 0.55
+
+distance_units meters
+time_units seconds
+fix_diffusion 1e-10
+!calculate_diffusion 0.0
+Cementation_exponent 1.333
+!formation_factor 1
+!diffusion_activation 5
+!D_25 Fe++ 1.5e-5
+gas_diffusion 1e-7
+!Dispersivity 0.0
+!constant_tortuosity 1
+!tortuosity 1 zone 1-100
+!threshold_porosity 0.0
+!Tortuosity_below 0.0
+!Tortuosity_above 0.0
+END
+
+
+FLOW
+!!Heidary et al 2017 check 3 velocities 1.3e-7; e-8; e-9
+!!Value sugested by Bhavna 4.12e-6
+!!K value calculate by Tokunaga et al (2019) in fracture Mancos shale 2e-7
+!!
+!!flows under e-7, generate a very low weathering evolution
+
+distance_units meter
+time_units seconds
+constant_flow 2e-7
+!constant_gasflow 1e-5
+!calculate_flow false
+END
+
+TEMPERATURE
+set_temperature 25
+!temperature_gradient 0.0
+END
+
+POROSITY
+!fix_porosity 0.1
+porosity_update false
+!minimum_porosity 0.01
+END
+
+PRIMARY_SPECIES
+!!in couple database Fe(III) and HS- are secondary species
+!!NH4+ is not included in the list of primary species of the database. I remobed this specie and all the related secundaty species
+!!Seems like all the problems related to the caculation are fixed once NH4+ is removed from the list.
+O2(aq)
+H+
+K+
+Ca++
+Mg++
+Al+++
+HCO3-
+Na+
+H4SiO4(aq)
+!SiO2(aq)
+SO4--
+Fe++
+!Fe+++
+!HS-
+Cl-
+NH3(aq)
+END
+
+SECONDARY_SPECIES
+!!choosed more probably secondary species from database_sweep commando
+!!N secundary species are removed becasue NH4+ is not a primary specie
+CO(aq)
+Fe+++
+HS-
+SO3--
+Al(OH)2+
+AlH3SiO4++
+AlO2-
+AlOH++
+AlSO4+
+CaHCO3+
+CaCO3(aq)
+CaOH+
+CaSO4(aq)
+CO2(aq)
+CO3--
+Fe(CO3)2--
+FeCO3(aq)
+FeHSO4+
+FeO(aq)
+FeOH+
+FeSO4(aq)
+H2SiO4--
+HAlO2(aq)
+HFeO2-
+HSiO3-
+HSO4-
+KOH(aq)
+KSO4-
+MgHCO3+
+MgCO3(aq)
+MgOH+
+MgSO4(aq)
+NaAlO2(aq)
+NaCO3-
+NaHCO3(aq)
+NaOH(aq)
+NaSO4-
+NH4+
+OH-
+N2(aq)
+NO2-
+NO3-
+Fe(HS)2(aq)
+Fe(OH)4-
+FeCO3OH(aq)
+FeHSO4++
+FeO+
+FeOH++
+FeSO4+
+H2S(aq)
+HFeO2(aq)
+S--
+END
+
+GASES
+O2(g)
+CO2(g)
+H2(g)
+END
+
+!AQUEOUS_KINETICS
+!FeIIoxidation         -pathway FeIIoxidation         1.00  -rate 1.66e-10
+!HSoxidation           -pathway HSoxidation           1.00  -rate 7.5e-10
+!END
+
+
+!ION_EXCHANGE
+!exchange Xkaol-
+!convention vanselow
+!END
+
+
+!SURFACE_COMPLEXATION
+!>FeOH_strong on Fe(OH)3 -no_edl	!non-electrostatic
+!>FeOH_weak on Fe(OH)3				!double layer
+!END

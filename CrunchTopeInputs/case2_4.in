@@ -1,0 +1,192 @@
+TITLE
+Diffusion-EDL-case_0
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+
+DISCRETIZATION 
+distance_units  meters
+xzones          6  0.0005
+!!! 200 cells, 0.5 mm each
+END
+
+INITIAL_CONDITIONS
+Solid1   1-1 fix
+Solid1   2-3
+Solid2   4-5
+Solid2   6-6 fix
+END
+
+BOUNDARY_CONDITIONS
+X_begin   Solid1   Flux
+X_end     Solid2   Flux
+END
+
+FLOW
+space_units                meters                      
+time_units                 seconds                      
+constant_flow              0.0  0.0                   
+END
+
+
+POROSITY
+fix_porosity            0.6
+fix_microporosity       0.3e-20
+UpdateDDL               false
+
+!CalculateMicroporosity  on Bogusite
+!SumMicroMacroporosity   true
+!DebyeLengths            1.0
+!porosity_update         false
+
+END
+ 
+Condition Solid1
+!! Left
+temperature        25.0
+units              mmol/kg 
+H2O                55.5
+pH                 7
+Na+                100  
+Cl-                charge
+An-                1e-30
+Anion-             1e-6
+Cat+               1e-30
+Cation+            1e-6
+Bogus              Bogusite
+Bogusite           0.4     specific_surface_area  50
+>montmor-          1e-50 
+set_porosity       0.6
+set_microporosity 1.0E-15
+END
+
+Condition Solid2
+!! Right
+temperature        25.0
+units              mmol/kg 
+H2O                55.5
+pH                 7
+Na+                10  
+Cl-                charge
+An-                1e-6
+Anion-             1e-15
+Cat+               1e-6
+Cation+            1e-15
+Bogus              Bogusite
+Bogusite           0.4     specific_surface_area  50
+>montmor-          1e-50 
+set_porosity       0.6
+set_microporosity  1.0E-15
+END
+!! Bogusite has 50 cm3/mol and a molar mass of 1000 g/mol
+!! i.e. 20 000 g/dm3bog 
+!! with 0.1 volume fraction --> 2000 g/dm3
+!! we want 1e5 m2 per dm3 --> 50 m2/g
+!! we want -1e-6 molc/m2 --> 5e-5 molc/g
+
+
+TRANSPORT
+distance_units           meters
+time_units               second
+fix_diffusion  1e-9
+
+D_MP  H+       1e-9
+D_MP  Na+      1e-9
+D_MP  Cl-      1e-9
+D_MP  Bogus    1e-9
+!!!D_MP  OH-      1e-9
+D_MP  An-      1e-9
+D_MP  Anion-   1e-9 
+D_MP  Cat+     1e-9 
+D_MP  Cation+  1e-9
+
+D_25  H+       1e-9
+D_25  Na+      1e-9
+D_25  Cl-      1e-9
+D_25  Bogus    1e-9
+!!!D_25  OH-      1e-9
+D_25  An-      1e-9
+D_25  Anion-   1e-9 
+D_25  Cat+     1e-9 
+D_25  Cation+  1e-9 
+END
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!! Chemistry !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+PRIMARY_SPECIES
+H+
+Na+       
+Cl-
+An-
+Anion- 
+Cat+ 
+Cation+
+Bogus
+END
+
+SECONDARY_SPECIES
+!!!OH-                                                     
+END
+
+ION_EXCHANGE
+END
+
+MINERALS  
+Bogusite 
+END
+
+GASES
+END
+
+SURFACE_COMPLEXATION
+>montmor- on Bogusite -no_edl
+END
+
+!!!!!!!!!!!!!!!!!!!!!!! RUN PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+RUNTIME
+time_units           days
+timestep_max         0.0001 
+timestep_init        1.e-10
+debye-huckel         true
+lag_activity         true
+database             datacom_bench_no_surf_cpmplexes.dbs
+database_sweep       false
+correction_max       2.0
+gimrt                true
+master_variable      H+
+speciate_only        false
+screen_output        100
+ResidualTolerance    1.0E-15
+OvershootTolerance   1.0E-05
+Duan                 false
+hindmarsh            true
+time_tolerance       0.001
+gimrt_solver gmres
+gimrt_pc bjacobi
+gimrt_pclevel        0
+gimrt_rtolksp        1.0E-07
+save_restart         benchmark.rst
+END
+
+OUTPUT
+time_units              days
+time_series_interval    1
+spatial_profile  0.1
+!!!0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 
+!&
+!2 3 4 5 6 7 8 9 10 
+!&
+!20 30 40 50 60 70 80 90 100 
+
+time_series_at_node      Time_profile_1.out   1 1 1
+time_series_at_node      Time_profile_2.out   2 1 1
+time_series_at_node      Time_profile_3.out   3 1 1
+time_series_at_node      Time_profile_4.out   4 1 1
+time_series_print        pH Cl- Na+ An- Anion- Cat+ Cation+ 
+
+!!MakeMovie              true
+END
+

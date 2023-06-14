@@ -1,0 +1,30 @@
+
+&Aqueous
+  name = FeII_oxidation1
+  type          = catabolic
+  stoichiometry = 1.0 Fe+++  0.5 H2O  -0.25 'O2(aq)'  -1.0 Fe++  -1.0 H+
+  keq           = 8.4887
+/
+
+&AqueousKinetics
+  name = FeII_oxidation1
+  label = default
+  type = tst
+  rate25C = 1.53e-06
+  dependence = 'tot_Fe++' 1.0 'O2(aq)' 1.0  H+ -2.0
+/
+
+&Aqueous
+  name = FeII_oxidation2
+  type          = catabolic
+  stoichiometry = 1.0 Fe+++  0.5 H2O  -0.25 'O2(aq)'  -1.0 Fe++  -1.0 H+
+  keq           = 8.4887
+/
+
+&AqueousKinetics
+  name = FeII_oxidation2
+  label = default
+  type = tst
+  rate25C = 41.4848
+  dependence = ‘tot_Fe++’ 1.0 ‘O2(aq)’ 1.0
+/

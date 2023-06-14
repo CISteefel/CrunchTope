@@ -1,0 +1,166 @@
+TITLE
+END
+
+RUNTIME
+time_units       years
+timestep_max     0.001
+timestep_init    1.0e-20
+time_tolerance   0.001
+correction_max   2.0
+coordinate       cylindrical 
+debye-huckel     true
+Duan             true
+master           H+ 
+database_sweep   false
+speciate_only    false
+gimrt            true
+graphics         tecplot
+database         datacom-HangDeng.dbs
+screen_output    100
+CylindricalDivideVolume  true
+END
+
+OUTPUT
+time_units      years 
+spatial_profile 0.001 0.1 1.0 5 10.0 
+time_series     breakthrough.out 100 
+time_series_print CO2(aq) 
+END
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Na+
+K+
+Mg++
+Ca++
+Cl-
+Fe++
+Al(OH)4-
+SiO2(aq)
+O2(aq)
+Tracer 
+END
+
+SECONDARY_SPECIES  
+Al(OH)3                                                                 
+Al(OH)2+                                                                
+Al(OH)++                                                                
+Al+++                                                                   
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+!CaOH+                                                                   
+Fe(OH)2(aq)                                                             
+Fe(OH)3-                                                                
+!Fe(OH)4--                                                               
+FeCl+                                                                   
+FeCl2(aq)                                                               
+FeCl4--                                                                 
+FeOH+                                                                   
+!H2SiO4--                                                                
+HCl(aq)                                                                 
+HSiO3-                                                                  
+KCl(aq)                                                                 
+!KOH(aq)                                                                 
+NaCl(aq)                                                                
+NaOH(aq)                                                                
+OH-                                                                     
+Fe+++                                                                   
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+FeCO3(aq)                                                               
+FeHCO3+                                                                 
+END
+
+SURFACE_COMPLEXATION
+END
+
+
+ISOTOPES
+END
+
+Condition    initial
+temperature  21.6
+units        mmol/kg
+pH           9.26
+CO2(aq)      2.122
+Na+          1.89
+K+           0.018
+Mg++         0.184
+Ca++         0.134
+Cl-          0.276
+Fe++         0.0001
+Al(OH)4-        0.0006 
+SiO2(aq)     0.503
+O2(aq)       0.007
+Tracer       1.0e-10
+END
+
+Condition    injection
+temperature 30
+units        mmol/kg
+pH           3.804
+CO2(aq)      0.74638e3
+Na+          1.89
+K+           0.018
+Mg++         0.184
+Ca++         0.134
+Cl-          0.276
+Fe++         0.0001
+Al(OH)4-        0.0006 
+SiO2(aq)     0.503
+O2(aq)       0.007
+Tracer       1.0e-1
+END
+
+
+MINERALS
+END
+
+GASES
+CO2(g)
+O2(g)
+END
+
+POROSITY
+porosity_update true
+END
+
+DISCRETIZATION
+distance_units    meters
+xzones   100  10 
+END
+ 
+INITIAL_CONDITIONS
+initial  1-100
+END
+
+BOUNDARY_CONDITIONS
+x_begin  injection   flux 
+x_end    initial     flux 
+END
+
+TEMPERATURE
+set_temperature 30
+END
+
+TRANSPORT
+distance_units   meters 
+time_units       seconds 
+fix_diffusion    1.0e-9
+cementation_exponent 2.0 
+END
+
+FLOW
+distance_units   meters 
+time_units       seconds 
+calculate_flow   true
+permeability_x   1e-12 default 
+permeability_x   0.0  zone 0-0 1-1 1-1
+pump     3.0   injection  1 1 1
+pressure         0.0  default 
+!constant_flow    0.0
+!2.4e-5
+END

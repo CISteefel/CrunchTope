@@ -1,0 +1,123 @@
+&CatabolicPathway
+  name     = Ferrihydrite_DIRB_Lc
+  reaction = -1.833 H+  1.000 Fe++  0.250 HCO3-  -0.083 Lactate
+  keq      = 19.1
+  biomass  = 'C5H7O2NFe(s)'
+  bq = 0.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+&CatabolicPathway
+
+  name     = Goethite_DIRB_Lc
+  reaction = -1.833 H+  1.000 Fe++  0.250 HCO3-  -0.083 Lactate
+  keq      = 19.1
+  biomass  = 'C5H7O2NFe(s)'
+  bq = 0.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+&CatabolicPathway
+
+  name     = MnO2_DIRB_Lc
+  reaction = -0.833 H+  0.250 HCO3-  -0.083 Lactate  0.500 Mn++
+  keq      = 26.9
+  biomass  = 'C5H7O2NFe(s)'
+  bq = 0.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+
+&CatabolicPathway
+  name     = Nitrate_reduction_Lc
+  reaction = 0.167 H+  0.250 HCO3-  -0.083 Lactate  -0.500 NO3-  0.500 'NO2-'
+  keq      = 30.8956
+  biomass  = 'C5H7O2NNO3(s)'
+  bq = 4.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+&CatabolicPathway
+  name     = Nitrate_red_Lc_path2
+  reaction = 0.167 H+  0.250 HCO3-  -0.083 Lactate  -0.500 NO3-  0.500 'NO2-'
+  keq      = 30.8956
+  biomass  = 'C5H7O2NNO3(s)'
+  bq = 4.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+&CatabolicPathway
+  name     = Chromium_reduction_N
+  reaction = -1.500 H+  0.250 HCO3-  -0.083 Lactate  -0.3333 CrO4--  0.3333 Cr+++
+  keq      = 57.60675151
+  biomass  = 'C5H7O2NNO3(s)'
+  bq = 4.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+&CatabolicPathway
+  name     = Nitrate_57
+  reaction = 0.167 H+  0.250 HCO3-  -0.083 Lactate  -0.500 NO3-  0.500 'NO2-'
+  keq      = 30.8956
+  biomass  = 'C5H7O2NNO3(s)'
+  bq = 4.0
+  chi = 1
+  direction = -1
+  UseMetabolicLag = .false. 
+/
+
+&CatabolicPathway
+  name     = Ferrihydrite_DIRB
+  reaction = -2.125 H+  1.0 Fe++  0.25 'CO2(aq)'  -0.125 Acetate
+  keq      = 14.439875
+  biomass  = 'C5H7O2NFe(s)'
+  chi      = 1
+  bq        = 0.0
+  direction = -1  
+  UseMetabolicLag = .false.
+  /
+  
+  &CatabolicPathway
+  name     = Junk
+  reaction = -2.125 H+  1.0 Fe++  0.25 'CO2(aq)'  -0.125 Acetate
+  keq      = 14.439875
+  biomass  = 'C5H7O2NFe(s)'
+  chi      = 1
+  bq        = 0.0
+  direction = -1  
+  UseMetabolicLag = .false.
+  /
+  
+  &CatabolicPathway
+  name     = Goethite_DIRB
+  reaction = -2.125 H+  1.0 Fe++  0.25 'CO2(aq)'  -0.125 Acetate
+  keq      = 11.9751
+  biomass  = 'C5H7O2NFe(s)'
+  chi      = 1
+  bq       = 0.0
+  direction = -1
+  UseMetabolicLag = .false.   
+/
+
+&CatabolicPathway
+  name     = 'UO2(s)'
+  reaction = -0.875 H+  -0.25 'CO2(aq)'  0.125 Acetate  0.5 UO2++
+  keq      = -2.20533
+  biomass  = 'C5H7O2NFe(s)'
+  chi      = 1
+  bq       = 0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/

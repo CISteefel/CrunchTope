@@ -1,0 +1,488 @@
+ TITLE
+Fracture Network
+END
+
+DATABASE
+Liz-CIS.dbs
+END
+
+RUNTIME
+time_units          days
+timestep_max        250.0
+timestep_init       1.e-05
+corrmax             2.0
+time_tolerance      0.01
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master_variable     H+
+correction_max      10.0
+screen_output       1
+
+SaltCreep           false
+solver              direct
+pc                  ilu  
+pclevel             5
+SetSurfaceAreaConstant  true
+nmm                 true
+FractureNetwork     true
+CriticalZone        true
+!!!Duan2006            true
+END
+
+OUTPUT
+time_units               years
+spatial_profile_at_time  0.00001 0.0001 0.0005 0.001 0.005 0.01 0.05 0.1  
+!!!100 2 300 400 500  1000  5000
+time_series_at_node      halite.out  1  1
+time_series_print        Mg++
+time_series_interval     1  
+END
+
+POROSITY
+fix_porosity  0.20
+!!!porosity_update  true
+END
+
+MINERALS
+Magnesite              -label default   -rate   -8.00
+Forsterite             -label default   -rate   -8.00
+!!!Forsterite             -label pH        -rate   -7.00
+Bogusite               -label default   -rate  -30.00
+END
+
+DISCRETIZATION 
+distance_units   cm
+xzones  250      1.0
+yzones  200      1.0
+END
+
+FLOW
+time_units          years
+calculate_flow      true
+distance_units      meters
+
+!!RICHARD
+ns_solve FALSE
+Richards           TRUE
+co_richards        1.0
+redistribute_wc    TRUE
+watertable_init    1.00
+y_is_vertical      TRUE
+!!! VG parameters!!!!!
+vangenuchten_alpha 1.1
+vangenuchten_n     1.37
+wc_residual        0.10
+!!!vangenuchten_alpha 1.43
+!!!vangenuchten_n     1.506
+!!!wc_residual        0.20
+upstream_weighting true
+
+ !!!   ******************************************
+
+permeability_x 2.5e-19 default
+permeability_y 2.5e-19 default
+permeability_z 1.418e-30 default
+
+permeability_x 0       zone 0-0      1-200 1-1
+permeability_x 0       zone 251-251  1-200 1-1
+permeability_y 0       zone 1-250    0-0   1-1
+permeability_y 1.0E-12 zone 1-250    201-201 1-1
+
+!!PRESSURE
+pressure  0.0      default
+pressure  0.00     zone 1-250  1-1      1-1 fix
+pressure  6125.0   zone 1-250  201-201  1-1 fix
+
+!!PUMP
+!!!pump 0.00000912 atmosphere 1 2 1
+pump  1.0E-06 atmosphere 1 2 1
+pump  1.0E-06  atmosphere 2 2 1
+pump  1.0E-06  atmosphere 3 2 1
+pump  1.0E-06 atmosphere 4 2 1
+pump  1.0E-06 atmosphere 5 2 1
+pump  1.0E-06 atmosphere 6 2 1
+pump  1.0E-06 atmosphere 7 2 1
+pump  1.0E-06 atmosphere 8 2 1
+pump  1.0E-06 atmosphere 9 2 1
+
+pump  1.0E-06 atmosphere 10 2 1
+pump  1.0E-06 atmosphere 11 2 1
+pump  1.0E-06 atmosphere 12 2 1
+pump  1.0E-06 atmosphere 13 2 1
+pump  1.0E-06 atmosphere 14 2 1
+pump  1.0E-06 atmosphere 15 2 1
+pump  1.0E-06 atmosphere 16 2 1
+pump  1.0E-06 atmosphere 17 2 1
+pump  1.0E-06 atmosphere 18 2 1
+pump  1.0E-06 atmosphere 19 2 1
+
+pump  1.0E-06 atmosphere 20 2 1
+pump  1.0E-06 atmosphere 21 2 1
+pump  1.0E-06 atmosphere 22 2 1
+pump  1.0E-06 atmosphere 23 2 1
+pump  1.0E-06 atmosphere 24 2 1
+pump  1.0E-06 atmosphere 25 2 1
+pump  1.0E-06 atmosphere 26 2 1
+pump  1.0E-06 atmosphere 27 2 1
+pump  1.0E-06 atmosphere 28 2 1
+pump  1.0E-06 atmosphere 29 2 1
+
+pump  1.0E-06 atmosphere 30 2 1
+pump  1.0E-06 atmosphere 31 2 1
+pump  1.0E-06 atmosphere 32 2 1
+pump  1.0E-06 atmosphere 33 2 1
+pump  1.0E-06 atmosphere 34 2 1
+pump  1.0E-06 atmosphere 35 2 1
+pump  1.0E-06 atmosphere 36 2 1
+pump  1.0E-06 atmosphere 37 2 1
+pump  1.0E-06 atmosphere 38 2 1
+pump  1.0E-06 atmosphere 39 2 1
+
+pump  1.0E-06 atmosphere 40 2 1
+pump  1.0E-06 atmosphere 41 2 1
+pump  1.0E-06 atmosphere 42 2 1
+pump  1.0E-06 atmosphere 43 2 1
+pump  1.0E-06 atmosphere 44 2 1
+pump  1.0E-06 atmosphere 45 2 1
+pump  1.0E-06 atmosphere 46 2 1
+pump  1.0E-06 atmosphere 47 2 1
+pump  1.0E-06 atmosphere 48 2 1
+pump  1.0E-06 atmosphere 49 2 1
+
+pump  1.0E-06 atmosphere 50 2 1
+pump  1.0E-06 atmosphere 51 2 1
+pump  1.0E-06 atmosphere 52 2 1
+pump  1.0E-06 atmosphere 53 2 1
+pump  1.0E-06 atmosphere 54 2 1
+pump  1.0E-06 atmosphere 55 2 1
+pump  1.0E-06 atmosphere 56 2 1
+pump  1.0E-06 atmosphere 57 2 1
+pump  1.0E-06 atmosphere 58 2 1
+pump  1.0E-06 atmosphere 59 2 1
+
+pump  1.0E-06 atmosphere 60 2 1
+pump  1.0E-06 atmosphere 61 2 1
+pump  1.0E-06 atmosphere 62 2 1
+pump  1.0E-06 atmosphere 63 2 1
+pump  1.0E-06 atmosphere 64 2 1
+pump  1.0E-06 atmosphere 65 2 1
+pump  1.0E-06 atmosphere 66 2 1
+pump  1.0E-06 atmosphere 67 2 1
+pump  1.0E-06 atmosphere 68 2 1
+pump  1.0E-06 atmosphere 69 2 1
+
+pump  1.0E-06 atmosphere 70 2 1
+pump  1.0E-06 atmosphere 71 2 1
+pump  1.0E-06 atmosphere 72 2 1
+pump  1.0E-06 atmosphere 73 2 1
+pump  1.0E-06 atmosphere 74 2 1
+pump  1.0E-06 atmosphere 75 2 1
+pump  1.0E-06 atmosphere 76 2 1
+pump  1.0E-06 atmosphere 77 2 1
+pump  1.0E-06 atmosphere 78 2 1
+pump  1.0E-06 atmosphere 79 2 1
+
+pump  1.0E-06 atmosphere 80 2 1
+pump  1.0E-06 atmosphere 81 2 1
+pump  1.0E-06 atmosphere 82 2 1
+pump  1.0E-06 atmosphere 83 2 1
+pump  1.0E-06 atmosphere 84 2 1
+pump  1.0E-06 atmosphere 85 2 1
+pump  1.0E-06 atmosphere 86 2 1
+pump  1.0E-06 atmosphere 87 2 1
+pump  1.0E-06 atmosphere 88 2 1
+pump  1.0E-06 atmosphere 89 2 1
+
+pump  1.0E-06 atmosphere 90 2 1
+pump  1.0E-06 atmosphere 91 2 1
+pump  1.0E-06 atmosphere 92 2 1
+pump  1.0E-06 atmosphere 93 2 1
+pump  1.0E-06 atmosphere 94 2 1
+pump  1.0E-06 atmosphere 95 2 1
+pump  1.0E-06 atmosphere 96 2 1
+pump  1.0E-06 atmosphere 97 2 1
+pump  1.0E-06 atmosphere 98 2 1
+pump  1.0E-06 atmosphere 99 2 1
+
+pump  1.0E-06 atmosphere 100 2 1
+pump  1.0E-06 atmosphere 101 2 1
+pump  1.0E-06 atmosphere 102 2 1
+pump  1.0E-06 atmosphere 103 2 1
+pump  1.0E-06 atmosphere 104 2 1
+pump  1.0E-06 atmosphere 105 2 1
+pump  1.0E-06 atmosphere 106 2 1
+pump  1.0E-06 atmosphere 107 2 1
+pump  1.0E-06 atmosphere 108 2 1
+pump  1.0E-06 atmosphere 109 2 1
+
+pump  1.0E-06 atmosphere 110 2 1
+pump  1.0E-06 atmosphere 111 2 1
+pump  1.0E-06 atmosphere 112 2 1
+pump  1.0E-06 atmosphere 113 2 1
+pump  1.0E-06 atmosphere 114 2 1
+pump  1.0E-06 atmosphere 115 2 1
+pump  1.0E-06 atmosphere 116 2 1
+pump  1.0E-06 atmosphere 117 2 1
+pump  1.0E-06 atmosphere 118 2 1
+pump  1.0E-06 atmosphere 119 2 1
+
+pump  1.0E-06 atmosphere 120 2 1
+pump  1.0E-06 atmosphere 121 2 1
+pump  1.0E-06 atmosphere 122 2 1
+pump  1.0E-06 atmosphere 123 2 1
+pump  1.0E-06 atmosphere 124 2 1
+pump  1.0E-06 atmosphere 125 2 1
+pump  1.0E-06 atmosphere 126 2 1
+pump  1.0E-06 atmosphere 127 2 1
+pump  1.0E-06 atmosphere 128 2 1
+pump  1.0E-06 atmosphere 129 2 1
+
+pump  1.0E-06 atmosphere 130 2 1
+pump  1.0E-06 atmosphere 131 2 1
+pump  1.0E-06 atmosphere 132 2 1
+pump  1.0E-06 atmosphere 133 2 1
+pump  1.0E-06 atmosphere 134 2 1
+pump  1.0E-06 atmosphere 135 2 1
+pump  1.0E-06 atmosphere 136 2 1
+pump  1.0E-06 atmosphere 137 2 1
+pump  1.0E-06 atmosphere 138 2 1
+pump  1.0E-06 atmosphere 139 2 1
+
+pump  1.0E-06 atmosphere 140 2 1
+pump  1.0E-06 atmosphere 141 2 1
+pump  1.0E-06 atmosphere 142 2 1
+pump  1.0E-06 atmosphere 143 2 1
+pump  1.0E-06 atmosphere 144 2 1
+pump  1.0E-06 atmosphere 145 2 1
+pump  1.0E-06 atmosphere 146 2 1
+pump  1.0E-06 atmosphere 147 2 1
+pump  1.0E-06 atmosphere 148 2 1
+pump  1.0E-06 atmosphere 149 2 1
+
+pump  1.0E-06 atmosphere 150 2 1
+pump  1.0E-06 atmosphere 151 2 1
+pump  1.0E-06 atmosphere 152 2 1
+pump  1.0E-06 atmosphere 153 2 1
+pump  1.0E-06 atmosphere 154 2 1
+pump  1.0E-06 atmosphere 155 2 1
+pump  1.0E-06 atmosphere 156 2 1
+pump  1.0E-06 atmosphere 157 2 1
+pump  1.0E-06 atmosphere 158 2 1
+pump  1.0E-06 atmosphere 159 2 1
+
+pump  1.0E-06 atmosphere 160 2 1
+pump  1.0E-06 atmosphere 161 2 1
+pump  1.0E-06 atmosphere 162 2 1
+pump  1.0E-06 atmosphere 163 2 1
+pump  1.0E-06 atmosphere 164 2 1
+pump  1.0E-06 atmosphere 165 2 1
+pump  1.0E-06 atmosphere 166 2 1
+pump  1.0E-06 atmosphere 167 2 1
+pump  1.0E-06 atmosphere 168 2 1
+pump  1.0E-06 atmosphere 169 2 1
+
+pump  1.0E-06 atmosphere 170 2 1
+pump  1.0E-06 atmosphere 171 2 1
+pump  1.0E-06 atmosphere 172 2 1
+pump  1.0E-06 atmosphere 173 2 1
+pump  1.0E-06 atmosphere 174 2 1
+pump  1.0E-06 atmosphere 175 2 1
+pump  1.0E-06 atmosphere 176 2 1
+pump  1.0E-06 atmosphere 177 2 1
+pump  1.0E-06 atmosphere 178 2 1
+pump  1.0E-06 atmosphere 179 2 1
+
+pump  1.0E-06 atmosphere 180 2 1
+pump  1.0E-06 atmosphere 181 2 1
+pump  1.0E-06 atmosphere 182 2 1
+pump  1.0E-06 atmosphere 183 2 1
+pump  1.0E-06 atmosphere 184 2 1
+pump  1.0E-06 atmosphere 185 2 1
+pump  1.0E-06 atmosphere 186 2 1
+pump  1.0E-06 atmosphere 187 2 1
+pump  1.0E-06 atmosphere 188 2 1
+pump  1.0E-06 atmosphere 189 2 1
+
+pump  1.0E-06 atmosphere 190 2 1
+pump  1.0E-06 atmosphere 191 2 1
+pump  1.0E-06 atmosphere 192 2 1
+pump  1.0E-06 atmosphere 193 2 1
+pump  1.0E-06 atmosphere 194 2 1
+pump  1.0E-06 atmosphere 195 2 1
+pump  1.0E-06 atmosphere 196 2 1
+pump  1.0E-06 atmosphere 197 2 1
+pump  1.0E-06 atmosphere 198 2 1
+pump  1.0E-06 atmosphere 199 2 1
+
+pump  1.0E-06 atmosphere 2 200 1
+pump  1.0E-06 atmosphere 201 2 1
+pump  1.0E-06 atmosphere 202 2 1
+pump  1.0E-06 atmosphere 203 2 1
+pump  1.0E-06 atmosphere 204 2 1
+pump  1.0E-06 atmosphere 205 2 1
+pump  1.0E-06 atmosphere 206 2 1
+pump  1.0E-06 atmosphere 207 2 1
+pump  1.0E-06 atmosphere 208 2 1
+pump  1.0E-06 atmosphere 209 2 1
+
+pump  1.0E-06 atmosphere 210 2 1
+pump  1.0E-06 atmosphere 211 2 1
+pump  1.0E-06 atmosphere 212 2 1
+pump  1.0E-06 atmosphere 213 2 1
+pump  1.0E-06 atmosphere 214 2 1
+pump  1.0E-06 atmosphere 215 2 1
+pump  1.0E-06 atmosphere 216 2 1
+pump  1.0E-06 atmosphere 217 2 1
+pump  1.0E-06 atmosphere 218 2 1
+pump  1.0E-06 atmosphere 219 2 1
+
+pump  1.0E-06 atmosphere 220 2 1
+pump  1.0E-06 atmosphere 221 2 1
+pump  1.0E-06 atmosphere 222 2 1
+pump  1.0E-06 atmosphere 223 2 1
+pump  1.0E-06 atmosphere 224 2 1
+pump  1.0E-06 atmosphere 225 2 1
+pump  1.0E-06 atmosphere 226 2 1
+pump  1.0E-06 atmosphere 227 2 1
+pump  1.0E-06 atmosphere 228 2 1
+pump  1.0E-06 atmosphere 229 2 1
+
+pump  1.0E-06 atmosphere 230 2 1
+pump  1.0E-06 atmosphere 231 2 1
+pump  1.0E-06 atmosphere 232 2 1
+pump  1.0E-06 atmosphere 233 2 1
+pump  1.0E-06 atmosphere 234 2 1
+pump  1.0E-06 atmosphere 235 2 1
+pump  1.0E-06 atmosphere 236 2 1
+pump  1.0E-06 atmosphere 237 2 1
+pump  1.0E-06 atmosphere 238 2 1
+pump  1.0E-06 atmosphere 239 2 1
+
+pump  1.0E-06 atmosphere 240 2 1
+pump  1.0E-06 atmosphere 241 2 1
+pump  1.0E-06 atmosphere 242 2 1
+pump  1.0E-06 atmosphere 243 2 1
+pump  1.0E-06 atmosphere 244 2 1
+pump  1.0E-06 atmosphere 245 2 1
+pump  1.0E-06 atmosphere 246 2 1
+pump  1.0E-06 atmosphere 247 2 1
+pump  1.0E-06 atmosphere 248 2 1
+pump  1.0E-06 atmosphere 249 2 1
+pump  1.0E-06 atmosphere 250 2 1
+
+END
+
+BOUNDARY_CONDITIONS
+!!!boundarycondition  atmosphere      zone 1-125     0-0     1-1   Dirichlet
+!!!boundarycondition  atmosphere      zone 126-250   0-0     1-1   Dirichlet
+!!!boundarycondition  rockmatrix      zone 1-250     201-201 1-1   flux 
+!!!boundarycondition  rockmatrix      zone 0-0       1-201   1-1   flux 
+!!!boundarycondition  rockmatrix      zone 251-251   1-201   1-1   flux 
+
+X_begin   porezone      flux 
+X_end     porezone      flux 
+Y_begin   porezone      Dirichlet 
+Y_end     porezone      flux 
+END
+
+INITIAL_CONDITIONS
+!!!porezone    1-250 1-200 1-1
+ReadInitialConditions  FractureNetwork-250x200.dat
+END
+ 
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  5.0
+fix_diffusion         1.3E-09
+gas_diffusion         1.0E-09
+meandiffusion         HarmonicMean
+END
+
+Condition       rockmatrix    
+temperature     25.0
+pressure        10.0
+!!!set_porosity    0.01
+units           mol/kg
+pH              Magnesite
+CO2(aq)         CO2(g)   0.0003
+Mg++            0.001
+Na+             0.1
+Cl-             charge
+SiO2(aq)        0.000001
+Tracer          0.00001
+Bogus           Bogusite
+Magnesite       0.00  bsa 1.0
+Forsterite      0.05  bsa 0.0
+Bogusite        0.9400  bsa 0.00
+!!!Bogusite        0.9490  bsa 0.00
+END
+
+Condition       porezone    
+temperature     25.0
+pressure        10.0
+!!!set_porosity    0.02
+units           mol/kg
+pH              7.5
+CO2(aq)         CO2(g)   0.0003
+Mg++            0.0005
+Na+             0.1
+Cl-             charge
+SiO2(aq)        0.000001
+Tracer          0.000001
+Bogus           Bogusite
+Magnesite       0.00  bsa 1.0
+Forsterite      0.05  ssa 0.1
+Bogusite        0.96  ssa 0.00
+END
+
+Condition       atmosphere   
+temperature     25.0
+pressure        1.0
+set_porosity    0.20
+units           mol/kg
+pH              charge
+CO2(aq)         CO2(g)   0.02
+Mg++            0.001
+Na+             0.001
+Cl-             0.001
+SiO2(aq)        0.00001
+Tracer          0.01
+Bogus           Bogusite
+Magnesite       0.00  bsa 0.0
+Forsterite      0.00  bsa 1.0
+Bogusite        0.80  bsa 0.00
+END
+
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+CO2(aq)
+Mg++
+Na+
+Cl-
+SiO2(aq)
+Bogus  
+END
+
+SECONDARY_SPECIES
+HCO3-
+CO3--
+OH-   
+END
+
+GASES
+CO2(g)
+END
+
+
+!!! *******************************************************

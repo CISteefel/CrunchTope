@@ -1,0 +1,194 @@
+TITLE
+Cs exchange on Hanford sediments:  Experiment 3
+END
+ 
+ 
+RUNTIME
+time_units          hours
+timestep_max        0.1
+timestep_init       0.00001
+time_tolerance      0.01
+solver              gmres
+preconditioner      ilu
+precondition_level  1
+lag_activity        on
+debye-huckel        on
+database_sweep      off
+speciate_only       false
+hindmarsh           true
+gimrt               true
+courant_number      1.0
+density_module      sodium_nitrate
+graphics            tecplot
+screen_output       50
+database            HanfordTanksColumnFit3Site-GT.dbs
+save_restart        Column3NaNO3Flush1.rst
+!!!later_inputfiles    ShortCourse12b.in ShortCourse12c.in
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      19.25
+!!spatial_profile      144.2
+!!spatial_profile      240
+time_series          Expt3ColumnFit.out  100
+time_series_print    Cs+
+time_series_output   0.00
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   nano3flush          flux
+x_end     initial_condition        flux
+END
+ 
+TRANSPORT
+distance_units meters
+time_units  years
+fix_diffusion  0.0
+dispersivity   0.01
+END
+ 
+INITIAL_CONDITIONS
+initial_condition 1-100
+END
+ 
+POROSITY
+fix_porosity     0.405
+porosity_update  false
+END
+ 
+ION_EXCHANGE
+exchange   Xhan1-
+exchange   Xhan2-
+exchange   Xhan3-
+convention Gaines-Thomas
+END
+ 
+DISCRETIZATION
+distance_units  centimeters
+xzones 100 0.15228
+END
+ 
+Condition cesiumflush
+units            molar
+temperature      25.0
+pH               8.0
+HCO3-            CO2(g)  3.15e-04
+K+               1.e-5
+NO3-             5.00
+Cs+              1.05e-4
+I-               1.05e-4
+Na+              5.00
+Ca++             0.000
+Mg++             0.0
+Tracer           0.001
+Cl-              0.0
+!!Following to go with HanfordTanksColumnFit3Site-GT.dbs
+Xhan1-   -cec   2.277023E-08   
+Xhan2-   -cec   2.621486E-07   
+Xhan3-   -cec   1.20E-04       
+Calcite        0.01    specific_surface_area   0.1
+SolidDensity  -ss_ratio  4698
+END
+ 
+Condition nano3flush
+units            molar
+temperature      25.0
+pH               8.0
+HCO3-            CO2(g)  3.15e-04
+K+               1.e-5
+NO3-             5.00
+Cs+              0.0
+I-               0.0
+Na+              5.00
+Ca++             0.0
+Mg++             0.0
+Tracer           0.001
+Cl-              0.0
+!!Following to go with HanfordTanksColumnFit3Site-GT.dbs
+Xhan1-   -cec   2.277023E-08    
+Xhan2-   -cec   2.621486E-07    
+Xhan3-   -cec   1.20E-04       
+Calcite        0.01    specific_surface_area   0.1
+SolidDensity  -ss_ratio  4698
+END
+END
+ 
+Condition initial_condition
+units            molar
+temperature      25.0
+pH               8.0
+HCO3-            CO2(g)  3.15e-04
+K+               0.0015
+NO3-             0.001
+Cs+              0.000
+I-               0.000
+Na+              0.001
+Ca++             Calcite
+Mg++             0.00005
+Tracer           0.0
+Cl-              charge
+!!Following to go with HanfordTanksColumnFit3Site-GT.dbs
+Xhan1-   -cec   2.277023E-08    
+Xhan2-   -cec   2.621486E-07   
+Xhan3-   -cec   1.20E-04        
+Calcite        0.01    specific_surface_area   0.1
+SolidDensity  -ss_ratio  4698
+END
+END
+ 
+FLOW
+time_units     years
+distance_units meters
+constant_flow  638.2
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+Cs+
+Na+
+Ca++
+Mg++
+I-
+Tracer
+H+
+HCO3-
+K+
+NO3-
+Cl-
+END
+ 
+SECONDARY_SPECIES
+CO2(aq)
+CO3--
+CaCO3(aq)
+CaCl+
+CaCl2(aq)
+CaHCO3+
+CaNO3+
+CaOH+
+CsCl(aq)
+CsOH(aq)
+HNO3(aq)
+KCl(aq)
+KOH(aq)
+NaCO3-
+NaCl(aq)
+NaHCO3(aq)
+NaOH(aq)
+OH-
+NaNO3(aq)
+CsNO3(aq)
+NaI(aq)
+END
+ 
+GASES
+CO2(g)
+END
+ 
+MINERALS
+Calcite    -rate    -35.00
+END

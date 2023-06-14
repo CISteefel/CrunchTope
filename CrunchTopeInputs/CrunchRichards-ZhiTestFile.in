@@ -1,0 +1,134 @@
+TITLE
+Test of Richards equation
+END
+
+RUNTIME
+time_units      seconds
+timestep_max    5.0
+timestep_init   1.0
+time_tolerance  0.01
+correction_max  1.0
+debye-huckel    true
+database        datacom.dbs
+master          Tracer
+speciate_only   false
+database_sweep  false
+screen_output  100
+hindmarsh      false
+gimrt          true
+FluxWeightedConcentrationSpecies  Tracer
+END
+
+OUTPUT
+time_units  seconds
+spatial_profile       5.0 300.0 1800.0
+time_series           vprofile.out  1 1 1
+!time_series_print     Tracer
+END
+
+
+DISCRETIZATION
+distance_units  centimeters
+xzones  10 2.0
+yzones  20 2.0  
+!!!10  20.0
+zzones  1 2.0
+END
+
+INITIAL_CONDITIONS
+pore 1-10 1-20 1-1
+porewall 1-1 1-1 1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin   porewall Flux
+X_end     porewall Flux
+Y_begin   porewall Flux
+Y_end     porewall Flux
+Z_begin   porewall Flux
+Z_end     porewall Flux
+END
+
+POROSITY
+fix_porosity     0.45
+porosity_update  false
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+FLOW
+time_units      seconds     ! these units specify the units of the flow
+distance_units  centimeters ! velocity to be cm/s
+calculate_flow  TRUE
+ns_solve        FALSE
+Richards        TRUE
+redistribute_wc TRUE
+wc_init         0.05
+wc_residual     0.01
+watertable_init 0.02
+vangenuchten_alpha 13.62
+vangenuchten_n  2.0
+y_is_vertical   TRUE
+
+!pressure  49.0  zone 1-1 1-1 1-1 fix
+
+!pressure  1000.0    zone 1-10 1-1 1-1 fix
+!pressure  1000.0    zone 2-10 2-2 1-1 fix
+!pressure  1000.0    zone 3-10 3-3 1-1 fix
+
+pressure  0.0    zone 1-10 1-1 1-1 fix
+pressure  0.0    zone 2-10 2-2 1-1 fix
+pressure  0.0    zone 3-10 3-3 1-1 fix
+pressure  0.0    zone 4-10 4-4 1-1 fix
+pressure  0.0    zone 5-10 5-5 1-1 fix
+pressure  0.0    zone 6-10 6-6 1-1 fix
+pressure  0.0    zone 7-10 7-7 1-1 fix
+pressure  0.0    zone 8-10 8-8 1-1 fix
+pressure  0.0    zone 9-10 9-9 1-1 fix
+pressure  0.0    zone 10-10 10-10 1-1 fix
+
+permeability_x 1.418e-15 default
+permeability_x 0.0 zone 0-0 1-20 1-1
+permeability_x 0.0 zone 11-11 1-20 1-1
+
+permeability_y 1.418e-15 default
+permeability_y 0.0 zone 1-10 0-0 1-1
+permeability_y 0.0 zone 1-10 20-20 1-1
+
+permeability_z 1.418e-30 default
+!permeability_z 0.0 zone 1-10 1-1 0-0
+!permeability_z 0.0 zone 1-10 1-1 20-20
+!permeability_z 0.0 zone 1-50 1-1 76-76
+END
+
+Condition pore
+units      mol/kg
+temperature      25.0
+Tracer           1.0E-15
+Calcite          0.0  bulk_surface_area  2.0E5 ! in units of m^2/m^3
+END
+
+Condition porewall
+units      mol/kg
+Tracer           0.01
+temperature      25.0
+END
+
+!!! Geochemistry
+
+PRIMARY_SPECIES
+Tracer
+END
+
+SECONDARY_SPECIES
+END
+
+MINERALS
+END
+
+GASES
+END
+
+

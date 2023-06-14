@@ -1,0 +1,208 @@
+TITLE
+Calcite micropore cylinder calculation
+END
+
+RUNTIME
+time_units      seconds
+timestep_max    0.1
+timestep_init   1.e-10
+time_tolerance  0.01
+coordinate      cylindrical
+correction_max  1.0
+debye-huckel    true
+database        calcitedata.dbs
+master          H+
+speciate_only   false
+database_sweep  false
+screen_output  10
+hindmarsh      false
+WriteFluxWeightedConcentration   outlet.out  30-30 1-50 1-1
+FluxWeightedConcentrationSpecies  Tracer
+! read_saturation saturation.dat
+END
+
+OUTPUT
+time_units  seconds
+spatial_profile       1.0 10.0 34.0
+time_series           vprofile.out  30 50 
+time_series_print     Ca++ CO2(aq) pH 
+!!time_series_interval  10
+time_series_output  6.70000E-09   6.55390E-06  6.71089E-03  1.35353E+00  4.23831E+00  7.31412E+00   
+END
+
+ 
+DISCRETIZATION
+distance_units  centimeters
+!!!xzones  50 5.0E-4
+xzones  30 5.0E-4
+yzones  50 8.0E-3
+END
+
+
+INITIAL_CONDITIONS
+pore    1-29 1-50
+porewall 30-30 1-50 
+END
+
+BOUNDARY_CONDITIONS
+X_begin   pore Flux
+X_end     porewall Flux
+Y_begin   inlet Flux
+Y_end     pore Flux
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units  seconds
+fix_diffusion 1.0E-5
+! calculate_diffusion  1.0E-5
+! diffusion_activation   4.5
+formation_factor  1.0  
+cementation_exponent  1.0
+dispersivity  0.0 0.0
+!Li and Gregory, 1974, corrected for viscosity of seawater = 0.92 viscosity of fresh
+!D_25  H+         1.0e-05
+!D_25  Ca++       1.0e-05
+!D_25  OH-       1.0e-05
+!D_25  Cl-       1.0e-05
+!D_25  HCO3-     1.0e-05
+!D_25  CO3--      1.0e-05
+!D_25  CO2(aq)   1.0e-05
+D_25  H+         8.57e-05
+D_25  Ca++       0.730e-05
+D_25  OH-       4.85e-05
+D_25  Cl-       1.87e-05
+D_25  HCO3-     1.09e-05
+D_25  CO3--     0.879e-05
+D_25  CO2(aq)   1.76e-05
+!D_25 SiO2(aq)   1.0e-05
+!!D_25  O2(aq)    2.08e-05
+!!D_25  Mg++      0.649e-05
+!D_25  Na+       1.22e-05
+!D_25  K+        1.80e-05
+!D_25  Al+++     0.514e-05
+!!D_25  Fe++      0.661e-05
+!!D_25 Fe+++      0.558e-05
+END
+ 
+POROSITY
+fix_porosity     0.999
+porosity_update  false
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+
+FLOW
+time_units      seconds     ! these units specify the units of the flow
+distance_units  centimeters ! velocity to be cm/s
+! calculate_flow  FALSE    
+! constant_flow   FALSE
+!!!read_velocityFile   poreflow
+read_velocityFile   ForsteritePoiseuille
+END
+
+Condition youngjin
+units        mol/kg
+temperature      25.0
+pH               3.8
+Cl-              charge
+CO2(aq)          CO2(g)   3.15E-4
+Ca++             0.0
+Na+              0.01
+Tracer           0.01
+! Mineral name   <volume fraction>   <bulk surface area> in m^2 /m^3
+Calcite          0.0          bulk_surface_area 2.0E5   ! 0.11E5, 0.7E6
+END
+ 
+Condition inlet
+units        mol/kg
+temperature      25.0
+pH               5.0
+Cl-              charge
+CO2(aq)          CO2(g)   3.15E-4
+Ca++             0.0
+Na+              0.01
+Tracer           0.01
+! Mineral name   <volume fraction>   <bulk surface area> in m^2 /m^3
+Calcite          0.0          bulk_surface_area 2.0E5   ! 0.11E5, 0.7E6
+END
+ 
+Condition effluent
+units        mol/kg
+temperature      25.0
+pH               7.00
+Cl-              charge
+CO2(aq)          CO2(g)   3.15E-4
+Ca++             0.0
+Na+              0.01
+Tracer           0.00
+! Ca++             5.0E-5
+! Mineral name   <volume fraction>   <bulk surface area> in m^2 /m^3
+Calcite          0.0          bulk_surface_area 2.0E5   ! 0.11E5
+END
+ 
+Condition pore
+units      mol/kg
+temperature      25.0
+pH               charge
+Cl-              0.01
+CO2(aq) CO2(g)   3.15E-4
+Ca++             0.0
+Na+              0.01
+Tracer           0.00
+Calcite          0.0  bulk_surface_area  2.0E5 ! in units of m^2/m^3
+END
+
+Condition porewall
+units      mol/kg
+pH               charge
+Cl-              0.01
+CO2(aq) CO2(g)   3.15E-4
+Ca++             0.0
+Na+              0.01
+Tracer           0.00
+temperature      25.0
+Calcite          0.5  bulk_surface_area  2.0E5
+END
+
+
+!!! Geochemistry
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Ca++
+Na+
+Cl-
+Tracer
+END
+
+SECONDARY_SPECIES 
+HCO3-                                                                   
+CaOH+                                                                   
+HCl(aq)                                                                 
+OH-                                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+   
+CaCl+                                                                   
+CaCl2(aq)
+NaHCO3(aq)
+END
+
+MINERALS
+Calcite             -label leichou1    -rate   -0.05
+Calcite             -label leichou2    -rate   -3.30
+Calcite             -label leichou3    -rate   -6.18
+END
+
+GASES
+CO2(g)
+END
+
+AQUEOUS_KINETICS
+!!Tc(VII)_reduction
+!!FeII_oxidation
+END 

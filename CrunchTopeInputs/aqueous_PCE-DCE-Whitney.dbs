@@ -1,0 +1,84 @@
+
+&Aqueous
+  name          = PCE_TCE
+  stoichiometry = -1.0 'PCE' 1.0 TCE
+  keq           = 126.1
+/
+
+&AqueousKinetics
+  name          = PCE_TCE
+  label         = default
+  rate25C       = 0.042705    !! k value here is in mol/yr
+  type          = irreversible
+  dependence    = 'PCE' 1.0 
+/
+
+&Aqueous
+  name          = TCE_cisDCE
+  stoichiometry = -1.0 'TCE' 1.0 cisDCE
+  keq           = 126.1
+ /
+
+&AqueousKinetics
+  name          = TCE_cisDCE
+  label         = default
+  rate25C       = 0.042705      !! k value here is in mol/yr
+  type          = irreversible
+  dependence    = 'TCE' 1.0 
+/
+
+&Aqueous
+  name          = cisDCE_VC
+  stoichiometry = -1.0 'cisDCE' 1.0 VC
+  keq           = 126.1
+/
+
+&AqueousKinetics
+  name          = cisDCE_VC
+  label         = default
+  rate25C       = 0.008103    !! k value here is in mol/yr
+  type          = irreversible
+  dependence    = 'cisDCE' 1.0 
+/
+
+&Aqueous
+  name          = HRC_H2(aq)
+  stoichiometry = -1.0 'HRC' 1.0 H2(aq)*
+  keq           = 126.1
+/
+
+&AqueousKinetics
+  name          = HRC_H2(aq)
+  label         = default
+  rate25C       = 0.06205    !! k value here is in mol/yr
+  type          = irreversible
+  dependence    = 'HRC' 1.0 
+/
+
+&Aqueous
+  name          = PCE_TCE_H2
+  stoichiometry = -1.0 'PCE' -1.0 'H2(aq)*' 1.0 TCE
+  keq           = 126.1
+/
+
+&AqueousKinetics
+  name          = PCE_TCE_H2
+  label         = default
+  rate25C       = 0.042705    !! k value here is in mol/yr
+  type          = irreversible
+  dependence    = 'PCE' 1.0 'H2(aq)*' 1.0 
+/
+
+&Aqueous
+  name          = TCE_cisDCE_H2
+  stoichiometry = -1.0 'TCE' -1 'H2(aq)*' 1.0 cisDCE
+  keq           = 126.1
+ /
+
+&AqueousKinetics
+  name          = TCE_cisDCE_H2
+  label         = default
+  rate25C       = 0.042705    !! k value here is in mol/yr
+  type          = irreversible
+  dependence    = 'TCE' 1.0 'H2(aq)*' 1.0 
+/

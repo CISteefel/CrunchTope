@@ -1,0 +1,516 @@
+! -------------------------------------------------------------------------------------------------
+!
+!  reaction stoichiometry
+!
+! -------------------------------------------------------------------------------------------------
+
+&Aqueous
+  name          =  AceNO3HCO3NO2
+  type          = catabolic
+  stoichiometry = 0.125 H+  0.250 HCO3-  -0.125 Acetate  -0.500 NO3-  0.500 'NO2-'
+  keq           = 12.8969
+/
+
+&Aqueous
+  name          = AceNO2HCO3N2
+  type          = catabolic
+  stoichiometry = -0.20833333333333 H+       0.16666666666667 H2O        0.25000000000000 HCO3-
+                  -0.12500000000000 Acetate  0.16666666666667 'N2(aq)'  -0.33333333333333 NO2-
+  keq           = 21.8209
+/
+
+&Aqueous
+  name          = AceNO2HCO3NH4
+  type          = catabolic
+  stoichiometry = -0.20833333333333 H+       0.16666666666667 H2O        0.25000000000000 HCO3-
+                  -0.12500000000000 Acetate  0.16666666666667 NH4+      -0.16666666666667 NO2-
+  keq           = 11.3684
+/
+
+&Aqueous
+  name          = AceCrO42HCO3Cr3
+  type          = catabolic
+  stoichiometry = -1.54166666666667 H+        0.83333333333333 H2O     0.25000000000 HCO3-  
+                  -0.12500000000000 Acetate  -0.33333333333333 CrO4--  0.33333333333 Cr+++
+  keq           = 24.4994
+/
+
+&Aqueous
+  name          = Sulfate_reduction
+  type          = catabolic
+  stoichiometry = -0.05625 SO4--  -0.125 Acetate  -0.14 H+  -0.0275 'NH3(aq)'  -0.07125 H2O  0.0275 C5H7O2NSO4  0.015 'CO2(aq)'  0.0975 HCO3-  0.05625 'H2S(aq)'
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Sulfate_reduction_inhib
+  type          = catabolic
+  stoichiometry = -0.05625 SO4--  -0.125 Acetate  -0.14 H+  -0.0275 'NH3(aq)'  -0.07125 H2O  0.0275 C5H7O2NSO4  0.015 'CO2(aq)'  0.0975 HCO3-  0.05625 'H2S(aq)'
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Sulfate_reduction_inhib_1
+  type          = catabolic
+  stoichiometry = -0.1125 SO4--  -0.125 Acetate  -0.23 H+  -0.005 'NH3(aq)'  -0.2175 H2O  0.005 C5H7O2NSO4  0.105 'CO2(aq)'  0.12 HCO3-  0.1125 'H2S(aq)'
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Perchlorate_reduction_SO
+  type          = catabolic
+  stoichiometry = -0.0875 ClO4-  -0.06 'CO2(aq)'  -0.015 HCO3-  -0.015 'NH3(aq)'  -0.015 H+  -0.5 'H2S(aq)' 0.0875 Cl-  0.485 H2O  0.015 C5H7O2NClO4  0.5 'S(aq)'
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Perchlorate_reduction
+  type          = catabolic
+  stoichiometry = -0.05625 ClO4-  -0.0275 'NH3(aq)'  -0.0275 H+  -0.125 Acetate  0.0275 C5H7O2NClO4  0.15 'CO2(aq)'  0.0975 HCO3-  0.0975 H2O  0.05625 Cl-
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Nitrate_reduction
+  type          = catabolic
+  stoichiometry = -0.125 Acetate  -0.225 NO3-  -0.0275 'NH3(aq)'  -0.0275 H+  0.0275 C5H7O2NNO3  0.0975 H2O  0.015 'CO2(aq)'  0.0975 HCO3-  0.225 NO2-
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Nitrate_reduction_inhib
+  type          = catabolic
+  stoichiometry = -0.125 Acetate  -0.09 NO3-  -0.0275 'NH3(aq)'  -0.1175 H+  0.0275 C5H7O2NNO3  0.1425 H2O  0.015 'CO2(aq)'  0.0975 HCO3-  0.045 'N2(aq)'
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Nitrate_nitrite
+  type          = catabolic
+  stoichiometry = -0.125 Acetate  -0.25 NO3-  -0.025 'NH3(aq)'  -0.025 H+  0.025 C5H7O2NNO3  0.1 H2O  0.025 'CO2(aq)'  0.1 HCO3-  0.25 NO2-
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Nitrite_n2
+  type          = catabolic
+  stoichiometry = -0.125 Acetate  -0.133 NO2-  -0.03 'NH3(aq)'  -0.163 H+  0.03 C5H7O2NNO3  0.1617 H2O  0.125 'CO2(aq)'  0.095 HCO3-  0.0667 'N2(aq)'
+  keq           = 500.0
+/
+
+
+&Aqueous
+  name          = NR_SOB
+  type          = catabolic
+  stoichiometry = -0.09 NO3-  -0.0275 'NH3(aq)'  -0.011 'CO2(aq)'  -0.0275 HCO3-  -0.125 'H2S(aq)'  0.0275 C5H7O2NSOB  0.125 SO4--  0.045 'N2(aq)'  0.0175 H2O  0.1325 H+
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = NR_SOB_inhib
+  type          = catabolic
+  stoichiometry = -0.09 NO3-  -0.0275 'NH3(aq)'  -0.011 'CO2(aq)'  -0.0275 HCO3-  -0.125 'H2S(aq)'  0.0275 C5H7O2NSOB  0.125 SO4--  0.045 'N2(aq)'  0.0175 H2O  0.1325 H+
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = NR_SOB_inhib_1
+  type          = catabolic
+  stoichiometry = -0.16 NO3-  -0.01 'NH3(aq)'  -0.04 'CO2(aq)'  -0.01 HCO3-  -0.125 'H2S(aq)'  0.01 C5H7O2NSOB  0.125 SO4--  0.08 'N2(aq)'  0.07 H2O  0.08 H+
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Nitrate_nitrite_SOB
+  type          = catabolic
+  stoichiometry = -0.425 NO3-  -0.0075 'NH3(aq)'  -0.03 'CO2(aq)'  -0.0075 HCO3-  -0.125 'H2S(aq)'  -0.0075 H2O  0.0075 C5H7O2NSOB  0.125 SO4--  0.425 NO2-  0.2425 H+
+  keq           = 500.0
+/
+
+&Aqueous
+  name          = Nitrite_n2_SOB
+  type          = catabolic
+  stoichiometry = -0.25 NO2-  -0.0125 'NH3(aq)'  -0.05 'CO2(aq)'  -0.0125 HCO3-  -0.125 'H2S(aq)'  -0.0125 H+  0.0125 C5H7O2NSOB  0.125 SO4--  0.125 'N2(aq)'  0.1125 H2O
+  keq           = 500.0
+/
+
+&Aqueous
+  name     = Sulfate34_reduction
+  type          = catabolic
+  stoichiometry = -0.375 H+  -0.125 S34O4--  0.125 'H2S34(aq)'  0.25 'CO2(aq)'  -0.125 Acetate
+  keq      = 5.577425 
+/
+
+&Aqueous
+  name     = Methanogenesis
+  type          = catabolic
+  stoichiometry = -0.125 'H+'  0.125 'CO2(aq)'  -0.125 'Acetate'  0.125 'Methane(aq)'
+  keq      = 1.11911
+/
+
+&Aqueous
+  name          = C5H7O2N_RCH2_Ace_NH4
+  type          = anabolic
+  stoichiometry = -0.075 H+  -0.125  Acetate  -0.050 NH4+  0.050 C5H7O2NNO3
+  keq           = 0.0
+/
+
+&Aqueous
+  name          = C5H7O2N_RCH2_Ace_NH4_SR
+  type          = anabolic
+  stoichiometry = -0.075 H+  -0.125  Acetate  -0.050 NH4+  0.050 C5H7O2NSO4
+  keq           = 0.0
+/
+
+&Aqueous
+  name          = C5H7O2N_RCH2_Ace_NH4_ME
+  type          = anabolic
+  stoichiometry = -0.075 H+  -0.125  Acetate  -0.050 NH4+  0.050 C5H7O2NCH4
+  keq           = 0.0
+/
+
+! -------------------------------------------------------------------------------------------------
+!
+!  rate expressions
+!
+! -------------------------------------------------------------------------------------------------
+
+
+&AqueousKinetics
+  name          = AceNO3HCO3NO2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 2000.0
+  monod_terms   = 'tot_Acetate' 2.03E-5 'tot_NO3-' 1.06E-5 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     =-1
+/
+
+&AqueousKinetics
+  name          = AceNO2HCO3N2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 2000.0
+  monod_terms   = 'tot_Acetate' 2.03E-5 'tot_NO2-' 1.06E-5 'tot_NH4+' 1.0e-6
+  inhibition    = 'tot_NO3-'    1.06E-5
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+/
+
+&AqueousKinetics
+  name          = aAceNO2HCO3NH4
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1000.0
+  monod_terms   = 'tot_Acetate' 2.03E-5 'tot_NO2-' 1.06E-5
+  !!inhibition    = 'tot_NH4+'    1.0E-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+/
+
+
+&AqueousKinetics
+  name          = Cr_redox_NO3
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1.6
+  monod_terms   = 'tot_Acetate' 2.03E-5  'tot_NO3-' 1.06E-5  'tot_CrO4--' 0.1E-6 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name          = Cr_redox_NO2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1.6
+  monod_terms   = 'tot_Acetate' 2.03E-5  'tot_NO2-' 1.06E-5  'tot_CrO4--' 0.1E-6 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+  UseMetabolicLag = .false.
+/
+!! Sulfate reduction, written in terms of the transfer of one electron
+
+&AqueousKinetics
+  name     		= Sulfate_reduction
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 200000
+  monod_terms   = 'tot_Acetate' 1.0E-02 'tot_SO4--' 1.0E-03
+  biomass  = 'C5H7O2NSO4(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate 
+/
+
+
+&AqueousKinetics
+  name     		= Sulfate_reduction_inhib
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 40000
+  monod_terms   = 'tot_Acetate' 1.0E-02 'tot_SO4--' 1.0E-03
+  biomass  = 'C5H7O2NSO4(s)' 
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name     		= Sulfate_reduction_inhib_1
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 50000  !70000  
+  monod_terms   = 'tot_Acetate' 1.0E-03 'tot_SO4--' 1.0E-03
+  inhibition = 'tot_ClO4-' 1.5E-03
+  biomass  = 'C5H7O2NSO4(s)' 
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate   
+/
+
+&AqueousKinetics
+  name     		= Perchlorate_reduction
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 80000
+  monod_terms   = 'tot_Acetate' 1.0E-02 'tot_ClO4-' 1.0E-03
+  inhibition = 'tot_H2S(aq)' 2.6E-03
+  biomass  = 'C5H7O2NClO4(s)' 
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate   
+/
+
+&AqueousKinetics
+  name     		= Perchlorate_reduction_SO
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 25000
+  monod_terms   = 'tot_ClO4-' 1.0E-03 'tot_H2S(aq)' 0.75E-03
+  biomass  = 'C5H7O2NClO4(s)' 
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = ClO4-   
+/
+
+&AqueousKinetics
+  name     		= Nitrate_reduction
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 200000
+  monod_terms   = 'tot_Acetate' 1.0E-02 'tot_NO3-' 1.0E-03
+  biomass  = 'C5H7O2NNO3(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name     		= Nitrate_reduction_inhib
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 140000
+  monod_terms   = 'tot_Acetate' 1.0E-02 'tot_NO3-' 7.5E-03
+  biomass  = 'C5H7O2NNO3(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/
+
+&AqueousKinetics
+  name     		= Nitrate_nitrite
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 70000
+  monod_terms   = 'tot_Acetate' 1.0E-03 'tot_NO3-' 1.0E-03
+  biomass  = 'C5H7O2NNO3(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate 
+/
+
+&AqueousKinetics
+  name     		= Nitrite_n2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 30000
+  monod_terms   = 'tot_Acetate' 5.0E-03 'tot_NO2-' 1.0E-03
+  biomass  = 'C5H7O2NNO3(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/
+
+&AqueousKinetics
+  name     		= NR_SOB
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 0
+  monod_terms   = 'tot_NO3-' 1.0E-2 'tot_H2S(aq)' 1.0E-3
+  biomass  = 'C5H7O2NSOB(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name     		= NR_SOB_inhib
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 200000
+  monod_terms   = 'tot_NO3-' 0.01E-3 'tot_H2S(aq)' 0.1E-3
+  biomass  = 'C5H7O2NSOB(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name     		= NR_SOB_inhib_1
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 0   !!80000
+  monod_terms   = 'tot_NO3-' 1.0E-2 'tot_H2S(aq)' 1.0E-2
+  biomass  = 'C5H7O2NSOB(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name     		= Nitrate_nitrite_SOB
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 160000
+  monod_terms   = 'tot_NO3-' 1.0E-3 'tot_H2S(aq)' 1.0E-3
+  biomass  = 'C5H7O2NSOB(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name     		= Nitrite_n2_SOB
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 50000
+  monod_terms   = 'tot_NO2-' 1.0E-3 'tot_H2S(aq)' 1.0E-3
+  biomass  = 'C5H7O2NSOB(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+/
+
+!! Sulfate-34 reduction, written in terms of the transfer of one electron
+
+&AqueousKinetics
+  name     		= Sulfate34_reduction
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 9000
+  monod_terms   = 'tot_Acetate' 5.0E-03 'tot_S34O4--' 1.0E-03
+  biomass  = 'C5H7O2NSO4(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/
+
+&AqueousKinetics
+  name     = Methanogenesis
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 2500.0
+  monod_terms   = 'tot_Acetate' 1.5E-05
+  biomass  = 'C5H7O2NCH4(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/

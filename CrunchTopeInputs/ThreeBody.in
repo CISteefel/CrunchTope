@@ -1,0 +1,126 @@
+TITLE
+Rough fracture problem
+END
+
+DATABASE
+datacom.dbs
+END
+
+RUNTIME
+time_units          years
+timestep_max        0.001
+timestep_init       1.e-12
+corrmax             2.0
+time_tolerance      0.005
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master_variable     Na+
+screen_output       50
+nmm                 true
+END
+
+OUTPUT
+time_units               years
+spatial_profile_at_time  0.00000001  
+!!!0.0001 0.001 0.01 0.1 
+!!!! 1.0
+time_series_at_node      halite.out  1  1
+time_series_print        Na+  Cl-
+time_series_interval     1  
+END
+
+POROSITY
+porosity_update  false
+END
+
+MINERALS
+Halite           -label default  -rate  -8.00
+StressedHalite   -label default  -rate  -7.00
+END
+
+GASES
+END
+
+DISCRETIZATION 
+distance_units   m
+xzones  50   0.2
+yzones  50   0.2
+!!!ExportGridLocations  true
+END
+
+Condition        porezone    
+temperature      25.0
+set_porosity     0.999
+units            mol/kg
+Na+              Halite
+Cl-              5.0
+Halite           0.00   ssa 0.1
+StressedHalite   0.00  ssa 0.01
+END
+
+Condition       Halite1
+temperature     25.0
+set_porosity    0.001
+units           mol/kg
+Na+             Halite
+Cl-             5.0
+Halite          0.80   ssa 0.1
+StressedHalite  0.00  ssa 0.01
+END
+
+Condition       StressedHalite
+temperature     25.0
+set_porosity    0.05
+units           mol/kg
+Na+             Halite
+Cl-             5.0
+Halite          0.20   ssa 0.1
+StressedHalite  0.40  ssa 0.01
+END
+
+BOUNDARY_CONDITIONS
+X_begin   porezone  Flux 
+X_end     porezone  Flux 
+Y_begin   porezone  Flux 
+Y_end     porezone  Flux 
+END
+
+INITIAL_CONDITIONS
+ReadInitialConditions  threebody.dat
+END
+ 
+
+
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  1.0
+fix_diffusion         1.0E-10
+dispersivity          0.0  0.0 
+tortuosity            0.05 default
+
+END
+
+FLOW
+time_units          years
+calculate_flow      false
+constant_flow       0.0  0.0
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+Na+
+Cl-
+END
+
+SECONDARY_SPECIES
+END
+
+

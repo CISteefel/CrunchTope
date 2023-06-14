@@ -1,0 +1,183 @@
+TITLE
+1D grids along z direction (i.e. perpendicular to the fracture plane)
+exposed to CO2 acidified brine
+To investigate the retreat fronts of different minerals.
+END
+
+RUNTIME
+time_units          hours
+timestep_max    0.01
+timestep_init   1.0E-10
+time_tolerance  0.01
+correction_max  10.0
+time_tolerance      0.001
+gimrt               true
+debye-huckel        true
+screen_output       50
+database            datacom_Steefel_Dol.dbs
+speciate_only       true
+Duan                true
+hindmarsh           true
+master              H+
+graphics        tecplot
+gimrt_solver    gmres
+gimrt_pc        bjacobi
+gimrt_pclevel   0
+solver          bcgs
+pc              ilu
+pclevel         5
+fix_saturation  1.00
+END
+ 
+OUTPUT
+time_units           hours
+spatial_profile      1.0  5.0 10.0  20.0
+END
+ 
+MINERALS
+! Dolomite coefficients from Gautelier 2000 
+! Calcite coefficients from Deng et al.,2015, 
+! other minerals from Beckingham et al 2016
+
+END 
+
+
+
+Condition inlet
+temperature      25.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    34.5
+Na+              1.0E-20  
+K+               1.0E-20
+Ca++             1.0E-10
+Fe++             1.0E-20
+Fe+++             1.0E-20
+Mg++             1.0E-20
+Al+++             1.0E-20
+SiO2(aq)          1.0E-20
+SO4--             1.0E-20
+HS-               1.0E-20
+END
+
+Condition brine
+temperature      25.0
+units            mol/kg
+pH               7.0
+CO2(aq)          1.0E-20
+Na+              1.0E-20
+K+               1.0E-20
+Ca++             1.0E-20
+Fe++             1.0E-20
+Fe+++             1.0E-20
+Mg++             1.0E-20
+Al+++             1.0E-20
+SiO2(aq)          1.0E-20
+SO4--             1.0E-20
+HS-               1.0E-20
+END
+
+Condition matrix
+temperature      25.0
+units            mol/kg
+pH               7.0
+CO2(aq)          1.0E-20
+Na+              1.0E-20  
+K+               1.0E-20
+Ca++             1.0E-20
+Fe++             1.0E-20
+Fe+++             1.0E-20
+Mg++             1.0E-20
+Al+++             1.0E-20
+SiO2(aq)          1.0E-20
+SO4--             1.0E-20
+HS-               1.0E-20
+
+!!! Pure calcite
+!!!Calcite              0.485    274.8 
+!!!Illite               0.00     105     
+!!!Smectite-low-Fe-Mg   0.066    39.6   
+!!!Quartz               0.000    87.6    
+!!!Dolomite             0.000    40.8    
+!!!PlagAn50Ab50         0.000    21      
+!!!Pyrite               0.000    12.6  
+
+!!! Duperow Dolomite
+!!!Dolomite             0.81    540  
+!!!Calcite              0.09    60
+
+!!! Niobrara example
+Calcite              0.000    ssa  1.0 
+Illite               0.175    ssa  1.0     
+Smectite-low-Fe-Mg   0.066    ssa  1.0    
+Quartz               0.146    ssa  0.02       
+Dolomite             0.068    ssa  0.2      
+PlagAn50Ab50         0.035    ssa  0.1        
+Pyrite               0.021    ssa  0.1  
+END
+
+GASES
+CO2(g)
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units     seconds
+fix_diffusion  1.0E-5
+!!!cementation_exponent  3.1
+dispersivity  0.0 0.0
+END
+
+
+BOUNDARY_CONDITIONS
+x_begin   inlet     Dirichlet
+x_end     matrix    flux
+END
+ 
+INITIAL_CONDITIONS
+matrix       1-500 1-1 1-1
+!!!brine       1-1 1-1 1-1
+END
+ 
+POROSITY
+porosity_update  true
+END
+ 
+DISCRETIZATION
+distance_units  millimeters
+xzones  500  0.04 
+yzones  1    0.54
+zzones  1    0.54
+END
+ 
+FLOW
+time_units       seconds
+distance_units   meters
+constant_flow    0.0  0.0
+END
+ 
+TEMPERATURE
+set_temperature  90.0
+END
+
+PRIMARY_SPECIES
+H+
+K+
+CO2(aq)
+Al+++
+Ca++
+Fe++
+Fe+++
+Mg++
+SiO2(aq)
+Na+
+SO4--
+HS-
+END
+
+SECONDARY_SPECIES  
+HCO3-
+CO3--                                             
+END
+ 
+

@@ -1,0 +1,73 @@
+TITLE
+Diffusion test
+END
+
+RUNTIME
+time_units         days
+timestep_max       1.E-3         
+timestep_init      1.E-10     
+time_tolerance     0.001
+hindmarsh          false
+correction_max     10.0
+gimrt              false
+solver             bicg
+pc                 ilu
+pclevel            5
+database           datacom.dbs 
+screen_output      100    
+END
+
+TRANSPORT
+distance_units  centimeters
+time_units      second
+fix_diffusion  7.98e-5
+!!D_25  Fe++  7.98e-5
+END
+
+DISCRETIZATION
+distance_units   centimeters
+xzones         11    1 
+END 
+
+BOUNDARY_CONDITIONS
+x_begin   plug          flux  
+x_end     slush         flux
+END
+
+POROSITY
+END
+
+TEMPERATURE
+set_temperature  25
+END
+
+PRIMARY_SPECIES
+Fe++
+Cl-
+END
+
+SECONDARY_SPECIES
+END
+
+INITIAL_CONDITIONS
+plug      1
+slush     2-11
+END
+
+CONDITION plug
+units          mmol/kg
+Fe++             90
+Cl-              charge
+END
+
+CONDITION slush
+units          mmol/kg
+Fe++             0
+Cl-              charge
+END
+
+OUTPUT
+time_units           days
+spatial_profile      3  10  100  
+END
+ 

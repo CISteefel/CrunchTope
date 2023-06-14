@@ -1,0 +1,139 @@
+TITLE
+Test gas diffusion
+END
+
+DATABASE
+datacom.dbs
+END
+
+RUNTIME
+time_units      minutes
+timestep_max    0.1
+timestep_init   1E-12
+time_tolerance  0.0001
+correction_max  2.0
+hindmarsh       true
+debye-huckel    true
+database_sweep  false
+master          O2(aq)
+speciate_only   false
+gimrt           true
+screen_output   1000
+!!!fix_saturation  0.8
+graphics        kaleidagraph
+Duan            false
+Benchmark       false
+Qingyun         false
+END
+
+OUTPUT
+time_units               minutes
+spatial_profile          10000.0
+time_series_at_node      Persulfate.out  1  1  1
+time_series_print        K+
+time_series_interval     1  
+END
+
+
+MINERALS 
+!!!Cdiox    -label default  -rate  -8.0
+Pyrite   -label  default  -rate -8.00
+K2S2O8   -label  default   -rate -10.00
+END
+
+CONDITION Bnd
+units            mol/kg
+pH               2.5
+CO2(aq)          CO2(g)  3.1623e-04
+Fe+++             1.0E-08
+S2O8--           0.001
+O2(aq)           O2(g)  0.2
+Tracer           0.1
+K+               0.002
+Cdiox            0.9     ssa 1.0
+Pyrite           0.0     ssa 1.0
+K2S2O8           0.05   ssa 1.0
+END
+
+CONDITION Cement
+units            mol/kg
+pH               2.5
+CO2(aq)          CO2(g)  3.1623e-04
+Fe+++             1.0E-08
+S2O8--           0.001
+O2(aq)           O2(g)  0.2
+Tracer           0.000001
+K+               0.002
+Cdiox            0.001  ssa 1.0
+K2S2O8           0.00   ssa 1.0
+Pyrite           0.03   ssa 1.0
+END
+
+DISCRETIZATION 
+distance_units  millimeters
+xzones          100  0.1
+END
+
+INITIAL_CONDITIONS
+Bnd           1-1
+Cement        2-100
+END
+
+BOUNDARY_CONDITIONS
+X_begin     Bnd       Dirichlet 
+X_end       Cement       Dirichlet 
+END
+
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  0
+gas_diffusion         1.10E-6
+fix_diffusion         1.0E-100
+END
+
+FLOW
+distance_units      centimeters
+time_units          minute
+constant_flow       0.1
+calculate_flow      false
+END
+
+POROSITY
+fix_porosity 0.135
+porosity_update false
+END
+
+TEMPERATURE
+set_temperature 25.0
+END
+
+PRIMARY_SPECIES
+H+
+CO2(aq) 
+Fe+++
+O2(aq)
+S2O8--
+Tracer
+K+
+END
+
+SECONDARY_SPECIES
+OH- 
+HCO3-                                                                                                                                                                                          
+CO3--    
+HSO4-
+HS-
+H2S(aq)
+S--
+Fe++
+S2O3--
+SO4--
+END
+
+GASES
+CO2(g)
+O2(g)
+END
+
+

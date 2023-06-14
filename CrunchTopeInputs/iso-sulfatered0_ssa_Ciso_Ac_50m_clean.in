@@ -1,0 +1,206 @@
+TITLE
+Sulfate reduction: calcite dissolution and precipitation 
+END
+
+RUNTIME
+time_units        years
+timestep_max      50
+timestep_init     1e-20
+time_tolerance    0.01
+master            H+
+correction_max    2.0
+debye-huckel      true
+database_sweep    false
+speciate_only     false
+steady_state      false 1e-07
+database          datacomMSFREVISED4.dbs
+gimrt             true
+hindmarsh         true
+graphics          kaleidagraph
+screen_output     100
+coordinates       rectangular
+fix_saturation    1.0
+save_restart      iso-sulfatered0_ssa_Ciso_Ac_50m.rst
+END
+
+OUTPUT
+time_units            years
+spatial_profile       1e-20 1000 5000 10000
+END
+
+DISCRETIZATION
+distance_units meters
+xzones   500   0.1
+END
+
+INITIAL_CONDITIONS
+initcolcarb60     1-500  1-1  1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin   initcolcarb60    Dirichlet
+X_end     initcolcarb60    flux
+END
+
+EROSION/BURIAL
+distance_units     meters
+time_units         years
+erode_x            20e-06
+END
+
+MINERALS
+
+Calcite12C           -label tst         -rate -12.249154
+Calcite13C           -label tst         -rate -12.249154
+
+!!!Calcite12C           -label preciponly         -rate -12.249154
+!!!Calcite12C           -label dissolutiononly    -rate -12.249154
+!!!Calcite13C           -label preciponly         -rate -12.249154
+!!!Calcite13C           -label dissolutiononly    -rate -12.249154
+
+!!!CalciteCisoDiss      -label dissolutiononly  -rate -6.962530
+AcetateIso(c)        -label dissonly         -rate -20.0
+Kaolinite            -label preciponly       -rate -80.0
+Quartz               -label default          -rate -80.0
+C5H7O2NO2(s)         -label default          -rate -60.0
+C5H7O2NNO3(s)        -label default          -rate -60.0
+C5H7O2NSO4(s)        -label tst              -rate -60.0
+END
+
+ISOTOPES
+primary     HC13O3-        HC12O3-         0.010815728
+primary     AcetateC13     AcetateC12      0.010815728
+mineral     Calcite13C     Calcite12C      none
+isotope_time_series        tope_timeseries.out      150  1  1
+NoFractionationDissolution   false
+END
+
+AQUEOUS_KINETICS
+C12_aerobox_Ac         -pathway C12_aerobox_Ac    1.0    -rate 500.0
+C12_no3redinh_Ac       -pathway C12_no3red_Ac     1.0    -rate 500.0
+C12_so4redinh_Ac       -pathway C12_so4red_Ac     1.0    -rate 100.0
+C13_aerobox_Ac         -pathway C13_aerobox_Ac    1.0    -rate 500.0
+C13_no3redinh_Ac       -pathway C13_no3red_Ac     1.0    -rate 500.0
+C13_so4redinh_Ac       -pathway C13_so4red_Ac     1.0    -rate 100.0
+HS_oxidto_SO4          -pathway HS_oxidto_SO4     1.0    -rate 0.1
+END
+
+CONDITION initcolcarb60
+temperature      25.0
+pH               7.60
+units            mol/kg
+Cl-              charge
+Na+              0.46905
+Ca++             0.010
+Mg++             0.052809
+Sr++             90e-06
+Al+++            9.325e-14
+SiO2(aq)         150.0e-06
+NH4+             1.0e-03
+N2(aq)           400e-06
+NO3-             1e-06
+HC12O3-            0.00125593785166
+HC13O3-            0.00001356214834
+SO4--            0.028197
+HS-              1.0e-12
+H2S(aq)          HS-
+AcetateC12       0.00009899605344
+AcetateC13       0.00000104394656
+C5H7O2NO2(aq)    C5H7O2NO2(s)
+C5H7O2NNO3(aq)   C5H7O2NNO3(s)
+C5H7O2NSO4(aq)   C5H7O2NSO4(s)
+O2(aq)           160e-06
+Calcite12C       0.000989306351633109    specific_surface_area  1.0
+Calcite13C       0.0000106936483668913   specific_surface_area  1.0
+CalciteCisoDiss  0.210                   specific_surface_area  1.0
+AcetateIso(c)    0.005                   specific_surface_area  1.0
+Kaolinite        0.03899997304           specific_surface_area  1.0
+Quartz           0.092
+C5H7O2NO2(s)     1.0e-03
+C5H7O2NNO3(s)    1.0e-03
+C5H7O2NSO4(s)    1.0e-03
+END
+
+TRANSPORT
+space_units            meters
+time_units             years
+calculate_diffusion    0.020
+cementation_exponent   1.0
+dispersivity           0.0
+diffusion_activation   4.34
+D_25   H+              0.23531
+D_25   Na+             0.03129
+D_25   Cl-             0.04823
+D_25   OH-             0.12653
+D_25   Mg++            0.01672
+D_25   Sr++            0.01857
+D_25   Ca++            0.01869
+D_25   NH4+            0.04624
+D_25   NO3-            0.04525
+D_25   AcetateC12      0.02480
+D_25   AcetateC13      0.02480
+D_25   SO4--           0.02490
+D_25   HC12O3-         0.02723
+D_25   HC13O3-         0.02723
+D_25   C12O3--         0.02181
+D_25   C13O3--         0.02181
+D_25   Al+++           0.01585
+D_25   C12O2(aq)       0.04255
+D_25   C13O2(aq)       0.04255
+D_25   NH3(aq)         0.04952
+D_25   N2(aq)          0.04019
+D_25   O2(aq)          0.05385
+D_25   H2S(aq)         0.03984
+D_25   HS-             0.04356
+D_25   H2(aq)          0.04522
+D_25   C5H7O2NO2(aq)   0.00010
+D_25   C5H7O2NNO3(aq)  0.00010
+D_25   C5H7O2NSO4(aq)  0.00010
+END
+
+POROSITY
+porosity_update    true
+END
+
+TEMPERATURE
+set_temperature 25.0
+END
+
+PRIMARY_SPECIES
+H+
+Cl-
+Na+
+Ca++
+Mg++
+Sr++
+Al+++
+SiO2(aq)
+NH4+
+NO3-
+N2(aq)
+HC12O3-
+HC13O3-
+HS-
+SO4--
+AcetateC12
+AcetateC13
+C5H7O2NO2(aq)
+C5H7O2NNO3(aq)
+C5H7O2NSO4(aq)
+O2(aq)
+END
+
+SECONDARY_SPECIES
+OH-
+C12O3--
+C13O3--
+C12O2(aq)
+C13O2(aq)
+NH3(aq)
+H2(aq)
+H2S(aq)
+END
+
+GASES
+H2(g)
+END

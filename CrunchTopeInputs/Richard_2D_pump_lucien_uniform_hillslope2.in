@@ -1,0 +1,1279 @@
+TITLE 
+Richard_2D_tracer 
+END 
+
+RUNTIME 
+time_units       seconds 
+timestep_max     100000 
+timestep_init    0.001 
+time_tolerance   0.01 
+!!ResidualTolerance   1.0E-10 
+hindmarsh        false 
+correction_max   1 
+debye-huckel     yes 
+master           Tracer 
+database_sweep   no 
+speciate_only    no 
+gimrt    true 
+database         Thermoddem_2017_lucien_v2_trycal_sulfide_decoupled2.dbs 
+screen_output    1000 
+solver direct 
+!!solver bcgs 
+!!pc ilu 
+!!pclevel 2 
+END 
+
+OUTPUT 
+time_units years 
+time_series_interval 0 
+spatial_profile 1e-05         0.1         0.2         0.3         0.4  & 
+0.5         0.6         0.7         0.8         0.9 & 
+  1         1.1         1.2         1.3         1.4 & 
+  1.5         1.6         1.7         1.8         1.9 & 
+  2         2.1         2.2         2.3         2.4 & 
+  2.5         2.6         2.7         2.8         2.9 & 
+  3         3.1         3.2         3.3         3.4 & 
+  3.5         3.6         3.7         3.8         3.9 & 
+  4         4.1         4.2         4.3         4.4 & 
+  4.5         4.6         4.7         4.8         4.9 
+ END 
+
+TRANSPORT 
+distance_units meters 
+time_units     seconds 
+!!fix_diffusion  1e-9 
+!!gas_diffusion  9E-06 
+!!MilligtonQuirk true 
+!!dispersivity   0.0 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+co_richards      2.0 
+calculate_flow  TRUE 
+!!PUMP 
+Pump 9.5129e-06 injection 1 2 1 
+ Pump 9.5129e-06 injection 2 3 1 
+ Pump 9.5129e-06 injection 3 4 1 
+ Pump 9.5129e-06 injection 4 4 1 
+ Pump 9.5129e-06 injection 5 5 1 
+ Pump 9.5129e-06 injection 6 6 1 
+ Pump 9.5129e-06 injection 7 7 1 
+ Pump 9.5129e-06 injection 8 8 1 
+ Pump 9.5129e-06 injection 9 8 1 
+ Pump 9.5129e-06 injection 10 9 1 
+ Pump 9.5129e-06 injection 11 10 1 
+ Pump 9.5129e-06 injection 12 11 1 
+ Pump 9.5129e-06 injection 13 12 1 
+ Pump 9.5129e-06 injection 14 12 1 
+ Pump 9.5129e-06 injection 15 13 1 
+ Pump 9.5129e-06 injection 16 14 1 
+ Pump 9.5129e-06 injection 17 15 1 
+ Pump 9.5129e-06 injection 18 16 1 
+ Pump 9.5129e-06 injection 19 16 1 
+ Pump 9.5129e-06 injection 20 17 1 
+ Pump 9.5129e-06 injection 21 18 1 
+ Pump 9.5129e-06 injection 22 19 1 
+ Pump 9.5129e-06 injection 23 20 1 
+ Pump 9.5129e-06 injection 24 20 1 
+ Pump 9.5129e-06 injection 25 21 1 
+ Pump 9.5129e-06 injection 26 22 1 
+ Pump 9.5129e-06 injection 27 23 1 
+ Pump 9.5129e-06 injection 28 24 1 
+ Pump 9.5129e-06 injection 29 24 1 
+ Pump 9.5129e-06 injection 30 25 1 
+!!PERMEABILITY 
+permeability_x     4e-16 default 
+ permeability_x 6e-13 zone 0-1 2-2 1-1  
+ permeability_x 6e-13 zone 0-2 3-3 1-1  
+ permeability_x 6e-13 zone 0-4 4-4 1-1  
+ permeability_x 6e-13 zone 0-5 5-5 1-1  
+ permeability_x 6e-13 zone 0-6 6-6 1-1  
+ permeability_x 6e-13 zone 0-7 7-7 1-1  
+ permeability_x 6e-13 zone 0-9 8-8 1-1  
+ permeability_x 6e-13 zone 0-10 9-9 1-1  
+ permeability_x 6e-13 zone 0-11 10-10 1-1  
+ permeability_x 6e-13 zone 0-12 11-11 1-1  
+ permeability_x 6e-13 zone 0-14 12-12 1-1  
+ permeability_x 6e-13 zone 0-15 13-13 1-1  
+ permeability_x 6e-13 zone 0-16 14-14 1-1  
+ permeability_x 6e-13 zone 0-17 15-15 1-1  
+ permeability_x 6e-13 zone 0-19 16-16 1-1  
+ permeability_x 6e-13 zone 0-20 17-17 1-1  
+ permeability_x 6e-13 zone 0-21 18-18 1-1  
+ permeability_x 6e-13 zone 0-22 19-19 1-1  
+ permeability_x 6e-13 zone 0-24 20-20 1-1  
+ permeability_x 6e-13 zone 0-25 21-21 1-1  
+ permeability_x 6e-13 zone 0-26 22-22 1-1  
+ permeability_x 6e-13 zone 0-27 23-23 1-1  
+ permeability_x 6e-13 zone 0-29 24-24 1-1  
+ permeability_x 6e-13 zone 0-31 25-25 1-1  
+ permeability_x 6e-13 zone 0-31 26-26 1-1  
+ permeability_x 6e-13 zone 0-31 27-27 1-1  
+ permeability_x 6e-13 zone 0-31 28-28 1-1  
+ permeability_x 6e-13 zone 0-31 29-29 1-1  
+ permeability_x 6e-13 zone 0-31 30-30 1-1  
+ permeability_x 6e-13 zone 0-31 31-31 1-1  
+ permeability_x 6e-13 zone 0-31 32-32 1-1  
+ permeability_x 6e-13 zone 0-31 33-33 1-1  
+ permeability_x 6e-13 zone 0-31 34-34 1-1  
+ permeability_x 6e-13 zone 0-31 35-35 1-1  
+ permeability_x 6e-13 zone 0-31 36-36 1-1  
+ permeability_x 6e-13 zone 0-31 37-37 1-1  
+ permeability_x 6e-13 zone 0-31 38-38 1-1  
+ permeability_x 6e-13 zone 0-31 39-39 1-1  
+ permeability_x 6e-13 zone 0-31 40-40 1-1  
+permeability_y     4e-16 default 
+ permeability_y 6e-13 zone 1-1 2-2 1-1  
+ permeability_y 6e-13 zone 1-2 3-3 1-1  
+ permeability_y 6e-13 zone 1-4 4-4 1-1  
+ permeability_y 6e-13 zone 1-5 5-5 1-1  
+ permeability_y 6e-13 zone 1-6 6-6 1-1  
+ permeability_y 6e-13 zone 1-7 7-7 1-1  
+ permeability_y 6e-13 zone 1-9 8-8 1-1  
+ permeability_y 6e-13 zone 1-10 9-9 1-1  
+ permeability_y 6e-13 zone 1-11 10-10 1-1  
+ permeability_y 6e-13 zone 1-12 11-11 1-1  
+ permeability_y 6e-13 zone 1-14 12-12 1-1  
+ permeability_y 6e-13 zone 1-15 13-13 1-1  
+ permeability_y 6e-13 zone 1-16 14-14 1-1  
+ permeability_y 6e-13 zone 1-17 15-15 1-1  
+ permeability_y 6e-13 zone 1-19 16-16 1-1  
+ permeability_y 6e-13 zone 1-20 17-17 1-1  
+ permeability_y 6e-13 zone 1-21 18-18 1-1  
+ permeability_y 6e-13 zone 1-22 19-19 1-1  
+ permeability_y 6e-13 zone 1-24 20-20 1-1  
+ permeability_y 6e-13 zone 1-25 21-21 1-1  
+ permeability_y 6e-13 zone 1-26 22-22 1-1  
+ permeability_y 6e-13 zone 1-27 23-23 1-1  
+ permeability_y 6e-13 zone 1-29 24-24 1-1  
+ permeability_y 6e-13 zone 1-30 25-25 1-1  
+ permeability_y 6e-13 zone 1-30 26-26 1-1  
+ permeability_y 6e-13 zone 1-30 27-27 1-1  
+ permeability_y 6e-13 zone 1-30 28-28 1-1  
+ permeability_y 6e-13 zone 1-30 29-29 1-1  
+ permeability_y 6e-13 zone 1-30 30-30 1-1  
+ permeability_y 6e-13 zone 1-30 31-31 1-1  
+ permeability_y 6e-13 zone 1-30 32-32 1-1  
+ permeability_y 6e-13 zone 1-30 33-33 1-1  
+ permeability_y 6e-13 zone 1-30 34-34 1-1  
+ permeability_y 6e-13 zone 1-30 35-35 1-1  
+ permeability_y 6e-13 zone 1-30 36-36 1-1  
+ permeability_y 6e-13 zone 1-30 37-37 1-1  
+ permeability_y 6e-13 zone 1-30 38-38 1-1  
+ permeability_y 6e-13 zone 1-30 39-39 1-1  
+ permeability_y 6e-13 zone 1-30 40-40 1-1  
+!!PERMEABILITY BOUNDARY 
+permeability_x 0 zone 0-0 1-9 1-1 
+permeability_y 0 zone 1-30 0-0 1-1 
+permeability_y 0 zone 1-30 41-41 1-1 
+!!RICHARD 
+upstream_weighting TRUE 
+ns_solve FALSE 
+Richards        TRUE 
+redistribute_wc TRUE 
+y_is_vertical   TRUE 
+watertable_init 5 
+!!VG PARAMETERS 
+vangenuchten_alpha 0.53 default 
+ vangenuchten_alpha 1.8 zone 1-1 2-2 1-1  
+ vangenuchten_alpha 1.8 zone 1-2 3-3 1-1  
+ vangenuchten_alpha 1.8 zone 1-4 4-4 1-1  
+ vangenuchten_alpha 1.8 zone 1-5 5-5 1-1  
+ vangenuchten_alpha 1.8 zone 1-6 6-6 1-1  
+ vangenuchten_alpha 1.8 zone 1-7 7-7 1-1  
+ vangenuchten_alpha 1.8 zone 1-9 8-8 1-1  
+ vangenuchten_alpha 1.8 zone 1-10 9-9 1-1  
+ vangenuchten_alpha 1.8 zone 1-11 10-10 1-1  
+ vangenuchten_alpha 1.8 zone 1-12 11-11 1-1  
+ vangenuchten_alpha 1.8 zone 1-14 12-12 1-1  
+ vangenuchten_alpha 1.8 zone 1-15 13-13 1-1  
+ vangenuchten_alpha 1.8 zone 1-16 14-14 1-1  
+ vangenuchten_alpha 1.8 zone 1-17 15-15 1-1  
+ vangenuchten_alpha 1.8 zone 1-19 16-16 1-1  
+ vangenuchten_alpha 1.8 zone 1-20 17-17 1-1  
+ vangenuchten_alpha 1.8 zone 1-21 18-18 1-1  
+ vangenuchten_alpha 1.8 zone 1-22 19-19 1-1  
+ vangenuchten_alpha 1.8 zone 1-24 20-20 1-1  
+ vangenuchten_alpha 1.8 zone 1-25 21-21 1-1  
+ vangenuchten_alpha 1.8 zone 1-26 22-22 1-1  
+ vangenuchten_alpha 1.8 zone 1-27 23-23 1-1  
+ vangenuchten_alpha 1.8 zone 1-29 24-24 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 25-25 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 26-26 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 27-27 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 28-28 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 29-29 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 30-30 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 31-31 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 32-32 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 33-33 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 34-34 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 35-35 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 36-36 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 37-37 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 38-38 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 39-39 1-1  
+ vangenuchten_alpha 1.8 zone 1-30 40-40 1-1  
+vangenuchten_n  1.52 default 
+ vangenuchten_n 1.79 zone 1-1 2-2 1-1  
+ vangenuchten_n 1.79 zone 1-2 3-3 1-1  
+ vangenuchten_n 1.79 zone 1-4 4-4 1-1  
+ vangenuchten_n 1.79 zone 1-5 5-5 1-1  
+ vangenuchten_n 1.79 zone 1-6 6-6 1-1  
+ vangenuchten_n 1.79 zone 1-7 7-7 1-1  
+ vangenuchten_n 1.79 zone 1-9 8-8 1-1  
+ vangenuchten_n 1.79 zone 1-10 9-9 1-1  
+ vangenuchten_n 1.79 zone 1-11 10-10 1-1  
+ vangenuchten_n 1.79 zone 1-12 11-11 1-1  
+ vangenuchten_n 1.79 zone 1-14 12-12 1-1  
+ vangenuchten_n 1.79 zone 1-15 13-13 1-1  
+ vangenuchten_n 1.79 zone 1-16 14-14 1-1  
+ vangenuchten_n 1.79 zone 1-17 15-15 1-1  
+ vangenuchten_n 1.79 zone 1-19 16-16 1-1  
+ vangenuchten_n 1.79 zone 1-20 17-17 1-1  
+ vangenuchten_n 1.79 zone 1-21 18-18 1-1  
+ vangenuchten_n 1.79 zone 1-22 19-19 1-1  
+ vangenuchten_n 1.79 zone 1-24 20-20 1-1  
+ vangenuchten_n 1.79 zone 1-25 21-21 1-1  
+ vangenuchten_n 1.79 zone 1-26 22-22 1-1  
+ vangenuchten_n 1.79 zone 1-27 23-23 1-1  
+ vangenuchten_n 1.79 zone 1-29 24-24 1-1  
+ vangenuchten_n 1.79 zone 1-30 25-25 1-1  
+ vangenuchten_n 1.79 zone 1-30 26-26 1-1  
+ vangenuchten_n 1.79 zone 1-30 27-27 1-1  
+ vangenuchten_n 1.79 zone 1-30 28-28 1-1  
+ vangenuchten_n 1.79 zone 1-30 29-29 1-1  
+ vangenuchten_n 1.79 zone 1-30 30-30 1-1  
+ vangenuchten_n 1.79 zone 1-30 31-31 1-1  
+ vangenuchten_n 1.79 zone 1-30 32-32 1-1  
+ vangenuchten_n 1.79 zone 1-30 33-33 1-1  
+ vangenuchten_n 1.79 zone 1-30 34-34 1-1  
+ vangenuchten_n 1.79 zone 1-30 35-35 1-1  
+ vangenuchten_n 1.79 zone 1-30 36-36 1-1  
+ vangenuchten_n 1.79 zone 1-30 37-37 1-1  
+ vangenuchten_n 1.79 zone 1-30 38-38 1-1  
+ vangenuchten_n 1.79 zone 1-30 39-39 1-1  
+ vangenuchten_n 1.79 zone 1-30 40-40 1-1  
+wc_residual     0.001 default 
+ wc_residual 0.13 zone 1-1 2-2 1-1  
+ wc_residual 0.13 zone 1-2 3-3 1-1  
+ wc_residual 0.13 zone 1-4 4-4 1-1  
+ wc_residual 0.13 zone 1-5 5-5 1-1  
+ wc_residual 0.13 zone 1-6 6-6 1-1  
+ wc_residual 0.13 zone 1-7 7-7 1-1  
+ wc_residual 0.13 zone 1-9 8-8 1-1  
+ wc_residual 0.13 zone 1-10 9-9 1-1  
+ wc_residual 0.13 zone 1-11 10-10 1-1  
+ wc_residual 0.13 zone 1-12 11-11 1-1  
+ wc_residual 0.13 zone 1-14 12-12 1-1  
+ wc_residual 0.13 zone 1-15 13-13 1-1  
+ wc_residual 0.13 zone 1-16 14-14 1-1  
+ wc_residual 0.13 zone 1-17 15-15 1-1  
+ wc_residual 0.13 zone 1-19 16-16 1-1  
+ wc_residual 0.13 zone 1-20 17-17 1-1  
+ wc_residual 0.13 zone 1-21 18-18 1-1  
+ wc_residual 0.13 zone 1-22 19-19 1-1  
+ wc_residual 0.13 zone 1-24 20-20 1-1  
+ wc_residual 0.13 zone 1-25 21-21 1-1  
+ wc_residual 0.13 zone 1-26 22-22 1-1  
+ wc_residual 0.13 zone 1-27 23-23 1-1  
+ wc_residual 0.13 zone 1-29 24-24 1-1  
+ wc_residual 0.13 zone 1-30 25-25 1-1  
+ wc_residual 0.13 zone 1-30 26-26 1-1  
+ wc_residual 0.13 zone 1-30 27-27 1-1  
+ wc_residual 0.13 zone 1-30 28-28 1-1  
+ wc_residual 0.13 zone 1-30 29-29 1-1  
+ wc_residual 0.13 zone 1-30 30-30 1-1  
+ wc_residual 0.13 zone 1-30 31-31 1-1  
+ wc_residual 0.13 zone 1-30 32-32 1-1  
+ wc_residual 0.13 zone 1-30 33-33 1-1  
+ wc_residual 0.13 zone 1-30 34-34 1-1  
+ wc_residual 0.13 zone 1-30 35-35 1-1  
+ wc_residual 0.13 zone 1-30 36-36 1-1  
+ wc_residual 0.13 zone 1-30 37-37 1-1  
+ wc_residual 0.13 zone 1-30 38-38 1-1  
+ wc_residual 0.13 zone 1-30 39-39 1-1  
+ wc_residual 0.13 zone 1-30 40-40 1-1  
+!!PRESSURE
+pressure  0    default 
+pressure  0.0    zone 1-30 1-1 1-1 fix 
+ pressure  0.0    zone 2-30 2-2 1-1 fix 
+ pressure  0.0    zone 3-30 3-3 1-1 fix 
+ pressure  0.0    zone 5-30 4-4 1-1 fix 
+ pressure  0.0    zone 6-30 5-5 1-1 fix 
+ pressure  0.0    zone 7-30 6-6 1-1 fix 
+ pressure  0.0    zone 8-30 7-7 1-1 fix 
+ pressure  0.0    zone 10-30 8-8 1-1 fix 
+ pressure  0.0    zone 11-30 9-9 1-1 fix 
+ pressure  0.0    zone 12-30 10-10 1-1 fix 
+ pressure  0.0    zone 13-30 11-11 1-1 fix 
+ pressure  0.0    zone 15-30 12-12 1-1 fix 
+ pressure  0.0    zone 16-30 13-13 1-1 fix 
+ pressure  0.0    zone 17-30 14-14 1-1 fix 
+ pressure  0.0    zone 18-30 15-15 1-1 fix 
+ pressure  0.0    zone 20-30 16-16 1-1 fix 
+ pressure  0.0    zone 21-30 17-17 1-1 fix 
+ pressure  0.0    zone 22-30 18-18 1-1 fix 
+ pressure  0.0    zone 23-30 19-19 1-1 fix 
+ pressure  0.0    zone 25-30 20-20 1-1 fix 
+ pressure  0.0    zone 26-30 21-21 1-1 fix 
+ pressure  0.0    zone 27-30 22-22 1-1 fix 
+ pressure  0.0    zone 28-30 23-23 1-1 fix 
+ pressure  0.0    zone 30-30 24-24 1-1 fix 
+pressure 0 zone 31-31 1-25 1-1 fix 
+ pressure 1079.1 zone 31-31 26-26 1-1 fix 
+ pressure 5984.1 zone 31-31 27-27 1-1 fix 
+ pressure 10889.1 zone 31-31 28-28 1-1 fix 
+ pressure 15794.1 zone 31-31 29-29 1-1 fix 
+ pressure 20699.1 zone 31-31 30-30 1-1 fix 
+ pressure 25604.1 zone 31-31 31-31 1-1 fix 
+ pressure 30509.1 zone 31-31 32-32 1-1 fix 
+ pressure 35414.1 zone 31-31 33-33 1-1 fix 
+ pressure 40319.1 zone 31-31 34-34 1-1 fix 
+ pressure 45224.1 zone 31-31 35-35 1-1 fix 
+ pressure 50129.1 zone 31-31 36-36 1-1 fix 
+ pressure 55034.1 zone 31-31 37-37 1-1 fix 
+ pressure 59939.1 zone 31-31 38-38 1-1 fix 
+ pressure 64844.1 zone 31-31 39-39 1-1 fix 
+ pressure 69749.1 zone 31-31 40-40 1-1 fix 
+pressure 4708.8 zone 0-0 10-10 1-1 fix 
+ pressure 9613.8 zone 0-0 11-11 1-1 fix 
+ pressure 14518.8 zone 0-0 12-12 1-1 fix 
+ pressure 19423.8 zone 0-0 13-13 1-1 fix 
+ pressure 24328.8 zone 0-0 14-14 1-1 fix 
+ pressure 29233.8 zone 0-0 15-15 1-1 fix 
+ pressure 34138.8 zone 0-0 16-16 1-1 fix 
+ pressure 39043.8 zone 0-0 17-17 1-1 fix 
+ pressure 43948.8 zone 0-0 18-18 1-1 fix 
+ pressure 48853.8 zone 0-0 19-19 1-1 fix 
+ pressure 53758.8 zone 0-0 20-20 1-1 fix 
+ pressure 58663.8 zone 0-0 21-21 1-1 fix 
+ pressure 63568.8 zone 0-0 22-22 1-1 fix 
+ pressure 68473.8 zone 0-0 23-23 1-1 fix 
+ pressure 73378.8 zone 0-0 24-24 1-1 fix 
+ pressure 78283.8 zone 0-0 25-25 1-1 fix 
+ pressure 83188.8 zone 0-0 26-26 1-1 fix 
+ pressure 88093.8 zone 0-0 27-27 1-1 fix 
+ pressure 92998.8 zone 0-0 28-28 1-1 fix 
+ pressure 97903.8 zone 0-0 29-29 1-1 fix 
+ pressure 102808.8 zone 0-0 30-30 1-1 fix 
+ pressure 107713.8 zone 0-0 31-31 1-1 fix 
+ pressure 112618.8 zone 0-0 32-32 1-1 fix 
+ pressure 117523.8 zone 0-0 33-33 1-1 fix 
+ pressure 122428.8 zone 0-0 34-34 1-1 fix 
+ pressure 127333.8 zone 0-0 35-35 1-1 fix 
+ pressure 132238.8 zone 0-0 36-36 1-1 fix 
+ pressure 137143.8 zone 0-0 37-37 1-1 fix 
+ pressure 142048.8 zone 0-0 38-38 1-1 fix 
+ pressure 146953.8 zone 0-0 39-39 1-1 fix 
+ pressure 151858.8 zone 0-0 40-40 1-1 fix 
+END 
+
+BOUNDARY_CONDITIONS    
+!!x_begin   injection     flux 
+!!x_end   ambient0     flux 
+!!y_begin   injection     flux 
+!!y_end   ambient1     flux 
+boundarycondition   injection  zone 0-0 1-40 1-1  flux 
+boundarycondition   ambient0  zone 31-31 1-40  1-1  flux 
+boundarycondition   injection  zone 1-30 0-0 1-1  flux 
+boundarycondition   ambient1  zone 1-30 41-41  1-1  flux 
+END 
+
+INITIAL_CONDITIONS    
+injection 1-30 1-1 1-1 fix 
+ injection 2-30 2-2 1-1 fix 
+ injection 3-30 3-3 1-1 fix 
+ injection 5-30 4-4 1-1 fix 
+ injection 6-30 5-5 1-1 fix 
+ injection 7-30 6-6 1-1 fix 
+ injection 8-30 7-7 1-1 fix 
+ injection 10-30 8-8 1-1 fix 
+ injection 11-30 9-9 1-1 fix 
+ injection 12-30 10-10 1-1 fix 
+ injection 13-30 11-11 1-1 fix 
+ injection 15-30 12-12 1-1 fix 
+ injection 16-30 13-13 1-1 fix 
+ injection 17-30 14-14 1-1 fix 
+ injection 18-30 15-15 1-1 fix 
+ injection 20-30 16-16 1-1 fix 
+ injection 21-30 17-17 1-1 fix 
+ injection 22-30 18-18 1-1 fix 
+ injection 23-30 19-19 1-1 fix 
+ injection 25-30 20-20 1-1 fix 
+ injection 26-30 21-21 1-1 fix 
+ injection 27-30 22-22 1-1 fix 
+ injection 28-30 23-23 1-1 fix 
+ injection 30-30 24-24 1-1 fix 
+ambient1   1-1 2-2 1-1 
+ ambient1   1-1 3-3 1-1 
+ ambient1   1-1 4-4 1-1 
+ ambient1   1-1 5-5 1-1 
+ ambient1   1-1 6-6 1-1 
+ ambient1   1-1 7-7 1-1 
+ ambient1   1-1 8-8 1-1 
+ ambient1   1-1 9-9 1-1 
+ ambient1   1-1 10-10 1-1 
+ ambient1   1-1 11-11 1-1 
+ ambient1   1-1 12-12 1-1 
+ ambient1   1-1 13-13 1-1 
+ ambient1   1-1 14-14 1-1 
+ ambient1   1-1 15-15 1-1 
+ ambient1   1-1 16-16 1-1 
+ ambient1   1-1 17-17 1-1 
+ ambient1   1-1 18-18 1-1 
+ ambient1   1-1 19-19 1-1 
+ ambient1   1-1 20-20 1-1 
+ ambient1   1-1 21-21 1-1 
+ ambient1   1-1 22-22 1-1 
+ ambient1   1-1 23-23 1-1 
+ ambient1   1-1 24-24 1-1 
+ ambient1   1-1 25-25 1-1 
+ ambient1   1-1 26-26 1-1 
+ ambient1   1-1 27-27 1-1 
+ ambient1   1-1 28-28 1-1 
+ ambient1   1-1 29-29 1-1 
+ ambient1   1-1 30-30 1-1 
+ ambient1   1-1 31-31 1-1 
+ ambient1   1-1 32-32 1-1 
+ ambient1   1-1 33-33 1-1 
+ ambient1   1-1 34-34 1-1 
+ ambient1   1-1 35-35 1-1 
+ ambient1   1-1 36-36 1-1 
+ ambient1   1-1 37-37 1-1 
+ ambient1   1-1 38-38 1-1 
+ ambient1   1-1 39-39 1-1 
+ ambient1   1-1 40-40 1-1 
+ ambient1   2-2 3-3 1-1 
+ ambient1   2-2 4-4 1-1 
+ ambient1   2-2 5-5 1-1 
+ ambient1   2-2 6-6 1-1 
+ ambient1   2-2 7-7 1-1 
+ ambient1   2-2 8-8 1-1 
+ ambient1   2-2 9-9 1-1 
+ ambient1   2-2 10-10 1-1 
+ ambient1   2-2 11-11 1-1 
+ ambient1   2-2 12-12 1-1 
+ ambient1   2-2 13-13 1-1 
+ ambient1   2-2 14-14 1-1 
+ ambient1   2-2 15-15 1-1 
+ ambient1   2-2 16-16 1-1 
+ ambient1   2-2 17-17 1-1 
+ ambient1   2-2 18-18 1-1 
+ ambient1   2-2 19-19 1-1 
+ ambient1   2-2 20-20 1-1 
+ ambient1   2-2 21-21 1-1 
+ ambient1   2-2 22-22 1-1 
+ ambient1   2-2 23-23 1-1 
+ ambient1   2-2 24-24 1-1 
+ ambient1   2-2 25-25 1-1 
+ ambient1   2-2 26-26 1-1 
+ ambient1   2-2 27-27 1-1 
+ ambient1   2-2 28-28 1-1 
+ ambient1   2-2 29-29 1-1 
+ ambient1   2-2 30-30 1-1 
+ ambient1   2-2 31-31 1-1 
+ ambient1   2-2 32-32 1-1 
+ ambient1   2-2 33-33 1-1 
+ ambient1   2-2 34-34 1-1 
+ ambient1   2-2 35-35 1-1 
+ ambient1   2-2 36-36 1-1 
+ ambient1   2-2 37-37 1-1 
+ ambient1   2-2 38-38 1-1 
+ ambient1   2-2 39-39 1-1 
+ ambient1   2-2 40-40 1-1 
+ ambient1   3-3 4-4 1-1 
+ ambient1   3-3 5-5 1-1 
+ ambient1   3-3 6-6 1-1 
+ ambient1   3-3 7-7 1-1 
+ ambient1   3-3 8-8 1-1 
+ ambient1   3-3 9-9 1-1 
+ ambient1   3-3 10-10 1-1 
+ ambient1   3-3 11-11 1-1 
+ ambient1   3-3 12-12 1-1 
+ ambient1   3-3 13-13 1-1 
+ ambient1   3-3 14-14 1-1 
+ ambient1   3-3 15-15 1-1 
+ ambient1   3-3 16-16 1-1 
+ ambient1   3-3 17-17 1-1 
+ ambient1   3-3 18-18 1-1 
+ ambient1   3-3 19-19 1-1 
+ ambient1   3-3 20-20 1-1 
+ ambient1   3-3 21-21 1-1 
+ ambient1   3-3 22-22 1-1 
+ ambient1   3-3 23-23 1-1 
+ ambient1   3-3 24-24 1-1 
+ ambient1   3-3 25-25 1-1 
+ ambient1   3-3 26-26 1-1 
+ ambient1   3-3 27-27 1-1 
+ ambient1   3-3 28-28 1-1 
+ ambient1   3-3 29-29 1-1 
+ ambient1   3-3 30-30 1-1 
+ ambient1   3-3 31-31 1-1 
+ ambient1   3-3 32-32 1-1 
+ ambient1   3-3 33-33 1-1 
+ ambient1   3-3 34-34 1-1 
+ ambient1   3-3 35-35 1-1 
+ ambient1   3-3 36-36 1-1 
+ ambient1   3-3 37-37 1-1 
+ ambient1   3-3 38-38 1-1 
+ ambient1   3-3 39-39 1-1 
+ ambient1   3-3 40-40 1-1 
+ ambient1   4-4 4-4 1-1 
+ ambient1   4-4 5-5 1-1 
+ ambient1   4-4 6-6 1-1 
+ ambient1   4-4 7-7 1-1 
+ ambient1   4-4 8-8 1-1 
+ ambient1   4-4 9-9 1-1 
+ ambient1   4-4 10-10 1-1 
+ ambient1   4-4 11-11 1-1 
+ ambient1   4-4 12-12 1-1 
+ ambient1   4-4 13-13 1-1 
+ ambient1   4-4 14-14 1-1 
+ ambient1   4-4 15-15 1-1 
+ ambient1   4-4 16-16 1-1 
+ ambient1   4-4 17-17 1-1 
+ ambient1   4-4 18-18 1-1 
+ ambient1   4-4 19-19 1-1 
+ ambient1   4-4 20-20 1-1 
+ ambient1   4-4 21-21 1-1 
+ ambient1   4-4 22-22 1-1 
+ ambient1   4-4 23-23 1-1 
+ ambient1   4-4 24-24 1-1 
+ ambient1   4-4 25-25 1-1 
+ ambient1   4-4 26-26 1-1 
+ ambient1   4-4 27-27 1-1 
+ ambient1   4-4 28-28 1-1 
+ ambient1   4-4 29-29 1-1 
+ ambient1   4-4 30-30 1-1 
+ ambient1   4-4 31-31 1-1 
+ ambient1   4-4 32-32 1-1 
+ ambient1   4-4 33-33 1-1 
+ ambient1   4-4 34-34 1-1 
+ ambient1   4-4 35-35 1-1 
+ ambient1   4-4 36-36 1-1 
+ ambient1   4-4 37-37 1-1 
+ ambient1   4-4 38-38 1-1 
+ ambient1   4-4 39-39 1-1 
+ ambient1   4-4 40-40 1-1 
+ ambient1   5-5 5-5 1-1 
+ ambient1   5-5 6-6 1-1 
+ ambient1   5-5 7-7 1-1 
+ ambient1   5-5 8-8 1-1 
+ ambient1   5-5 9-9 1-1 
+ ambient1   5-5 10-10 1-1 
+ ambient1   5-5 11-11 1-1 
+ ambient1   5-5 12-12 1-1 
+ ambient1   5-5 13-13 1-1 
+ ambient1   5-5 14-14 1-1 
+ ambient1   5-5 15-15 1-1 
+ ambient1   5-5 16-16 1-1 
+ ambient1   5-5 17-17 1-1 
+ ambient1   5-5 18-18 1-1 
+ ambient1   5-5 19-19 1-1 
+ ambient1   5-5 20-20 1-1 
+ ambient1   5-5 21-21 1-1 
+ ambient1   5-5 22-22 1-1 
+ ambient1   5-5 23-23 1-1 
+ ambient1   5-5 24-24 1-1 
+ ambient1   5-5 25-25 1-1 
+ ambient1   5-5 26-26 1-1 
+ ambient1   5-5 27-27 1-1 
+ ambient1   5-5 28-28 1-1 
+ ambient1   5-5 29-29 1-1 
+ ambient1   5-5 30-30 1-1 
+ ambient1   5-5 31-31 1-1 
+ ambient1   5-5 32-32 1-1 
+ ambient1   5-5 33-33 1-1 
+ ambient1   5-5 34-34 1-1 
+ ambient1   5-5 35-35 1-1 
+ ambient1   5-5 36-36 1-1 
+ ambient1   5-5 37-37 1-1 
+ ambient1   5-5 38-38 1-1 
+ ambient1   5-5 39-39 1-1 
+ ambient1   5-5 40-40 1-1 
+ ambient1   6-6 6-6 1-1 
+ ambient1   6-6 7-7 1-1 
+ ambient1   6-6 8-8 1-1 
+ ambient1   6-6 9-9 1-1 
+ ambient1   6-6 10-10 1-1 
+ ambient1   6-6 11-11 1-1 
+ ambient1   6-6 12-12 1-1 
+ ambient1   6-6 13-13 1-1 
+ ambient1   6-6 14-14 1-1 
+ ambient1   6-6 15-15 1-1 
+ ambient1   6-6 16-16 1-1 
+ ambient1   6-6 17-17 1-1 
+ ambient1   6-6 18-18 1-1 
+ ambient1   6-6 19-19 1-1 
+ ambient1   6-6 20-20 1-1 
+ ambient1   6-6 21-21 1-1 
+ ambient1   6-6 22-22 1-1 
+ ambient1   6-6 23-23 1-1 
+ ambient1   6-6 24-24 1-1 
+ ambient1   6-6 25-25 1-1 
+ ambient1   6-6 26-26 1-1 
+ ambient1   6-6 27-27 1-1 
+ ambient1   6-6 28-28 1-1 
+ ambient1   6-6 29-29 1-1 
+ ambient1   6-6 30-30 1-1 
+ ambient1   6-6 31-31 1-1 
+ ambient1   6-6 32-32 1-1 
+ ambient1   6-6 33-33 1-1 
+ ambient1   6-6 34-34 1-1 
+ ambient1   6-6 35-35 1-1 
+ ambient1   6-6 36-36 1-1 
+ ambient1   6-6 37-37 1-1 
+ ambient1   6-6 38-38 1-1 
+ ambient1   6-6 39-39 1-1 
+ ambient1   6-6 40-40 1-1 
+ ambient1   7-7 7-7 1-1 
+ ambient1   7-7 8-8 1-1 
+ ambient1   7-7 9-9 1-1 
+ ambient1   7-7 10-10 1-1 
+ ambient1   7-7 11-11 1-1 
+ ambient1   7-7 12-12 1-1 
+ ambient1   7-7 13-13 1-1 
+ ambient1   7-7 14-14 1-1 
+ ambient1   7-7 15-15 1-1 
+ ambient1   7-7 16-16 1-1 
+ ambient1   7-7 17-17 1-1 
+ ambient1   7-7 18-18 1-1 
+ ambient1   7-7 19-19 1-1 
+ ambient1   7-7 20-20 1-1 
+ ambient1   7-7 21-21 1-1 
+ ambient1   7-7 22-22 1-1 
+ ambient1   7-7 23-23 1-1 
+ ambient1   7-7 24-24 1-1 
+ ambient1   7-7 25-25 1-1 
+ ambient1   7-7 26-26 1-1 
+ ambient1   7-7 27-27 1-1 
+ ambient1   7-7 28-28 1-1 
+ ambient1   7-7 29-29 1-1 
+ ambient1   7-7 30-30 1-1 
+ ambient1   7-7 31-31 1-1 
+ ambient1   7-7 32-32 1-1 
+ ambient1   7-7 33-33 1-1 
+ ambient1   7-7 34-34 1-1 
+ ambient1   7-7 35-35 1-1 
+ ambient1   7-7 36-36 1-1 
+ ambient1   7-7 37-37 1-1 
+ ambient1   7-7 38-38 1-1 
+ ambient1   7-7 39-39 1-1 
+ ambient1   7-7 40-40 1-1 
+ ambient1   8-8 8-8 1-1 
+ ambient1   8-8 9-9 1-1 
+ ambient1   8-8 10-10 1-1 
+ ambient1   8-8 11-11 1-1 
+ ambient1   8-8 12-12 1-1 
+ ambient1   8-8 13-13 1-1 
+ ambient1   8-8 14-14 1-1 
+ ambient1   8-8 15-15 1-1 
+ ambient1   8-8 16-16 1-1 
+ ambient1   8-8 17-17 1-1 
+ ambient1   8-8 18-18 1-1 
+ ambient1   8-8 19-19 1-1 
+ ambient1   8-8 20-20 1-1 
+ ambient1   8-8 21-21 1-1 
+ ambient1   8-8 22-22 1-1 
+ ambient1   8-8 23-23 1-1 
+ ambient1   8-8 24-24 1-1 
+ ambient1   8-8 25-25 1-1 
+ ambient1   8-8 26-26 1-1 
+ ambient1   8-8 27-27 1-1 
+ ambient1   8-8 28-28 1-1 
+ ambient1   8-8 29-29 1-1 
+ ambient1   8-8 30-30 1-1 
+ ambient1   8-8 31-31 1-1 
+ ambient1   8-8 32-32 1-1 
+ ambient1   8-8 33-33 1-1 
+ ambient1   8-8 34-34 1-1 
+ ambient1   8-8 35-35 1-1 
+ ambient1   8-8 36-36 1-1 
+ ambient1   8-8 37-37 1-1 
+ ambient1   8-8 38-38 1-1 
+ ambient1   8-8 39-39 1-1 
+ ambient1   8-8 40-40 1-1 
+ ambient1   9-9 8-8 1-1 
+ ambient1   9-9 9-9 1-1 
+ ambient1   9-9 10-10 1-1 
+ ambient1   9-9 11-11 1-1 
+ ambient1   9-9 12-12 1-1 
+ ambient1   9-9 13-13 1-1 
+ ambient1   9-9 14-14 1-1 
+ ambient1   9-9 15-15 1-1 
+ ambient1   9-9 16-16 1-1 
+ ambient1   9-9 17-17 1-1 
+ ambient1   9-9 18-18 1-1 
+ ambient1   9-9 19-19 1-1 
+ ambient1   9-9 20-20 1-1 
+ ambient1   9-9 21-21 1-1 
+ ambient1   9-9 22-22 1-1 
+ ambient1   9-9 23-23 1-1 
+ ambient1   9-9 24-24 1-1 
+ ambient1   9-9 25-25 1-1 
+ ambient1   9-9 26-26 1-1 
+ ambient1   9-9 27-27 1-1 
+ ambient1   9-9 28-28 1-1 
+ ambient1   9-9 29-29 1-1 
+ ambient1   9-9 30-30 1-1 
+ ambient1   9-9 31-31 1-1 
+ ambient1   9-9 32-32 1-1 
+ ambient1   9-9 33-33 1-1 
+ ambient1   9-9 34-34 1-1 
+ ambient1   9-9 35-35 1-1 
+ ambient1   9-9 36-36 1-1 
+ ambient1   9-9 37-37 1-1 
+ ambient1   9-9 38-38 1-1 
+ ambient1   9-9 39-39 1-1 
+ ambient1   9-9 40-40 1-1 
+ ambient1   10-10 9-9 1-1 
+ ambient1   10-10 10-10 1-1 
+ ambient1   10-10 11-11 1-1 
+ ambient1   10-10 12-12 1-1 
+ ambient1   10-10 13-13 1-1 
+ ambient1   10-10 14-14 1-1 
+ ambient1   10-10 15-15 1-1 
+ ambient1   10-10 16-16 1-1 
+ ambient1   10-10 17-17 1-1 
+ ambient1   10-10 18-18 1-1 
+ ambient1   10-10 19-19 1-1 
+ ambient1   10-10 20-20 1-1 
+ ambient1   10-10 21-21 1-1 
+ ambient1   10-10 22-22 1-1 
+ ambient1   10-10 23-23 1-1 
+ ambient1   10-10 24-24 1-1 
+ ambient1   10-10 25-25 1-1 
+ ambient1   10-10 26-26 1-1 
+ ambient1   10-10 27-27 1-1 
+ ambient1   10-10 28-28 1-1 
+ ambient1   10-10 29-29 1-1 
+ ambient1   10-10 30-30 1-1 
+ ambient1   10-10 31-31 1-1 
+ ambient1   10-10 32-32 1-1 
+ ambient1   10-10 33-33 1-1 
+ ambient1   10-10 34-34 1-1 
+ ambient1   10-10 35-35 1-1 
+ ambient1   10-10 36-36 1-1 
+ ambient1   10-10 37-37 1-1 
+ ambient1   10-10 38-38 1-1 
+ ambient1   10-10 39-39 1-1 
+ ambient1   10-10 40-40 1-1 
+ ambient1   11-11 10-10 1-1 
+ ambient1   11-11 11-11 1-1 
+ ambient1   11-11 12-12 1-1 
+ ambient1   11-11 13-13 1-1 
+ ambient1   11-11 14-14 1-1 
+ ambient1   11-11 15-15 1-1 
+ ambient1   11-11 16-16 1-1 
+ ambient1   11-11 17-17 1-1 
+ ambient1   11-11 18-18 1-1 
+ ambient1   11-11 19-19 1-1 
+ ambient1   11-11 20-20 1-1 
+ ambient1   11-11 21-21 1-1 
+ ambient1   11-11 22-22 1-1 
+ ambient1   11-11 23-23 1-1 
+ ambient1   11-11 24-24 1-1 
+ ambient1   11-11 25-25 1-1 
+ ambient1   11-11 26-26 1-1 
+ ambient1   11-11 27-27 1-1 
+ ambient1   11-11 28-28 1-1 
+ ambient1   11-11 29-29 1-1 
+ ambient1   11-11 30-30 1-1 
+ ambient1   11-11 31-31 1-1 
+ ambient1   11-11 32-32 1-1 
+ ambient1   11-11 33-33 1-1 
+ ambient1   11-11 34-34 1-1 
+ ambient1   11-11 35-35 1-1 
+ ambient1   11-11 36-36 1-1 
+ ambient1   11-11 37-37 1-1 
+ ambient1   11-11 38-38 1-1 
+ ambient1   11-11 39-39 1-1 
+ ambient1   11-11 40-40 1-1 
+ ambient1   12-12 11-11 1-1 
+ ambient1   12-12 12-12 1-1 
+ ambient1   12-12 13-13 1-1 
+ ambient1   12-12 14-14 1-1 
+ ambient1   12-12 15-15 1-1 
+ ambient1   12-12 16-16 1-1 
+ ambient1   12-12 17-17 1-1 
+ ambient1   12-12 18-18 1-1 
+ ambient1   12-12 19-19 1-1 
+ ambient1   12-12 20-20 1-1 
+ ambient1   12-12 21-21 1-1 
+ ambient1   12-12 22-22 1-1 
+ ambient1   12-12 23-23 1-1 
+ ambient1   12-12 24-24 1-1 
+ ambient1   12-12 25-25 1-1 
+ ambient1   12-12 26-26 1-1 
+ ambient1   12-12 27-27 1-1 
+ ambient1   12-12 28-28 1-1 
+ ambient1   12-12 29-29 1-1 
+ ambient1   12-12 30-30 1-1 
+ ambient1   12-12 31-31 1-1 
+ ambient1   12-12 32-32 1-1 
+ ambient1   12-12 33-33 1-1 
+ ambient1   12-12 34-34 1-1 
+ ambient1   12-12 35-35 1-1 
+ ambient1   12-12 36-36 1-1 
+ ambient1   12-12 37-37 1-1 
+ ambient1   12-12 38-38 1-1 
+ ambient1   12-12 39-39 1-1 
+ ambient1   12-12 40-40 1-1 
+ ambient1   13-13 12-12 1-1 
+ ambient1   13-13 13-13 1-1 
+ ambient1   13-13 14-14 1-1 
+ ambient1   13-13 15-15 1-1 
+ ambient1   13-13 16-16 1-1 
+ ambient1   13-13 17-17 1-1 
+ ambient1   13-13 18-18 1-1 
+ ambient1   13-13 19-19 1-1 
+ ambient1   13-13 20-20 1-1 
+ ambient1   13-13 21-21 1-1 
+ ambient1   13-13 22-22 1-1 
+ ambient1   13-13 23-23 1-1 
+ ambient1   13-13 24-24 1-1 
+ ambient1   13-13 25-25 1-1 
+ ambient1   13-13 26-26 1-1 
+ ambient1   13-13 27-27 1-1 
+ ambient1   13-13 28-28 1-1 
+ ambient1   13-13 29-29 1-1 
+ ambient1   13-13 30-30 1-1 
+ ambient1   13-13 31-31 1-1 
+ ambient1   13-13 32-32 1-1 
+ ambient1   13-13 33-33 1-1 
+ ambient1   13-13 34-34 1-1 
+ ambient1   13-13 35-35 1-1 
+ ambient1   13-13 36-36 1-1 
+ ambient1   13-13 37-37 1-1 
+ ambient1   13-13 38-38 1-1 
+ ambient1   13-13 39-39 1-1 
+ ambient1   13-13 40-40 1-1 
+ ambient1   14-14 12-12 1-1 
+ ambient1   14-14 13-13 1-1 
+ ambient1   14-14 14-14 1-1 
+ ambient1   14-14 15-15 1-1 
+ ambient1   14-14 16-16 1-1 
+ ambient1   14-14 17-17 1-1 
+ ambient1   14-14 18-18 1-1 
+ ambient1   14-14 19-19 1-1 
+ ambient1   14-14 20-20 1-1 
+ ambient1   14-14 21-21 1-1 
+ ambient1   14-14 22-22 1-1 
+ ambient1   14-14 23-23 1-1 
+ ambient1   14-14 24-24 1-1 
+ ambient1   14-14 25-25 1-1 
+ ambient1   14-14 26-26 1-1 
+ ambient1   14-14 27-27 1-1 
+ ambient1   14-14 28-28 1-1 
+ ambient1   14-14 29-29 1-1 
+ ambient1   14-14 30-30 1-1 
+ ambient1   14-14 31-31 1-1 
+ ambient1   14-14 32-32 1-1 
+ ambient1   14-14 33-33 1-1 
+ ambient1   14-14 34-34 1-1 
+ ambient1   14-14 35-35 1-1 
+ ambient1   14-14 36-36 1-1 
+ ambient1   14-14 37-37 1-1 
+ ambient1   14-14 38-38 1-1 
+ ambient1   14-14 39-39 1-1 
+ ambient1   14-14 40-40 1-1 
+ ambient1   15-15 13-13 1-1 
+ ambient1   15-15 14-14 1-1 
+ ambient1   15-15 15-15 1-1 
+ ambient1   15-15 16-16 1-1 
+ ambient1   15-15 17-17 1-1 
+ ambient1   15-15 18-18 1-1 
+ ambient1   15-15 19-19 1-1 
+ ambient1   15-15 20-20 1-1 
+ ambient1   15-15 21-21 1-1 
+ ambient1   15-15 22-22 1-1 
+ ambient1   15-15 23-23 1-1 
+ ambient1   15-15 24-24 1-1 
+ ambient1   15-15 25-25 1-1 
+ ambient1   15-15 26-26 1-1 
+ ambient1   15-15 27-27 1-1 
+ ambient1   15-15 28-28 1-1 
+ ambient1   15-15 29-29 1-1 
+ ambient1   15-15 30-30 1-1 
+ ambient1   15-15 31-31 1-1 
+ ambient1   15-15 32-32 1-1 
+ ambient1   15-15 33-33 1-1 
+ ambient1   15-15 34-34 1-1 
+ ambient1   15-15 35-35 1-1 
+ ambient1   15-15 36-36 1-1 
+ ambient1   15-15 37-37 1-1 
+ ambient1   15-15 38-38 1-1 
+ ambient1   15-15 39-39 1-1 
+ ambient1   15-15 40-40 1-1 
+ ambient1   16-16 14-14 1-1 
+ ambient1   16-16 15-15 1-1 
+ ambient1   16-16 16-16 1-1 
+ ambient1   16-16 17-17 1-1 
+ ambient1   16-16 18-18 1-1 
+ ambient1   16-16 19-19 1-1 
+ ambient1   16-16 20-20 1-1 
+ ambient1   16-16 21-21 1-1 
+ ambient1   16-16 22-22 1-1 
+ ambient1   16-16 23-23 1-1 
+ ambient1   16-16 24-24 1-1 
+ ambient1   16-16 25-25 1-1 
+ ambient1   16-16 26-26 1-1 
+ ambient1   16-16 27-27 1-1 
+ ambient1   16-16 28-28 1-1 
+ ambient1   16-16 29-29 1-1 
+ ambient1   16-16 30-30 1-1 
+ ambient1   16-16 31-31 1-1 
+ ambient1   16-16 32-32 1-1 
+ ambient1   16-16 33-33 1-1 
+ ambient1   16-16 34-34 1-1 
+ ambient1   16-16 35-35 1-1 
+ ambient1   16-16 36-36 1-1 
+ ambient1   16-16 37-37 1-1 
+ ambient1   16-16 38-38 1-1 
+ ambient1   16-16 39-39 1-1 
+ ambient1   16-16 40-40 1-1 
+ ambient1   17-17 15-15 1-1 
+ ambient1   17-17 16-16 1-1 
+ ambient1   17-17 17-17 1-1 
+ ambient1   17-17 18-18 1-1 
+ ambient1   17-17 19-19 1-1 
+ ambient1   17-17 20-20 1-1 
+ ambient1   17-17 21-21 1-1 
+ ambient1   17-17 22-22 1-1 
+ ambient1   17-17 23-23 1-1 
+ ambient1   17-17 24-24 1-1 
+ ambient1   17-17 25-25 1-1 
+ ambient1   17-17 26-26 1-1 
+ ambient1   17-17 27-27 1-1 
+ ambient1   17-17 28-28 1-1 
+ ambient1   17-17 29-29 1-1 
+ ambient1   17-17 30-30 1-1 
+ ambient1   17-17 31-31 1-1 
+ ambient1   17-17 32-32 1-1 
+ ambient1   17-17 33-33 1-1 
+ ambient1   17-17 34-34 1-1 
+ ambient1   17-17 35-35 1-1 
+ ambient1   17-17 36-36 1-1 
+ ambient1   17-17 37-37 1-1 
+ ambient1   17-17 38-38 1-1 
+ ambient1   17-17 39-39 1-1 
+ ambient1   17-17 40-40 1-1 
+ ambient1   18-18 16-16 1-1 
+ ambient1   18-18 17-17 1-1 
+ ambient1   18-18 18-18 1-1 
+ ambient1   18-18 19-19 1-1 
+ ambient1   18-18 20-20 1-1 
+ ambient1   18-18 21-21 1-1 
+ ambient1   18-18 22-22 1-1 
+ ambient1   18-18 23-23 1-1 
+ ambient1   18-18 24-24 1-1 
+ ambient1   18-18 25-25 1-1 
+ ambient1   18-18 26-26 1-1 
+ ambient1   18-18 27-27 1-1 
+ ambient1   18-18 28-28 1-1 
+ ambient1   18-18 29-29 1-1 
+ ambient1   18-18 30-30 1-1 
+ ambient1   18-18 31-31 1-1 
+ ambient1   18-18 32-32 1-1 
+ ambient1   18-18 33-33 1-1 
+ ambient1   18-18 34-34 1-1 
+ ambient1   18-18 35-35 1-1 
+ ambient1   18-18 36-36 1-1 
+ ambient1   18-18 37-37 1-1 
+ ambient1   18-18 38-38 1-1 
+ ambient1   18-18 39-39 1-1 
+ ambient1   18-18 40-40 1-1 
+ ambient1   19-19 16-16 1-1 
+ ambient1   19-19 17-17 1-1 
+ ambient1   19-19 18-18 1-1 
+ ambient1   19-19 19-19 1-1 
+ ambient1   19-19 20-20 1-1 
+ ambient1   19-19 21-21 1-1 
+ ambient1   19-19 22-22 1-1 
+ ambient1   19-19 23-23 1-1 
+ ambient1   19-19 24-24 1-1 
+ ambient1   19-19 25-25 1-1 
+ ambient1   19-19 26-26 1-1 
+ ambient1   19-19 27-27 1-1 
+ ambient1   19-19 28-28 1-1 
+ ambient1   19-19 29-29 1-1 
+ ambient1   19-19 30-30 1-1 
+ ambient1   19-19 31-31 1-1 
+ ambient1   19-19 32-32 1-1 
+ ambient1   19-19 33-33 1-1 
+ ambient1   19-19 34-34 1-1 
+ ambient1   19-19 35-35 1-1 
+ ambient1   19-19 36-36 1-1 
+ ambient1   19-19 37-37 1-1 
+ ambient1   19-19 38-38 1-1 
+ ambient1   19-19 39-39 1-1 
+ ambient1   19-19 40-40 1-1 
+ ambient1   20-20 17-17 1-1 
+ ambient1   20-20 18-18 1-1 
+ ambient1   20-20 19-19 1-1 
+ ambient1   20-20 20-20 1-1 
+ ambient1   20-20 21-21 1-1 
+ ambient1   20-20 22-22 1-1 
+ ambient1   20-20 23-23 1-1 
+ ambient1   20-20 24-24 1-1 
+ ambient1   20-20 25-25 1-1 
+ ambient1   20-20 26-26 1-1 
+ ambient1   20-20 27-27 1-1 
+ ambient1   20-20 28-28 1-1 
+ ambient1   20-20 29-29 1-1 
+ ambient1   20-20 30-30 1-1 
+ ambient1   20-20 31-31 1-1 
+ ambient1   20-20 32-32 1-1 
+ ambient1   20-20 33-33 1-1 
+ ambient1   20-20 34-34 1-1 
+ ambient1   20-20 35-35 1-1 
+ ambient1   20-20 36-36 1-1 
+ ambient1   20-20 37-37 1-1 
+ ambient1   20-20 38-38 1-1 
+ ambient1   20-20 39-39 1-1 
+ ambient1   20-20 40-40 1-1 
+ ambient1   21-21 18-18 1-1 
+ ambient1   21-21 19-19 1-1 
+ ambient1   21-21 20-20 1-1 
+ ambient1   21-21 21-21 1-1 
+ ambient1   21-21 22-22 1-1 
+ ambient1   21-21 23-23 1-1 
+ ambient1   21-21 24-24 1-1 
+ ambient1   21-21 25-25 1-1 
+ ambient1   21-21 26-26 1-1 
+ ambient1   21-21 27-27 1-1 
+ ambient1   21-21 28-28 1-1 
+ ambient1   21-21 29-29 1-1 
+ ambient1   21-21 30-30 1-1 
+ ambient1   21-21 31-31 1-1 
+ ambient1   21-21 32-32 1-1 
+ ambient1   21-21 33-33 1-1 
+ ambient1   21-21 34-34 1-1 
+ ambient1   21-21 35-35 1-1 
+ ambient1   21-21 36-36 1-1 
+ ambient1   21-21 37-37 1-1 
+ ambient1   21-21 38-38 1-1 
+ ambient1   21-21 39-39 1-1 
+ ambient1   21-21 40-40 1-1 
+ ambient1   22-22 19-19 1-1 
+ ambient1   22-22 20-20 1-1 
+ ambient1   22-22 21-21 1-1 
+ ambient1   22-22 22-22 1-1 
+ ambient1   22-22 23-23 1-1 
+ ambient1   22-22 24-24 1-1 
+ ambient1   22-22 25-25 1-1 
+ ambient1   22-22 26-26 1-1 
+ ambient1   22-22 27-27 1-1 
+ ambient1   22-22 28-28 1-1 
+ ambient1   22-22 29-29 1-1 
+ ambient1   22-22 30-30 1-1 
+ ambient1   22-22 31-31 1-1 
+ ambient1   22-22 32-32 1-1 
+ ambient1   22-22 33-33 1-1 
+ ambient1   22-22 34-34 1-1 
+ ambient1   22-22 35-35 1-1 
+ ambient1   22-22 36-36 1-1 
+ ambient1   22-22 37-37 1-1 
+ ambient1   22-22 38-38 1-1 
+ ambient1   22-22 39-39 1-1 
+ ambient1   22-22 40-40 1-1 
+ ambient1   23-23 20-20 1-1 
+ ambient1   23-23 21-21 1-1 
+ ambient1   23-23 22-22 1-1 
+ ambient1   23-23 23-23 1-1 
+ ambient1   23-23 24-24 1-1 
+ ambient1   23-23 25-25 1-1 
+ ambient1   23-23 26-26 1-1 
+ ambient1   23-23 27-27 1-1 
+ ambient1   23-23 28-28 1-1 
+ ambient1   23-23 29-29 1-1 
+ ambient1   23-23 30-30 1-1 
+ ambient1   23-23 31-31 1-1 
+ ambient1   23-23 32-32 1-1 
+ ambient1   23-23 33-33 1-1 
+ ambient1   23-23 34-34 1-1 
+ ambient1   23-23 35-35 1-1 
+ ambient1   23-23 36-36 1-1 
+ ambient1   23-23 37-37 1-1 
+ ambient1   23-23 38-38 1-1 
+ ambient1   23-23 39-39 1-1 
+ ambient1   23-23 40-40 1-1 
+ ambient1   24-24 20-20 1-1 
+ ambient1   24-24 21-21 1-1 
+ ambient1   24-24 22-22 1-1 
+ ambient1   24-24 23-23 1-1 
+ ambient1   24-24 24-24 1-1 
+ ambient1   24-24 25-25 1-1 
+ ambient1   24-24 26-26 1-1 
+ ambient1   24-24 27-27 1-1 
+ ambient1   24-24 28-28 1-1 
+ ambient1   24-24 29-29 1-1 
+ ambient1   24-24 30-30 1-1 
+ ambient1   24-24 31-31 1-1 
+ ambient1   24-24 32-32 1-1 
+ ambient1   24-24 33-33 1-1 
+ ambient1   24-24 34-34 1-1 
+ ambient1   24-24 35-35 1-1 
+ ambient1   24-24 36-36 1-1 
+ ambient1   24-24 37-37 1-1 
+ ambient1   24-24 38-38 1-1 
+ ambient1   24-24 39-39 1-1 
+ ambient1   24-24 40-40 1-1 
+ ambient1   25-25 21-21 1-1 
+ ambient1   25-25 22-22 1-1 
+ ambient1   25-25 23-23 1-1 
+ ambient1   25-25 24-24 1-1 
+ ambient1   25-25 25-25 1-1 
+ ambient1   25-25 26-26 1-1 
+ ambient1   25-25 27-27 1-1 
+ ambient1   25-25 28-28 1-1 
+ ambient1   25-25 29-29 1-1 
+ ambient1   25-25 30-30 1-1 
+ ambient1   25-25 31-31 1-1 
+ ambient1   25-25 32-32 1-1 
+ ambient1   25-25 33-33 1-1 
+ ambient1   25-25 34-34 1-1 
+ ambient1   25-25 35-35 1-1 
+ ambient1   25-25 36-36 1-1 
+ ambient1   25-25 37-37 1-1 
+ ambient1   25-25 38-38 1-1 
+ ambient1   25-25 39-39 1-1 
+ ambient1   25-25 40-40 1-1 
+ ambient1   26-26 22-22 1-1 
+ ambient1   26-26 23-23 1-1 
+ ambient1   26-26 24-24 1-1 
+ ambient1   26-26 25-25 1-1 
+ ambient1   26-26 26-26 1-1 
+ ambient1   26-26 27-27 1-1 
+ ambient1   26-26 28-28 1-1 
+ ambient1   26-26 29-29 1-1 
+ ambient1   26-26 30-30 1-1 
+ ambient1   26-26 31-31 1-1 
+ ambient1   26-26 32-32 1-1 
+ ambient1   26-26 33-33 1-1 
+ ambient1   26-26 34-34 1-1 
+ ambient1   26-26 35-35 1-1 
+ ambient1   26-26 36-36 1-1 
+ ambient1   26-26 37-37 1-1 
+ ambient1   26-26 38-38 1-1 
+ ambient1   26-26 39-39 1-1 
+ ambient1   26-26 40-40 1-1 
+ ambient1   27-27 23-23 1-1 
+ ambient1   27-27 24-24 1-1 
+ ambient1   27-27 25-25 1-1 
+ ambient1   27-27 26-26 1-1 
+ ambient1   27-27 27-27 1-1 
+ ambient1   27-27 28-28 1-1 
+ ambient1   27-27 29-29 1-1 
+ ambient1   27-27 30-30 1-1 
+ ambient1   27-27 31-31 1-1 
+ ambient1   27-27 32-32 1-1 
+ ambient1   27-27 33-33 1-1 
+ ambient1   27-27 34-34 1-1 
+ ambient1   27-27 35-35 1-1 
+ ambient1   27-27 36-36 1-1 
+ ambient1   27-27 37-37 1-1 
+ ambient1   27-27 38-38 1-1 
+ ambient1   27-27 39-39 1-1 
+ ambient1   27-27 40-40 1-1 
+ ambient1   28-28 24-24 1-1 
+ ambient1   28-28 25-25 1-1 
+ ambient1   28-28 26-26 1-1 
+ ambient1   28-28 27-27 1-1 
+ ambient1   28-28 28-28 1-1 
+ ambient1   28-28 29-29 1-1 
+ ambient1   28-28 30-30 1-1 
+ ambient1   28-28 31-31 1-1 
+ ambient1   28-28 32-32 1-1 
+ ambient1   28-28 33-33 1-1 
+ ambient1   28-28 34-34 1-1 
+ ambient1   28-28 35-35 1-1 
+ ambient1   28-28 36-36 1-1 
+ ambient1   28-28 37-37 1-1 
+ ambient1   28-28 38-38 1-1 
+ ambient1   28-28 39-39 1-1 
+ ambient1   28-28 40-40 1-1 
+ ambient1   29-29 24-24 1-1 
+ ambient1   29-29 25-25 1-1 
+ ambient1   29-29 26-26 1-1 
+ ambient1   29-29 27-27 1-1 
+ ambient1   29-29 28-28 1-1 
+ ambient1   29-29 29-29 1-1 
+ ambient1   29-29 30-30 1-1 
+ ambient1   29-29 31-31 1-1 
+ ambient1   29-29 32-32 1-1 
+ ambient1   29-29 33-33 1-1 
+ ambient1   29-29 34-34 1-1 
+ ambient1   29-29 35-35 1-1 
+ ambient1   29-29 36-36 1-1 
+ ambient1   29-29 37-37 1-1 
+ ambient1   29-29 38-38 1-1 
+ ambient1   29-29 39-39 1-1 
+ ambient1   29-29 40-40 1-1 
+ ambient1   30-30 25-25 1-1 
+ ambient1   30-30 26-26 1-1 
+ ambient1   30-30 27-27 1-1 
+ ambient1   30-30 28-28 1-1 
+ ambient1   30-30 29-29 1-1 
+ ambient1   30-30 30-30 1-1 
+ ambient1   30-30 31-31 1-1 
+ ambient1   30-30 32-32 1-1 
+ ambient1   30-30 33-33 1-1 
+ ambient1   30-30 34-34 1-1 
+ ambient1   30-30 35-35 1-1 
+ ambient1   30-30 36-36 1-1 
+ ambient1   30-30 37-37 1-1 
+ ambient1   30-30 38-38 1-1 
+ ambient1   30-30 39-39 1-1 
+ ambient1   30-30 40-40 1-1 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 30 1  
+yzones 40 0.5 
+zzones 1 1  
+END 
+
+Condition        injection    
+units            mol/kg 
+temperature      25.0 
+Tracer 0.01  
+pH 7  
+END 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+Condition        ambient0    
+units            mol/kg 
+temperature      25.0 
+pH 7  
+Tracer 1e-5  
+END 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+Condition        ambient1    
+units            mol/kg 
+temperature      25.0 
+pH 7  
+Tracer 1e-5  
+END 
+
+POROSITY    
+read_PorosityFile porosity_2D_uniform.dat FullForm    
+!!fix_porosity     0.2    
+porosity_update false    
+END 
+
+PRIMARY_SPECIES 
+H+ 
+Tracer 
+END 
+
+SECONDARY_SPECIES 
+OH-  
+END 
+
+TEMPERATURE    
+set_temperature  25.0    
+END 
+

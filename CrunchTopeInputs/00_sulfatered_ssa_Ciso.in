@@ -1,0 +1,287 @@
+TITLE
+Sulfate reduction EXPT: calcite dissolution and precipitation 
+END
+
+RUNTIME
+time_units        years
+timestep_max      100
+timestep_init     1e-10
+time_tolerance    0.01
+master            H+
+correction_max    2.0
+debye-huckel      true
+database_sweep    false
+speciate_only     false
+steady_state      false 5e-06
+database          datacomMSFREVISED5_DICfract.dbs
+gimrt             true
+hindmarsh         true
+screen_output     100
+coordinates       rectangular
+fix_saturation    1.0
+save_restart      00_sulfatered_ssa_Ciso.rst
+!!later_inputfiles  01_sulfatered_ssa_Ciso.in 02_sulfatered_ssa_Ciso.in 03_sulfatered_ssa_Ciso.in 
+!!restart           foo.rst    append
+END
+
+
+ISOTOPES
+primary   HC13O3-        HC12O3-         0.010815728
+primary   AcetateC13     AcetateC12      0.010815728
+mineral   Calcite13C     Calcite12C      none
+END
+
+OUTPUT
+time_units            years
+spatial_profile       1e-02 10000.0 250e03 275e03 300e03
+!!spatial_profile       1e-10 1800e03 1900e03 2000e03
+!!spatial_profile       1e-02 5e03 10e03 15e03
+!!time_series           timeseries_Z1.txt 1
+!!time_series           timeseries_Z30.txt 30
+!!time_series           timeseries_Z100.txt 100
+time_series_print       pH HC12O3- HC13O3- O2(aq) NO3- SO4-- AcetateC12 AcetateC13 Ca++
+!!time_series_print     pH Ca++ HC12O3- HC13O3- Mg++ Sr++ Na+ Cl- AcetateC12 AcetateC13 O2(aq) NO3- SO4--
+time_series_interval    1
+!!MakeMovie             true pH
+END
+
+MINERALS
+Kaolinite            -label preciponly       -rate -80.0
+CalciteCisoDiss      -label dissolutiononly  -rate -80.0
+Calcite12C           -label preciponly       -rate -80.0
+Calcite13C           -label preciponly       -rate -80.0
+C5H7O2NO2(s)         -label default          -rate -60.0
+C5H7O2NNO3(s)        -label default          -rate -60.0
+C5H7O2NSO4(s)        -label tst              -rate -60.0
+AcetateIso(c)        -label dissonly         -rate -16.33
+Quartz               -label default          -rate -80.0
+END
+
+AQUEOUS_KINETICS
+!! rate expression then stoichiometry
+!! nitrate reduction/one pathway for simplicity's sake
+!!-------------------------------------------------------------------------------------------
+C12Mon_aerob_Ac   -pathway C12_aerob_Ac   1.0   -rate 10.0
+C13Mon_aerob_Ac   -pathway C13_aerob_Ac   1.0   -rate 10.0
+
+C12Mon_Nred_Ac    -pathway C12_Nred_Ac    1.0   -rate 0
+C12Mon_Sred_Ac    -pathway C12_Sred_Ac    1.0   -rate 0
+
+C13Mon_Nred_Ac    -pathway C13_Nred_Ac    1.0   -rate 0
+C13Mon_Sred_Ac    -pathway C13_Sred_Ac    1.0   -rate 0
+HS_oxidto_SO4     -pathway HS_oxidto_SO4  1.0   -rate 0
+!!-------------------------------------------------------------------------------------------
+END
+
+
+
+CONDITION initcolcarb40
+temperature      25.0
+pH               7.50
+units            mol/kg
+Cl-              charge
+Na+              0.46905
+Ca++             0.010
+Mg++             0.052809
+Sr++             90e-06
+Al+++            9.325e-14
+SiO2(aq)         150.0e-06
+NH4+             1.0e-03
+N2(aq)           400e-06
+NO3-             1e-06
+HC12O3-          1.59149057221461e-03
+HC13O3-          1.72131291436377e-05
+!! 0 permil marine DIC d13C value
+!! Sat state ~ 0.999/numerical error in PETSC at omega == 1
+!!HCO3-            CalciteIsoDiss
+SO4--            0.028197
+HS-              1.0e-12
+H2S(aq)          HS-
+!!HPO4--           1.67104e-06
+!!Acetate          0.001468438
+AcetateC12       9.899605E-05
+AcetateC13       1.070714E-06
+!! d13C = -25 permil
+C5H7O2NO2(aq)    C5H7O2NO2(s)
+C5H7O2NNO3(aq)   C5H7O2NNO3(s)
+C5H7O2NSO4(aq)   C5H7O2NSO4(s)
+O2(aq)           160e-06
+!! Minerals
+CalciteCisoDiss  0.1400000            specific_surface_area  1.0
+Calcite12C       0.0000989564708839   specific_surface_area  1.0
+Calcite13C       0.0000010435291161   specific_surface_area  1.0
+!! -25 permil to avoid any numerical probs
+Kaolinite        0.1009500             specific_surface_area  1.0  0.001
+C5H7O2NO2(s)     1.0e-03
+C5H7O2NNO3(s)    1.0e-03
+C5H7O2NSO4(s)    1.0e-03
+AcetateIso(c)    0.005             specific_surface_area  1.0
+Quartz           0.1009500
+!!C5H7O2NO2(s)     1.0e-05
+!!C5H7O2NNO3(s)    1.0e-05
+!!C5H7O2NSO4(s)    1.0e-05
+!!decay_b_so4(s)   1.0e-06         bulk_surface_area      1.0 
+END
+
+
+
+DISCRETIZATION
+distance_units meters
+xzones   300   0.5
+END
+
+INITIAL_CONDITIONS
+initcolcarb40     1-300  1-1  1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin   initcolcarb40    Dirichlet
+X_end     initcolcarb40    flux
+END
+
+TRANSPORT
+space_units            meters
+time_units             year
+!!!fix_diffusion         1.3E-09
+calculate_diffusion    0.020
+cementation_exponent   1.0
+dispersivity           0.0
+diffusion_activation   4.34
+D_25   H+              0.23531
+D_25   Na+             0.03129
+D_25   Cl-             0.04823
+D_25   OH-             0.12653
+D_25   Mg++            0.01672
+D_25   Sr++            0.01857
+C_25   Ca++            0.01869
+D_25   NH4+            0.04624
+D_25   NO3-            0.04525
+D_25   AcetateC12      0.02480
+D_25   AcetateC13      0.02480
+D_25   SO4--           0.02490
+D_25   HC12O3-         0.02723
+D_25   HC13O3-         0.02723
+D_25   C12O3--         0.02181
+D_25   C13O3--         0.02181
+D_25   Al+++           0.01585
+D_25   C12O2(aq)       0.04255
+D_25   C13O2(aq)       0.04255
+D_25   N2(aq)          0.04019
+D_25   O2(aq)          0.05385
+D_25   H2S(aq)         0.03984
+D_25   HS-             0.04356
+D_25   H2(aq)          0.04522
+D_25   C5H7O2NO2(aq)   0.0001
+D_25   C5H7O2NNO3(aq)  0.0001
+D_25   C5H7O2NSO4(aq)  0.0001
+END
+
+POROSITY
+!!!porosity_update  true
+fix_porosity     0.65
+END
+
+!!!!EROSION/BURIAL
+!!!!distance_units     meters
+!!!!time_units         years
+!!!!erode_x            0.0
+!!!!!!erode_x            10e-06
+!!!!END
+
+TEMPERATURE
+set_temperature 25.0
+END
+
+PRIMARY_SPECIES
+H+
+Cl-
+Na+
+Ca++
+Mg++
+Sr++
+Al+++
+SiO2(aq)
+NH4+
+NO3-
+N2(aq)
+HC12O3-
+HC13O3-
+HS-
+!!H2S(aq)
+SO4--
+AcetateC12
+AcetateC13
+C5H7O2NO2(aq)
+C5H7O2NNO3(aq)
+C5H7O2NSO4(aq)
+O2(aq)
+!!decay_b_so4
+!!HPO4--
+END
+
+SECONDARY_SPECIES
+OH-
+C12O3--
+C13O3--
+C12O2(aq)
+C13O2(aq)
+!!HSO4-
+!!NH3(aq)
+!!Acetic_acidC12(aq)
+!!Acetic_acidC13(aq)
+H2(aq)
+!!HS-
+H2S(aq)
+!!PO4---
+!!H2PO4-
+!!Al(OH)2+
+!!AlOH++
+!!Al(OH)3(aq)
+!!Al(OH)4-
+!!CaSO4(aq)
+!!CaCl+
+!!CaCl2(aq)
+!!CaCO3(aq)
+!!CaHCO3+
+!!CaOH+
+!!H2SiO4--
+END
+
+GASES
+H2(g)
+C12O2(g)
+C13O2(g)
+!!O2(g)
+!!N2(g)
+!!H2S(g)
+!!NH3(g)
+END
+
+
+D_25   H+              0.23531
+D_25   Na+             0.03129
+D_25   Cl-             0.04823
+D_25   OH-             0.12653
+D_25   Mg++            0.01672
+D_25   Sr++            0.01857
+C_25   Ca++            0.01869
+D_25   NH4+            0.04624
+D_25   NO3-            0.04525
+D_25   AcetateC12      0.02480
+D_25   AcetateC13      0.02480
+D_25   SO4--           0.02490
+D_25   HC12O3-         0.02723
+D_25   HC13O3-         0.02723
+D_25   C12O3--         0.02181
+D_25   C13O3--         0.02181
+D_25   Al+++           0.01585
+D_25   C12O2(aq)       0.04255
+D_25   C13O2(aq)       0.04255
+D_25   N2(aq)          0.04019
+D_25   O2(aq)          0.05385
+D_25   H2S(aq)         0.03984
+D_25   HS-             0.04356
+D_25   H2(aq)          0.04522
+D_25   C5H7O2NO2(aq)   0.0001
+D_25   C5H7O2NNO3(aq)  0.0001
+D_25   C5H7O2NSO4(aq)  0.0001

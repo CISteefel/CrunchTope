@@ -1,0 +1,756 @@
+TITLE
+Salt medium density
+END
+
+DATABASE
+datacom.dbs
+END
+
+RUNTIME
+time_units          hours
+timestep_max        0.0001
+timestep_init       1.e-5
+corrmax             10.0
+time_tolerance      0.5
+debye-huckel        true
+database_sweep      false
+speciate_only       true
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master_variable     Na+
+screen_output       10
+nmm                 true
+SaltCreep           true
+ResidualTolerance   1.0E-10
+END
+
+OUTPUT
+time_units               hours
+spatial_profile_at_time   1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0
+!!!! 1.0
+time_series_at_node      halite.out  1  1
+time_series_print        Na+  Cl-
+time_series_interval     1  
+END
+
+POROSITY
+fix_porosity  0.10
+porosity_update  false
+END
+
+MINERALS
+Halite           -label default  -rate  -0.578396073
+END
+
+GASES
+END
+
+DISCRETIZATION 
+distance_units   mm
+xzones  1   0.01
+yzones  1   0.01
+!!!ExportGridLocations  true
+END
+
+BOUNDARY_CONDITIONS
+END
+
+INITIAL_CONDITIONS
+Halite  1  1  1
+END
+ 
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  4.0
+fix_diffusion         1.3E-09
+dispersivity          0.0  0.0 
+!!!tortuosity            0.05 default
+END
+
+FLOW
+time_units          years
+calculate_flow      false
+constant_flow       0.0  0.0
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+Na+
+Cl-
+END
+
+SECONDARY_SPECIES
+!!!NaCl(aq)
+END
+
+
+ 
+Condition Halite40
+Temperature    40.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite41
+Temperature    41.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite42
+Temperature    42.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite43
+Temperature    43.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite44
+Temperature    44.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite45
+Temperature    45.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite46
+Temperature    46.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite47
+Temperature    47.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite48
+Temperature    48.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite49
+Temperature    49.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite50
+Temperature    50.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite51
+Temperature    51.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite52
+Temperature    52.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite53
+Temperature    53.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite54
+Temperature    54.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite55
+Temperature    55.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite56
+Temperature    56.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite57
+Temperature    57.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite58
+Temperature    58.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite59
+Temperature    59.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite60
+Temperature    60.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite61
+Temperature    61.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite62
+Temperature    62.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite63
+Temperature    63.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite64
+Temperature    64.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite65
+Temperature    65.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite66
+Temperature    66.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite67
+Temperature    67.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite68
+Temperature    68.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite69
+Temperature    69.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite70
+Temperature    70.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite71
+Temperature    71.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite72
+Temperature    72.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite73
+Temperature    73.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite74
+Temperature    74.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite75
+Temperature    75.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite76
+Temperature    76.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite77
+Temperature    77.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite78
+Temperature    78.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite79
+Temperature    79.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite80
+Temperature    80.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite81
+Temperature    81.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite82
+Temperature    82.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite83
+Temperature    83.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite84
+Temperature    84.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite85
+Temperature    85.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite86
+Temperature    86.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite87
+Temperature    87.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite88
+Temperature    88.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite89
+Temperature    89.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite90
+Temperature    90.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite91
+Temperature    91.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite92
+Temperature    92.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite93
+Temperature    93.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite94
+Temperature    94.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite95
+Temperature    95.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite96
+Temperature    96.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite97
+Temperature    97.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite98
+Temperature    98.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+Condition Halite99
+Temperature    99.00
+ pressure        1.0
+ set_porosity    0.001
+ units           mol/kg
+ Na+             Halite
+ Cl-             charge
+ Tracer          1.0E-06
+ Halite          0.10  bsa 1.0
+END
+ 
+
+ 
+
+ 

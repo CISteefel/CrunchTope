@@ -1,0 +1,372 @@
+TITLE
+sandstone (101.4bar-53C)
+END
+ 
+DATABASE
+dcpep_Gaby7.dbs
+END
+ 
+RUNTIME
+!!  Output files will be in same time units
+time_units          hours
+timestep_max        1.0
+timestep_init       2.4e-12
+time_tolerance      0.001
+lag_activity        true
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+gimrt true
+modflow false
+screen_output 100
+coordinate rectangular
+master  h+
+hindmarsh false
+END
+
+OUTPUT
+time_units         hours
+spatial_profile    10.0 48.0 72.0 96.0 120.0
+time_series        outlet.out 30 40
+!!  "all" writes all total concentrations, pH, and then all species concentrations
+!!  Total concentrations in molality, species in log molality
+!!  Listing of primary species will give total concentrations for that species only
+time_series_print  pH Ca++ Mg++ HCO3- SO4-- K+ SiO2(aq) Na+ Fe++ Al+++  O2(aq)  Li+ Sr++
+time_series_interval 5
+END
+ 
+POROSITY
+!fix_porosity      0.25
+porosity_update   true
+END
+ 
+TEMPERATURE
+!!read_temperature   filename
+set_temperature  53.0
+END
+
+PRIMARY_SPECIES
+Ca++
+Mg++
+HCO3-
+H+
+SO4--
+Na+
+K+ 
+Al+++
+Cl-
+Br-
+Li+
+Fe++
+Sr++
+SiO2(aq)
+O2(aq)
+END
+
+SECONDARY_SPECIES
+Al(OH)2+                                                                
+Al(SO4)2-                                                               
+Al13O4(OH)24(7+)                                                        
+Al2(OH)2++++                                                            
+Al3(OH)4(5+)                                                            
+AlO2-                                                                   
+AlOH++                                                                  
+AlSO4+                                                                  
+CO2(aq)                                                                 
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaHCO3+                                                                 
+CaOH+                                                                   
+CaSO4(aq)                                                               
+Fe(OH)2(aq)                                                             
+Fe(OH)3-                                                                
+Fe(OH)4--                                                               
+FeCO3(aq)                                                               
+FeCl+                                                                   
+FeCl2(aq)                                                               
+FeCl4--                                                                 
+FeHCO3+                                                                 
+FeOH+                                                                   
+FeSO4(aq)                                                               
+H2SO4(aq)                                                               
+H2SiO4--                                                                
+H4(H2SiO4)4----                                                         
+H6(H2SiO4)4--                                                           
+HAlO2(aq)                                                               
+HCl(aq)                                                                 
+HSO4-                                                                   
+HSiO3-
+HS-                                          
+KBr(aq)                                                                 
+KCl(aq)                                                                 
+KHSO4(aq)                                                               
+KOH(aq)                                                                 
+KSO4-                                                                   
+LiCl(aq)                                                                
+LiOH(aq)                                                                
+LiSO4-                                                                  
+Mg4(OH)4++++                                                            
+MgCO3(aq)                                                               
+MgCl+                                                                   
+MgHCO3+                                                                 
+MgSO4(aq)                                                               
+NaAlO2(aq)                                                              
+NaBr(aq)                                                                
+NaCO3-                                                                  
+NaCl(aq)                                                                
+NaHCO3(aq)                                                              
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+NaSO4-                                                                  
+OH-                                                                     
+SrCO3(aq)                                                               
+SrCl+                                                                   
+SrOH+                                                                   
+SrSO4(aq)                                                                                                                                
+Br3-                                                                    
+BrO-                                                                    
+BrO3-                                                                   
+BrO4-                                                                   
+CO(aq)                                                                  
+ClO-                                                                    
+ClO2-                                                                   
+ClO3-                                                                   
+ClO4-
+Fe+++
+H2(aq)
+HSO5-
+O2(aq)*
+SO3--
+Br2(aq)
+HO2-
+HS2O3-
+Fe(OH)2+
+Fe(OH)3(aq)
+Fe(OH)4-
+Fe(SO4)2-      
+Fe2(OH)2++++
+Fe3(OH)4(5+)
+FeCO3+      
+FeCl++ 
+FeCl2+
+FeCl4-
+FeOH++
+FeSO4+                                                           
+END
+
+MINERALS
+Quartz -label pk2004
+K-Feldspar -label H+
+Clinochlore-14A -label gaby-a
+Illite-pep -label pep-a
+Illite-pep -label pep-n
+Illite-pep -label pep-b
+Calcite -label Xu-gaby-n
+Calcite -label Xu-gaby-a
+Pyrite -label Domenech2002-gaby
+Gypsum_Mod-60C -label PK2004
+Anhydrite -label PK2004-gaby
+Kaolinite -label PK2004-a
+Kaolinite -label PK2004-n
+Kaolinite -label PK2004-b
+SiO2(am) -label hpf15c
+Dolomite-dis -label PK2004-a
+Dolomite-dis -label PK2004-n
+Mesolite -label hpf15c
+Stilbite -label hpf15c
+Smectite-low-Fe-Mg -label default
+Mordenite -label hpf15c
+Scolecite -label hpf15c
+Analcime -label hpf15c  
+Wairakite -label hpf15c
+Laumontite -label hpf15c
+Gismondine -label hpf15c
+Boehmite -label PK2004-a
+Gibbsite -label PK2004-a
+Diaspore -label PK2004-a
+Alunite -label Acero2015
+Muscovite -label pk2004-a
+Goethite -label slow
+Magnetite -label pk2004
+Siderite -label default
+Montmor-Ca-pep -label  pep-a-p
+Saponite-Ca -label pep-a-p
+Dawsonite -label pk2004
+CSH-083 -label empa
+Belite-Mg -label empa
+Aluminate-Mg -label empa
+Alite-Mg -label empa
+Anorthite -label default
+Albite -label pep-n-p
+END
+
+GASES
+CO2(g)
+O2(g)
+END
+
+DISCRETIZATION
+!!  May be continued on next line using an "&" at the end of the preceding line
+xzones 1 2.20e-3 28 1.17e-3 1 1.17e-3
+!      ---Rock---
+yzones 39 2.15e-3 1 2.15e-3
+!      ----Rock----
+END
+ 
+CONDITION Input
+units            mol/kg
+temperature      53.0
+Ca++     4.514e-1
+Mg++     6.577e-2
+HCO3-    5.733e-1
+pH        charge
+SO4--    4.064e-3
+Na+      1.6237
+K+       5.071e-2
+Al+++    6.850e-5
+Cl-      2.8450
+Br-      4.990e-2
+Li+      1.797e-1
+Sr++     7.866e-3
+Fe++     3.260e-5
+SiO2(aq) 1.630e-6
+O2(aq)   3.060e-4
+!Mineral Vol.fr. BSA(m2/m3)  Thresh.vol.fr.
+Quartz 0.0 bsa 0.0
+K-Feldspar 0.0 bsa 0.0
+Clinochlore-14A 0.0 bsa 0.0
+Illite-pep 0.0 bsa 0.0
+Siderite 0.0 bsa 0.0
+Dolomite-dis 0.0 bsa 0.0
+Calcite 0.0 bsa 0.0
+Pyrite 0.0 bsa 0.0
+Gypsum_Mod-60C 0.0 bsa 0.0
+Anhydrite 0.0 bsa 0.0
+Kaolinite 0.0 bsa 0.0
+Mesolite 0.0 bsa 0.0
+Smectite-low-Fe-Mg 0.0 bsa 0.0
+Mordenite 0.0 bsa 0.0
+Scolecite 0.0 bsa 0.0
+Analcime 0.0 bsa 0.0
+Wairakite 0.0 bsa 0.0
+Laumontite 0.0 bsa 0.0
+Gismondine 0.0 bsa 0.0
+Stilbite 0.0 bsa 0.0
+Boehmite 0.0 bsa 0.0
+Gibbsite 0.0 bsa 0.0
+Diaspore 0.0 bsa 0.0
+Alunite 0.0 bsa 0.0
+Muscovite 0.0 bsa 0.0
+Goethite 0.0 bsa 0.0
+Magnetite 0.0 bsa 0.0
+Montmor-Ca-pep 0.0 bsa 0.0
+Saponite-Ca 0.0 bsa 0.0
+Dawsonite 0.0 bsa 0.0
+CSH-083 0.0 bsa 0.0
+Belite-Mg 0.0 bsa 0.0
+Aluminate-Mg 0.0 bsa 0.0
+Alite-Mg 0.0 bsa 0.0
+Albite 0.0 bsa 0.0
+END
+
+CONDITION Rock
+units            mol/kg
+temperature      53.0
+Ca++     5.850e-5
+Mg++     1.290e-5
+HCO3-    CO2(g) 4.000e-4
+pH        charge
+SO4--    1.970e-5
+Na+      1.090e-4
+K+       4.140e-5
+Al+++    6.850e-5
+Cl-      1.000e-6
+Br-      1.000e-9
+Li+      1.000e-6
+Sr++     1.000e-6
+Fe++     3.260e-5
+SiO2(aq) 3.530e-5
+O2(aq)   2.840e-4
+!Mineral Vol.fr. BSA(m2/m3)  Thresh.vol.fr.
+Quartz 0.5760 bsa 1e4
+Calcite 0.0155 bsa 1
+K-Feldspar 0.1348 bsa 1e3
+Clinochlore-14A 0.0083 bsa 1.5e5
+Illite-pep 0.0050 bsa 1e1
+Siderite 0.0015 bsa 10
+Kaolinite 0.0030 bsa 10
+Dolomite 0.0035 bsa 5
+Pyrite 0.0024 bsa 1.0
+Gypsum_Mod-60C 0.0 ssa 5.2e-5 0.001
+Anhydrite 0.0 bsa 1e6
+Kaolinite 0.0 bsa 1e6
+Mesolite 0.0 bsa 1e6
+Smectite-low-Fe-Mg 0.0 bsa 1e6
+Mordenite 0.0 bsa 1e4
+Scolecite 0.0 bsa 1e4
+Analcime 0.0 bsa 1e4
+Wairakite 0.0 bsa 1e4
+Laumontite 0.0 bsa 1e4
+Gismondine 0.0 bsa 1e4
+Stilbite 0.0 bsa 1e4
+Boehmite 0.0 bsa 1e4
+Gibbsite 0.0 bsa 1e4
+Diaspore 0.0 bsa 1e4
+Alunite 0.0 bsa 1e6
+Muscovite 0.0 bsa 1e4
+Goethite 0.0 bsa 1e4
+Magnetite 0.0 bsa 1e4
+Montmor-Ca-pep 0.0 bsa 1e6
+Saponite-Ca 0.0 bsa 1e4
+Dawsonite 0.0 bsa 1e4
+CSH-083 0.0 bsa 1e4
+Belite-Mg 0.0 bsa 1e4
+Aluminate-Mg 0.0 bsa 1e4
+Alite-Mg 0.0 bsa 1e4
+Albite 0.0 bsa 1e4
+END
+
+INITIAL_CONDITIONS
+!!  NOTE:  1st condition above no longer assumed to be default.  Use the following form to initialize
+!!    first the whole domain to "initial_condition" and then the following specification (commented here)
+!!    to selectively initialize parts of the internal domain
+Input 1-30 1-1
+Rock  1-30 1-40
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   Rock  flux
+x_end     Rock  flux
+y_begin   Input flux
+y_end     Rock flux
+END
+ 
+TRANSPORT
+space_units meters
+time_units  seconds
+MeanDiffusion HarmonicMean
+fix_diffusion 2.5e-10         
+!tortuosity 1.0 zone 1-30 1-1 1-1 
+!tortuosity 0.01 zone 1-30 2-40 1-1
+cementation_exponent 2.0
+dispersivity 0.001 0.0 
+END
+
+FLOW
+space_units meters
+time_units  seconds
+calculate_flow true
+permeability_x 9.0e-17 default
+permeability_x 0.0 zone  0-0 1-40 1-1
+permeability_x 0.0 zone 31-31 1-40 1-1
+permeability_y 9.0e-17 default
+pressure 1.0e7 default
+pressure 1.0e7 zone 0-31 0-0 1-1 fix
+pressure 8.6e6 zone 0-31 41-41 1-1 fix
+gravity 90.0 90.0 90.0 up
+!infiltration 1.50e-6 Input x
+!!pump 2.78e-8 Fracture 1 1 1
+!read_VelocityFile vgaby
+END

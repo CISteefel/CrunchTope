@@ -1,0 +1,185 @@
+TITLE
+project1.in 
+END
+
+RUNTIME
+time_units      days
+timestep_max    0.1
+timestep_init   1.E-10
+debye-huckel    true
+database_sweep  false
+time_tolerance  0.01
+correction_max  2.0
+gimrt           true
+master_variable H+
+speciate_only   false
+database        datacom_plusU.dbs
+screen_output   100
+graphics        kaleidagraph 
+END
+
+OUTPUT
+time_units               days
+spatial_profile          365
+time_series_at_node      LizzyHurley1.out  1  1  1
+time_series_print        all
+time_series_interval      1
+END
+
+POROSITY
+fix_porosity     0.90
+porosity_update  false
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+
+INITIAL_CONDITIONS
+Solution2   1-100
+END
+
+BOUNDARY_CONDITIONS
+x_begin  solution1  flux
+x_end    solution2    flux
+END 
+
+FLOW
+time_units            year
+distance_units        meter
+constant_flow         0.1 
+END
+
+Condition Solution1 
+temperature          25.0
+pH         7.0
+UO2++      1.0e-08
+SiO2(aq)   1.0E-04
+Na+        0.01      
+Ca++       0.001          
+Cl-        charge         
+HCO3-      CO2(g)  0.000001
+Fe+++      1.0E-05
+O2(aq)     0.2
+
+!Site name     <site density mol/m**2>   
+>FeOH_weak       3.703704E-06  
+>FeOH_strong     9.259259E-08                 
+Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw water Fe(OH)3, 54 m**2 surface
+!!  Based on a density of 1017 kg/m**3, 1.017 g/cm**3
+!!    Volume Fraction Fe(OH)3 [m**3/m**3]*0.001*Molecular Weight Fe(OH)3/(Porosity*Molar Volume Fe(OH)3 [m**3/mole]) = g/L, but we want g/kg water, so g/L * (1/ro) = g/kgw
+SolidDensity     2600.0
+END
+
+Condition Solution2 
+temperature          25.0
+pH         7.0
+UO2++      1.0e-08
+SiO2(aq)   1.0E-04
+Na+        0.01      
+Ca++       0.001          
+Cl-        charge         
+HCO3-      CO2(g)  0.000001
+Fe+++      1.0E-05
+O2(aq)     0.2       
+!Site name     <site density mol/m**2>   
+>FeOH_weak       3.703704E-06  
+>FeOH_strong     9.259259E-08                 
+Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+END
+
+DISCRETIZATION 
+distance_units        meter
+xzones  100  1.0 
+END
+
+SURFACE_COMPLEXATION
+>FeOH_weak    on Fe(OH)3
+>FeOH_strong  on Fe(OH)3
+END 
+
+
+
+PRIMARY_SPECIES
+H+
+UO2++
+SiO2(aq)
+Na+        
+Ca++                
+Cl-                
+HCO3-
+Fe+++
+O2(aq)
+END
+
+SECONDARY_SPECIES
+CaUO2(CO3)3-2
+Ca2UO2(CO3)3(aq)
+UO2CO3(aq)
+UO2(CO3)2--
+UO2(CO3)3---- 
+UO2(CO3)3(5-)                
+(UO2)2CO3(OH)3-          
+(UO2)3(CO3)6(6-)                              
+(UO2)3CO3(OH)3+ 
+Fe++
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaOH+                                                                   
+Fe(OH)2(aq)                                                             
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)3-                                                                
+Fe(OH)4-                                                                
+Fe(OH)4--                                                                                                                           
+FeCl+                                                                   
+FeCl++                                                                  
+FeCl2(aq)                                                               
+FeCl2+                                                                  
+FeCl4-                                                                  
+FeCl4--                                                                 
+FeOH+                                                                   
+FeOH++                                                                  
+H2SiO4--                                                                                                                          
+HSiO3-                                                                                                                                 
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                                                                                         
+OH-                                                                     
+UO2OH+                                                                  
+UO2(OH)2(aq)                                                            
+UO2(OH)3-                                                               
+UO2(OH)4--                                                              
+(UO2)2OH+++                                                             
+(UO2)2(OH)2++                                                           
+(UO2)3(OH)4++                                                           
+(UO2)3(OH)5+                                                            
+(UO2)3(OH)7-                                                            
+(UO2)4(OH)7+                                                            
+UO2SiO(OH)3+                                                            
+UO2Cl+                                                                  
+UO2Cl2(aq)                                                              
+H2O2(aq)                                                                                                                                  
+H2(aq)                                                                                                                                  
+HO2-                                                                    
+U+++                                                                    
+U++++                                                                                                                                
+UO2+                                                                                                                                   
+UOH+++                                                                  
+U(OH)2++                                                                
+U(OH)3+                                                                 
+U(OH)4(aq)                                                              
+UCl+++                                                                  
+UCl2++  
+CO2(aq)
+CO3--
+CaCO3(aq)
+END
+
+MINERALS
+Fe(OH)3   -label  default   -rate -35.00
+END
+
+GASES
+O2(g)
+CO2(g)
+END

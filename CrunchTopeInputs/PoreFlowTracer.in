@@ -1,0 +1,97 @@
+TITLE
+Calcite micropore cylinder calculation
+END
+
+RUNTIME
+time_units      seconds
+timestep_max    0.01
+timestep_init   1.e-10
+time_tolerance  0.01
+coordinate      cylindrical
+correction_max  1.0
+debye-huckel    true
+database        datacom.dbs
+master          H+
+speciate_only   false
+database_sweep  false
+screen_output  10
+hindmarsh      false
+gimrt          true
+! read_saturation saturation.dat
+END
+
+OUTPUT
+time_units  seconds
+spatial_profile  1.0E-1 4.5E+1 5.0E+1
+time_series          vprofile-os3d.out  50 50 
+time_series_print     Tracer
+time_series_interval  10
+END
+
+PRIMARY_SPECIES
+Tracer
+END
+
+SECONDARY_SPECIES                                                                 
+END
+
+MINERALS
+END
+ 
+DISCRETIZATION
+distance_units  centimeters
+xzones  50 5.0E-4
+yzones  50 4.0E-3
+END
+ 
+Condition inlet
+units        mol/kg
+temperature      25.0
+Tracer   0.1
+END
+ 
+Condition pore
+units      mol/kg
+temperature      25.0
+Tracer  0.000001
+END
+
+
+INITIAL_CONDITIONS
+pore    1-50 1-50
+END
+
+BOUNDARY_CONDITIONS
+X_begin   pore Flux
+X_end     pore Flux
+Y_begin   inlet Flux
+Y_end     pore Flux
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units  seconds
+fix_diffusion         2.0E-05
+formation_factor      1.0  
+cementation_exponent  1.0
+dispersivity          0.0 0.0
+END
+ 
+POROSITY
+fix_porosity     1.0
+porosity_update  false
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+
+FLOW
+time_units      seconds     ! these units specify the units of the flow
+distance_units  centimeters ! velocity to be cm/s
+! calculate_flow  FALSE    
+! constant_flow   FALSE
+read_velocity   poreflow    
+END
+
+

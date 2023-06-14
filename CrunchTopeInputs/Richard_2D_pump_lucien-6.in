@@ -1,0 +1,247 @@
+TITLE 
+Richard_2D_tracer 
+END 
+
+RUNTIME 
+time_units       seconds 
+timestep_max     10000000 
+timestep_init    0.0001 
+time_tolerance   0.01 
+hindmarsh        false 
+correction_max   1 
+debye-huckel     yes 
+master           Tracer 
+database_sweep   no 
+speciate_only    no 
+gimrt            true 
+database         Datacom.dbs 
+screen_output    1000 
+solver           direct 
+END 
+
+OUTPUT    
+time_units               years    
+spatial_profile          0.0001  0.01  
+!!!0.1  0.5  1.0
+END 
+
+TRANSPORT 
+!!distance_units meters 
+!!time_units     seconds 
+!!fix_diffusion  1e-9 
+!!gas_diffusion  9E-06 
+!!MilligtonQuirk true 
+!!dispersivity   0.0 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+co_richards      2.0 
+calculate_flow  TRUE 
+!!PUMP 
+!!! Pump 0.001057 injection 1 2 1 
+!!!  Pump 0.001057 injection 2 3 1 
+!!!  Pump 0.001057 injection 3 4 1 
+!!!  Pump 0.001057 injection 4 5 1 
+!!!  Pump 0.001057 injection 5 6 1 
+!!!  Pump 0.001057 injection 6 7 1 
+!!!  Pump 0.001057 injection 7 8 1 
+!!!  Pump 0.001057 injection 8 9 1 
+!!!  Pump 0.001057 injection 9 10 1 
+!!!  Pump 0.001057 injection 10 11 1 
+!!!  Pump 0.001057 injection 11 12 1 
+!!!  Pump 0.001057 injection 12 13 1 
+!!!  Pump 0.001057 injection 13 14 1 
+!!!  Pump 0.001057 injection 14 15 1 
+!!!  Pump 0.001057 injection 15 16 1 
+!!!  Pump 0.001057 injection 16 17 1 
+!!!  Pump 0.001057 injection 17 18 1 
+!!!  Pump 0.001057 injection 18 19 1 
+
+!!PERMEABILITY 
+permeability_x 1e-12 default 
+permeability_y 1e-13 default 
+permeability_z 0 default 
+
+!!PERMEABILITY BOUNDARY 
+!!!permeability_x 0 zone 0-0 1-9 1-1 
+!!!permeability_x 0 zone 0-0 29-35 1-1 
+
+permeability_x 0 zone 0-0 1-35 1-1 
+!!!permeability_x 0 zone 19-19 1-35 1-1 
+
+!!!permeability_x 0 zone 19-19 1-18 1-1 
+!!!permeability_x 0 zone 19-19 29-35 1-1 
+
+permeability_y 0 zone 1-18 0-0 1-1 
+permeability_y 0 zone 1-18 36-36 1-1 
+
+upstream_weighting TRUE 
+!!RICHARD 
+ns_solve FALSE 
+Richards        TRUE 
+redistribute_wc TRUE 
+!!wc_init         0.05 
+watertable_init 10 
+y_is_vertical   TRUE 
+!!!!!!! VG parameters!!!!! 
+vangenuchten_alpha 7.5 
+vangenuchten_n  1.34 
+wc_residual     0.001 
+
+!!PRESSURE
+pressure  0    default 
+ pressure  0.0    zone 1-18 1-1 1-1 fix 
+ pressure  0.0    zone 2-18 2-2 1-1 fix 
+ pressure  0.0    zone 3-18 3-3 1-1 fix 
+ pressure  0.0    zone 4-18 4-4 1-1 fix 
+ pressure  0.0    zone 5-18 5-5 1-1 fix 
+ pressure  0.0    zone 6-18 6-6 1-1 fix 
+ pressure  0.0    zone 7-18 7-7 1-1 fix 
+ pressure  0.0    zone 8-18 8-8 1-1 fix 
+ pressure  0.0    zone 9-18 9-9 1-1 fix 
+ pressure  0.0    zone 10-18 10-10 1-1 fix 
+ pressure  0.0    zone 11-18 11-11 1-1 fix 
+ pressure  0.0    zone 12-18 12-12 1-1 fix 
+ pressure  0.0    zone 13-18 13-13 1-1 fix 
+ pressure  0.0    zone 14-18 14-14 1-1 fix 
+ pressure  0.0    zone 15-18 15-15 1-1 fix 
+ pressure  0.0    zone 16-18 16-16 1-1 fix 
+ pressure  0.0    zone 17-18 17-17 1-1 fix 
+ pressure  0.0    zone 18-18 18-18 1-1 fix 
+
+pressure 4905    zone 0-0 1-1 1-1 fix 
+pressure 9810    zone 0-0 2-2 1-1 fix 
+pressure 14715   zone 0-0 3-3 1-1 fix 
+pressure 19620   zone 0-0 4-4 1-1 fix 
+pressure 24525   zone 0-0 5-5 1-1 fix 
+pressure 29430   zone 0-0 6-6 1-1 fix 
+pressure 34335   zone 0-0 7-7 1-1 fix 
+pressure 39240   zone 0-0 8-8 1-1 fix 
+pressure 44145   zone 0-0 9-9 1-1 fix 
+pressure 49050   zone 0-0 10-10 1-1 fix 
+pressure 53955   zone 0-0 11-11 1-1 fix 
+pressure 58860   zone 0-0 12-12 1-1 fix 
+pressure 63765   zone 0-0 13-13 1-1 fix 
+pressure 68670   zone 0-0 14-14 1-1 fix 
+pressure 73575   zone 0-0 15-15 1-1 fix 
+pressure 78480   zone 0-0 16-16 1-1 fix 
+pressure 83385   zone 0-0 17-17 1-1 fix 
+pressure 88290   zone 0-0 18-18 1-1 fix 
+pressure 93195   zone 0-0 19-19 1-1 fix 
+pressure 98100   zone 0-0 20-20 1-1 fix 
+pressure 103005  zone 0-0 21-21 1-1 fix 
+pressure 107910  zone 0-0 22-22 1-1 fix 
+pressure 112815  zone 0-0 23-23 1-1 fix 
+pressure 117720  zone 0-0 24-24 1-1 fix 
+pressure 122625  zone 0-0 25-25 1-1 fix 
+pressure 127530  zone 0-0 26-26 1-1 fix 
+pressure 132435  zone 0-0 27-27 1-1 fix 
+pressure 137340  zone 0-0 28-28 1-1 fix 
+pressure 142245  zone 0-0 29-29 1-1 fix 
+pressure 147150  zone 0-0 30-30 1-1 fix 
+pressure 152055  zone 0-0 31-31 1-1 fix 
+pressure 156960  zone 0-0 32-32 1-1 fix 
+pressure 161865  zone 0-0 33-33 1-1 fix 
+pressure 166770  zone 0-0 34-34 1-1 fix 
+pressure 171675  zone 0-0 35-35 1-1 fix 
+
+pressure 4905   zone 19-19 20-20 1-1 fix
+pressure 9810   zone 19-19 21-21 1-1 fix
+pressure 14715  zone 19-19 22-22 1-1 fix
+pressure 19620  zone 19-19 23-23 1-1 fix
+pressure 24525  zone 19-19 24-24 1-1 fix
+pressure 29430  zone 19-19 25-25 1-1 fix
+pressure 34335  zone 19-19 26-26 1-1 fix
+pressure 39240  zone 19-19 27-27 1-1 fix
+pressure 44145  zone 19-19 28-28 1-1 fix
+pressure 49050  zone 19-19 29-29 1-1 fix
+pressure 53955  zone 19-19 30-30 1-1 fix
+pressure 58860  zone 19-19 31-31 1-1 fix
+pressure 63765  zone 19-19 32-32 1-1 fix
+pressure 68670  zone 19-19 33-33 1-1 fix
+pressure 73575  zone 19-19 34-34 1-1 fix
+pressure 78480  zone 19-19 35-35 1-1 fix
+
+END 
+
+BOUNDARY_CONDITIONS    
+!!!boundarycondition injection zone 0-0 1-35 1-1 
+!!!boundarycondition ambient zone 19-19 1-35 1-1 
+!!!boundarycondition ambient zone 1-18 0-0 1-1 
+!!!boundarycondition ambient zone 1-18 36-36 1-1 
+x_begin   injection     flux 
+x_end     ambient       flux 
+y_begin   injection     flux 
+y_end     ambient       flux 
+END 
+
+INITIAL_CONDITIONS    
+ ambient   1-18 1-35 1-1 
+ injection 1-18 1-1 1-1 fix 
+ injection 2-18 2-2 1-1 fix 
+ injection 3-18 3-3 1-1 fix 
+ injection 4-18 4-4 1-1 fix 
+ injection 5-18 5-5 1-1 fix 
+ injection 6-18 6-6 1-1 fix 
+ injection 7-18 7-7 1-1 fix 
+ injection 8-18 8-8 1-1 fix 
+ injection 9-18 9-9 1-1 fix 
+ injection 10-18 10-10 1-1 fix 
+ injection 11-18 11-11 1-1 fix 
+ injection 12-18 12-12 1-1 fix 
+ injection 13-18 13-13 1-1 fix 
+ injection 14-18 14-14 1-1 fix 
+ injection 15-18 15-15 1-1 fix 
+ injection 16-18 16-16 1-1 fix 
+ injection 17-18 17-17 1-1 fix 
+ injection 18-18 18-18 1-1 fix 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 18 1.00  
+yzones 35 0.5 
+zzones 1 1  
+END 
+
+Condition        injection    
+units            mol/kg 
+temperature      8 
+Tracer           0.1  
+pH               5.31  
+!!O2(aq) O2(g)   0.168  
+END 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+Condition        ambient    
+units            mol/kg 
+temperature      12.0 
+pH               7.24  
+Tracer           1e-25  
+!!O2(aq) 1e-25 
+END 
+
+POROSITY    
+fix_porosity     0.2    
+porosity_update false    
+END 
+
+PRIMARY_SPECIES 
+Tracer 
+H+ 
+!!O2(aq) 
+END 
+
+SECONDARY_SPECIES 
+OH-  
+END 
+
+!!GASES    
+!!O2(g)    
+!!END 
+
+TEMPERATURE    
+set_temperature  25.0    
+END 
+

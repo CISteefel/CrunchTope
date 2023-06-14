@@ -1,0 +1,114 @@
+TITLE
+END
+
+RUNTIME
+time_units       years
+timestep_max     0.010
+timestep_init    0.010
+time_tolerance   0.1
+correction_max   10.0
+debye-huckel     false
+master           Tracer
+database_sweep   false
+speciate_only    true
+gimrt            true
+graphics         tecplot
+database         datacom-HangSurfaceComplexation.dbs
+screen_output    1000
+END
+
+
+
+SURFACE_COMPLEXATION
+>SOH   on Kaolinite
+END
+
+
+ISOTOPES
+END
+
+Condition    HS
+units        ppm 
+set_porosity 0.5
+pH           7  
+Na+          4268
+K+           7237
+Mg++         23.2
+Ca++         301.6 
+Sr++         1e-10
+Cl-          charge
+!!!Cl-          13746
+SO4--        1e-10
+HCO3-        1e-10
+Al+++        1e-10 
+SiO2(aq)     1e-10
+Kaolinite    0.01  ssa  19.5 
+>SOH         2.4e-6
+! site density mol/m2
+END
+
+
+
+Condition    FW
+units        ppm 
+set_porosity 0.5
+pH           6.9 
+Na+          49898
+K+           1e-10
+Mg++         3248
+Ca++         14501 
+Sr++         1e-10
+Cl-          charge
+!!!Cl-          111812
+SO4--        234
+HCO3-        162
+Al+++        1e-10 
+SiO2(aq)     1e-10
+Kaolinite    0.01  ssa  19.5 
+>SOH         2.4e-6
+! site density mol/m2
+END
+
+MINERALS
+Kaolinite 
+END
+
+GASES
+END
+
+DISCRETIZATION 
+END
+ 
+INITIAL_CONDITIONS
+END
+
+BOUNDARY_CONDITIONS
+END
+
+TEMPERATURE
+END
+
+TRANSPORT
+END
+
+FLOW
+END
+
+PRIMARY_SPECIES
+H+
+Na+
+K+
+Mg++
+Ca++
+Sr++
+Cl-
+SO4--
+HCO3-
+Al+++
+SiO2(aq)
+END
+
+SECONDARY_SPECIES  
+END
+
+

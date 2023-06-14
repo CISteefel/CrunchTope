@@ -1,0 +1,175 @@
+TITLE
+Modeling As mobilization from FeAsS in a soil column
+END
+ 
+ 
+RUNTIME
+time_units           hours
+timestep_max         0.1
+timestep_init        0.00000001
+time_tolerance       0.001
+!solver              gmres
+!preconditioner      ilu
+!precondition_level  1
+lag_activity         true
+debye-huckel         true
+database_sweep       false
+speciate_only        false
+hindmarsh            true
+gimrt                true
+graphics             kaleidagraph
+screen_output        50
+database             datacom_FeAsS.dbs
+END
+ 
+OUTPUT
+time_units             hours
+spatial_profile        170
+time_series_at_node    FeAsSColumn_Evol.out  1 15 30 45 60
+time_series_print      H2AsO3-
+!H3AsO4(aq) H2AsO4- HAsO4-- AsO4--- As(OH)3(aq) 
+time_series_interval   1
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   influent         flux
+x_end     influent         flux
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units  hours
+fix_diffusion  0.0
+dispersivity   0.01
+END
+
+FLOW
+time_units       hours
+distance_units   centimeters
+constant_flow    1.0
+!!calculate_flow   true
+!!pump              0.49734      influent    1  1  1
+!!pump             -0.49734     influent    60  1  1
+END
+ 
+INITIAL_CONDITIONS
+influent 1-60
+END
+ 
+POROSITY
+fix_porosity     0.4
+porosity_update  false
+END
+ 
+
+ 
+DISCRETIZATION
+distance_units  centimeters
+xzones     60     1
+END
+ 
+Condition influent
+units            molar
+temperature      25.0
+pH               7.0
+HCO3-            CO2(g)  3.15e-04
+O2(aq)           O2(g)   0.21
+NO3-             0.01
+Na+              0.01
+H2AsO3-          0.000
+Fe++             0.000
+SO4--            0.000
+Ca++             0.000
+Mg++             0.000
+SiO2(aq)         Quartz
+Dolomite         0.047   bulk_surface_area  100.0
+Quartz           0.903   bulk_surface_area  100.0
+Calcite          0.049   bulk_surface_area  100.0
+Arsenopyrite     0.001   bulk_surface_area  100.0
+Ferrihydrite     0.000   bulk_surface_area  1000.0
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+Na+
+H+
+HCO3-
+NO3-
+O2(aq)
+H2AsO3-
+Fe++
+SO4--
+Ca++
+Mg++
+SiO2(aq)
+END
+ 
+SECONDARY_SPECIES
+As(OH)3(aq)                                                                                                                           
+CO2(aq)                                                                 
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                                                                             
+CaNO3+                                                                  
+MgNO3+                                                                  
+CaOH+                                                                   
+CaSO4(aq)                                                               
+Fe(OH)2(aq)                                                             
+Fe(OH)3-                                                                
+Fe(OH)4--                                                               
+FeCO3(aq)                                                               
+FeHCO3+                                                                 
+FeOH+                                                                   
+FeSO4(aq)                                                               
+H2SO4(aq)                                                                                                                                                                                    
+HNO3(aq)                                                                
+HSO4-                                                                                                                                 
+Mg4(OH)4++++                                                            
+MgCO3(aq)                                                               
+MgHCO3+                                                                 
+MgSO4(aq)                                                               
+NaCO3-                                                                  
+NaHCO3(aq)                                                                                                                          
+NaOH(aq)                                                                
+NaSO4-                                                                  
+OH-                                                                     
+NaNO3(aq)                                                                                                                                                                                                                                                                                                                         
+Fe+++                                                                                                                                    
+H2AsO4-                                                                                                                                                                                                  
+SO3--                                                                                                                                                                                             
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)4-                                                                
+Fe(SO4)2-                                                                                                                             
+FeCO3+                                                                  
+FeNO3++                                                                 
+FeOH++                                                                  
+FeSO4+                                                                  
+H2SO3(aq)                                                               
+H3AsO4(aq)                                                             
+HAsO2(aq)                                                               
+HAsO4--  
+AsO4---                                                                                                                               
+HSO3- 
+HS-
+AsH3(aq)       
+END
+ 
+GASES
+CO2(g)
+O2(g)
+H2(g)
+END
+ 
+MINERALS
+Quartz        -label   default   -rate         -13.39  
+Quartz        -label   pH        -rate         -14.30
+Calcite       -label   default   -rate         -8.35
+Ferrihydrite  -label   default   -rate         -5.30
+Dolomite      -label   default   -rate         -16.70
+Arsenopyrite  -label   default   -activation   2.581
+Goethite
+END

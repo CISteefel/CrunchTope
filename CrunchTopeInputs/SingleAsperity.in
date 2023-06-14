@@ -1,0 +1,130 @@
+TITLE
+BES single asperity problem
+END
+
+DATABASE
+datacom.dbs
+END
+
+RUNTIME
+time_units          years
+timestep_max        0.0001
+timestep_init       1.e-12
+corrmax             2.0
+time_tolerance      0.005
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master_variable     SiO2(aq)
+screen_output       50
+nmm                 true
+END
+
+OUTPUT
+time_units               years
+spatial_profile_at_time  0.00001  0.0001 0.001 0.01 0.1 1.0
+time_series_at_node      silicaFreeFace.out  1  1
+time_series_at_node      silicaThinFilm.out  20  20
+time_series_print        SiO2(aq)
+time_series_interval     1  
+END
+
+POROSITY
+porosity_update  false
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+SiO2(aq)
+END
+
+SECONDARY_SPECIES
+END
+
+MINERALS
+Quartz           -label default  -rate  -7.00
+StressedQuartz   -label default  -rate  -35.50
+END
+
+GASES
+END
+
+DISCRETIZATION 
+distance_units   microns
+xzones  40   0.2
+yzones  60   0.2
+ExportGridLocations  true
+END
+
+INITIAL_CONDITIONS
+porezone    1-40  1-60   1-1
+mineralzone 1-40  1-25    1-1
+!!!porezone    1-40  25-25   1-1
+!!!stressedmineralzone 16-25 26-26   1-1
+!!!mineralzone 16-25 26-26   1-1
+porezone 16-25 26-26   1-1
+mineralzone 15-26 27-27   1-1
+mineralzone 14-27 28-29   1-1
+mineralzone 13-28 30-31   1-1
+mineralzone 12-29 32-33   1-1
+mineralzone 11-30 34-35   1-1
+mineralzone 10-31 36-37   1-1
+mineralzone  9-32 38-39   1-1
+mineralzone  8-33 40-41   1-1
+mineralzone  7-34 42-43   1-1
+mineralzone  6-35 44-45   1-1
+mineralzone  1-40 46-60   1-1
+END
+ 
+Condition   mineralzone
+temperature     25.0
+units           mol/kg
+SiO2(aq)        Quartz
+Quartz          0.99   ssa 0.01
+StressedQuartz   0.00  ssa 0.01
+END
+
+Condition   stressedmineralzone
+temperature     25.0
+units           mol/kg
+SiO2(aq)        0.0001
+Quartz          0.00   bsa 1.0
+StressedQuartz  0.40   ssa  0.01
+END
+
+Condition   porezone    
+temperature     25.0
+units           mol/kg
+SiO2(aq)        Quartz
+Quartz           0.00  ssa 0.01
+StressedQuartz   0.00  ssa 0.01
+END
+
+BOUNDARY_CONDITIONS
+X_begin   porezone  Flux 
+X_end     porezone  Flux 
+Y_begin   porezone  Flux 
+Y_end     porezone  Flux 
+END
+
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  2.0
+fix_diffusion         1.0E-11
+dispersivity          0.0  0.0 
+END
+
+FLOW
+time_units          years
+calculate_flow      false
+constant_flow       0.0  0.0
+END
+
+

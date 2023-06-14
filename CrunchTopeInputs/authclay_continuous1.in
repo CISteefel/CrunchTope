@@ -1,0 +1,213 @@
+TITLE
+Generic sedim column with clay authigenesis with burial
+END
+
+RUNTIME
+time_units         years
+timestep_max       100.0
+timestep_init      1.0e-05
+time_tolerance     0.0005
+hindmarsh          true
+correction_max     2.0
+gimrt              true
+master             H+
+database           datacom_msf-Li.dbs
+speciate_only      false
+screen_output      1000
+save_restart       authclaycontinuous1.rst
+!!later_inputfiles   authclay_<name>2.in authclay_<name>3.in authclay_<name>4.in
+END
+
+OUTPUT
+time_units            years
+spatial_profile      0.5e06 1e06 2e06 8.0E6 
+time_series           timeseriesZ1_30Ma.txt  1
+time_series           timeseriesZ5_30Ma.txt  5
+time_series           timeseriesZ10_30Ma.txt  10
+time_series           timeseriesZ100_30Ma.txt  100
+time_series_print     Li7+ Li6+ SiO2(aq) pH
+time_series_interval  1
+END
+
+TRANSPORT
+distance_units     centimeters
+time_units         second
+dispersivity       0.0
+cementation_exponent    1.0
+!!formation_factor   1.0
+!!fix_diffusion      0.9
+calculate_diffusion 6.0e-06
+D_25     Cl-        1.3980e-05
+D_25     SO4--      7.2000e-06
+D_25     Li7+       6.8400e-06
+D_25     Li6+       6.8522e-06
+D_25     Na+        9.0300e-06
+D_25     Mg++       4.8700e-06
+D_25     Ca++       5.3900e-06
+D_25     SiO2(aq)   0.65e-05
+D_25     H+         6.9950e-05
+D_25     HCO3-      7.8100e-06
+D_25     CO3--      6.3200e-06
+D_25     CO2(aq)    1.25545e-05
+D_25     OH-        3.6840e-05
+!!D_25     K+         1.3640e-05
+!!diffusion coefficients at 10degC
+END
+
+EROSION/BURIAL
+distance_units     meters
+time_units         years
+!!!erode_x            25e-06
+!! default: 20 m/Ma --> 20e-06
+END
+
+!FLOW
+!distance_units   centimeters
+!time_units       year
+!constant_flow    3.0e-2
+!END
+
+TEMPERATURE
+set_temperature   25
+END
+
+DISCRETIZATION
+distance_units    meters
+xzones            1000 0.10    150 1.0
+END
+
+INITIAL_CONDITIONS
+unreactive       1-1150
+END
+
+BOUNDARY_CONDITIONS
+x_begin   reactive      Dirichlet
+x_end     unreactive    Dirichlet
+END
+
+
+
+MINERALS
+!Calcite6Li -label default    -rate -7.0
+!Calcite7Li -label default    -rate -7.0
+Hectorite-7Li   -label default   -rate -25.0061230850588
+Hectorite-6Li   -label default   -rate -25.00
+Calcite    -label H+        -rate -2.00
+Calcite    -label CO2       -rate -5.25
+Calcite    -label default   -rate -8.14
+SiO2(am)-Li     -label default   -rate -15.50
+!!Hectorite-7Li   -label default   -rate -32.0061230850588
+!!Hectorite-6Li   -label default   -rate -32.00
+!! slow diss rate down, increase Li conc in pf!! not sure why...must slow clay precip rate
+!! bsa basecases: -8.8 50-100 mbsf/-9.0 350-400 mbsf/-8.665 25-75 mbsf/ -# 5-55 mbsf
+!! Burial @ 20 m/Ma scenario: -9.0 SiO2/-25.75 clay
+END
+
+CONDITION seawater
+units       mmol/kg
+temperature 25.0
+pH          7.5
+Li7+        24.0825e-03
+Li6+        1.9175e-03
+Cl-         charge
+SO4--       28
+Na+         469
+Mg++        53
+Ca++        10
+!!K+          10
+SiO2(aq)    0.15
+HCO3-       1.4381
+!!HCO3-       1.44814543
+Calcite          0.252
+SiO2(am)-Li      0.098             specific_surface_area   1e-10
+Hectorite-6Li    0.000001          specific_surface_area   1e-10
+Hectorite-7Li    0.00001217523     specific_surface_area   1e-10
+!!26 uM Li; d7Li of 31 per mil
+END
+
+CONDITION   unreactive
+units       mmol/kg
+temperature 25.0
+pH          7.5
+!!!Li7+        24.0825e-03
+!!!Li6+        1.9175e-03
+Li7+        24.0825e-10
+Li6+        1.9175e-10
+!!!Li7+           Hectorite-7Li
+!!!Li6+           Hectorite-6Li
+Cl-         charge
+SO4--       28
+Na+         469
+Mg++        53
+Ca++        10
+!!K+          10
+SiO2(aq)    0.15
+HCO3-       1.4381
+!!HCO3-       1.44814543
+Calcite          0.252
+SiO2(am)-Li      0.098             specific_surface_area   1e-10
+Hectorite-6Li    0.000001          specific_surface_area   1e-10
+Hectorite-7Li    0.00001217523     specific_surface_area   1e-10
+END
+
+CONDITION   reactive
+units       mmol/kg
+temperature 25.0
+pH          7.5
+!!!Li7+        24.0825e-03
+!!!Li6+        1.9175e-03
+Li7+        24.0825e-10
+Li6+        1.9175e-10
+!!!Li7+           Hectorite-7Li
+!!!Li6+           Hectorite-6Li
+Cl-         charge
+SO4--       28
+Na+         469
+Mg++        53
+Ca++        10
+!!K+          10
+SiO2(aq)    0.15
+HCO3-       1.4381
+!!HCO3-       1.44814543
+Calcite          0.252
+SiO2(am)-Li      0.098             specific_surface_area   1e-02
+Hectorite-6Li    0.000001          specific_surface_area   1e-02
+Hectorite-7Li    0.00001217523     specific_surface_area   1e-02
+END
+
+POROSITY
+porosity_update    true
+END
+
+EROSION/BURIAL
+distance_units     meters
+time_units         years
+erode_x            25e-06
+!! default: 20 m/Ma --> 20e-06
+END
+
+PRIMARY_SPECIES
+H+
+Li6+
+Li7+
+Na+
+Mg++
+Ca++
+Cl-
+HCO3-
+SO4--
+SiO2(aq)
+!!K+
+END
+
+SECONDARY_SPECIES
+CO3--
+CO2(aq)
+OH-
+END
+
+ISOTOPES
+primary   Li6+             Li7+            0.08213397
+mineral   Hectorite-6Li    Hectorite-7Li   none
+END
+

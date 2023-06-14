@@ -1,0 +1,98 @@
+TITLE
+Streamtube test
+END
+
+RUNTIME
+time_units      years
+timestep_max    0.01
+timestep_init   0.0000000001
+time_tolerance  0.001
+correction_max  1.0
+debye-huckel    false
+database        datacom.dbs
+master          Tracer
+speciate_only   true
+database_sweep  false
+screen_output   100
+hindmarsh       true
+gimrt           true
+END
+
+OUTPUT
+time_units  years
+spatial_profile        0.0000000001 5.0
+END
+
+DISCRETIZATION
+distance_units  meters
+xzones   1  1.0
+END
+
+Condition initial
+units      mol/kg
+temperature      25.0
+Cl-             charge
+Fe++      4.66E-07  
+Fe+++     1.58E-07 	
+set_porosity    1.00
+END
+
+INITIAL_CONDITIONS
+initial     1-1  1-1 1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin   initial Flux
+X_end     initial Flux
+END
+
+POROSITY
+set_porosity    1.0
+porosity_update  false
+END
+
+TEMPERATURE
+set_temperature  25.0
+RunIsothermal   true
+END
+
+!!!FLOW
+time_units      years
+distance_units  meters
+calculate_flow  FALSE
+ns_solve        FALSE
+Richards        FALSE
+constant_flow   0.00001
+END
+
+!TRANSPORT
+!time_units       years
+!distance_units   meters
+!fix_diffusion 2.0E-9
+!dispersivity 0.1
+!END
+
+!!! Geochemistry
+
+MINERALS
+END 
+
+GASES
+END
+
+AQUEOUS_KINETICS
+END
+
+PRIMARY_SPECIES
+Cl-
+Fe++
+Fe+++
+END
+
+SECONDARY_SPECIES
+FeCl+
+FeCl++
+FeCl2(aq)
+END
+
+

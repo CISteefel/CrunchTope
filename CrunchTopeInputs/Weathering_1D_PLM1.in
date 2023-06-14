@@ -1,0 +1,223 @@
+TITLE 
+ShortCourse1_lucien.in:  Short course carbonate speciation 
+END 
+
+RUNTIME 
+time_units       years 
+timestep_max     0.1 
+timestep_init    1e-12
+time_tolerance   0.002 
+ResidualTolerance   1.0E-08 
+hindmarsh        true 
+correction_max   10 
+debye-huckel     yes 
+master           O2(aq) 
+model_spinup     yes 
+database_sweep   no 
+speciate_only    false 
+gimrt            true 
+database         Thermoddem_2017_PLM1_5.dbs 
+read_saturationFile   watsat_median_PLM1_dis10cm_lowsat_Nov22.dat  FullForm 
+screen_output    10 
+END 
+
+OUTPUT 
+time_units years 
+spatial_profile 30   
+END 
+
+MINERALS 
+Quartz   -label default     
+DolomiteO  -label alkattanneut_2 
+DolomiteO  -label alkattanh+_2 
+DolomiteO  -label alkattanco2_2 
+Pyrite_ox  -label oxygen 
+Pyrite_fer  -label ferric -associate Pyrite_ox -rate -9.5 
+Goethite  -label default 
+Calcite  -label alkattanneut 
+Calcite  -label alkattanh+ 
+Calcite  -label alkattanco2 
+Albite(low)  -label default 
+Albite(low)  -label h+ 
+Albite(low)  -label oh- 
+Chlorite_phreeqc  -label h+_palandri 
+Chlorite_phreeqc  -label default_palandri 
+Illite(FeII)_godderis  -label default_godderis 
+Illite(FeII)_godderis  -label h_godderis 
+Illite(FeII)_godderis  -label oh_godderis 
+TOC_soil  -label release3 
+Kerogene  -label release3 
+C5H7O2N(s) -label  default -rate  -99999999 -biomass
+END 
+
+AQUEOUS_KINETICS 
+Aerobic_respiration6 -pathway Aerobic_respiration6 1  -pathway Biomass_heterotroph_litter  0   
+!!Feox  
+END 
+
+TRANSPORT 
+distance_units meters 
+time_units     seconds 
+fix_diffusion  1e-9 
+gas_diffusion  2.14E-05 
+MilligtonQuirk true 
+dispersivity   0.1 0 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+constant_flow    0.25 
+END 
+
+BOUNDARY_CONDITIONS    
+boundarycondition   injection  zone 0-0 1-1 1-1  flux 
+boundarycondition   ambient1  zone 101-101 1-1  1-1  flux 
+END 
+
+INITIAL_CONDITIONS    
+ambient1 1-100 1-1 1-1 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 100 0.1 1 
+END 
+
+Condition        injection    
+units            mol/kg 
+temperature      6 
+pH 5.31  
+O2(aq) O2(g)   0.168  
+HCO3-  CO2(g)   1.67e-04 
+N2(aq) N2(g) 6.24e-01 
+Na+ charge  
+Cl-  8.39e-06 
+Mg++     5.36e-07 
+Ca++     2.80e-06 
+Na+      3.17e-04 
+H4SiO4(aq) 1e-10 
+Fe++     1e-10 
+Fe+++    1e-10 
+SO4--    2.48e-06 
+Al+++    1e-10 
+K+       3.59e-07 
+NO3-     7.66e-5 
+NH4+     1.00e-09 
+NO2-     1e-10 
+N2O(aq)  1e-10 
+Al+++    1e-10 
+C5H7O2N(aq)    1e-10 
+(CH2O)(NH3)0.079(aq)   1e-10  
+(CH2O)(NH3)0.087(aq)b   1e-10  
+END 
+
+Condition ambient1    
+units            mol/kg 
+pH 7.24   
+Ca++ 1.28e-03  
+Mg++ 9.19e-04  
+HCO3- 5.01e-03  
+H4SiO4(aq) 2.1e-04 
+Na+ charge 
+Al+++ 1.13e-6 
+Fe++ 9.7e-5 
+Fe+++ 1e-9 
+K+ 4.95e-5 
+Cl- 3.43e-5 
+SO4-- 7.76e-4 
+O2(aq) 1e-10 
+NO3- 8.16e-7  
+NO2- 1e-8  
+NH4+ 1e-8 
+N2(aq) 1e-10  
+N2O(aq) 1e-10  
+C5H7O2N(aq)    1e-10 
+(CH2O)(NH3)0.079(aq)   1e-10 
+(CH2O)(NH3)0.087(aq)b 1e-10 
+Goethite 0.0024 ssa 60 
+Pyrite_ox 0.0001 bsa 1.8 
+DolomiteO 1e-9 bsa 0 
+Quartz 0.2532 bsa 155.2 
+Calcite 0 specific_surface_area 2 0.0001 
+Albite(low) 0.0416 bsa 254.4 
+Chlorite_phreeqc 0.0263 bsa 2198.2 
+Illite(FeII)_godderis 0.1877 bsa 518260.5 
+Kerogene 0.001 bsa 1 
+TOC_soil 0.0877 bsa 230.9 
+!!! Biomass in units of mol/kg water
+C5H7O2N(s) 1e-7 
+END 
+
+
+POROSITY    
+update_porosity FALSE    
+END 
+
+PRIMARY_SPECIES 
+H+ 
+O2(aq) 
+Ca++ 
+Mg++ 
+HCO3- 
+H4SiO4(aq) 
+Cl- 
+Na+ 
+Fe++ 
+Fe+++ 
+SO4-- 
+Al+++ 
+K+ 
+NO3- 
+NH4+ 
+NO2- 
+N2O(aq) 
+N2(aq) 
+(CH2O)(NH3)0.079(aq) 
+(CH2O)(NH3)0.087(aq)b 
+C5H7O2N(aq) 
+END 
+
+SECONDARY_SPECIES 
+OH- 
+CO3-- 
+CO2(aq) 
+MgHCO3+ 
+MgOH+ 
+MgCO3(aq)  
+MgSO4(aq)   
+CaOH+   
+CaHCO3+   
+CaCO3(aq)   
+CaSO4(aq)   
+NaHCO3(aq)   
+NaCO3-   
+NaOH(aq)   
+NaSO4-   
+Al(OH)2+   
+AlOH++   
+AlSO4+  
+FeCO3(aq)  
+FeOH+  
+FeCl+  
+FeSO4(aq)  
+FeOH++  
+FeCl++  
+FeSO4+  
+END 
+
+
+
+GASES    
+CO2(g)    
+O2(g)    
+N2(g)    
+NH3(g)    
+N2O(g)    
+END 
+
+TEMPERATURE    
+!!Read_TemperatureFile  temperature_gradient_dis20cm.dat FullForm   
+set_temperature  5.3   
+temperature_gradient  0.14625   
+END 
+

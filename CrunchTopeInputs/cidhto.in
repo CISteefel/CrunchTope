@@ -1,0 +1,137 @@
+TITLE
+CI-D: HTO
+END
+ 
+DATABASE
+dcpep.dbs
+END
+ 
+RUNTIME
+!!  Output files will be in same time units
+time_units          days
+timestep_max        1.0
+timestep_init       1.0e-8
+time_tolerance      0.001
+lag_activity        on
+debye-huckel        off
+database_sweep      off
+speciate_only       off
+hindmarsh           off
+gimrt               off
+modflow             off
+screen_output 50
+coordinates rectangular
+END
+ 
+OUTPUT
+time_units         days
+spatial_profile    182.5 365.0 730.0 1095.0
+time_series        hole.out 46 46 5
+!!  "all" writes all total concentrations, pH, and then all species concentrations
+!!  Total concentrations in molality, species in log molality
+!!  Listing of primary species will give total concentrations for that species only
+time_series_print  trac
+END
+ 
+POROSITY
+fix_porosity      0.15
+!porosity_update   true
+END
+ 
+TEMPERATURE
+!!read_temperature   filename
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+trac
+END
+ 
+SECONDARY_SPECIES
+END
+
+MINERALS
+END
+
+DISCRETIZATION
+space_units meters
+!!  May be continued on next line using an "&" at the end of the preceding line
+xzones  3 0.12  3 0.09  3 0.06  3 0.03  10 0.01 &
+20 0.0046  4 0.023  4 0.023  20 0.0046 &
+10 0.01  3 0.03  3 0.06  3 0.09  3 0.12
+! OPA
+! Borehole
+! OPA
+yzones  3 0.12  3 0.09  3 0.06  3 0.03  10 0.01 &
+20 0.0046  4 0.023  4 0.023  20 0.0046 &
+10 0.01  3 0.03  3 0.06  3 0.09  3 0.12
+zzones  4 0.01  1 0.01  4 0.01
+END
+ 
+CONDITION rock
+units            mol/kg
+temperature      25.0
+set_porosity     0.15
+trac             1.0e-12
+END
+
+CONDITION borehole
+units            mol/kg
+temperature      25.0
+set_porosity     2.03
+trac             1.0e-3
+END
+
+CONDITION concrete
+units            mol/kg
+temperature      25.0
+set_porosity     0.263
+trac             1.0e-12
+END
+
+!CONDITION packer
+!units            mol/kg
+!temperature      25.0
+!set_porosity     0.001
+!trac             1.0e-15
+!END
+
+INITIAL_CONDITIONS
+!!  NOTE:  1st condition above no longer assumed to be default.  Use the following form to initialize
+!!    first the whole domain to "initial_condition" and then the following specification (commented here)
+!!    to selectively initialize parts of the internal domain
+rock         1-92 1-92 1-9
+concrete    23-70 23-70 1-9
+borehole    43-50 43-50 5-5
+!packer      1-8  31-70
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   rock      flux
+x_end     rock      flux
+y_begin   rock      flux
+y_end     rock      flux
+z_begin   rock      flux
+z_end     rock      flux
+END
+ 
+TRANSPORT
+space_units meters
+time_units  seconds
+fix_diffusion  1.0e-9
+MeanDiffusion HarmonicMean
+tortuosity 0.2733 default
+tortuosity 0.544 zone 23-70 23-70 1-9
+tortuosity 492.61 zone 43-50 43-50 5-5
+!tortuosity 0.01 zone 1-8 31-70 1-1
+!De(rock)=4.1e-11 m2/s
+!De(concrete)=1.43e-10 m2/s
+!De(borehole)=1.0e-6 m2/s
+!De(packer)=1.0e-14 m2/s
+END
+
+FLOW
+time_units  years
+calculate_flow      false
+constant_flow    0.0  0.0  0.0
+END

@@ -1,0 +1,242 @@
+TITLE 
+NagaokaCore.in
+END
+
+RUNTIME
+time_units      hours
+database        Liz.dbs
+database_sweep  false
+gimrt           true
+timestep_init   1E-9
+screen_output   100
+speciate_only   false
+timestep_max    1.0
+fix_saturation  1.00
+duan            true
+END
+
+OUTPUT
+time_units   hours
+spatial_profile  10000.0
+!!1200.0
+!!684.8
+!!3.2 99.2 195.2 291.2 387.2 483.2 579.2 675.2 
+time_series       CoreEffluent.out  100
+time_series_print Tracer Al+++ Ca++ Fe++ Mg++ SiO2(aq)
+time_series_interval  100
+END
+
+
+
+MINERALS
+!!SmectiteMg26    -label Liz      -rate  -11.638
+!!  From Amran and Ganor, 2005:  Based on a value of -11.2 mol/g/s, so corrected by a factor of 162 here.
+!!SmectiteMg26    -label Liz      -rate  -13.06
+!! Tuned below
+SmectiteMg26    -label Liz-pH      -rate  -10.90
+Quartz          -label Liz      -rate  -9.8
+!!PlagAb75An25    -label Liz      -rate  -10.1563
+PlagAb75An25    -label Liz-pH      -rate  -7.62
+Albite          -label Liz-pH      -rate  -9.18
+!!  From Carroll and Knauss, 2005 at pH 3.2 and 53C
+PlagAb35An65    -label Liz-pH      -rate  -7.22
+K-Feldspar      -label Liz-pH      -rate  -9.40
+!!PyroEn60Fe40    -label Liz      -rate  -9.839
+!!  Based on diopside from Knauss, 1993
+!!PyroEn60Fe40    -label Liz      -rate  -9.70
+!! Based on Oelkers and Schott, 2001
+PyroEn60Fe40    -label Liz-pH      -rate  -7.72
+!!  Where is this number from??
+!!PyroEn38Fe16    -label Liz      -rate  -7.3178
+!!Based on Oelkers and Schott, 2001
+!!PyroEn38Fe16    -label Liz      -rate  -9.22
+!! Tuned below
+PyroEn38Fe16    -label Liz-pH      -rate  -7.10
+BiotiteNagaoka  -label Liz-pH      -rate  -9.24
+ChloriteNagaoka         -label Liz-pH      -rate  -9.24
+SerpentineNagaoka       -label Liz-pH      -rate  -9.24
+!!!!!!!!!!Amphibole        -label Liz      -rate  -9.22
+
+Calcite         -label default  -rate  -6.500
+Magnesite       -label default  -rate  -8.500
+SiO2(am)        -label default  -rate  -8.000
+END
+
+Condition co2brine
+temperature        50.0
+set_porosity       0.99
+pH                 charge
+CO2(aq)            CO2(g)  97.0
+Mg++               1.0E-10
+SO4--              1E-10
+Na+                0.1
+Cl-                0.1
+SiO2(aq)           1.0E-10
+Fe++               1.0E-10
+Ca++               1.0E-10
+O2(aq)             1.0E-10
+Al+++              1.0E-10
+K+                 1.0E-10
+Tracer             1.00
+Quartz                  0.000347673E-20  specific_surface_area      0.001       
+Albite                  5.28064E-13      specific_surface_area      0.001     
+PlagAb75An25            2.60221E-30      specific_surface_area      0.001
+PlagAb35An65            0.000203591E-30  specific_surface_area      0.001
+K-Feldspar              0.000174219E-30  specific_surface_area      0.001
+PyroEn60Fe40            4.23078E-30      specific_surface_area      0.001 
+PyroEn38Fe16            2.46878E-30      specific_surface_area      0.001     
+SmectiteMg26            0.000205532E-30  specific_surface_area      0.001
+!solid_density      2.7
+END
+ 
+Condition core
+temperature        50.0
+set_porosity       0.40
+pH                 charge
+CO2(aq)            CO2(g)    90.0
+Mg++               1.0E-30
+Na+                0.1
+Cl-                0.1
+SO4--              1E-30
+SiO2(aq)           1.0E-30
+Fe++               1.0E-30
+Ca++               1.0E-30
+O2(aq)             1.0E-30
+Al+++              1.0E-30
+K+                 1.0E-30
+Tracer             1.0E-30
+Albite                 3.6780E-02   specific_surface_area      1.06E-02
+!!Albite                   3.6780E-03   specific_surface_area      0.0288
+PlagAb75An25           1.8124E-02    specific_surface_area      1.06E-02
+!!PlagAb75An25           1.8124E-03  specific_surface_area      0.0288
+K-Feldspar             1.2134E-01     specific_surface_area      4.98E-03
+!!K-Feldspar             1.2134E-01    specific_surface_area      0.0401
+Quartz                 2.4215E-01    specific_surface_area      9.95E-03
+!!Quartz                 2.4215E-01  specific_surface_area      0.0237
+PlagAb35An65           1.4180E-01    specific_surface_area      1.06E-02
+!!PlagAb35An65           1.4180E-01  specific_surface_area      0.0288
+PyroEn60Fe40           2.9467E-02    specific_surface_area      8.06E-03
+!!PyroEn60Fe40           2.9467E-02  specific_surface_area      0.0528
+!!PyroEn60Fe40           2.9467E-02  specific_surface_area      0.0100
+PyroEn38Fe16           1.7195E-02    specific_surface_area      8.06E-03
+!!PyroEn38Fe16           1.7195E-02  specific_surface_area      0.0528
+PyroEn38Fe16           1.7195E-02    specific_surface_area      0.0100
+!!SmectiteMg26           1.4315E-01  specific_surface_area      75.0
+!!SmectiteMg26           1.4315E-01  specific_surface_area      162.50
+SmectiteMg26           1.4315E-01  specific_surface_area      9.23
+Calcite                0.00         specific_surface_area     0.1   0.01
+Magnesite              0.00         specific_surface_area     0.1   0.01
+SiO2(am)              0.00         specific_surface_area     0.1   0.01
+solid_density      2.7 
+END
+
+INITIAL_CONDITIONS
+core       1-100  1-1  1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin     co2brine   flux
+X_end       core       flux
+END
+
+TEMPERATURE
+set_temperature      50.0
+END
+
+TRANSPORT
+distance_units  meters
+time_units      seconds
+fix_diffusion   1.e-10
+tortuosity      1.0 default
+dispersivity    0.0 0.0
+END
+
+POROSITY
+porosity_update  false
+END
+
+FLOW
+distance_units    centimeters
+time_units        minutes
+!!constant_flow     0.00078941
+constant_flow     0.002037243
+END
+
+DISCRETIZATION
+space_units   millimeter
+xzones        100  0.16
+END
+
+PRIMARY_SPECIES
+CO2(aq)
+Ca++
+Mg++
+Fe++
+SO4--
+Na+
+Cl-
+SiO2(aq)
+K+
+Al+++
+H+
+Tracer
+END
+
+SECONDARY_SPECIES
+Al(OH)2+                                                                
+!!Al(SO4)2-                                                               
+!!Al13O4(OH)24(7+)                                                        
+!!Al2(OH)2++++                                                            
+!!Al3(OH)4(5+)                                                            
+AlO2-                                                                   
+AlOH++                                                                  
+!!AlSO4+                                                                  
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+!!CaOH+                                                                   
+CaSO4(aq)                                                               
+!!Fe(OH)2(aq)                                                             
+!!Fe(OH)3-                                                                
+!!Fe(OH)4--                                                               
+FeCl+                                                                   
+FeCl2(aq)                                                               
+FeCl4--                                                                 
+!!FeOH+                                                                   
+!!FeSO4(aq)                                                               
+!!H2SO4(aq)                                                               
+!!H2SiO4--                                                                
+!!H4(H2SiO4)4----                                                         
+!!H6(H2SiO4)4--                                                           
+HAlO2(aq)                                                               
+HCl(aq)                                                                 
+HSO4-                                                                   
+HSiO3-                                                                  
+KCl(aq)                                                                 
+KHSO4(aq)                                                               
+!!KOH(aq)                                                                 
+KSO4-                                                                   
+!!Mg4(OH)4++++                                                            
+MgCl+                                                                   
+MgSO4(aq)                                                               
+NaAlO2(aq)                                                              
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+!!NaSO4-                                                                  
+OH-                                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+!!FeCO3(aq)                                                               
+!!FeHCO3+                                                                 
+MgCO3(aq)                                                               
+MgHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)   
+END
+
+GASES
+CO2(g)
+!O2(g)
+END

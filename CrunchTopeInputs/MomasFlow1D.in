@@ -1,0 +1,163 @@
+TITLE
+MOMAS Benchmark Problem:  1D
+END
+
+DATABASE
+datacomMOMAS.dbs
+END
+
+RUNTIME
+!!coordinates       rectangular
+correction_max      2.0
+database_sweep      false
+debye-huckel        false
+gimrt               false
+graphics            kaleidagraph
+hindmarsh           true
+lag_activity        true
+master_variable     X3
+solver              gmres
+preconditioner      ilu
+precondition_level  2
+gimrt_solver        gmres
+gimrt_pc            bjacobi
+gimrt_pclevel       0
+speciate_only       false
+time_units          years
+timestep_max        10.0
+timestep_init       0.00001
+time_tolerance      0.1
+screen_output       100
+OvershootTolerance  1.0E-06
+courant_number      1.000
+later_inputfiles    MomasFlow1Db.in
+save_restart        Easy1D.rst  
+END
+
+OUTPUT
+time_units               years
+spatial_profile_at_time  10.0  1000.0  2000.0  5000.0  
+!!time_series_at_node      Easy1D.out  105 1 1
+time_series_at_node      Easy1D.out  300 1 1
+!!time_series_at_node      Easy1D.out  840 1 1
+time_series_print        all
+time_series_interval     1  
+END
+
+BOUNDARY_CONDITIONS
+x_begin   injection  Dirichlet 
+x_end     MediumA  flux 
+END
+
+POROSITY
+fix_porosity     0.25
+END
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+MINERALS
+Bogusite   -rate   -35.00
+END
+
+DISCRETIZATION 
+space_units   meters
+!!xzones  840    0.0025
+xzones 100  0.01 100  0.001  100 0.01
+!!xzones  105  0.01
+END
+ 
+INITIAL_CONDITIONS
+!!MediumA   1-840  1-1  1-1
+!!MediumB   401-440  1-1  1-1
+MediumA  1-300 1-1 1-1
+MediumB  101-200 1-1 1-1
+!!MediumA  1-105 1-1 1-1
+!!MediumB  51-55 1-1 1-1
+END
+
+Condition MediumA
+set_porosity      0.25
+units             mol/kg
+temperature       25.0
+X1   0.0  equilibrate_surface
+X2  -2.0  equilibrate_surface
+X3   0.0  equilibrate_surface
+X4   2.0  equilibrate_surface
+>S1        0.0025 
+Bogusite   0.1  ssa  1.0
+END
+
+Condition MediumB
+set_porosity      0.50
+units             mol/kg
+temperature       25.0
+X1   0.0  equilibrate_surface
+X2  -2.0  equilibrate_surface
+X3   0.0  equilibrate_surface
+X4   2.0  equilibrate_surface
+!Site name     <site density mol/m**2>   
+>S1        0.05 
+Bogusite   0.1  ssa  1.0
+END
+
+Condition injection
+set_porosity      0.25
+units             mol/kg
+temperature       25.0
+X1   0.3
+X2   0.3
+X3   0.3
+X4   0.0
+>S1        0.0 
+Bogusite   0.1  ssa  1.0
+END
+
+Condition leach
+set_porosity      0.25
+units             mol/kg
+temperature       25.0
+X1   0.0
+X2   -2.0
+X3   0.0
+X4   2.0
+>S1        0.0 
+Bogusite   0.1  ssa  1.0
+END
+
+PRIMARY_SPECIES
+X1
+X2
+X3
+X4
+END
+
+SECONDARY_SPECIES
+C1
+C2
+C3
+C4
+C5
+END
+
+TRANSPORT
+space_units             meters
+time_units              years
+fix_diffusion           0.000
+dispersivity            0.060
+anisotropy_ratio        1.0
+cementation_exponent    1.0
+END
+
+FLOW
+space_units         meters
+time_units          years
+constant_flow       0.0055
+END
+
+SURFACE_COMPLEXATION
+>S1  on Bogusite -no_edl
+END
+
+

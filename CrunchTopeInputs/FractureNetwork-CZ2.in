@@ -1,0 +1,182 @@
+ TITLE
+Fracture Network
+END
+
+DATABASE
+Liz-CIS.dbs
+END
+
+RUNTIME
+time_units          days
+timestep_max        250.0
+timestep_init       1.e-05
+corrmax             2.0
+time_tolerance      0.01
+debye-huckel        true
+database_sweep      false
+speciate_only       false
+lag_activity        true
+gimrt               true
+graphics            tecplot
+master_variable     H+
+correction_max      2.0
+screen_output       10
+nmm                 true
+SaltCreep           false
+solver              bcgs
+pc                  ilu  
+pclevel             5
+SetSurfaceAreaConstant  true
+FractureNetwork     true
+!!!Duan2006            true
+CriticalZone        true
+END
+
+OUTPUT
+time_units               years
+spatial_profile_at_time  0.00001  1.0 5.0 10.0 100 200 300 400 500  1000  5000
+time_series_at_node      halite.out  1  1
+time_series_print        Mg++
+time_series_interval     1  
+END
+
+POROSITY
+!!!fix_porosity  0.10
+porosity_update  true
+END
+
+MINERALS
+Magnesite              -label default   -rate   -8.00
+Forsterite             -label pH        -rate   -7.00
+Bogusite               -label default   -rate  -30.00
+END
+
+DISCRETIZATION 
+distance_units   cm
+xzones  250      1.0
+yzones  200      1.0
+END
+
+FLOW
+time_units          years
+calculate_flow      true
+distance_units   meters
+permeability_x 2.5e-19 default
+permeability_y 2.5e-19 default
+permeability_x 0 zone 0-0      1-200 1-1
+permeability_x 0 zone 251-251  1-200 1-1
+
+permeability_y 1.0E-12 zone 1-250   0-0     1-1
+permeability_y 1.0E-12 zone 1-250   201-201 1-1
+
+pressure  0.0     default
+pressure  1.0     zone 1-250  0-0      1-1 fix
+pressure  0.0     zone 1-250  201-201  1-1 fix
+END
+
+BOUNDARY_CONDITIONS
+boundarycondition  atmosphere      zone 1-125     0-0     1-1   Dirichlet
+boundarycondition  atmosphere      zone 126-250   0-0     1-1   Dirichlet
+boundarycondition  rockmatrix      zone 1-250     201-201 1-1   flux 
+boundarycondition  rockmatrix      zone 0-0       1-201   1-1   flux 
+boundarycondition  rockmatrix      zone 251-251   1-201   1-1   flux 
+
+!!!X_begin   porezone      flux 
+!!!X_end     porezone      flux 
+!!!Y_begin   porezone      Dirichlet 
+!!!Y_end     porezone      flux 
+END
+
+INITIAL_CONDITIONS
+ReadInitialConditions  FractureNetwork-250x200.dat
+END
+ 
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  5.0
+fix_diffusion         1.3E-09
+meandiffusion         HarmonicMean
+END
+
+Condition       rockmatrix    
+temperature     25.0
+pressure        10.0
+set_porosity    0.001
+units           mol/kg
+pH              Magnesite
+CO2(aq)         CO2(g)   0.0003
+Mg++            0.001
+Na+             0.1
+Cl-             charge
+SiO2(aq)        0.000001
+Tracer          0.00000001
+Bogus           Bogusite
+Magnesite       0.00  bsa 1.0
+Forsterite      0.05  bsa 0.0
+Bogusite        0.9490  bsa 0.00
+END
+
+Condition       porezone    
+temperature     25.0
+pressure        10.0
+set_porosity    0.02
+units           mol/kg
+pH              7.5
+CO2(aq)         CO2(g)   0.0003
+Mg++            0.00001
+Na+             0.1
+Cl-             charge
+SiO2(aq)        0.000001
+Tracer          0.00000001
+Bogus           Bogusite
+Magnesite       0.00  bsa 1.0
+Forsterite      0.02  bsa 100.0
+Bogusite        0.96  ssa 0.00
+END
+
+Condition       atmosphere   
+temperature     25.0
+pressure        1.0
+set_porosity    0.2
+units           mol/kg
+pH              charge
+CO2(aq)         CO2(g)   0.1
+Mg++            5.0E-04
+Na+             0.001
+Cl-             0.001
+SiO2(aq)        0.00001
+Tracer          0.01
+Bogus           Bogusite
+Magnesite       0.00  bsa 0.0
+Forsterite      0.00  bsa 1.0
+Bogusite        0.80  bsa 0.00
+END
+
+
+TEMPERATURE
+set_temperature  25.0
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+CO2(aq)
+Mg++
+Na+
+Cl-
+SiO2(aq)
+Bogus  
+END
+
+SECONDARY_SPECIES
+HCO3-
+CO3--
+OH-   
+END
+
+GASES
+CO2(g)
+END
+
+

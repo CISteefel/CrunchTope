@@ -1,0 +1,109 @@
+TITLE 
+ShortCourse1_lucien.in:  Short course carbonate speciation 
+END 
+
+RUNTIME 
+time_units       years 
+timestep_max     0.001 !!0.010 
+timestep_init    1e-9 !!0.010 
+time_tolerance   0.001 
+hindmarsh        false 
+correction_max   1 
+debye-huckel     yes 
+master           Tracer 
+database_sweep   no 
+speciate_only    false 
+gimrt    true 
+database         datacom.dbs 
+!!read_saturationFile   watersaturation_max.dat  FullForm 
+!! graphics         kaleidagraph 
+screen_output    1000 
+!!solver direct 
+!!solver bcgs 
+!!pc ilu 
+!!pclevel 2 
+END 
+
+OUTPUT    
+time_units               years    
+spatial_profile          10  
+END 
+
+!!TRANSPORT 
+!!distance_units meters 
+!!time_units     seconds 
+!!fix_diffusion  1e-9 
+!!dispersivity   0.0 0.0 
+
+FLOW 
+time_units       years 
+distance_units   meters 
+!co_richards      20.0 
+calculate_flow  TRUE 
+!!PUMP 
+Pump 1.5855e-06 injection 1 2 1 
+Pump 1.5855e-06 injection 2 2 1 
+Pump 1.5855e-06 injection 3 2 1 
+!!PERMEABILITY 
+permeability_x 4.2e-12 default 
+permeability_y 4.2e-12 default 
+!!NO FLOW BOUNDARIES 
+permeability_x 0 zone 0-0 1-150 1-1 
+permeability_x 0 zone 4-4 1-150 1-1 
+permeability_y 0 zone 1-3 0-0 1-1 
+permeability_z 1.418e-30 default 
+!!RICHARD 
+upstream_weighting TRUE 
+ns_solve FALSE 
+Richards        TRUE 
+redistribute_wc TRUE 
+y_is_vertical   TRUE 
+watertable_init 2.5 
+!!!!!!!!! VG bedrock !!!!!!!!!!!!!!!!!! 
+vangenuchten_alpha 1.8 default 
+vangenuchten_n  1.79 default 
+wc_residual     0.13  default 
+!!PRESSURE
+pressure 0  zone 1-3 1-1 1-1 fix 
+pressure 121644  zone 1-3 151-151 1-1 fix 
+!!pressure  0    default 
+END 
+
+BOUNDARY_CONDITIONS    
+x_begin   injection     flux 
+x_end     ambient       flux 
+y_begin   injection     flux 
+y_end     ambient       flux 
+END 
+
+INITIAL_CONDITIONS    
+ambient     1-3 1-150 1-1 
+injection   1-3 1-1   1-1 fix 
+END 
+
+DISCRETIZATION    
+distance_units  meters 
+xzones 3   1 
+yzones 150 0.1 
+zzones 1   1 
+END 
+
+Condition        injection    
+units            mol/kg 
+Tracer 0.1  
+END 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    
+Condition        ambient    
+units            mol/kg 
+Tracer 1e-9  
+END 
+
+POROSITY    
+fix_porosity 0.4    
+porosity_update false    
+END 
+
+PRIMARY_SPECIES 
+Tracer 
+END 
+

@@ -1,0 +1,121 @@
+TITLE
+PETM-simulation tracer test
+END
+
+RUNTIME
+time_units        years
+timestep_max      10.0
+timestep_init     1e-04
+time_tolerance    0.01
+master            Tracer
+correction_max    2.0
+debye-huckel      true
+database_sweep    false
+speciate_only     false
+database          datacomMSFREVISED3.dbs
+gimrt             true
+hindmarsh         true
+screen_output     100
+coordinates       rectangular
+fix_saturation    1.0
+save_restart      iso-sulfatered0_ssaCiso_v2.rst
+graphics          kaleidagraph
+END
+
+PRIMARY_SPECIES
+Tracer
+Tracer+
+Tracer-
+END
+
+SECONDARY_SPECIES
+END
+
+GASES
+END
+
+MINERALS
+TracerMineral  -rate  -30.00
+END
+
+OUTPUT
+time_units            years
+spatial_profile       1e-03 100.0  200.0
+!!!5e03 10e03 15e03
+time_series           timeseries_Z1_Dtest.txt 1
+time_series           timeseries_Z30_Dtest.txt 30
+time_series           timeseries_Z100_Dtest.txt 100
+time_series_print     Tracer 
+time_series_interval  1
+END
+
+MINERALS
+END
+
+AQUEOUS_KINETICS
+END
+
+DISCRETIZATION
+distance_units meters
+xzones   300   1
+END
+
+INITIAL_CONDITIONS
+!!!initcolcarb4por0_01   1-125
+initcolcarb40Ca       1-175
+initcolcarb40         176-300
+END
+
+BOUNDARY_CONDITIONS
+X_begin   initcolcarb4por0_01       Dirichlet
+X_end     initcolcarb40             Dirichlet
+END
+
+TRANSPORT
+space_units            meters
+time_units             seconds
+fix_diffusion  1.0e-9
+cementation_exponent   1.0
+D_25    Tracer 1.0E-09
+D_25    Tracer+ 1.0E-09
+D_25    Tracer- 1.0E-09
+END
+
+POROSITY
+fix_porosity     0.65
+END
+
+EROSION/BURIAL
+distance_units     meters
+time_units         years
+!!!erode_x            0.0e-06
+erode_x            0.01
+END
+
+TEMPERATURE
+set_temperature 25.0
+END
+
+CONDITION initcolcarb4por0_01
+temperature      25.0
+Tracer   0.00
+Tracer+  0.00
+Tracer-  0.00
+TracerMineral  0.10  ssa 0.1
+END
+
+CONDITION initcolcarb40
+temperature      25.0
+Tracer   0.00
+Tracer+  0.00
+Tracer-  0.00
+TracerMineral    0.10  ssa 0.01
+END
+
+CONDITION initcolcarb40Ca
+temperature      25.0
+Tracer           0.10
+Tracer+          0.01
+Tracer-          0.01
+TracerMineral    0.10  ssa 0.01
+END

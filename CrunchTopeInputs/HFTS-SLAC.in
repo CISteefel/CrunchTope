@@ -1,0 +1,398 @@
+TITLE
+HFTS shale experiment from Wei Xiong 
+END
+
+RUNTIME
+time_units          hours
+timestep_max        0.1
+timestep_init       1.0E-12
+time_tolerance      0.00001
+correction_max      10.0
+save_restart        rateChange.rst
+gimrt               true
+debye-huckel        true
+screen_output       10000
+database            datacom_HFTS.dbs
+kinetic_database    aqueousDB-Hang.dbs
+speciate_only       false
+database_sweep      false
+hindmarsh           true
+master              H+
+graphics            kaleidagraph
+solver              bcgs
+pc                  ilu
+pclevel             5
+END
+ 
+OUTPUT
+time_units           days 
+spatial_profile      21.0
+time_series_at_node      Persulfate.out  10  1  1
+!!!time_series_at_node      HFTS.out  10  1  1
+time_series_print        pH Fe++ Ba++
+time_series_interval     10  
+END
+ 
+TEMPERATURE
+set_temperature  66.0
+!!!set_temperature  75.0
+! may need to change
+END
+
+POROSITY
+fix_porosity  0.756
+!!!porosity_update  false
+END
+ 
+MINERALS
+
+Quartz            -label Marty_nu       -rate   -13.19
+Quartz            -label Marty_oh       -rate   -9.7212
+Pyrite            -label oxygen       -rate   -8.0
+!!!Pyrite            -label oxygen       -rate   -7.0
+Pyrite            -label ferric       -rate   -36.5
+Pyrite             -label default    -rate  -10.00
+!Pyrite            -label USGS-h+       -rate   -7.52 
+!Pyrite            -label USGS-O2       -rate   -4.55
+Calcite            -label leichou1            -rate    -1.0809 
+Calcite            -label leichou3       -rate   -4.8239
+Calcite            -label leichou2         -rate   -3.9586
+Clinochlore-7A       -label USGS   -rate -32.52
+Clinochlore-7A       -label USGS-h+   -rate -31.11
+Illite            -label USGS  -rate -36.4815
+Illite            -label USGS-h+  -rate -31.0888
+Illite            -label USGS-oh-  -rate -31.4723
+Dolomite          -label Gautelier-h+ -rate -3.0079 
+Albite            -label h+         -rate -9.343
+!Smectite-high-Fe-Mg          -label Marty_nu       -rate   -14.0315
+!Smectite-high-Fe-Mg          -label Marty_h+       -rate   -10.2757
+!Smectite-high-Fe-Mg          -label Marty_oh       -rate   -11.5376
+SiO2(am)         -label  USGS -rate -9.42 
+Gypsum           -label   default   -rate   -2.79  
+Barite           -label  USGS -rate -7.9
+Barite           -label  USGS-h+ -rate -6.9
+
+GoethiteHFTS         -label  USGS    -rate -5.94
+Hematite         -label  USGS-h+ -rate -29.39
+Hematite         -label  USGS    -rate -34.6
+Ferrihydrite     -label  default -rate -35.3
+Fe(OH)2          -label  default -rate -37.9
+Fe(OH)3          -label  default -rate -39.43  !-11.4
+FeSO4            -label  default -rate -37
+O2(s)            -label  default  -rate -3.5
+!!!K2S2O8           -label  default   -rate -40.00
+END 
+
+AQUEOUS_KINETICS
+!!!FeII_oxidation 
+!!!Thiosulfate_partialdisproportionation
+!!!Persulfate_disproportionation
+!!!Sulfide_oxidation
+END
+
+GASES
+CO2(g)
+O2(g)
+H2S(g)
+END
+ 
+ 
+Condition inlet
+temperature      66.0
+!!!temperature   75.0
+set_porosity     0.756
+set_saturation   0.98
+units            mmol/kg
+pH               1.35 
+Na+              289.43
+NH3(aq)          1.757894737
+K+               6.35
+Mg++             9.20
+Ca++             50.51
+Sr++             5.10
+Ba++             1.90
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+HS-              1.0e-20
+F-               1.26063e-5
+Formic_acid(aq)  1.4e-2
+Cl-              421.43
+Br-              1.75
+NO3-             4.96E-5
+SO4--            1.0e-20 
+S2O8--           0.878947368
+S2O3--           1.0e-20
+
+HPO4--           5.82E-2
+Acetic_acid(aq)  0.184
+HCO3-            CO2(g)    3.9e-4
+!!HCO3-              1.75
+O2(aq)            O2(g)    0.21
+
+!!!       MINERALS
+Quartz            0.29792   17.6281
+Illite            0.45703   27.0431
+Clinochlore-7A    0.08506   5.03342 ! using smectite ssa from Marty
+Calcite           0.00873   0.0050  
+!!!Calcite           0.0000   0.51682 
+Dolomite          0.00000   0.00000
+!!Pyrite            0.01994   ssa 0.1 !1.17992
+Pyrite            0.01994   ssa 0.0030
+!!!Pyrite            0.01994   ssa 0.3
+Albite            0.00000   0.00000
+!Smectite-high-Fe-Mg       0.06999  4.1414 
+SiO2(am)          0.0    59.1716
+Gypsum            0.0    59.1716 ! using calcite ssa
+Barite            0.01644  59.1716 ! ssa 0.0  0.0 
+GoethiteHFTS          0.1    0.0000000001
+Hematite          0.00   59.1716 !59.1716
+Ferrihydrite      0.1    0.1
+Fe(OH)2           0.0    59.1716
+Fe(OH)3           0.0    59.1716
+FeSO4             0.0    59.1716
+O2(s)             0.1    10000.0 
+END
+
+Condition headspace
+temperature      66.0
+!!!temperature   75.0
+set_porosity     1.00
+set_saturation   0.1
+units            mmol/kg
+pH               1.35 
+Na+              289.43
+NH3(aq)          1.757894737
+K+               6.35
+Mg++             9.20
+Ca++             50.51
+Sr++             5.10
+Ba++             1.90
+Fe++             1.0E-20
+Fe+++            1.0E-20
+Al+++            1.0E-20
+SiO2(aq)         1.0E-20
+HS-              1.0e-20
+F-               1.26063e-5
+Formic_acid(aq)  1.4e-2
+Cl-              421.43
+Br-              1.75
+NO3-             4.96E-5
+SO4--            1.0e-20 
+S2O8--           0.878947368
+S2O3--           1.0e-20
+
+HPO4--           5.82E-2
+Acetic_acid(aq)  0.184
+HCO3-            CO2(g)    3.9e-4
+!!HCO3-              1.75
+O2(aq)            O2(g)    0.21
+
+!!!       MINERALS
+Quartz            0.000   0.000
+Illite            0.000   0.000
+Clinochlore-7A    0.000   0.000 
+Calcite           0.000   0.000  
+Dolomite          0.000   0.000
+Pyrite            0.000   0.000
+Albite            0.000   0.000
+SiO2(am)          0.0     0.000
+Gypsum            0.0     0.000 
+Barite            0.000   0.000  
+GoethiteHFTS          0.0     0.000
+Hematite          0.00    0.000 
+Ferrihydrite      0.0     0.000
+Fe(OH)2           0.0     0.000
+Fe(OH)3           0.0     0.000
+FeSO4             0.0     0.000
+O2(s)             0.0     0.000
+END
+
+TRANSPORT
+distance_units centimeters
+time_units     seconds
+fix_diffusion  1.0E-05
+gas_diffusion  1.0E-05
+END
+
+FLOW
+time_units       seconds
+distance_units   meters
+constant_flow       0.000  0.00
+calculate_flow      false
+END
+
+DISCRETIZATION
+distance_units    centimeters
+xzones     10     1.0
+END
+
+
+INITIAL_CONDITIONS
+headspace    1-9    1-1  1-1
+inlet        10-10  1-1 1-1
+END
+
+BOUNDARY_CONDITIONS
+x_begin   inlet    flux
+x_end     inlet    flux
+END
+
+PRIMARY_SPECIES
+H+
+K+
+HCO3-
+Al+++
+Ca++
+Mg++
+Fe++
+Fe+++
+Na+
+SiO2(aq)
+Formic_acid(aq)
+Acetic_acid(aq)
+Cl-
+HS-
+F-
+Br-
+HPO4--
+NO3-
+NH3(aq)
+Sr++
+Ba++
+O2(aq)
+!!!SO4--
+!!!S2O3-- 
+!!!S2O8--
+END
+
+SECONDARY_SPECIES                                                                     
+SO4--
+Al(OH)2+                                                                                                                           
+AlO2-                                                                   
+AlOH++                                                                                                                                 
+CO2(aq)                                                                 
+CO3--                                                                                                                                                                                      
+Fe(OH)2(aq)                                                             
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)3-                                                                                                                                                                                            
+FeOH+                                                                   
+FeOH++                                                                  
+H2S(aq)                                                                 
+OH-                                                                                                                                      
+PO4---                                                                  
+S--                                                                                                                              
+CaCO3(aq)                                                                                                                                                                                            
+CaOH+ 
+HAlO2(aq)                                                                                                                       
+FeCO3(aq)                                                               
+FeCO3+ 
+FeCl+                                                                   
+FeCl++                                                                  
+FeCl2(aq)                                                               
+CaHCO3+                                                                                                                                 
+NH4+  
+H2(aq) 
+HSO4- 
+Fe(SO4)2-
+
+!!!FeCl2+  
+!!!CaHPO4(aq)                                                                                                                           
+!!!CaNO3+                                                                  
+!!!MgNO3+                                                                                                                                                                                                 
+!!!FeF+  
+
+!!!CIS-FeF++                                                                   
+!!!CIS-FeF2+                                                                   
+
+!!!FeH2PO4+                                                                
+!!!FeH2PO4++                                                               
+!!!FeHCO3+                                                                 
+!!!FeHPO4(aq)   
+!!!FeHPO4+    
+!!!FeNO3++ 
+!!!FePO4-  
+
+
+FeSO4(aq)                                                               
+FeSO4+  
+
+H2PO4-  
+!!!H2SO4(aq)                                                               
+!!!H2SiO4--                                                                                                                           
+                                                          
+HCl(aq)                                                                 
+HF(aq)                                                                  
+                                                                    
+HNO3(aq)   
+                                                                 
+HSiO3-                                                                  
+KBr(aq)                                                                 
+KCl(aq)     
+
+
+!!!KHPO4-  
+
+KHSO4(aq)                                                                                                                            
+KOH(aq)                                                                                                                              
+KSO4-                                                                                                                              
+MgCO3(aq)                                                               
+MgCl+        
+
+MgF+                                                                    
+!!!MgH2PO4+                                                                
+
+MgHCO3+                                                                 
+!!!MgHPO4(aq)                                                              
+                                                               
+!!!MgPO4-                                                                  
+
+MgSO4(aq)                                                               
+                                                                 
+!!!NH4SO4-                                                                 
+                                                              
+NaBr(aq)                                                                
+NaCO3-                                                                  
+NaCl(aq)                                                                
+NaF(aq)                                                                 
+NaHCO3(aq) 
+
+                                                              
+!!!NaHPO4-                                                                 
+
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                                                                              
+
+NaSO4-                                                                  
+                                                                    
+SiF6-- 
+
+SrCO3(aq)                                                               
+SrCl+                                                                   
+SrF+     
+
+!!!SrH2PO4+                                                                
+!!!SrHPO4(aq)                                                              
+!!!SrNO3+                                                                  
+!!!SrOH+                                                                   
+!!!SrP2O7--                                                                
+!!!SrSO4(aq) 
+
+S2--                                                                    
+!!!S2O3-- 
+!!!S2O8--
+!!!Fe+++
+                                                                                                                                   
+!!!CIS-N2(aq)                                                                  
+!!!CIS-N3-                                                                     
+!!!CIS-NO2- 
+
+!!!HS2O3-                                                                                                                                                                        
+!!!FeNO2++   
+
+!!!CIS-HN3(aq)                                                                 
+!!!CIS-HNO2(aq)   
+END
+

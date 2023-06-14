@@ -1,0 +1,75 @@
+TITLE
+TracerDispersion.in: Transverse dispersion of tracer in 2D 
+END
+
+RUNTIME
+time_units         minutes
+timestep_max       1
+timestep_init      0.01
+time_tolerance     0.1
+graphics           tecplot
+database           datacom.dbs
+gimrt              false
+screen_output      1000
+END
+
+OUTPUT
+time_units           minutes
+spatial_profile      3000
+END
+
+TRANSPORT
+distance_units   meters
+time_units       seconds
+fix_diffusion    1.33E-09
+dispersivity    0.00016 0.000016
+constant_tortuosity 0.34
+END
+
+PRIMARY_SPECIES
+Na+
+I-
+END
+
+BOUNDARY_CONDITIONS
+x_begin   initial            Dirichlet
+x_end     initial            flux
+y_begin   initial            flux
+y_end     initial            flux
+END
+
+INITIAL_CONDITIONS
+initial   1-60 1-20
+boundary  1-1  1-20 1-1 fix
+END
+
+Condition boundary
+units            mol/kg
+temperature      25.0
+Na+              6
+I-               6
+END
+
+Condition initial
+units            mol/kg
+temperature      25.0
+Na+              0.0
+I-               0.0
+END
+
+
+FLOW
+time_units       seconds
+distance_units   meters
+constant_flow    0.0  0.0
+END
+
+POROSITY
+fix_porosity     0.22
+END
+
+DISCRETIZATION
+distance_units   cm
+xzones 60 0.25 
+yzones 20 0.25
+END

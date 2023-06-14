@@ -1,0 +1,266 @@
+! -------------------------------------------------------------------------------------------------
+!
+!  reaction stoichiometry
+!
+! -------------------------------------------------------------------------------------------------
+
+&Aqueous
+  name          = Be10_decay 
+  type          = catabolic
+  stoichiometry = -1.0  'Be_10++'  1.0  'Sn++'
+  keq           = 40
+/
+
+&Aqueous
+  name          =  AceNO3HCO3NO2
+  type          = catabolic
+  stoichiometry = 0.125 H+  0.250 HCO3-  -0.125 Acetate  -0.500 NO3-  0.500 'NO2-'
+  keq           = 12.8969
+/
+
+&Aqueous
+  name          = AceNO2HCO3N2
+  type          = catabolic
+  stoichiometry = -0.20833333333333 H+       0.16666666666667 H2O        0.25000000000000 HCO3-
+                  -0.12500000000000 Acetate  0.16666666666667 'N2(aq)'  -0.33333333333333 NO2-
+  keq           = 21.8209
+/
+
+&Aqueous
+  name          = AceNO2HCO3NH4
+  type          = catabolic
+  stoichiometry = -0.20833333333333 H+       0.16666666666667 H2O        0.25000000000000 HCO3-
+                  -0.12500000000000 Acetate  0.16666666666667 NH4+      -0.16666666666667 NO2-
+  keq           = 11.3684
+/
+
+&Aqueous
+  name          = AceCrO42HCO3Cr3
+  type          = catabolic
+  stoichiometry = -1.54166666666667 H+        0.83333333333333 H2O     0.25000000000 HCO3-  
+                  -0.12500000000000 Acetate  -0.33333333333333 CrO4--  0.33333333333 Cr+++
+  keq           = 24.4994
+/
+
+&Aqueous
+  name          = AceCr53O42HCO3Cr533
+  type          = catabolic
+  stoichiometry = -1.54166666666667 H+        0.83333333333333 H2O     0.25000000000 HCO3-  
+                  -0.12500000000000 Acetate  -0.33333333333333 Cr53O4--  0.33333333333 Cr53+++
+  keq           = 24.4994
+/
+
+&Aqueous
+  name          = Cr_redox_Fe_abio
+  type          = catabolic
+  stoichiometry = -8.000000000000 H+  4.0000000000000 H2O    -3.00000000000000 Fe++  -1.000000000000000 CrO4--  1.000000000000000 Cr+++   3.00000000000000 Fe+++
+  keq           = 33.8541
+/
+
+&Aqueous
+  name          = Cr53_redox_Fe_abio
+  type          = catabolic
+  stoichiometry = -8.000000000000 H+  4.0000000000000 H2O    -3.00000000000000 Fe++  -1.000000000000000 Cr53O4--  1.000000000000000 Cr53+++   3.00000000000000 Fe+++
+  keq           = 33.8541
+/
+
+&Aqueous
+  name          = Sulfate_reduction
+  type          = catabolic
+  stoichiometry = -0.375 H+  -0.125 SO4--  0.125 'H2S(aq)'  0.25 'CO2(aq)'  -0.125 Acetate
+  keq           = 5.577425
+/
+
+&Aqueous
+  name     = Sulfate34_reduction
+  type          = catabolic
+  stoichiometry = -0.375 H+  -0.125 S34O4--  0.125 'H2S34(aq)'  0.25 'CO2(aq)'  -0.125 Acetate
+  keq      = 5.577425 
+/
+
+&Aqueous
+  name     = Methanogenesis
+  type          = catabolic
+  stoichiometry = -0.125 'H+'  0.125 'CO2(aq)'  -0.125 'Acetate'  0.125 'Methane(aq)'
+  keq      = 1.11911
+/
+
+&Aqueous
+  name          = C5H7O2N_RCH2_Ace_NH4
+  type          = anabolic
+  stoichiometry = -0.075 H+  -0.125  Acetate  -0.050 NH4+  0.050 C5H7O2NNO3
+  keq           = 0.0
+/
+
+&Aqueous
+  name          = C5H7O2N_RCH2_Ace_NH4_SR
+  type          = anabolic
+  stoichiometry = -0.075 H+  -0.125  Acetate  -0.050 NH4+  0.050 C5H7O2NSO4
+  keq           = 0.0
+/
+
+&Aqueous
+  name          = C5H7O2N_RCH2_Ace_NH4_ME
+  type          = anabolic
+  stoichiometry = -0.075 H+  -0.125  Acetate  -0.050 NH4+  0.050 C5H7O2NCH4
+  keq           = 0.0
+/
+
+! -------------------------------------------------------------------------------------------------
+!
+!  rate expressions
+!
+! -------------------------------------------------------------------------------------------------
+&AqueousKinetics
+  name          = Be10_decay 
+  label         = default
+  type          = irreversible
+  rate25C       = 4.98667E-07
+  dependence    = 'tot_Be_10++' 1.0
+/
+&AqueousKinetics
+  name          = AceNO3HCO3NO2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 2000.0
+  monod_terms   = 'tot_Acetate' 2.03E-5 'tot_NO3-' 1.06E-5 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     =-1
+/
+
+&AqueousKinetics
+  name          = AceNO2HCO3N2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 2000.0
+  monod_terms   = 'tot_Acetate' 2.03E-5 'tot_NO2-' 1.06E-5 'tot_NH4+' 1.0e-6
+  inhibition    = 'tot_NO3-'    1.06E-5
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+/
+
+&AqueousKinetics
+  name          = aAceNO2HCO3NH4
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1000.0
+  monod_terms   = 'tot_Acetate' 2.03E-5 'tot_NO2-' 1.06E-5
+  !!inhibition    = 'tot_NH4+'    1.0E-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+/
+
+&AqueousKinetics
+  name          = Cr_redox_NO3
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1.6
+  monod_terms   = 'tot_Acetate' 2.03E-5  'tot_NO3-' 1.06E-5  'tot_CrO4--' 0.1E-6 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name          = Cr53_redox_NO3
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1.6
+  monod_terms   = 'tot_Acetate' 2.03E-5  'tot_NO3-' 1.06E-5  'tot_Cr53O4--' 0.1E-6 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+  UseMetabolicLag = .false.
+/
+
+&AqueousKinetics
+  name          = Cr_redox_Fe_abio
+  label         = default
+  type          = irreversible
+  rate25C       = 1.6
+  dependence    = 'tot_CrO4--' 1.0 'tot_Fe++' 1.0
+/
+
+&AqueousKinetics
+  name          = Cr53_redox_Fe_abio
+  label         = default
+  type          = irreversible
+  rate25C       = 1.6
+  dependence    = 'tot_Cr53O4--' 1.0 'tot_Fe++' 1.0
+/
+
+&AqueousKinetics
+  name          = Cr_redox_NO2
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 1.6
+  monod_terms   = 'tot_Acetate' 2.03E-5  'tot_NO2-' 1.06E-5  'tot_CrO4--' 0.1E-6 'tot_NH4+' 1.0e-6
+  biomass       = 'C5H7O2NNO3(s)'
+  bq            = -0.0
+  chi           = 1
+  direction     = -1
+  UseMetabolicLag = .false.
+/
+!! Sulfate reduction, written in terms of the transfer of one electron
+
+&AqueousKinetics
+  name     = Sulfate_reduction
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 25000
+  monod_terms   = 'tot_Acetate' 1.0E-04 'tot_SO4--' 5.0E-03
+  biomass  = 'C5H7O2NSO4(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/
+
+!! Sulfate-34 reduction, written in terms of the transfer of one electron
+
+&AqueousKinetics
+  name     = Sulfate34_reduction
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 25000
+  monod_terms   = 'tot_Acetate' 1.0E-04 'tot_S34O4--' 5.0E-03
+  biomass  = 'C5H7O2NSO4(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/
+
+&AqueousKinetics
+  name     = Methanogenesis
+  label         = default
+  type          = MonodBiomass
+  rate25C       = 2500.0
+  monod_terms   = 'tot_Acetate' 1.5E-05
+  biomass  = 'C5H7O2NCH4(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+  UseMetabolicLag = .false.
+  LagTime = 0.0  
+  Ramptime = 0.00   
+  ThresholdConcentration = 0.000
+  SubstrateForLag = Acetate  
+/
