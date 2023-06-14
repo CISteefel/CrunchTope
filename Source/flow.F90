@@ -158,6 +158,7 @@ INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
 
 ! *************************************************
 ! For Richards solver by Toshiyuki Bandai May, 2023
+REAL(DP)                                        :: mu_water! dynamics viscosity of water [Pa year] with a specified temperature tinit in temperature module (computed in StartTope.F90)[C]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE          :: head ! pressure head [L]

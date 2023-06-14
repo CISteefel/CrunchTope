@@ -102,5 +102,5 @@ OH-
 END
 
 TEMPERATURE
-set_temperature  25.0
+set_temperature  20.0
 END

@@ -1908,6 +1908,15 @@ ELSE
   TFile = ' '
 
 END IF
+
+!*************************************************************
+! Edit by Toshiyuki Bandai, June 2023
+! compute the dynamics viscosity of water [Pa year] with a specified temperature tinit [C]
+! mu_water is defined in Flow module
+mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - tinit - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+! End of Edit by Toshiyuki Bandai, June 2023
+!*************************************************************
+
 !*************************************************************
 
 !  ****************CALL READ98********************************

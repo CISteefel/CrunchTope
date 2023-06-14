@@ -94,5 +94,12 @@ MODULE params
   REAL(DP), PARAMETER :: ed=5.0
   REAL(DP), PARAMETER :: d0=1.e-09
   REAL(DP), PARAMETER :: t_half = -0.6931471805599453
+  
+  !**************************************************
+  ! physical parameters for Richards solver added by Toshiyuki Bandai, 2023, May
+  REAL(DP), PARAMETER :: rho_water = 0.99823d0 * 1.0E3 ! density of water [kg m-3] at 20 degC
+  REAL(DP), PARAMETER :: g = 9.80665d0 * (86400.0d0 * 365.0d0) ** 2 ! gravitational acceleration [m year-2]
+  ! End of edits by Toshiyuki Bandai, 2023, May
+  !**************************************************
 
 END MODULE params

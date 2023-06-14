@@ -1,5 +1,5 @@
 TITLE
-test_Richard_1D_test2_20C_PLM_open
+test_Richard_1D_test1_8C_PLM_open
 END
 
 RUNTIME
@@ -111,5 +111,5 @@ OH-
 END
 
 TEMPERATURE
-set_temperature  20.0
+set_temperature  8.0
 END
