@@ -1,5 +1,6 @@
-time_units  years                                                                                                                                                                                                                                                       
-diffusion     0.0                                                                                                                                                                                                                                                       
-dispersivity  0.0  0.0                                                                                                                                                                                                                                                  
+distance_units meters                                                                                                                                                                                                                                                   
+time_units     seconds                                                                                                                                                                                                                                                  
+fix_diffusion  1e-9                                                                                                                                                                                                                                                     
+dispersivity   0.1 0                                                                                                                                                                                                                                                    
  
  
