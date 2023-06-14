@@ -1,0 +1,117 @@
+TITLE
+ShortCourse9.in:  Test of species diffusion against Lichtner (MULTIFLO) example
+END
+ 
+DATABASE
+datacom.dbs  
+END
+ 
+RUNTIME
+time_units      hours
+timestep_max    1.e-03
+timestep_init   1.e-05
+time_tolerance  0.001
+correction_max  2.0
+debye-huckel    false
+database_sweep  no
+gimrt           true
+graphics        kaleidagraph
+screen_output   50
+END
+ 
+OUTPUT
+time_units       hours
+spatial_profile  1.0 
+END
+
+INITIAL_CONDITIONS
+initial 1-100
+END
+ 
+BOUNDARY_CONDITIONS
+X_begin   inlet            Dirichlet
+X_end     initial          flux
+END
+ 
+TRANSPORT
+distance_units centimeters
+time_units  seconds
+fix_diffusion  1.000e-05
+formation_factor  1.0  
+cementation_exponent  1.0
+D_25  H+      9.312e-05
+D_25  Na+     1.334e-05
+D_25  Cl-     2.032E-05
+D_25  OH-     5.26e-05
+END
+
+Condition initial
+temperature      25.0
+pH               6.0
+Cl-              charge
+Na+              0.001
+END
+
+Condition inlet
+temperature      25.0
+pH               4.0
+Cl-              charge
+Na+              0.001
+END
+ 
+DISCRETIZATION
+distance_units millimeters
+xzones 100 0.1
+END
+
+POROSITY
+fix_porosity     0.10  
+porosity_update  false
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+H+
+Cl-
+Na+
+END
+ 
+SECONDARY_SPECIES
+OH-
+END
+
+GASES
+END
+ 
+FLOW
+time_units  years
+distance_units millimeters
+constant_flow  0.00
+END
+
+
+
+D_25  H+      9.31e-05
+D_25  Na+     1.33e-05
+D_25  K+      1.96e-05
+D_25  NH4+    1.98e-05
+D_25  Mg++    0.705e-05
+D_25  Ca++    0.793e-05
+D_25  Mn++    0.688e-05
+D_25  Fe++    0.719e-05
+!D_25  Al+++   0.559e-05
+D_25  OH-     5.27e-05
+D_25  F-      1.46e-05
+D_25  Cl-     2.03e-05
+D_25  HS-     1.73e-05
+D_25  HSO4-   1.33e-05
+D_25  SO4--   1.07e-05
+D_25  HCO3-   1.18e-05
+D_25  CO3--   0.955e-05
+D_25  H2PO4-  0.846e-05
+D_25  HPO4--  0.734e-05
+D_25  PO4---  0.612e-05
+

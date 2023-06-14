@@ -10,7 +10,7 @@ x64
 # ignore input files
 *.in
 # but selectively track input files (shortcourse input files)
-!ShortCourse{*}.in
+!ShortCourse*.in
 !test_infiltration_1.in
 !test1_8C_PLM_open.in
 !test2_20C_PLM_open.in
