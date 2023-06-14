@@ -68,14 +68,7 @@ LOGICAL(LGT)                                 :: InitializeHydrostatic
 
 ! NavierStokes option added by Zhi Li
 LOGICAL(LGT)                                 :: NavierStokes
-! Richards option added by Zhi Li 20200629
-LOGICAL(LGT)                                 :: Richards
-LOGICAL(LGT)                                 :: y_is_vertical
-LOGICAL(LGT)                                 :: redistribute_wc
-LOGICAL(LGT)                                 :: upstream_weighting
-LOGICAL(LGT)                                 :: watertable_flat
-REAL(DP)                                     :: co_richards
-LOGICAL(LGT)                                 :: dt_sync
+
 INTEGER(I4B)                                 :: n_substep
 ! Leverett scaling option added by Lucien Stolze 2021
 

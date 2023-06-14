@@ -131,7 +131,6 @@
 		<File RelativePath="..\Source\GIMRTCrunchPETScTolerances.F90"/>
 		<File RelativePath="..\Source\GlobalArrayAllocation.F90"/>
 		<File RelativePath="..\Source\GlobalDensity.F90"/>
-		<File RelativePath="..\Source\gradhRich.F90"/>
 		<File RelativePath="..\Source\graphics3d.F90"/>
 		<File RelativePath="..\Source\GraphicsKaleidagraph.F90"/>
 		<File RelativePath="..\Source\GraphicsTecplot.F90"/>
@@ -183,7 +182,6 @@
 		<File RelativePath="..\Source\movie.F90"/>
 		<File RelativePath="..\Source\NanoCrystal.F90"/>
 		<File RelativePath="..\Source\newfile.F90"/>
-		<File RelativePath="..\Source\nexttoSatRich.F90"/>
 		<File RelativePath="..\Source\nrerror.F90"/>
 		<File RelativePath="..\Source\NviewInit.F90"/>
 		<File RelativePath="..\Source\NviewOutput.F90"/>
@@ -203,7 +201,6 @@
 		<File RelativePath="..\Source\porperm.F90"/>
 		<File RelativePath="..\Source\Pressure.F90"/>
 		<File RelativePath="..\Source\PressureNS.F90"/>
-		<File RelativePath="..\Source\PressureRich.F90"/>
 		<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 		<File RelativePath="..\Source\ratecheck.F90"/>
 		<File RelativePath="..\Source\reactionTope.F90"/>
@@ -287,11 +284,8 @@
 		<File RelativePath="..\Source\read_tortuosityfile.F90"/>
 		<File RelativePath="..\Source\read_transpiration.F90"/>
 		<File RelativePath="..\Source\read_vanGenuchten_parameters.F90"/>
-		<File RelativePath="..\Source\read_vga.F90"/>
-		<File RelativePath="..\Source\read_vgn.F90"/>
 		<File RelativePath="..\Source\read_watertable_timeseries.F90"/>
 		<File RelativePath="..\Source\read_watertablefile.F90"/>
-		<File RelativePath="..\Source\read_wcr.F90"/>
 		<File RelativePath="..\Source\readblock.F90"/>
 		<File RelativePath="..\Source\readbreak.F90"/>
 		<File RelativePath="..\Source\readCaseSensitive.F90"/>
@@ -311,9 +305,6 @@
 		<File RelativePath="..\Source\readtype3.F90"/>
 		<File RelativePath="..\Source\readtypescan1.F90"/>
 		<File RelativePath="..\Source\reallocate.F90"/>
-		<File RelativePath="..\Source\redist_recvRich.F90"/>
-		<File RelativePath="..\Source\redist_sendRich.F90"/>
-		<File RelativePath="..\Source\redistributeRich.F90"/>
 		<File RelativePath="..\Source\residual_Richards.F90"/>
 		<File RelativePath="..\Source\residual_Richards_steady.F90"/>
 		<File RelativePath="..\Source\restart.F90"/>
@@ -368,13 +359,10 @@
 		<File RelativePath="..\Source\units_time.F90"/>
 		<File RelativePath="..\Source\units_timeOutput.F90"/>
 		<File RelativePath="..\Source\UpdateExchanger.F90"/>
-		<File RelativePath="..\Source\vanGenuchten.F90"/>
 		<File RelativePath="..\Source\vanGenuchten_model.F90"/>
 		<File RelativePath="..\Source\vanGenuchten_model_kr.F90"/>
 		<File RelativePath="..\Source\velocalc.F90"/>
 		<File RelativePath="..\Source\velocalcNS.F90"/>
-		<File RelativePath="..\Source\velocalcRich.F90"/>
-		<File RelativePath="..\Source\watercontentRich.F90"/>
 		<File RelativePath="..\Source\WaterReacted.F90"/>
 		<File RelativePath="..\Source\WaterReactedNodeByNode.F90"/>
 		<File RelativePath="..\Source\xmass.F90"/>

@@ -253,15 +253,6 @@ END IF
 
 TempFlux = 0.0d0
 
-IF (pumptimeseries .AND. Richards) THEN
-  IF (TS_1year) THEN
-    time_norm=time-floor(time)
-    CALL interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-  ELSE
-    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-  END IF
-END IF
-
 
 !!!  Do the boundaries first
 
@@ -1013,7 +1004,7 @@ DO jy = 1,ny
 200 CONTINUE
     
     source = 0.0d0
-    IF (wells .AND. .not. Richards) THEN
+    IF (wells) THEN
    
       DO npz = 1,npump(jx,jy,jz)
         IF (qg(npz,jx,jy,jz) > 0.0) THEN       !  Injection well
@@ -1025,7 +1016,7 @@ DO jy = 1,ny
         END IF
       END DO
 
-    ELSE IF (pumptimeseries .AND. .not. Richards) THEN
+    ELSE IF (pumptimeseries) THEN
       IF (npump(jx,jy,jz)>0) THEN
         CALL interp3(time,delt,tpump,qgt(:),qg(1,jx,jy,jz),size(qgt(:)))
         ELSE
@@ -1038,13 +1029,6 @@ DO jy = 1,ny
       ELSE
         CONTINUE
       END IF
-    ELSE IF (pumptimeseries .AND. Richards) THEN
-        IF (npump(jx,jy,jz)>0) THEN
-          qg(1,jx,jy,jz)=qgdum
-          ELSE
-          qg(1,jx,jy,jz)=0
-          END IF
-          CONTINUE                ! Source term on R.H.S.
     END IF
     
     IF (species_diffusion) THEN

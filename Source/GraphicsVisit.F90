@@ -712,42 +712,6 @@ END IF
 
   ! Write head and water content
   IF (calculateflow) THEN
-      IF (Richards) THEN
-          fn='head'
-          ilength = 8
-          CALL newfile(fn,suf1,fnv,nint,ilength)
-          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-          WRITE(8,*) 'TITLE = "Pressure head (m)" '
-          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Head" '
-          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx = 1,nx
-                  WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                        z(jz)*OutputDistanceScale,head(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-          CLOSE(UNIT=8,STATUS='keep')
-
-          fn='watercontent'
-          ilength = 8
-          CALL newfile(fn,suf1,fnv,nint,ilength)
-          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-          WRITE(8,*) 'TITLE = "Water content" '
-          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Water Content" '
-          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx = 1,nx
-                  WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                        z(jz)*OutputDistanceScale,wc(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-          CLOSE(UNIT=8,STATUS='keep')
-      END IF
-      
       IF (Richards_Toshi) THEN
         fn='head'
           ilength = 8
@@ -909,47 +873,6 @@ END IF
   END IF
 
 
-  IF (Richards) THEN
-  IF (isaturate==1) THEN
-  
-    
-    !!write(*,*) ' Writing gasdiffflux file '
-    fn='gasdifffluxY'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,2283) PrintTime
-    117 FORMAT('# Units: mol gas/m2/year')
-    WRITE(8,117)
-    WRITE(8,2285) (namg(kk),kk=1,ngas)
-    jz = 1
-    DO jy = 0,ny
-    DO jx = 1,nx
-      DO i = 1,ngas
-        IF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-        gflux_ver(i)=0
-        ELSEIF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-        gflux_ver(i)=0
-        ELSEIF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
-        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))/((dyy(jy)+dyy(jy+1))/2)
-        ELSEIF (jy<ny .AND. activecellPressure(jx,jy,jz) == 1 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))/((dyy(jy)+dyy(jy+1))/2)
-        ELSE
-        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spgas10(i,jx,jy,1))/((dyy(jy)+dyy(jy+1))/2)
-        END IF
-        if (gflux_ver(i)<1.0E-30 .and. gflux_ver(i)>-1.0E-30) THEN
-          gflux_ver(i)=1.0E-30
-        END IF
-      END DO
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale+dyy(jy)/2,z(jz)*OutputDistanceScale, &
-      (gflux_ver(i),i=1,ngas)
-    END DO
-  END DO
-    CLOSE(UNIT=8,STATUS='keep')
-    
-  END IF
-END if
-
   fn='MineralPercent'
   ilength = 14
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -1073,61 +996,6 @@ END DO
       CLOSE(UNIT=8,STATUS='keep')
       
     END IF
-    
-  IF (Richards) THEN
-
-    fn = 'VG_alpha'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Van Genuchten alpha (m-1)" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_a"'
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-        vga(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-
-    fn = 'VG_n'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Van Genuchten n (-)" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_n"'
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-        vgn(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-
-    fn = 'VG_wcres'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Van Genuchten wat cont residual (-)" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "Wcres" '
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-        wcr(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-
-  END IF
   
   IF (CalculateFlow) THEN
 
