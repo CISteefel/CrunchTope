@@ -13,3 +13,5 @@ CrunchTopeInputs/*.out
 
 # ignore .rst file
 CrunchTopeInputs/*.rst
+
+CrunchTopeInputs/CopperLeach.out
