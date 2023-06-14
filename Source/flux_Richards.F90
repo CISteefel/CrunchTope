@@ -27,15 +27,9 @@ REAL(DP)                                                   :: kr_lb
 REAL(DP)                                                   :: psi_ub
 REAL(DP)                                                   :: head_ub
 REAL(DP)                                                   :: kr_ub
+REAL(DP)                                                   :: xi ! physical constant
 
-!**************************************************
-! physical parameters for Richards solver added by Toshiyuki Bandai, 2023, May
-REAL(DP), PARAMETER                                        :: mu = 1.0016d0 * 1.0E-3 * (86400.0d0 * 365.0d0) ! dynamics viscosity of water [Pa year] at 20 degC
-REAL(DP), PARAMETER                                        :: rho = 0.99823d0 * 1.0E3 ! density of water [kg m-3] at 20 degC
-REAL(DP), PARAMETER                                        :: g = 9.80665d0 * (86400.0d0 * 365.0d0) ** 2 ! gravitational acceleration [m year-2]
-REAL(DP), PARAMETER                                        :: xi = rho*g/mu ! constant used to solve the Richards equation
-! End of edits by Toshiyuki Bandai, 2023, May
-!**************************************************
+xi = rho_water*g/mu_water
 
 ! apply van Genuchten model to all grid cells
 jy = 1

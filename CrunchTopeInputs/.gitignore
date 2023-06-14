@@ -20,6 +20,7 @@ x64
 *.out
 
 # ignore .rst file
+
 *.rst
 
 # ignore fort.123 files
