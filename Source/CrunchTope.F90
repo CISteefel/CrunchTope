@@ -1075,7 +1075,7 @@ nn = 0
 !**********************************************
 ! record initial state by Toshiyuki Bandai 2023, May
 IF (Richards) THEN
-  OPEN(unit = 10, file = 'initial_condition.txt')
+  OPEN(unit = 10, file = 'initial_condition.out')
   DO jx = 1, nx
     WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
   END DO
