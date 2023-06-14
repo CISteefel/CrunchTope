@@ -1,0 +1,258 @@
+TITLE
+CO2 attack on OPC related to GCS
+END
+
+DATABASE
+QL-datacom02.dbs
+END
+
+RUNTIME
+time_units      days
+!!timestep_max    0.00005
+timestep_max    0.0001
+timestep_init   0.00000001
+time_tolerance  0.001
+correction_max  2.0
+hindmarsh       true
+debye-huckel    true
+database_sweep  false
+master          H+
+speciate_only   false
+gimrt           true
+screen_output   1000
+!!fix_saturation  0.999
+read_saturationfile QL-saturation.dat
+graphics        kaleidagraph
+Duan            true
+Benchmark       false
+Qingyun         true
+END
+
+OUTPUT
+time_units               days
+spatial_profile          0.001  0.5  1  3  6  8  10
+time_series_at_node      CO2_GCS  1  1  1
+time_series_print        pH
+time_series_interval     1  
+END
+
+POROSITY
+!!fix_porosity        0.3
+porosity_update     true
+minimum_porosity    0.015
+porosity_exponent   3.00
+porosity_threshold  0.017
+END
+
+MINERALS
+Calcite          -label nucleatecalcite
+Calcite          -label h+  -rate     -3.0
+Calcite_mix      -label h+  -rate     -3.0
+SiO2(ammix)      -label default -rate  -6.5
+SiO2(am)         -label default -rate  -6.5
+SiO2(am)         -label nucleateSiO2(am)
+Portlandite      -label default  -rate  -5.0
+CSH(1.6)         -label default  -rate  -7.8
+CSH(0.8)         -label default  -rate  -7.8
+Bogusite         -rate  -35.00
+Bogusite_i       -rate  -35.00
+END
+
+NUCLEATION
+&Nucleation
+  NameMineral      = Calcite
+  label            = nucleatecalcite
+  A_zero25C        = 0.00000001
+  B_nucleation     = 0.000905
+  Sigma_mJm2       = 47
+  SSA_m2g          = 1
+  Surface          = Bogusite_i
+    /
+End
+
+NUCLEATION
+&Nucleation
+  NameMineral      = SiO2(am)
+  label            = nucleateSiO2(am)
+  A_zero25C        = 0.00000001
+  B_nucleation     = 0.000905
+  Sigma_mJm2       = 20000
+  SSA_m2g          = 1
+  Surface          = Bogusite_i
+    /
+End
+
+
+TEMPERATURE
+set_temperature  95.0
+END
+
+Condition CO2
+!!Solution w/o minerals
+temperature      95.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    100.0
+Ca++             0.0
+SiO2(aq)         0.000001 
+SO4--            0.0
+Na+              0.5
+Cl-              0.50064
+Calcite              0.0   !!ssa 1  0.0000001
+Calcite_mix          0.0   !!ssa 1  0.0000001
+SiO2(am)             0.0
+SiO2(ammix)          0.0
+CSH(1.6)             0.0   !!ssa 1  0.0000001
+CSH(0.8)             0.0   !!ssa 1  0.0000001
+Portlandite          0.0   !!ssa 1  0.0000001
+Bogusite             0.0          0.0
+set_porosity     16
+!!set_saturation   0.1
+END
+
+Condition Brine
+!!Solution w/o minerals
+temperature      95.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    100.0
+Ca++             0.0
+SiO2(aq)         0.000001 
+SO4--            0.0
+Na+              0.5
+Cl-              0.50064
+Calcite_mix      0.0   !!ssa 1  0.0000001
+Calcite          0.0   !!ssa 1  0.0000001
+SiO2(am)         0.0
+SiO2(ammix)      0.0
+CSH(1.6)         0.0   !!ssa 1  0.0000001
+CSH(0.8)         0.0   !!ssa 1  0.0000001
+Portlandite      0.0   !!ssa 1  0.0000001
+Bogusite         0.0          0.0
+set_porosity     16
+!!set_saturation   0.95
+END
+
+Condition Brine-Seed
+!!Solution w/o minerals
+temperature      95.0
+units            mol/kg
+pH               charge
+CO2(aq)          CO2(g)    100.0
+Ca++             0.0
+SiO2(aq)         0.000001 
+SO4--            0.0
+Na+              0.5
+Cl-              0.50064
+Calcite              0.0   ssa 1  
+Calcite_mix          0.0   ssa 1
+SiO2(am)             0.0   ssa  1
+SiO2(ammix)          0.0   ssa 1
+CSH(1.6)             0.0   !!ssa 1  0.0000001
+CSH(0.8)             0.0   !!ssa 1  0.0000001
+Portlandite          0.0   !!ssa 1  0.0000001
+Bogusite             0.0          0.0
+Bogusite_i           0.01  ssa 1
+set_porosity     16
+!!set_saturation   0.95
+END
+
+Condition Cement
+temperature          95.0
+pH                   Portlandite
+CO2(aq)              1.E-10
+Ca++                 0.001
+Na+                  charge
+Cl-                  0.500
+SiO2(aq)             0.0000001
+Calcite_mix          0.00001       ssa 1 
+CSH(1.6)             0.31          ssa 1 
+CSH(0.8)             0.05          ssa 1 
+SiO2(ammix)          0.01          ssa 1  
+Portlandite          0.16          ssa 1
+Bogusite             0.27          0.0
+set_porosity         0.20
+!!set_saturation       1
+END
+
+
+INITIAL_CONDITIONS
+Brine         1-324    1-1  1-1
+CO2           1-4      1-1  1-1
+Brine-Seed    210-310  1-1  1-1
+Cement        325-524  1-1  1-1
+END
+
+BOUNDARY_CONDITIONS
+X_begin     CO2   Flux 
+X_end       Cement        Flux 
+END
+
+TRANSPORT
+distance_units        meters
+time_units            second
+cementation_exponent  2
+gas_diffusion         2.E-11
+fix_diffusion         3E-09
+diffusion_activation  5.0
+!!!D_25  H+     14e-9
+!!!D_25  Ca++   1.3e-9
+!!!D_25  OH-    10e-9
+!!!D_25  CO3--  2e-9
+!!!D_25  HCO3-  2e-9
+!!!D_25  CO2(aq) 3e-9
+!!!D_25  Cl-    3.47e-9
+!!!D_25  Na+    2.27e-9
+
+!!dispersivity        0.0  0.0 
+END
+
+DISCRETIZATION 
+distance_units  microns
+xzones          4  2000   320 100  200  10   
+END
+
+FLOW
+distance_units      microns
+time_units          second
+constant_flow       0.0
+calculate_flow      false
+END
+
+
+
+PRIMARY_SPECIES
+H+
+Ca++
+CO2(aq) 
+SiO2(aq)
+Na+
+Cl-
+END
+
+SECONDARY_SPECIES
+HCO3-                                                                                                                         
+CaCl+                                                                   
+CaCl2(aq)                                                                                                                            
+CaOH+                                                                   
+H2SiO4--                                                                
+H4(H2SiO4)4----                                                         
+H6(H2SiO4)4--                                                           
+HCl(aq)                                                                 
+HSiO3-                                                                  
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+OH-                                                                     
+CO3--                                                                                                                            
+CaCO3(aq)                                                                                                                         
+CaHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)                                                                 
+END
+
+GASES
+CO2(g)
+END
+
+

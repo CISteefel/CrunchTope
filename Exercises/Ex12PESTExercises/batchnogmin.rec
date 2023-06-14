@@ -1,0 +1,813 @@
+                     PEST RUN RECORD: CASE batchnogmin
+
+
+ PEST Version: 15.00
+
+
+ PEST run mode:-
+
+    Parameter estimation mode
+
+
+ Case dimensions:-
+
+    Number of parameters                           :     4
+    Number of adjustable parameters                :     4
+    Number of parameter groups                     :     1
+    Number of observations                         :   165
+    Number of prior estimates                      :     0
+
+
+ Model command line(s):-
+ 
+    CrunchTope
+
+
+ Jacobian command line:-
+
+    na
+
+
+ Model interface files:-
+
+    Templates:
+       datacom-SrExchange.tpl
+    for model input files:
+       datacom-SrExchange.dbs
+
+    (Parameter values written using double precision protocol.)
+    (Decimal point always included.)
+
+    Instruction files:
+       PestExchange.ins
+    for reading model output files:
+       PestExchange.out
+
+
+ PEST-to-model message file:-
+
+    na
+
+
+ Derivatives calculation:-
+
+ Param        Increment   Increment   Increment   Forward or   Multiplier  Method
+ group        type                    low bound   central      (central)   (central)
+ all          relative    1.0000E-02   none         switch       1.000     best_fit
+
+
+ Parameter definitions:-
+
+ Name         Trans-            Change       Initial        Lower          Upper
+              formation         limit        value          bound          bound
+ k2a          none              relative   0.200000       -2.00000        4.00000    
+ k2b          none              relative   0.200000       -2.00000        4.00000    
+ k2c          none              relative   0.200000       -2.00000        4.00000    
+ k2d          none              relative   0.200000       -2.00000        4.00000    
+
+ Name         Group          Scale         Offset        Model command number
+ k2a          all           1.00000        0.00000            1
+ k2b          all           1.00000        0.00000            1
+ k2c          all           1.00000        0.00000            1
+ k2d          all           1.00000        0.00000            1
+
+
+ Prior information:-
+
+    No prior information supplied
+
+
+ Observations:-
+
+ Observation name        Observation       Weight       Group
+  srca-a11                0.00000          1.000       group_1     
+  srca-a12                0.00000          1.000       group_1     
+  srca-a13                0.00000          1.000       group_1     
+  srca-a14                42.3700          1.000       group_1     
+  srca-a15               5.000000E-02      1.000       group_1     
+  srca-a21                1.19000          1.000       group_1     
+  srca-a22               0.560000          1.000       group_1     
+  srca-a23               0.370000          1.000       group_1     
+  srca-a24                40.5000          1.000       group_1     
+  srca-a25                0.00000          1.000       group_1     
+  srca-a31                2.32000          1.000       group_1     
+  srca-a32               0.560000          1.000       group_1     
+  srca-a33               0.490000          1.000       group_1     
+  srca-a34                40.1600          1.000       group_1     
+  srca-a35               4.000000E-02      1.000       group_1     
+  srca-a41                4.30000          1.000       group_1     
+  srca-a42               0.540000          1.000       group_1     
+  srca-a43               0.240000          1.000       group_1     
+  srca-a44                36.1100          1.000       group_1     
+  srca-a45                0.00000          1.000       group_1     
+  srca-a51                11.3000          1.000       group_1     
+  srca-a52               0.580000          1.000       group_1     
+  srca-a53               0.120000          1.000       group_1     
+  srca-a54                30.5600          1.000       group_1     
+  srca-a55               0.760000          1.000       group_1     
+  srca-a61                18.8100          1.000       group_1     
+  srca-a62               0.540000          1.000       group_1     
+  srca-a63               4.000000E-02      1.000       group_1     
+  srca-a64                22.9500          1.000       group_1     
+  srca-a65               0.280000          1.000       group_1     
+  srca-a71                25.1600          1.000       group_1     
+  srca-a72               0.570000          1.000       group_1     
+  srca-a73                0.00000          1.000       group_1     
+  srca-a74                12.2900          1.000       group_1     
+  srca-a75               0.290000          1.000       group_1     
+  srca-a81                33.0800          1.000       group_1     
+  srca-a82               0.610000          1.000       group_1     
+  srca-a83                0.00000          1.000       group_1     
+  srca-a84                4.32000          1.000       group_1     
+  srca-a85               0.280000          1.000       group_1     
+  srca-a91                37.9500          1.000       group_1     
+  srca-a92               0.610000          1.000       group_1     
+  srca-a93                0.00000          1.000       group_1     
+  srca-a94                2.17000          1.000       group_1     
+  srca-a95               0.150000          1.000       group_1     
+  srca-a101               36.5400          1.000       group_1     
+  srca-a102              0.610000          1.000       group_1     
+  srca-a103               0.00000          1.000       group_1     
+  srca-a104               1.21000          1.000       group_1     
+  srca-a105              0.100000          1.000       group_1     
+  srca-a111               42.3900          1.000       group_1     
+  srca-a112              0.630000          1.000       group_1     
+  srca-a113               0.00000          1.000       group_1     
+  srca-a114               0.00000          1.000       group_1     
+  srca-a115              0.520000          1.000       group_1     
+  srca-b11                4.95000          1.000       group_1     
+  srca-b12               0.660000          1.000       group_1     
+  srca-b13                1.49000          1.000       group_1     
+  srca-b14                35.6700          1.000       group_1     
+  srca-b15               0.100000          1.000       group_1     
+  srca-b21                5.92000          1.000       group_1     
+  srca-b22               0.590000          1.000       group_1     
+  srca-b23                1.36000          1.000       group_1     
+  srca-b24                34.8800          1.000       group_1     
+  srca-b25               0.230000          1.000       group_1     
+  srca-b31                7.17000          1.000       group_1     
+  srca-b32               0.620000          1.000       group_1     
+  srca-b33                1.40000          1.000       group_1     
+  srca-b34                34.2400          1.000       group_1     
+  srca-b35               5.000000E-02      1.000       group_1     
+  srca-b41                8.56000          1.000       group_1     
+  srca-b42               0.630000          1.000       group_1     
+  srca-b43                1.34000          1.000       group_1     
+  srca-b44                31.7100          1.000       group_1     
+  srca-b45               0.170000          1.000       group_1     
+  srca-b51                13.2700          1.000       group_1     
+  srca-b52               0.610000          1.000       group_1     
+  srca-b53                1.25000          1.000       group_1     
+  srca-b54                24.7400          1.000       group_1     
+  srca-b55               0.120000          1.000       group_1     
+  srca-b61                20.3600          1.000       group_1     
+  srca-b62               0.630000          1.000       group_1     
+  srca-b63                1.32000          1.000       group_1     
+  srca-b64                17.8600          1.000       group_1     
+  srca-b65                0.00000          1.000       group_1     
+  srca-b71                27.1600          1.000       group_1     
+  srca-b72               0.620000          1.000       group_1     
+  srca-b73                1.21000          1.000       group_1     
+  srca-b74                11.0800          1.000       group_1     
+  srca-b75                0.00000          1.000       group_1     
+  srca-b81                32.2200          1.000       group_1     
+  srca-b82               0.640000          1.000       group_1     
+  srca-b83                1.23000          1.000       group_1     
+  srca-b84                3.82000          1.000       group_1     
+  srca-b85               0.220000          1.000       group_1     
+  srca-b91                33.9100          1.000       group_1     
+  srca-b92               0.650000          1.000       group_1     
+  srca-b93                1.27000          1.000       group_1     
+  srca-b94                1.99000          1.000       group_1     
+  srca-b95               9.000000E-02      1.000       group_1     
+  srca-b101               37.8300          1.000       group_1     
+  srca-b102              0.660000          1.000       group_1     
+  srca-b103               1.27000          1.000       group_1     
+  srca-b104               1.07000          1.000       group_1     
+  srca-b105              0.260000          1.000       group_1     
+  srca-b111               38.6900          1.000       group_1     
+  srca-b112              0.620000          1.000       group_1     
+  srca-b113               1.18000          1.000       group_1     
+  srca-b114               0.00000          1.000       group_1     
+  srca-b115               0.00000          1.000       group_1     
+  srca-c11                26.0100          1.000       group_1     
+  srca-c12               0.810000          1.000       group_1     
+  srca-c13                6.29000          1.000       group_1     
+  srca-c14                10.4600          1.000       group_1     
+  srca-c15                0.00000          1.000       group_1     
+  srca-c21                22.0300          1.000       group_1     
+  srca-c22               0.760000          1.000       group_1     
+  srca-c23                5.98000          1.000       group_1     
+  srca-c24                10.4000          1.000       group_1     
+  srca-c25                0.00000          1.000       group_1     
+  srca-c31                27.7900          1.000       group_1     
+  srca-c32               0.750000          1.000       group_1     
+  srca-c33                5.87000          1.000       group_1     
+  srca-c34                9.85000          1.000       group_1     
+  srca-c35                0.00000          1.000       group_1     
+  srca-c41                26.5700          1.000       group_1     
+  srca-c42               0.740000          1.000       group_1     
+  srca-c43                5.74000          1.000       group_1     
+  srca-c44                9.17000          1.000       group_1     
+  srca-c45                0.00000          1.000       group_1     
+  srca-c51                24.6200          1.000       group_1     
+  srca-c52               0.800000          1.000       group_1     
+  srca-c53                5.83000          1.000       group_1     
+  srca-c54                7.23000          1.000       group_1     
+  srca-c55                0.00000          1.000       group_1     
+  srca-c61                28.3200          1.000       group_1     
+  srca-c62               0.770000          1.000       group_1     
+  srca-c63                5.83000          1.000       group_1     
+  srca-c64                5.27000          1.000       group_1     
+  srca-c65                0.00000          1.000       group_1     
+  srca-c71                28.9400          1.000       group_1     
+  srca-c72               0.770000          1.000       group_1     
+  srca-c73                6.14000          1.000       group_1     
+  srca-c74                3.11000          1.000       group_1     
+  srca-c75                0.00000          1.000       group_1     
+  srca-c81                32.4100          1.000       group_1     
+  srca-c82               0.790000          1.000       group_1     
+  srca-c83                5.98000          1.000       group_1     
+  srca-c84                1.11000          1.000       group_1     
+  srca-c85                0.00000          1.000       group_1     
+  srca-c91                31.2200          1.000       group_1     
+  srca-c92               0.760000          1.000       group_1     
+  srca-c93                5.88000          1.000       group_1     
+  srca-c94               0.550000          1.000       group_1     
+  srca-c95                0.00000          1.000       group_1     
+  srca-c101               30.7500          1.000       group_1     
+  srca-c102              0.770000          1.000       group_1     
+  srca-c103               5.91000          1.000       group_1     
+  srca-c104              0.300000          1.000       group_1     
+  srca-c105               0.00000          1.000       group_1     
+  srca-c111               33.3700          1.000       group_1     
+  srca-c112              0.710000          1.000       group_1     
+  srca-c113               5.81000          1.000       group_1     
+  srca-c114               0.00000          1.000       group_1     
+  srca-c115               0.00000          1.000       group_1     
+
+
+ Control settings:-
+
+    Initial lambda                                               :  5.0000    
+    Lambda adjustment factor                                     :  2.0000    
+    Sufficient new/old phi ratio per optimisation iteration      : 0.10000    
+    Limiting relative phi reduction between lambdas              : 5.00000E-03
+    Maximum trial lambdas per iteration                          :  10
+    Forgive model run failure during lamda testing               : no
+    Forgive model run failure during Jacobian runs               : no
+
+    Perform Broyden's update of Jacobian matrix                  : no
+    Undertake observation re-referencing                         : no
+
+    Maximum  factor  parameter change (factor-limited changes)   : na
+    Maximum relative parameter change (relative-limited changes) :  3.0000
+    Fraction of initial parameter values used in computing
+    change limit for near-zero parameters                        : 1.00000E-03
+    Allow bending of parameter upgrade vector                    : no
+    Allow parameters to stick to their bounds                    : no
+
+    Relative phi reduction below which to begin use of
+    central derivatives                                          : 1.00000E-02         
+    Iteration at which to first consider derivatives switch      :   1
+
+    Relative phi reduction indicating convergence                : 0.50000E-02
+    Number of phi values required within this range              :   4
+    Maximum number of consecutive failures to lower phi          :   4
+    Minimal relative parameter change indicating convergence     : 0.10000E-01
+    Number of consecutive iterations with minimal param change   :   5
+    Maximum number of optimisation iterations                    :  50
+
+    Attempt automatic user intervention                          : no
+
+    Attempt reuse of parameter sensitivities                     : no
+
+    Scale parameters by their bounds                             : no
+
+
+ File saving options: -
+
+    Save best JCO file                                           : yes
+    Save multiple JCO files                                      : no
+    Save multiple REI files                                      : no
+    Save multiple PAR files                                      : no
+ 
+ 
+                             OPTIMISATION RECORD
+
+
+ INITIAL CONDITIONS: 
+    Sum of squared weighted residuals (ie phi) =   185.89    
+ 
+       Current parameter values
+       k2a             0.200000    
+       k2b             0.200000    
+       k2c             0.200000    
+       k2d             0.200000    
+
+
+ OPTIMISATION ITERATION NO.        : 1
+    Model calls so far             : 1
+    Starting phi for this iteration:   185.89    
+
+        Lambda =   5.0000     ----->
+           Phi =   60.900      (  0.328 of starting phi)
+
+        Lambda =   2.5000     ----->
+           Phi =   81.980      (  0.441 of starting phi)
+
+        Lambda =   10.000     ----->
+           Phi =   61.198      (  0.329 of starting phi)
+
+    No more lambdas: phi rising
+    Lowest phi this iteration:   60.900    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.331385E-02             k2a              0.200000    
+       k2b            -0.382619                 k2b              0.200000    
+       k2c             0.128510                 k2c              0.200000    
+       k2d             0.209131                 k2d              0.200000    
+    Maximum relative change:  2.913     ["k2b"]
+
+
+ OPTIMISATION ITERATION NO.        : 2
+    Model calls so far             : 8
+    Starting phi for this iteration:   60.900    
+
+        Lambda =   5.0000     ----->
+           Phi =   57.167      (  0.939 of starting phi)
+
+        Lambda =   2.5000     ----->
+           Phi =   57.109      (  0.938 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   57.109    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.287236E-02             k2a              9.331385E-02
+       k2b             -1.43165                 k2b             -0.382619    
+       k2c             0.128961                 k2c              0.128510    
+       k2d            -0.418261                 k2d              0.209131    
+    Maximum relative change:  3.000     ["k2d"]
+
+
+ OPTIMISATION ITERATION NO.        : 3
+    Model calls so far             : 14
+    Starting phi for this iteration:   57.109    
+
+        Lambda =   1.2500     ----->
+           Phi =   36.360      (  0.637 of starting phi)
+
+        Lambda =  0.62500     ----->
+           Phi =   36.472      (  0.639 of starting phi)
+
+        Lambda =   2.5000     ----->
+           Phi =   36.159      (  0.633 of starting phi)
+
+        Lambda =   5.0000     ----->
+           Phi =   35.862      (  0.628 of starting phi)
+
+        Lambda =   10.000     ----->
+           Phi =   35.537      (  0.622 of starting phi)
+
+        Lambda =   20.000     ----->
+           Phi =   39.861      (  0.698 of starting phi)
+
+    No more lambdas: phi rising
+    Lowest phi this iteration:   35.537    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.155965E-02             k2a              9.287236E-02
+       k2b             -1.21481                 k2b              -1.43165    
+       k2c             0.136228                 k2c              0.128961    
+       k2d             -1.67305                 k2d             -0.418261    
+    Maximum relative change:  3.000     ["k2d"]
+
+
+ OPTIMISATION ITERATION NO.        : 4
+    Model calls so far             : 24
+    Starting phi for this iteration:   35.537    
+
+        Lambda =   10.000     ----->
+           Phi =   32.018      (  0.901 of starting phi)
+
+        Lambda =   5.0000     ----->
+           Phi =   32.179      (  0.906 of starting phi)
+
+        Lambda =   20.000     ----->
+           Phi =   31.896      (  0.898 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   31.896    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.510450E-02             k2a              9.155965E-02
+       k2b             -1.19725                 k2b              -1.21481    
+       k2c             0.160310                 k2c              0.136228    
+       k2d             -1.90224                 k2d              -1.67305    
+    Maximum relative change: 0.1768     ["k2c"]
+
+
+ OPTIMISATION ITERATION NO.        : 5
+    Model calls so far             : 31
+    Starting phi for this iteration:   31.896    
+
+        Lambda =   20.000     ----->
+           Phi =   31.551      (  0.989 of starting phi)
+
+        Lambda =   10.000     ----->
+           Phi =   31.501      (  0.988 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   31.501    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.310018E-02             k2a              9.510450E-02
+       k2b             -1.17834                 k2b              -1.19725    
+       k2c             0.150529                 k2c              0.160310    
+       k2d             -1.88941                 k2d              -1.90224    
+    Maximum relative change: 6.1010E-02 ["k2c"]
+
+
+ OPTIMISATION ITERATION NO.        : 6
+    Model calls so far             : 37
+    Starting phi for this iteration:   31.501    
+
+        Lambda =   5.0000     ----->
+           Phi =   31.417      (  0.997 of starting phi)
+
+        Lambda =   2.5000     ----->
+           Phi =   31.362      (  0.996 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   31.362    
+    Relative phi reduction between optimisation iterations less than 0.0100
+    Switch to higher order derivatives calculation
+
+       Current parameter values                 Previous parameter values
+       k2a             9.073104E-02             k2a              9.310018E-02
+       k2b             -1.11204                 k2b              -1.17834    
+       k2c             0.143557                 k2c              0.150529    
+       k2d             -1.87873                 k2d              -1.88941    
+    Maximum relative change: 5.6262E-02 ["k2b"]
+
+
+ OPTIMISATION ITERATION NO.        : 7
+    Model calls so far             : 43
+    Starting phi for this iteration:   31.362    
+
+        Lambda =   1.2500     ----->
+           Phi =   31.212      (  0.995 of starting phi)
+
+        Lambda =  0.62500     ----->
+           Phi =   31.197      (  0.995 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   31.197    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.251812E-02             k2a              9.073104E-02
+       k2b            -0.964862                 k2b              -1.11204    
+       k2c             0.148383                 k2c              0.143557    
+       k2d             -1.89120                 k2d              -1.87873    
+    Maximum relative change: 0.1323     ["k2b"]
+
+
+ OPTIMISATION ITERATION NO.        : 8
+    Model calls so far             : 53
+    Starting phi for this iteration:   31.197    
+
+        Lambda =  0.31250     ----->
+           Phi =   31.184      (  1.000 of starting phi)
+
+        Lambda =  0.15625     ----->
+           Phi =   31.184      (  1.000 of starting phi)
+
+        Lambda =  0.62500     ----->
+           Phi =   31.185      (  1.000 of starting phi)
+
+    No more lambdas: phi rising
+    Lowest phi this iteration:   31.184    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.204189E-02             k2a              9.251812E-02
+       k2b            -0.943496                 k2b             -0.964862    
+       k2c             0.147093                 k2c              0.148383    
+       k2d             -1.88836                 k2d              -1.89120    
+    Maximum relative change: 2.2144E-02 ["k2b"]
+
+
+ OPTIMISATION ITERATION NO.        : 9
+    Model calls so far             : 64
+    Starting phi for this iteration:   31.184    
+
+        Lambda =  0.31250     ----->
+           Phi =   31.186      (  1.000 times starting phi)
+
+        Lambda =  0.15625     ----->
+           Phi =   31.186      (  1.000 times starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   31.186    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.188471E-02             k2a              9.204189E-02
+       k2b            -0.916008                 k2b             -0.943496    
+       k2c             0.146584                 k2c              0.147093    
+       k2d             -1.88963                 k2d              -1.88836    
+    Maximum relative change: 2.9134E-02 ["k2b"]
+
+
+ OPTIMISATION ITERATION NO.        : 10
+    Model calls so far             : 74
+    Starting phi for this iteration:   31.186    
+
+        Lambda =  7.81250E-02 ----->
+           Phi =   31.184      (  1.000 of starting phi)
+
+        Lambda =  3.90625E-02 ----->
+           Phi =   31.184      (  1.000 of starting phi)
+
+        Lambda =  0.15625     ----->
+           Phi =   31.182      (  1.000 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:   31.182    
+
+       Current parameter values                 Previous parameter values
+       k2a             9.183343E-02             k2a              9.188471E-02
+       k2b            -0.909927                 k2b             -0.916008    
+       k2c             0.146564                 k2c              0.146584    
+       k2d             -1.88939                 k2d              -1.88963    
+    Maximum relative change: 6.6380E-03 ["k2b"]
+
+    Optimisation complete: the  4 lowest phi's are within a relative distance
+                           of eachother of 5.000E-03
+    Total model calls:     85
+
+    The model has been run one final time using best parameters. 
+    Thus all model input files contain best parameter values, and model 
+    output files contain model results based on these parameters.
+
+
+                             OPTIMISATION RESULTS
+
+
+ Parameters ----->
+
+ Parameter        Estimated         95% percent confidence limits
+                  value             lower limit       upper limit
+  k2a            9.183343E-02       8.310404E-02      0.100563    
+  k2b           -0.909927           -1.47566         -0.344194    
+  k2c            0.146564           0.127452          0.165677    
+  k2d            -1.88939           -1.96078          -1.81801    
+
+ Note: confidence limits provide only an indication of parameter uncertainty.
+       They rely on a linearity assumption which  may not extend as far in 
+       parameter space as the confidence limits themselves - see PEST manual.
+
+ See file batchnogmin.sen for parameter sensitivities.
+
+
+ Observations ----->
+
+ Observation            Measured       Calculated     Residual       Weight     Group
+                        value          value
+ srca-a11               0.00000       0.182780      -0.182780        1.000      group_1     
+ srca-a12               0.00000       0.642980      -0.642980        1.000      group_1     
+ srca-a13               0.00000       4.879100E-02  -4.879100E-02    1.000      group_1     
+ srca-a14               42.3700        41.4950       0.875000        1.000      group_1     
+ srca-a15              5.000000E-02   3.007100E-02   1.992900E-02    1.000      group_1     
+ srca-a21               1.19000        1.13990       5.010000E-02    1.000      group_1     
+ srca-a22              0.560000        1.01310      -0.453100        1.000      group_1     
+ srca-a23              0.370000       4.809500E-02   0.321905        1.000      group_1     
+ srca-a24               40.5000        40.3920       0.108000        1.000      group_1     
+ srca-a25               0.00000       6.836400E-03  -6.836400E-03    1.000      group_1     
+ srca-a31               2.32000        2.08580       0.234200        1.000      group_1     
+ srca-a32              0.560000       0.959960      -0.399960        1.000      group_1     
+ srca-a33              0.490000       4.998800E-02   0.440012        1.000      group_1     
+ srca-a34               40.1600        40.5030      -0.343000        1.000      group_1     
+ srca-a35              4.000000E-02   1.072700E-03   3.892730E-02    1.000      group_1     
+ srca-a41               4.30000        3.78170       0.518300        1.000      group_1     
+ srca-a42              0.540000       0.853230      -0.313230        1.000      group_1     
+ srca-a43              0.240000       4.615000E-02   0.193850        1.000      group_1     
+ srca-a44               36.1100        36.4510      -0.341000        1.000      group_1     
+ srca-a45               0.00000       6.751800E-02  -6.751800E-02    1.000      group_1     
+ srca-a51               11.3000        12.1390      -0.839000        1.000      group_1     
+ srca-a52              0.580000       0.809540      -0.229540        1.000      group_1     
+ srca-a53              0.120000       5.132700E-02   6.867300E-02    1.000      group_1     
+ srca-a54               30.5600        30.2040       0.356000        1.000      group_1     
+ srca-a55              0.760000       9.534900E-02   0.664651        1.000      group_1     
+ srca-a61               18.8100        20.1180       -1.30800        1.000      group_1     
+ srca-a62              0.540000       0.791980      -0.251980        1.000      group_1     
+ srca-a63              4.000000E-02   5.404000E-02  -1.404000E-02    1.000      group_1     
+ srca-a64               22.9500        21.6210        1.32900        1.000      group_1     
+ srca-a65              0.280000       1.485300E-02   0.265147        1.000      group_1     
+ srca-a71               25.1600        25.8830      -0.723000        1.000      group_1     
+ srca-a72              0.570000       0.688440      -0.118440        1.000      group_1     
+ srca-a73               0.00000       5.080200E-02  -5.080200E-02    1.000      group_1     
+ srca-a74               12.2900        11.6510       0.639000        1.000      group_1     
+ srca-a75              0.290000       2.703600E-02   0.262964        1.000      group_1     
+ srca-a81               33.0800        33.5130      -0.433000        1.000      group_1     
+ srca-a82              0.610000       0.649960      -3.996000E-02    1.000      group_1     
+ srca-a83               0.00000       5.271500E-02  -5.271500E-02    1.000      group_1     
+ srca-a84               4.32000        4.03100       0.289000        1.000      group_1     
+ srca-a85              0.280000       5.286600E-02   0.227134        1.000      group_1     
+ srca-a91               37.9500        38.0450      -9.500000E-02    1.000      group_1     
+ srca-a92              0.610000       0.679080      -6.908000E-02    1.000      group_1     
+ srca-a93               0.00000       5.734300E-02  -5.734300E-02    1.000      group_1     
+ srca-a94               2.17000        2.11730       5.270000E-02    1.000      group_1     
+ srca-a95              0.150000       1.062400E-03   0.148938        1.000      group_1     
+ srca-a101              36.5400        36.7850      -0.245000        1.000      group_1     
+ srca-a102             0.610000       0.642640      -3.264000E-02    1.000      group_1     
+ srca-a103              0.00000       5.449300E-02  -5.449300E-02    1.000      group_1     
+ srca-a104              1.21000        1.01710       0.192900        1.000      group_1     
+ srca-a105             0.100000       1.002000E-03   9.899800E-02    1.000      group_1     
+ srca-a111              42.3900        42.6770      -0.287000        1.000      group_1     
+ srca-a112             0.630000       0.752100      -0.122100        1.000      group_1     
+ srca-a113              0.00000       6.358000E-02  -6.358000E-02    1.000      group_1     
+ srca-a114              0.00000       6.343100E-03  -6.343100E-03    1.000      group_1     
+ srca-a115             0.520000       1.140600E-03   0.518859        1.000      group_1     
+ srca-b11               4.95000        4.51390       0.436100        1.000      group_1     
+ srca-b12              0.660000       0.643790       1.621000E-02    1.000      group_1     
+ srca-b13               1.49000       0.907390       0.582610        1.000      group_1     
+ srca-b14               35.6700        36.7310       -1.06100        1.000      group_1     
+ srca-b15              0.100000       0.103790      -3.790000E-03    1.000      group_1     
+ srca-b21               5.92000        6.44460      -0.524600        1.000      group_1     
+ srca-b22              0.590000       0.904580      -0.314580        1.000      group_1     
+ srca-b23               1.36000       0.952600       0.407400        1.000      group_1     
+ srca-b24               34.8800        34.4960       0.384000        1.000      group_1     
+ srca-b25              0.230000       0.202640       2.736000E-02    1.000      group_1     
+ srca-b31               7.17000        6.46640       0.703600        1.000      group_1     
+ srca-b32              0.620000       0.757350      -0.137350        1.000      group_1     
+ srca-b33               1.40000       0.941900       0.458100        1.000      group_1     
+ srca-b34               34.2400        35.0340      -0.794000        1.000      group_1     
+ srca-b35              5.000000E-02   0.300320      -0.250320        1.000      group_1     
+ srca-b41               8.56000        7.83020       0.729800        1.000      group_1     
+ srca-b42              0.630000       0.733450      -0.103450        1.000      group_1     
+ srca-b43               1.34000       0.906650       0.433350        1.000      group_1     
+ srca-b44               31.7100        32.8270       -1.11700        1.000      group_1     
+ srca-b45              0.170000       0.102260       6.774000E-02    1.000      group_1     
+ srca-b51               13.2700        13.7960      -0.526000        1.000      group_1     
+ srca-b52              0.610000       0.707350      -9.735000E-02    1.000      group_1     
+ srca-b53               1.25000       0.883930       0.366070        1.000      group_1     
+ srca-b54               24.7400        24.4910       0.249000        1.000      group_1     
+ srca-b55              0.120000       0.121610      -1.610000E-03    1.000      group_1     
+ srca-b61               20.3600        20.5900      -0.230000        1.000      group_1     
+ srca-b62              0.630000       0.786760      -0.156760        1.000      group_1     
+ srca-b63               1.32000       0.926380       0.393620        1.000      group_1     
+ srca-b64               17.8600        17.8940      -3.400000E-02    1.000      group_1     
+ srca-b65               0.00000       2.774300E-03  -2.774300E-03    1.000      group_1     
+ srca-b71               27.1600        27.3610      -0.201000        1.000      group_1     
+ srca-b72              0.620000       0.750560      -0.130560        1.000      group_1     
+ srca-b73               1.21000       0.948770       0.261230        1.000      group_1     
+ srca-b74               11.0800        11.0370       4.300000E-02    1.000      group_1     
+ srca-b75               0.00000       2.779400E-03  -2.779400E-03    1.000      group_1     
+ srca-b81               32.2200        33.7210       -1.50100        1.000      group_1     
+ srca-b82              0.640000       0.698630      -5.863000E-02    1.000      group_1     
+ srca-b83               1.23000       0.984170       0.245830        1.000      group_1     
+ srca-b84               3.82000        2.69300        1.12700        1.000      group_1     
+ srca-b85              0.220000       2.714600E-03   0.217285        1.000      group_1     
+ srca-b91               33.9100        33.3500       0.560000        1.000      group_1     
+ srca-b92              0.650000       0.692330      -4.233000E-02    1.000      group_1     
+ srca-b93               1.27000       0.952650       0.317350        1.000      group_1     
+ srca-b94               1.99000        2.68470      -0.694700        1.000      group_1     
+ srca-b95              9.000000E-02   0.220600      -0.130600        1.000      group_1     
+ srca-b101              37.8300        38.3650      -0.535000        1.000      group_1     
+ srca-b102             0.660000       0.704830      -4.483000E-02    1.000      group_1     
+ srca-b103              1.27000        1.05680       0.213200        1.000      group_1     
+ srca-b104              1.07000       0.970270       9.973000E-02    1.000      group_1     
+ srca-b105             0.260000       2.912600E-03   0.257087        1.000      group_1     
+ srca-b111              38.6900        38.7780      -8.800000E-02    1.000      group_1     
+ srca-b112             0.620000       0.697520      -7.752000E-02    1.000      group_1     
+ srca-b113              1.18000        1.01050       0.169500        1.000      group_1     
+ srca-b114              0.00000       1.139600E-02  -1.139600E-02    1.000      group_1     
+ srca-b115              0.00000       2.897200E-03  -2.897200E-03    1.000      group_1     
+ srca-c11               26.0100        24.7890        1.22100        1.000      group_1     
+ srca-c12              0.810000        1.04300      -0.233000        1.000      group_1     
+ srca-c13               6.29000        6.41590      -0.125900        1.000      group_1     
+ srca-c14               10.4600        11.3430      -0.883000        1.000      group_1     
+ srca-c15               0.00000       8.761600E-03  -8.761600E-03    1.000      group_1     
+ srca-c21               22.0300        22.5380      -0.508000        1.000      group_1     
+ srca-c22              0.760000       0.528130       0.231870        1.000      group_1     
+ srca-c23               5.98000        5.90100       7.900000E-02    1.000      group_1     
+ srca-c24               10.4000        10.1970       0.203000        1.000      group_1     
+ srca-c25               0.00000       3.544900E-02  -3.544900E-02    1.000      group_1     
+ srca-c31               27.7900        25.9800        1.81000        1.000      group_1     
+ srca-c32              0.750000       0.520080       0.229920        1.000      group_1     
+ srca-c33               5.87000        6.08060      -0.210600        1.000      group_1     
+ srca-c34               9.85000        11.0220       -1.17200        1.000      group_1     
+ srca-c35               0.00000       0.197160      -0.197160        1.000      group_1     
+ srca-c41               26.5700        25.4920        1.07800        1.000      group_1     
+ srca-c42              0.740000       0.901650      -0.161650        1.000      group_1     
+ srca-c43               5.74000        6.27890      -0.538900        1.000      group_1     
+ srca-c44               9.17000        9.51860      -0.348600        1.000      group_1     
+ srca-c45               0.00000       8.365000E-03  -8.365000E-03    1.000      group_1     
+ srca-c51               24.6200        24.8490      -0.229000        1.000      group_1     
+ srca-c52              0.800000       0.506310       0.293690        1.000      group_1     
+ srca-c53               5.83000        5.90940      -7.940000E-02    1.000      group_1     
+ srca-c54               7.23000        7.21530       1.470000E-02    1.000      group_1     
+ srca-c55               0.00000       1.980000E-02  -1.980000E-02    1.000      group_1     
+ srca-c61               28.3200        28.1850       0.135000        1.000      group_1     
+ srca-c62              0.770000       0.664770       0.105230        1.000      group_1     
+ srca-c63               5.83000        5.92650      -9.650000E-02    1.000      group_1     
+ srca-c64               5.27000        5.41550      -0.145500        1.000      group_1     
+ srca-c65               0.00000       8.232900E-03  -8.232900E-03    1.000      group_1     
+ srca-c71               28.9400        29.2500      -0.310000        1.000      group_1     
+ srca-c72              0.770000       0.723340       4.666000E-02    1.000      group_1     
+ srca-c73               6.14000        5.98380       0.156200        1.000      group_1     
+ srca-c74               3.11000        3.03500       7.500000E-02    1.000      group_1     
+ srca-c75               0.00000       8.134700E-03  -8.134700E-03    1.000      group_1     
+ srca-c81               32.4100        32.5800      -0.170000        1.000      group_1     
+ srca-c82              0.790000       0.489970       0.300030        1.000      group_1     
+ srca-c83               5.98000        6.18050      -0.200500        1.000      group_1     
+ srca-c84               1.11000        1.04150       6.850000E-02    1.000      group_1     
+ srca-c85               0.00000       8.282200E-03  -8.282200E-03    1.000      group_1     
+ srca-c91               31.2200        31.4020      -0.182000        1.000      group_1     
+ srca-c92              0.760000       0.647390       0.112610        1.000      group_1     
+ srca-c93               5.88000        5.84350       3.650000E-02    1.000      group_1     
+ srca-c94              0.550000       0.499180       5.082000E-02    1.000      group_1     
+ srca-c95               0.00000       7.933300E-03  -7.933300E-03    1.000      group_1     
+ srca-c101              30.7500        31.1410      -0.391000        1.000      group_1     
+ srca-c102             0.770000       0.586600       0.183400        1.000      group_1     
+ srca-c103              5.91000        5.71350       0.196500        1.000      group_1     
+ srca-c104             0.300000       0.250710       4.929000E-02    1.000      group_1     
+ srca-c105              0.00000       7.794200E-03  -7.794200E-03    1.000      group_1     
+ srca-c111              33.3700        33.7310      -0.361000        1.000      group_1     
+ srca-c112             0.710000       0.267240       0.442760        1.000      group_1     
+ srca-c113              5.81000        5.87160      -6.160000E-02    1.000      group_1     
+ srca-c114              0.00000       2.168100E-02  -2.168100E-02    1.000      group_1     
+ srca-c115              0.00000       8.113600E-03  -8.113600E-03    1.000      group_1     
+
+ See file batchnogmin.res for more details of residuals in graph-ready format.
+
+ See file batchnogmin.seo for composite observation sensitivities.
+
+
+ Objective function ----->
+
+   Sum of squared weighted residuals (ie phi)                =   31.18    
+
+
+ Correlation Coefficient ----->
+
+   Correlation coefficient                                   =  0.99942    
+
+
+ Analysis of residuals ----->
+
+   All residuals:-
+      Number of residuals with non-zero weight                       =   165
+      Mean value of non-zero weighted residuals                      =  1.7218E-03
+      Maximum weighted residual [observation "srca-c31"]             =   1.810    
+      Minimum weighted residual [observation "srca-b81"]             =  -1.501    
+      Standard variance of weighted residuals                        =  0.1937    
+      Standard error of weighted residuals                           =  0.4401    
+
+      Note: the above variance was obtained by dividing the objective 
+      function by the number of system degrees of freedom (ie. number of 
+      observations with non-zero weight plus number of prior information 
+      articles with non-zero weight minus the number of adjustable parameters.)
+      If the degrees of freedom is negative the divisor becomes 
+      the number of observations with non-zero weight plus the number of 
+      prior information items with non-zero weight.
+ 
+
+ K-L information statistics ----->
+
+ 
+   AIC   =  -264.9050    
+   AICC  =  -264.5277    
+   BIC   =  -249.3753    
+   KIC   =  -252.6057    
+
+ Parameter covariance matrix ----->
+
+                  k2a          k2b          k2c          k2d     
+ k2a            1.9836E-05  -1.2132E-04   2.0978E-05   7.0490E-06
+ k2b           -1.2132E-04   8.3313E-02  -2.3252E-04  -2.1931E-03
+ k2c            2.0978E-05  -2.3252E-04   9.5087E-05  -4.3662E-05
+ k2d            7.0490E-06  -2.1931E-03  -4.3662E-05   1.3264E-03
+
+
+ Parameter correlation coefficient matrix ----->
+
+                  k2a          k2b          k2c          k2d     
+ k2a             1.000      -9.4376E-02   0.4830       4.3457E-02
+ k2b           -9.4376E-02    1.000      -8.2611E-02  -0.2086    
+ k2c            0.4830      -8.2611E-02    1.000      -0.1229    
+ k2d            4.3457E-02  -0.2086      -0.1229        1.000    
+
+
+ Normalized eigenvectors of parameter covariance matrix ----->
+
+               Vector_1     Vector_2     Vector_3     Vector_4   
+ k2a           -0.9664      -0.2568      -2.3416E-03  -1.4580E-03
+ k2b           -3.4537E-04  -4.1325E-03  -2.6581E-02   0.9996    
+ k2c            0.2565      -0.9656       4.2337E-02  -2.7774E-03
+ k2d            1.3149E-02  -4.0220E-02  -0.9987      -2.6719E-02
+
+
+ Eigenvalues ----->
+
+                1.4129E-05   9.7853E-05   1.2699E-03   8.3372E-02

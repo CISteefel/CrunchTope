@@ -1,0 +1,44 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "t (days)" 
+ ytitle "Na and Br Normalized Concentration (-)"
+ y2title "Ca Normalized Concentration (-)"
+ xaxis min 0 max 10 
+
+ data "Diffusion-no-DL-charge/Time_profile_52.out" d1=c1,C8 d2=c1,c9 d3=c1,c10 ignore 2
+
+ let d3=d3/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d1=d1/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d2=d2/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ d1 line color green key "Br^- no charge" 
+ d2 lstyle 9 color red key "HTO no charge"
+ d3 line color blue key "Ca^{2+} no charge" y2axis
+
+ data "Diffusion-with-DL-charge-no-surface-complexation/Time_profile_52.out" d11=c1,C8 d12=c1,c9 d13=c1,c10 ignore 2
+
+ let d13=d13/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d11=d11/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d12=d12/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ d11 marker circle msize 0.1 deresolve 2 color green key "Br^- charge no SC" 
+ d12 marker circle msize 0.1 deresolve 2 color red key "HTO charge no SC"
+ d13 marker circle msize 0.1 deresolve 2 color blue key "Ca^{2+} charge no SC" y2axis
+
+ data "Diffusion-with-DL-charge-with-surface-complexation/Time_profile_52.out" d21=c1,C8 d22=c1,c9 d23=c1,c10 ignore 2
+
+ let d23=d23/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d21=d21/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d22=d22/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ d21 marker square msize 0.1 deresolve 3 color green key "Br^- charge with SC" 
+ d22 marker square msize 0.1 deresolve 3 color red key "HTO charge with SC"
+ d23 marker square msize 0.1 deresolve 3 color blue key "Ca^{2+} charge with SC" y2axis
+
+ 
+ key pos tl hei 0.25 compact
+end graph
+

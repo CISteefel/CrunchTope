@@ -1,0 +1,23 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Distance (mm)" 
+ ytitle "Concentration (mmol\cdot kg_w^{-1})"
+ xaxis min 0 max 10 
+ yaxis min 0 max 0.14
+
+ data "totcon1.tec" d1=c1,C5 d2=c1,c7 ignore 3
+ let d1=d1*1000
+ let d2=d2*1000
+ d1 line color red key "Cl^-" 
+ d2 line color blue key "Na^+" 
+
+ 
+ key pos br hei 0.25 compact
+end graph
+

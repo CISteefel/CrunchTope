@@ -1,0 +1,343 @@
+                    PEST RUN RECORD: CASE shortcourse2
+
+
+ PEST Version: 15.00
+
+
+ PEST run mode:-
+
+    Parameter estimation mode
+
+
+ Case dimensions:-
+
+    Number of parameters                           :     1
+    Number of adjustable parameters                :     1
+    Number of parameter groups                     :     1
+    Number of observations                         :     5
+    Number of prior estimates                      :     0
+
+
+ Model command line(s):-
+ 
+    CrunchTope
+
+
+ Jacobian command line:-
+
+    na
+
+
+ Model interface files:-
+
+    Templates:
+       Shortcourse2.tpl
+    for model input files:
+       Shortcourse2.in
+
+    (Parameter values written using double precision protocol.)
+    (Decimal point always included.)
+
+    Instruction files:
+       totcon1.ins
+    for reading model output files:
+       totcon1.out
+
+
+ PEST-to-model message file:-
+
+    na
+
+
+ Derivatives calculation:-
+
+ Param        Increment   Increment   Increment   Forward or   Multiplier  Method
+ group        type                    low bound   central      (central)   (central)
+ all          relative    1.0000E-02   none         switch       1.000     best_fit
+
+
+ Parameter definitions:-
+
+ Name         Trans-            Change       Initial        Lower          Upper
+              formation         limit        value          bound          bound
+ alpha        none              relative   0.100000       1.000000E-04    2.00000    
+
+ Name         Group          Scale         Offset        Model command number
+ alpha        all           1.00000        0.00000            1
+
+
+ Prior information:-
+
+    No prior information supplied
+
+
+ Observations:-
+
+ Observation name        Observation       Weight       Group
+  c1                     0.100000          1.000       group_1     
+  c2                     9.998484E-02      1.000       group_1     
+  c3                     9.757118E-02      1.000       group_1     
+  c4                     6.823355E-02      1.000       group_1     
+  c5                     1.790136E-02      1.000       group_1     
+
+
+ Control settings:-
+
+    Initial lambda                                               :  5.0000    
+    Lambda adjustment factor                                     :  2.0000    
+    Sufficient new/old phi ratio per optimisation iteration      : 0.10000    
+    Limiting relative phi reduction between lambdas              : 5.00000E-03
+    Maximum trial lambdas per iteration                          :  10
+    Forgive model run failure during lamda testing               : no
+    Forgive model run failure during Jacobian runs               : no
+
+    Perform Broyden's update of Jacobian matrix                  : no
+    Undertake observation re-referencing                         : no
+
+    Maximum  factor  parameter change (factor-limited changes)   : na
+    Maximum relative parameter change (relative-limited changes) :  3.0000
+    Fraction of initial parameter values used in computing
+    change limit for near-zero parameters                        : 1.00000E-03
+    Allow bending of parameter upgrade vector                    : no
+    Allow parameters to stick to their bounds                    : no
+
+    Relative phi reduction below which to begin use of
+    central derivatives                                          : 1.00000E-02         
+    Iteration at which to first consider derivatives switch      :   1
+
+    Relative phi reduction indicating convergence                : 0.50000E-02
+    Number of phi values required within this range              :   4
+    Maximum number of consecutive failures to lower phi          :   4
+    Minimal relative parameter change indicating convergence     : 0.10000E-01
+    Number of consecutive iterations with minimal param change   :   5
+    Maximum number of optimisation iterations                    :  50
+
+    Attempt automatic user intervention                          : no
+
+    Attempt reuse of parameter sensitivities                     : no
+
+    Scale parameters by their bounds                             : no
+
+
+ File saving options: -
+
+    Save best JCO file                                           : yes
+    Save multiple JCO files                                      : no
+    Save multiple REI files                                      : no
+    Save multiple PAR files                                      : no
+ 
+ 
+                             OPTIMISATION RECORD
+
+
+ INITIAL CONDITIONS: 
+    Sum of squared weighted residuals (ie phi) =  5.18528E-04
+ 
+       Current parameter values
+       alpha           0.100000    
+
+
+ OPTIMISATION ITERATION NO.        : 1
+    Model calls so far             : 1
+    Starting phi for this iteration:  5.18528E-04
+
+        Lambda =   5.0000     ----->
+           Phi =  6.96742E-05  (  0.134 of starting phi)
+
+        Lambda =   2.5000     ----->
+           Phi =  6.96742E-05  (  0.134 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:  6.96742E-05
+
+       Current parameter values                 Previous parameter values
+       alpha           0.297773                 alpha            0.100000    
+    Maximum relative change:  1.978     ["alpha"]
+
+
+ OPTIMISATION ITERATION NO.        : 2
+    Model calls so far             : 4
+    Starting phi for this iteration:  6.96742E-05
+
+        Lambda =   2.5000     ----->
+           Phi =  2.75336E-06  (  0.040 of starting phi)
+
+    No more lambdas: phi is less than 0.1000 of starting phi
+    Lowest phi this iteration:  2.75336E-06
+
+       Current parameter values                 Previous parameter values
+       alpha           0.463905                 alpha            0.297773    
+    Maximum relative change: 0.5579     ["alpha"]
+
+
+ OPTIMISATION ITERATION NO.        : 3
+    Model calls so far             : 6
+    Starting phi for this iteration:  2.75336E-06
+
+        Lambda =   1.2500     ----->
+           Phi =  5.48896E-07  (  0.199 of starting phi)
+
+        Lambda =  0.62500     ----->
+           Phi =  5.48896E-07  (  0.199 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:  5.48896E-07
+
+       Current parameter values                 Previous parameter values
+       alpha           0.508757                 alpha            0.463905    
+    Maximum relative change: 9.6682E-02 ["alpha"]
+
+
+ OPTIMISATION ITERATION NO.        : 4
+    Model calls so far             : 9
+    Starting phi for this iteration:  5.48896E-07
+
+        Lambda =  0.62500     ----->
+           Phi =  5.48046E-07  (  0.998 of starting phi)
+
+        Lambda =  0.31250     ----->
+           Phi =  5.48046E-07  (  0.998 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:  5.48046E-07
+    Relative phi reduction between optimisation iterations less than 0.0100
+    Switch to higher order derivatives calculation
+
+       Current parameter values                 Previous parameter values
+       alpha           0.509667                 alpha            0.508757    
+    Maximum relative change: 1.7889E-03 ["alpha"]
+
+
+ OPTIMISATION ITERATION NO.        : 5
+    Model calls so far             : 12
+    Starting phi for this iteration:  5.48046E-07
+
+        Lambda =  0.31250     ----->
+           Phi =  5.48045E-07  (  1.000 of starting phi)
+
+        Lambda =  0.15625     ----->
+           Phi =  5.48045E-07  (  1.000 of starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:  5.48045E-07
+
+       Current parameter values                 Previous parameter values
+       alpha           0.509696                 alpha            0.509667    
+    Maximum relative change: 5.8460E-05 ["alpha"]
+
+
+ OPTIMISATION ITERATION NO.        : 6
+    Model calls so far             : 16
+    Starting phi for this iteration:  5.48045E-07
+
+        Lambda =  0.15625     ----->
+           Phi =  5.48045E-07  (  1.000 times starting phi)
+
+        Lambda =  7.81250E-02 ----->
+           Phi =  5.48045E-07  (  1.000 times starting phi)
+
+    No more lambdas: relative phi reduction between lambdas less than 0.0050
+    Lowest phi this iteration:  5.48045E-07
+
+       Current parameter values                 Previous parameter values
+       alpha           0.509696                 alpha            0.509696    
+    Maximum relative change: 1.1889E-06 ["alpha"]
+
+    Optimisation complete: the  4 lowest phi's are within a relative distance
+                           of eachother of 5.000E-03
+    Total model calls:     20
+
+    The model has been run one final time using best parameters. 
+    Thus all model input files contain best parameter values, and model 
+    output files contain model results based on these parameters.
+
+
+                             OPTIMISATION RESULTS
+
+
+ Parameters ----->
+
+ Parameter        Estimated         95% percent confidence limits
+                  value             lower limit       upper limit
+  alpha          0.509696           0.476281          0.543111    
+
+ Note: confidence limits provide only an indication of parameter uncertainty.
+       They rely on a linearity assumption which  may not extend as far in 
+       parameter space as the confidence limits themselves - see PEST manual.
+
+ See file shortcourse2.sen for parameter sensitivities.
+
+
+ Observations ----->
+
+ Observation            Measured       Calculated     Residual       Weight     Group
+                        value          value
+ c1                    0.100000       0.100000       8.600000E-08    1.000      group_1     
+ c2                    9.998484E-02   9.995638E-02   2.845900E-05    1.000      group_1     
+ c3                    9.757118E-02   9.713473E-02   4.364490E-04    1.000      group_1     
+ c4                    6.823355E-02   6.880234E-02  -5.687840E-04    1.000      group_1     
+ c5                    1.790136E-02   1.808366E-02  -1.822960E-04    1.000      group_1     
+
+ See file shortcourse2.res for more details of residuals in graph-ready format.
+
+ See file shortcourse2.seo for composite observation sensitivities.
+
+
+ Objective function ----->
+
+   Sum of squared weighted residuals (ie phi)                =  5.4804E-07
+
+
+ Correlation Coefficient ----->
+
+   Correlation coefficient                                   =  0.99996    
+
+
+ Analysis of residuals ----->
+
+   All residuals:-
+      Number of residuals with non-zero weight                       =     5
+      Mean value of non-zero weighted residuals                      = -5.7217E-05
+      Maximum weighted residual [observation "c3"]                   =  4.3645E-04
+      Minimum weighted residual [observation "c4"]                   = -5.6878E-04
+      Standard variance of weighted residuals                        =  1.3701E-07
+      Standard error of weighted residuals                           =  3.7015E-04
+
+      Note: the above variance was obtained by dividing the objective 
+      function by the number of system degrees of freedom (ie. number of 
+      observations with non-zero weight plus number of prior information 
+      articles with non-zero weight minus the number of adjustable parameters.)
+      If the degrees of freedom is negative the divisor becomes 
+      the number of observations with non-zero weight plus the number of 
+      prior information items with non-zero weight.
+ 
+
+ K-L information statistics ----->
+
+ 
+   AIC   =  -76.13173    
+   AICC  =  -70.13173    
+   BIC   =  -76.91286    
+   KIC   =  -72.90694    
+
+ Parameter covariance matrix ----->
+
+                 alpha    
+ alpha          1.4489E-04
+
+
+ Parameter correlation coefficient matrix ----->
+
+                 alpha    
+ alpha           1.000    
+
+
+ Normalized eigenvectors of parameter covariance matrix ----->
+
+               Vector_1   
+ alpha           1.000    
+
+
+ Eigenvalues ----->
+
+                1.4489E-04

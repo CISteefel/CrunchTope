@@ -1,0 +1,28 @@
+pcf 
+* control data
+restart estimation
+1 5 1 0 1
+1 1 double point 1 0 0
+5.0 2.0 0.1 0.005 10
+3.0 3.0  0.001
+0.01
+50 .005 4 4 .010 5
+1 1 1
+* group definitions and derivative data
+all  relative  0.01 0.0 switch 1.0 best_fit
+* parameter data
+alpha   none  relative  0.10000  0.0001  2.0  all 1.0 0. 1
+* observation groups
+group_1
+* observation data
+c1  9.9999998E-02  1 group_1
+c2  9.9984839E-02  1 group_1
+c3  9.7571181E-02  1 group_1
+c4  6.8233553E-02  1 group_1
+c5  1.7901361E-02  1 group_1
+* model command line 
+CrunchTope
+* model input/output
+Shortcourse2.tpl Shortcourse2.in
+totcon1.ins totcon1.out
+* prior information

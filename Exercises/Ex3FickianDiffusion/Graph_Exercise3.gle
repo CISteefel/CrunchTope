@@ -1,0 +1,30 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Distance (m)" 
+ ytitle "Concentration (mol\cdot kg_w^{-1})"
+ xaxis min 0 max 0.1
+ data "totcon1.tec" d1=c1,c4 ignore 3
+ d1 line color black  
+
+ data "totcon2.tec" d2=c1,c4 ignore 3
+ d2 line color blue 
+ 
+ data "totcon3.tec" d3=c1,c4 ignore 3
+ d3 line color red 
+
+ data "totcon4.tec" d4=c1,c4 ignore 3
+ d4 line color green 
+
+ data "totcon5.tec" d5=c1,c4 ignore 3
+ d5 line color purple 
+
+ 
+ key pos bl hei 0.25 compact
+end graph
+

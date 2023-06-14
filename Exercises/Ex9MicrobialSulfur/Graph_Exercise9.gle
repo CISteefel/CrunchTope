@@ -1,0 +1,48 @@
+papersize 12 13
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 6
+begin graph
+ size 10 7
+ xtitle "Time (day)" 
+ ytitle "Sulphate concentration(mol\cdot kg^{-1})"
+ y2title "\delta ^{36}S (permil)"
+ xaxis min 0 max 43
+ yaxis min 0 max 0.01
+
+ data "fiftycm.out" d1=c1,C2 d2=c1,c3 d3=c1,c4 d4=c1,c5 ignore 2
+ let d10=(((d2+d4)/(d1+d3))/0.0441626-1)*1000  ! calculate delta34S 
+ 
+ d1 line color blue 
+ d10 line color red y2axis 
+ 
+ key pos tr hei 0.25 compact
+end graph
+amove xg(15) yg(0.008)
+write "SO_4^{-2}" 
+amove xg(15) yg(0.002)
+write "\delta ^{36}S" 
+
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Time (day)" 
+ ytitle "Sulphate concentration(mol\cdot kg^{-1})"
+ y2title "\delta ^{36}S (permil)"
+ xaxis min 0 max 43
+ yaxis min 0 max 0.01
+
+ data "hundredcm.out" d1=c1,C2 d2=c1,c3 d3=c1,c4 d4=c1,c5 ignore 2
+ let d10=(((d2+d4)/(d1+d3))/0.0441626-1)*1000  ! calculate delta34S 
+ 
+ d1 line color blue 
+ d10 line color red y2axis 
+ 
+ key pos tr hei 0.25 compact
+end graph
+amove xg(15) yg(0.008)
+write "SO_4^{-2}" 
+amove xg(15) yg(0.002)
+write "\delta ^{36}S" 

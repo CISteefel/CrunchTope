@@ -1,0 +1,22 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Distance (m)" 
+ ytitle "Concentration (mol\cdot kg_w^{-1})"
+ xaxis min 0 max 100 
+
+ data "totcon1_gimrt.out" d1=c1,C2 ignore 3
+ d1 line color blue key "GIMRT" 
+
+ data "totcon1.out" d2=c1,C2 ignore 3
+ d2 lstyle 9 color red key "OS3D" 
+
+ 
+ key pos bl hei 0.25 compact
+end graph
+

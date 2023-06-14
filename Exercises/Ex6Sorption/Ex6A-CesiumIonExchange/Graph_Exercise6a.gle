@@ -1,0 +1,24 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Time (h)" 
+ ytitle "Cs Concentration (mmol\cdot kg_w^{-1})"
+ xaxis min 0 max 200 
+
+ data "Expt3ColumnFit.out" d1=c1,C2 ignore 2
+ let d1=d1*1000
+ d1 line color blue key "fit" 
+
+ data "HanfordExpt3RawData.dat" d2=c1,C2 
+ let d2=d2*1000
+ d2 marker circle msize 0.15 color red key "data" 
+
+ 
+ key pos br hei 0.25 compact
+end graph
+

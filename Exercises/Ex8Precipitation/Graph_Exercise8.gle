@@ -1,0 +1,22 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Time (years)" 
+ ytitle "\delta ^{44}Ca (permil)"
+ ! xaxis min 0 max 10 
+ ! yaxis min 0 max 0.08
+
+ data "BatchExperiment.out" d1=c1,C2 d2=c1,c3 ignore 2
+ let d1=d1
+ let d2=d2
+ d1 line color red key "Aqueous" 
+ d2 line color blue key "Bulk mineral" 
+
+ 
+ key pos tr hei 0.25 compact
+end graph

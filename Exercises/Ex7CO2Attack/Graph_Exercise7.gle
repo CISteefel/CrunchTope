@@ -1,0 +1,29 @@
+papersize 12 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "Distance (\mu m)" 
+ ytitle "Volume percent"
+ xaxis min 40000 max 41500
+ yaxis min 0 max 70
+  data "volume7.out" d1=c1,C3 d2=c1,c6 d3=c1,c7 ignore 3
+ d1 line color red key "Calcite-mix"  
+ d2 line color blue  key "Portlandite"
+ d3 line color green   key "CSH(1.6)"
+ data "volume6.out" d11=c1,C3 d12=c1,c6 d13=c1,c7 ignore 3
+ d11 line color red key "Calcite-mix"  
+ d12 line color blue  key "Portlandite"
+ d13 line color green   key "CSH(1.6)"
+  data "volume5.out" d21=c1,C3 d22=c1,c6 d23=c1,c7 ignore 3
+ d21 line color red key "Calcite-mix"  
+ d22 line color blue  key "Portlandite"
+ d23 line color green   key "CSH(1.6)"
+
+ 
+ key pos tr hei 0.25 compact
+end graph
+

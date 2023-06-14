@@ -1,0 +1,50 @@
+ PARAMETER STATISTICAL MATRICES: CASE batchnogmin
+
+ OPTIMISATION ITERATION NUMBER 10
+
+
+ Parameter standard deviations ----->
+
+ Adjustable        Group           Current          Standard
+ parameter                         value            deviation
+ k2a               all             9.188471E-02     4.453992E-03
+ k2b               all            -0.916008         0.288654    
+ k2c               all             0.146584         9.751723E-03
+ k2d               all             -1.88963         3.642159E-02
+
+ Note that if a parameter is log-transformed, the standard deviation in the 
+ above table refers to the log of the parameter. Note also that the objective
+ function used in the calculation of the covariance matrix (and eigenvalues
+ of the covariance matrix) was calculated at the end of the previous iteration.
+
+
+ Parameter covariance matrix ----->
+
+                  k2a          k2b          k2c          k2d     
+ k2a            1.9838E-05  -1.2134E-04   2.0980E-05   7.0497E-06
+ k2b           -1.2134E-04   8.3321E-02  -2.3254E-04  -2.1933E-03
+ k2c            2.0980E-05  -2.3254E-04   9.5096E-05  -4.3666E-05
+ k2d            7.0497E-06  -2.1933E-03  -4.3666E-05   1.3265E-03
+
+
+ Parameter correlation coefficient matrix ----->
+
+                  k2a          k2b          k2c          k2d     
+ k2a             1.000      -9.4376E-02   0.4830       4.3457E-02
+ k2b           -9.4376E-02    1.000      -8.2611E-02  -0.2086    
+ k2c            0.4830      -8.2611E-02    1.000      -0.1229    
+ k2d            4.3457E-02  -0.2086      -0.1229        1.000    
+
+
+ Normalized eigenvectors of covariance matrix ----->
+
+               Vector_1     Vector_2     Vector_3     Vector_4   
+ k2a           -0.9664      -0.2568      -2.3416E-03  -1.4580E-03
+ k2b           -3.4537E-04  -4.1325E-03  -2.6581E-02   0.9996    
+ k2c            0.2565      -0.9656       4.2337E-02  -2.7774E-03
+ k2d            1.3149E-02  -4.0220E-02  -0.9987      -2.6719E-02
+
+
+ Eigenvalues ----->
+
+                1.4130E-05   9.7863E-05   1.2700E-03   8.3381E-02

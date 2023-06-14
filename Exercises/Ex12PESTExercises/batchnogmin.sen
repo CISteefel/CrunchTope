@@ -1,0 +1,94 @@
+                     PARAMETER SENSITIVITIES: CASE batchnogmin
+
+
+ OPTIMISATION ITERATION NO.  1 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             0.200000         0.705197    
+   k2b             all             0.200000         3.102842E-03
+   k2c             all             0.200000         0.340505    
+   k2d             all             0.200000         3.087272E-03
+
+
+ OPTIMISATION ITERATION NO.  2 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.331385E-02     0.704315    
+   k2b             all            -0.382619         3.846928E-03
+   k2c             all             0.128510         0.331070    
+   k2d             all             0.209131         2.949072E-03
+
+
+ OPTIMISATION ITERATION NO.  3 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.287236E-02     0.700459    
+   k2b             all             -1.43165         3.080831E-02
+   k2c             all             0.128961         0.329136    
+   k2d             all            -0.418261         3.816505E-03
+
+
+ OPTIMISATION ITERATION NO.  4 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.155965E-02     0.694354    
+   k2b             all             -1.21481         1.899856E-02
+   k2c             all             0.136228         0.324700    
+   k2d             all             -1.67305         4.535682E-02
+
+
+ OPTIMISATION ITERATION NO.  5 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.510450E-02     0.689160    
+   k2b             all             -1.19725         1.821422E-02
+   k2c             all             0.160310         0.311783    
+   k2d             all             -1.90224         7.663164E-02
+
+
+ OPTIMISATION ITERATION NO.  6 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.310018E-02     0.690003    
+   k2b             all             -1.17834         1.729016E-02
+   k2c             all             0.150529         0.314990    
+   k2d             all             -1.88941         7.447383E-02
+
+
+ OPTIMISATION ITERATION NO.  7 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.073104E-02     0.687682    
+   k2b             all             -1.11204         1.517459E-02
+   k2c             all             0.143557         0.318368    
+   k2d             all             -1.87873         7.408822E-02
+
+
+ OPTIMISATION ITERATION NO.  8 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.251812E-02     0.690180    
+   k2b             all            -0.964862         1.084675E-02
+   k2c             all             0.148383         0.317129    
+   k2d             all             -1.89120         7.639120E-02
+
+
+ OPTIMISATION ITERATION NO.  9 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.204189E-02     0.688642    
+   k2b             all            -0.943496         1.022714E-02
+   k2c             all             0.147093         0.317906    
+   k2d             all             -1.88836         7.588981E-02
+
+
+ OPTIMISATION ITERATION NO. 10 ----->
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.188471E-02     0.689270    
+   k2b             all            -0.916008         9.514546E-03
+   k2c             all             0.146584         0.317695    
+   k2d             all             -1.88963         7.611007E-02
+
+
+
+                        COMPLETION OF OPTIMISATION PROCESS
+
+ Composite sensitivities for all observations/prior info ----->
+
+ Number of observations with non-zero weight =   165
+ Parameter name    Group          Current value    Sensitivity
+   k2a             all             9.183343E-02     0.689270    
+   k2b             all            -0.909927         9.514546E-03
+   k2c             all             0.146564         0.317695    
+   k2d             all             -1.88939         7.611007E-02

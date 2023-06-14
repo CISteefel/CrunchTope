@@ -1,0 +1,93 @@
+TITLE
+ShortCourse2React.in: Quartz reaction in one dimension
+END
+ 
+RUNTIME
+time_units       years
+timestep_max     100.0
+timestep_init    0.000001
+time_tolerance   0.1
+hindmarsh        true
+correction_max   2.0
+debye-huckel     true
+database_sweep   no
+speciate_only    false
+gimrt            true
+graphics         tecplot
+
+database         datacom.dbs
+screen_output    100
+END
+ 
+OUTPUT
+time_units           years
+spatial_profile      10000  50000 250000    
+time_series          TracerReact2.out 100 1 1
+time_series_print    Tracer SiO2(aq) 30SiO2(aq)
+time_series_units    Mol/kgw
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units     years
+fix_diffusion  0.0
+dispersivity   0.0
+END
+
+BOUNDARY_CONDITIONS
+x_begin   boundary          flux
+x_end     initial           flux
+END
+
+INITIAL_CONDITIONS
+initial 1-100 1-1 1-1
+END
+
+Condition boundary
+units            mol/kg
+temperature      25.0
+Tracer           0.1
+SiO2(aq)         9.7e-7
+
+30SiO2(aq)       2.998e-8
+Quartztope       0.60     bulk_surface_area  100
+END
+
+Condition initial
+units            mol/kg
+temperature      25.0
+Tracer           0.0001
+set_porosity     0.999
+SiO2(aq)         0.0001
+30SiO2(aq)       0.00001
+Quartztope       0.60    bulk_surface_area  100
+END
+ 
+FLOW
+time_units       years
+distance_units   meters
+constant_flow    10.0
+END
+ 
+POROSITY
+fix_porosity     0.10
+END
+
+ISOTOPES
+primary  30SiO2(aq)  SiO2(aq)  0.0300
+END
+ 
+PRIMARY_SPECIES
+Tracer
+SiO2(aq)
+30SiO2(aq)
+END
+ 
+DISCRETIZATION
+xzones 100 1.0
+END
+ 
+MINERALS
+Quartztope   -label default  -rate -9.5   
+END

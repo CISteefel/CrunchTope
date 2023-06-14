@@ -1,0 +1,41 @@
+include color.gle
+papersize 21 7
+margins 0 0 0 0
+set justify cc
+
+  fopen "permeability1.tec" f1 read 
+  fopen "Perm.dat"  f2 write
+   freadln f1 poubelle$
+   freadln f1 poubelle$
+   freadln f1 poubelle$
+  until feof(f1)
+   freadln f1 xx yy zz xperm yperm zperm
+   fwriteln f2 xx yy xperm
+  next
+   fclose f1
+   fclose f2
+  
+begin fitz
+  data "Perm.dat"
+  x from 0 to 3 step 0.1
+  y from 0 to 2 step 0.05
+  ncontour 5
+end fitz
+
+
+
+ 
+amove 0 0
+begin graph
+ size 10 7
+ xtitle "x (m)" 
+ ytitle "y (m)"
+ xaxis min 0 max 3 symticks
+ yaxis min 0 max 2 symticks
+ colormap "Perm.z" 31 41  zmin -12 zmax -10 color
+end graph
+amove xg(xgmax)/2+xg(xgmin)/2 yg(ygmax)+0.5
+write "Permeability (m^2)"
+
+amove xg(xgmax)+0.5 yg(ygmin)
+color_range_vertical zmin -12 zmax -10  zstep 0.2 pixels 1500 format "fix 1 nozeroes"

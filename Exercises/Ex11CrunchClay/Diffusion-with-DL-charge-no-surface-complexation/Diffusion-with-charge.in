@@ -1,0 +1,212 @@
+RUNTIME
+time_units           seconds
+timestep_max         1000
+timestep_init        1e-7
+debye-huckel         true
+lag_activity         true
+database             datacom_bench_no_surf_complexes.dbs
+database_sweep       false
+correction_max       2.0
+gimrt                true
+master_variable      Ca++
+speciate_only        false
+screen_output        1000
+Duan                 false
+hindmarsh            true
+time_tolerance       1e-5
+save_restart         benchmark.rst
+END
+
+!!!!!!!!!!!!!!!!!!!!!!! RUN PARAMETERS !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+OUTPUT
+time_units              days
+time_series_interval    10
+spatial_profile  1 10
+time_series_at_node      Time_profile_1.out   1 1 1
+time_series_at_node      Time_profile_52.out   52 1 1
+time_series_print         
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+
+
+!! In CRUNCH, the dimension in the Y and Z dimension is set to 100 m x 1 m 
+!! The surface in the yz plane is thus 100 m2 
+!! If we consider a Reservoir with Deltax=0.0001 m then its volume is 10 L
+!! In the experiment, the clay plug has a surface in contact with the reservoir of 0.005^2*pi = 7.854e-5 m2
+!! of which poro(0.72) *7.854e-5 = 5.655e-5 m2 is available for diffusion 
+!! then the porosity that must be considered in each cell is 5.655e-5 m2 / 100 m2 = 5.655e-7
+!! The volume of water is divided into bulk and DL water:
+!!                       xDL     set_porosity    set_microporosity 
+!! 100 % bulk water-->   0       5.655e-7          1e-12
+!! 50  % bulk water-->   0.5     2.8275e-7         2.8275e-7   
+!! 10  % bulk water-->   0.9     5.655e-8          5.0895e-7
+!! 74% % bulk water-->   0.26    4.1847e-7         1.4703e-7
+
+!! The dry density is 0.8 kg/dm3 
+!! The specific surface area of clay is 750 m2/g --> 750*1000*0.8 = 6e5 m2/dm3 = 6e8 m2/m3 of clay+poro
+!! This quantity must be scaled with 7.854e-5/100 --> 471.24 m2/m3 of crunch cell
+!! we want 471.24 m2 per m3 with a specific surface area of a mineral of 750 m2/g
+
+!! Bogusite is a fake very insoluble mineral that bears the surface charge 
+!! Bogusite has 50 cm3/mol and a molar mass of 1000 g/mol i.e. 20 000 g/dm3bog 
+!! 750 * 20 000 = 1.5e7 m2/dm3 bogusite = 1.5e10 m2/m3 bogusite
+!! The volume fraction of bogusite is thus: 471.24 / (1.5e10) = 3.14e-8
+
+!! the number of sites per m2 of bogusite is 0.9 (mol/kg) / 750e3 (m2/kg) = 1.2e-6 mol/m2 of clay surface 
+!! it corresponds to a charge of -1.2e-6 mol/m2 / 471.24 m2/m3 = -5.65488e-4 mol/m3
+
+DISCRETIZATION 
+distance_units  meters
+xzones        1 0.0001 50 0.0001 1 0.0001 
+yzones        1 100
+zzones        1 1
+END
+
+INITIAL_CONDITIONS
+HReservoir   1-1 1-1 1-1
+Clay         2-51 1-1 1-1  
+LReservoir   52-52  1-1 1-1 
+END
+
+BOUNDARY_CONDITIONS
+X_begin   HReservoir   Flux
+X_end     Lreservoir   Flux
+END
+
+FLOW
+space_units                meters                       !!Default : meters ; km, cm, mm, um
+time_units                 seconds                      !!Default : years ; days, hours, minutes, seconds
+constant_flow              0.0  0.0                     !!Default : 0.0
+END
+
+POROSITY
+fix_porosity            0.5
+fix_microporosity       0.5
+UpdateDDL               false
+MultiplyPorosityTortuosity  true
+END
+
+Condition HReservoir
+temperature      25.0
+units            mmol/kg 
+H2O              55.5
+pH               7
+Na+              100  
+Cl-              charge
+Br-              1e0
+Ca++             1e0
+Hto              1e0
+Bogus            Bogusite
+Bogusite         3.1416e-8  specific_surface_area  750
+>montmor-        1e-99 !!site per m2
+set_porosity       0.999999999 
+set_microporosity  1e-10
+END
+
+Condition Clay
+temperature       25.0
+units             mmol/kg 
+H2O               55.5
+pH                7
+Na+               100  
+Cl-               charge
+Br-               1e-27
+Ca++              1e-27
+Hto               1e-27
+Bogus             Bogusite
+Bogusite          3.1416e-8    specific_surface_area  750 
+>montmor-         1.2e-6
+set_porosity      5.655e-8          
+set_microporosity 5.0895e-7
+END
+
+Condition LReservoir
+temperature      25.0
+units            mmol/kg 
+H2O              55.5
+pH               7
+Na+              100  
+Cl-              charge
+Cat+             1e-27
+An-              1e-27
+Br-              1e-27
+Ca++             1e-27
+Hto              1e-27
+Bogus            Bogusite
+Bogusite         3.1416e-8 specific_surface_area  750
+>montmor-        1e-99 !!site per m2
+set_porosity       0.9999999999 
+set_microporosity  1e-10
+END
+
+TRANSPORT
+distance_units           meters
+time_units               second
+fix_diffusion  1e-9
+
+D_25  H+       9.31e-9
+D_25  Bogus    1e-20
+D_25  OH-      5.27e-9
+D_25  Na+      1.3e-9
+D_25  Ca++     0.793e-9  
+D_25  Cl-      2.1e-9
+D_25  Br-      2.1e-9
+D_25  Hto      2.1e-9
+
+D_MP  H+       9.31e-9
+D_MP  Bogus    1e-20
+D_MP  OH-      5.27e-9
+D_MP  Na+      1.3e-9
+D_MP  Ca++     0.793e-9
+D_MP  Cl-      2.1e-9
+D_MP  Br-      2.1e-9
+D_MP  Hto      2.1e-9
+
+tortuosity 1 default
+tortuosity 1   zone 1-1 1-1 1-1
+tortuosity 0.037 zone 2-51 1-1 1-1
+tortuosity 1   zone 52-52 1-1 1-1
+
+tortuosityMP 1 default
+tortuosityMP 1   zone 1-1 1-1 1-1
+tortuosityMP 0.037 zone 2-51 1-1 1-1
+tortuosityMP 1   zone 52-52 1-1 1-1
+
+
+END
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!! Chemistry !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+PRIMARY_SPECIES
+H2O
+Bogus
+H+
+Na+       
+Cl- 
+Br-
+Hto
+Ca++
+END
+
+SECONDARY_SPECIES
+OH-                                                     
+END
+
+ION_EXCHANGE
+END
+
+MINERALS  
+Bogusite 
+END
+
+GASES
+END
+
+SURFACE_COMPLEXATION
+>montmor- on Bogusite 
+END
+

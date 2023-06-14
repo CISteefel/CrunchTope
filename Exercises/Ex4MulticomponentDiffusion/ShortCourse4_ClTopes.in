@@ -1,0 +1,146 @@
+TITLE
+ShortCourse4_Cltopes.in:  Test of species diffusion against Lichtner (MULTIFLO) example
+END
+ 
+RUNTIME
+time_units      hours
+timestep_max    1.e-03
+timestep_init   1.e-05
+time_tolerance  0.001
+correction_max  2.0
+debye-huckel    true
+database_sweep  no
+database        datacom.dbs      
+
+gimrt           true
+graphics         kaleidagraph
+
+screen_output   50
+END
+ 
+OUTPUT
+time_units       hours
+spatial_profile  1.0 
+END
+
+ISOTOPES
+primary  37Cl-  Cl-  0.333
+END
+
+TRANSPORT
+distance_units centimeters
+time_units  seconds
+fix_diffusion     1.000e-05
+formation_factor  1.0  
+cementation_exponent  1.0
+D_25  H+      9.312e-05
+D_25  Na+     1.334e-05
+D_25  Cl-     2.032E-05
+!!!D_25  37Cl-       2.032E-05
+D_25  37Cl-       2.028e-05
+D_25  OH-     5.26e-05
+D_25  NO3-    1.00e-05
+!!!D_25  H+     1.000e-05
+!!!D_25  Na+     1.000e-05
+!!!D_25  Cl-     1.000e-05
+!!!D_25  37Cl-   1.000E-05
+!!!D_25  OH-     1.000e-05
+!!!D_25  NO3-    1.000e-05
+
+END
+ 
+BOUNDARY_CONDITIONS
+X_begin   inlet            Dirichlet
+X_end     initial          flux
+END
+
+INITIAL_CONDITIONS
+initial 1-100 1-1 1-1
+END
+ 
+Condition initial
+temperature      25.0
+pH               4.0
+Cl-              7.5e-05
+37Cl-            2.5e-05
+Na+              1.e-04
+NO3-             1.e-04
+!!CO2(aq)        0.001
+CO2(aq)          CO2(g)   1.0E-16
+END
+
+Condition inlet
+temperature      25.0
+pH               6.0
+Cl-              7.5e-05
+
+37Cl-            2.5e-05
+Na+              1.e-04
+NO3-             1.e-06
+!!CO2(aq)        0.001
+CO2(aq)          CO2(g)   1.0E-16
+END
+ 
+DISCRETIZATION
+distance_units millimeters
+xzones 100 0.1
+END
+
+POROSITY
+fix_porosity     0.10  
+porosity_update  false
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+H+
+Cl-
+
+37Cl-
+Na+
+NO3-
+CO2(aq)
+END
+ 
+SECONDARY_SPECIES
+OH-
+HCO3-
+CO3--
+END
+
+GASES
+CO2(g)
+END
+ 
+FLOW
+time_units     years
+distance_units millimeters
+constant_flow  0.00
+END
+
+
+
+D_25  H+      9.31e-05
+D_25  Na+     1.33e-05
+D_25  K+      1.96e-05
+D_25  NH4+    1.98e-05
+D_25  Mg++    0.705e-05
+D_25  Ca++    0.793e-05
+D_25  Mn++    0.688e-05
+D_25  Fe++    0.719e-05
+!D_25  Al+++   0.559e-05
+D_25  OH-     5.27e-05
+D_25  F-      1.46e-05
+D_25  Cl-     2.03e-05
+D_25  HS-     1.73e-05
+D_25  HSO4-   1.33e-05
+D_25  SO4--   1.07e-05
+D_25  HCO3-   1.18e-05
+D_25  CO3--   0.955e-05
+D_25  H2PO4-  0.846e-05
+D_25  HPO4--  0.734e-05
+D_25  PO4---  0.612e-05
+

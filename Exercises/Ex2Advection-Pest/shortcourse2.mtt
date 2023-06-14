@@ -1,0 +1,38 @@
+ PARAMETER STATISTICAL MATRICES: CASE shortcourse2
+
+ OPTIMISATION ITERATION NUMBER  6
+
+
+ Parameter standard deviations ----->
+
+ Adjustable        Group           Current          Standard
+ parameter                         value            deviation
+ alpha             all             0.509696         1.203772E-02
+
+ Note that if a parameter is log-transformed, the standard deviation in the 
+ above table refers to the log of the parameter. Note also that the objective
+ function used in the calculation of the covariance matrix (and eigenvalues
+ of the covariance matrix) was calculated at the end of the previous iteration.
+
+
+ Parameter covariance matrix ----->
+
+                 alpha    
+ alpha          1.4491E-04
+
+
+ Parameter correlation coefficient matrix ----->
+
+                 alpha    
+ alpha           1.000    
+
+
+ Normalized eigenvectors of covariance matrix ----->
+
+               Vector_1   
+ alpha           1.000    
+
+
+ Eigenvalues ----->
+
+                1.4491E-04

@@ -1,0 +1,191 @@
+pcf 
+* control data
+restart estimation
+4 165 1 0 1
+1 1 double point 1 0 0
+5.0 2.0 0.1 0.005 10
+3.0 3.0  0.001
+0.01
+50 .005 4 4 .010 5
+1 1 1
+* group definitions and derivative data
+all  relative  0.01 0.0 switch 1.0 best_fit
+* parameter data
+k2a   none  relative  0.20000  -2.0  4.0  all 1.0 0. 1
+k2b   none  relative  0.20000  -2.0  4.0  all 1.0 0. 1
+k2c   none  relative  0.20000  -2.0  4.0  all 1.0 0. 1
+k2d   none  relative  0.20000  -2.0  4.0  all 1.0 0. 1
+* observation groups
+group_1
+* observation data
+SrCa-A11  0.00  1 group_1
+SrCa-A12  0.00  1 group_1
+SrCa-A13  0.00  1 group_1
+SrCa-A14  42.37  1 group_1
+SrCa-A15  0.05  1 group_1
+SrCa-A21  1.19  1 group_1
+SrCa-A22  0.56  1 group_1
+SrCa-A23  0.37  1 group_1
+SrCa-A24  40.50  1 group_1
+SrCa-A25  0.00  1 group_1
+SrCa-A31  2.32  1 group_1
+SrCa-A32  0.56  1 group_1
+SrCa-A33  0.49  1 group_1
+SrCa-A34  40.16  1 group_1
+SrCa-A35  0.04  1 group_1
+SrCa-A41  4.30  1 group_1
+SrCa-A42  0.54  1 group_1
+SrCa-A43  0.24  1 group_1
+SrCa-A44  36.11  1 group_1
+SrCa-A45  0.00  1 group_1
+SrCa-A51  11.30  1 group_1
+SrCa-A52  0.58  1 group_1
+SrCa-A53  0.12  1 group_1
+SrCa-A54  30.56  1 group_1
+SrCa-A55  0.76  1 group_1
+SrCa-A61  18.81  1 group_1
+SrCa-A62  0.54  1 group_1
+SrCa-A63  0.04  1 group_1
+SrCa-A64  22.95  1 group_1
+SrCa-A65  0.28  1 group_1
+SrCa-A71  25.16  1 group_1
+SrCa-A72  0.57  1 group_1
+SrCa-A73  0.00  1 group_1
+SrCa-A74  12.29  1 group_1
+SrCa-A75  0.29  1 group_1
+SrCa-A81  33.08  1 group_1
+SrCa-A82  0.61  1 group_1
+SrCa-A83  0.00  1 group_1
+SrCa-A84  4.32  1 group_1
+SrCa-A85  0.28  1 group_1
+SrCa-A91  37.95  1 group_1
+SrCa-A92  0.61  1 group_1
+SrCa-A93  0.00  1 group_1
+SrCa-A94  2.17  1 group_1
+SrCa-A95  0.15  1 group_1
+SrCa-A101  36.54  1 group_1
+SrCa-A102  0.61  1 group_1
+SrCa-A103  0.00  1 group_1
+SrCa-A104  1.21  1 group_1
+SrCa-A105  0.10  1 group_1
+SrCa-A111  42.39  1 group_1
+SrCa-A112  0.63  1 group_1
+SrCa-A113  0.00  1 group_1
+SrCa-A114  0.00  1 group_1
+SrCa-A115  0.52  1 group_1
+SrCa-B11  4.95  1 group_1
+SrCa-B12  0.66  1 group_1
+SrCa-B13  1.49  1 group_1
+SrCa-B14  35.67  1 group_1
+SrCa-B15  0.10  1 group_1
+SrCa-B21  5.92  1 group_1
+SrCa-B22  0.59  1 group_1
+SrCa-B23  1.36  1 group_1
+SrCa-B24  34.88  1 group_1
+SrCa-B25  0.23  1 group_1
+SrCa-B31  7.17  1 group_1
+SrCa-B32  0.62  1 group_1
+SrCa-B33  1.40  1 group_1
+SrCa-B34  34.24  1 group_1
+SrCa-B35  0.05  1 group_1
+SrCa-B41  8.56  1 group_1
+SrCa-B42  0.63  1 group_1
+SrCa-B43  1.34  1 group_1
+SrCa-B44  31.71  1 group_1
+SrCa-B45  0.17  1 group_1
+SrCa-B51  13.27  1 group_1
+SrCa-B52  0.61  1 group_1
+SrCa-B53  1.25  1 group_1
+SrCa-B54  24.74  1 group_1
+SrCa-B55  0.12  1 group_1
+SrCa-B61  20.36  1 group_1
+SrCa-B62  0.63  1 group_1
+SrCa-B63  1.32  1 group_1
+SrCa-B64  17.86  1 group_1
+SrCa-B65  0.00  1 group_1
+SrCa-B71  27.16  1 group_1
+SrCa-B72  0.62  1 group_1
+SrCa-B73  1.21  1 group_1
+SrCa-B74  11.08  1 group_1
+SrCa-B75  0.00  1 group_1
+SrCa-B81  32.22  1 group_1
+SrCa-B82  0.64  1 group_1
+SrCa-B83  1.23  1 group_1
+SrCa-B84  3.82  1 group_1
+SrCa-B85  0.22  1 group_1
+SrCa-B91  33.91  1 group_1
+SrCa-B92  0.65  1 group_1
+SrCa-B93  1.27  1 group_1
+SrCa-B94  1.99  1 group_1
+SrCa-B95  0.09  1 group_1
+SrCa-B101  37.83  1 group_1
+SrCa-B102  0.66  1 group_1
+SrCa-B103  1.27  1 group_1
+SrCa-B104  1.07  1 group_1
+SrCa-B105  0.26  1 group_1
+SrCa-B111  38.69  1 group_1
+SrCa-B112  0.62  1 group_1
+SrCa-B113  1.18  1 group_1
+SrCa-B114  0.00  1 group_1
+SrCa-B115  0.00  1 group_1
+SrCa-C11  26.01  1 group_1
+SrCa-C12  0.81  1 group_1
+SrCa-C13  6.29  1 group_1
+SrCa-C14  10.46  1 group_1
+SrCa-C15  0.00  1 group_1
+SrCa-C21  22.03  1 group_1
+SrCa-C22  0.76  1 group_1
+SrCa-C23  5.98  1 group_1
+SrCa-C24  10.40  1 group_1
+SrCa-C25  0.00  1 group_1
+SrCa-C31  27.79  1 group_1
+SrCa-C32  0.75  1 group_1
+SrCa-C33  5.87  1 group_1
+SrCa-C34  9.85  1 group_1
+SrCa-C35  0.00  1 group_1
+SrCa-C41  26.57  1 group_1
+SrCa-C42  0.74  1 group_1
+SrCa-C43  5.74  1 group_1
+SrCa-C44  9.17  1 group_1
+SrCa-C45  0.00  1 group_1
+SrCa-C51  24.62  1 group_1
+SrCa-C52  0.80  1 group_1
+SrCa-C53  5.83  1 group_1
+SrCa-C54  7.23  1 group_1
+SrCa-C55  0.00  1 group_1
+SrCa-C61  28.32  1 group_1
+SrCa-C62  0.77  1 group_1
+SrCa-C63  5.83  1 group_1
+SrCa-C64  5.27  1 group_1
+SrCa-C65  0.00  1 group_1
+SrCa-C71  28.94  1 group_1
+SrCa-C72  0.77  1 group_1
+SrCa-C73  6.14  1 group_1
+SrCa-C74  3.11  1 group_1
+SrCa-C75  0.00  1 group_1
+SrCa-C81  32.41  1 group_1
+SrCa-C82  0.79  1 group_1
+SrCa-C83  5.98  1 group_1
+SrCa-C84  1.11  1 group_1
+SrCa-C85  0.00  1 group_1
+SrCa-C91  31.22  1 group_1
+SrCa-C92  0.76  1 group_1
+SrCa-C93  5.88  1 group_1
+SrCa-C94  0.55  1 group_1
+SrCa-C95  0.00  1 group_1
+SrCa-C101  30.75  1 group_1
+SrCa-C102  0.77  1 group_1
+SrCa-C103  5.91  1 group_1
+SrCa-C104  0.30  1 group_1
+SrCa-C105  0.00  1 group_1
+SrCa-C111  33.37  1 group_1
+SrCa-C112  0.71  1 group_1
+SrCa-C113  5.81  1 group_1
+SrCa-C114  0.00  1 group_1
+SrCa-C115  0.00  1 group_1
+* model command line 
+CrunchTope
+* model input/output
+datacom-SrExchange.tpl datacom-SrExchange.dbs
+PestExchange.ins PestExchange.out
+* prior information

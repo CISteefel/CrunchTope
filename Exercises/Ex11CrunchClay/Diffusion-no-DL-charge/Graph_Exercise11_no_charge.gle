@@ -1,0 +1,24 @@
+papersize 10 7
+margins 0 0 0 0
+
+set justify cc
+ 
+amove 1 0
+begin graph
+ size 10 7
+ xtitle "t (days)" 
+ ytitle "Normalized Concentration (-)"
+ xaxis min 0 max 10 
+
+ data "Time_profile_52.out" d1=c1,C8 d2=c1,c9 d3=c1,c10 ignore 2
+
+ let d3=d3/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d1=d1/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ let d2=d2/0.001 ! Concentration in Up reservoir is 0.001 mol/L
+ d1 line color green key "Br^-" 
+ d2 lstyle 9 color red key "HTO"
+ d3 line color blue key "Ca^{2+}"
+ 
+ key pos tl hei 0.3 compact
+end graph
+

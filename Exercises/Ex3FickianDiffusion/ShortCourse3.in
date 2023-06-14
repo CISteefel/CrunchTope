@@ -1,0 +1,81 @@
+TITLE
+ShortCourse7.in: Tracer test involving diffusion
+END
+ 
+RUNTIME
+time_units         days
+timestep_max       0.005
+timestep_init      0.005
+time_tolerance     0.001
+hindmarsh          true
+master         Tracer
+correction_max     2.0
+debye-huckel       true
+database_sweep     no
+speciate_only      false
+gimrt              true
+graphics           kaleidagraph
+solver             gmres
+preconditioner     ilu
+precondition_level 0
+database           datacom.dbs
+screen_output      100
+END
+ 
+OUTPUT
+time_units           days
+spatial_profile      1  2  3  4  5  
+time_series          TracerDiffusion7.out  251 
+time_series_print    Tracer
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units  second
+fix_diffusion  1.E-09
+dispersivity   0.0
+END
+
+BOUNDARY_CONDITIONS
+x_begin   junk2           flux
+x_end     junk2           flux
+END
+
+INITIAL_CONDITIONS
+junk2   1-501    1-1  1-1
+junk1   251-251  1-1  1-1
+END
+
+Condition junk1
+units            mol/kg
+temperature      25.0
+Tracer           0.1
+END
+
+Condition junk2
+units            mol/kg
+temperature      25.0
+Tracer           0.0001
+END
+
+DISCRETIZATION
+xzones 501 0.0002
+END
+ 
+FLOW
+time_units       years
+distance_units   meters
+constant_flow    0.0
+END
+ 
+POROSITY
+fix_porosity     1.0
+END
+ 
+PRIMARY_SPECIES
+Tracer
+END
+ 
+
+ 
