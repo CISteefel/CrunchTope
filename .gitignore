@@ -1,0 +1,15 @@
+# ignore visual studio files
+CrunchTopeInputs/CrunchTope.v12.suo
+CrunchTopeInputs/CrunchTope.u2d
+CrunchTopeInputs/CrunchTope.sln
+
+# ignore visual studio output files
+CrunchTopeInputs/x64
+CrunchTopeInputs/.vs
+
+# ignore output files
+CrunchTopeInputs/*.tec
+CrunchTopeInputs/*.out
+
+# ignore .rst file
+CrunchTopeInputs/*.rst
