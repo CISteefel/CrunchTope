@@ -7802,6 +7802,12 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,theta_s_is_porosity)
         
+        ! True if the input to the theta_r is the residual saturation value
+        theta_r_is_S_r = .FALSE.
+        parchar = 'theta_r_is_S_r'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,theta_r_is_S_r)
+        
         ! End of Edit by Toshiyuki Bandai, 2023 May
         ! ***************************************************
       
@@ -7957,15 +7963,6 @@ IF (found) THEN
        
       ! allocate and read van-Genuchten parameters
       VG_error = 0
-      ! residual water content theta_r
-      parchar = 'vg_theta_r'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
-      IF (VG_error == 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-        WRITE(*,*)
-        STOP
-      END IF
       
     ! saturated water content theta_s (=porosity)
       
@@ -8005,6 +8002,16 @@ IF (found) THEN
             END DO
           END DO
         END DO
+      END IF
+      
+    ! residual water content theta_r
+      parchar = 'vg_theta_r'
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      IF (VG_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+        WRITE(*,*)
+        STOP
       END IF
       
     ! alpha parameter in the van Genuchten model

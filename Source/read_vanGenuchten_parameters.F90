@@ -90,6 +90,11 @@ ELSE
           END DO
         END DO
         
+        ! the input value is actually residual saturation, convert it to residual water content
+        IF (theta_r_is_S_r) THEN
+          theta_r = theta_r*theta_s
+        END IF
+        
         
       CASE ('vg_theta_s')
         IF (ALLOCATED(theta_s)) THEN
