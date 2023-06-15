@@ -1,0 +1,25 @@
+# ignore visual studio files
+CrunchTope.*
+
+# ignore visual studio output files
+x64
+.vs
+
+# ignore input files
+*.in
+# but selectively track input files (shortcourse input files)
+!ShortCourse*.in
+!test_infiltration_1.in
+!test1_8C_PLM_open.in
+!test2_20C_PLM_open.in
+
+# ignore output files
+*.tec
+*.out
+
+# ignore .rst file
+
+*.rst
+
+# ignore fort.123 files
+fort.123

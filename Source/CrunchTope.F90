@@ -404,20 +404,6 @@ REAL(DP)                                                   :: pumpterm
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
 
-! variables for dt adjustment in Richards
-REAL(DP)                                                   :: dq_max
-REAL(DP)                                                   :: dt_co
-REAL(DP)                                                   :: term1
-REAL(DP)                                                   :: term2
-REAL(DP)                                                   :: term3
-REAL(DP)                                                   :: term4
-REAL(DP)                                                   :: term5
-REAL(DP)                                                   :: m
-
-REAL(DP)                                                   :: dist
-REAL(DP)                                                   :: satu
-REAL(DP)                                                   :: watertable
-
 INTEGER(I4B)                                               :: i_substep
 
 ! variables pump time series
@@ -680,195 +666,16 @@ IF (CalculateFlow) THEN
     END DO
   END IF
 
- !! Get topography from pressure BC, ZhiLi20210526
- !! Here jz_bottom is the jz index that represents the boundary cell above the top surface
- IF (Richards) THEN
-     WRITE(*,*) ' Initializing topography'
-     IF (y_is_vertical) THEN
-         jz = 1
-         DO jx = 0,nx+1
-             j_bottom(jx,1) = 0
-             DO jy = 1,ny-1
-                 IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
-                     j_bottom(jx,1) = jy
-                     EXIT
-                 END IF
-            END DO
-        END DO
-     ELSE
-         DO jx = 0,nx+1
-             DO jy = 0,ny+1
-                 DO jz = 1,nz-1
-                     IF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-                         j_bottom(jx,jy) = jz
-                         EXIT
-                     END IF
-                END DO
-            END DO
-        END DO
-    END IF
-END IF
-
- !! Initialize pressure head, ZhiLi20210526
- ZhiLi_Richards_initialization: IF (Richards) THEN
-
-     WRITE(*,*) ' Initializing head and water content for Richards equation'
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
-
-             wcs(jx,jy,jz) = por(jx,jy,jz)
-
-             IF (activecellPressure(jx,jy,jz) == 1) THEN
-
-                 ! distance to top surface
-                 ! This only works for uniform dyy or dzz now!
-                 IF (y_is_vertical) THEN
-                   jyCheck = INT(j_bottom(jx,1))
-                   dist = 0.0d0
-                   IF (jy > jyCheck) THEN
-                       DO jydum = jyCheck,jy
-                           dist = dist + dyy(jydum)
-                       END DO
-                   END IF
-                   dist = dist - 0.5*dyy(jyCheck)
-
-                   ! distCheck = 0.0d0
-                   !
-                   ! DO jydum = 0,jycheck
-                   !     distCheck = distCheck + dyy(jydum)
-                   ! END DO
-                   ! distCheck = distCheck
-                   !
-                   ! distCheck3 = dist - distCheck
-                   !
-                   ! distCheck2 = (jy - j_bottom(jx,1) - 0.5d0)*dyy(jy)
-
-                  ! dist = distCheck3 - distCheck2
-                  ! IF (dist < -tiny .OR. dist > tiny ) THEN
-                  !
-                  !   write(*,*) dist
-                  !   write(*,*)
-                  !   write(*,*) 'distCheck2 should be equal to distCheck3 ',distcheck2,distcheck3
-                  !   read(*,*)
-                  ! END IF
-
-                 ELSE
-                     dist = (jz - j_bottom(jx,jy) - 0.5d0)*dzz(jx,jy,jz)
-                 END IF
-
-                 !  Use flat initial water table
-                 IF (watertable_flat) THEN
-                     ! watertable_init = -(INT(j_bottom(jx,1)) - INT(j_bottom(nx,1))) * dyy(1)
-                     watertable = watertable_init - INT(j_bottom(jx,1)) * dyy(1)
-                     dist = dist - 0.5d0
-                 ELSE
-                     watertable = watertable_init
-                 END IF
-
-
-                 ! set initial water table
-                 IF (dist > watertable) THEN
-                     wc(jx,jy,jz) = wcs(jx,jy,jz)
-                     head(jx,jy,jz) = dist - watertable
-                 ELSE
-                     ! Assume head is hydrostatic above the water table
-                     ! This makes wc_init useless!
-                    ! wc(jx,jy,jz) = wc_init
-                    head(jx,jy,jz) = dist - watertable
-                    satu = (1 + abs(vga(jx,jy,jz)*head(jx,jy,jz))**vgn(jx,jy,jz)) ** (1.0d0/vgn(jx,jy,jz)-1.0d0)
-                    IF (satu > 1) THEN
-                        satu = 1.0d0
-                    ELSE IF (satu < 0) THEN
-                        satu = 0.0d0
-                    END IF
-                    !!! Get wc from head
-                    IF (head(jx,jy,jz) >= 0.0d0) THEN
-                        wc(jx,jy,jz) = wcs(jx,jy,jz)
-                    ELSE
-                        wc(jx,jy,jz) = wcr(jx,jy,jz) + (wcs(jx,jy,jz) - wcr(jx,jy,jz)) * satu
-                    END IF
-                 END IF
-
-            ELSE
-               ! initial condition for inactive cells
-               wc(jx,jy,jz) = wcr(jx,jy,jz)
-               head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
-!!!               head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
-               IF (y_is_vertical) THEN
-                   IF (jy < ny+1) THEN
-                     IF (activecellPressure(jx,jy+1,jz) == 1) THEN
-                       IF (pres(jx,jy,jz) > 0.0d0) THEN
-                           wc(jx,jy,jz) = wcs(jx,jy,jz)
-                           head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
-                       ELSE
-                           wc(jx,jy,jz) = wcr(jx,jy,jz)
-                           head(jx,jy,jz) = 0.0d0
-                       END IF
-                     END IF
-                  END IF
-              ELSE
-                  IF (jz < nz+1 .AND. activecellPressure(jx,jy,jz+1) == 1) THEN
-                      IF (pres(jx,jy,jz) > 0.0d0) THEN
-                          wc(jx,jy,jz) = wcs(jx,jy,jz)
-                          head(jx,jy,jz) = pres(jx,jy,jz) / (ro(jx,jy,jz) * 9.8d0)
-                      ELSE
-                          wc(jx,jy,jz) = wcr(jx,jy,jz)
-                          head(jx,jy,jz) = 0.0d0
-                      END IF
-                  END IF
-              END IF
-           END IF
-
-         END DO
-       END DO
-     END DO
-
-     ! DO jz = 0,nz+1
-     !   DO jy = 0,ny+1
-     !     DO jx = 0,nx+1
-     !       wc(jx,jy,jz) = wc_init
-     !       IF (activecellPressure(jx,jy,jz) == 1) THEN
-     !           head(jx,jy,jz) = -(1.0d0/vga(jx,jy,jz)) * (((wcs(jx,jy,jz) - wcr(jx,jy,jz))/(wc(jx,jy,jz) - wcr(jx,jy,jz)))**(1.0d0/(1.0d0-1.0d0/vgn(jx,jy,jz))) - 1.0d0) ** (1.0d0/vgn(jx,jy,jz))
-     !       END IF
-     !     END DO
-     !   END DO
-     ! END DO
-
-     DO jz = 0,nz+1
-       DO jy = 0,ny+1
-         DO jx = 0,nx+1
-           headOld(jx,jy,jz) = head(jx,jy,jz)
-           wcOld(jx,jy,jz) = wc(jx,jy,jz)
-         END DO
-       END DO
-     END DO
-
- !!! Calculate liquid saturation from water content
-
-    DO jz = 0,nz+1
-     DO jy = 0,ny+1
-       DO jx = 0,nx+1
-         satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-         satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-       END DO
-     END DO
-   END DO
-
-     WRITE(*,*) ' Initialization completed!'
-     
- END IF ZhiLi_Richards_initialization
- 
  ! Edit by Toshiyuki Bandai 2023 May
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
- PETSc_if: IF (Richards_Toshi) THEN
+ PETSc_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
    !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
-   WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-   CALL solve_Richards_steady(nx, ny, nz)
+     WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
+     CALL solve_Richards_steady(nx, ny, nz)
    
    ELSE steady_Richards
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
@@ -915,9 +722,6 @@ END IF
 
   IF (NavierStokes) THEN
     CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
-  ELSE IF (Richards) THEN
-    CALL vanGenuchten(nx,ny,nz)
-    CALL pressureRich(nx,ny,nz,dtflow,amatP,SteadyFlow)
   ELSE
     CALL pressure(nx,ny,nz,dtflow,amatP,SteadyFlow)
   END IF
@@ -982,32 +786,15 @@ END IF
   END IF
 
 
-  IF (Richards) THEN
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-      END FORALL
-  ELSE IF (Richards_Toshi) THEN
-    CONTINUE
-  ELSE
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-      END FORALL
-  END IF
+
+  FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+    pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+  END FORALL
   
 
   IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
   ELSE IF (Richards) THEN
-      CALL vanGenuchten(nx,ny,nz)
-      CALL velocalcRich(nx,ny,nz,dtflow)
-      CALL watercontentRich(nx,ny,nz,dtflow)
-      CALL vanGenuchten(nx,ny,nz)
-      CALL redistributeRich(nx,ny,nz,dtflow)
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
-      END FORALL
-      ! CALL velocalcRich(nx,ny,nz)
-  ELSE IF (Richards_Toshi) THEN
     ! the velocity was already calcuated in the stead-state program
     FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
@@ -1017,37 +804,11 @@ END IF
       CALL velocalc(nx,ny,nz)
   END IF
   
- ! final check of water content
-    IF (Richards) THEN
-      DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
-            IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
-              wc(jx,jy,jz) = wcs(jx,jy,jz)
-            ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
-              wc(jx,jy,jz) = wcr(jx,jy,jz)
-            END IF
-          END DO
-        END DO
-      END DO
-
- !!! Calculate liquid saturation from water content
-
-  DO jz = 0,nz+1
-    DO jy = 0,ny+1
-      DO jx = 0,nx+1
-        satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-        satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-      END DO
-    END DO
-  END DO
-
-    END IF
     
   ! **********************************************
   ! Edit by Toshiyuki Bandai, 2023 May
   ! calculate saturation from volumetric water content
-  IF (Richards_Toshi) THEN
+  IF (Richards) THEN
     
     jy = 1
     jz = 1
@@ -1312,18 +1073,16 @@ iteration_tot = 0
 
 nn = 0
 !**********************************************
-IF (Richards_toshi) THEN
-  
 ! record initial state by Toshiyuki Bandai 2023, May
-OPEN(unit = 10, file = 'initial_condition.txt')
-DO jx = 1, nx
-  WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
-END DO
-CLOSE(10)
-
+IF (Richards) THEN
+  OPEN(unit = 10, file = 'initial_condition.out')
+  DO jx = 1, nx
+    WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
+  END DO
+  CLOSE(10)
 END IF
-
 !**********************************************
+
 i_substep = 0
 DO WHILE (nn <= nend)
     ! Zhi Li 20200715
@@ -1378,7 +1137,7 @@ DO WHILE (nn <= nend)
         
         ! Edit by Toshiyuki Bandai 2023 May
         ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
-        PETSc_if_time: IF (Richards_Toshi) THEN
+        PETSc_if_time: IF (Richards) THEN
         ! ******************************************************************
         ! store the previous time step water content
           jy = 1
@@ -1386,12 +1145,11 @@ DO WHILE (nn <= nend)
           DO jx = 1,nx
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
-          WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
           
-          IF (time > 1.8895d-02) THEN
-            WRITE(*,*) ' Stop !'
+          IF (Richards_print) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
           END IF
-        
+                  
           ! update the value used for the lower boundary condition by interpolating time series
           SELECT CASE (lower_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
@@ -1460,23 +1218,9 @@ DO WHILE (nn <= nend)
         CALL KSPSetOperators(ksp,amatP,amatP,ierr)
         CALL harmonic(nx,ny,nz)
 
-        IF (Richards) THEN
-            DO jz = 0,nz+1
-              DO jy = 0,ny+1
-                DO jx = 0,nx+1
-                  headOld(jx,jy,jz) = head(jx,jy,jz)
-                  wcOld(jx,jy,jz) = wc(jx,jy,jz)
-                END DO
-              END DO
-            END DO
-        END IF
-
 
         IF (NavierStokes) THEN
             CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
-        ELSE IF (Richards) THEN
-            CALL vanGenuchten(nx,ny,nz)
-            CALL pressureRich(nx,ny,nz,delt,amatP,SteadyFlow)
         ELSE
             CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
         END IF
@@ -1525,30 +1269,14 @@ DO WHILE (nn <= nend)
           STOP
         END IF
 
-        IF (Richards) THEN
-            FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-              head(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-            END FORALL
-        ELSE IF (Richards_Toshi) THEN
-            CONTINUE
-        ELSE
-            FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-              pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-            END FORALL
-        END IF
+        
+        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+          pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+        END FORALL
 
         IF (NavierStokes) THEN
             CALL velocalcNS(nx,ny,nz,delt)
         ELSE IF (Richards) THEN
-            CALL vanGenuchten(nx,ny,nz)
-            CALL velocalcRich(nx,ny,nz,delt)
-            CALL watercontentRich(nx,ny,nz,delt)
-            CALL vanGenuchten(nx,ny,nz)
-            CALL redistributeRich(nx,ny,nz,delt)
-            FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-              pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.8d0
-            END FORALL
-        ELSE IF (Richards_Toshi) THEN
           ! the velocity was already calcuated
           FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
               pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
@@ -1556,39 +1284,12 @@ DO WHILE (nn <= nend)
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
-
-        ! final check of water content
-         IF (Richards) THEN
-           DO jz = 1,nz
-             DO jy = 1,ny
-               DO jx = 1,nx
-                 IF (wc(jx,jy,jz) > wcs(jx,jy,jz)) THEN
-                     wc(jx,jy,jz) = wcs(jx,jy,jz)
-                 ELSE IF (wc(jx,jy,jz) < wcr(jx,jy,jz)) THEN
-                     wc(jx,jy,jz) = wcr(jx,jy,jz)
-                 END IF
-               END DO
-             END DO
-           END DO
-
-         !!! Calculate liquid saturation from water content
-
-        DO jz = 0,nz+1
-          DO jy = 0,ny+1
-            DO jx = 0,nx+1
-              satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-              satliq(jx,jy,jz) = wc(jx,jy,jz)/por(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        
-         ENDIF
          
          
     ! **********************************************
     ! Edit by Toshiyuki Bandai, 2023 May
     ! calculate saturation from volumetric water content
-    IF (Richards_Toshi) THEN
+    IF (Richards) THEN
     
       jy = 1
       jz = 1
@@ -2052,24 +1753,10 @@ DO WHILE (nn <= nend)
 !  ***********  START GIMRT BLOCK  *********************
 
 6000   IF (gimrt) THEN
-
-
-  ! ****    Async time loop, ZhiLi20220404      ****
-  IF (Richards) THEN
-     IF (dt_sync) THEN
-      i_substep = 1
-      n_substep = 1
-      dt_gimrt = delt
-    ELSE 
-      dt_gimrt = dt_gimrt + delt
-    END IF
-  ELSE
-    i_substep = 1
-      n_substep = 1
-      dt_gimrt = delt
-  END IF
-
   
+    i_substep = 1
+    n_substep = 1
+    dt_gimrt = delt
 
     IF (i_substep == n_substep) THEN
         ! Invoke GIMRT calculation
@@ -3194,70 +2881,6 @@ END DO
    END IF
 
 !  Calculate time step to be used based on various criteria
-!Adaptive dt, Zhi Li 20200715
-IF (Richards) THEN
-    ! Adjust dt
-    dq_max = 0.0d0
-    dt_co = dtmax
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-            IF (abs(wc(jx,jy,jz) - wcOld(jx,jy,jz)) > dq_max) THEN
-                dq_max = abs(wc(jx,jy,jz) - wcOld(jx,jy,jz))
-            END IF
-            ! calculate Courant number
-            IF (wc(jx,jy,jz) < wcs(jx,jy,jz) .AND. wc(jx,jy,jz) > wcr(jx,jy,jz) .AND. activecellPressure(jx,jy,jz) == 1) THEN
-                m = 1.0 - 1.0/vgn(jx,jy,jz)
-                ! term1 = saturation
-                IF (wc(jx,jy,jz) > 0.9999*wcs(jx,jy,jz)) THEN
-                    term1 = (0.9999*wcs(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                ELSE
-                    term1 = (wc(jx,jy,jz)-wcr(jx,jy,jz)) / (wcs(jx,jy,jz)-wcr(jx,jy,jz))
-                END IF
-                ! term2 = 1 - saturation^(1/m)
-                term2 = 1.0 - term1**(1.0/m)
-                ! term3 = 1 - (1 - saturation^(1/m))^m
-                term3 = 1.0 - term2**m
-                ! term4 = Ks      Why using permy???
-                term4 = permy(jx,jy,jz) * ro(jx,jy,jz)*9.8d0/0.001d0
-                ! term5 = dK/ds
-                term5 = 0.5*term4*term1**(-0.5)*term3**2.0
-                IF (term2 /= 0.0) THEN
-                    term5 = term5 + 2.0*term4*term1**((2.0-m)/2.0*m)*term3*term2**(m-1.0)
-                END IF
-                ! finally, get max dt by assume max Co=2
-                IF (term5 .NE. 0.0) THEN
-                    IF (dt_co > co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)) THEN
-                        dt_co = co_richards * dyy(jy) * (wcs(jx,jy,jz) - wcr(jx,jy,jz)) / term5 / (365.0*86400.0)
-                  END IF
-                END IF
-            END IF
-        END DO
-      END DO
-    END DO
-
-    dtold = delt
-    IF (dq_max > 0.02) THEN
-        delt = 0.7 * delt
-    ELSE IF (dq_max < 0.01) THEN
-        delt = 1.3 * delt
-    END IF
-
-   IF (delt > dt_co .AND. dt_co < dtmax .AND. dt_co > deltmin) THEN
-       delt = dt_co
-  !     write(*,*) 'Delt = ', delt
-   END IF
-
-    IF (delt < deltmin) THEN
-        delt = deltmin
-    ELSE IF (delt > dtmax) THEN
-        delt = dtmax
-    ELSE
-      CONTINUE
-    END IF
-
-ELSE
-
     IF (nn > 4) THEN
           dtmax = tstep
           IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
@@ -3286,7 +2909,6 @@ ELSE
           CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
           dtold = delt
       END IF
-END IF
 
 
 
@@ -3456,16 +3078,10 @@ END IF
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
     WRITE(iures) ncounter
-
-    !! Write Richards, Zhi Li 20200705
-    IF (Richards) THEN
-        WRITE(iures) head
-        WRITE(iures) wc
-    END IF
     
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
-    IF (Richards_Toshi) THEN
+    IF (Richards) THEN
         WRITE(iures) head
         WRITE(iures) theta
     END IF
@@ -3741,16 +3357,10 @@ END IF
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
     WRITE(iures) ncounter
-
-    !! Write Richards, Zhi Li 20200705
-    IF (Richards) THEN
-        WRITE(iures) head
-        WRITE(iures) wc
-    END IF
     
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
-    IF (Richards_Toshi) THEN
+    IF (Richards) THEN
         WRITE(iures) head
         WRITE(iures) theta
     END IF

@@ -1,0 +1,117 @@
+TITLE
+ShortCourse1.in:  Short course carbonate speciation
+END
+
+RUNTIME
+speciate_only   true
+database_sweep  true
+database        datacom_13C.dbs
+graphics        TecPlot
+density_module  temperature
+END
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+13CO2(aq)
+Ca++
+Na+
+Cl-
+END
+
+Condition        speciate1   Fix pCO2 and calculate pH based on charge balance
+units            mol/kg
+temperature      25.0
+pH               charge 
+CO2(aq)          CO2(g)   3.12E-04 !!in bars
+13CO2(aq)        13CO2(g)   3.15E-06
+Na+              0.01  
+Cl-              0.01
+Ca++             0.00
+!!Calcite          0.00   1.0
+END
+
+Condition        speciate2   Fix pCO2 and calculate pH based on calcite equilibrium 
+units            mol/kg
+temperature      25.0
+pH               Calcite   
+CO2(aq)          CO2(g)   3.12E-04 !!in bars
+13CO2(aq)        13CO2(g)   3.15E-06 
+Na+              0.01
+Cl-              0.01
+Ca++             0.01
+!!Calcite          0.00   1.0
+END
+
+Condition        speciate3  Fix pCO2 and calculate pH based on alkalinity at the CO2 equivalence point (alkalinity = 0.00)
+units            mol/kg
+temperature      25.0
+H+               0.00   
+CO2(aq)          CO2(g)   3.12E-04 !!in bars
+13CO2(aq)        13CO2(g)   3.15E-06 
+Na+              0.01
+Cl-              0.01
+Ca++             0.00
+!!Calcite          0.00   1.0
+END
+
+SECONDARY_SPECIES  
+HCO3- 
+H13CO3-                                                                  
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaOH+                                                                   
+HCl(aq)                                                                 
+NaCl(aq)                                                                
+NaOH(aq)                                                                
+OH-                                                                     
+CO3--
+13CO3--                                                                   
+CaCO3(aq)
+Ca13CO3(aq)                                                               
+CaHCO3+  
+CaH13CO3+                                                               
+NaCO3- 
+Na13CO3-                                                                 
+NaHCO3(aq) 
+NaH13CO3(aq)     
+END
+
+!!MINERALS
+!!Calcite     -label default  -rate  -11.00
+!!END
+
+!!GASES
+!!CO2(g)
+!!END
+
+!!DISCRETIZATION 
+!!xzones  1  1.0
+!!END
+ 
+!!INITIAL_CONDITIONS
+!!speciate1   1
+!!END
+
+!!BOUNDARY_CONDITIONS
+!!X_begin   speciate1  Flux 
+!!X_end     speciate1   Flux 
+!!END
+
+!!TEMPERATURE
+!!set_temperature  25.0
+!!END
+
+!!TRANSPORT
+!!distance_units   meters
+!!time_units       years
+!!fix_diffusion    0.0
+!!END
+
+!!FLOW
+!!distance_units   meters
+!!time_units       years
+!!constant_flow    0.0  0.0
+!!END
+
+

@@ -871,7 +871,7 @@ DO i = 1,ncomp
   
 !!NOTE:  "GIMRT" source term in m**3/year
   source = 0.0d0
-  IF (wells .AND. .not. Richards) THEN
+  IF (wells) THEN
    
     DO npz = 1,npump(jx,jy,jz)
     

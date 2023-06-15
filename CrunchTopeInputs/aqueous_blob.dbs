@@ -1,0 +1,112 @@
+! -------------------------------------------------------------------------------------------------
+!
+!  reaction stoichiometry
+!
+! -------------------------------------------------------------------------------------------------
+
+&Aqueous
+  name     = 'Respiration'
+  type          = 'catabolic'
+  stoichiometry = -0.375 'O2(aq)'  0.25 'HCO3-'  -0.125 'Acetic_acid(aq)'  0.125 'H2O'  0.250 'H+'
+  keq      = 1.11911
+/
+
+&Aqueous
+  name          = 'Bioassimilation'
+  type          = 'anabolic'
+  stoichiometry = 0.050 'H+'  -0.125  'Acetic_acid(aq)'  -0.050 'NH4+'  0.050 'C5H7O2N'  -0.125 'O2(aq)'  0.275 'H2O'
+  keq           = 0.0
+/
+
+&Aqueous
+  name          = 'Oxalate_decay'
+  type          = 'catabolic'
+  stoichiometry = -2.0  'H2-Oxalate' -1.0 'O2(aq)' 2.0 'H2O' 4.0 'CO2(aq)'
+  keq           = 0
+/
+
+&Aqueous
+  name          = 'Oxalate12_decay'
+  type          = 'catabolic'
+  stoichiometry = -2.0  'H2-12Oxalate' -1.0 'O2(aq)' 2.0 'H2O' 4.0 '12CO2(aq)'
+  keq           = 0
+/
+
+&Aqueous
+  name          = 'Oxalate13_decay'
+  type          = 'catabolic'
+  stoichiometry = -2.0  'H2-13Oxalate' -1.0 'O2(aq)' 2.0 'H2O' 4.0 '13CO2(aq)'
+  keq           = 0
+/
+
+&Aqueous
+  name          = 'Oxalate14_decay'
+  type          = 'catabolic'
+  stoichiometry = -2.0  'H2-14Oxalate' -1.0 'O2(aq)' 2.0 'H2O' 4.0 '14CO2(aq)'
+  keq           = 0
+/
+
+&Aqueous
+  name          = 'Oxalate14_raddecay'
+  type          = 'catabolic'
+  stoichiometry = -1.000000000000 'H2-14Oxalate'  1.0000000000000 'NO3-'   1.0000000000000 'H+'
+  keq           = 33.8541
+/
+
+! -------------------------------------------------------------------------------------------------
+!
+!  rate expressions
+!
+! -------------------------------------------------------------------------------------------------
+
+&AqueousKinetics
+  name     = 'Microbe_uptake'
+  label         = 'default'
+  type          = 'MonodBiomass'
+  rate25C       = 25000
+  monod_terms   = 'tot_Acetic_acid(aq)' 1.0E-04
+  biomass  = 'C5H7O2N(s)'
+  chi      = 1
+  bq       = -0.0
+  direction = -1
+/
+
+&AqueousKinetics
+  name          = 'Oxalate_decay'
+  label         = 'default'
+  type          = 'irreversible'
+  rate25C       = 0.5
+  dependence   = 'tot_H2-Oxalate'  1.0
+/
+
+&AqueousKinetics
+  name          = 'Oxalate12_decay'
+  label         = 'default'
+  type          = 'irreversible'
+  rate25C       = 0.5
+  dependence   = 'tot_H2-12Oxalate'  1.0
+/
+
+&AqueousKinetics
+  name          = 'Oxalate13_decay'
+  label         = 'default'
+  type          = 'irreversible'
+  rate25C       = 0.5
+  dependence   = 'tot_H2-13Oxalate'  1.0
+/
+
+&AqueousKinetics
+  name          = 'Oxalate14_decay'
+  label         = 'default'
+  type          = 'irreversible'
+  rate25C       = 0.5
+  dependence   = 'tot_H2-14Oxalate'  1.0
+/
+
+&AqueousKinetics
+  name          = 'Oxalate14_raddecay'
+  label         = 'default'
+  type          = 'irreversible'
+  rate25C       = 0.0001209628644
+  dependence    = 'tot_H2-14Oxalate' 1.0
+/

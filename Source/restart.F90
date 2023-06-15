@@ -212,12 +212,6 @@ END IF
     READ(iures) VolSaveByTimeStep
     READ(iures) Volsave
     READ(iures) ncounter
-    
-  !! Write Richards, Zhi Li 20200705
-    IF (Richards) THEN
-        READ (iures) head
-        READ (iures) wc
-    END IF
   
   porin = por
 

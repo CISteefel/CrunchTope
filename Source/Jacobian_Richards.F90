@@ -19,7 +19,7 @@ INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
-REAL(DP), INTENT(IN) :: dtflow
+REAL(DP), INTENT(IN)                                       :: dtflow
 
 ! variables not declared in CrunchTope
 REAL(DP)                                                   :: psi_lb
@@ -34,15 +34,9 @@ REAL(DP)                                                   :: theta_ub
 REAL(DP)                                                   :: dtheta_ub
 REAL(DP)                                                   :: kr_ub
 REAL(DP)                                                   :: dkr_ub
+REAL(DP)                                                   :: xi ! physical constant
 
-!**************************************************
-! physical parameters for Richards solver added by Toshiyuki Bandai, 2023, May
-REAL(DP), PARAMETER :: mu = 1.0016d0 * 1.0E-3 * 86400.0d0 * 365.0d0 ! dynamics viscosity of water [Pa day] at 20 degC
-REAL(DP), PARAMETER :: rho = 0.99823d0 * 1.0E3 ! density of water [kg m-3] at 20 degC
-REAL(DP), PARAMETER :: g = 9.80665d0 * (86400.0d0 * 365.0d0) ** 2 ! gravitational acceleration [m day-2]
-REAL(DP), PARAMETER :: xi = rho*g/mu ! constant used to solve the Richards equation
-! End of edits by Toshiyuki Bandai, 2023, May
-!**************************************************
+xi = rho_water*g/mu_water
 
 jy = 1
 jz = 1
