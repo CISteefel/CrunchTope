@@ -7779,6 +7779,12 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards_steady)
         
+        ! True if the n parameter in the van Genuchten model is used as the input data
+        vg_is_n = .TRUE.
+        parchar = 'vg_is_n'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,vg_is_n)
+        
         ! End of Edit by Toshiyuki Bandai, 2023 May
         ! ***************************************************
       

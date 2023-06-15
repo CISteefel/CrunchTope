@@ -50,9 +50,11 @@ Richards TRUE
 Richards_print FALSE
 Richards_steady TRUE
 !read_richards_ic_file initial_test_infiltration.csv SingleColumn
+!vg_is_n FALSE
 vg_theta_r 53 0.0098 16 0.092 17 0.049 14 0.044
 vg_theta_s 53 0.02 16 0.23 17 0.14 14 0.4
 vg_alpha   53 0.26 16 0.00722 17 0.467 14 2.58
+!vg_n       53 0.34 16 0.26 17 0.24 14 0.5
 vg_n       53 1.51515152 16 1.35135135 17 1.31578947 14 2.0
 upper_bc_type environmental_forcing
 lower_bc_type constant_dirichlet 5.986

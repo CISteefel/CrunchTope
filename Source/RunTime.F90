@@ -104,7 +104,8 @@ MODULE runtime
   LOGICAL(LGT)                                                :: MontTerri
   LOGICAL(LGT)                                                :: Richards ! When solving the Richards equation with Toshi's code
   LOGICAL(LGT)                                                :: Richards_steady ! When solving the steady-state Richards equation with Toshi's code
-  LOGICAL(LGT)                                                :: Richards_print ! True if you want print statements from the Richards solver 
+  LOGICAL(LGT)                                                :: Richards_print ! True if you want print statements from the Richards solver
+  LOGICAL(LGT)                                                :: vg_is_n ! True if the input to vg_n is the n parameter in the van Genuchten model, otherwise, the input value is interpreted as the m parameter
   
   LOGICAL(LGT)                                                :: Switcheroo
   LOGICAL(LGT)                                                :: ReadGridVolumes
