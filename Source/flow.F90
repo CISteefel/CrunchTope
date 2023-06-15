@@ -158,6 +158,12 @@ INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
 
 ! *************************************************
 ! For Richards solver by Toshiyuki Bandai May, 2023
+LOGICAL(LGT)                                    :: Richards ! When solving the Richards equation with Toshi's code
+LOGICAL(LGT)                                    :: Richards_steady ! When solving the steady-state Richards equation with Toshi's code
+LOGICAL(LGT)                                    :: Richards_print ! True if you want print statements from the Richards solver
+LOGICAL(LGT)                                    :: vg_is_n ! True if the input to vg_n is the n parameter in the van Genuchten model, otherwise, the input value is interpreted as the m parameter
+LOGICAL(LGT)                                    :: psi_is_head ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
+LOGICAL(LGT)                                    :: theta_s_is_porosity ! True if the input to theta_s is the same as the porosity
 REAL(DP)                                        :: mu_water! dynamics viscosity of water [Pa year] with a specified temperature tinit in temperature module (computed in StartTope.F90)[C]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]

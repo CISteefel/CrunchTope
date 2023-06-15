@@ -7796,6 +7796,12 @@ IF (found) THEN
           STOP
         END IF
         
+        ! True if the theta_s is the same as the porosity value
+        theta_s_is_porosity = .TRUE.
+        parchar = 'theta_s_is_porosity'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,theta_s_is_porosity)
+        
         ! End of Edit by Toshiyuki Bandai, 2023 May
         ! ***************************************************
       
@@ -7962,29 +7968,44 @@ IF (found) THEN
       END IF
       
     ! saturated water content theta_s (=porosity)
-      parchar = 'vg_theta_s'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
-      IF (VG_error == 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-        WRITE(*,*)
-        STOP
-      END IF
       
-    ! if theta_s does not match porosity, make a warning
-      DO jx = 1, nx
-        DO jy = 1, ny
-          DO jz = 1, nz
-            IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
-              WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
-              WRITE(*,*) ' porosity = ',por(jx,jy,jz)
-              WRITE(*,*)
-            END IF
+      IF (theta_s_is_porosity) THEN
+        ! theta_s is the same as the porosity, so no need to read vg_theta_s
+        IF (ALLOCATED(theta_s)) THEN
+          DEALLOCATE(theta_s)
+          ALLOCATE(theta_s(nx, ny, nz))
+        ELSE
+          ALLOCATE(theta_s(nx, ny, nz))
+        END IF
+        
+        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+          theta_s(jx,jy,jz) = por(jx,jy,jz)
+        END FORALL
+      ELSE
+        parchar = 'vg_theta_s'
+        CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+        IF (VG_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+          WRITE(*,*)
+          STOP
+        END IF
+      
+      ! if theta_s does not match porosity, make a warning
+        DO jx = 1, nx
+          DO jy = 1, ny
+            DO jz = 1, nz
+              IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
+                WRITE(*,*)
+                WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
+                WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
+                WRITE(*,*) ' porosity = ',por(jx,jy,jz)
+                WRITE(*,*)
+              END IF
+            END DO
           END DO
         END DO
-      END DO
+      END IF
       
     ! alpha parameter in the van Genuchten model
       parchar = 'vg_alpha'
