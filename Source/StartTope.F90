@@ -7779,6 +7779,35 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards_steady)
         
+        ! True if the n parameter in the van Genuchten model is used as the input data
+        vg_is_n = .TRUE.
+        parchar = 'vg_is_n'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,vg_is_n)
+        
+        ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
+        psi_is_head = .TRUE.
+        parchar = 'psi_is_head'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,psi_is_head)
+        
+        IF (.NOT. psi_is_head .AND. ABS(dist_scale - 1.0d0) > 1.0d-5) THEN
+          WRITE(*,*) 'dist_scale must be set to 1.0 when psi_is_head = .FALSE.'
+          STOP
+        END IF
+        
+        ! True if the theta_s is the same as the porosity value
+        theta_s_is_porosity = .TRUE.
+        parchar = 'theta_s_is_porosity'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,theta_s_is_porosity)
+        
+        ! True if the input to the theta_r is the residual saturation value
+        theta_r_is_S_r = .FALSE.
+        parchar = 'theta_r_is_S_r'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,theta_r_is_S_r)
+        
         ! End of Edit by Toshiyuki Bandai, 2023 May
         ! ***************************************************
       
@@ -7934,7 +7963,48 @@ IF (found) THEN
        
       ! allocate and read van-Genuchten parameters
       VG_error = 0
-      ! residual water content theta_r
+      
+    ! saturated water content theta_s (=porosity)
+      
+      IF (theta_s_is_porosity) THEN
+        ! theta_s is the same as the porosity, so no need to read vg_theta_s
+        IF (ALLOCATED(theta_s)) THEN
+          DEALLOCATE(theta_s)
+          ALLOCATE(theta_s(nx, ny, nz))
+        ELSE
+          ALLOCATE(theta_s(nx, ny, nz))
+        END IF
+        
+        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+          theta_s(jx,jy,jz) = por(jx,jy,jz)
+        END FORALL
+      ELSE
+        parchar = 'vg_theta_s'
+        CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+        IF (VG_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+          WRITE(*,*)
+          STOP
+        END IF
+      
+      ! if theta_s does not match porosity, make a warning
+        DO jx = 1, nx
+          DO jy = 1, ny
+            DO jz = 1, nz
+              IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
+                WRITE(*,*)
+                WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
+                WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
+                WRITE(*,*) ' porosity = ',por(jx,jy,jz)
+                WRITE(*,*)
+              END IF
+            END DO
+          END DO
+        END DO
+      END IF
+      
+    ! residual water content theta_r
       parchar = 'vg_theta_r'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
       IF (VG_error == 1) THEN
@@ -7943,31 +8013,6 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-      
-    ! saturated water content theta_s (=porosity)
-      parchar = 'vg_theta_s'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
-      IF (VG_error == 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-        WRITE(*,*)
-        STOP
-      END IF
-      
-    ! if theta_s does not match porosity, make a warning
-      DO jx = 1, nx
-        DO jy = 1, ny
-          DO jz = 1, nz
-            IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
-              WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
-              WRITE(*,*) ' porosity = ',por(jx,jy,jz)
-              WRITE(*,*)
-            END IF
-          END DO
-        END DO
-      END DO
       
     ! alpha parameter in the van Genuchten model
       parchar = 'vg_alpha'
@@ -7980,6 +8025,11 @@ IF (found) THEN
       END IF
     ! convert unit
       VG_alpha = VG_alpha*dist_scale
+      
+      IF (.NOT. psi_is_head) THEN
+        VG_alpha = VG_alpha*rho_water*9.80665d0
+      END IF
+      
     ! n parameter in the van Genuchten model
       parchar = 'vg_n'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
@@ -7989,7 +8039,12 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-
+      
+      IF (.NOT. vg_is_n) THEN
+          ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
+          VG_n = 1.0d0/(1.0d0 - VG_n)
+      END IF
+      
     ! psi_s parameter in the modified van Genuchten model
       !parchar = 'vg_psi_s'
       !CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
@@ -8685,6 +8740,11 @@ IF (found) THEN
           SELECT CASE (lower_BC_type_steady)
           CASE ('constant_dirichlet')
             value_lower_BC_steady = value_lower_BC_steady/dist_scale
+            
+            IF (.NOT. psi_is_head) THEN
+              value_lower_BC_steady = (value_lower_BC_steady - pressure_air)/(rho_water*9.80665d0)
+            END IF
+            
           CASE ('constant_neumann')
             WRITE(*,*)
             WRITE(*,*) ' The upper boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition for the steady-state Richards equation. '
@@ -8711,6 +8771,10 @@ IF (found) THEN
           SELECT CASE (upper_BC_type_steady)
           CASE ('constant_dirichlet')
             value_upper_BC_steady = value_upper_BC_steady/dist_scale
+            IF (.NOT. psi_is_head) THEN
+              value_upper_BC_steady = (value_upper_BC_steady - pressure_air)/(rho_water*9.80665d0)
+            END IF
+            
           CASE ('constant_neumann')
             CONTINUE ! no unit conversion
           CASE ('constant_flux')
@@ -8736,6 +8800,9 @@ IF (found) THEN
         SELECT CASE (lower_BC_type)
         CASE ('constant_dirichlet')
           value_lower_BC = value_lower_BC/dist_scale
+          IF (.NOT. psi_is_head) THEN
+              value_lower_BC = (value_lower_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
         CASE ('constant_neumann')
           CONTINUE ! no unit conversion
         CASE ('constant_flux')
@@ -8753,6 +8820,11 @@ IF (found) THEN
           CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
         
           values_lower_BC = values_lower_BC/dist_scale
+          
+          IF (.NOT. psi_is_head) THEN
+              values_lower_BC = (values_lower_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
+          
           ! unit conversion for the time for the variable boundary condition
           t_lower_BC = t_lower_BC*time_scale
         CASE ('variable_neumann')
@@ -8802,6 +8874,9 @@ IF (found) THEN
         SELECT CASE (upper_BC_type)
         CASE ('constant_dirichlet')
           value_upper_BC = value_upper_BC/dist_scale
+          IF (.NOT. psi_is_head) THEN
+              value_upper_BC = (value_upper_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
         CASE ('constant_neumann')
           WRITE(*,*)
           WRITE(*,*) ' The upper boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
@@ -8824,6 +8899,9 @@ IF (found) THEN
           CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
         
           values_upper_BC = values_upper_BC/dist_scale
+          IF (.NOT. psi_is_head) THEN
+              values_upper_BC = (values_upper_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
           ! unit conversion for the time for the variable boundary condition
           t_upper_BC = t_upper_BC*time_scale
         CASE ('variable_neumann')
@@ -8989,6 +9067,11 @@ IF (found) THEN
             END DO
             ! convert unit
             psi = psi / dist_scale
+            
+            ! the input value is in pressure [Pa], convert to pressure head [m]
+            IF (.NOT. psi_is_head) THEN
+              psi = (psi - pressure_air)/(rho_water*9.80665d0)
+            END IF
           ELSE
             WRITE(*,*)
             WRITE(*,*) ' Richards Initial condition file format not recognized'

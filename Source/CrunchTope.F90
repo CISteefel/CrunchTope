@@ -3423,9 +3423,9 @@ END DO
        RETURN
 !!    ********  NORMAL STOP HERE  **************
     END IF
-
+    
     nint = nint + 1
-    IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
+    IF (time+delt > prtint(nint) .AND. ABS(prtint(nint) - time) > 1.0d-14) THEN
       delt = prtint(nint) - time
       WRITE(*,*) ' Adjusting time step to match output file'
       WRITE(*,5085) delt*OutputTimeScale

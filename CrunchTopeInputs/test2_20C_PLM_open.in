@@ -50,14 +50,23 @@ Richards TRUE
 Richards_print FALSE
 Richards_steady TRUE
 !read_richards_ic_file initial_test_infiltration.csv SingleColumn
-vg_theta_r 53 0.0098 16 0.092 17 0.049 14 0.044
-vg_theta_s 53 0.02 16 0.23 17 0.14 14 0.4
-vg_alpha   53 0.26 16 0.00722 17 0.467 14 2.58
-vg_n       53 1.51515152 16 1.35135135 17 1.31578947 14 2.0
+vg_is_n FALSE
+psi_is_head FALSE
+theta_s_is_porosity TRUE
+theta_r_is_S_r TRUE
+vg_theta_r 53 0.49 16 0.4 17 0.35 14 0.11
+!vg_theta_r 53 0.0098 16 0.092 17 0.049 14 0.044
+!vg_theta_s 53 0.02 16 0.23 17 0.14 14 0.4
+!vg_alpha   53 0.26 16 0.00722 17 0.467 14 2.58
+vg_alpha   53 0.000026 16 0.000000722 17 0.0000467 14 0.000258
+vg_n       53 0.34 16 0.26 17 0.24 14 0.5
+!vg_n       53 1.51515152 16 1.35135135 17 1.31578947 14 2.0
 upper_bc_type environmental_forcing
-lower_bc_type constant_dirichlet 5.986
+!lower_bc_type constant_dirichlet 5.986
+lower_bc_type constant_dirichlet 159988.8
 upper_bc_type_steady constant_flux 0.0
-lower_bc_type_steady constant_dirichlet 5.986
+!lower_bc_type_steady constant_dirichlet 5.986
+lower_bc_type_steady constant_dirichlet 159988.8
 transpiration 1 transpiration_timeseries_PLM_edited.dat 8761
 evaporation evaporation_timeseries_PLM_edited.dat 8761
 infiltration_forcing snowmelt_timeseries_offset_PLM_edited.dat 8761

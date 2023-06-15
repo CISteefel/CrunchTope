@@ -99,6 +99,7 @@ MODULE params
   ! physical parameters for Richards solver added by Toshiyuki Bandai, 2023, May
   REAL(DP), PARAMETER :: rho_water = 0.99823d0 * 1.0E3 ! density of water [kg m-3] at 20 degC
   REAL(DP), PARAMETER :: g = 9.80665d0 * (86400.0d0 * 365.0d0) ** 2 ! gravitational acceleration [m year-2]
+  REAL(DP), PARAMETER :: pressure_air = 1.01325d0 * 1.0E5 ! air pressure [Pa]
   ! End of edits by Toshiyuki Bandai, 2023, May
   !**************************************************
 
