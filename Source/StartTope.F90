@@ -7785,6 +7785,17 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,vg_is_n)
         
+        ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
+        psi_is_head = .TRUE.
+        parchar = 'psi_is_head'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,psi_is_head)
+        
+        IF (.NOT. psi_is_head .AND. ABS(dist_scale - 1.0d0) > 1.0d-5) THEN
+          WRITE(*,*) 'dist_scale must be set to 1.0 when psi_is_head = .FALSE.'
+          STOP
+        END IF
+        
         ! End of Edit by Toshiyuki Bandai, 2023 May
         ! ***************************************************
       
@@ -7986,6 +7997,11 @@ IF (found) THEN
       END IF
     ! convert unit
       VG_alpha = VG_alpha*dist_scale
+      
+      IF (.NOT. psi_is_head) THEN
+        VG_alpha = VG_alpha*rho_water*9.80665d0
+      END IF
+      
     ! n parameter in the van Genuchten model
       parchar = 'vg_n'
       CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
@@ -7995,7 +8011,12 @@ IF (found) THEN
         WRITE(*,*)
         STOP
       END IF
-
+      
+      IF (.NOT. vg_is_n) THEN
+          ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
+          VG_n = 1.0d0/(1.0d0 - VG_n)
+      END IF
+      
     ! psi_s parameter in the modified van Genuchten model
       !parchar = 'vg_psi_s'
       !CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
@@ -8691,6 +8712,11 @@ IF (found) THEN
           SELECT CASE (lower_BC_type_steady)
           CASE ('constant_dirichlet')
             value_lower_BC_steady = value_lower_BC_steady/dist_scale
+            
+            IF (.NOT. psi_is_head) THEN
+              value_lower_BC_steady = (value_lower_BC_steady - pressure_air)/(rho_water*9.80665d0)
+            END IF
+            
           CASE ('constant_neumann')
             WRITE(*,*)
             WRITE(*,*) ' The upper boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition for the steady-state Richards equation. '
@@ -8717,6 +8743,10 @@ IF (found) THEN
           SELECT CASE (upper_BC_type_steady)
           CASE ('constant_dirichlet')
             value_upper_BC_steady = value_upper_BC_steady/dist_scale
+            IF (.NOT. psi_is_head) THEN
+              value_upper_BC_steady = (value_upper_BC_steady - pressure_air)/(rho_water*9.80665d0)
+            END IF
+            
           CASE ('constant_neumann')
             CONTINUE ! no unit conversion
           CASE ('constant_flux')
@@ -8742,6 +8772,9 @@ IF (found) THEN
         SELECT CASE (lower_BC_type)
         CASE ('constant_dirichlet')
           value_lower_BC = value_lower_BC/dist_scale
+          IF (.NOT. psi_is_head) THEN
+              value_lower_BC = (value_lower_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
         CASE ('constant_neumann')
           CONTINUE ! no unit conversion
         CASE ('constant_flux')
@@ -8759,6 +8792,11 @@ IF (found) THEN
           CALL read_timeseries(nout, nx, ny, nz, t_lower_BC, values_lower_BC, lfile, lower_BC_file, tslength)
         
           values_lower_BC = values_lower_BC/dist_scale
+          
+          IF (.NOT. psi_is_head) THEN
+              values_lower_BC = (values_lower_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
+          
           ! unit conversion for the time for the variable boundary condition
           t_lower_BC = t_lower_BC*time_scale
         CASE ('variable_neumann')
@@ -8808,6 +8846,9 @@ IF (found) THEN
         SELECT CASE (upper_BC_type)
         CASE ('constant_dirichlet')
           value_upper_BC = value_upper_BC/dist_scale
+          IF (.NOT. psi_is_head) THEN
+              value_upper_BC = (value_upper_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
         CASE ('constant_neumann')
           WRITE(*,*)
           WRITE(*,*) ' The upper boundary condition type ', upper_BC_type, ' is not supported for the upper boundary condition. '
@@ -8830,6 +8871,9 @@ IF (found) THEN
           CALL read_timeseries(nout, nx, ny, nz, t_upper_BC, values_upper_BC, lfile, upper_BC_file, tslength)
         
           values_upper_BC = values_upper_BC/dist_scale
+          IF (.NOT. psi_is_head) THEN
+              values_upper_BC = (values_upper_BC - pressure_air)/(rho_water*9.80665d0)
+          END IF
           ! unit conversion for the time for the variable boundary condition
           t_upper_BC = t_upper_BC*time_scale
         CASE ('variable_neumann')
@@ -8995,6 +9039,11 @@ IF (found) THEN
             END DO
             ! convert unit
             psi = psi / dist_scale
+            
+            ! the input value is in pressure [Pa], convert to pressure head [m]
+            IF (.NOT. psi_is_head) THEN
+              psi = (psi - pressure_air)/(rho_water*9.80665d0)
+            END IF
           ELSE
             WRITE(*,*)
             WRITE(*,*) ' Richards Initial condition file format not recognized'

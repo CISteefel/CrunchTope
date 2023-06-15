@@ -3,7 +3,6 @@ SUBROUTINE read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, n
 USE crunchtype
 USE params
 USE flow
-USE runtime
 
 IMPLICIT NONE
 
@@ -140,11 +139,6 @@ ELSE
             VG_n(jxx, ny, nz) = value_VG(i)
           END DO
         END DO
-        
-        IF (.NOT. vg_is_n) THEN
-          ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
-          VG_n(:, :, :) = 1.0d0/(1.0d0 - VG_n(:, :, :))
-        END IF
       
       ! this is for modified van Genuchten model        
       !CASE ('vg_psi_s')
