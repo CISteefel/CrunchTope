@@ -34,7 +34,7 @@ REAL(DP)                                                   :: kr_ub
 REAL(DP)                                                   :: dkr_ub
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
 
-xi = rho_water*g/mu_water
+xi = rho_water2*g/mu_water
 
 jy = 1
 jz = 1

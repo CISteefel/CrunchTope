@@ -174,6 +174,7 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential ps
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water2 ! water density as function of temperature
 
 ! soil hydraulic parameters for van Genuchten model
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]

@@ -274,6 +274,13 @@ IF (ny == 1 .AND. nz == 1) THEN
     ALLOCATE(mu_water(nx,ny,nz))
   END IF
 
+  IF (ALLOCATED(rho_water2)) THEN
+    DEALLOCATE(rho_water2)
+    ALLOCATE(rho_water2(nx,ny,nz))
+  ELSE
+    ALLOCATE(rho_water2(nx,ny,nz))
+  END IF
+
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
 !!!    ALLOCATE(por(0:nx+1,ny,nz))
@@ -354,6 +361,12 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
     ALLOCATE(mu_water(nx,ny,nz))
   ELSE
     ALLOCATE(mu_water(nx,ny,nz))
+  END IF
+  IF (ALLOCATED(rho_water2)) THEN
+    DEALLOCATE(rho_water2)
+    ALLOCATE(rho_water2(nx,ny,nz))
+  ELSE
+    ALLOCATE(rho_water2(nx,ny,nz))
   END IF
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
