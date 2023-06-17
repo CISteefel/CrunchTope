@@ -92,7 +92,7 @@ CASE ('environmental_forcing')
       ELSE
         transpirate_cell(nx+1-i) = transpirate
       END IF
-      F_residual(nx+1-i) = F_residual(nx+1-i) - transpirate_cell(nx+1-i)*dtflow/dxx(nx+1-i)
+      F_residual(nx+1-i) = F_residual(nx+1-i) + transpirate_cell(nx+1-i)*dtflow/dxx(nx+1-i)
     END DO
   END IF
     
