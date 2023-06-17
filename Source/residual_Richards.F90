@@ -62,7 +62,7 @@ CASE ('environmental_forcing')
   !   transpirate = 0
   ! END IF
 
-  water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - (infiltration_rate + evaporate + transpirate)*dtflow/dxx(nx)  ! the unit is dimensionless
+  water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - (infiltration_rate + evaporate + transpirate_cell(nx))*dtflow/dxx(nx)  ! the unit is dimensionless
   qx(nx, jy, jz) = infiltration_rate ! only infiltration is used for reaction transport model
   
   IF (water_balance <= 0.001d0) THEN
@@ -85,7 +85,7 @@ CASE ('environmental_forcing')
   IF (transpicells > 1) THEN
     DO i = 2, transpicells
       ! check if the total water extraction (transpiration) is smaller than the remaining water in the cell
-      water_balance = (theta_prev(nx+1-i, jy, jz) - theta_r(nx+1-i, jy, jz)) - (transpirate)*dtflow/dxx(nx+1-i)  ! the unit is dimensionless
+      water_balance = (theta_prev(nx+1-i, jy, jz) - theta_r(nx+1-i, jy, jz)) - (transpirate_cell(nx+1-i))*dtflow/dxx(nx+1-i)  ! the unit is dimensionless
       IF (water_balance <= 0.001d0) THEN
         adjusted_extraction = (theta_prev(nx+1-i, jy, jz) - theta_r(nx+1-i, jy, jz) - 0.001d0)*dxx(nx+1-i)/dtflow
         transpirate_cell(nx+1-i) = adjusted_extraction
