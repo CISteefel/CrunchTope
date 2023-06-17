@@ -162,4 +162,8 @@ MODULE runtime
 
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: BoundaryConditionName
 
+  !! Addition of a walltime (Stolze Lucien June 2023)
+  LOGICAL(LGT)                                                :: walltime
+  REAL(DP)                                                    :: wall_t
+
 END MODULE runtime

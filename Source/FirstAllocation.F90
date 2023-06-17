@@ -716,5 +716,14 @@ IF (ALLOCATED(dependk)) THEN
 ELSE
   ALLOCATE(dependk(mcomp,mreact,maqkin))
 END IF
-
+! ************************************
+! Edit by Lucien Stolze, June 2023
+! Activation energy for aqueous reactions
+IF (ALLOCATED(actk)) THEN
+  DEALLOCATE(actk)
+  ALLOCATE(actk(mreact,maqkin))
+ELSE
+  ALLOCATE(actk(mreact,maqkin))
+END IF
+! ************************************
 END SUBROUTINE FirstAllocation

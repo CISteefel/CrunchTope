@@ -42,7 +42,7 @@
 
 !!!      ****************************************
 
-SUBROUTINE FxTopeGlobal(nx,ny,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,  &
+SUBROUTINE FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,  &
     nspec,ngas,neqn,dt,jx,jy,jz,nBoundaryConditionZone)
 USE crunchtype
 USE params
@@ -153,6 +153,7 @@ END INTERFACE
 
 INTEGER(I4B), INTENT(IN)                                  :: nx
 INTEGER(I4B), INTENT(IN)                                  :: ny
+INTEGER(I4B), INTENT(IN)                                  :: nz
 INTEGER(I4B), INTENT(IN)                                  :: ncomp
 INTEGER(I4B), INTENT(IN)                                  :: nexchange
 INTEGER(I4B), INTENT(IN)                                  :: nexch_sec
@@ -223,6 +224,8 @@ INTEGER(I4B)                                              :: ind
 REAL(DP)                                                  :: GasSource
 REAL(DP)                                                  :: Retardation
 REAL(DP)                                                  :: check
+REAL(DP)                                                  :: A_transpi
+
 
 !  This routine calculates (and assembles) the function residuals.
 
@@ -890,6 +893,18 @@ DO i = 1,ncomp
     END DO
     
   END IF
+
+! ************************************
+! Edit by Lucien Stolze, June 2023
+! Extract solutes via transpiration
+  IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
+        if (ny == 1 .AND. nz == 1) THEN
+        A_transpi = dyy(jy) * dzz(jx,jy,jz)
+        source = source + xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
+  ENDIF
+  ENDIF
+! ************************************
+! end of edit by Lucien Stolze, June 2023
 
 
   GasSource = 0.0

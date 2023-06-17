@@ -266,6 +266,14 @@ IF (ny == 1 .AND. nz == 1) THEN
   ELSE
     ALLOCATE(t(0:nx+1,ny,nz))
   END IF
+
+  IF (ALLOCATED(mu_water)) THEN
+    DEALLOCATE(mu_water)
+    ALLOCATE(mu_water(nx,ny,nz))
+  ELSE
+    ALLOCATE(mu_water(nx,ny,nz))
+  END IF
+
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
 !!!    ALLOCATE(por(0:nx+1,ny,nz))
@@ -340,6 +348,12 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
     ALLOCATE(t(0:nx+1,0:ny+1,nz))
   ELSE
     ALLOCATE(t(0:nx+1,0:ny+1,nz))
+  END IF
+  IF (ALLOCATED(mu_water)) THEN
+    DEALLOCATE(mu_water)
+    ALLOCATE(mu_water(nx,ny,nz))
+  ELSE
+    ALLOCATE(mu_water(nx,ny,nz))
   END IF
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
@@ -423,8 +437,6 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
 !!!    ALLOCATE(por(0:nx+1,ny,0:nz+1))
 !!!  END IF
 
-! Zhi Li 20200708
-! ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
 ELSE
 
   IF (ALLOCATED(s)) THEN
@@ -836,6 +848,15 @@ IF (ALLOCATED(d_sp)) THEN
 ELSE
   ALLOCATE(d_sp(ncomp+nspec))
 END IF
-
+! ************************************
+! Edit by Lucien Stolze, June 2023
+! Activation energy for aqueous reactions
+IF (ALLOCATED(actenergyaq)) THEN
+  DEALLOCATE(actenergyaq)
+  ALLOCATE(actenergyaq(nreactkinmax,ikin))
+ELSE
+  ALLOCATE(actenergyaq(nreactkinmax,ikin))
+END IF
+! ************************************
 
 END SUBROUTINE GlobalArrayAllocation

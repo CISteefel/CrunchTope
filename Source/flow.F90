@@ -165,7 +165,7 @@ LOGICAL(LGT)                                    :: vg_is_n ! True if the input t
 LOGICAL(LGT)                                    :: psi_is_head ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
 LOGICAL(LGT)                                    :: theta_s_is_porosity ! True if the input to theta_s is the same as the porosity
 LOGICAL(LGT)                                    :: theta_r_is_S_r ! True if the input to theta_r is the residual saturation
-REAL(DP)                                        :: mu_water! dynamics viscosity of water [Pa year] with a specified temperature tinit in temperature module (computed in StartTope.F90)[C]
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: mu_water! dynamics viscosity of water [Pa year] with a specified temperature tinit in temperature module (computed in StartTope.F90)[C]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]
 REAL(DP), DIMENSION(:,:,:),ALLOCATABLE          :: head ! pressure head [L]
@@ -214,14 +214,13 @@ REAL(DP), DIMENSION(:), ALLOCATABLE          :: qgt
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
 LOGICAL(LGT)                                   :: pumptimeseries
 LOGICAL(LGT)                                   :: TS_1year
-!! Boundary open in single direction only Lucien Stolze 20211108
-LOGICAL(LGT)                                   :: back_flow_closed
 !! Dynamic water table Lucien Stolze 20211201
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
 LOGICAL(LGT)                                   :: watertabletimeseries
 !! Disable mineralupdate during model spinup
 LOGICAL(LGT)                                   :: spinup ! Lucien Stolze 20220731
+LOGICAL(LGT)                                   :: biomassfixed ! Lucien Stolze 20220731
 !!Evapotranspiration timeseries
 REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
 REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo

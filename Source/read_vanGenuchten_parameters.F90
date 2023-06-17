@@ -1,4 +1,4 @@
-SUBROUTINE read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+SUBROUTINE read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
 ! This subroutine reads the van Genuchten parameters from the input file
 USE crunchtype
 USE params
@@ -39,7 +39,7 @@ INTEGER(I4B)                                                 :: nzone ! number o
 INTEGER(I4B), INTENT(INOUT)                                  :: VG_error ! error flag for reading van Genuchten parameters
 
 CHARACTER (LEN=mls), INTENT(INOUT)                           :: parchar ! character for each van Genuchten parameter in the input file
-CHARACTER (LEN=mls)                                          :: parfind ! character found in the input file
+CHARACTER (LEN=mls), INTENT(INOUT)                           :: parfind ! character found in the input file
 
 CHARACTER (LEN=mls), INTENT(IN)                              :: section ! the name of the section
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: realmult
@@ -52,8 +52,7 @@ realmult = 0.0
 CALL read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
 
 IF (parfind == ' ') THEN
-  WRITE(*,*) ' The line for the parameter ', TRIM(parchar), ' was not found.'
-  VG_error = 1
+
 ELSE
   IF (realmult(1) <= 0.0) THEN
     WRITE(*,*) ' The number of cells must be positive. '
@@ -89,11 +88,6 @@ ELSE
             theta_r(jxx, ny, nz) = value_VG(i)
           END DO
         END DO
-        
-        ! the input value is actually residual saturation, convert it to residual water content
-        IF (theta_r_is_S_r) THEN
-          theta_r = theta_r*theta_s
-        END IF
         
         
       CASE ('vg_theta_s')

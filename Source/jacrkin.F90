@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -100,6 +100,8 @@ INTEGER(I4B)                                         :: nnisotope
 
 REAL(DP)                                             :: bqTMP
 REAL(DP)                                             :: tk
+REAL(DP)                                             :: tkinv
+REAL(DP)                                             :: reft
 REAL(DP)                                             :: sign
 REAL(DP)                                             :: term1
 REAL(DP)                                             :: perturb
@@ -141,6 +143,8 @@ ALLOCATE(stmp(ncomp))
 
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
+tkinv = 1.0D0/tk
+reft = 1.0D0/278.15D0 !! REF temperature (for now 5 degree)
 
 ! biomass end
 
@@ -553,7 +557,17 @@ DO ir = 1,ikin
     ELSE
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
+          ! ************************************
+          ! Edit by Lucien Stolze, June 2023
+          ! Activation energy for aqueous reactions
+          IF (t(jx,jy,jz)+273.15d0 == reft) THEN
+            actenergyaq(ll,ir) = 1.0D0
+          ELSE
+            actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+          END IF
+          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * &
+          (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )*actenergyaq(ll,ir)
+          ! ************************************
         END DO
       END DO
     END IF
@@ -562,8 +576,17 @@ DO ir = 1,ikin
 
     DO i = 1,ncomp
       DO ll = 1,nreactkin(ir)
+        ! ************************************
+        ! Edit by Lucien Stolze, June 2023
+        ! Activation energy for aqueous reactions
+        IF (t(jx,jy,jz)+273.15d0 == reft) THEN
+          actenergyaq(ll,ir) = 1.0D0
+        ELSE
+          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+        END IF
         rdkin(ir,i) = rdkin(ir,i) + ratek(ll,ir)*  &
-            (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity )
+            (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity )*actenergyaq(ll,ir)
+        ! ************************************
       END DO
     END DO
 

@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -110,6 +110,8 @@ REAL(DP)                                                       :: denominator
 ! biomass
 REAL(DP)                                                       :: bqTMP
 REAL(DP)                                                       :: tk
+REAL(DP)                                                       :: tkinv
+REAL(DP)                                                       :: reft
 REAL(DP)                                                       :: sign
 REAL(DP)                                                       :: term1
 REAL(DP)                                                       :: termTMP
@@ -122,6 +124,8 @@ real(dp)                                                       :: satL
 
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
+tkinv = 1.0D0/tk
+reft = 1.0D0/293.15D0 !! REF temperature (20 degree celsius)
 
 !!MoleFractionCommon = 1.0d0
 !!MoleFractionRare = 1.0d0
@@ -474,7 +478,16 @@ DO ir = 1,ikin
     ELSE
       sumkin = 0.0
       DO ll = 1,nreactkin(ir)
-        raq(ll,ir) = vol_temp*ratek(ll,ir)*pre_raq(ll,ir)*affinity
+        ! ************************************
+        ! Edit by Lucien Stolze, June 2023
+        ! Activation energy for aqueous reactions
+        IF (t(jx,jy,jz)+273.15d0 == reft) THEN
+          actenergyaq(ll,ir) = 1.0D0
+        ELSE
+          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+        END IF
+        raq(ll,ir) = vol_temp*ratek(ll,ir)*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir)
+        ! ************************************
         sumkin = sumkin + raq(ll,ir)
       END DO
     END IF
@@ -483,7 +496,16 @@ DO ir = 1,ikin
 
     sumkin = 0.0
     DO ll = 1,nreactkin(ir)
-      raq(ll,ir) = ratek(ll,ir)*pre_raq(ll,ir)*affinity
+      ! ************************************
+      ! Edit by Lucien Stolze, June 2023
+      ! Activation energy for aqueous reactions
+      IF (t(jx,jy,jz)+273.15d0 == reft) THEN
+        actenergyaq(ll,ir) = 1.0D0
+      ELSE
+        actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+      END IF
+      raq(ll,ir) = ratek(ll,ir)*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir)
+      ! ************************************
       sumkin = sumkin + raq(ll,ir)
     END DO
 

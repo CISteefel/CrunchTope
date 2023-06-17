@@ -55,6 +55,13 @@ CASE ('constant_flux', 'variable_flux')
 CASE ('environmental_forcing')
   ! check if the total water extraction (infiltration + evaporation + transpiration) is smaller than the remaining water in the top cell
   ! note that the flux is positive upward
+  ! IF  (.NOT. transpitimeseries) THEN
+  !   transpirate = 0
+  ! END IF
+  ! IF  (.NOT. evapotimeseries) THEN
+  !   transpirate = 0
+  ! END IF
+
   water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - (infiltration_rate + evaporate + transpirate)*dtflow/dxx(nx)  ! the unit is dimensionless
   qx(nx, jy, jz) = infiltration_rate ! only infiltration is used for reaction transport model
   
