@@ -1346,6 +1346,7 @@ IF (Richards) THEN
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
+  IF (evapofix .or. evapotimeseries) THEN
   fn = 'evapo_rate'
   ilength = 12
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -1356,6 +1357,9 @@ IF (Richards) THEN
   WRITE(8,184) evaporate*1000+1e-9
   CLOSE(UNIT=8,STATUS='keep')
 
+  ENDIF
+
+  IF (transpifix .or. transpitimeseries) THEN
   fn = 'transpi_rate'
   ilength = 12
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -1372,6 +1376,7 @@ IF (Richards) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+ENDIF
 
 END IF
 

@@ -825,8 +825,8 @@ IF (CalculateFlow) THEN
     jy = 1
     jz = 1
     DO jx = 1, nx
-        satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
         satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+        satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
     ! fill ghost points by linear extrapolation in x direction
@@ -1856,7 +1856,7 @@ DO WHILE (nn <= nend)
           END IF
         END IF
 
-        IF (isaturate == 1 .or. Richards) THEN
+        IF (isaturate == 1) THEN
           IF (cylindrical) THEN
     !!        CALL gasdiffCylinder(nx,ny,nz)
             CALL gascoeffCylinder(nx,ny,nz)
