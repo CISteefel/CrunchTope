@@ -900,7 +900,7 @@ DO i = 1,ncomp
   IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
         if (ny == 1 .AND. nz == 1) THEN
         A_transpi = dyy(jy) * dzz(jx,jy,jz)
-        source = source + xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
+        source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
   ENDIF
   ENDIF
 ! ************************************

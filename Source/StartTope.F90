@@ -840,6 +840,13 @@ WRITE(*,*)
 section = 'runtime'
 CALL readblock(nin,nout,section,found,ncount)
 
+!! Moved here by Lucien Stolze so boolean can be accessed by all blocks.
+! Select Richards solver by Toshiyuki Bandai, 2023 May
+Richards = .FALSE.
+parchar = 'Richards'
+parfind = ' '
+CALL read_logical(nout,lchar,parchar,parfind,Richards)
+
 IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Runtime parameters block found'
@@ -5538,7 +5545,8 @@ DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
 mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
+rho_water2 = 0.99823d0 * 1.0E3
+!rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
     END DO
   END DO
 END DO
@@ -6401,8 +6409,13 @@ ELSE   !! Conventional treatment of boundaries as corresponding to an entire bou
   spexb = 0.0
   spsurfb = 0.0
 
+  ! if (Richards) THEN
+  ! CALL read_bound_richard(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
+  !    nsurf,nsurf_sec)
+  ! ELSE
   CALL read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
-     nsurf,nsurf_sec)
+     nsurf,nsurf_sec,Richards)
+  !ENDIF
 
   IF (ALLOCATED(AqueousToBulkCond)) THEN
     DEALLOCATE(AqueousToBulkCond)
@@ -7843,11 +7856,6 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,NavierStokes)
         ! ***************************************************
-        ! Select Richards solver by Toshiyuki Bandai, 2023 May
-        Richards = .FALSE.
-        parchar = 'Richards'
-        parfind = ' '
-        CALL read_logical(nout,lchar,parchar,parfind,Richards)
         
         ! True if you want print statement on the screen from the Richards solver
         Richards_print = .FALSE.
@@ -9421,7 +9429,7 @@ IF (found) THEN
           END IF
           ALLOCATE(transpirate_cell(nx))
           transpirate_cell = 0
-
+          
           CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
           IF (transpitimeseries) THEN
             IF (ALLOCATED(t_transpi)) THEN
