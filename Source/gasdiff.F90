@@ -158,9 +158,9 @@ DO jy = 1,ny
       sate = 1.0-satliq(jx+1,jy,jz)
       porw = por(jx,jy,jz)
       satw = 1.0-satliq(jx,jy,jz)
-      gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas !!*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
       dume = pore*sate*gasd
-      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas !!*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
       dumpx = porp*satp*gasd
       dumw = dumpx
     ELSE IF (jx == nx) THEN
@@ -170,9 +170,9 @@ DO jy = 1,ny
       sate = 1.0-satliq(jx,jy,jz)
       porw = por(jx-1,jy,jz)
       satw = 1.0-satliq(jx-1,jy,jz)
-      gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas !!*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
       dumw = porw*satw*gasd
-      gasd = porp**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+      gasd = porp**QuirkGas*(satp)**(UliGas)*dgas !!*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
       dumpx = porp*satp*gasd
       dume = dumpx
     ELSE
@@ -182,11 +182,11 @@ DO jy = 1,ny
       sate = 1.0-satliq(jx+1,jy,jz)
       porw = por(jx-1,jy,jz)
       satw = 1.0-satliq(jx-1,jy,jz)
-      gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas!!*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
       dume = pore*sate*gasd
-      gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas!!*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
       dumw = porw*satw*gasd
-      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas!!*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
       dumpx = porp*satp*gasd
       
     END IF
@@ -201,9 +201,9 @@ DO jy = 1,ny
       satn = 1.0-satliq(jx,jy+1,jz)
       pors = por(jx,jy,jz)
       sats = 1.0-satliq(jx,jy,jz)
-      gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+      gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas!!*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
       dumn = porn*satn*gasd
-      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas!!*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
       dumpy = porp*satp*gasd
       dums = dumpy
     ELSE IF (jy == ny) THEN
@@ -213,9 +213,9 @@ DO jy = 1,ny
       satn = 1.0-satliq(jx,jy,jz)
       pors = por(jx,jy-1,jz)
       sats = 1.0-satliq(jx,jy-1,jz)
-      gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+      gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas!!*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
       dums = pors*sats*gasd
-      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas!!*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
       dumpy = porp*satp*gasd
       dumn = dumpy
     ELSE
@@ -226,11 +226,11 @@ DO jy = 1,ny
       pors = por(jx,jy-1,jz)
       sats = 1.0-satliq(jx,jy-1,jz)
 
-      gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+      gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas!!*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
       dums = pors*sats*gasd
-      gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+      gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas!!*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
       dumn = porn*satn*gasd
-      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+      gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas!!*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
       dumpy = porp*satp*gasd
     END IF
     

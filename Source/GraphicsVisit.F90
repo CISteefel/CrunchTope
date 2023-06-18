@@ -1254,12 +1254,12 @@ IF (nsurf>0) THEN
 
 END IF
 
-IF (isaturate == 1) THEN
-  fn='gases'
+IF (Richards .or. isaturate == 1) THEN
+  fn='gases_pp'
   ilength = 5
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Gas oncentration (bars)" '
+  WRITE(8,*) 'TITLE = "Gas concentration (bars)" '
   DO kk=1,ngas
     StringTemp = namg(kk)
     CALL stringlen(StringTemp,ls)

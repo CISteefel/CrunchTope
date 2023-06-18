@@ -7855,7 +7855,12 @@ IF (found) THEN
         parchar = 'Richards'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards)
-        
+        !
+
+        IF (Richards) THEN
+          isaturate = 1
+        ENDIF
+
         ! True if you want print statement on the screen from the Richards solver
         Richards_print = .FALSE.
         parchar = 'Richards_print'
@@ -9535,7 +9540,7 @@ IF (found) THEN
       END IF
 
       activecellPressure = 1
-
+      
       CALL read_pressureAlternative(nout,nx,ny,nz,npressure)
 
       pres = PressureZone(0)
