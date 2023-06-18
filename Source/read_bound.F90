@@ -44,7 +44,7 @@
 
 
 SUBROUTINE read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,  &
-    nexchange,nexch_sec,nsurf,nsurf_sec,Richards)
+    nexchange,nexch_sec,nsurf,nsurf_sec)
 USE crunchtype
 USE params
 USE concentration
@@ -70,7 +70,6 @@ INTEGER(I4B), INTENT(IN)                                    :: nexchange
 INTEGER(I4B), INTENT(IN)                                    :: nexch_sec
 INTEGER(I4B), INTENT(IN)                                    :: nsurf
 INTEGER(I4B), INTENT(IN)                                    :: nsurf_sec
-LOGICAL(LGT), INTENT(IN)                                    :: Richards
 
 !  Internal variables and arrays
 
@@ -86,7 +85,6 @@ INTEGER(I4B)                                                :: kk
 INTEGER(I4B)                                                :: k
 INTEGER(I4B)                                                :: nex
 INTEGER(I4B)                                                :: ns
-INTEGER(I4B)                                                :: indice
 
 
 jc = -1
@@ -125,28 +123,22 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
-          IF (Richards .and. ny == 1 .and. nz == 1) THEN
-          jinit(nx+1,:,:) = nco
-          indice = 2
-          ELSE
           jinit(0,:,:) = nco
-          indice = 1
-          ENDIF
           DO ik = 1,ncomp+nspec
-            spb(ik,indice) = spcond10(ik,nco)
+            spb(ik,1) = spcond10(ik,nco)
           END DO
           DO kk = 1,ngas
-            spbgas(kk,indice) = spcondgas10(kk,nco)
+            spbgas(kk,1) = spcondgas10(kk,nco)
           END DO
           DO k = 1,nkin
-            volb(k,indice) = volin(k,nco)
-            areab(k,indice) = areain(k,nco)
+            volb(k,1) = volin(k,nco)
+            areab(k,1) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
-            spexb(nex,indice) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
+            spexb(nex,1) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
           END DO
           DO ns = 1,nsurf+nsurf_sec
-            spsurfb(ns,indice) = spcondsurf10(ns,nco)*AqueousToBulkCond(nco)
+            spsurfb(ns,1) = spcondsurf10(ns,nco)*AqueousToBulkCond(nco)
           END DO
           GO TO 200
         END IF
@@ -216,28 +208,22 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
-          IF (Richards .and. ny == 1 .and. nz == 1) THEN
-            jinit(0,:,:) = nco
-            indice = 1
-            ELSE
-            jinit(nx+1,:,:) = nco
-            indice = 2
-            ENDIF
+          jinit(nx+1,:,:) = nco
           DO ik = 1,ncomp+nspec
-            spb(ik,indice) = spcond10(ik,nco)
+            spb(ik,2) = spcond10(ik,nco)
           END DO
           DO kk = 1,ngas
-            spbgas(kk,indice) = spcondgas10(kk,nco)
+            spbgas(kk,2) = spcondgas10(kk,nco)
           END DO
           DO k = 1,nkin
-            volb(k,indice) = volin(k,nco)
-            areab(k,indice) = areain(k,nco)
+            volb(k,2) = volin(k,nco)
+            areab(k,2) = areain(k,nco)
           END DO
           DO nex = 1,nexchange+nexch_sec
-            spexb(nex,indice) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
+            spexb(nex,2) = spcondex10(nex,nco)*AqueousToBulkCond(nco)
           END DO
           DO ns = 1,nsurf+nsurf_sec
-            spsurfb(ns,indice) = spcondsurf10(ns,nco)*AqueousToBulkCond(nco)
+            spsurfb(ns,2) = spcondsurf10(ns,nco)*AqueousToBulkCond(nco)
           END DO
           GO TO 300
         END IF

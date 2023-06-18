@@ -840,13 +840,6 @@ WRITE(*,*)
 section = 'runtime'
 CALL readblock(nin,nout,section,found,ncount)
 
-!! Moved here by Lucien Stolze so boolean can be accessed by all blocks.
-! Select Richards solver by Toshiyuki Bandai, 2023 May
-Richards = .FALSE.
-parchar = 'Richards'
-parfind = ' '
-CALL read_logical(nout,lchar,parchar,parfind,Richards)
-
 IF (found) THEN
 !!  WRITE(*,*)
 !!  WRITE(*,*) ' Runtime parameters block found'
@@ -6414,7 +6407,7 @@ ELSE   !! Conventional treatment of boundaries as corresponding to an entire bou
   !    nsurf,nsurf_sec)
   ! ELSE
   CALL read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
-     nsurf,nsurf_sec,Richards)
+     nsurf,nsurf_sec)
   !ENDIF
 
   IF (ALLOCATED(AqueousToBulkCond)) THEN
@@ -7856,6 +7849,12 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,NavierStokes)
         ! ***************************************************
+
+        ! Select Richards solver by Toshiyuki Bandai, 2023 May
+        Richards = .FALSE.
+        parchar = 'Richards'
+        parfind = ' '
+        CALL read_logical(nout,lchar,parchar,parfind,Richards)
         
         ! True if you want print statement on the screen from the Richards solver
         Richards_print = .FALSE.
