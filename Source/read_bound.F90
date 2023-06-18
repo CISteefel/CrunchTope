@@ -125,7 +125,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
-          IF (Richards) THEN
+          IF (Richards .and. ny == 1 .and. nz == 1) THEN
           jinit(nx+1,:,:) = nco
           indice = 2
           ELSE
@@ -216,7 +216,7 @@ IF(ls /= 0) THEN
 !       geochemical conditions given
       DO nco = 1,nchem
         IF (ssch == condlabel(nco)) THEN
-          IF (Richards) THEN
+          IF (Richards .and. ny == 1 .and. nz == 1) THEN
             jinit(0,:,:) = nco
             indice = 1
             ELSE
