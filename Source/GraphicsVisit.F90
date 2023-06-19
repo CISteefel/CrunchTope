@@ -1254,7 +1254,7 @@ IF (nsurf>0) THEN
 
 END IF
 
-IF (Richards .or. isaturate == 1) THEN
+IF (isaturate == 1) THEN
   fn='gases_pp'
   ilength = 5
   CALL newfile(fn,suf1,fnv,nint,ilength)

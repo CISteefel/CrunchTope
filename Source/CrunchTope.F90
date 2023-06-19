@@ -416,6 +416,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                         :: temp_dum
 REAL(DP)                                                    :: wattab
 REAL(DP), DIMENSION(:), ALLOCATABLE                         :: depth
 INTEGER(I4B)                                                :: depthwattab
+REAL(DP), DIMENSION(:), ALLOCATABLE                         :: satliq_dummy
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -849,6 +850,8 @@ IF (CalculateFlow) THEN
   ! End of Edit by Toshiyuki Bandai, 2023 May
   ! **********************************************
 
+  satliq_dummy = satliq(:,1,1)
+
 !!  Check divergence of flow field
 
   MaxDivergence = 0.00
@@ -1164,7 +1167,7 @@ DO WHILE (nn <= nend)
     DO jy = 1,ny
       DO jx = 1,nx
   mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-  rho_water2 = 0.99823d0 * 1.0E3
+  rho_water2 = 1000 !!0.99823d0 * 1.0E3
   !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
       END DO
     END DO
@@ -1344,12 +1347,12 @@ DO WHILE (nn <= nend)
     IF (Richards) THEN
     
       jy = 1
-      jz = 1
+      jz = 1 
       DO jx = 1, nx
           satliqold(jx,jy,jz) = satliq(jx,jy,jz)
           satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
       END DO
-    
+
       ! fill ghost points by linear extrapolation in x direction
       satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
       satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
@@ -1369,7 +1372,6 @@ DO WHILE (nn <= nend)
     END IF
     ! End of Edit by Toshiyuki Bandai, 2023 May
     ! **********************************************
-  
 
   END IF
 
