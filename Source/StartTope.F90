@@ -649,6 +649,14 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                           :: depth
 INTEGER(I4B)                                                  :: depthwattab
 CHARACTER (LEN=mls)                                           :: watertablefile
 CHARACTER (LEN=mls)                                           :: WatertableFileFormat
+LOGICAL(LGT)                                                  :: readmineral
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: volfracfile
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: bsafile
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_volfrac
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_bsa
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_volfrac
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_bsa
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
@@ -5091,6 +5099,50 @@ ELSE
 END IF
 
 CALL read_het(nout,nchem,nhet,nx,ny,nz)
+
+IF (ALLOCATED(mineral_id)) THEN
+  DEALLOCATE(mineral_id)
+ENDIF
+ALLOCATE(mineral_id(50))
+
+IF (ALLOCATED(volfracfile)) THEN
+  DEALLOCATE(volfracfile)
+ENDIF
+ALLOCATE(volfracfile(50))
+
+IF (ALLOCATED(bsafile)) THEN
+  DEALLOCATE(bsafile)
+ENDIF
+ALLOCATE(bsafile(50))
+
+IF (ALLOCATED(lfile_volfrac)) THEN
+  DEALLOCATE(lfile_volfrac)
+ENDIF
+ALLOCATE(lfile_volfrac(50))
+
+IF (ALLOCATED(lfile_bsa)) THEN
+  DEALLOCATE(lfile_bsa)
+ENDIF
+ALLOCATE(lfile_bsa(50))
+
+IF (ALLOCATED(FileFormatType_volfrac)) THEN
+  DEALLOCATE(FileFormatType_volfrac)
+ENDIF
+ALLOCATE(FileFormatType_volfrac(50))
+
+IF (ALLOCATED(FileFormatType_bsa)) THEN
+  DEALLOCATE(FileFormatType_bsa)
+ENDIF
+ALLOCATE(FileFormatType_bsa(50))
+
+CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_id,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
+
+
+
+IF (readmineral) THEN
+
+  
+ENDIF
 
 IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
 

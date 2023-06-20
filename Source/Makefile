@@ -351,6 +351,7 @@ SOURCEF = \
           read_walltime.F90\
           read_permxfile.F90\
           read_permyfile.F90\
+          read_mineralfile.F90\
 
 OBJSF  =  crunchtype.o\
           params.o\
@@ -700,6 +701,7 @@ OBJSF  =  crunchtype.o\
           read_walltime.o\
           read_permxfile.o\
           read_permyfile.o\
+          read_mineralfile.o\
 
 LOCDIR   = ${CrunchTope_Dir}
 

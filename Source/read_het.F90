@@ -132,12 +132,16 @@ IF(ls /= 0) THEN
     END IF
 
   END DO
+  IF (ssch(1:ls) == 'read_mineral_file') THEN
+  GO TO 10
+  ELSE
   WRITE(*,*)
   WRITE(*,*) ' Label for heterogeneity not found in list of condition labels'
   WRITE(*,*) ' Label = ',ssch(1:ls)
   WRITE(*,*)
   READ(*,*)
   STOP
+  ENDIF
   
 50 nhet = nhet + 1
   
