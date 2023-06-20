@@ -650,13 +650,25 @@ INTEGER(I4B)                                                  :: depthwattab
 CHARACTER (LEN=mls)                                           :: watertablefile
 CHARACTER (LEN=mls)                                           :: WatertableFileFormat
 LOGICAL(LGT)                                                  :: readmineral
+INTEGER(I4B)                                                  :: mineral_index
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: mineral_name
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_name_length
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: volfracfile
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: bsafile
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_volfrac
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_bsa
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_volfrac
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_bsa
+CHARACTER (LEN=mls)                                           :: vv_file 
+INTEGER(I4B)                                                  :: vv_file_l 
+CHARACTER (LEN=mls)                                           :: vv_fileformat
+CHARACTER (LEN=mls)                                           :: bsa_file 
+INTEGER(I4B)                                                  :: bsa_file_l 
+CHARACTER (LEN=mls)                                           :: bsa_fileformat
+INTEGER(I4B)                                                  :: min_id
+CHARACTER (LEN=mls)                                           :: min_name
+INTEGER(I4B)                                                  :: min_name_l
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
@@ -5100,50 +5112,6 @@ END IF
 
 CALL read_het(nout,nchem,nhet,nx,ny,nz)
 
-IF (ALLOCATED(mineral_id)) THEN
-  DEALLOCATE(mineral_id)
-ENDIF
-ALLOCATE(mineral_id(50))
-
-IF (ALLOCATED(volfracfile)) THEN
-  DEALLOCATE(volfracfile)
-ENDIF
-ALLOCATE(volfracfile(50))
-
-IF (ALLOCATED(bsafile)) THEN
-  DEALLOCATE(bsafile)
-ENDIF
-ALLOCATE(bsafile(50))
-
-IF (ALLOCATED(lfile_volfrac)) THEN
-  DEALLOCATE(lfile_volfrac)
-ENDIF
-ALLOCATE(lfile_volfrac(50))
-
-IF (ALLOCATED(lfile_bsa)) THEN
-  DEALLOCATE(lfile_bsa)
-ENDIF
-ALLOCATE(lfile_bsa(50))
-
-IF (ALLOCATED(FileFormatType_volfrac)) THEN
-  DEALLOCATE(FileFormatType_volfrac)
-ENDIF
-ALLOCATE(FileFormatType_volfrac(50))
-
-IF (ALLOCATED(FileFormatType_bsa)) THEN
-  DEALLOCATE(FileFormatType_bsa)
-ENDIF
-ALLOCATE(FileFormatType_bsa(50))
-
-CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_id,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
-
-
-
-IF (readmineral) THEN
-
-  
-ENDIF
-
 IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
 
   ALLOCATE(work3(nx,ny,nz))
@@ -5757,7 +5725,7 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
   END IF
   CLOSE(UNIT=52)
 END IF
-
+!!!!!!!!!
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -5840,6 +5808,9 @@ DO jz = 1,nz
         READ(*,*)
         STOP
       END IF
+!!!!!!!!!!!
+
+
 
       CALL density(jx,jy,jz)
 
@@ -5880,6 +5851,198 @@ DO jz = 1,nz
     END DO
   END DO
 END DO
+
+
+!*****************************
+!Stolze Lucien, June 2023
+!START: read mineral volume fraction and bulk surface area from file
+IF (ALLOCATED(mineral_id)) THEN
+  DEALLOCATE(mineral_id)
+ENDIF
+ALLOCATE(mineral_id(50))
+
+IF (ALLOCATED(mineral_name)) THEN
+  DEALLOCATE(mineral_name)
+ENDIF
+ALLOCATE(mineral_name(50))
+
+IF (ALLOCATED(mineral_name_length)) THEN
+  DEALLOCATE(mineral_name_length)
+ENDIF
+ALLOCATE(mineral_name_length(50))
+
+IF (ALLOCATED(volfracfile)) THEN
+  DEALLOCATE(volfracfile)
+ENDIF
+ALLOCATE(volfracfile(50))
+
+IF (ALLOCATED(bsafile)) THEN
+  DEALLOCATE(bsafile)
+ENDIF
+ALLOCATE(bsafile(50))
+
+IF (ALLOCATED(lfile_volfrac)) THEN
+  DEALLOCATE(lfile_volfrac)
+ENDIF
+ALLOCATE(lfile_volfrac(50))
+
+IF (ALLOCATED(lfile_bsa)) THEN
+  DEALLOCATE(lfile_bsa)
+ENDIF
+ALLOCATE(lfile_bsa(50))
+
+IF (ALLOCATED(FileFormatType_volfrac)) THEN
+  DEALLOCATE(FileFormatType_volfrac)
+ENDIF
+ALLOCATE(FileFormatType_volfrac(50))
+
+IF (ALLOCATED(FileFormatType_bsa)) THEN
+  DEALLOCATE(FileFormatType_bsa)
+ENDIF
+ALLOCATE(FileFormatType_bsa(50))
+
+mineral_index = 0
+CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
+
+IF (readmineral) THEN
+  DO i = 1,mineral_index
+          min_id = mineral_id(i)
+          min_name = mineral_name(i)
+          min_name_l = mineral_name_length(i)
+          vv_file = volfracfile(i)
+          vv_file_l = lfile_volfrac(i)
+          vv_fileformat = FileFormatType_volfrac(i)
+          bsa_file = bsafile(i)
+          bsa_file_l = lfile_bsa(i)
+          bsa_fileformat = FileFormatType_bsa(i)
+
+          INQUIRE(FILE=vv_file,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Volume fraction file ', vv_file(1:vv_file_l) ,' for ', min_name(1:min_name_l) ,' not found.'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          ! IF (ALLOCATED(VG_n)) THEN
+          !   DEALLOCATE(VG_n)
+          !   ALLOCATE(VG_n(nx, ny, nz))
+          ! ELSE
+          !   ALLOCATE(VG_n(nx, ny, nz))
+          ! END IF
+          OPEN(UNIT=23,FILE=vv_file,STATUS='old',ERR=8001)
+          FileTemp = vv_file
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (vv_fileformat == 'ContinuousRead') THEN
+            READ(23,*,END=1020) (((volfx(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+          ELSE IF (vv_fileformat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) volfx(min_id,jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (vv_fileformat == 'FullForm') THEN
+            IF (ny > 1 .AND. nz > 1) THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,zdum,volfx(min_id,jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (ny > 1 .AND. nz == 1) THEN
+              jz = 1
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,volfx(min_id,jx,jy,jz)
+                END DO
+              END DO
+            ELSE
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,volfx(min_id,jx,jy,jz)
+            END DO
+            END IF
+          ELSE IF (vv_fileformat == 'Unformatted') THEN
+          READ(23,END=1020) volfx
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Mineral volume fraction file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+    
+
+          INQUIRE(FILE=bsa_file,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Bulk surface area file ', bsa_file(1:bsa_file_l) ,' for ', min_name(1:min_name_l) ,' not found.'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          ! IF (ALLOCATED(VG_n)) THEN
+          !   DEALLOCATE(VG_n)
+          !   ALLOCATE(VG_n(nx, ny, nz))
+          ! ELSE
+          !   ALLOCATE(VG_n(nx, ny, nz))
+          ! END IF
+          OPEN(UNIT=23,FILE=bsa_file,STATUS='old',ERR=8001)
+          FileTemp = bsa_file
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (bsa_fileformat == 'ContinuousRead') THEN
+            READ(23,*,END=1020) (((area(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+          ELSE IF (bsa_fileformat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) area(min_id,jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (bsa_fileformat == 'FullForm') THEN
+            IF (ny > 1 .AND. nz > 1) THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,zdum,area(min_id,jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (ny > 1 .AND. nz == 1) THEN
+              jz = 1
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,area(min_id,jx,jy,jz)
+                END DO
+              END DO
+            ELSE
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,area(min_id,jx,jy,jz)
+            END DO
+            END IF
+          ELSE IF (bsa_fileformat == 'Unformatted') THEN
+          READ(23,END=1020) area
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Bulk surface area file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+    !stop
+  ENDDO
+
+ENDIF
+!*****************************
+!Stolze Lucien, June 2023
+!END: read mineral volume fraction and bulk surface area from file
 
 !! Or overwrite with read of geochemical conditions
   IF (ReadGeochemicalConditions) THEN

@@ -43,7 +43,7 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_mineralfile(nout,nx,ny,nz,readmineral,mineral_id,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
+SUBROUTINE read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
 USE crunchtype
 USE params
 USE flow
@@ -59,9 +59,12 @@ INTEGER(I4B), INTENT(IN)                                                        
 INTEGER(I4B), INTENT(IN)                                                               :: ny
 INTEGER(I4B), INTENT(IN)                                                               :: nz
 LOGICAL(LGT), INTENT(IN OUT)                                                           :: readmineral
+INTEGER(I4B), INTENT(IN OUT)                                                           :: mineral_index
 INTEGER(I4B),  INTENT(IN OUT)                                   :: mineral_id(50)
 INTEGER(I4B),  INTENT(IN OUT)                                   :: lfile_volfrac(50)
 INTEGER(I4B),  INTENT(IN OUT)                                  :: lfile_bsa(50)
+CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: mineral_name(50)
+INTEGER(I4B),  INTENT(IN OUT)                             :: mineral_name_length(50)
 CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: volfracfile(50)
 CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: bsafile(50)
 CHARACTER (LEN=mls),  INTENT(IN OUT)                           :: FileFormatType_volfrac(50)
@@ -81,11 +84,12 @@ INTEGER(I4B)                                                :: nlen1
 INTEGER(I4B)                                                :: lenformat
 CHARACTER (LEN=mls)                                         :: mineralname
 INTEGER(I4B)                                                :: dummyboolean
-INTEGER(I4B)                                                :: mineral_index
 INTEGER(I4B)                                                :: tracer
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: mineral_id_dum
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: lfile_volfrac_dum
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: lfile_bsa_dum
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: mineralname_dum
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: mineralname_lzs_dum
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: volfracfile_dum
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: bsafile_dum
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_volfrac_dum
@@ -95,7 +99,7 @@ INTEGER(I4B)                                                :: dummy
 nxyz = nx*ny*nz
 !volfracfile = ' '
 !bsafile = ' '
-mineral_index = 0
+!mineral_index = 0
 tracer = 0
 dummy = size(umin)
 
@@ -103,6 +107,16 @@ IF (ALLOCATED(mineral_id_dum)) THEN
   DEALLOCATE(mineral_id_dum)
 ENDIF
 ALLOCATE(mineral_id_dum(50))
+
+IF (ALLOCATED(mineralname_dum)) THEN
+  DEALLOCATE(mineralname_dum)
+ENDIF
+ALLOCATE(mineralname_dum(50))
+
+IF (ALLOCATED(mineralname_lzs_dum)) THEN
+  DEALLOCATE(mineralname_lzs_dum)
+ENDIF
+ALLOCATE(mineralname_lzs_dum(50))
 
 IF (ALLOCATED(volfracfile_dum)) THEN
   DEALLOCATE(volfracfile_dum)
@@ -164,6 +178,7 @@ IF(ls /= 0) THEN
     CALL stringtype(ssch,lzs,res)
     mineralname = ssch
     mineralname_lzs = lzs
+    
     i = 0
     DO WHILE (i /= size(umin))
     i = i+1
@@ -175,6 +190,8 @@ IF(ls /= 0) THEN
     IF (dummyboolean == 1) THEN
     mineral_index = mineral_index + 1
     mineral_id_dum(mineral_index) = i
+    mineralname_dum(mineral_index) = mineralname
+    mineralname_lzs_dum(mineral_index) = lzs
     dummyboolean = 0
     WRITE(*,*)
     WRITE(*,*) ' Mineral distribution of ', mineralname(1: mineralname_lzs), ' initialized from file.'
@@ -267,8 +284,10 @@ IF(ls /= 0) THEN
   lfile_volfrac = lfile_volfrac_dum
   FileFormatType_volfrac = FileFormatType_volfrac_dum
   bsafile = bsafile_dum
-  lfile_bsa = lfile_bsa
-  FileFormatType_bsa = FileFormatType_bsa
+  lfile_bsa = lfile_bsa_dum
+  FileFormatType_bsa = FileFormatType_bsa_dum
+  mineral_name = mineralname_dum
+  mineral_name_length = mineralname_lzs_dum
 
     
 
