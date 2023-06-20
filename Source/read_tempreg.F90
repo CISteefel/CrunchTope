@@ -42,47 +42,132 @@
 
 !!!      ****************************************
 
-MODULE temperature
 
-  USE crunchtype
-  USE params
+SUBROUTINE read_tempreg(nout,tempregfile,FileFormatType,boolreg)
+USE crunchtype
+USE CrunchFunctions
+USE params
+USE flow
+USE temperature
+USE strings
+USE medium
 
-  CHARACTER (LEN=mls)                              :: Tfile
+IMPLICIT NONE
 
-  INTEGER(I4B)                                     :: jtemp
-  INTEGER(I4B)                                     :: ntemp
-  INTEGER(I4B)                                     :: TPointer
+!  External variables and arrays
+
+INTEGER(I4B), INTENT(IN)                                    :: nout
+CHARACTER (LEN=mls), INTENT(OUT)                            :: tempregfile
+CHARACTER (LEN=mls), INTENT(OUT)                            :: FileFormatType
+LOGICAL(LGT), INTENT(IN OUT)                                :: boolreg
+
+!  Internal variables and arrays
+
+INTEGER(I4B)                                                :: id
+INTEGER(I4B)                                                :: iff
+INTEGER(I4B)                                                :: ids
+INTEGER(I4B)                                                :: ls
+INTEGER(I4B)                                                :: lzs
+INTEGER(I4B)                                                :: nlen1
+INTEGER(I4B)                                                :: lenformat
+INTEGER(I4B)                                   :: lfile
+
+tempregfile = ' '
+boolreg = .false.
+
+REWIND nout
+
+10  READ(nout,'(a)',END=1000) zone
+nlen1 = LEN(zone)
+!!CALL majuscules(zone,nlen1)
+id = 1
+iff = mls
+CALL sschaine(zone,id,iff,ssch,ids,ls)
+IF(ls /= 0) THEN
+  lzs=ls
+  CALL convan(ssch,lzs,res)
   
-  LOGICAL(LGT)                                     :: RunIsothermal
+  IF (ssch == 'tempreg') THEN
+    boolreg=.true.
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      !!  *****************************************************************     
+      !!check for nb of zone
+      CALL convan(ssch,lzs,res)
+      IF (res == 'n') THEN
+        nbreg = DNUM(ssch)
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' A number of regions must be provided in tempreg '
+        WRITE(*,*)
+        READ(*,*)
+      STOP
+      ENDIF
+
+
+      id = ids + ls
+      CALL sschaine(zone,id,iff,ssch,ids,ls)
+      IF(ls /= 0) THEN
+        lzs=ls
+        CALL convan(ssch,lzs,res)
+      IF (res /= 'n') THEN
+              CALL stringtype(ssch,lzs,res)
+              tempregfile = ssch
+              lfile = ls
+              
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' A file name must be provided for tempreg '
+              WRITE(*,*)
+              READ(*,*)
+            STOP
+      ENDIF
+      ENDIF
+
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    lenformat = ls
+    CALL majuscules(ssch,lenformat)
+    IF (ls /= 0) THEN
+    IF (ssch == 'singlecolumn') THEN
+      FileFormatType = 'SingleColumn'
+    ELSE IF (ssch == 'continuousread') THEN
+      FileFormatType = 'ContinuousRead'
+    ELSE IF (ssch == 'unformatted') THEN
+      FileFormatType = 'Unformatted' 
+    ELSE IF (ssch == 'distanceplusvariable' .OR. ssch == 'fullform' .OR. ssch == 'full' .OR. ssch=='fullfileformat'   &
+       .OR. ssch=='fullformat') THEN
+      FileFormatType = 'FullForm'         
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' File format not recognized: ', ssch(1:lenformat)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    ENDIf
+    ELSE    !! No file format provided, so assume default
+    FileFormatType = 'SingleColumn'
+    ENDIF
+      !!  *****************************************************************
+
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' No info provided on temperature time series '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
     
-  REAL(DP)                                         :: tinit
-  REAL(DP)                                         :: tgrad
+  ELSE
+    GO TO 10
+  END IF
+  GO TO 10
+  
+ELSE         ! No string found
+  GO TO 10
+END IF
 
-  REAL(DP), DIMENSION(:), ALLOCATABLE              :: tempcond
-  REAL(DP), DIMENSION(:), ALLOCATABLE              :: rocond
-
-!  Allocatable arrays dimensioned over spatial domain
-
-!fp! block(1);
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: t
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: told
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: ro
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: roOld
-
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: rogas
-!fp! darray=0;
-
-! Temperature time series (Lucien Stolze June 2023)
-
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE           :: temp_region ! region ID allocated to each cell
-  REAL(DP), DIMENSION(:,:), ALLOCATABLE             :: temp_ts ! temperature of the time series
-  REAL(DP), DIMENSION(:), ALLOCATABLE               :: t_temp_ts ! time of the time series
-  INTEGER(I4B)                                      :: nb_temp_ts ! nb of time series
-  REAL(DP), DIMENSION(:), ALLOCATABLE               :: reg_temp_ts ! region ID allocated to each time series
-  REAL(DP), DIMENSION(:), ALLOCATABLE               :: temp_fix ! temperature fix
-  REAL(DP), DIMENSION(:), ALLOCATABLE               :: reg_temp_fix ! region ID allocated to each temp fix
-  INTEGER(I4B)                                      :: nbreg ! region ID allocated to each temp fix
-  INTEGER(I4B)                                      :: nb_temp_fix ! nb of temp fix
-  LOGICAL(LGT)                                      :: RunTempts ! boolean to activate temperature from time series
-
-END MODULE temperature
+1000 RETURN
+END SUBROUTINE read_tempreg

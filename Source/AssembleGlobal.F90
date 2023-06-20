@@ -195,10 +195,11 @@ REAL(DP)        :: check2
 REAL(DP)        :: check3
 REAL(DP)        :: check4
 REAL(DP)        :: qgdum
+REAL(DP)                                                  :: A_transpi
 
 !! Time normalized used if time series only defined for 1 representative year:
 REAL(DP)        :: time_norm
-
+REAL(DP), DIMENSION(:), ALLOCATABLE                   :: temp_dum
 !********************* PETSc declarations ********************************
 PetscFortranAddr                                                    user(6)
 Mat                                                                 amatpetsc
@@ -253,6 +254,31 @@ END IF
 
 TempFlux = 0.0d0
 
+! IF (RunTempts) THEN
+!   IF (ALLOCATED(temp_dum)) THEN
+!     DEALLOCATE(temp_dum)
+!   END IF
+!   ALLOCATE(temp_dum(nb_temp_ts))
+
+!   IF (TS_1year) THEN
+!     time_norm=time-floor(time)
+!     DO i=1,nb_temp_ts
+!   CALL  interp3(time_norm,delt,t_temp_ts,temp_ts(i,:),temp_dum(i),size(temp_ts(i,:)))
+!     END DO
+!     END IF
+
+!       DO jz = 1,nz
+!       DO jy = 1,ny
+!       DO jx = 1,nx
+!       DO i = 1,nb_temp_ts
+!           IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
+!             t(jx,jy,jz) = temp_dum(i)
+!           ENDIF
+!       END DO
+!       END DO
+!       END DO
+!       END DO
+! ENDIF
 
 !!!  Do the boundaries first
 
@@ -403,7 +429,7 @@ DO jy = 1,ny
       END IF
     END IF
     
-    CALL FxTopeGlobal(nx,ny,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,nspec,  &
+    CALL FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,nspec,  &
         ngas,neqn,delt,jx,jy,jz,nBoundaryConditionZone)
     
     IF (ierode == 1) THEN
@@ -1004,6 +1030,14 @@ DO jy = 1,ny
 200 CONTINUE
     
     source = 0.0d0
+
+    IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
+      if (ny == 1 .AND. nz == 1) THEN
+      A_transpi = dyy(jy) * dzz(jx,jy,jz)
+      source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
+    ENDIF
+    ENDIF
+
     IF (wells) THEN
    
       DO npz = 1,npump(jx,jy,jz)

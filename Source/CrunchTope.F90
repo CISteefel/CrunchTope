@@ -406,10 +406,17 @@ INTEGER(I4B)                                               :: nco
 
 INTEGER(I4B)                                               :: i_substep
 
-! variables pump time series
-
-REAL(DP)        :: time_norm
-REAL(DP)        :: qgdum
+! transient pump time series (Lucien Stolze)
+REAL(DP)                                                    :: time_norm
+REAL(DP)                                                    :: qgdum
+REAL(DP)                                                    :: time_dum
+! transient temperature (Lucien Stolze)
+REAL(DP), DIMENSION(:), ALLOCATABLE                         :: temp_dum
+! transient water table (Lucien Stolze)
+REAL(DP)                                                    :: wattab
+REAL(DP), DIMENSION(:), ALLOCATABLE                         :: depth
+INTEGER(I4B)                                                :: depthwattab
+REAL(DP), DIMENSION(:), ALLOCATABLE                         :: satliq_dummy
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -583,6 +590,9 @@ WRITE(*,*)
 
 IF (CalculateFlow) THEN
 
+!*************************************************************
+! Edit by Lucien Stolze, June 2023
+! Water table time series for multidimensional model (Richard)
   IF (watertabletimeseries) THEN
     
     jz=1
@@ -601,6 +611,9 @@ IF (CalculateFlow) THEN
     
   END IF
 
+!*************************************************************
+! Edit by Lucien Stolze, June 2023
+! Pump time series (Richard)
   IF (pumptimeseries) THEN
     IF (TS_1year) THEN
       time_norm=time-floor(time)
@@ -836,6 +849,8 @@ IF (CalculateFlow) THEN
   END IF
   ! End of Edit by Toshiyuki Bandai, 2023 May
   ! **********************************************
+
+  satliq_dummy = satliq(:,1,1)
 
 !!  Check divergence of flow field
 
@@ -1119,6 +1134,47 @@ DO WHILE (nn <= nend)
     CALL UpdateExchanger(nx,ny,nz,nexchange)
   END IF
 
+  !*************************************************************
+! Edit by Lucien Stolze, June 2023
+! Temperature time series (not used in Richard calculations)
+  IF (RunTempts) THEN
+    IF (ALLOCATED(temp_dum)) THEN
+      DEALLOCATE(temp_dum)
+    END IF
+    ALLOCATE(temp_dum(nb_temp_ts))
+
+    IF (TS_1year) THEN
+      time_norm = time - floor(time)
+      DO i = 1,nb_temp_ts
+      CALL  interp3(time_norm,delt,t_temp_ts,temp_ts(i,:),temp_dum(i),size(temp_ts(i,:)))
+      END DO
+    END IF
+
+        DO jz = 1,nz
+        DO jy = 1,ny
+        DO jx = 1,nx
+        DO i = 1,nb_temp_ts
+            IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
+              t(jx,jy,jz) = temp_dum(i)
+            ENDIF
+        END DO
+        END DO
+        END DO
+        END DO
+  ENDIF
+
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+  mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+  rho_water2 = 1000 !!0.99823d0 * 1.0E3
+  !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
+      END DO
+    END DO
+  END DO
+! End of Edit by Lucien Stolze, June 2023
+!*************************************************************
+
 
   IF (CalculateFlow) THEN
 
@@ -1162,7 +1218,6 @@ DO WHILE (nn <= nend)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
             CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
           CASE ('environmental_forcing')
-            TS_1year = .TRUE.
             
             ! infiltration
             IF (infiltration_timeseries) THEN
@@ -1292,12 +1347,12 @@ DO WHILE (nn <= nend)
     IF (Richards) THEN
     
       jy = 1
-      jz = 1
+      jz = 1 
       DO jx = 1, nx
           satliqold(jx,jy,jz) = satliq(jx,jy,jz)
           satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
       END DO
-    
+
       ! fill ghost points by linear extrapolation in x direction
       satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
       satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
@@ -1317,7 +1372,6 @@ DO WHILE (nn <= nend)
     END IF
     ! End of Edit by Toshiyuki Bandai, 2023 May
     ! **********************************************
-  
 
   END IF
 
@@ -2352,6 +2406,26 @@ END DO
 
 
   time = time + delt
+
+  !*************************************************************
+  ! Edit by Lucien Stolze, June 2023
+  ! Addition of a wall time
+  if (time > 1e-3) then
+    IF (walltime) then
+      call CPU_TIME(PrintSeconds)
+      
+    IF ((PrintSeconds/60.0d0)>wall_t) then
+      write(*,*)
+      write(*,*) 'WALLTIME REACHED'
+      write(*,*)
+      stop
+    ENDIF
+    endif
+  endif
+  !*************************************************************
+  ! end of Edit by Lucien Stolze, June 2023
+
+  !  Check charge balance
 
 !  Check charge balance
 

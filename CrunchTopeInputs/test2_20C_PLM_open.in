@@ -67,9 +67,9 @@ lower_bc_type constant_dirichlet 159988.8
 upper_bc_type_steady constant_flux 0.0
 !lower_bc_type_steady constant_dirichlet 5.986
 lower_bc_type_steady constant_dirichlet 159988.8
-transpiration 1 transpiration_timeseries_PLM_edited.dat 8761
-evaporation evaporation_timeseries_PLM_edited.dat 8761
-infiltration_forcing snowmelt_timeseries_offset_PLM_edited.dat 8761
+transpiration 1 transpiration_timeseries_plm_edited.dat 8761
+evaporation evaporation_timeseries_plm_edited.dat 8761
+infiltration_forcing snowmelt_timeseries_offset_plm_edited.dat 8761
 
 END
 

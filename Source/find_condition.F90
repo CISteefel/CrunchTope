@@ -607,8 +607,14 @@ IF (found) THEN
   
   DO k = 1,nkin
     IF (mintype(k) == 1) THEN    ! biomass - convert to mol/m^3-bulk from mol/L-H2O    
-      volin(k,nchem) = volin(k,nchem) * rocond(nchem) * porcond(nchem) * SaturationCond(nchem)
+
+      !!volin(k,nchem) = volin(k,nchem) * rocond(nchem) * porcond(nchem) * SaturationCond(nchem)
 !! For case where input is in mol/m^3 bulk, again assuming molar volume = 1.0      volin(k,nchem) = volin(k,nchem) 
+      ! ************************************
+      ! Edit by Lucien Stolze, June 2023
+      ! Biomass entry is mol/m3 bulk
+      volin(k,nchem) = volin(k,nchem)
+      ! ************************************
     END IF
   END DO
 

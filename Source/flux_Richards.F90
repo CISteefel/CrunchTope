@@ -27,9 +27,9 @@ REAL(DP)                                                   :: kr_lb
 REAL(DP)                                                   :: psi_ub
 REAL(DP)                                                   :: head_ub
 REAL(DP)                                                   :: kr_ub
-REAL(DP)                                                   :: xi ! physical constant
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
 
-xi = rho_water*g/mu_water
+xi = rho_water2*g/mu_water
 
 ! apply van Genuchten model to all grid cells
 jy = 1
@@ -42,7 +42,7 @@ END DO
 
 ! internal faces
 DO jx = 1, nx - 1
-  qx(jx, jy, jz) = -xi*K_faces_x(jx, jy, jz)/(x(jx+1) - x(jx))*(kr(jx+1, jy, jz)*MAX(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0d0) &
+  qx(jx, jy, jz) = -xi(jx, jy, jz)*K_faces_x(jx, jy, jz)/(x(jx+1) - x(jx))*(kr(jx+1, jy, jz)*MAX(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0d0) &
                       + kr(jx, jy, jz)*MIN(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0d0))
 END DO
 
@@ -52,7 +52,7 @@ SELECT CASE (lower_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
   head_lb = value_lower_BC + (x(jx) - 0.5d0 * dxx(jx))
   CALL vanGenuchten_model_kr(value_lower_BC, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
-  qx(0, jy, jz) = -xi*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0d0))
+  qx(0, jy, jz) = -xi(jx, jy, jz)*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0d0))
   
 CASE ('constant_neumann', 'variable_neumann')
   ! compute the water potential at the lower boundary from the given gradient of the water potential
@@ -60,7 +60,7 @@ CASE ('constant_neumann', 'variable_neumann')
   psi_lb = psi(1, jy, jz) - value_lower_BC*(0.5d0 * dxx(jx))
   head_lb = psi_lb + (x(jx) - 0.5d0 * dxx(jx))
   CALL vanGenuchten_model_kr(psi_lb, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
-  qx(0, jy, jz) = -xi*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0d0))
+  qx(0, jy, jz) = -xi(jx, jy, jz)*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*((kr(1, jy, jz))*MAX(head(1, jy, jz) - head_lb, 0.0d0) + kr_lb*MIN(head(1, jy, jz) - head_lb, 0.0d0))
   
 CASE ('constant_flux', 'variable_flux')
   qx(0, jy, jz) = value_lower_BC
@@ -81,13 +81,13 @@ CASE ('constant_dirichlet', 'variable_dirichlet')
   
   head_ub = value_upper_BC + (x(jx) + 0.5d0 * dxx(jx))
   CALL vanGenuchten_model_kr(value_upper_BC, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_ub)
-  qx(nx, jy, jz) = -xi*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*((kr_ub)*MAX(head_ub - head(nx, jy, jz), 0.0d0) + kr(nx, jy, jz)*MIN(head_ub - head(nx, jy, jz), 0.0d0))
+  qx(nx, jy, jz) = -xi(jx, jy, jz)*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*((kr_ub)*MAX(head_ub - head(nx, jy, jz), 0.0d0) + kr(nx, jy, jz)*MIN(head_ub - head(nx, jy, jz), 0.0d0))
   
 CASE ('constant_neumann', 'variable_neumann')
   
   psi_ub = psi(1, jy, jz) + value_upper_BC*(0.5d0 * dxx(jx))
   head_ub = psi_ub + (x(jx) + 0.5d0 * dxx(jx))
-  qx(nx, jy, jz) = -xi*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*((kr_ub)*MAX(head_ub - head(nx, jy, jz), 0.0d0) + kr(nx, jy, jz)*MIN(head_ub - head(nx, jy, jz), 0.0d0))
+  qx(nx, jy, jz) = -xi(jx, jy, jz)*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*((kr_ub)*MAX(head_ub - head(nx, jy, jz), 0.0d0) + kr(nx, jy, jz)*MIN(head_ub - head(nx, jy, jz), 0.0d0))
   
 CASE ('constant_flux', 'variable_flux')
   qx(nx, jy, jz) = value_upper_BC

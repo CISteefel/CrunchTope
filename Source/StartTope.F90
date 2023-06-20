@@ -308,6 +308,9 @@ CHARACTER (LEN=mls)                                           :: velocityfile
 CHARACTER (LEN=mls)                                           :: TortuosityFile
 CHARACTER (LEN=mls)                                           :: gasvelocityfile
 CHARACTER (LEN=mls)                                           :: permfile
+CHARACTER (LEN=mls)                                           :: vgnfile
+CHARACTER (LEN=mls)                                           :: vgafile
+CHARACTER (LEN=mls)                                           :: wcrfile
 CHARACTER (LEN=mls)                                           :: breakfile
 CHARACTER (LEN=mls)                                           :: namtemp
 CHARACTER (LEN=12)                                            :: writeph
@@ -332,6 +335,11 @@ LOGICAL(LGT)                                                  :: constant_gasflo
 LOGICAL(LGT)                                                  :: readvelocity
 LOGICAL(LGT)                                                  :: readgasvelocity
 LOGICAL(LGT)                                                  :: readperm
+LOGICAL(LGT)                                                  :: readvgn
+LOGICAL(LGT)                                                  :: readvga
+LOGICAL(LGT)                                                  :: readwcr
+LOGICAL(LGT)                                                  :: readpermx
+LOGICAL(LGT)                                                  :: readpermy
 LOGICAL(LGT)                                                  :: onlyspeciate
 LOGICAL(LGT)                                                  :: genericrates
 LOGICAL(LGT)                                                  :: DaughterFound
@@ -383,6 +391,11 @@ CHARACTER (LEN=mls)                                  :: BurialFileFormat
 CHARACTER (LEN=mls)                                           :: TortuosityFileFormat
 CHARACTER (LEN=mls)                                           :: GasVelocityFileFormat
 CHARACTER (LEN=mls)                                           :: PermFileFormat
+CHARACTER (LEN=mls)                                           :: vgnFileFormat
+CHARACTER (LEN=mls)                                           :: vgaFileFormat
+CHARACTER (LEN=mls)                                           :: wcrFileFormat
+CHARACTER (LEN=mls)                                           :: permxFileFormat
+CHARACTER (LEN=mls)                                           :: permyFileFormat
 CHARACTER (LEN=mls)                                           :: VelocityFileFormat
 CHARACTER (LEN=mls)                                           :: TemperatureFileFormat
 CHARACTER (LEN=mls)                                           :: FileTemp
@@ -617,40 +630,25 @@ namelist /Nucleation/                                          NameMineral,     
                                                                SSA_m2g,            &
                                                                Surface
 
-INTEGER(I4B)                                                  :: nvgn
-INTEGER(I4B)                                                  :: nvga
-INTEGER(I4B)                                                  :: nwcr
-
-!CHARACTER (LEN=mls)                          :: pumptimeseriesfile
-!CHARACTER (LEN=mls)                          :: PumptimeseriesFileFormat
-!CHARACTER (LEN=mls)                          :: pumplocationsfile
-!CHARACTER (LEN=mls)                          :: PumplocationsFileFormat
-!INTEGER(I4B)                                                  :: lfile2
-CHARACTER (LEN=mls)                          :: evapofile
-CHARACTER (LEN=mls)                          :: transpifile
-
+! ************************************
+! Edit by Lucien Stolze, June 2023
+CHARACTER (LEN=mls)                                           :: evapofile
+CHARACTER (LEN=mls)                                           :: transpifile
 INTEGER(I4B)                                                  :: tslength
-REAL(DP), DIMENSION(:), ALLOCATABLE      :: realmult_dum
-
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: dummy1
+REAL(DP), DIMENSION(:), ALLOCATABLE                           :: realmult_dum
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy1
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
-
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE              :: temptsfile
-REAL(DP)                                                    :: reg_temp_fix1
-REAL(DP)                                                    :: nb_temp_fix1
-REAL(DP)                                                    :: temp_fix1
-LOGICAL(LGT)                                :: boolfix
-LOGICAL(LGT)                                :: boolreg
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: temptsfile
+REAL(DP)                                                      :: reg_temp_fix1
+REAL(DP)                                                      :: nb_temp_fix1
+REAL(DP)                                                      :: temp_fix1
+LOGICAL(LGT)                                                  :: boolfix
+LOGICAL(LGT)                                                  :: boolreg
 integer :: IERR = 0
-REAL(DP), DIMENSION(:), ALLOCATABLE                :: depth
-INTEGER(I4B)                 :: depthwattab
-
-CHARACTER (LEN=mls)                          :: watertablefile
-CHARACTER (LEN=mls)                          :: WatertableFileFormat
-
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE      :: check3
-!CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
-!integer :: IERR = 0
+REAL(DP), DIMENSION(:), ALLOCATABLE                           :: depth
+INTEGER(I4B)                                                  :: depthwattab
+CHARACTER (LEN=mls)                                           :: watertablefile
+CHARACTER (LEN=mls)                                           :: WatertableFileFormat
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
@@ -674,7 +672,8 @@ integer :: rank, ierror
 character(25) :: fn
 #endif
 
-ALLOCATE(realmult(1000))
+ALLOCATE(realmult_dum(2000))
+ALLOCATE(realmult(2000))
 
 pi = DACOS(-1.0d0)
 
@@ -711,6 +710,15 @@ constantpor = 1.0d0
 MinimumPorosity = 1.0D-14
 
 nscratch = 9
+
+! ************************************
+! Edit by Lucien Stolze, June 2023
+! Temperature time series
+nb_temp_ts = 0
+nb_temp_fix = 0
+boolreg = .false.
+RunTempts = .false.
+! ************************************
 
 iunit1 = 2
 iunit2 = 3
@@ -828,7 +836,7 @@ CALL stringlen(ltitle,lchar)
 WRITE(*,*) ' Title of simulation: ', ltitle(1:72)
 WRITE(*,*)
 
-
+!  *****************RUNTIME BLOCK***********************
 section = 'runtime'
 CALL readblock(nin,nout,section,found,ncount)
 
@@ -838,6 +846,9 @@ IF (found) THEN
 !!  WRITE(*,*)
 
 ! Now, find the individual parameters within block
+
+!Addition of a walltime [min]] Lucien Stolze
+call read_walltime(nin,nx,ny,nz)
 
   parchar = 'gimrt'
   parfind = ' '
@@ -1632,10 +1643,23 @@ IF (found) THEN
   SetSurfaceAreaConstant = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SetSurfaceAreaConstant)
 
+  !! Inhibit the cincumption of minerals for running model spinup: (Stolze Lucien)
   parchar = 'model_spinup'
   parfind = ' '
   spinup = .false.
   CALL read_logical(nout,lchar,parchar,parfind,spinup)
+
+  !! Cyclical reading of all time series based on 1 year time series (applied to infiltration, evaporation, transpiration, temperature) Stolze Lucien
+  TS_1year = .FALSE.
+  parchar = 'timeseries_cyclic_1year'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
+
+
+  parchar = 'biomassfixed'
+  parfind = ' '
+  biomassfixed = .false.
+  CALL read_logical(nout,lchar,parchar,parfind,biomassfixed)
 
   parchar = 'Inagaki'
   parfind = ' '
@@ -1897,6 +1921,19 @@ IF (found) THEN
         STOP
     END IF
 
+    CALL read_tempreg(nout,dumstring,TemperatureFileFormat,boolreg)
+    IF (boolreg) THEN
+      jtemp = 3
+      TFile = dumstring
+    ENDIF
+
+    
+    IF (ALLOCATED(temptsfile)) THEN
+      DEALLOCATE(temptsfile)
+    END IF
+    ALLOCATE(temptsfile(nbreg))
+    CALL read_tempts(nout,temptsfile,tslength)
+
 
 ELSE
 
@@ -1908,14 +1945,6 @@ ELSE
   TFile = ' '
 
 END IF
-
-!*************************************************************
-! Edit by Toshiyuki Bandai, June 2023
-! compute the dynamics viscosity of water [Pa year] with a specified temperature tinit [C]
-! mu_water is defined in Flow module
-mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - tinit - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-! End of Edit by Toshiyuki Bandai, June 2023
-!*************************************************************
 
 !*************************************************************
 
@@ -5440,7 +5469,46 @@ ELSE IF (jtemp == 1) THEN                         !! Temperature gradient in X d
       END DO
     END DO
   END DO
+STOP
+  ! ************************************
+  ! Edit by Lucien Stolze, June 2023
+  ! Temperature time series
+  ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific regions
 
+    CALL read_tempregion(nout,nx,ny,nz,len(TFile),TFile,TemperatureFileFormat)
+    
+    !Allocate fixed temperature to the regions:
+                DO jz = 1,nz
+                DO jy = 1,ny
+                DO jx = 1,nx
+                DO i = 1,nb_temp_fix
+                    IF (temp_region(jx,jy,jz) == reg_temp_fix(i)) THEN
+                      t(jx,jy,jz) = temp_fix(i)
+                    ENDIF
+                END DO
+                END DO
+                END DO
+                END DO
+                
+    IF (RunTempts) THEN
+      DO jz = 1,nz
+        DO jy = 1,ny
+        DO jx = 1,nx
+        DO i = 1,nb_temp_ts
+            IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
+              t(jx,jy,jz) = temp_ts(i,1)
+            ENDIF
+        END DO
+        END DO
+        END DO
+        END DO
+    
+    ENDIF
+  ! ************************************
+  ! Finish edit by Lucien Stolze, June 2023
+
+ELSEIF (jtemp == 0) THEN
+t = tinit
 ELSE
 
   DO jz = 1,nz
@@ -5461,6 +5529,26 @@ DO jz = 1,nz
   END DO
 END DO
 
+!*************************************************************
+! Edit by Toshiyuki Bandai, June 2023
+! Edit by Lucien Stolze, June 2023
+! compute the dynamics viscosity of water [Pa year] based on local temperature
+! mu_water is defined in Flow module
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+rho_water2 = 1000 !!0.99823d0 * 1.0E3
+!rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
+    END DO
+  END DO
+END DO
+!     END DO
+!   END DO
+! END DO
+
+! End of Edit by Toshiyuki Bandai, June 2023
+!*************************************************************
 
 roOld = ro
 
@@ -6314,8 +6402,13 @@ ELSE   !! Conventional treatment of boundaries as corresponding to an entire bou
   spexb = 0.0
   spsurfb = 0.0
 
+  ! if (Richards) THEN
+  ! CALL read_bound_richard(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
+  !    nsurf,nsurf_sec)
+  ! ELSE
   CALL read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
      nsurf,nsurf_sec)
+  !ENDIF
 
   IF (ALLOCATED(AqueousToBulkCond)) THEN
     DEALLOCATE(AqueousToBulkCond)
@@ -6418,8 +6511,9 @@ IF (found) THEN
   CALL stringlen(FileTemp,FileNameLength)
   do while (ierr == 0)
     lenarray = lenarray + 1
-    READ(23,*,iostat=IERR) realmult(lenarray) 
+    READ(23,*,iostat=IERR) realmult_dum(lenarray) 
   enddo
+  realmult=realmult_dum(1:lenarray-1)
   ENDIF
   ENDIF
 
@@ -6432,7 +6526,11 @@ IF (found) THEN
       WRITE(*,*) ' Doing initialization only'
       nstop = 0
     ELSE
+      IF (parfind == 'read_snapshotfile') THEN
+      nstop = (lenarray-1)
+      ELSE
       nstop = lenarray
+      ENDIF
 
       IF (ALLOCATED(prtint)) THEN
         DEALLOCATE(prtint)
@@ -7690,16 +7788,6 @@ IF (found) THEN
       CALL read_pump(nout,nx,ny,nz,nchem)
     ENDIF
 
-    TS_1year = .FALSE.
-    parchar = 'pumptimeseries1year'
-    parfind = ' '
-    CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
-
-    back_flow_closed = .FALSE.
-    parchar = 'backflowclosed'
-    parfind = ' '
-    CALL read_logical(nout,lchar,parchar,parfind,back_flow_closed)
-
 !!!  IF (isaturate == 1) THEN
     CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
 !!!  END IF
@@ -7761,12 +7849,18 @@ IF (found) THEN
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,NavierStokes)
         ! ***************************************************
+
         ! Select Richards solver by Toshiyuki Bandai, 2023 May
         Richards = .FALSE.
         parchar = 'Richards'
         parfind = ' '
         CALL read_logical(nout,lchar,parchar,parfind,Richards)
-        
+        !
+
+        IF (Richards) THEN
+          isaturate = 1
+        ENDIF
+
         ! True if you want print statement on the screen from the Richards solver
         Richards_print = .FALSE.
         parchar = 'Richards_print'
@@ -7980,7 +8074,7 @@ IF (found) THEN
         END FORALL
       ELSE
         parchar = 'vg_theta_s'
-        CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
         IF (VG_error == 1) THEN
           WRITE(*,*)
           WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
@@ -8003,26 +8097,194 @@ IF (found) THEN
           END DO
         END DO
       END IF
-      
-    ! residual water content theta_r
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! residual water content (theta_r)
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+      parfind = ' '
       parchar = 'vg_theta_r'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
       IF (VG_error == 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
         WRITE(*,*)
         STOP
       END IF
-      
+
+      IF (parfind == ' ') THEN
+        ! ************************************
+        ! Edit by Lucien Stolze, June 2023
+        ! Read wcr parameter array from file
+        CALL read_wcrfile(nout,nx,ny,nz,wcrfile,lfile,readwcr,wcrFileFormat)
+        IF (readwcr) then
+          wcrfile(1:lfile) = wcrfile(1:lfile)
+          INQUIRE(FILE=wcrfile,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' wcr file not found: ',wcrfile(1:lfile)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          IF (ALLOCATED(theta_r)) THEN
+            DEALLOCATE(theta_r)
+            ALLOCATE(theta_r(nx, ny, nz))
+          ELSE
+            ALLOCATE(theta_r(nx, ny, nz))
+          END IF
+          OPEN(UNIT=23,FILE=wcrfile,STATUS='old',ERR=8001)
+          FileTemp = wcrfile
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (wcrFileFormat == 'ContinuousRead') THEN
+            READ(23,*,END=1020) (((theta_r(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+          ELSE IF (wcrFileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) theta_r(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (wcrFileFormat == 'FullForm') THEN
+            IF (ny > 1 .AND. nz > 1) THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,zdum,theta_r(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (ny > 1 .AND. nz == 1) THEN
+              jz = 1
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,theta_r(jx,jy,jz)
+                END DO
+              END DO
+            ELSE
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,theta_r(jx,jy,jz)
+            END DO
+            END IF
+          ELSE IF (wcrFileFormat == 'Unformatted') THEN
+          READ(23,END=1020) theta_r
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' wcr file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        ELSE
+        WRITE(*,*)
+        WRITE(*,*) 'Information on residual water content must be provided.'
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      ENDIF
+  
+      ENDIF
+
+    ! the input value is actually residual saturation, convert it to residual water content
+      IF (theta_r_is_S_r) THEN
+        theta_r = theta_r*theta_s
+      END IF
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!
     ! alpha parameter in the van Genuchten model
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+      parfind = ' '
       parchar = 'vg_alpha'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
       IF (VG_error == 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
         WRITE(*,*)
         STOP
       END IF
+
+      IF (parfind == ' ') THEN
+      ! ************************************
+      ! Edit by Lucien Stolze, June 2023
+      ! Read alpha parameter array from file
+      CALL read_vgafile(nout,nx,ny,nz,vgafile,lfile,readvga,vgaFileFormat)
+      IF (readvga) then
+        vgafile(1:lfile) = vgafile(1:lfile)
+        INQUIRE(FILE=vgafile,EXIST=ext)
+        IF (.NOT. ext) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' vga file not found: ',vgafile(1:lfile)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        IF (ALLOCATED(VG_alpha)) THEN
+          DEALLOCATE(VG_alpha)
+          ALLOCATE(VG_alpha(nx, ny, nz))
+        ELSE
+          ALLOCATE(VG_alpha(nx, ny, nz))
+        END IF
+        OPEN(UNIT=23,FILE=vgafile,STATUS='old',ERR=8001)
+        FileTemp = vgafile
+        CALL stringlen(FileTemp,FileNameLength)
+        IF (vgaFileFormat == 'ContinuousRead') THEN
+          READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+        ELSE IF (vgaFileFormat == 'SingleColumn') THEN
+          DO jz = 1,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) VG_alpha(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+        ELSE IF (vgaFileFormat == 'FullForm') THEN
+          IF (ny > 1 .AND. nz > 1) THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,zdum,VG_alpha(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (ny > 1 .AND. nz == 1) THEN
+            jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) xdum,ydum,VG_alpha(jx,jy,jz)
+              END DO
+            END DO
+          ELSE
+          jz = 1
+          jy = 1
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,VG_alpha(jx,jy,jz)
+          END DO
+          END IF
+        ELSE IF (vgaFileFormat == 'Unformatted') THEN
+        READ(23,END=1020) VG_alpha
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' VGalpha file format not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      ELSE
+      WRITE(*,*)
+      WRITE(*,*) 'Information on VG alpha must be provided.'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    ENDIF
+
+    ENDIF
+      ! ************************************
+      ! End edit by Lucien Stolze, June 2023
+
+
     ! convert unit
       VG_alpha = VG_alpha*dist_scale
       
@@ -8030,15 +8292,95 @@ IF (found) THEN
         VG_alpha = VG_alpha*rho_water*9.80665d0
       END IF
       
+    !!!!!!!!!!!!!!!!!!!!!!!!!
     ! n parameter in the van Genuchten model
+    !!!!!!!!!!!!!!!!!!!!!!!!!
       parchar = 'vg_n'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
       IF (VG_error == 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
         WRITE(*,*)
         STOP
       END IF
+
+      IF (parfind == ' ') THEN
+        ! ************************************
+        ! Edit by Lucien Stolze, June 2023
+        ! Read alpha parameter array from file
+        CALL read_vgnfile(nout,nx,ny,nz,vgnfile,lfile,readvgn,vgnFileFormat)
+        IF (readvgn) then
+          vgnfile(1:lfile) = vgnfile(1:lfile)
+          INQUIRE(FILE=vgnfile,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' vgn file not found: ',vgnfile(1:lfile)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          IF (ALLOCATED(VG_n)) THEN
+            DEALLOCATE(VG_n)
+            ALLOCATE(VG_n(nx, ny, nz))
+          ELSE
+            ALLOCATE(VG_n(nx, ny, nz))
+          END IF
+          OPEN(UNIT=23,FILE=vgnfile,STATUS='old',ERR=8001)
+          FileTemp = vgnfile
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (vgnFileFormat == 'ContinuousRead') THEN
+            READ(23,*,END=1020) (((VG_n(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+          ELSE IF (vgnFileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) VG_n(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (vgnFileFormat == 'FullForm') THEN
+            IF (ny > 1 .AND. nz > 1) THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,zdum,VG_n(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (ny > 1 .AND. nz == 1) THEN
+              jz = 1
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,VG_n(jx,jy,jz)
+                END DO
+              END DO
+            ELSE
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,VG_n(jx,jy,jz)
+            END DO
+            END IF
+          ELSE IF (vgnFileFormat == 'Unformatted') THEN
+          READ(23,END=1020) VG_n
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' VGn file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        ELSE
+        WRITE(*,*)
+        WRITE(*,*) 'Information on VG n must be provided.'
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      ENDIF
+  
+      ENDIF
+        ! ************************************
+        ! End edit by Lucien Stolze, June 2023
       
       IF (.NOT. vg_is_n) THEN
           ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
@@ -8047,7 +8389,7 @@ IF (found) THEN
       
     ! psi_s parameter in the modified van Genuchten model
       !parchar = 'vg_psi_s'
-      !CALL read_vanGenuchten_parameters(nout, lchar, parchar, section, nx, ny, nz, VG_error)
+      !CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
       !IF (VG_error == 1) THEN
       !  WRITE(*,*)
       !  WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
@@ -8474,6 +8816,67 @@ IF (found) THEN
 
 
         CALL read_permx(nout,nx,ny,nz,npermx)
+        readpermx = .false.
+         CALL read_permxfile(nout,nx,ny,nz,permxfile,lfile,readpermx,permxFileFormat)
+
+         IF (readpermx) then
+
+          permxfile(1:lfile) = permxfile(1:lfile)
+          INQUIRE(FILE=permxfile,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' permx file not found: ',permxfile(1:lfile)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
+          FileTemp = permxfile
+          CALL stringlen(FileTemp,FileNameLength)
+
+          IF (permxFileFormat == 'ContinuousRead') THEN
+            READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+          ELSE IF (permxFileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) permx(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (permxFileFormat == 'FullForm') THEN
+            IF (ny > 1 .AND. nz > 1) THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,zdum,permx(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (ny > 1 .AND. nz == 1) THEN
+              jz = 1
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,permx(jx,jy,jz)
+                END DO
+              END DO
+            ELSE
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,permx(jx,jy,jz)
+            END DO
+            END IF
+          ELSE IF (permxFileFormat == 'Unformatted') THEN
+          READ(23,END=1020) permx
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' VGalpha file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        else
         IF (permzonex(0) == 0.0 .and. .NOT. ReadPerm) THEN
           WRITE(*,*)
           WRITE(*,*) ' No default X permeability given'
@@ -8520,6 +8923,8 @@ IF (found) THEN
         DEALLOCATE(jzzpermx_lo)
         DEALLOCATE(jzzpermx_hi)
 
+      endif
+
         IF (ny == 1) THEN
           permy = 0.0
           perminy = 0.0
@@ -8531,6 +8936,38 @@ IF (found) THEN
           DEALLOCATE(jzzpermy_lo)
           DEALLOCATE(jzzpermy_hi)
         ELSE
+
+          readpermy = .false.
+          CALL read_permyfile(nout,nx,ny,nz,permyfile,lfile,readpermy,permyFileFormat)
+ 
+          IF (readpermy) then
+ 
+           permyfile(1:lfile) = permyfile(1:lfile)
+           INQUIRE(FILE=permyfile,EXIST=ext)
+           IF (.NOT. ext) THEN
+             WRITE(*,*)
+             WRITE(*,*) ' permy file not found: ',permyfile(1:lfile)
+             WRITE(*,*)
+             READ(*,*)
+             STOP
+           END IF
+           OPEN(UNIT=23,FILE=permyfile,STATUS='old',ERR=8001)
+           FileTemp = permyfile
+           CALL stringlen(FileTemp,FileNameLength)
+               jz = 1
+               DO jy = 0,ny+1
+                 DO jx= 1,nx
+                   READ(23,*,END=1020) xdum,ydum,dum1
+                   if (dum1<-20) then
+                  permy(jx,jy,1:nz)=0
+                   else
+                   permy(jx,jy,1:nz)=10**dum1
+                   endif
+                 END DO
+               END DO
+         else
+
+
           CALL read_permy(nout,nx,ny,nz,npermy)
           IF (permzoney(0) == 0.0 .and. .NOT.ReadPerm) THEN
             WRITE(*,*)
@@ -8582,6 +9019,7 @@ IF (found) THEN
           DEALLOCATE(jzzpermy_lo)
           DEALLOCATE(jzzpermy_hi)
 
+        END IF
         END IF
 
         IF (nz == 1) THEN
@@ -8951,7 +9389,7 @@ IF (found) THEN
             END IF
             ALLOCATE(t_infiltration(tslength))
             ALLOCATE(qt_infiltration(tslength))
-            CALL read_timeseries2(nout,nx,ny,nz,t_infiltration,qt_infiltration,lfile,infiltration_file,tslength)
+            CALL read_timeseries(nout,nx,ny,nz,t_infiltration,qt_infiltration,lfile,infiltration_file,tslength)
           
             ! unit conversion for the time for the variable boundary condition
             qt_infiltration = qt_infiltration/(dist_scale * time_scale)
@@ -8973,7 +9411,7 @@ IF (found) THEN
             END IF
             ALLOCATE(t_evapo(tslength))
             ALLOCATE(qt_evapo(tslength))
-            CALL read_timeseries2(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
+            CALL read_timeseries(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
           
             ! unit conversion for the time for the variable boundary condition
             qt_evapo = qt_evapo/(dist_scale * time_scale)
@@ -8986,8 +9424,16 @@ IF (found) THEN
           IF (evapofix) THEN
             evaporate = evaporate/(dist_scale * time_scale)
           END IF
+
+
         
           ! transpiration
+          IF (ALLOCATED(transpirate_cell)) THEN
+            DEALLOCATE(transpirate_cell)
+          END IF
+          ALLOCATE(transpirate_cell(nx))
+          transpirate_cell = 0
+          
           CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
           IF (transpitimeseries) THEN
             IF (ALLOCATED(t_transpi)) THEN
@@ -8998,14 +9444,8 @@ IF (found) THEN
             END IF
             ALLOCATE(t_transpi(tslength))
             ALLOCATE(qt_transpi(tslength))
-            CALL read_timeseries2(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
-          
-            ! allocate arrays to store transpiration rate for each cell
-            IF (ALLOCATED(transpirate_cell)) THEN
-              DEALLOCATE(transpirate_cell)
-            END IF
-            ALLOCATE(transpirate_cell(nx - transpicells + 1:nx))
-            qt_transpi=qt_transpi/transpicells
+            CALL read_timeseries(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
+            qt_transpi = qt_transpi/transpicells
           
             qt_transpi = qt_transpi/(dist_scale * time_scale)
             t_transpi = t_transpi*time_scale
@@ -9015,9 +9455,12 @@ IF (found) THEN
           ENDIF
         
           IF (transpifix) THEN
-            !transpirate = transpirate / transpicells
+            transpirate = transpirate / transpicells
             transpirate = transpirate/(dist_scale * time_scale)
+            WRITE(*,*) 'stop'
           END IF
+
+          
         
         CASE DEFAULT
           WRITE(*,*)
@@ -9097,7 +9540,7 @@ IF (found) THEN
       END IF
 
       activecellPressure = 1
-
+      
       CALL read_pressureAlternative(nout,nx,ny,nz,npressure)
 
       pres = PressureZone(0)
@@ -9134,8 +9577,6 @@ IF (found) THEN
       !!else
       !!  CALL read_pump(nout,nx,ny,nz,nchem)
       ENDIF
-
-      check3=pres
 
       parchar = 'initialize_hydrostatic'
       parfind = ' '
@@ -10564,7 +11005,7 @@ dspz = 0.0
   !  END IF
   !  ALLOCATE(t_evapo(tslength))
   !  ALLOCATE(qt_evapo(tslength))
-  !  CALL read_timeseries2(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
+  !  CALL read_timeseries(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
   !  evaporate = qt_evapo(1)
   !  !STOP
   !ENDIF
@@ -10578,7 +11019,7 @@ dspz = 0.0
   !  END IF
   !  ALLOCATE(t_transpi(tslength))
   !  ALLOCATE(qt_transpi(tslength))
-  !  CALL read_timeseries2(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
+  !  CALL read_timeseries(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
   !  qt_transpi=qt_transpi/transpicells 
   !  transpirate = qt_transpi(1)
   !  !WRITE(*,*) transpirate

@@ -415,17 +415,19 @@ IF (isaturate==1) THEN
     DO i = 1,ngas
       
       if (jx==0) THEN
-        gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))/((dxx(jx)+dxx(jx+1))/2)
+        gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))
       elseif (jx==nx) THEN
-        gflux_hor(i)= (cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+        gflux_hor(i)= (cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))
       else
-        gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))/((dxx(jx)+dxx(jx+1))/2)
+        gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))
       END IF
-      
+      if (gflux_hor(i)<1.0E-30 .and. gflux_hor(i)>-1.0E-30) THEN
+        gflux_hor(i)=1.0E-30
+      END IF      
     END DO
     
     if (jx==0) THEN
-    WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
+    WRITE(8,184) x(jx)*OutputDistanceScale-dxx(jx)/2,(gflux_hor(i),i=1,ngas)
     else
     WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
     END IF
@@ -433,6 +435,31 @@ IF (isaturate==1) THEN
   CLOSE(UNIT=8,STATUS='keep')
   
 END IF
+
+IF ((transpifix .OR. transpitimeseries)) THEN
+  2013 FORMAT('# Units: mm/yr')
+  fn='transpirate'
+  ilength = 11
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Transpiration rate (mm/yr)" '
+  WRITE(8,2013)
+  DO jx = 1,nx
+          WRITE(8,184) x(jx)*OutputDistanceScale, transpirate_cell(jx)*1000
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+ENDIF
+
+IF ((evapofix .OR. evapotimeseries)) THEN
+  fn='transpirate'
+  ilength = 11
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Transpiration rate (mm/yr)" '
+  WRITE(8,2013)
+  WRITE(8,184) x(nx)*OutputDistanceScale, evaporate*1000
+  CLOSE(UNIT=8,STATUS='keep')
+ENDIF
 
 
 IF (nexchange > 0) THEN
@@ -911,6 +938,50 @@ END DO
 CLOSE(UNIT=8,STATUS='keep')
 
 END IF
+
+IF (Richards) THEN
+  fn = 'VG_alpha'
+    ilength = 12
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Van Genuchten alpha (m-1)" '
+    WRITE(8,*) 'VARIABLES = "X"     "VG_alpha"'
+    WRITE(8,*) 'ZONE I=', nx, ' F=POINT'
+    jy = 1
+    jz = 1
+    DO jx = 1,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale, VG_alpha(jx,jy,jz)*10000
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+
+    fn = 'VG_n'
+    ilength = 12
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Van Genuchten n (-)" '
+    WRITE(8,*) 'VARIABLES = "X"     "VG_n"'
+    WRITE(8,*) 'ZONE I=', nx, ' F=POINT'
+    jy = 1
+    jz = 1
+    DO jx = 1,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale, VG_n(jx,jy,jz)
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+
+    fn = 'VG_wcres'
+    ilength = 12
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Van Genuchten wat cont residual (-)" '
+    WRITE(8,*) 'VARIABLES = "X"     "Wcres" '
+    WRITE(8,*) 'ZONE I=', nx, ' F=POINT'
+    jy = 1
+    jz = 1
+    DO jx = 1,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale, theta_r(jx,jy,jz)
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+ENDIF
 
 
 
