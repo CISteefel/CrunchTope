@@ -106,6 +106,9 @@ REAL(DP)                                      :: dspn
 REAL(DP)                                      :: apx
 REAL(DP)                                      :: apy
 
+REAL(DP)                                      :: PorPow
+REAL(DP)                                      :: SatPow
+
 INTEGER(I4B)                                  :: jx
 INTEGER(I4B)                                  :: jy
 INTEGER(I4B)                                  :: jz
@@ -121,7 +124,8 @@ erodey = 0.0
 
 jz = 1
 
-quirk = 1.0
+SatPow = 10.0d0/3.0d0
+PorPow = 4.0d0/3.0d0
 
 IF (idiffus == 0) THEN
   d_25 = dzero
@@ -160,8 +164,8 @@ DO jy = 1,ny
       porw = por(jx,jy,jz)
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx,jy,jz)
-      dume = ro(jx+1,jy,jz)*(sate)**(quirk)*(pore)**(uli)*dstar(jx+1,jy,jz)
-      dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
+      dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
+      dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
       dumw = dumpx
     ELSE IF (jx == nx) THEN
       dxw = 0.5*(dxx(jx)+dxx(jx-1))
@@ -170,8 +174,8 @@ DO jy = 1,ny
       porw = por(jx-1,jy,jz)
       sate = satliq(jx,jy,jz)
       satw = satliq(jx-1,jy,jz)
-      dumw = ro(jx-1,jy,jz)*(satw)**(quirk)*(porw)**(uli)*dstar(jx-1,jy,jz)
-      dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
+      dumw = ro(jx-1,jy,jz)*(satw)**(SatPow)*(porw)**(PorPow)*dstar(jx-1,jy,jz)
+      dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
       dume = dumpx
     ELSE
       dxe = 0.5*(dxx(jx)+dxx(jx+1))
@@ -180,9 +184,9 @@ DO jy = 1,ny
       porw = por(jx-1,jy,jz)
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx-1,jy,jz)
-      dume = ro(jx+1,jy,jz)*(sate)**(quirk)*(pore)**(uli)*dstar(jx+1,jy,jz)
-      dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
-      dumw = ro(jx-1,jy,jz)*(satw)**(quirk)*(porw)**(uli)*dstar(jx-1,jy,jz)
+      dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
+      dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
+      dumw = ro(jx-1,jy,jz)*(satw)**(SatPow)*(porw)**(PorPow)*dstar(jx-1,jy,jz)
     END IF
     
     100     CONTINUE
@@ -195,8 +199,8 @@ DO jy = 1,ny
       pors = por(jx,jy,jz)
       satn = satliq(jx,jy+1,jz)
       sats = satliq(jx,jy,jz)
-      dumn = ro(jx,jy+1,jz)*(satn)**(quirk)*(por(jx,jy+1,jz))**(uli)*dstar(jx,jy+1,jz)
-      dumpy = ro(jx,jy,jz)*(satp)**(quirk)*(por(jx,jy,jz))**(uli)*dstar(jx,jy,jz)
+      dumn = ro(jx,jy+1,jz)*(satn)**(SatPow)*(por(jx,jy+1,jz))**(PorPow)*dstar(jx,jy+1,jz)
+      dumpy = ro(jx,jy,jz)*(satp)**(SatPow)*(por(jx,jy,jz))**(PorPow)*dstar(jx,jy,jz)
       dums = dumpy
     ELSE IF (jy == ny) THEN
       dys = 0.5*(dyy(jy)+dyy(jy-1))
@@ -205,8 +209,8 @@ DO jy = 1,ny
       pors = por(jx,jy-1,jz)
       satn = satliq(jx,jy,jz)
       sats = satliq(jx,jy-1,jz)
-      dums = ro(jx,jy-1,jz)*(sats)**(quirk)*(por(jx,jy-1,jz))**(uli)*dstar(jx,jy-1,jz)
-      dumpy = ro(jx,jy,jz)*(satp)**(quirk)*(por(jx,jy,jz))**(uli)*dstar(jx,jy,jz)
+      dums = ro(jx,jy-1,jz)*(sats)**(SatPow)*(por(jx,jy-1,jz))**(PorPow)*dstar(jx,jy-1,jz)
+      dumpy = ro(jx,jy,jz)*(satp)**(SatPow)*(por(jx,jy,jz))**(PorPow)*dstar(jx,jy,jz)
       dumn = dumpy
     ELSE
       dyn = 0.5*(dyy(jy)+dyy(jy+1))
@@ -215,9 +219,9 @@ DO jy = 1,ny
       pors = por(jx,jy-1,jz)
       satn = satliq(jx,jy+1,jz)
       sats = satliq(jx,jy-1,jz)
-      dumn = ro(jx,jy+1,jz)*(satn)**(quirk)*(por(jx,jy+1,jz))**(uli)*dstar(jx,jy+1,jz)
-      dums = ro(jx,jy-1,jz)*(sats)**(quirk)*(por(jx,jy-1,jz))**(uli)*dstar(jx,jy-1,jz)
-      dumpy = ro(jx,jy,jz)*(satp)**(quirk)*(por(jx,jy,jz))**(uli)*dstar(jx,jy,jz)
+      dumn = ro(jx,jy+1,jz)*(satn)**(SatPow)*(por(jx,jy+1,jz))**(PorPow)*dstar(jx,jy+1,jz)
+      dums = ro(jx,jy-1,jz)*(sats)**(SatPow)*(por(jx,jy-1,jz))**(PorPow)*dstar(jx,jy-1,jz)
+      dumpy = ro(jx,jy,jz)*(satp)**(SatPow)*(por(jx,jy,jz))**(PorPow)*dstar(jx,jy,jz)
     END IF
     
     200     CONTINUE

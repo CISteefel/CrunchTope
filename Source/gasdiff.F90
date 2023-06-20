@@ -108,6 +108,15 @@ SUBROUTINE gasdiff(nx,ny,nz)
   REAL(DP)                                      :: tempw
   REAL(DP)                                      :: temps
   REAL(DP)                                      :: tempn
+
+  
+  REAL(DP)                                      :: PorPow
+  REAL(DP)                                      :: SatPow
+  
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy1
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy2
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy3
+
   
   INTEGER(I4B)                                  :: jx
   INTEGER(I4B)                                  :: jy
@@ -125,13 +134,28 @@ SUBROUTINE gasdiff(nx,ny,nz)
   
   east_river = .true.
 
-  UliGas = 1.0d0
-  QuirkGas = 0.0d0
-  zero = 0.0d0
+  IF (ALLOCATED(dummy2)) THEN
+    DEALLOCATE(dummy2)
+    ALLOCATE(dummy2(nx,ny,nz))
+  ELSE
+    ALLOCATE(dummy2(nx,ny,nz))
+  END IF
+
+  IF (ALLOCATED(dummy3)) THEN
+    DEALLOCATE(dummy3)
+    ALLOCATE(dummy3(nx,ny,nz))
+  ELSE
+    ALLOCATE(dummy3(nx,ny,nz))
+  END IF
+
+  east_river = .FALSE.
   
+  zero = 0.0d0 
+
   jz = 1
-  UliGas = 7.0d0/3.0d0
-  QuirkGas = 1.0d0/3.0d0
+  
+  SatPow = 7.0d0/3.0d0
+  PorPow = 1.0d0/3.0d0
   
   DO jy = 1,ny
     DO jx = 1,nx
@@ -169,7 +193,7 @@ SUBROUTINE gasdiff(nx,ny,nz)
         else
         gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas
         dume = pore*sate*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas
+        gasd = (porp)**(PorPow)*(satp)**(UliGas)*dgas
         dumpx = porp*satp*gasd
         endif
         dumw = dumpx
@@ -180,15 +204,9 @@ SUBROUTINE gasdiff(nx,ny,nz)
         sate = 1.0-satliq(jx,jy,jz)
         porw = por(jx-1,jy,jz)
         satw = 1.0-satliq(jx-1,jy,jz)
-        if (east_river) then
-        gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
         dumw = porw*satw*gasd
-        gasd = porp**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
-        dumpx = porp*satp*gasd
-        else
-        gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas
-        dumw = porw*satw*gasd
-        gasd = porp**QuirkGas*(satp)**(UliGas)*dgas
+        gasd = porp**(PorPow)*(satp)**(SatPow)*dgas
         dumpx = porp*satp*gasd
         endif
         dume = dumpx
@@ -199,19 +217,11 @@ SUBROUTINE gasdiff(nx,ny,nz)
         sate = 1.0-satliq(jx+1,jy,jz)
         porw = por(jx-1,jy,jz)
         satw = 1.0-satliq(jx-1,jy,jz)
-        if (east_river) then
-        gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
         dume = pore*sate*gasd
-        gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
         dumw = porw*satw*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpx = porp*satp*gasd
-        else
-        gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas
-        dume = pore*sate*gasd
-        gasd = (porw)**QuirkGas*(satw)**(UliGas)*dgas
-        dumw = porw*satw*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
         dumpx = porp*satp*gasd
         endif
       END IF
@@ -226,15 +236,9 @@ SUBROUTINE gasdiff(nx,ny,nz)
         satn = 1.0-satliq(jx,jy+1,jz)
         pors = por(jx,jy,jz)
         sats = 1.0-satliq(jx,jy,jz)
-        if (east_river) then
-        gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
         dumn = porn*satn*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
-        else
-        gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas
-        dumn = porn*satn*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
         dumpy = porp*satp*gasd
         endif
         dums = dumpy
@@ -245,15 +249,9 @@ SUBROUTINE gasdiff(nx,ny,nz)
         satn = 1.0-satliq(jx,jy,jz)
         pors = por(jx,jy-1,jz)
         sats = 1.0-satliq(jx,jy-1,jz)
-        if (east_river) then
-        gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
         dums = pors*sats*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
-        else
-        gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas
-        dums = pors*sats*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
         dumpy = porp*satp*gasd
         endif
         dumn = dumpy
@@ -264,19 +262,11 @@ SUBROUTINE gasdiff(nx,ny,nz)
         satn = 1.0-satliq(jx,jy+1,jz)
         pors = por(jx,jy-1,jz)
         sats = 1.0-satliq(jx,jy-1,jz)
-        if (east_river) then
-        gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
         dums = pors*sats*gasd
-        gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
         dumn = porn*satn*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
-        else
-        gasd = (pors)**QuirkGas*(sats)**(UliGas)*dgas
-        dums = pors*sats*gasd
-        gasd = (porn)**QuirkGas*(satn)**(UliGas)*dgas
-        dumn = porn*satn*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
         dumpy = porp*satp*gasd
         endif
       END IF

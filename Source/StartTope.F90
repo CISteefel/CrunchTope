@@ -6716,20 +6716,20 @@ IF (found) THEN
   IF (parfind == 'spatial_profile' .OR. parfind == 'spatial_profile_at_time') THEN
     CONTINUE
   ELSE
-  parchar = 'read_snapshotfile'
-  parfind = ' '
-  CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
-  IF (parfind == 'read_snapshotfile') THEN
-  lenarray=0
-  OPEN(UNIT=23,FILE=dumstring,STATUS='old',ERR=8005)
-  FileTemp = dumstring
-  CALL stringlen(FileTemp,FileNameLength)
-  do while (ierr == 0)
-    lenarray = lenarray + 1
-    READ(23,*,iostat=IERR) realmult_dum(lenarray) 
-  enddo
-  realmult=realmult_dum(1:lenarray-1)
-  ENDIF
+    parchar = 'read_snapshotfile'
+    parfind = ' '
+    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
+    IF (parfind == 'read_snapshotfile') THEN
+    lenarray=0
+    OPEN(UNIT=23,FILE=dumstring,STATUS='old')
+    FileTemp = dumstring
+    CALL stringlen(FileTemp,FileNameLength)
+    do while (ierr == 0)
+      lenarray = lenarray + 1
+      READ(23,*,iostat=IERR) realmult_dum(lenarray) 
+    enddo
+    realmult=realmult_dum(1:lenarray-1)
+    ENDIF
   ENDIF
 
   IF (parfind == ' ') THEN
@@ -8347,7 +8347,7 @@ IF (found) THEN
           ELSE
             ALLOCATE(theta_r(nx, ny, nz))
           END IF
-          OPEN(UNIT=23,FILE=wcrfile,STATUS='old',ERR=8001)
+          OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
           FileTemp = wcrfile
           CALL stringlen(FileTemp,FileNameLength)
           IF (wcrFileFormat == 'ContinuousRead') THEN
@@ -8442,7 +8442,7 @@ IF (found) THEN
         ELSE
           ALLOCATE(VG_alpha(nx, ny, nz))
         END IF
-        OPEN(UNIT=23,FILE=vgafile,STATUS='old',ERR=8001)
+        OPEN(UNIT=23,FILE=vgafile,STATUS='old')
         FileTemp = vgafile
         CALL stringlen(FileTemp,FileNameLength)
         IF (vgaFileFormat == 'ContinuousRead') THEN
@@ -8540,7 +8540,7 @@ IF (found) THEN
           ELSE
             ALLOCATE(VG_n(nx, ny, nz))
           END IF
-          OPEN(UNIT=23,FILE=vgnfile,STATUS='old',ERR=8001)
+          OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
           FileTemp = vgnfile
           CALL stringlen(FileTemp,FileNameLength)
           IF (vgnFileFormat == 'ContinuousRead') THEN
@@ -9045,7 +9045,7 @@ IF (found) THEN
             READ(*,*)
             STOP
           END IF
-          OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
+          OPEN(UNIT=23,FILE=permxfile,STATUS='old')
           FileTemp = permxfile
           CALL stringlen(FileTemp,FileNameLength)
 
@@ -9166,7 +9166,7 @@ IF (found) THEN
              READ(*,*)
              STOP
            END IF
-           OPEN(UNIT=23,FILE=permyfile,STATUS='old',ERR=8001)
+           OPEN(UNIT=23,FILE=permyfile,STATUS='old')
            FileTemp = permyfile
            CALL stringlen(FileTemp,FileNameLength)
                jz = 1
@@ -11316,7 +11316,6 @@ IF (ALLOCATED(ZfluxWeightedConcentration)) THEN
 END IF
 ALLOCATE(ZfluxWeightedConcentration(nplotFluxWeightedConcentration))
 ZfluxWeightedConcentration = 0.0d0
-
 
 
 3001 FORMAT('VARIABLES = "Time (yrs)"',                   100(', "',A16,'"'))

@@ -246,9 +246,6 @@ SOURCEF = \
           read_toperatio.F90\
           read_tortuosityfile.F90\
           read_TortuosityByZone.F90\
-		  read_vgn.F90\
-		  read_vga.F90\
-		  read_wcr.F90\
           readblock.F90\
           readbreak.F90\
           readCaseSensitive.F90\
@@ -319,29 +316,41 @@ SOURCEF = \
           xmassNodeByNode.F90\
           xtoolInit.F90\
           xtoolOutput.F90\
-          redistributeRich.F90\
-          vanGenuchten.F90\
-          PressureRich.F90\
-          gradhRich.F90\
-          nexttoSatRich.F90\
-          redist_recvRich.F90\
-          velocalcRich.F90\
-          watercontentRich.F90\
           PressureNS.F90\
           velocalcNS.F90\
-          redist_sendRich.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
-          read_pump_timeseries.F90\
           read_watertablefile.F90\
           read_watertable_timeseries.F90\
           interp3.F90\
           read_transpiration.F90\
           read_evaporation.F90\
-          read_timeseries2.F90\
+          read_timeseries.F90\
           read_pumptimeseries.F90\
           read_pumplocations.F90\
-          FractureAperture.F90\
+          FRACTUREAPERTURE.F90\
+          read_infiltration_2.F90\
+          flux_Richards.F90\
+		  flux_Richards_steady.F90\
+		  Jacobian_Richards.F90\
+		  Jacobian_Richards_steady.F90\
+		  read_boundary_condition_Richards.F90\
+		  read_vanGenuchten_parameters.F90\
+		  residual_Richards.F90\
+		  residual_Richards_steady.F90\
+		  solve_Richards.F90\
+		  solve_Richards_steady.F90\
+		  vanGenuchten_model.F90\
+		  vanGenuchten_model_kr.F90\
+          read_tempreg.F90\
+          read_tempregion.F90\
+          read_tempts.F90\
+          read_vgafile.F90\
+          read_vgnfile.F90\
+          read_wcrfile.F90\
+          read_walltime.F90\
+          read_permxfile.F90\
+          read_permyfile.F90\
 
 OBJSF  =  crunchtype.o\
           params.o\
@@ -586,9 +595,6 @@ OBJSF  =  crunchtype.o\
           read_toperatio.o\
           read_tortuosityfile.o\
           read_TortuosityByZone.o\
-		  read_vgn.o\
-		  read_vga.o\
-		  read_wcr.o\
           readblock.o\
           readbreak.o\
           readCaseSensitive.o\
@@ -659,34 +665,46 @@ OBJSF  =  crunchtype.o\
           xmassNodeByNode.o\
           xtoolInit.o\
           xtoolOutput.o\
-          redistributeRich.o\
-          vanGenuchten.o\
-          PressureRich.o\
-          gradhRich.o\
-          nexttoSatRich.o\
-          redist_recvRich.o\
-          velocalcRich.o\
-          watercontentRich.o\
           PressureNS.o\
           velocalcNS.o\
-          redist_sendRich.o\
           read_pumptimeseriesfile.o\
           read_pumplocationsfile.o\
-          read_pump_timeseries.o\
           read_watertablefile.o\
           read_watertable_timeseries.o\
           interp3.o\
           read_transpiration.o\
           read_evaporation.o\
-          read_timeseries2.o\
+          read_timeseries.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
-          FractureAperture.o\
+          FRACTUREAPERTURE.o\
+          read_infiltration_2.o\
+          flux_Richards.o\
+		  flux_Richards_steady.o\
+		  Jacobian_Richards.o\
+		  Jacobian_Richards_steady.o\
+		  read_boundary_condition_Richards.o\
+		  read_vanGenuchten_parameters.o\
+		  residual_Richards.o\
+		  residual_Richards_steady.o\
+		  solve_Richards.o\
+		  solve_Richards_steady.o\
+		  vanGenuchten_model.o\
+		  vanGenuchten_model_kr.o\
+          read_tempreg.o\
+          read_tempregion.o\
+          read_tempts.o\
+          read_vgafile.o\
+          read_vgnfile.o\
+          read_wcrfile.o\
+          read_walltime.o\
+          read_permxfile.o\
+          read_permyfile.o\
 
 LOCDIR   = ${CrunchTope_Dir}
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
 
-CrunchMain : ${OBJSF} chkopts
+CrunchMain : ${OBJSF} #chkopts
 	-${FLINKER} -o CrunchTope ${OBJSF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}

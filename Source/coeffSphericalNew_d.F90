@@ -117,6 +117,9 @@ REAL(DP)                                      :: AreaS
 REAL(DP)                                      :: AreaN
 REAL(DP)                                      :: tort
 
+REAL(DP)                                      :: PorPow
+REAL(DP)                                      :: SatPow
+
 INTEGER(I4B)                                  :: jx
 INTEGER(I4B)                                  :: jy
 INTEGER(I4B)                                  :: jz
@@ -127,7 +130,9 @@ jz = 1
 jy = 1     !!  Assumes a 1D system with X as radial direction 
 
 pi = DACOS(-1.0d0)
-quirk = 1.0
+
+SatPow = 10.0d0/3.0d0
+PorPow = 4.0d0/3.0d0
 
 IF (idiffus == 0) THEN
   d_25 = dzero
@@ -185,8 +190,8 @@ dstar(nx+1,jy,jz) = dstar(nx,jy,jz)
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*sate*porp*tort
         dumw = dumpx
       ELSE IF (MillingtonQuirk) THEN
-        dume = ro(jx+1,jy,jz)*(sate)**(quirk)*(pore)**(uli)*dstar(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
+        dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
         dumw = dumpx
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
@@ -215,8 +220,8 @@ dstar(nx+1,jy,jz) = dstar(nx,jy,jz)
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort  
         dume = dumpx 
       ELSE IF (MillingtonQuirk) THEN
-        dumw = ro(jx-1,jy,jz)*(satw)**(quirk)*(porw)**(uli)*dstar(jx-1,jy,jz)
-        dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
+        dumw = ro(jx-1,jy,jz)*(satw)**(SatPow)*(porw)**(PorPow)*dstar(jx-1,jy,jz)
+        dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
         dume = dumpx
       ELSE
         dumw = ro(jx-1,jy,jz)*satw*porw*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
@@ -250,9 +255,9 @@ dstar(nx+1,jy,jz) = dstar(nx,jy,jz)
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort
       ELSE IF (MillingtonQuirk) THEN
-        dume = ro(jx+1,jy,jz)*(sate)**(quirk)*(pore)**(uli)*dstar(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*(satp)**(quirk)*(porp)**(uli)*dstar(jx,jy,jz)
-        dumw = ro(jx-1,jy,jz)*(satw)**(quirk)*(porw)**(uli)*dstar(jx-1,jy,jz)
+        dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
+        dumw = ro(jx-1,jy,jz)*(satw)**(SatPow)*(porw)**(PorPow)*dstar(jx-1,jy,jz)
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
