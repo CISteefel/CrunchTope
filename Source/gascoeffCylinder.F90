@@ -117,6 +117,10 @@ REAL(DP)                                      :: uligas
 REAL(DP)                                      :: zero
 REAL(DP)                                      :: gasd
 
+REAL(DP)                                      :: PorPow
+REAL(DP)                                      :: SatPow
+
+
 INTEGER(I4B)                                  :: jx
 INTEGER(I4B)                                  :: jy
 INTEGER(I4B)                                  :: jz
@@ -124,8 +128,9 @@ INTEGER(I4B)                                  :: j
 
 jz = 1
 
-uligas = 7.0/3.0
-quirk = 1.0/3.0
+SatPow = 7.0/3.0
+PorPow = 1.0/3.0
+
 zero = 0.0
 pi = DACOS(-1.0d0)
 
@@ -146,9 +151,9 @@ DO jy = 1,ny
       sate = 1.0-satliq(jx+1,jy,jz)
       porw = por(jx,jy,jz)
       satw = 1.0-satliq(jx,jy,jz)
-      gasd = (pore)**quirk*(sate)**(uligas)*dgas
+      gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
       dume = pore*sate*gasd
-      gasd = (porp)**quirk*(satp)**(uligas)*dgas
+      gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
       dumpx = porp*satp*gasd
       dumw = dumpx
     ELSE IF (jx == nx) THEN
@@ -158,9 +163,9 @@ DO jy = 1,ny
       sate = 1.0-satliq(jx,jy,jz)
       porw = por(jx-1,jy,jz)
       satw = 1.0-satliq(jx-1,jy,jz)
-      gasd = (porw)**quirk*(satw)**(uligas)*dgas
+      gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
       dumw = porw*satw*gasd
-      gasd = porp**quirk*(satp)**(uligas)*dgas
+      gasd = porp**(PorPow)*(satp)**(SatPow)*dgas
       dumpx = porp*satp*gasd
       dume = dumpx
     ELSE
@@ -170,11 +175,11 @@ DO jy = 1,ny
       sate = 1.0-satliq(jx+1,jy,jz)
       porw = por(jx-1,jy,jz)
       satw = 1.0-satliq(jx-1,jy,jz)
-      gasd = (pore)**quirk*(sate)**(uligas)*dgas
+      gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
       dume = pore*sate*gasd
-      gasd = (porw)**quirk*(satw)**(uligas)*dgas
+      gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
       dumw = porw*satw*gasd
-      gasd = (porp)**quirk*(satp)**(uligas)*dgas
+      gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
       dumpx = porp*satp*gasd
     END IF
     
@@ -188,9 +193,9 @@ DO jy = 1,ny
       satn = 1.0-satliq(jx,jy+1,jz)
       pors = por(jx,jy,jz)
       sats = 1.0-satliq(jx,jy,jz)
-      gasd = (porn)**quirk*(satn)**(uligas)*dgas
+      gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
       dumn = porn*satn*gasd
-      gasd = (porp)**quirk*(satp)**(uligas)*dgas
+      gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
       dumpy = porp*satp*gasd
       dums = dumpy
     ELSE IF (jy == ny) THEN
@@ -200,9 +205,9 @@ DO jy = 1,ny
       satn = 1.0-satliq(jx,jy,jz)
       pors = por(jx,jy-1,jz)
       sats = 1.0-satliq(jx,jy-1,jz)
-      gasd = (pors)**quirk*(sats)**(uligas)*dgas
+      gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
       dums = pors*sats*gasd
-      gasd = (porp)**quirk*(satp)**(uligas)*dgas
+      gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
       dumpy = porp*satp*gasd
       dumn = dumpy
     ELSE
@@ -212,11 +217,11 @@ DO jy = 1,ny
       satn = 1.0-satliq(jx,jy+1,jz)
       pors = por(jx,jy-1,jz)
       sats = 1.0-satliq(jx,jy-1,jz)
-      gasd = (pors)**quirk*(sats)**(uligas)*dgas
+      gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
       dums = pors*sats*gasd
-      gasd = (porn)**quirk*(satn)**(uligas)*dgas
+      gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
       dumn = porn*satn*gasd
-      gasd = (porp)**quirk*(satp)**(uligas)*dgas
+      gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
       dumpy = porp*satp*gasd
     END IF
     
