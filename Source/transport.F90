@@ -190,4 +190,11 @@ MODULE transport
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: us
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: vs
 
+!********************
+!Stolze Lucien, June 2023, specific to East river simulations
+REAL(DP)                                         :: thres_OM
+REAL(DP)                                         :: exp_OM
+LOGICAL(LGT)                                     :: east_river
+!*******************
+
 END module transport

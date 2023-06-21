@@ -88,7 +88,6 @@ SUBROUTINE gasdiff(nx,ny,nz)
   REAL(DP)                                      :: fs
   REAL(DP)                                      :: as
   REAL(DP)                                      :: tk
-  REAL(DP)                                      :: QuirkGas
   REAL(DP)                                      :: porn
   REAL(DP)                                      :: pors
   REAL(DP)                                      :: dspe
@@ -101,57 +100,22 @@ SUBROUTINE gasdiff(nx,ny,nz)
   REAL(DP)                                      :: dspn
   REAL(DP)                                      :: apx
   REAL(DP)                                      :: apy
-  REAL(DP)                                      :: UliGas
   REAL(DP)                                      :: zero
   REAL(DP)                                      :: gasd
   REAL(DP)                                      :: tempe
   REAL(DP)                                      :: tempw
   REAL(DP)                                      :: temps
   REAL(DP)                                      :: tempn
-
   
   REAL(DP)                                      :: PorPow
   REAL(DP)                                      :: SatPow
-  
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy1
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy2
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy3
-
   
   INTEGER(I4B)                                  :: jx
   INTEGER(I4B)                                  :: jy
   INTEGER(I4B)                                  :: jz
   INTEGER(I4B)                                  :: j
-  LOGICAL(LGT)                                     :: east_river
-  
-  !!IF (MillingtonQuirk) THEN
-  !!  UliGas = 7.0d0/3.0d0
-  !!  QuirkGas = 1.0d0/3.0d0
-  !!ELSE
-  !!  UliGas = 0.0d0
-  !!  QuirkGas = 0.0d0
-  !!END IF
-  
-  east_river = .true.
-
-  IF (ALLOCATED(dummy2)) THEN
-    DEALLOCATE(dummy2)
-    ALLOCATE(dummy2(nx,ny,nz))
-  ELSE
-    ALLOCATE(dummy2(nx,ny,nz))
-  END IF
-
-  IF (ALLOCATED(dummy3)) THEN
-    DEALLOCATE(dummy3)
-    ALLOCATE(dummy3(nx,ny,nz))
-  ELSE
-    ALLOCATE(dummy3(nx,ny,nz))
-  END IF
-
-  east_river = .FALSE.
   
   zero = 0.0d0 
-
   jz = 1
   
   SatPow = 7.0d0/3.0d0
@@ -186,14 +150,14 @@ SUBROUTINE gasdiff(nx,ny,nz)
         porw = por(jx,jy,jz)
         satw = 1.0-satliq(jx,jy,jz)
         if (east_river) then
-        gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
         dume = pore*sate*gasd
-        gasd = (porp)**QuirkGas*(satp)**(UliGas)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
         dumpx = porp*satp*gasd
         else
-        gasd = (pore)**QuirkGas*(sate)**(UliGas)*dgas
+        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
         dume = pore*sate*gasd
-        gasd = (porp)**(PorPow)*(satp)**(UliGas)*dgas
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
         dumpx = porp*satp*gasd
         endif
         dumw = dumpx
@@ -204,6 +168,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
         sate = 1.0-satliq(jx,jy,jz)
         porw = por(jx-1,jy,jz)
         satw = 1.0-satliq(jx-1,jy,jz)
+        if (east_river) then
+        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+        dumw = porw*satw*gasd
+        gasd = porp**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+        dumpx = porp*satp*gasd
+        else
         gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
         dumw = porw*satw*gasd
         gasd = porp**(PorPow)*(satp)**(SatPow)*dgas
@@ -217,6 +187,14 @@ SUBROUTINE gasdiff(nx,ny,nz)
         sate = 1.0-satliq(jx+1,jy,jz)
         porw = por(jx-1,jy,jz)
         satw = 1.0-satliq(jx-1,jy,jz)
+        if (east_river) then
+        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+        dume = pore*sate*gasd
+        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+        dumw = porw*satw*gasd
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+        dumpx = porp*satp*gasd
+        else
         gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
         dume = pore*sate*gasd
         gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
@@ -236,6 +214,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
         satn = 1.0-satliq(jx,jy+1,jz)
         pors = por(jx,jy,jz)
         sats = 1.0-satliq(jx,jy,jz)
+        if (east_river) then
+        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+        dumn = porn*satn*gasd
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+        dumpy = porp*satp*gasd
+        else
         gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
         dumn = porn*satn*gasd
         gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
@@ -249,6 +233,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
         satn = 1.0-satliq(jx,jy,jz)
         pors = por(jx,jy-1,jz)
         sats = 1.0-satliq(jx,jy-1,jz)
+        if (east_river) then
+        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+        dums = pors*sats*gasd
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+        dumpy = porp*satp*gasd
+        else
         gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
         dums = pors*sats*gasd
         gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
@@ -262,6 +252,14 @@ SUBROUTINE gasdiff(nx,ny,nz)
         satn = 1.0-satliq(jx,jy+1,jz)
         pors = por(jx,jy-1,jz)
         sats = 1.0-satliq(jx,jy-1,jz)
+        if (east_river) then
+        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+        dums = pors*sats*gasd
+        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+        dumn = porn*satn*gasd
+        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+        dumpy = porp*satp*gasd
+        else
         gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
         dums = pors*sats*gasd
         gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
@@ -375,17 +373,9 @@ SUBROUTINE gasdiff(nx,ny,nz)
         cg(jx,jy,jz) = zero
         bg(jx,jy,jz) = zero
       ELSE
-        ! if (richards) then
-        ! if (activecellPressure(jx,jy,jz) == 0) then
-        ! ag(jx,jy,jz) = zero
-        ! cg(jx,jy,jz) = zero
-        ! bg(jx,jy,jz) = zero
-        ! endif
-        ! else
         ag(jx,jy,jz) = -aw
         cg(jx,jy,jz) = -ae
         bg(jx,jy,jz) = apx
-        ! endif
       END IF
       
       IF (ny == 1) THEN
