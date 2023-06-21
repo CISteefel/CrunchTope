@@ -214,14 +214,10 @@ MODULE flow
     REAL(DP), DIMENSION(:), ALLOCATABLE          :: qgt
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
     LOGICAL(LGT)                                   :: pumptimeseries
-    LOGICAL(LGT)                                   :: TS_1year
     !! Dynamic water table Lucien Stolze 20211201
     REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
     LOGICAL(LGT)                                   :: watertabletimeseries
-    !! Disable mineralupdate during model spinup
-    LOGICAL(LGT)                                   :: spinup ! Lucien Stolze 20220731
-    LOGICAL(LGT)                                   :: biomassfixed ! Lucien Stolze 20220731
     !!Evapotranspiration timeseries
     REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
@@ -235,8 +231,7 @@ MODULE flow
     REAL(DP)                                         :: evaporate !evaporation rate
     REAL(DP)                                         :: transpirate !transpiration rate
     INTEGER(I4B)                                     :: transpicells !nb of transpiration cells
-    LOGICAL(LGT)                                     :: transpisoluteflux !choose if solutes are removed by transpiration
-    ! infiltraiton timeseries added by Toshiyuki Bandai June, 2023
+    ! infiltration timeseries added by Toshiyuki Bandai June, 2023
     LOGICAL(LGT)                                     :: infiltration_timeseries
     LOGICAL(LGT)                                     :: infiltration_fix
     REAL(DP)                                         :: infiltration_rate

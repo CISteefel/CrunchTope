@@ -416,16 +416,6 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                         :: temp_dum
 REAL(DP)                                                    :: wattab
 REAL(DP), DIMENSION(:), ALLOCATABLE                         :: depth
 INTEGER(I4B)                                                :: depthwattab
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: satliq_dummy1
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: satliq_dummy2
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: por_dummy1
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: por_dummy2
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: theta_dummy1
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: theta_dummy2
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: temp_dummy1
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: temp_dummy2
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: gas_dummy1
-REAL(DP), DIMENSION(:), ALLOCATABLE                         :: gas_dummy2
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -859,12 +849,6 @@ IF (CalculateFlow) THEN
   END IF
   ! End of Edit by Toshiyuki Bandai, 2023 May
   ! **********************************************
-
-  satliq_dummy1 = satliq(:,1,1)
-  por_dummy1 = por(:,1,1)
-  theta_dummy1 = theta_s(:,1,1)
-  temp_dummy1 = t(:,1,1)
-  gas_dummy1 = spgas10(1,:,1,1)
 
 !!  Check divergence of flow field
 
@@ -1389,15 +1373,6 @@ DO WHILE (nn <= nend)
     
   END IF
 
-  ! satliq_dummy2 = satliq(:,1,1)
-  ! por_dummy2 = por(:,1,1)
-  ! theta_dummy2 = theta_s(:,1,1)
-  ! temp_dummy2 = t(:,1,1)
-  ! gas_dummy2 = spgas10(1,:,1,1)
-
-  ! if (time > 0.2) then
-  !   stop
-  ! endif
 !! Return here to restart time step after failure
 
   4000 CONTINUE

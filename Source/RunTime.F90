@@ -165,5 +165,10 @@ MODULE runtime
   !! Addition of a walltime (Stolze Lucien June 2023)
   LOGICAL(LGT)                                                :: walltime
   REAL(DP)                                                    :: wall_t
+  !! Disable mineralupdate during model spinup
+  LOGICAL(LGT)                                   :: spinup ! Lucien Stolze 20220731
+  LOGICAL(LGT)                                   :: biomassfixed ! Lucien Stolze 20220731
+  LOGICAL(LGT)                                   :: TS_1year !Cyclic repetition of 1 year time series
+  LOGICAL(LGT)                                   :: generate_velocity_vector !Generate velocity vector individually in output file for velocity read
 
 END MODULE runtime

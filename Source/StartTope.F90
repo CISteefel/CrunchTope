@@ -1663,7 +1663,7 @@ parfind = ' '
 SetSurfaceAreaConstant = .FALSE.
 CALL read_logical(nout,lchar,parchar,parfind,SetSurfaceAreaConstant)
 
-!! Inhibit the cincumption of minerals for running model spinup: (Stolze Lucien)
+!! Inhibit the consumption of minerals for running model spinup: (Stolze Lucien)
 parchar = 'model_spinup'
 parfind = ' '
 spinup = .false.
@@ -1675,11 +1675,17 @@ parchar = 'timeseries_cyclic_1year'
 parfind = ' '
 CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
 
-
+!! Keep biomass fixed, Stolze Lucien
 parchar = 'biomassfixed'
 parfind = ' '
 biomassfixed = .false.
 CALL read_logical(nout,lchar,parchar,parfind,biomassfixed)
+
+!! Generate velocity vector for velocity_read
+parchar = 'generate_velocity_vector'
+parfind = ' '
+generate_velocity_vector = .false.
+CALL read_logical(nout,lchar,parchar,parfind,generate_velocity_vector)
 
 parchar = 'Inagaki'
 parfind = ' '
