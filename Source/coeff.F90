@@ -92,7 +92,8 @@ REAL(DP)                                      :: an
 REAL(DP)                                      :: fs
 REAL(DP)                                      :: as
 REAL(DP)                                      :: tk
-REAL(DP)                                      :: quirk
+REAL(DP)                                      :: Uliaq
+REAL(DP)                                      :: Quirkaq
 REAL(DP)                                      :: porn
 REAL(DP)                                      :: pors
 REAL(DP)                                      :: dharm
@@ -111,6 +112,7 @@ REAL(DP)                                      :: AreaE
 REAL(DP)                                      :: AreaW
 REAL(DP)                                      :: AreaS
 REAL(DP)                                      :: AreaN
+REAL(DP)                                      :: mu_water_20
 
 REAL(DP)                                      :: PorPow
 REAL(DP)                                      :: SatPow
@@ -152,7 +154,7 @@ DO jy = 1,ny
     IF (idiffus == 0) THEN
       dstar(jx,jy,jz) = dzero*EXP((activation/rgas)*(tk25 - 1.0/tk))/formation
     ELSE
-      dstar(jx,jy,jz) = dcoeff/formation
+      dstar(jx,jy,jz) = (dcoeff/formation)*(mu_water_20/mu_water(jx,jy,jz))*((t(jx,jy,jz)+273.15)/(20+273.15))
     END IF
   END DO
   dstar(0,jy,jz) = dstar(1,jy,jz)
@@ -200,8 +202,10 @@ DO jy = 1,ny
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*sate*porp*tort
         dumw = dumpx
       ELSE IF (MillingtonQuirk) THEN
+
         dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
+
         dumw = dumpx
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
