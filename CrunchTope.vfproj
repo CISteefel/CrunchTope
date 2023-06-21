@@ -222,6 +222,7 @@
 		<File RelativePath="..\Source\read_decay.F90"/>
 		<File RelativePath="..\Source\read_diffusion.F90"/>
 		<File RelativePath="..\Source\read_dispersion.F90"/>
+		<File RelativePath="..\Source\read_eastriver.F90"/>
 		<File RelativePath="..\Source\read_equil.F90"/>
 		<File RelativePath="..\Source\read_erosion.F90"/>
 		<File RelativePath="..\Source\read_evaporation.F90"/>
@@ -245,6 +246,7 @@
 		<File RelativePath="..\Source\read_logical.F90"/>
 		<File RelativePath="..\Source\read_master.F90"/>
 		<File RelativePath="..\Source\read_mineral.F90"/>
+		<File RelativePath="..\Source\read_mineralfile.F90"/>
 		<File RelativePath="..\Source\read_minkin.F90"/>
 		<File RelativePath="..\Source\read_minseries.F90"/>
 		<File RelativePath="..\Source\read_MODFLOWfile.F90"/>
