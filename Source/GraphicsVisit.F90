@@ -207,6 +207,7 @@ REAL(DP)                                                   :: totCommon
 REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
 
 REAL(DP), DIMENSION(ncomp)                         :: gflux_ver
+REAL(DP), DIMENSION(ncomp)                         :: gflux_hor
 REAL(DP), DIMENSION(nrct)                          :: MineralPercent
 REAL(DP), DIMENSION(ikin)                          :: dummy_raq_tot
 
@@ -1078,7 +1079,8 @@ ENDIF
           END DO
         END DO
         CLOSE(UNIT=8,STATUS='keep')
-
+    
+  IF (ngas > 0) THEN
       fn='gases_pp'
       ilength = 5
       CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -1169,6 +1171,42 @@ ENDIF
     END DO
   END DO
     CLOSE(UNIT=8,STATUS='keep')
+
+    IF (nx == 1 .AND. ny == 1) THEN
+    
+      fn='gasdifffluxX'
+      ilength = 12
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
+      jz = 1
+      jy = 1
+      DO jx = 0,nx
+        DO i = 1,ngas
+          if (jx==0) THEN
+            gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))
+          elseif (jx==nx) THEN
+            gflux_hor(i)= (cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))
+          else
+            gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))
+          END IF
+          if (gflux_hor(i)<1.0E-30 .and. gflux_hor(i)>-1.0E-30) THEN
+            gflux_hor(i)=1.0E-30
+          END IF      
+        END DO
+        if (jx==0) THEN
+        WRITE(8,184) x(jx)*OutputDistanceScale-dxx(jx)/2,(gflux_hor(i),i=1,ngas)
+        else
+        WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
+        END IF
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+    ENDIF
+
+  ENDIF
+
   END IF
 
 !****************
