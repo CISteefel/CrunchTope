@@ -154,7 +154,7 @@ DO jy = 1,ny
     IF (idiffus == 0) THEN
       dstar(jx,jy,jz) = dzero*EXP((activation/rgas)*(tk25 - 1.0/tk))/formation
     ELSE
-      dstar(jx,jy,jz) = (dcoeff/formation)*(mu_water_20/mu_water(jx,jy,jz))*((t(jx,jy,jz)+273.15)/(20+273.15))
+      dstar(jx,jy,jz) = (dcoeff/formation)
     END IF
   END DO
   dstar(0,jy,jz) = dstar(1,jy,jz)
