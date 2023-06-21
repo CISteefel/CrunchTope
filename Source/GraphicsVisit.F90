@@ -1172,7 +1172,7 @@ ENDIF
   END DO
     CLOSE(UNIT=8,STATUS='keep')
 
-    IF (nx == 1 .AND. ny == 1) THEN
+    IF (ny == 1 .AND. nz == 1) THEN
     
       fn='gasdifffluxX'
       ilength = 12
