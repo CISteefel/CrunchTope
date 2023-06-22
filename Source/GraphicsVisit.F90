@@ -337,7 +337,7 @@ fn='Aq_totconc'
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn = 'Temperature'
+  fn = 'temperature'
   ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')

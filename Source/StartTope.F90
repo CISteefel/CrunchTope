@@ -644,6 +644,7 @@ CHARACTER (LEN=mls)                                           :: WatertableFileF
 LOGICAL(LGT)                                                  :: readmineral
 INTEGER(I4B)                                                  :: mineral_index
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: readmin_ssa
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: mineral_name
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_name_length
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: volfracfile
@@ -662,7 +663,7 @@ INTEGER(I4B)                                                  :: min_id
 CHARACTER (LEN=mls)                                           :: min_name
 INTEGER(I4B)                                                  :: min_name_l
 REAL(DP)                                                      :: t_default !default temp for zonation case
-
+INTEGER(I4B)                                                  :: ssa_or_bsa
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
@@ -5934,8 +5935,13 @@ DEALLOCATE(FileFormatType_bsa)
 ENDIF
 ALLOCATE(FileFormatType_bsa(50))
 
+IF (ALLOCATED(readmin_ssa)) THEN
+  DEALLOCATE(readmin_ssa)
+  ENDIF
+  ALLOCATE(readmin_ssa(50))
+
 mineral_index = 0
-CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
+CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa,readmin_ssa)
 
 IF (readmineral) THEN
 DO i = 1,mineral_index
@@ -5948,6 +5954,7 @@ DO i = 1,mineral_index
         bsa_file = bsafile(i)
         bsa_file_l = lfile_bsa(i)
         bsa_fileformat = FileFormatType_bsa(i)
+        ssa_or_bsa = readmin_ssa(i)
 
         INQUIRE(FILE=vv_file,EXIST=ext)
         IF (.NOT. ext) THEN
@@ -6034,6 +6041,9 @@ DO i = 1,mineral_index
             DO jy = 1,ny
               DO jx= 1,nx
                 READ(23,*,END=1020) area(min_id,jx,jy,jz)
+                IF (ssa_or_bsa == 1) THEN
+                area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                ENDIF
               END DO
             END DO
           END DO
@@ -6043,6 +6053,9 @@ DO i = 1,mineral_index
               DO jy = 1,ny
                 DO jx= 1,nx
                   READ(23,*,END=1020) xdum,ydum,zdum,area(min_id,jx,jy,jz)
+                  IF (ssa_or_bsa == 1) THEN
+                  area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                  ENDIF
                 END DO
               END DO
             END DO
@@ -6051,6 +6064,9 @@ DO i = 1,mineral_index
             DO jy = 1,ny
               DO jx= 1,nx
                 READ(23,*,END=1020) xdum,ydum,area(min_id,jx,jy,jz)
+                IF (ssa_or_bsa == 1) THEN
+                area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                ENDIF
               END DO
             END DO
           ELSE
@@ -6058,10 +6074,16 @@ DO i = 1,mineral_index
           jy = 1
           DO jx= 1,nx
             READ(23,*,END=1020) xdum,area(min_id,jx,jy,jz)
+            IF (ssa_or_bsa == 1) THEN
+            area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+            ENDIF
           END DO
           END IF
         ELSE IF (bsa_fileformat == 'Unformatted') THEN
         READ(23,END=1020) area
+        IF (ssa_or_bsa == 1) THEN
+        area = volfx*area*wtmin(min_id)/volmol(min_id)
+        ENDIF
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' Bulk surface area file format not recognized'
