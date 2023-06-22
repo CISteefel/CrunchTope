@@ -43,7 +43,7 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_tempts(nout,tslength)
+SUBROUTINE read_tempts(nout,tslength,temp_default) 
 USE crunchtype
 USE CrunchFunctions
 USE params
@@ -58,7 +58,7 @@ IMPLICIT NONE
 
 INTEGER(I4B), INTENT(IN)                                    :: nout
 INTEGER(I4B), INTENT(OUT)                                   :: tslength
-
+REAL(DP) , INTENT(IN OUT)                                   :: temp_default
 !  Internal variables and arrays
 
 INTEGER(I4B)                                                :: id
@@ -76,14 +76,8 @@ INTEGER(I4B)                                                  :: FileNameLength
 CHARACTER (LEN=mls)                                           :: FileTemp
 INTEGER(I4B)                                                   :: tp
 INTEGER(I4B)                                                     :: ierr
-REAL(DP)                                                      :: t_dum
-REAL(DP)                                                      :: temp_dum
 INTEGER(I4B)                                                     :: i
 CHARACTER (LEN=mls)                                           :: stringdum
-REAL(DP), DIMENSION(:), ALLOCATABLE          :: check1 ! temperature of the time series
-REAL(DP), DIMENSION(:,:), ALLOCATABLE          :: check2 ! time of the time series
-
-!temptsfile = ' '
 
 IF (ALLOCATED(reg_temp_fix)) THEN
   DEALLOCATE(reg_temp_fix)
@@ -104,6 +98,8 @@ IF (ALLOCATED(temptsfile)) THEN
   DEALLOCATE(temptsfile)
 END IF
 ALLOCATE(temptsfile(nbreg))
+
+temp_default = 25
 
 
 REWIND nout
@@ -133,58 +129,55 @@ IF(ls /= 0) THEN
         WRITE(*,*) ' A region ID must be provided for the time series '
         WRITE(*,*)
         READ(*,*)
-      STOP
+        STOP
       ENDIF
-
 
       id = ids + ls
       CALL sschaine(zone,id,iff,ssch,ids,ls)
       IF(ls /= 0) THEN
-          lzs=ls
-          !!  *****************************************************************     
-          !!check for numerical values -> temperature fixed
-          CALL convan(ssch,lzs,res)
-          IF (res == 'n') THEN
-            temp = DNUM(ssch)
-            nb_temp_fix = nb_temp_fix + 1
-            reg_temp_fix(nb_temp_fix) = regid
-            temp_fix(nb_temp_fix) = temp
-            
-              !STOP
-              !!  *****************************************************************
-              !!check for the name of timeseries file
-          ELSEIF (res /= 'n') THEN
-              CALL stringtype(ssch,lzs,res)
-              lfile = ls
-              RunTempts=.true.
-              nb_temp_ts = nb_temp_ts + 1
-              temptsfile(nb_temp_ts) = ssch
-              reg_temp_ts(nb_temp_ts)=regid !store the region ID where the time series is applied
-              
-              id = ids + ls
-      CALL sschaine(zone,id,iff,ssch,ids,ls)
-        IF(ls /= 0) THEN
         lzs=ls
+        !!  *****************************************************************     
+        !!check for numerical values -> temperature fixed
         CALL convan(ssch,lzs,res)
         IF (res == 'n') THEN
-        tslength = int(DNUM(ssch))
-
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Must provide a numerical value for length time series temperature'
-          WRITE(*,*)
-          READ(*,*)
-          STOP  
-        ENDIF
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' Must provide a length for time series temperature '
-        WRITE(*,*)
-        READ(*,*)
-        STOP  
-        ENDIF
+          temp = DNUM(ssch)
+          nb_temp_fix = nb_temp_fix + 1
+          reg_temp_fix(nb_temp_fix) = regid
+          temp_fix(nb_temp_fix) = temp
+          !STOP
+          !!  *****************************************************************
+          !!check for the name of timeseries file
+        ELSEIF (res /= 'n') THEN
+          CALL stringtype(ssch,lzs,res)
+          lfile = ls
+          RunTempts=.true.
+          nb_temp_ts = nb_temp_ts + 1
+          temptsfile(nb_temp_ts) = ssch
+          reg_temp_ts(nb_temp_ts)=regid !store the region ID where the time series is applied
               
-          ENDIF
+          id = ids + ls
+          CALL sschaine(zone,id,iff,ssch,ids,ls)
+            IF(ls /= 0) THEN
+            lzs=ls
+            CALL convan(ssch,lzs,res)
+              IF (res == 'n') THEN
+              tslength = int(DNUM(ssch))
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Must provide a numerical value for length time series temperature'
+                WRITE(*,*)
+                READ(*,*)
+                STOP  
+              ENDIF
+            ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Must provide a length for time series temperature '
+            WRITE(*,*)
+            READ(*,*)
+            STOP  
+            ENDIF
+              
+        ENDIF
       ELSE
         WRITE(*,*)
         WRITE(*,*) ' Must provide either value or time series for temperature '
@@ -201,6 +194,26 @@ IF(ls /= 0) THEN
       READ(*,*)
       STOP
     END IF
+
+  ELSEIF (ssch == 'temp_default') THEN
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      !!  *****************************************************************     
+      !!check for temperature default
+      CALL convan(ssch,lzs,res)
+      IF (res == 'n') THEN
+        temp_default = DNUM(ssch)
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' No temp_default provided '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      ENDIF
+    ENDIF
+    
     
   ELSE
     GO TO 10
@@ -245,8 +258,6 @@ END IF
     END DO
 
   END DO
-  check1=t_temp_ts
-  check2=temp_ts
  !STOP
 ENDIF
 RETURN

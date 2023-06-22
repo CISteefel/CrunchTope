@@ -636,17 +636,9 @@ CHARACTER (LEN=mls)                                           :: evapofile
 CHARACTER (LEN=mls)                                           :: transpifile
 INTEGER(I4B)                                                  :: tslength
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: realmult_dum
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy1
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: temptsfile
-REAL(DP)                                                      :: reg_temp_fix1
-REAL(DP)                                                      :: nb_temp_fix1
-REAL(DP)                                                      :: temp_fix1
-LOGICAL(LGT)                                                  :: boolfix
 LOGICAL(LGT)                                                  :: boolreg
 integer :: IERR = 0
-REAL(DP), DIMENSION(:), ALLOCATABLE                           :: depth
-INTEGER(I4B)                                                  :: depthwattab
 CHARACTER (LEN=mls)                                           :: watertablefile
 CHARACTER (LEN=mls)                                           :: WatertableFileFormat
 LOGICAL(LGT)                                                  :: readmineral
@@ -1947,18 +1939,16 @@ END IF
       STOP
   END IF
 
+
+  !****************
+  !Stolze Lucien: temperature time series + zonation
   CALL read_tempreg(nout,dumstring,TemperatureFileFormat,boolreg)
   IF (boolreg) THEN
     jtemp = 3
     TFile = dumstring
   ENDIF
-
-  
-  IF (ALLOCATED(temptsfile)) THEN
-    DEALLOCATE(temptsfile)
-  END IF
-  ALLOCATE(temptsfile(nbreg))
-  CALL read_tempts(nout,temptsfile,tslength)
+  CALL read_tempts(nout,tslength,tinit)
+  !****************
 
 
 ELSE
@@ -5502,20 +5492,7 @@ STOP
 ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific regions
 
   CALL read_tempregion(nout,nx,ny,nz,len(TFile),TFile,TemperatureFileFormat)
-  
-  !Allocate fixed temperature to the regions:
-              DO jz = 1,nz
-              DO jy = 1,ny
-              DO jx = 1,nx
-              DO i = 1,nb_temp_fix
-                  IF (temp_region(jx,jy,jz) == reg_temp_fix(i)) THEN
-                    t(jx,jy,jz) = temp_fix(i)
-                  ENDIF
-              END DO
-              END DO
-              END DO
-              END DO
-              
+
   IF (RunTempts) THEN
     DO jz = 1,nz
       DO jy = 1,ny
@@ -5523,8 +5500,51 @@ ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific region
       DO i = 1,nb_temp_ts
           IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
             t(jx,jy,jz) = temp_ts(i,1)
+            ! IF (jx == 1) THEN
+            ! t(0,jy,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jx == nx) THEN
+            ! t(nx+1,jy,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jy == 1) THEN
+            ! t(jx,0,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jy == ny) THEN
+            ! t(jx,ny+1,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jz == 1) THEN
+            ! t(jx,jy,0) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jz == nz) THEN
+            ! t(jx,jy,nz+1) = t(jx,jy,jz)
+            ! ENDIF
           ENDIF
-      END DO
+        END DO
+        !Allocate fixed temperature to the regions:
+          DO j = 1,nb_temp_fix
+            IF (temp_region(jx,jy,jz) == reg_temp_fix(j)) THEN
+              t(jx,jy,jz) = temp_fix(j)
+              ! IF (jx == 1) THEN
+              ! t(0,jy,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jx == nx) THEN
+              ! t(nx+1,jy,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jy == 1) THEN
+              ! t(jx,0,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jy == ny) THEN
+              ! t(jx,ny+1,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jz == 1) THEN
+              ! t(jx,jy,0) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jz == nz) THEN
+              ! t(jx,jy,nz+1) = t(jx,jy,jz)
+              ! ENDIF
+            ENDIF
+        END DO
+      
       END DO
       END DO
       END DO

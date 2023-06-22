@@ -1197,7 +1197,7 @@ ENDIF
           END IF      
         END DO
         if (jx==0) THEN
-        WRITE(8,184) x(jx)*OutputDistanceScale-dxx(jx)/2,(gflux_hor(i),i=1,ngas)
+        WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
         else
         WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
         END IF

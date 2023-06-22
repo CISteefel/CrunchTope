@@ -1154,6 +1154,24 @@ DO WHILE (nn <= nend)
         DO i = 1,nb_temp_ts
             IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
               t(jx,jy,jz) = temp_dum(i)
+              ! IF (jx == 1) THEN
+              ! t(0,jy,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jx == nx) THEN
+              ! t(nx+1,jy,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jy == 1) THEN
+              ! t(jx,0,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jy == ny) THEN
+              ! t(jx,ny+1,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jz == 1) THEN
+              ! t(jx,jy,0) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jz == nz) THEN
+              ! t(jx,jy,nz+1) = t(jx,jy,jz)
+              ! ENDIF
             ENDIF
         END DO
         END DO
