@@ -798,8 +798,6 @@ IF (CalculateFlow) THEN
     STOP
   END IF
 
-
-
   FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
     pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
   END FORALL
@@ -2480,6 +2478,9 @@ END DO
     CONTINUE
   ELSE
     CALL mineral_update(nx,ny,nz,nrct,delt,dtnewest,ineg,jpor,deltmin)
+    ! write(*,*) area(1,nx,1,1)
+    ! write(*,*) area(2,nx,1,1)
+    ! stop
     IF (FractureNetwork .and. CubicLaw) THEN
       call rmesh51(nx,ny)
     END IF

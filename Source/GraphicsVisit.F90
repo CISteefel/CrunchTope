@@ -559,6 +559,9 @@ IF (nrct > 0) THEN
       DO jx = 1,nx
         DO k = 1,nrct
           dptprt(k) = dppt(k,jx,jy,jz)/(secyr)    ! mol/m^3/s
+          if (dptprt(k) < 1e-30) then
+            dptprt(k) = 1e-30
+          endif
         END DO
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(dptprt(k),k=1,nrct)
       END DO

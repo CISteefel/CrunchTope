@@ -661,6 +661,7 @@ CHARACTER (LEN=mls)                                           :: bsa_fileformat
 INTEGER(I4B)                                                  :: min_id
 CHARACTER (LEN=mls)                                           :: min_name
 INTEGER(I4B)                                                  :: min_name_l
+REAL(DP)                                                      :: t_default !default temp for zonation case
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
@@ -722,15 +723,6 @@ constantpor = 1.0d0
 MinimumPorosity = 1.0D-14
 
 nscratch = 9
-
-! ************************************
-! Edit by Lucien Stolze, June 2023
-! Temperature time series
-nb_temp_ts = 0
-nb_temp_fix = 0
-boolreg = .false.
-RunTempts = .false.
-! ************************************
 
 iunit1 = 2
 iunit2 = 3
@@ -1868,6 +1860,8 @@ IF (found) THEN
 !!  WRITE(*,*) ' Temperature parameters block found'
 !!  WRITE(*,*)
 
+!**************
+!Temperature fixed and homogeneous
 parchar = 'set_temperature'
 parfind = ' '
 realjunk = 0.0
@@ -1882,7 +1876,10 @@ ELSE
   jtemp = 0
 !!   WRITE(*,5012)  tinit
 END IF
+!**************
 
+!**************
+!Temperature gradient
 parchar = 'temperature_gradient'
 parfind = ' '
 realjunk = 0.0
@@ -1896,7 +1893,10 @@ ELSE
   jtemp = 1
   WRITE(*,5013)  tgrad
 END IF
+!**************
 
+!**************
+!Read temperature distribution from file
 parchar = 'read_temperaturefile'
 parfind = ' '
 TFile = ' '
@@ -1918,6 +1918,7 @@ ELSE
   TFile = dumstring
   jtemp = 2
 END IF
+!**************
 
   parchar = 'RunIsothermal'
   parfind = ' '
@@ -1941,13 +1942,21 @@ END IF
 
 
   !****************
-  !Stolze Lucien: temperature time series + zonation
+  !Edit by Lucien Stolze, June 2023
+  !Temperature time series + zonation
+  ! ************************************
+  nb_temp_ts = 0
+  nb_temp_fix = 0
+  boolreg = .false.
+  RunTempts = .false.  
+  ! ************************************
   CALL read_tempreg(nout,dumstring,TemperatureFileFormat,boolreg)
   IF (boolreg) THEN
     jtemp = 3
     TFile = dumstring
   ENDIF
-  CALL read_tempts(nout,tslength,tinit)
+  t_default = 25
+  CALL read_tempts(nout,tslength,t_default)
   !****************
 
 
@@ -5086,6 +5095,7 @@ jzzhi = 1
 jzzlo = 1
 jjfix = 0
 t = tinit
+
 ! *****************************************************************
 
 ! skip what follows if alquimia is defined
@@ -5494,6 +5504,7 @@ ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific region
   CALL read_tempregion(nout,nx,ny,nz,len(TFile),TFile,TemperatureFileFormat)
 
   IF (RunTempts) THEN
+    t = t_default
     DO jz = 1,nz
       DO jy = 1,ny
       DO jx = 1,nx
@@ -10554,6 +10565,23 @@ DO jz = 1,nz
     END DO
   END DO
 END DO
+
+!*****************
+!Stolze Lucien: overwrite volin and areain if minerals are imported from dat file
+if (readmineral) then
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+      DO k = 1,nrct
+        areainByGrid(k,jx,jy,jz) = area(k,jx,jy,jz)
+        volinByGrid(k,jx,jy,jz) = volfx(k,jx,jy,jz)
+      END DO
+    END DO
+  END DO
+END DO
+!*****************
+
+ENDIF
 
 !!  Now the boundaries, if NX > 1
 IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN

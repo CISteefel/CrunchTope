@@ -279,7 +279,7 @@ IF(ls /= 0) THEN
         FileFormatType_bsa_dum(mineral_index) = 'SingleColumn'
       ENDIF
 
-      mineral_id = mineral_id_dum
+  mineral_id = mineral_id_dum
   volfracfile = volfracfile_dum
   lfile_volfrac = lfile_volfrac_dum
   FileFormatType_volfrac = FileFormatType_volfrac_dum
