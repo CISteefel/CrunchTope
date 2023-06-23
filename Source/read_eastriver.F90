@@ -52,53 +52,68 @@ IF(ls /= 0) THEN
       lzs=ls
       CALL convan(ssch,lzs,res)
       IF (res == 'n') THEN
-        thres_OM = DNUM(ssch)
+        thres_OM1 = DNUM(ssch)
       ELSE                !  An ascii string--so bag it.
         WRITE(*,*)
         WRITE(*,*) ' Cant interpret string following "east_river"'
-        WRITE(*,*) ' Looking for numerical value (thres_OM)'
+        WRITE(*,*) ' Looking for numerical value (thres_OM1, thres_OM2, exp_OM)'
         WRITE(*,*)
         READ(*,*)
         STOP
       END IF
 
       id = ids + ls
-    CALL sschaine(zone,id,iff,ssch,ids,ls)
+      CALL sschaine(zone,id,iff,ssch,ids,ls)
       IF(ls /= 0) THEN
         lzs=ls
         CALL convan(ssch,lzs,res)
         IF (res == 'n') THEN
-          exp_OM = DNUM(ssch)
+          thres_OM1 = DNUM(ssch)
         ELSE                !  An ascii string--so bag it.
           WRITE(*,*)
-          WRITE(*,*) ' Cant interpret string following length pump time series'
-          WRITE(*,*) ' Looking for numerical value'
+          WRITE(*,*) ' Cant interpret string following "east_river"'
+          WRITE(*,*) ' Looking for numerical value (thres_OM1, thres_OM2, exp_OM)'
           WRITE(*,*)
           READ(*,*)
           STOP
         END IF
 
-                 !  Now, look for geochemical condition following pumping rate (only used if rate is positive)
+        id = ids + ls
+        CALL sschaine(zone,id,iff,ssch,ids,ls)
+        IF(ls /= 0) THEN
+          lzs=ls
+          CALL convan(ssch,lzs,res)
+          IF (res == 'n') THEN
+            exp_OM = DNUM(ssch)
+          ELSE                !  An ascii string--so bag it.
+            WRITE(*,*)
+            WRITE(*,*) ' Cant interpret string following "east_river"'
+            WRITE(*,*) ' Looking for numerical value (thres1, thres2, exp_OM)'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
 
-
-
-
-
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' No exp_OM release given'
+          WRITE(*,*) 'stopping'
+          WRITE(*,*)
+          STOP
+        END IF
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' No thres_OM2 release given'
+        WRITE(*,*) 'stopping'
+        WRITE(*,*)
+        STOP
+      END IF
     ELSE
       WRITE(*,*)
-      WRITE(*,*) ' No exponent OM release given'
-      WRITE(*,*) 'stoping'
-      WRITE(*,*)
-      STOP
-      GO TO 10
+        WRITE(*,*) ' No east_river param provided'
+        WRITE(*,*)
+        STOP
     END IF
-  ELSE
-    WRITE(*,*)
-      WRITE(*,*) ' No east_river param provided'
-      WRITE(*,*)
-      STOP
-    GO TO 10
-  END IF
   ELSE
     GO TO 10
   END IF

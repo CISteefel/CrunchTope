@@ -192,7 +192,8 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: vs
 
 !********************
 !Stolze Lucien, June 2023, specific to East river simulations
-REAL(DP)                                         :: thres_OM
+REAL(DP)                                         :: thres_OM1
+REAL(DP)                                         :: thres_OM2
 REAL(DP)                                         :: exp_OM
 LOGICAL(LGT)                                     :: east_river
 !*******************
