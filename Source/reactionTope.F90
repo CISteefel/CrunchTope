@@ -52,6 +52,7 @@ USE temperature
 USE runtime
 USE NanoCrystal
 USE isotope
+USE transport
 
 IMPLICIT NONE
 
@@ -187,6 +188,13 @@ REAL(DP)                                                        :: NucleationTer
 REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: DecayTerm
+
+!**********
+!Specific to eastriver simulations (Lucien Stolze, June 2023)
+REAL(DP)                                                        :: sat_thres1
+REAL(DP)                                                        :: sat_thres2
+REAL(DP)                                                        :: sat_exp
+REAL(DP)                                                        :: liqsat_fac
 
 
 rmin = 0.0d0
@@ -1124,6 +1132,27 @@ DO k = 1,nkin
 
     dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz) + rmin(np,k)
 
+!********************
+!Stolze Lucien, June 2023, specific to East river simulations
+!Release of OM from soil function of liquid saturation
+    IF (east_river) then
+
+      IF (umin(k)=='Kerogene' .OR. umin(k)=='TOC_soil' .OR. umin(k)=='TOCshale' .OR. umin(k)=='TOCsoil') then
+        sat_thres1 = thres_OM1
+        sat_thres2 = thres_OM2
+        sat_exp = exp_OM
+        liqsat_fac = 1
+        IF (satliq(jx,jy,jz) > sat_thres2) THEN
+          liqsat_fac = 1/(1 + (sat_thres1/satliq(jx,jy,jz))**sat_exp)
+        ELSE
+          liqsat_fac = 1/(1 + (sat_thres1/sat_thres2)**sat_exp)
+        ENDIF
+        dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
+        pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
+        rmin(np,k) = rmin(np,k)*liqsat_fac
+
+      ENDIF
+    ENDIF
   
   END DO   !  End of npth parallel reaction
   

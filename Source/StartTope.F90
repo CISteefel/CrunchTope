@@ -636,22 +636,15 @@ CHARACTER (LEN=mls)                                           :: evapofile
 CHARACTER (LEN=mls)                                           :: transpifile
 INTEGER(I4B)                                                  :: tslength
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: realmult_dum
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: dummy1
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: temptsfile
-REAL(DP)                                                      :: reg_temp_fix1
-REAL(DP)                                                      :: nb_temp_fix1
-REAL(DP)                                                      :: temp_fix1
-LOGICAL(LGT)                                                  :: boolfix
 LOGICAL(LGT)                                                  :: boolreg
 integer :: IERR = 0
-REAL(DP), DIMENSION(:), ALLOCATABLE                           :: depth
-INTEGER(I4B)                                                  :: depthwattab
 CHARACTER (LEN=mls)                                           :: watertablefile
 CHARACTER (LEN=mls)                                           :: WatertableFileFormat
 LOGICAL(LGT)                                                  :: readmineral
 INTEGER(I4B)                                                  :: mineral_index
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: readmin_ssa
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: mineral_name
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_name_length
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: volfracfile
@@ -669,7 +662,8 @@ CHARACTER (LEN=mls)                                           :: bsa_fileformat
 INTEGER(I4B)                                                  :: min_id
 CHARACTER (LEN=mls)                                           :: min_name
 INTEGER(I4B)                                                  :: min_name_l
-
+REAL(DP)                                                      :: t_default !default temp for zonation case
+INTEGER(I4B)                                                  :: ssa_or_bsa
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
@@ -730,15 +724,6 @@ constantpor = 1.0d0
 MinimumPorosity = 1.0D-14
 
 nscratch = 9
-
-! ************************************
-! Edit by Lucien Stolze, June 2023
-! Temperature time series
-nb_temp_ts = 0
-nb_temp_fix = 0
-boolreg = .false.
-RunTempts = .false.
-! ************************************
 
 iunit1 = 2
 iunit2 = 3
@@ -1663,7 +1648,7 @@ parfind = ' '
 SetSurfaceAreaConstant = .FALSE.
 CALL read_logical(nout,lchar,parchar,parfind,SetSurfaceAreaConstant)
 
-!! Inhibit the cincumption of minerals for running model spinup: (Stolze Lucien)
+!! Inhibit the consumption of minerals for running model spinup: (Stolze Lucien)
 parchar = 'model_spinup'
 parfind = ' '
 spinup = .false.
@@ -1675,11 +1660,17 @@ parchar = 'timeseries_cyclic_1year'
 parfind = ' '
 CALL read_logical(nout,lchar,parchar,parfind,TS_1year)
 
-
+!! Keep biomass fixed, Stolze Lucien
 parchar = 'biomassfixed'
 parfind = ' '
 biomassfixed = .false.
 CALL read_logical(nout,lchar,parchar,parfind,biomassfixed)
+
+!! Generate velocity vector for velocity_read
+parchar = 'generate_velocity_vector'
+parfind = ' '
+generate_velocity_vector = .false.
+CALL read_logical(nout,lchar,parchar,parfind,generate_velocity_vector)
 
 parchar = 'Inagaki'
 parfind = ' '
@@ -1870,6 +1861,8 @@ IF (found) THEN
 !!  WRITE(*,*) ' Temperature parameters block found'
 !!  WRITE(*,*)
 
+!**************
+!Temperature fixed and homogeneous
 parchar = 'set_temperature'
 parfind = ' '
 realjunk = 0.0
@@ -1884,7 +1877,10 @@ ELSE
   jtemp = 0
 !!   WRITE(*,5012)  tinit
 END IF
+!**************
 
+!**************
+!Temperature gradient
 parchar = 'temperature_gradient'
 parfind = ' '
 realjunk = 0.0
@@ -1898,7 +1894,10 @@ ELSE
   jtemp = 1
   WRITE(*,5013)  tgrad
 END IF
+!**************
 
+!**************
+!Read temperature distribution from file
 parchar = 'read_temperaturefile'
 parfind = ' '
 TFile = ' '
@@ -1920,6 +1919,7 @@ ELSE
   TFile = dumstring
   jtemp = 2
 END IF
+!**************
 
   parchar = 'RunIsothermal'
   parfind = ' '
@@ -1941,18 +1941,24 @@ END IF
       STOP
   END IF
 
+
+  !****************
+  !Edit by Lucien Stolze, June 2023
+  !Temperature time series + zonation
+  ! ************************************
+  nb_temp_ts = 0
+  nb_temp_fix = 0
+  boolreg = .false.
+  RunTempts = .false.  
+  ! ************************************
   CALL read_tempreg(nout,dumstring,TemperatureFileFormat,boolreg)
   IF (boolreg) THEN
     jtemp = 3
     TFile = dumstring
   ENDIF
-
-  
-  IF (ALLOCATED(temptsfile)) THEN
-    DEALLOCATE(temptsfile)
-  END IF
-  ALLOCATE(temptsfile(nbreg))
-  CALL read_tempts(nout,temptsfile,tslength)
+  t_default = 25
+  CALL read_tempts(nout,tslength,t_default)
+  !****************
 
 
 ELSE
@@ -5090,6 +5096,7 @@ jzzhi = 1
 jzzlo = 1
 jjfix = 0
 t = tinit
+
 ! *****************************************************************
 
 ! skip what follows if alquimia is defined
@@ -5496,29 +5503,60 @@ STOP
 ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific regions
 
   CALL read_tempregion(nout,nx,ny,nz,len(TFile),TFile,TemperatureFileFormat)
-  
-  !Allocate fixed temperature to the regions:
-              DO jz = 1,nz
-              DO jy = 1,ny
-              DO jx = 1,nx
-              DO i = 1,nb_temp_fix
-                  IF (temp_region(jx,jy,jz) == reg_temp_fix(i)) THEN
-                    t(jx,jy,jz) = temp_fix(i)
-                  ENDIF
-              END DO
-              END DO
-              END DO
-              END DO
-              
+
   IF (RunTempts) THEN
+    t = t_default
     DO jz = 1,nz
       DO jy = 1,ny
       DO jx = 1,nx
       DO i = 1,nb_temp_ts
           IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
             t(jx,jy,jz) = temp_ts(i,1)
+            ! IF (jx == 1) THEN
+            ! t(0,jy,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jx == nx) THEN
+            ! t(nx+1,jy,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jy == 1) THEN
+            ! t(jx,0,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jy == ny) THEN
+            ! t(jx,ny+1,jz) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jz == 1) THEN
+            ! t(jx,jy,0) = t(jx,jy,jz)
+            ! ENDIF
+            ! IF (jz == nz) THEN
+            ! t(jx,jy,nz+1) = t(jx,jy,jz)
+            ! ENDIF
           ENDIF
-      END DO
+        END DO
+        !Allocate fixed temperature to the regions:
+          DO j = 1,nb_temp_fix
+            IF (temp_region(jx,jy,jz) == reg_temp_fix(j)) THEN
+              t(jx,jy,jz) = temp_fix(j)
+              ! IF (jx == 1) THEN
+              ! t(0,jy,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jx == nx) THEN
+              ! t(nx+1,jy,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jy == 1) THEN
+              ! t(jx,0,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jy == ny) THEN
+              ! t(jx,ny+1,jz) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jz == 1) THEN
+              ! t(jx,jy,0) = t(jx,jy,jz)
+              ! ENDIF
+              ! IF (jz == nz) THEN
+              ! t(jx,jy,nz+1) = t(jx,jy,jz)
+              ! ENDIF
+            ENDIF
+        END DO
+      
       END DO
       END DO
       END DO
@@ -5897,8 +5935,13 @@ DEALLOCATE(FileFormatType_bsa)
 ENDIF
 ALLOCATE(FileFormatType_bsa(50))
 
+IF (ALLOCATED(readmin_ssa)) THEN
+  DEALLOCATE(readmin_ssa)
+  ENDIF
+  ALLOCATE(readmin_ssa(50))
+
 mineral_index = 0
-CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
+CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa,readmin_ssa)
 
 IF (readmineral) THEN
 DO i = 1,mineral_index
@@ -5911,6 +5954,7 @@ DO i = 1,mineral_index
         bsa_file = bsafile(i)
         bsa_file_l = lfile_bsa(i)
         bsa_fileformat = FileFormatType_bsa(i)
+        ssa_or_bsa = readmin_ssa(i)
 
         INQUIRE(FILE=vv_file,EXIST=ext)
         IF (.NOT. ext) THEN
@@ -5997,6 +6041,9 @@ DO i = 1,mineral_index
             DO jy = 1,ny
               DO jx= 1,nx
                 READ(23,*,END=1020) area(min_id,jx,jy,jz)
+                IF (ssa_or_bsa == 1) THEN
+                area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                ENDIF
               END DO
             END DO
           END DO
@@ -6006,6 +6053,9 @@ DO i = 1,mineral_index
               DO jy = 1,ny
                 DO jx= 1,nx
                   READ(23,*,END=1020) xdum,ydum,zdum,area(min_id,jx,jy,jz)
+                  IF (ssa_or_bsa == 1) THEN
+                  area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                  ENDIF
                 END DO
               END DO
             END DO
@@ -6014,6 +6064,9 @@ DO i = 1,mineral_index
             DO jy = 1,ny
               DO jx= 1,nx
                 READ(23,*,END=1020) xdum,ydum,area(min_id,jx,jy,jz)
+                IF (ssa_or_bsa == 1) THEN
+                area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                ENDIF
               END DO
             END DO
           ELSE
@@ -6021,10 +6074,16 @@ DO i = 1,mineral_index
           jy = 1
           DO jx= 1,nx
             READ(23,*,END=1020) xdum,area(min_id,jx,jy,jz)
+            IF (ssa_or_bsa == 1) THEN
+            area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+            ENDIF
           END DO
           END IF
         ELSE IF (bsa_fileformat == 'Unformatted') THEN
         READ(23,END=1020) area
+        IF (ssa_or_bsa == 1) THEN
+        area = volfx*area*wtmin(min_id)/volmol(min_id)
+        ENDIF
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' Bulk surface area file format not recognized'
@@ -10528,6 +10587,23 @@ DO jz = 1,nz
     END DO
   END DO
 END DO
+
+!*****************
+!Stolze Lucien: overwrite volin and areain if minerals are imported from dat file
+if (readmineral) then
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+      DO k = 1,nrct
+        areainByGrid(k,jx,jy,jz) = area(k,jx,jy,jz)
+        volinByGrid(k,jx,jy,jz) = volfx(k,jx,jy,jz)
+      END DO
+    END DO
+  END DO
+END DO
+!*****************
+
+ENDIF
 
 !!  Now the boundaries, if NX > 1
 IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN

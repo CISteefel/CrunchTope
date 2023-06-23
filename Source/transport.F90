@@ -192,9 +192,14 @@ REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: vs
 
 !********************
 !Stolze Lucien, June 2023, specific to East river simulations
-REAL(DP)                                         :: thres_OM
+REAL(DP)                                         :: thres_OM1
+REAL(DP)                                         :: thres_OM2
 REAL(DP)                                         :: exp_OM
 LOGICAL(LGT)                                     :: east_river
+!*******************
+!Stolze Lucien, June 2023
+!choose if solutes are removed by transpiration
+LOGICAL(LGT)                                     :: transpisoluteflux 
 !*******************
 
 END module transport

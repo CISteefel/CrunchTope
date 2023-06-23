@@ -43,7 +43,7 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa)
+SUBROUTINE read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa,readmin_ssa)
 USE crunchtype
 USE params
 USE flow
@@ -69,6 +69,7 @@ CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: volfracfile(5
 CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: bsafile(50)
 CHARACTER (LEN=mls),  INTENT(IN OUT)                           :: FileFormatType_volfrac(50)
 CHARACTER (LEN=mls),  INTENT(IN OUT)                          :: FileFormatType_bsa(50)
+INTEGER(I4B),  INTENT(IN OUT)                                   :: readmin_ssa(50)
 
 !  Internal variables and arrays
 
@@ -94,6 +95,7 @@ CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: volfracfil
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: bsafile_dum
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_volfrac_dum
 CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_bsa_dum
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: readmin_ssa_dum
 INTEGER(I4B)                                                :: dummy
 
 nxyz = nx*ny*nz
@@ -147,6 +149,11 @@ IF (ALLOCATED(FileFormatType_bsa_dum)) THEN
   DEALLOCATE(FileFormatType_bsa_dum)
 ENDIF
 ALLOCATE(FileFormatType_bsa_dum(50))
+
+IF (ALLOCATED(readmin_ssa_dum)) THEN
+  DEALLOCATE(readmin_ssa_dum)
+ENDIF
+ALLOCATE(readmin_ssa_dum(50))
 
 REWIND nout
 
@@ -239,6 +246,30 @@ IF(ls /= 0) THEN
       ELSE    !! No file format provided, so assume default
         FileFormatType_volfrac_dum(mineral_index) = 'SingleColumn'
       ENDIF
+
+      !!  *****************************************************************
+      !!    Now, check for a type of surface area
+
+      id = ids + ls
+      CALL sschaine(zone,id,iff,ssch,ids,ls)
+      IF(ls /= 0) THEN
+        lzs=ls
+        CALL convan(ssch,lzs,res)
+    
+        IF (ssch == 'bsa' ) THEN
+          readmin_ssa_dum(mineral_index) = 0
+        ELSEIF (ssch == 'ssa' ) THEN
+          readmin_ssa_dum(mineral_index) = 1
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Surface area type not recognized: ', ssch(1:lenformat)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ENDIF   
+
+
+
 !!  *****************************************************************
 
     !  Looking for mineral bsa file name
@@ -279,7 +310,7 @@ IF(ls /= 0) THEN
         FileFormatType_bsa_dum(mineral_index) = 'SingleColumn'
       ENDIF
 
-      mineral_id = mineral_id_dum
+  mineral_id = mineral_id_dum
   volfracfile = volfracfile_dum
   lfile_volfrac = lfile_volfrac_dum
   FileFormatType_volfrac = FileFormatType_volfrac_dum
@@ -293,11 +324,19 @@ IF(ls /= 0) THEN
 
     ELSE
       WRITE(*,*)
-      WRITE(*,*) ' No file name for bsa for ', mineralname(1: mineralname_lzs),' in "read_mineral_file" in initial_condition section '
+      WRITE(*,*) ' No file name for mineral surface area for ', mineralname(1: mineralname_lzs),' in "read_mineral_file" in initial_condition section '
       WRITE(*,*)
       READ(*,*)
       STOP
     END IF
+
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' Information on mineral surface area for ', mineralname(1: mineralname_lzs),' in "read_mineral_file" not specified. '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
 
 
 
