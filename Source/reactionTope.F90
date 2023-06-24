@@ -578,7 +578,6 @@ DO k = 1,nkin
         IF (MineralID(k) < k) THEN
 !!!          surf(np,k) = surf(np,MineralID(k))*porfactor
           surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
-
         ELSE
 !!!          IF (porfactor < 0.01d0) THEN
 !!!             surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
@@ -697,7 +696,7 @@ DO k = 1,nkin
         DO kk = 1,nmonod(np,k)
           IF (imonod(kk,np,k) == 0 .AND. kmonod(kk,np,k) == 1) THEN                !! Mineral Monod reaction depends on its own concentration
             surf(np,k) = 1.0d0                                                        !! Resets surface area to a constant 1
-            MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
+            MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
             checkmonod =  MinConvert/(MinConvert+halfsat(kk,np,k))
             term2 = term2 * checkmonod 
           ELSE                                                                     !! Monod term depends on aqueous species
@@ -772,7 +771,7 @@ DO k = 1,nkin
         DO kk = 1,nmonod(np,k)
           IF (imonod(kk,np,k) == 0 .AND. kmonod(kk,np,k) == 1) THEN                !! Mineral Monod reaction depends on its own concentration
             surf(np,k) = 1.0d0                                                        !! Resets surface area to a constant 1
-            MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
+            MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
             checkmonod =  MinConvert/(MinConvert+halfsat(kk,np,k))
             term2 = term2 * checkmonod 
           ELSE                                                                     !! Monod term depends on aqueous species
@@ -1141,6 +1140,7 @@ DO k = 1,nkin
         sat_thres1 = thres_OM1
         sat_thres2 = thres_OM2
         sat_exp = exp_OM
+
         liqsat_fac = 1
         IF (satliq(jx,jy,jz) > sat_thres2) THEN
           liqsat_fac = 1/(1 + (sat_thres1/satliq(jx,jy,jz))**sat_exp)

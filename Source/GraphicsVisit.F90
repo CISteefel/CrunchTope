@@ -779,8 +779,8 @@ IF (ikin > 0) THEN
     DO jy = 1,ny
       DO jx = 1,nx
         DO ir =1,ikin
-          if (raq_tot(ir,jx,jy,jz)<10d-70) THEN
-            dummy_raq_tot(ir)=1d-70
+          if (abs(raq_tot(ir,jx,jy,jz)) < 1d-70) THEN
+            dummy_raq_tot(ir) = 1d-70
           else
             dummy_raq_tot(ir)=raq_tot(ir,jx,jy,jz)
           end if
