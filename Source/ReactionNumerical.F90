@@ -200,7 +200,7 @@ DO k = 1,nkin
         term2 = 1.0D0
         DO kk = 1,nmonod(np,k)
           IF (imonod(kk,np,k) == 0 .AND. kmonod(kk,np,k) == 1) THEN                !! Mineral Monod reaction depends on its own concentration
-            MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
+            MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
             checkmonod =  MinConvert/(MinConvert+halfsat(kk,np,k))
             term2 = term2 * checkmonod 
             surf(k) = 1.0                                                          !! Resets surface area to a constant 1

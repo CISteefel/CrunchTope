@@ -144,7 +144,7 @@ ALLOCATE(stmp(ncomp))
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/278.15D0 !! REF temperature (for now 5 degree)
+reft = 1.0D0/298.15D0 !! REF temperature (for now 5 degree)
 
 ! biomass end
 
@@ -610,13 +610,14 @@ DO ir = 1,ikin
           ! ************************************
           ! Edit by Lucien Stolze, June 2023
           ! Activation energy for aqueous reactions
-          IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
-            actenergyaq(ll,ir) = 1.0D0
-          ELSE
-            actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
-          END IF
+          ! IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
+          !   actenergyaq(ll,ir) = 1.0D0
+          ! ELSE
+            actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft - tkinv) )
+          ! END IF
           rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * &
           (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )*actenergyaq(ll,ir)
+          
           ! ************************************
         END DO
       END DO
@@ -629,11 +630,11 @@ DO ir = 1,ikin
         ! ************************************
         ! Edit by Lucien Stolze, June 2023
         ! Activation energy for aqueous reactions
-        IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
-          actenergyaq(ll,ir) = 1.0D0
-        ELSE
+        ! IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
+        !   actenergyaq(ll,ir) = 1.0D0
+        ! ELSE
           actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
-        END IF
+        ! END IF
         rdkin(ir,i) = rdkin(ir,i) + ratek(ll,ir)*  &
             (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity )*actenergyaq(ll,ir)
         ! ************************************

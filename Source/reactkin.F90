@@ -125,7 +125,7 @@ real(dp)                                                       :: satL
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/293.15D0 !! REF temperature (25 degree celsius)
+reft = 1.0D0/298.15D0 !! REF temperature (25 degree celsius)
 
 !!MoleFractionCommon = 1.0d0
 !!MoleFractionRare = 1.0d0
@@ -483,19 +483,13 @@ DO ir = 1,ikin
         ! ************************************
         ! Edit by Lucien Stolze, June 2023
         ! Activation energy for aqueous reactions
-        IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
-          actenergyaq(ll,ir) = 1.0D0
-        ELSE
-          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
-        END IF
+        ! IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
+        !   actenergyaq(ll,ir) = 1.0D0
+        ! ELSE
+          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft - tkinv) )
+        ! END IF
         raq(ll,ir) = ratek(ll,ir)*vol_temp*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir) ![mol/mol-biomass/yr]*[mol-biomass/kgw/yr]
-        ! write(*,*) vol_temp
-        ! write(*,*) affinity
-        ! write(*,*) actk(ll,ir)
-        ! write(*,*) ratek(ll,ir)
-        ! write(*,*) pre_raq(ll,ir)
-        ! write(*,*) 1/reft
-        ! stop
+        
         ! ************************************
         sumkin = sumkin + raq(ll,ir)
       END DO
@@ -508,11 +502,11 @@ DO ir = 1,ikin
       ! ************************************
       ! Edit by Lucien Stolze, June 2023
       ! Activation energy for aqueous reactions
-      IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
-        actenergyaq(ll,ir) = 1.0D0
-      ELSE
+      ! IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
+      !   actenergyaq(ll,ir) = 1.0D0
+      ! ELSE
         actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
-      END IF
+      ! END IF
       raq(ll,ir) = ratek(ll,ir)*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir)
       ! ************************************
       sumkin = sumkin + raq(ll,ir)
