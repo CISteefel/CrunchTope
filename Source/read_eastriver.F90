@@ -68,7 +68,7 @@ IF(ls /= 0) THEN
         lzs=ls
         CALL convan(ssch,lzs,res)
         IF (res == 'n') THEN
-          thres_OM1 = DNUM(ssch)
+          thres_OM2 = DNUM(ssch)
         ELSE                !  An ascii string--so bag it.
           WRITE(*,*)
           WRITE(*,*) ' Cant interpret string following "east_river"'

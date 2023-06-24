@@ -144,7 +144,7 @@ ALLOCATE(stmp(ncomp))
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/298.15D0 !! REF temperature (for now 5 degree)
+reft = 1.0D0/(273.15D0 + 20) !! REF temperature (for now 5 degree)
 
 ! biomass end
 

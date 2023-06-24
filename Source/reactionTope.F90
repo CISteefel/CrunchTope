@@ -1140,6 +1140,7 @@ DO k = 1,nkin
         sat_thres1 = thres_OM1
         sat_thres2 = thres_OM2
         sat_exp = exp_OM
+
         liqsat_fac = 1
         IF (satliq(jx,jy,jz) > sat_thres2) THEN
           liqsat_fac = 1/(1 + (sat_thres1/satliq(jx,jy,jz))**sat_exp)
