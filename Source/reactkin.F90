@@ -125,7 +125,7 @@ real(dp)                                                       :: satL
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/293.15D0 !! REF temperature (20 degree celsius)
+reft = 1.0D0/293.15D0 !! REF temperature (25 degree celsius)
 
 !!MoleFractionCommon = 1.0d0
 !!MoleFractionRare = 1.0d0
@@ -202,12 +202,13 @@ DO ir = 1,ikin
     DO id = 1,nmonodaq(ir)
       i = imonodaq(id,ir)
       IF (itot_monodaq(id,ir) == 1) THEN
-        term2 = term2 * s(i,jx,jy,jz)/(s(i,jx,jy,jz)+halfsataq(id,ir))
+        term2 = term2 * s(i,jx,jy,jz)/(s(i,jx,jy,jz) + halfsataq(id,ir))
       ELSE
         termTMP = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir) )
-        term2 = term2 * sp10(i,jx,jy,jz)/(sp10(i,jx,jy,jz)+halfsataq(id,ir))
+        term2 = term2 * sp10(i,jx,jy,jz)/(sp10(i,jx,jy,jz) + halfsataq(id,ir))
       END IF
     END DO
+
 
 !!  Inhibition terms
 
@@ -215,7 +216,7 @@ DO ir = 1,ikin
       i = inhibitaq(id,ir)
       IF (inhibitaq(id,ir) < 0) THEN                 !! Dependence on mineral volume fraction
         k = -inhibitaq(id,ir)
-        MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
+        MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
         term_inhibit =  rinhibitaq(id,ir)/(MinConvert + rinhibitaq(id,ir))
         term2 = term2 * term_inhibit
       ELSE
@@ -265,6 +266,7 @@ DO ir = 1,ikin
 
             termMonod(id,ir) = s(i,jx,jy,jz)/( s(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+s(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )
             term2 = term2 * termMonod(id,ir)
+
 
 !! For case where isotopologue half sats are NOT the same (hard wired, so needs additional pointers to find out which 
 !!     aqueous reaction to use
@@ -327,7 +329,7 @@ DO ir = 1,ikin
       i = inhibitaq(id,ir)
       IF (inhibitaq(id,ir) < 0) THEN                 !! Dependence on mineral volume fraction
         k = -inhibitaq(id,ir)
-        MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
+        MinConvert = volfx(k,jx,jy,jz)/(volmol(k)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz))  !! Converts mineral volume fraction to moles mineral per kg fluid (molality)                                  
         term_inhibit =  rinhibitaq(id,ir)/(MinConvert + rinhibitaq(id,ir))
         term2 = term2 * term_inhibit
         write(*,*) k,term_inhibit
@@ -465,7 +467,7 @@ DO ir = 1,ikin
     !    and the fluid density
     
 
-    vol_temp = volfx(ib,jx,jy,jz) / ( satL * por(jx,jy,jz) * ro(jx,jy,jz) )
+    vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)) ! [mol biomass / Kg-H2O]
     
 !!!    m3_min/m3_pm* mol/ m3_min * m3_pm/m3_fluid * m3_fluid/kgw = mol/kgw * mol/kgw/yr   -->  mol / kgw / yr
 
@@ -481,12 +483,19 @@ DO ir = 1,ikin
         ! ************************************
         ! Edit by Lucien Stolze, June 2023
         ! Activation energy for aqueous reactions
-        IF (t(jx,jy,jz)+273.15d0 == reft) THEN
+        IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
           actenergyaq(ll,ir) = 1.0D0
         ELSE
           actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
         END IF
-        raq(ll,ir) = vol_temp*ratek(ll,ir)*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir)
+        raq(ll,ir) = ratek(ll,ir)*vol_temp*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir) ![mol/mol-biomass/yr]*[mol-biomass/kgw/yr]
+        ! write(*,*) vol_temp
+        ! write(*,*) affinity
+        ! write(*,*) actk(ll,ir)
+        ! write(*,*) ratek(ll,ir)
+        ! write(*,*) pre_raq(ll,ir)
+        ! write(*,*) 1/reft
+        ! stop
         ! ************************************
         sumkin = sumkin + raq(ll,ir)
       END DO
@@ -499,7 +508,7 @@ DO ir = 1,ikin
       ! ************************************
       ! Edit by Lucien Stolze, June 2023
       ! Activation energy for aqueous reactions
-      IF (t(jx,jy,jz)+273.15d0 == reft) THEN
+      IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
         actenergyaq(ll,ir) = 1.0D0
       ELSE
         actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
