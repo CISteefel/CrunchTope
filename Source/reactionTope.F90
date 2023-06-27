@@ -191,11 +191,9 @@ REAL(DP)                                                        :: DecayTerm
 
 !**********
 !Specific to eastriver simulations (Lucien Stolze, June 2023)
-REAL(DP)                                                        :: sat_thres1
-REAL(DP)                                                        :: sat_thres2
-REAL(DP)                                                        :: sat_exp
 REAL(DP)                                                        :: liqsat_fac
-
+REAL(DP)                                                        :: attenuation_term
+!**********
 
 rmin = 0.0d0
 
@@ -1134,49 +1132,76 @@ DO k = 1,nkin
 !********************
 !Stolze Lucien, June 2023, specific to East river simulations
 !Release of OM from soil function of liquid saturation
-    IF (east_river) then
-
-      IF (umin(k)=='Kerogene' .OR. umin(k)=='TOC_soil' .OR. umin(k)=='TOCshale' .OR. umin(k)=='TOCsoil') then
-        sat_thres1 = thres_OM1
-        sat_thres2 = thres_OM2
-        sat_exp = exp_OM
-
+    IF (east_river) THEN
+      IF (umin(k)=='TOC_soil' .OR. umin(k)=='TOCsoil') THEN
         liqsat_fac = 1
-        IF (satliq(jx,jy,jz) > sat_thres2) THEN
-          liqsat_fac = 1/(1 + (sat_thres1/satliq(jx,jy,jz))**sat_exp)
+        IF (satliq(jx,jy,jz) > thres_OM2) THEN
+          liqsat_fac = 1/(1 + (thres_OM1/satliq(jx,jy,jz))**exp_OM)
         ELSE
-          liqsat_fac = 1/(1 + (sat_thres1/sat_thres2)**sat_exp)
+          liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
         ENDIF
         dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
         pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
         rmin(np,k) = rmin(np,k)*liqsat_fac
-
       ENDIF
+      IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
+        liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+        dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
+        pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
+        rmin(np,k) = rmin(np,k)*liqsat_fac
+      ENDIF
+
+      IF (umin(k)=='Biomass(s)_decay') THEN
+        dppt(k,jx,jy,jz) = - rate0(1,k) * volfx(MineralId(k),jx,jy,jz)
+      ENDIF
+
     ENDIF
+!********************
   
   END DO   !  End of npth parallel reaction
-  
-  IF (MineralAssociate(k)) THEN
-    vcheck = volfx(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)*volmol(MineralId(k))*delt
+
+  !Check if volume fraction goes below zero:
+
+!********************
+!Stolze Lucien, June 2023, specific to East river simulations
+!Microbial dormancy
+  IF (umin(k)=='Biomass(s)_decay') THEN
+    IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
+      dppt(k,jx,jy,jz) = 0
+      rmin(1,k) = 0
+    ELSE
+    vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*volmol(MineralId(k))*delt
+      IF (vcheck < 0.0) THEN
+        dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/(volmol(MineralId(k))*delt)
+        rmin(1,k) = dppt(k,jx,jy,jz)
+        IF (nreactmin(k) > 1) THEN
+          DO np = 2,nreactmin(k)
+            rmin(np,k) = 0.0
+          END DO
+        END IF
+        ivolume(k) = 1
+      ENDIF
+  ENDIF
+!********************
   ELSE
-    vcheck = volfx(k,jx,jy,jz) + dppt(k,jx,jy,jz)*volmol(k)*delt
-  END IF
-  
-  IF (vcheck < 0.0) THEN
 
     IF (MineralAssociate(k)) THEN
-      dppt(k,jx,jy,jz) = -volfx(MineralID(k),jx,jy,jz)/(volmol(MineralId(k))*delt)
-      rmin(1,k) = dppt(k,jx,jy,jz)
-      IF (nreactmin(k) > 1) THEN
-        DO np = 2,nreactmin(k)
-          rmin(np,k) = 0.0
-        END DO
-      END IF
-      ivolume(k) = 1
-
+      vcheck = volfx(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)*volmol(MineralId(k))*delt
     ELSE
-
-
+      vcheck = volfx(k,jx,jy,jz) + dppt(k,jx,jy,jz)*volmol(k)*delt
+    END IF
+    
+    IF (vcheck < 0.0) THEN
+      IF (MineralAssociate(k)) THEN
+        dppt(k,jx,jy,jz) = -volfx(MineralID(k),jx,jy,jz)/(volmol(MineralId(k))*delt)
+        rmin(1,k) = dppt(k,jx,jy,jz)
+        IF (nreactmin(k) > 1) THEN
+          DO np = 2,nreactmin(k)
+            rmin(np,k) = 0.0
+          END DO
+        END IF
+        ivolume(k) = 1
+      ELSE
         dppt(k,jx,jy,jz) = -volfx(k,jx,jy,jz)/(volmol(k)*delt)
         rmin(1,k) = dppt(k,jx,jy,jz)
         IF (nreactmin(k) > 1) THEN
@@ -1185,12 +1210,11 @@ DO k = 1,nkin
           END DO
         END IF
         ivolume(k) = 1
-!!      END IF
-
+      END IF
     END IF
+
+  ENDIF
     
-  END IF
-  
 END DO     !  End of kth mineral
 
 RETURN

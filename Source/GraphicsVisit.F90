@@ -761,7 +761,7 @@ IF (ikin > 0) THEN
   ilength = 6
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Aqueous Rate (mol/L/s) " '
+  WRITE(8,*) 'TITLE = "Aqueous Rate (mol/L/yr) " '
   DO ir=1,ikin
     StringTemp = namkin(ir)
     CALL stringlen(StringTemp,ls)
@@ -1141,7 +1141,7 @@ ENDIF
       END DO
         CLOSE(UNIT=8,STATUS='keep')
 
-    !!write(*,*) ' Writing gasdiffflux file '
+    IF (ny > 1) THEN
     fn='gasdifffluxY'
     ilength = 12
     CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -1165,15 +1165,16 @@ ENDIF
         ELSE
         gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spgas10(i,jx,jy,1))
         END IF
-        if (gflux_ver(i)<1.0E-30 .and. gflux_ver(i)>-1.0E-30) THEN
+        if (abs(gflux_ver(i))<1.0E-30) THEN
           gflux_ver(i)=1.0E-30
         END IF
       END DO
       WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale+dyy(jy)/2,z(jz)*OutputDistanceScale, &
       (gflux_ver(i),i=1,ngas)
     END DO
-  END DO
+    END DO
     CLOSE(UNIT=8,STATUS='keep')
+    ENDIF
 
     IF (ny == 1 .AND. nz == 1) THEN
     
@@ -1195,7 +1196,7 @@ ENDIF
           else
             gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))
           END IF
-          if (gflux_hor(i)<1.0E-30 .and. gflux_hor(i)>-1.0E-30) THEN
+          if (abs(gflux_hor(i))<1.0E-30) THEN
             gflux_hor(i)=1.0E-30
           END IF      
         END DO

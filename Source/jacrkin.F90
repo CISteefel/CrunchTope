@@ -144,9 +144,8 @@ ALLOCATE(stmp(ncomp))
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/(273.15D0 + 20) !! REF temperature (for now 5 degree)
+reft = 1.0D0/(273.15D0 + 25)
 
-! biomass end
 
 !  First, calculate the derivatives of the affinity terms w/respect
 !    to the primary species

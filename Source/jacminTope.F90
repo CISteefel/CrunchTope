@@ -248,6 +248,8 @@ REAL(DP)                                                        :: testSigma
 SetToAqueousMoleFraction = .FALSE.
 
 
+
+
 IF (JacobianNumerical) THEN
     
   perturb = 1.d-09 
@@ -328,6 +330,13 @@ DO k = 1,nkin
     jac_pre = 0.0d0
     
     DO np = 1,nreactmin(k)
+      
+      ! IF (umin(k)=='Root_respiration') then
+      !   !IF (area(k,jx,jy,jz) == 1) then
+      ! write(*,*) pre_rmin(np,k)
+      ! stop
+      !endif
+    !endif
     
       jac_sat = 0.0d0
 

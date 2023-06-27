@@ -196,6 +196,9 @@ REAL(DP)                                         :: thres_OM1
 REAL(DP)                                         :: thres_OM2
 REAL(DP)                                         :: exp_OM
 LOGICAL(LGT)                                     :: east_river
+REAL(DP)                                         :: thres_root
+REAL(DP)                                         :: exp_root
+REAL(DP)                                         :: bio_decay_KX
 !*******************
 !Stolze Lucien, June 2023
 !choose if solutes are removed by transpiration
