@@ -1153,6 +1153,8 @@ DO k = 1,nkin
 
       IF (umin(k)=='Biomass(s)_decay') THEN
         dppt(k,jx,jy,jz) = - rate0(1,k) * volfx(MineralId(k),jx,jy,jz)
+        rmin(1,k) = 0
+        pre_rmin(np,k) = 0
       ENDIF
 
     ENDIF
@@ -1168,12 +1170,12 @@ DO k = 1,nkin
   IF (umin(k)=='Biomass(s)_decay') THEN
     IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
       dppt(k,jx,jy,jz) = 0
-      rmin(1,k) = 0
+      !rmin(1,k) = 0
     ELSE
     vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*volmol(MineralId(k))*delt
       IF (vcheck < 0.0) THEN
         dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/(volmol(MineralId(k))*delt)
-        rmin(1,k) = dppt(k,jx,jy,jz)
+        !rmin(1,k) = dppt(k,jx,jy,jz)
         IF (nreactmin(k) > 1) THEN
           DO np = 2,nreactmin(k)
             rmin(np,k) = 0.0

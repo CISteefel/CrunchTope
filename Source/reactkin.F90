@@ -417,20 +417,20 @@ DO ir = 1,ikin
       sign = -1.0d0
     END IF
 
-    IF (satkin(ir) > 1.0d0) THEN
-      snormAqueous = 1.0d0
-    ELSE 
-      snormAqueous = satkin(ir)
-    END IF
+    ! IF (satkin(ir) > 1.0d0) THEN
+    !   snormAqueous = 1.0d0
+    ! ELSE 
+    !   snormAqueous = satkin(ir)
+    ! END IF
     
-    !!  Reaction assumed to be irreversible, so do not let it go in reverse
+    ! !!  Reaction assumed to be irreversible, so do not let it go in reverse
 
-    term1 = sign*DABS(snormAqueous - 1.0D0)
-    affinity = MAX(0.0d0,term1)
+    ! term1 = sign*DABS(snormAqueous - 1.0D0)
+    ! affinity = MAX(0.0d0,term1)
 
     !Lucien (regular affinity calculation):
-    ! snormAqueous = satkin(ir)
-    ! affinity = 1 - satkin(ir)
+    snormAqueous = satkin(ir)
+    affinity = 1 - satkin(ir)
     
 !! NOTE: ---> This assumes only ONE parallel reaction for Monod
 
