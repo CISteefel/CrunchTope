@@ -146,7 +146,7 @@ ALLOCATE(stmp(ncomp))
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/(273.15D0 + 25)
+reft = 1.0D0/(298.15D0)
 
 
 !  First, calculate the derivatives of the affinity terms w/respect
@@ -629,6 +629,7 @@ DO ir = 1,ikin
           ! ************************************
           ! Edit by Lucien Stolze, June 2023
           ! Activation energy for aqueous reactions
+          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
           rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * actenergyaq(ll,ir) * &
           (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
           ! ************************************

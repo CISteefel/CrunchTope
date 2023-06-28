@@ -125,7 +125,7 @@ real(dp)                                                       :: satL
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/(273.15D0 + 25)
+reft = 1.0D0/(298.15D0)
 
 !!MoleFractionCommon = 1.0d0
 !!MoleFractionRare = 1.0d0
@@ -401,7 +401,6 @@ DO ir = 1,ikin
     i = direction_kin(jj)
     bqTMP = bq_kin(jj) ! bq is negative according to carl's convention
     satlog(jj,jx,jy,jz) = sum - clg*keqkinTMP(jj) - bqTMP/(rgas*Tk)
-    
     satkin(ir) = DEXP(satlog(jj,jx,jy,jz))
 
 !! Assume chiAqueous = 1 for now, which should be the case for an anaerobic reaction written in terms of one electron
