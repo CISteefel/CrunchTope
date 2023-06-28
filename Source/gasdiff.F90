@@ -297,7 +297,7 @@ SUBROUTINE gasdiff(nx,ny,nz)
       END IF
       
   !!  The following forces Dirichlet conditions for gases at all times (unless above is uncommented)
-      ! if (richards) then
+      ! if (east_river) then
       ! if (activecellPressure(jx-1,jy,jz) == 0 .and. activecellPressure(jx,jy,jz) == 1) then
       ! dw = dw*0.0d0
       ! elseif (activecellPressure(jx+1,jy,jz) == 0 .and. activecellPressure(jx,jy,jz) == 1) then

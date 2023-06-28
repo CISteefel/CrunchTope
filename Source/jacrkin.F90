@@ -74,6 +74,8 @@ REAL(DP), INTENT(IN)                                 :: AqueousToBulk
 
 REAL(DP)                                             :: affinity
 REAL(DP)                                             :: denom
+REAL(DP)                                             :: denom1
+REAL(DP)                                             :: denom2
 REAL(DP)                                             :: denomSquared
 REAL(DP)                                             :: derivative
 REAL(DP)                                             :: DerivativeMonodTerm
@@ -144,9 +146,8 @@ ALLOCATE(stmp(ncomp))
 tk = t(jx,jy,jz) + 273.15D0
 satL = satliq(jx,jy,jz)
 tkinv = 1.0D0/tk
-reft = 1.0D0/(273.15D0 + 20) !! REF temperature (for now 5 degree)
+reft = 1.0D0/(298.15D0)
 
-! biomass end
 
 !  First, calculate the derivatives of the affinity terms w/respect
 !    to the primary species
@@ -351,6 +352,36 @@ DO ir = 1,ikin
 ! biomass 
      ELSEIF (iaqtype(ir) == 8) THEN       ! Monod, but with thermodynamic factor, F_T
 
+
+      !************************
+      !Stolze Lucien: Correct bug, July 2023
+      !************************
+
+      ! DO id = 1,nmonodaq(ir)
+      !   i = imonodaq(id,ir)
+      !   IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
+      !     MonodTerm = halfsataq(id,ir) / (s(i,jx,jy,jz) + halfsataq(id,ir))
+      !     DO i2 = 1,ncomp
+      !          jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
+      !             pre_raq(1,ir)*(fjac(i2,i,jx,jy,jz)*(MonodTerm))
+      !     END DO
+      !   ELSE
+      !     MonodTerm = halfsataq(id,ir) / (sp10(i,jx,jy,jz) + halfsataq(id,ir))
+      !     IF (i <= ncomp) THEN
+      !        jac_prekin(i,1) =  jac_prekin(i,1) +  &
+      !           pre_raq(1,ir) * (MonodTerm)
+      !     ELSE
+      !       ksp = i - ncomp
+      !       DO i2 = 1,ncomp
+      !          jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
+      !           pre_raq(1,ir) * muaq(ksp,i2)*(MonodTerm) !To be checked ??
+      !       END DO
+      !     END IF
+      !   END IF
+      ! END DO
+
+      !!!!!!!!!!!!!!!!!!!
+
       !! Normal Monod terms
       !************************
       !Stolze Lucien: Correct bug, June 2023
@@ -364,40 +395,30 @@ DO ir = 1,ikin
           DO i2 = 1,ncomp
             IF (os3d) THEN
                jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
-                  pre_raq(1,ir)/MonodTerm * fjac_loc(i2,i)*halfsataq(id,ir)/denom
+                  pre_raq(1,ir)/MonodTerm * fjac_loc(i2,i)* (halfsataq(id,ir)/denom)
   
-  !!              fjac_loc(i2,i)*pre_raq(1,ir)* ( 1.0/s(i,jx,jy,jz) - 1.0/(s(i,jx,jy,jz)+halfsataq(id,ir))  )
-  !!               fjac_loc(i2,i)*halfsataq(id,ir)/denom
             ELSE
                jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
-                  pre_raq(1,ir)/MonodTerm * fjac(i2,i,jx,jy,jz)*halfsataq(id,ir)/denom
+                  pre_raq(1,ir)/MonodTerm * fjac(i2,i,jx,jy,jz)* (halfsataq(id,ir)/denom)
   
-  !!              fjac(i2,i,jx,jy,jz)*pre_raq(1,ir)*( 1.0/s(i,jx,jy,jz) - 1.0/(s(i,jx,jy,jz)+halfsataq(id,ir))  )
-  !!              fjac(i2,i,jx,jy,jz)*halfsataq(id,ir)/denom
             END IF
           END DO
         ELSE
           denom = (sp10(i,jx,jy,jz)+halfsataq(id,ir))*(sp10(i,jx,jy,jz)+halfsataq(id,ir))
           MonodTerm = sp10(i,jx,jy,jz)/(halfsataq(id,ir)+sp10(i,jx,jy,jz))
           IF (i <= ncomp) THEN
-  !!           jac_prekin(i,1) =  jac_prekin(i,1) +  &
-  !!              pre_raq(1,ir)*( 1.0 - sp10(i,jx,jy,jz)/(sp10(i,jx,jy,jz)+halfsataq(id,ir)) )
-  !! Or
              jac_prekin(i,1) =  jac_prekin(i,1) +  &
-                pre_raq(1,ir)/MonodTerm * sp10(i,jx,jy,jz)*halfsataq(id,ir)/denom
-  
-  !!              sp10(i,jx,jy,jz)*halfsataq(id,ir)/denom
+                pre_raq(1,ir)/MonodTerm * sp10(i,jx,jy,jz)* (halfsataq(id,ir)/denom)
           ELSE
             ksp = i - ncomp
             DO i2 = 1,ncomp
                jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
-                pre_raq(1,ir)/MonodTerm * muaq(ksp,i2)*sp10(i,jx,jy,jz)*halfsataq(id,ir)/denom
-  
-  !!                pre_raq(1,ir)* muaq(ksp,i2)* (1.0 - sp10(i,jx,jy,jz)/(sp10(i,jx,jy,jz)+halfsataq(id,ir)) )
+                pre_raq(1,ir)/MonodTerm * muaq(ksp,i2)*sp10(i,jx,jy,jz)* (halfsataq(id,ir)/denom)
             END DO
           END IF
         END IF
       END DO
+      !***********************************
       
 ! ! Normal Monod terms
 
@@ -564,17 +585,17 @@ DO ir = 1,ikin
     ELSE 
       snormAqueous = satkin(ir)
     ENDIF
-
+    
     term1 = sign*DABS(snormAqueous - 1.0D0)
+    affinity = MAX(0.0d0,term1)
+
+    !Lucien (regular affinity calculation):
+    ! snormAqueous = satkin(ir)
+    ! affinity = 1 - satkin(ir)
 
 !!  Reaction assumed to be irreversible, so do not let it go in reverse
-
-    affinity = term1
     
-!!    jj = p_cat_kin(ir)
-    jj = ir
-    check(:) = -mukinTMP(jj,:)*snormAqueous
-    jac_sat = check
+    jac_sat = -mukinTMP(ir,:)*snormAqueous
 !   biomass end
 
   ELSE
@@ -589,18 +610,16 @@ DO ir = 1,ikin
 ! biomass
   if (iaqtype(ir) == 8) then
 
-!!    jj = p_cat_kin(ir)
-    jj = ir
 !   pointer to biomass for current reaction
 !!    ib = ibiomass_kin(p_cat_kin(ir))
     ib = ibiomass_kin(ir)
     
     vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz))
     
-    IF (UseMetabolicLagAqueous(jj)) THEN
+    IF (UseMetabolicLagAqueous(ir)) THEN
       DO i = 1,ncomp
         DO ll = 1,nreactkin(ir)
-          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(jj,jx,jy,jz) * vol_temp * ratek(ll,ir) *  &
+          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(ir,jx,jy,jz) * vol_temp * ratek(ll,ir) *  &
             (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity + pre_raq(ll,ir)*affinity )
         END DO
       END DO
@@ -610,14 +629,9 @@ DO ir = 1,ikin
           ! ************************************
           ! Edit by Lucien Stolze, June 2023
           ! Activation energy for aqueous reactions
-          ! IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
-          !   actenergyaq(ll,ir) = 1.0D0
-          ! ELSE
-            actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft - tkinv) )
-          ! END IF
-          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * &
-          (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )*actenergyaq(ll,ir)
-          
+          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * actenergyaq(ll,ir) * &
+          (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
           ! ************************************
         END DO
       END DO
@@ -630,13 +644,9 @@ DO ir = 1,ikin
         ! ************************************
         ! Edit by Lucien Stolze, June 2023
         ! Activation energy for aqueous reactions
-        ! IF (t(jx,jy,jz)+273.15d0 == 1/reft) THEN
-        !   actenergyaq(ll,ir) = 1.0D0
-        ! ELSE
-          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
-        ! END IF
-        rdkin(ir,i) = rdkin(ir,i) + ratek(ll,ir)*  &
-            (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity )*actenergyaq(ll,ir)
+        actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+        rdkin(ir,i) = rdkin(ir,i) + ratek(ll,ir) * actenergyaq(ll,ir) *  &
+            (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity )
         ! ************************************
       END DO
     END DO

@@ -142,11 +142,11 @@ DO jz = 1,nz
         IF (MineralAssociate(k)) THEN
             
           kk = MineralID(k)
-          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='biomass_decay') THEN
+          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='Biomass(s)_decay') THEN
           VolumeUpdate = 0  
           ELSEIF (mintype(k) == 1 .AND. biomassfixed) THEN
           VolumeUpdate = 0  
-          ELSEIF (umin(k)=='biomass_decay' .AND. biomassfixed) THEN
+          ELSEIF (umin(k)=='Biomass(s)_decay' .AND. biomassfixed) THEN
           VolumeUpdate = 0  
           ELSE
           VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
@@ -162,11 +162,11 @@ DO jz = 1,nz
           
         ELSE
           
-          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='biomass_decay') THEN
+          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='Biomass(s)_decay') THEN
           VolumeUpdate = 0  
           ELSEIF (mintype(k) == 1 .AND. biomassfixed) THEN
           VolumeUpdate = 0  
-          ELSEIF (umin(k)=='biomass_decay' .AND. biomassfixed) THEN
+          ELSEIF (umin(k)=='Biomass(s)_decay' .AND. biomassfixed) THEN
           VolumeUpdate = 0  
           ELSE
           VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
@@ -239,13 +239,14 @@ DO jz = 1,nz
       DO k = 1,nrct
 
         IF (MineralAssociate(k)) THEN
+          
             
           kk = MineralID(k)
-          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='biomass_decay') THEN
+          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='Biomass(s)_decay') THEN
           VolumeUpdate = 0  
           ELSEIF (mintype(k) == 1 .AND. biomassfixed) THEN
           VolumeUpdate = 0  
-          ELSEIF (umin(k)=='biomass_decay' .AND. biomassfixed) THEN
+          ELSEIF (umin(k)=='Biomass(s)_decay' .AND. biomassfixed) THEN
           VolumeUpdate = 0   
           ELSE
           VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
@@ -257,11 +258,11 @@ DO jz = 1,nz
           
         ELSE
           
-          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='biomass_decay') THEN
+          IF (spinup .AND. mintype(k) /= 1 .AND. umin(k)/='Biomass(s)_decay') THEN
           VolumeUpdate = 0  
           ELSEIF (mintype(k) == 1 .AND. biomassfixed) THEN
           VolumeUpdate = 0  
-          ELSEIF (umin(k)=='biomass_decay' .AND. biomassfixed) THEN
+          ELSEIF (umin(k)=='Biomass(s)_decay' .AND. biomassfixed) THEN
           VolumeUpdate = 0    
           ELSE
           VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
