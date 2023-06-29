@@ -574,11 +574,11 @@ DO ir = 1,ikin
 
 !! No inhibition terms here, so calculate thermodynamic factor, F_T
 
-    ! IF (direction_kin(ir) < 0) THEN
-    !   sign = 1.0d0
-    ! ELSE
-    !   sign = -1.0d0
-    ! END IF
+    IF (direction_kin(ir) < 0) THEN
+      sign = 1.0d0
+    ELSE
+      sign = -1.0d0
+    END IF
 
     ! IF(satkin(ir) > 1.0d0) THEN
     !   snormAqueous = 1.0d0
@@ -591,7 +591,11 @@ DO ir = 1,ikin
 
     !Lucien (regular affinity calculation):
     snormAqueous = satkin(ir)
-    affinity = 1 - satkin(ir)
+    affinity = sign*(1 - satkin(ir))
+    if (satkin(ir) >= 1) then
+    affinity = 1e-12 !0.0d0
+    snormAqueous = 1.0d0
+    endif
 
 !!  Reaction assumed to be irreversible, so do not let it go in reverse
     DO i = 1,ncomp

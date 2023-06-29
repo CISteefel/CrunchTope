@@ -431,6 +431,10 @@ DO ir = 1,ikin
     !Lucien (regular affinity calculation):
     snormAqueous = satkin(ir)
     affinity = 1 - satkin(ir)
+
+    if (satkin(ir) >= 1) then
+    affinity = 1e-12 !0.0d0
+    endif
     
 !! NOTE: ---> This assumes only ONE parallel reaction for Monod
 

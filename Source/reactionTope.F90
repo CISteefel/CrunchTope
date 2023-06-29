@@ -1118,7 +1118,14 @@ DO k = 1,nkin
           
         ELSE
           
-          rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+        IF (umin(k)=='Biomass(s)_decay') THEN
+        !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
+        rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
+        ELSE
+          
+        rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+
+        ENDIF
           
         END IF
      
@@ -1151,12 +1158,6 @@ DO k = 1,nkin
         rmin(np,k) = rmin(np,k)*liqsat_fac
       ENDIF
 
-      IF (umin(k)=='Biomass(s)_decay') THEN
-        dppt(k,jx,jy,jz) = - rate0(1,k) * volfx(MineralId(k),jx,jy,jz)
-        rmin(1,k) = 0
-        pre_rmin(np,k) = 0
-      ENDIF
-
     ENDIF
 !********************
   
@@ -1168,22 +1169,17 @@ DO k = 1,nkin
 !Stolze Lucien, June 2023, specific to East river simulations
 !Microbial dormancy
   IF (umin(k)=='Biomass(s)_decay') THEN
-    IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
-      dppt(k,jx,jy,jz) = 0
-      !rmin(1,k) = 0
-    ELSE
-    vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*volmol(MineralId(k))*delt
-      IF (vcheck < 0.0) THEN
-        dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/(volmol(MineralId(k))*delt)
-        !rmin(1,k) = dppt(k,jx,jy,jz)
-        IF (nreactmin(k) > 1) THEN
-          DO np = 2,nreactmin(k)
-            rmin(np,k) = 0.0
-          END DO
-        END IF
-        ivolume(k) = 1
-      ENDIF
+  IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
+  dppt(k,jx,jy,jz) = 0
   ENDIF
+
+  vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*delt
+  IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) >= 0 .and. vcheck < 0.0) THEN
+  dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/delt
+  !ivolume(k) = 1
+  ENDIF
+  rmin(1,k) = 0
+  pre_rmin(1,k) = 0
 !********************
   ELSE
 
