@@ -580,22 +580,27 @@ DO ir = 1,ikin
       sign = -1.0d0
     END IF
 
-    IF(satkin(ir) > 1.0d0) THEN
-      snormAqueous = 1.0d0
-    ELSE 
-      snormAqueous = satkin(ir)
-    ENDIF
+    ! IF(satkin(ir) > 1.0d0) THEN
+    !   snormAqueous = 1.0d0
+    ! ELSE 
+    !   snormAqueous = satkin(ir)
+    ! ENDIF
     
-    term1 = sign*DABS(snormAqueous - 1.0D0)
-    affinity = MAX(0.0d0,term1)
+    ! term1 = sign*DABS(snormAqueous - 1.0D0)
+    ! affinity = MAX(0.0d0,term1)
 
     !Lucien (regular affinity calculation):
-    ! snormAqueous = satkin(ir)
-    ! affinity = 1 - satkin(ir)
+    snormAqueous = satkin(ir)
+    affinity = sign*(1 - satkin(ir))
+    ! if (satkin(ir) >= 1) then
+    ! affinity = 0
+    ! snormAqueous = 1.0d0
+    ! endif
 
 !!  Reaction assumed to be irreversible, so do not let it go in reverse
-    
-    jac_sat = -mukinTMP(ir,:)*snormAqueous
+    DO i = 1,ncomp
+    jac_sat(i) = -mukinTMP(ir,i)*snormAqueous
+    ENDDO
 !   biomass end
 
   ELSE
