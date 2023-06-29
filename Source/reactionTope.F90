@@ -1169,14 +1169,21 @@ DO k = 1,nkin
 !Stolze Lucien, June 2023, specific to East river simulations
 !Microbial dormancy
   IF (umin(k)=='Biomass(s)_decay') THEN
+  ! Compare the rate of growth and decay (decay is negative)
+  IF (dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz) >= 0) THEN
+  dppt(MineralId(k),jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
+  dppt(k,jx,jy,jz) = 0
+  ELSE
+  dppt(k,jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
+  dppt(MineralId(k),jx,jy,jz) = 0
+  ENDIF
   IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
   dppt(k,jx,jy,jz) = 0
   ENDIF
-
   vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*delt
   IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) >= 0 .and. vcheck < 0.0) THEN
   dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/delt
-  !ivolume(k) = 1
+        !ivolume(k) = 1
   ENDIF
   rmin(1,k) = 0
   pre_rmin(1,k) = 0

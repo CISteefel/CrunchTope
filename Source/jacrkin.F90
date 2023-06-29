@@ -592,10 +592,10 @@ DO ir = 1,ikin
     !Lucien (regular affinity calculation):
     snormAqueous = satkin(ir)
     affinity = sign*(1 - satkin(ir))
-    if (satkin(ir) >= 1) then
-    affinity = 1e-12 !0.0d0
-    snormAqueous = 1.0d0
-    endif
+    ! if (satkin(ir) >= 1) then
+    ! affinity = 0
+    ! snormAqueous = 1.0d0
+    ! endif
 
 !!  Reaction assumed to be irreversible, so do not let it go in reverse
     DO i = 1,ncomp

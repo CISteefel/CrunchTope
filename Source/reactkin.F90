@@ -432,9 +432,9 @@ DO ir = 1,ikin
     snormAqueous = satkin(ir)
     affinity = 1 - satkin(ir)
 
-    if (satkin(ir) >= 1) then
-    affinity = 1e-12 !0.0d0
-    endif
+    ! if (satkin(ir) >= 1) then
+    ! affinity = 0
+    ! endif
     
 !! NOTE: ---> This assumes only ONE parallel reaction for Monod
 
