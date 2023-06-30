@@ -202,7 +202,6 @@ rmin = 0.0d0
 
 !  This routine calculates the reaction rates of the individual
 !  minerals.
-
 tk = t(jx,jy,jz) + 273.15D0
 tkinv = 1.0D0/tk
 reft = 1.0D0/298.15D0
@@ -1028,8 +1027,8 @@ DO k = 1,nkin
           rmin(np,k) = MetabolicLagMineral(np,jj,jx,jy,jz)*surf(np,k)*rate0(np,k)*           &
               actenergy(np,k)*pre_rmin(np,k)*volfx(ib,jx,jy,jz)*AffinityTerm
         ELSE
-          rmin(np,k) = surf(np,k)*rate0(np,k)*           &
-             actenergy(np,k)*pre_rmin(np,k)*volfx(ib,jx,jy,jz)*AffinityTerm
+          rmin(np,k) = rate0(np,k)*volfx(ib,jx,jy,jz)* &
+             actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         END IF     
 ! biomass end
 
@@ -1124,7 +1123,7 @@ DO k = 1,nkin
         ELSE
           
         rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
-
+        
         ENDIF
           
         END IF

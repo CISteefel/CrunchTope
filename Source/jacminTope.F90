@@ -330,13 +330,6 @@ DO k = 1,nkin
     jac_pre = 0.0d0
     
     DO np = 1,nreactmin(k)
-      
-      ! IF (umin(k)=='Root_respiration') then
-      !   !IF (area(k,jx,jy,jz) == 1) then
-      ! write(*,*) pre_rmin(np,k)
-      ! stop
-      !endif
-    !endif
     
       jac_sat = 0.0d0
 
@@ -1036,7 +1029,7 @@ DO k = 1,nkin
           END IF
 
         ELSE    !!  Non-isotope case
-            
+
           DO i = 1,ncomp
             jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
