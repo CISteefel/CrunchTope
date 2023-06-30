@@ -400,10 +400,15 @@ DO jz = 1,nz
                 CONTINUE
               END IF
             END IF
+            
           END DO
 
 
         END IF
+
+        IF (mintype(k) == 1) THEN !!biomass
+            area(k,jx,jy,jz) = 1
+          ENDIF
 
       END DO
 
