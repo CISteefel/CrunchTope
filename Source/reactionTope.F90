@@ -1027,8 +1027,8 @@ DO k = 1,nkin
           rmin(np,k) = MetabolicLagMineral(np,jj,jx,jy,jz)*surf(np,k)*rate0(np,k)*           &
               actenergy(np,k)*pre_rmin(np,k)*volfx(ib,jx,jy,jz)*AffinityTerm
         ELSE
-          rmin(np,k) = rate0(np,k)*volfx(ib,jx,jy,jz)* &
-             actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+          rmin(np,k) = surf(np,k)*rate0(np,k)*           &
+             actenergy(np,k)*pre_rmin(np,k)*volfx(ib,jx,jy,jz)*AffinityTerm
         END IF     
 ! biomass end
 
@@ -1117,14 +1117,14 @@ DO k = 1,nkin
           
         ELSE
           
-        IF (umin(k)=='Biomass(s)_decay') THEN
-        !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
-        rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
-        ELSE
+        ! IF (umin(k)=='Biomass(s)_decay') THEN
+        ! !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
+        ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
+        ! ELSE
           
         rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         
-        ENDIF
+        !ENDIF
           
         END IF
      
