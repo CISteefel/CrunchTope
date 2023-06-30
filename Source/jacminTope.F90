@@ -1029,7 +1029,7 @@ DO k = 1,nkin
           END IF
 
         ELSE    !!  Non-isotope case
-
+          
           DO i = 1,ncomp
             jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )

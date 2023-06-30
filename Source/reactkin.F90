@@ -434,6 +434,7 @@ DO ir = 1,ikin
 
     ! if (satkin(ir) >= 1) then
     ! affinity = 0
+    ! sign = 0
     ! endif
     
 !! NOTE: ---> This assumes only ONE parallel reaction for Monod
