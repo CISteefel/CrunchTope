@@ -319,6 +319,7 @@ IF(ls /= 0) THEN
   FileFormatType_bsa = FileFormatType_bsa_dum
   mineral_name = mineralname_dum
   mineral_name_length = mineralname_lzs_dum
+  readmin_ssa = readmin_ssa_dum
 
     
 
