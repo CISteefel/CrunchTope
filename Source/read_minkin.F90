@@ -134,7 +134,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                         :: halfsat_tmp
 !REAL(DP), DIMENSION(:,:), ALLOCATABLE                       :: indx
 
 character (len=mls)                                         :: biomass
-integer(i4b)                                                :: ios, im, ib
+integer(i4b)                                                :: ios, im, ib, count_ib
 integer(i4b),dimension(:),allocatable                       :: workint
 
 namelist /BiomassDecay/                                        biomass
@@ -1325,11 +1325,18 @@ IF (ssch == tempmin) THEN
 
 !       find the biomass for this reaction in the mineral list
         ib = 0
-        do_biomass: do im=1,nkin-1
+        count_ib = 0
+        do_biomass: do im=1,len(namrl(im))
+
+          if (im == 1) then
+            count_ib = count_ib + 1
+          elseif (namrl(im-1) /= namrl(im)) then
+              count_ib = count_ib + 1
+          endif
             
           if (biomass == namrl(im)) then
                
-            ib = im
+            ib = count_ib
             exit do_biomass
                
           end if

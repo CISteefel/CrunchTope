@@ -52,6 +52,7 @@ USE solver
 USE medium
 USE temperature
 USE isotope
+USE transport
 
 IMPLICIT NONE
 
@@ -242,6 +243,8 @@ REAL(DP)                                                        :: checkNucleati
 REAL(DP), PARAMETER                                             :: BoltzmannTerm=1.3806E-20
 REAL(DP)                                                        :: NucleationTerm
 REAL(DP)                                                        :: testSigma
+
+REAL(DP)                                                        :: liqsat_fac
 
 !!!NoFractionationDissolution = .false.
 
@@ -1029,10 +1032,25 @@ DO k = 1,nkin
           END IF
 
         ELSE    !!  Non-isotope case
-
+          
           DO i = 1,ncomp
+          IF (umin(k)=='TOC_soil' .OR. umin(k)=='TOCsoil') THEN
+          liqsat_fac = 1
+          IF (satliq(jx,jy,jz) > thres_OM2) THEN
+          liqsat_fac = 1/(1 + (thres_OM1/satliq(jx,jy,jz))**exp_OM)
+          ELSE
+          liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
+          ENDIF
+          jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+          ELSEIF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
+          liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+          jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+          ELSE
             jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+          ENDIF
           END DO
           
         END IF

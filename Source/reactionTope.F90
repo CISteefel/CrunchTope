@@ -682,6 +682,11 @@ DO k = 1,nkin
           denominator = Kformation(np,k) + Al**HyperbolicInhibitionDepend(np,k)
           term2 = Kformation(np,k)/denominator
         END IF
+
+        IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
+          liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+          term2 = liqsat_fac
+        ENDIF
         
 !!        ***** * Monod kinetics (without thermodynamic term)  **********
         
@@ -797,8 +802,11 @@ DO k = 1,nkin
 ! sergi: first order biomass decay - may 2011
       
       ELSE IF (imintype(np,k) == 9) THEN
-
+      IF (east_river) then
+        term2 = volfx(biomass_decay(np,k),jx,jy,jz)*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
+      ELSE
         term2 = volfx(biomass_decay(np,k),jx,jy,jz)
+      ENDIF
 !!        term2 = term2/volmol(biomass_decay(np,k)) not applicable after volmol=1 for biomass
         pre_rmin(np,k) = term2
 
@@ -840,6 +848,14 @@ DO k = 1,nkin
 
         pre_rmin(np,k) = term2
 ! end sergi: first order biomass decay - may 2011
+
+      ELSE IF (east_river .and. umin(k)=='Root_respiration') THEN
+      
+      pre_rmin(np,k) = term2
+
+      ELSE IF (east_river .and. umin(k)=='Root_exudates') THEN 
+
+      pre_rmin(np,k) = term2
 
       ELSE IF (HyperbolicInhibition(np,k)) THEN  
         pre_rmin(np,k) = term2
@@ -1027,8 +1043,8 @@ DO k = 1,nkin
           rmin(np,k) = MetabolicLagMineral(np,jj,jx,jy,jz)*surf(np,k)*rate0(np,k)*           &
               actenergy(np,k)*pre_rmin(np,k)*volfx(ib,jx,jy,jz)*AffinityTerm
         ELSE
-          rmin(np,k) = rate0(np,k)*volfx(ib,jx,jy,jz)* &
-             actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+          rmin(np,k) = surf(np,k)*rate0(np,k)*           &
+             actenergy(np,k)*pre_rmin(np,k)*volfx(ib,jx,jy,jz)*AffinityTerm
         END IF     
 ! biomass end
 
@@ -1117,14 +1133,14 @@ DO k = 1,nkin
           
         ELSE
           
-        IF (umin(k)=='Biomass(s)_decay') THEN
-        !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
-        rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
-        ELSE
+        ! IF (umin(k)=='Biomass(s)_decay') THEN
+        ! !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
+        ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
+        ! ELSE
           
         rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         
-        ENDIF
+        !ENDIF
           
         END IF
      
@@ -1147,15 +1163,15 @@ DO k = 1,nkin
           liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
         ENDIF
         dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
-        pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
+        !pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
         rmin(np,k) = rmin(np,k)*liqsat_fac
       ENDIF
-      IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
-        liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
-        dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
-        pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
-        rmin(np,k) = rmin(np,k)*liqsat_fac
-      ENDIF
+      ! IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
+      !   liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+      !   dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
+      !   pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
+      !   rmin(np,k) = rmin(np,k)*liqsat_fac
+      ! ENDIF
 
     ENDIF
 !********************
@@ -1168,24 +1184,24 @@ DO k = 1,nkin
 !Stolze Lucien, June 2023, specific to East river simulations
 !Microbial dormancy
   IF (umin(k)=='Biomass(s)_decay') THEN
-  ! Compare the rate of growth and decay (decay is negative)
-  IF (dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz) >= 0) THEN
-  dppt(MineralId(k),jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
-  dppt(k,jx,jy,jz) = 0
-  ELSE
-  dppt(k,jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
-  dppt(MineralId(k),jx,jy,jz) = 0
-  ENDIF
-  IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
-  dppt(k,jx,jy,jz) = 0
-  ENDIF
-  vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*delt
-  IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) >= 0 .and. vcheck < 0.0) THEN
-  dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/delt
-        !ivolume(k) = 1
-  ENDIF
-  rmin(1,k) = 0
-  pre_rmin(1,k) = 0
+  ! ! Compare the rate of growth and decay (decay is negative)
+  ! IF (dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz) >= 0) THEN
+  ! dppt(MineralId(k),jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
+  ! dppt(k,jx,jy,jz) = 0
+  ! ELSE
+  ! dppt(k,jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
+  ! dppt(MineralId(k),jx,jy,jz) = 0
+  ! ENDIF
+  ! IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
+  ! dppt(k,jx,jy,jz) = 0
+  ! ENDIF
+  ! vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*delt
+  ! IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) >= 0 .and. vcheck < 0.0) THEN
+  ! dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/delt
+  !       !ivolume(k) = 1
+  ! ENDIF
+  ! rmin(1,k) = 0
+  ! pre_rmin(1,k) = 0
 !********************
   ELSE
 
