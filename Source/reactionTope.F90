@@ -193,6 +193,7 @@ REAL(DP)                                                        :: DecayTerm
 !Specific to eastriver simulations (Lucien Stolze, June 2023)
 REAL(DP)                                                        :: liqsat_fac
 REAL(DP)                                                        :: attenuation_term
+REAL(DP)                                                        :: sat
 !**********
 
 rmin = 0.0d0
@@ -684,7 +685,8 @@ DO k = 1,nkin
         END IF
 
         IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
-          liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+          sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+          liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
           term2 = liqsat_fac
         ENDIF
         
@@ -1157,8 +1159,11 @@ DO k = 1,nkin
     IF (east_river) THEN
       IF (umin(k)=='TOC_soil' .OR. umin(k)=='TOCsoil') THEN
         liqsat_fac = 1
+        ! write(*,*) satliqold(jx,jy,jz)
+        ! stop
+        sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
         IF (satliq(jx,jy,jz) > thres_OM2) THEN
-          liqsat_fac = 1/(1 + (thres_OM1/satliq(jx,jy,jz))**exp_OM)
+          liqsat_fac = 1/(1 + (thres_OM1/sat)**exp_OM)
         ELSE
           liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
         ENDIF

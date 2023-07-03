@@ -144,7 +144,7 @@ REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
 ALLOCATE(stmp(ncomp))
 
 tk = t(jx,jy,jz) + 273.15D0
-satL = satliq(jx,jy,jz)
+satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
 tkinv = 1.0D0/tk
 reft = 1.0D0/(298.15D0)
 
@@ -619,7 +619,8 @@ DO ir = 1,ikin
 !!    ib = ibiomass_kin(p_cat_kin(ir))
     ib = ibiomass_kin(ir)
     
-    vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz))
+    
+    vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satL)
     
     IF (UseMetabolicLagAqueous(ir)) THEN
       DO i = 1,ncomp
