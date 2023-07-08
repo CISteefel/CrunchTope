@@ -41,6 +41,10 @@ INTEGER(I4B)                                               :: no_backtrack, desc
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
 
+! variables for checking water mass balance
+REAL(DP)                                                   :: water_mass
+REAL(DP)                                                   :: water_mass_error
+
 ! initialize parameters for linear solver
 nrhs = 1
 lda = nx
@@ -122,5 +126,20 @@ IF (Richards_print) THEN
   WRITE(*,100) iteration, total_line
   100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the Richards solver. ')
 END IF
+
+!***********************************************************************************************************************************************
+! evaluate water mass balance (this is not compatible with evaporaiton and transpiration for the "enviornmental_forcing" boundary condition.)
+IF (Richards_print) THEN
+  jy = 1
+  jz = 1
+  water_mass = 0.0d0
+  DO jx = 1, nx
+    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
+  END DO
+  water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
+  WRITE(*,110) water_mass, water_mass_error
+  110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
+END IF
+!***********************************************************************************************************************************************
 
 END SUBROUTINE solve_Richards
