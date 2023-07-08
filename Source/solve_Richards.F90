@@ -31,7 +31,7 @@ INTEGER(I4B)                                               :: info, lda, ldb, nr
 INTEGER(I4B), DIMENSION(nx)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
-REAL(DP), PARAMETER                                        :: tau_a = 1.0d-13
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7
 REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
@@ -145,7 +145,7 @@ IF (Richards_print) THEN
   water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
   WRITE(*,110) water_mass, water_mass_error
 110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
-  READ(*,*)
+  !READ(*,*)
 END IF
 !***********************************************************************************************************************************************
 
