@@ -819,6 +819,23 @@ END IF
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+  
+  fn='divergence'
+  ilength = 9
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Velocity (m/yr)" '
+  WRITE(8,2012)
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+            WRITE(8,192) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+            z(jz)*OutputDistanceScale,qx(jx,jy,jz) - qx(jx - 1,jy,jz)
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
 
   fn='velocityy'
   ilength = 9

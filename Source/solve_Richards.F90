@@ -66,7 +66,8 @@ tol = tau_a ! this tolerance should be used for problems that need very high acc
 
 ! begin Newton's method
 newton_loop: DO
-  IF (error_old < tol) EXIT
+  IF (error_old < tol .AND. iteration > 2) EXIT
+  !IF (error_old < tol) EXIT
   ! Evaluate the Jacobian matrix
   CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
   
@@ -95,7 +96,8 @@ newton_loop: DO
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
+    !Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tol) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -142,7 +144,18 @@ IF (Richards_print) THEN
   DO jx = 1, nx
     water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
   END DO
-  water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
+  
+  SELECT CASE (upper_BC_type)
+  CASE ('environmental_forcing')
+    water_mass_error = water_mass - dtflow*(qx(0, jy, jz) - (infiltration_rate + evaporate))
+    DO i = 1, transpicells
+      water_mass_error = water_mass_error + dtflow*transpirate_cell(nx - i + 1)
+    END DO
+    water_mass_error = 100.0d0*water_mass_error/water_mass ! in percent
+  CASE DEFAULT
+    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
+  END SELECT
+  
   WRITE(*,110) water_mass, water_mass_error
 110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
   !READ(*,*)
