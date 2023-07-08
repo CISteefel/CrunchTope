@@ -31,7 +31,7 @@ INTEGER(I4B)                                               :: info, lda, ldb, nr
 INTEGER(I4B), DIMENSION(nx)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
-REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-13
 REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
@@ -61,7 +61,8 @@ CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
 
 ! update tolerance
 error_old = MAXVAL(ABS(F_residual))
-tol = tau_r * error_old + tau_a
+!tol = tau_r * error_old + tau_a
+tol = tau_a ! this tolerance should be used for problems that need very high accuracy
 
 ! begin Newton's method
 newton_loop: DO
@@ -114,6 +115,11 @@ newton_loop: DO
   
   total_line = total_line + no_backtrack
   iteration = iteration + 1
+  
+  IF (Richards_print) THEN
+  WRITE(*,120) tol, error_old
+  120 FORMAT(1X, 'The tolerance is  ', ES14.4, ' , and the error is ', ES14.4)
+  END IF
 END DO newton_loop
 
 IF (iteration > maxitr) THEN
@@ -138,7 +144,8 @@ IF (Richards_print) THEN
   END DO
   water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
   WRITE(*,110) water_mass, water_mass_error
-  110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
+110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
+  READ(*,*)
 END IF
 !***********************************************************************************************************************************************
 
