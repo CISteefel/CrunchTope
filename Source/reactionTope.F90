@@ -1168,14 +1168,15 @@ DO k = 1,nkin
         !pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
         rmin(np,k) = rmin(np,k)*liqsat_fac
       ENDIF
-       IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
-         liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
-         dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
-         pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
-         rmin(np,k) = rmin(np,k)*liqsat_fac
-       ENDIF
-
-    ENDIF
+      
+!!!       IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
+!!!         liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+!!!         dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
+!!!         pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
+!!!         rmin(np,k) = rmin(np,k)*liqsat_fac
+!!!       ENDIF
+      
+     ENDIF
 !********************
   
   END DO   !  End of npth parallel reaction
