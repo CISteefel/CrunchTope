@@ -56,11 +56,12 @@ CALL residual_Richards_steady(nx, ny, nz, F_residual)
 
 ! update tolerance
 error_old = MAXVAL(ABS(F_residual))
-tol = tau_r * error_old + tau_a
+!tol = tau_r * error_old + tau_a
+tol = tau_a ! this tolerance should be used for problems that need very high accuracy
 
 ! begin Newton's method
 newton_loop: DO
-  IF (error_old < tol) EXIT
+  IF (error_old < tol .AND. iteration > 2) EXIT
   ! Evaluate the Jacobian matrix
   CALL Jacobian_Richards_steady(nx, ny, nz, J)
   
@@ -89,7 +90,7 @@ newton_loop: DO
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tol) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo

@@ -33,11 +33,11 @@ F_residual= 0.0
 jy = 1
 jz = 1
 ! lower boundary
-F_residual(1) = theta(1, jy, jz) - theta_prev(1, jy, jz) + (qx(1, jy, jz) - qx(0, jy, jz))*dtflow/dxx(1)
+F_residual(1) = (theta(1, jy, jz) - theta_prev(1, jy, jz))/dtflow + (qx(1, jy, jz) - qx(0, jy, jz))/dxx(1)
 
 ! internal cells
 DO jx = 2, nx-1
-  F_residual(jx) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + (qx(jx, jy, jz) - qx(jx-1, jy, jz))*dtflow/dxx(jx)
+  F_residual(jx) = (theta(jx, jy, jz) - theta_prev(jx, jy, jz))/dtflow + (qx(jx, jy, jz) - qx(jx-1, jy, jz))/dxx(jx)
 END DO
 
 ! upper boundary
@@ -50,17 +50,11 @@ CASE ('constant_flux', 'variable_flux')
     ! the top cell is extremely dry, update the flux into the top cell to prevent the cell from drying out
     qx(nx, jy, jz) = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz) - 0.001d0)*dxx(nx)/dtflow
   END IF
-  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
+  F_residual(nx) = (theta(nx, jy, jz) - theta_prev(nx, jy, jz))/dtflow + (qx(nx, jy, jz) - qx(nx-1, jy, jz))/dxx(nx)
    
 CASE ('environmental_forcing')
   ! check if the total water extraction (infiltration + evaporation + transpiration) is smaller than the remaining water in the top cell
   ! note that the flux is positive upward
-  ! IF  (.NOT. transpitimeseries) THEN
-  !   transpirate = 0
-  ! END IF
-  ! IF  (.NOT. evapotimeseries) THEN
-  !   transpirate = 0
-  ! END IF
 
   water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - (infiltration_rate + evaporate + transpirate_cell(nx))*dtflow/dxx(nx)  ! the unit is dimensionless
   qx(nx, jy, jz) = infiltration_rate ! only infiltration is used for reaction transport model
@@ -79,7 +73,7 @@ CASE ('environmental_forcing')
     ! there is enough water for the total water extraction
     transpirate_cell(nx) = transpirate
   END IF
-  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (infiltration_rate + evaporate + transpirate_cell(nx) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
+  F_residual(nx) = (theta(nx, jy, jz) - theta_prev(nx, jy, jz))/dtflow + (infiltration_rate + evaporate + transpirate_cell(nx) - qx(nx-1, jy, jz))/dxx(nx)
   
   ! apply transpiration to other cells
   IF (transpicells > 1) THEN
@@ -92,12 +86,12 @@ CASE ('environmental_forcing')
       ELSE
         transpirate_cell(nx+1-i) = transpirate
       END IF
-      F_residual(nx+1-i) = F_residual(nx+1-i) + transpirate_cell(nx+1-i)*dtflow/dxx(nx+1-i)
+      F_residual(nx+1-i) = F_residual(nx+1-i) + transpirate_cell(nx+1-i)/dxx(nx+1-i)
     END DO
   END IF
     
 CASE DEFAULT
-  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
+  F_residual(nx) = (theta(nx, jy, jz) - theta_prev(nx, jy, jz))/dtflow + (qx(nx, jy, jz) - qx(nx-1, jy, jz))/dxx(nx)
 END SELECT
 
 END SUBROUTINE residual_Richards

@@ -5,111 +5,117 @@
 ! -------------------------------------------------------------------------------------------------
 
 &Aqueous
-  name          = 'Nitrificationa'
+  name          = 'AR_soil'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCsoil'  -1 'O2(aq)' 0.9360 'H+'  1 'HCO3-' 0.0640 'NH4+' 
+  keq           = 113.5800  
+/
+
+&Aqueous
+  name          = 'Denit_soila'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCsoil'  -2 'NO3-' 0.9360 'H+'  2 'NO2-' 1 'HCO3-' 0.0640 'NH4+' 
+  keq           = 83.1088  
+/
+
+&Aqueous
+  name          = 'Denit_soilb'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCsoil'  -2 'NO2-' -1.0640 'H+' 1 'N2O(aq)' 1 'HCO3-' 0.0640 'NH4+' 
+  keq           = 26.9178  
+/
+
+&Aqueous
+  name          = 'Denit_soilc'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCsoil'  -2 'N2O(aq)' 0.9360 'H+'  2 'N2(aq)' 1 'HCO3-' 0.0640 'NH4+' 
+  keq           = 49.8819  
+/
+
+&Aqueous
+  name          = 'AR_shale'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCshale'  -1 'O2(aq)' 0.9000 'H+'  1 'HCO3-' 0.1000 'NH4+' 
+  keq           = 113.58
+/
+
+&Aqueous
+  name          = 'Denit_shalea'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCshale'  -2 'NO3-' 0.9000 'H+' 2 'NO2-'  1 'HCO3-' 0.1000 'NH4+' 
+  keq           = 83.1088  
+/
+
+&Aqueous
+  name          = 'Denit_shaleb'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCshale'  -2 'NO2-' -1.1000 'H+' 1 'N2O(aq)'  1 'HCO3-' 0.1000 'NH4+' 
+  keq           = 26.9178  
+/
+
+&Aqueous
+  name          = 'Denit_shalec'
+  type          = 'catabolic'
+  stoichiometry = -1 'DOCshale'  -2 'N2O(aq)' 0.9000 'H+' 2 'N2(aq)'  1 'HCO3-' 0.1000 'NH4+' 
+  keq           = 49.8819  
+/
+
+&Aqueous
+  name          = 'Nitria'
+  type          = 'catabolic'
   stoichiometry = -1 'NH4+' -1.5 'O2(aq)' 1 'NO2-' 2 'H+' 1 'H2O'
-  keq           = 0
+  keq           = 37.6180  
 /
-
+ 
 &Aqueous
-  name          = 'Nitrificationb'
+  name          = 'Nitrib'
+  type          = 'catabolic'
   stoichiometry = -1 'NO2-' -0.5 'O2(aq)' 1 'NO3-'
-  keq           = 0
+  keq           = 15.2356  
 /
 
 &Aqueous
-  name          = 'Aerobic_respiration6'
-  stoichiometry = -1 '(CH2O)(NH3)0.05(aq)'  -1 'O2(aq)' 0.95 'H+'  1 'HCO3-' 0.05 'NH4+'
-  keq           = 0
+  name          = 'Dnra_soil'
+  type          = 'catabolic'
+  stoichiometry = -2 'DOCsoil' -1 'NO3-' -1 'H2O' -0.11 'H+' 1.11 'NH4+'  2 'HCO3-'
+  keq           = 85.88
 /
 
 &Aqueous
-  name          = 'Denitrification6a'
-  stoichiometry = -1 '(CH2O)(NH3)0.05(aq)' -2 'NO3-' 2 'NO2-' 0.95 'H+' 1 'HCO3-' 0.05 'NH4+' 
-  keq           = 0
+  name          = 'Dnra_shale'
+  type          = 'catabolic'
+  stoichiometry = -2 'DOCshale'  -1 'NO3-' -1 'H2O' -0.2000 'H+'  2 'HCO3-' 1.2000 'NH4+' 
+  keq           = 85.8800  
 /
 
 &Aqueous
-  name          = 'Denitrification6b'
-  stoichiometry = -1 '(CH2O)(NH3)0.05(aq)' -2 'NO2-' -1.05 'H+' 1 'N2O(aq)'  1 'HCO3-' 0.05 'NH4+'  1 'H2O' 
-  keq           = 0
+  name          = 'Biomass_heterotroph_soil'
+  type          = 'anabolic'
+  stoichiometry = -1 'DOCsoil' -0.0033 'NH4+' 0.0033 'H+' 0.0673 'Biomass(aq)'  
 /
 
 &Aqueous
-  name          = 'Denitrification6c'
-  stoichiometry = -1 '(CH2O)(NH3)0.05(aq)' -2 'N2O(aq)' 2 'N2(aq)' 0.95 'H+'  1 'HCO3-' 0.05 'NH4+' 
-  keq           = 0
+  name          = 'Biomass_heterotroph_shale'
+  type          = 'anabolic'
+  stoichiometry = -1 'DOCshale' 0.0327 'NH4+' -0.0327 'H+' 0.0673 'Biomass(aq)' 
 /
 
 &Aqueous
-  name          = 'Aerobic_respiration6_kero'
-  stoichiometry = -1 '(CH2O)(NH3)0.075(aq)b'  -1 'O2(aq)' 0.925 'H+'  1 'HCO3-' 0.075 'NH4+'
-  keq           = 0
+  name          = 'Biomass_autotroph'
+  type          = 'anabolic'
+  stoichiometry = -1 'HCO3-' -0.0673 'NH4+' -0.9327 'H+'  0.0673 'Biomass(aq)' 
 /
 
 &Aqueous
-  name          = 'Denitrification6_keroa'
-  stoichiometry = -1 '(CH2O)(NH3)0.075(aq)b' -2 'NO3-' 2 'NO2-' 0.925 'H+' 1 'HCO3-' 0.075 'NH4+' 
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'Denitrification6_kerob'
-  stoichiometry = -1 '(CH2O)(NH3)0.075(aq)b' -2 'NO2-' -1.075 'H+' 1 'N2O(aq)'  1 'HCO3-' 0.075 'NH4+'  1 'H2O' 
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'Denitrification6_keroc'
-  stoichiometry = -1 '(CH2O)(NH3)0.075(aq)b' -2 'N2O(aq)' 2 'N2(aq)' 0.925 'H+'  1 'HCO3-' 0.075 'NH4+' 
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'Feox'
+  name          = 'Feox1'
   stoichiometry = -1 'Fe++' -0.25 'O2(aq)' -1 'H+' 1 'Fe+++' 0.5 'H2O'
   keq           = 8.4887
 /
 
 &Aqueous
-  name          = 'Dnra_soil'
-  stoichiometry = -2 '(CH2O)(NH3)0.05(aq)' -1 'NO3-' -1 'H2O' -0.1 'H+' 1.1 'NH4+'  2 'HCO3-'
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'Dnra_kero'
-  stoichiometry = -2 '(CH2O)(NH3)0.075(aq)b' -1 'NO3-' -1 'H2O' -0.15 'H+' 1.15 'NH4+'  2 'HCO3-'
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'Sulfatereduction_soil'
-  stoichiometry = -2 '(CH2O)(NH3)0.05(aq)' -1 'SO4--' 1 'HS-' 0.9 'H+' 2 'HCO3-' 0.1 'NH4+'
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'Sulfatereduction_kero'
-  stoichiometry = -2 '(CH2O)(NH3)0.075(aq)b' -1 'SO4--' 1 'HS-' 0.85 'H+' 2 'HCO3-' 0.15 'NH4+'
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'HSoxO2'
-  stoichiometry = -0.5 'HS-' -1 'O2(aq)' 0.5 'H+' 0.5 'SO4--'
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'HSoxNO3'
-  stoichiometry = -1 'HS-' -1.6 'NO3-' -0.6 'H+' 1 'SO4--' 0.8 'N2(aq)' 0.8 'H2O'
-  keq           = 0
-/
-
-&Aqueous
-  name          = 'FeoxNO3'
-  stoichiometry = -1 'Fe++' -0.2 'NO3-' -1.2 'H+' 1 'Fe+++' 0.1 'N2(aq)' 0.6 'H2O'
-  keq           = 0
+  name          = 'Feox2'
+  stoichiometry = -1 'Fe++' -0.25 'O2(aq)' -1 'H+' 1 'Fe+++' 0.5 'H2O'
+  keq           = 8.4887
 /
 
 ! -------------------------------------------------------------------------------------------------
@@ -119,164 +125,168 @@
 ! -------------------------------------------------------------------------------------------------
 
 &AqueousKinetics
-  name     = 'Aerobic_respiration6'
-  type          = 'Monod'
-rate25C       = 1.030585e-01
-monod_terms   = 'O2(aq)' 3.049185e-06 '(CH2O)(NH3)0.05(aq)' 2.819363e-04
+  name     = 'AR_soil'
+  type          = 'MonodBiomass'
+  rate25C       = 6.3706e+03  
+  monod_terms   = 'O2(aq)' 4.07e-05 'DOCsoil' 1.38e-05  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 14.3400  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Denitrification6a'
-  type          = 'Monod'
-rate25C       = 2.957476e-03
-monod_terms   = 'NO3-' 1.539275e-05 '(CH2O)(NH3)0.05(aq)' 2.819363e-04
-inhibition   = 'O2(aq)' 1.135816e-06
+  name     = 'Denit_soila'
+  type          = 'MonodBiomass'
+  rate25C       = 1.1857e+00  
+  monod_terms   = 'NO3-' 1.00e-06 'DOCsoil' 1.38e-05  
+  inhibition   = 'O2(aq)' 3.83e-06  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 11.9500  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Denitrification6b'
-  type          = 'Monod'
-rate25C       = 3.771544e-03
-monod_terms   = 'NO2-' 1.200000e-04 '(CH2O)(NH3)0.05(aq)' 2.819363e-04
-inhibition   = 'O2(aq)' 1.599563e-05
+  name     = 'Denit_soilb'
+  type          = 'MonodBiomass'
+  rate25C       = 3.2297e+01  
+  monod_terms   = 'NO2-' 7.60e-04 'DOCsoil' 1.38e-05  
+  inhibition   = 'O2(aq)' 1.00e-08  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 16.7300  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Denitrification6c'
-  type          = 'Monod'
-rate25C       = 9.474077e-05
-monod_terms   = 'N2O(aq)' 1.342322e-05 '(CH2O)(NH3)0.05(aq)' 2.819363e-04
-inhibition   = 'O2(aq)' 1.149430e-07
+  name     = 'Denit_soilc'
+  type          = 'MonodBiomass'
+  rate25C       = 2.0771e-02  
+  monod_terms   = 'N2O(aq)' 3.79e-06 'DOCsoil' 1.38e-05  
+  inhibition   = 'O2(aq)' 1.72e-05  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 14.3400  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Aerobic_respiration6_kero'
-  type          = 'Monod'
-rate25C       = 2.000000e-01
-monod_terms   = 'O2(aq)' 3.049185e-06 '(CH2O)(NH3)0.075(aq)b' 2.819363e-04
+  name     = 'AR_shale'
+  type          = 'MonodBiomass'
+  rate25C       = 5.6013e-03  
+  monod_terms   = 'O2(aq)' 4.07e-05 'DOCshale' 1.38e-05  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 14.3400  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Denitrification6_keroa'
-  type          = 'Monod'
-rate25C       = 1.468452e-05
-monod_terms   = 'NO3-' 1.539275e-05 '(CH2O)(NH3)0.075(aq)b' 2.819363e-04
-inhibition   = 'O2(aq)' 1.135816e-06
+  name     = 'Denit_shalea'
+  type          = 'MonodBiomass'
+  rate25C       = 4.0212e-02  
+  monod_terms   = 'NO3-' 1.00e-06 'DOCshale' 1.38e-05  
+  inhibition   = 'O2(aq)' 3.83e-06  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 11.9500  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Denitrification6_kerob'
-  type          = 'Monod'
-rate25C       = 2.821528e-05
-monod_terms   = 'NO2-' 1.200000e-04 '(CH2O)(NH3)0.075(aq)b' 2.819363e-04
-inhibition   = 'O2(aq)' 1.599563e-05
+  name     = 'Denit_shaleb'
+  type          = 'MonodBiomass'
+  rate25C       = 1.2946e+00  
+  monod_terms   = 'NO2-' 7.60e-04 'DOCshale' 1.38e-05  
+  inhibition   = 'O2(aq)' 1.0000e-08  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 16.7300  
+chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Denitrification6_keroc'
-  type          = 'Monod'
-rate25C       = 6.614152e-04
-monod_terms   = 'N2O(aq)' 1.342322e-05 '(CH2O)(NH3)0.075(aq)b' 2.819363e-04
-inhibition   = 'O2(aq)' 1.149430e-07
+  name     = 'Denit_shalec'
+  type          = 'MonodBiomass'
+  rate25C       = 1.5111e-03  
+  monod_terms   = 'N2O(aq)' 3.79e-06 'DOCshale' 1.38e-05  
+  inhibition   = 'O2(aq)' 1.72e-05  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 14.3400  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Nitrificationa'
-  type          = 'Monod'
-rate25C       = 5.089577e-07
-monod_terms   = 'O2(aq)' 4.464520e-06 'NH4+' 2.896471e-04
+  name     = 'Nitria'
+  type          = 'MonodBiomass'
+  rate25C       = 5.9916e+00  
+  monod_terms   = 'O2(aq)' 3.90e-06 'NH4+' 2.16e-05  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 20.8200  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Nitrificationb'
-  type          = 'Monod'
-rate25C       = 1.000000e-01
-monod_terms   = 'O2(aq)' 4.464520e-06 'NO2-' 8.429112e-04
+  name     = 'Nitrib'
+  type          = 'MonodBiomass'
+  rate25C       = 6.0177e-01  
+  monod_terms   = 'O2(aq)' 3.90e-06 'NO2-' 1.09e-06 
+  biomass  = 'Biomass(s)'
   direction = -1
-/
-
-&AqueousKinetics
-  name     = 'Feox'
-  type          = 'tst'
-  rate25C       = 1.53e-6
-  dependence = 'Fe++' 1.0 'O2(aq)' 1.0 'H+' -2.0
-/
-
-&AqueousKinetics
-  name     = 'Feox'
-  type          = 'tst'
-  rate25C       = 41.48
-  dependence = 'Fe++' 1.0 'O2(aq)' 1.0
+  activation = 8.1700  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
   name     = 'Dnra_soil'
-  type          = 'Monod'
- rate25C       = 5.735347e-04
-monod_terms   = 'NO3-' 1.539275e-05 '(CH2O)(NH3)0.05(aq)' 2.819363e-04
-inhibition   = 'O2(aq)' 2.392924e-05
+  type          = 'MonodBiomass'
+  rate25C       = 1.000000e-200
+  monod_terms   = 'NO3-' 2.789814e-06 'DOCsoil' 3.767940e-07
+  inhibition   = 'O2(aq)' 3.671999e-07
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 11.95
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Dnra_kero'
-  type          = 'Monod'
- rate25C       = 5.000000e-06
-monod_terms   = 'NO3-' 1.539275e-05 '(CH2O)(NH3)0.075(aq)b' 2.819363e-04
-inhibition   = 'O2(aq)' 5.059453e-03
+  name     = 'Dnra_shale'
+  type          = 'MonodBiomass'
+  rate25C       = 4.7363e-03  
+  monod_terms   = 'NO3-' 1.00e-06 'DOCshale' 1.38e-05  
+  inhibition   = 'O2(aq)' 6.43e-07  
+  biomass  = 'Biomass(s)'
   direction = -1
+  activation = 11.9500  
+  chi      = 1
+  bq       = -0.0
 /
 
 &AqueousKinetics
-  name     = 'Sulfatereduction_soil'
-  type          = 'Monod'
- rate25C       = 1.000000e-01
-monod_terms   = 'SO4--' 1.000000e-01 '(CH2O)(NH3)0.05(aq)' 2.819363e-04
-inhibition   = 'O2(aq)' 1.000000e-01 'NO3-' 1.000000e-01
-  direction = -1
+  name     = 'Feox1'
+  type          = 'tst'
+  rate25C       = 1.5300e-06  
+  dependence = 'Fe++' 1.0 'O2(aq)' 1.0 'H+' -2.0
 /
 
 &AqueousKinetics
-  name     = 'Sulfatereduction_kero'
-  type          = 'Monod'
- rate25C       = 1.000000e-01
-monod_terms   = 'SO4--' 1.000000e-01 '(CH2O)(NH3)0.075(aq)b' 2.819363e-04
-inhibition   = 'O2(aq)' 1.000000e-01 'NO3-' 1.000000e-01
-  direction = -1
-/
-
-&AqueousKinetics
-  name     = 'HSoxO2'
-  type          = 'Monod'
- rate25C       = 1.000000e-01
-monod_terms   = 'O2(aq)' 3.049185e-06 'HS-' 1.000000e-01
-  direction = -1
-/
-
-&AqueousKinetics
-  name     = 'HSoxNO3'
-  type          = 'Monod'
- rate25C       = 1.000000e-01
-monod_terms   = 'NO3-' 1.539275e-05 'HS-' 1.000000e-01 
-inhibition   = 'O2(aq)' 1.000000e-01
-  direction = -1
-/
-
-&AqueousKinetics
-  name     = 'FeoxNO3'
-  type          = 'Monod'
- rate25C       = 1.000000e-01
-monod_terms   = 'NO3-' 1.539275e-05 'Fe++' 1.000000e-01 
-inhibition   = 'O2(aq)' 1.000000e-01
-  direction = -1
+  name     = 'Feox2'
+  type          = 'tst'
+  rate25C       = 4.1480e+01  
+  dependence = 'Fe++' 1.0 'O2(aq)' 1.0
 /
 
