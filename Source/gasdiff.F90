@@ -50,6 +50,7 @@ SUBROUTINE gasdiff(nx,ny,nz)
   USE transport
   USE flow
   USE temperature
+  USE CrunchFunctions
   
   IMPLICIT NONE
   
@@ -106,6 +107,11 @@ SUBROUTINE gasdiff(nx,ny,nz)
   REAL(DP)                                      :: tempw
   REAL(DP)                                      :: temps
   REAL(DP)                                      :: tempn
+  REAL(DP)                                      :: dharm
+  REAL(DP)                                      :: AreaE
+  REAL(DP)                                      :: AreaW
+  REAL(DP)                                      :: AreaS
+  REAL(DP)                                      :: AreaN
   
   REAL(DP)                                      :: PorPow
   REAL(DP)                                      :: SatPow
@@ -157,15 +163,15 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !satw = 1.0-satliq(jx,jy,jz)
         satw = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
-        dume = pore*sate*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpx = porp*satp*gasd
+          gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+          dume = pore*sate*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpx = porp*satp*gasd
         else
-        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
-        dume = pore*sate*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpx = porp*satp*gasd
+          gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
+          dume = pore*sate*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpx = porp*satp*gasd
         endif
         dumw = dumpx
       ELSE IF (jx == nx .and. gad_diff_T) THEN
@@ -178,15 +184,15 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !satw = 1.0-satliq(jx-1,jy,jz)
         satw = 0.5*( 1.0-satliq(jx-1,jy,jz) + 1.0-satliqold(jx-1,jy,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
-        dumw = porw*satw*gasd
-        gasd = porp**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpx = porp*satp*gasd
+          gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+          dumw = porw*satw*gasd
+          gasd = porp**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpx = porp*satp*gasd
         else
-        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
-        dumw = porw*satw*gasd
-        gasd = porp**(PorPow)*(satp)**(SatPow)*dgas
-        dumpx = porp*satp*gasd
+          gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
+          dumw = porw*satw*gasd
+          gasd = porp**(PorPow)*(satp)**(SatPow)*dgas
+          dumpx = porp*satp*gasd
         endif
         dume = dumpx
       ELSE
@@ -199,12 +205,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !satw = 1.0-satliq(jx-1,jy,jz)
         satw = 0.5*( 1.0-satliq(jx-1,jy,jz) + 1.0-satliqold(jx-1,jy,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
-        dume = pore*sate*gasd
-        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
-        dumw = porw*satw*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpx = porp*satp*gasd
+          gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
+          dume = pore*sate*gasd
+          gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
+          dumw = porw*satw*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpx = porp*satp*gasd
         else
         gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
         dume = pore*sate*gasd
@@ -289,63 +295,46 @@ SUBROUTINE gasdiff(nx,ny,nz)
       200     CONTINUE
       IF (nx == 1) GO TO 300
       
-      tempe = dume + dumpx
-      tempw = dumw + dumpx
-      IF (tempe /= zero) THEN
-        dspe = 2.0D0*dume*dumpx/(tempe)
-      ELSE
-        dspe = zero
-      END IF
-      IF (tempw /= zero) THEN
-        dspw = 2.d0*dumw*dumpx/(tempw)
-      ELSE
-        dspw = zero
-      END IF
-      de = dspe*dyy(jy)/dxe
-      dw = dspw*dyy(jy)/dxw
-  
-  
-      IF (jx == 1 .AND. jc(1) == 2) THEN
-        dw = 0.00
-      END IF
-  
-      IF (jx == NX .AND. jc(2) == 2) THEN
-        de = 0.00
-      END IF
+!!! NOTE: Below assumes gas is always a Dirichlet boundary condition.  
+!!!         This agrees with what is is in FxTopeGlobal
       
-  !!  The following forces Dirichlet conditions for gases at all times (unless above is uncommented)
-      ! if (east_river) then
-      ! if (activecellPressure(jx-1,jy,jz) == 0 .and. activecellPressure(jx,jy,jz) == 1) then
-      ! dw = dw*0.0d0
-      ! elseif (activecellPressure(jx+1,jy,jz) == 0 .and. activecellPressure(jx,jy,jz) == 1) then
-      ! de = de*0.0d0
-      ! elseif (activecellPressure(jx,jy,jz) == 0 ) then
-      ! dw = dw*0.0d0
-      ! de = de*0.0d0
-      ! elseif (jx-1 == 0 .and. activecellPressure(jx,jy,jz) == 1) then
-      ! dw = dw*0.0d0
-      ! elseif (jx+1 == nx .and. activecellPressure(jx,jy,jz) == 1) then
-      ! de = de*0.0d0
-      ! elseif (jx == 0 .or. jx == nx) then
-      ! dw = dw*0.0d0
-      ! de = de*0.0d0
-      ! endif
-      ! endif
-      fe = dyy(jy)*qxgas(jx,jy,jz)
-      fw = dyy(jy)*qxgas(jx-1,jy,jz)
-  
-      ae = DMAX1(-fe,zero) + de
-      aw = DMAX1(fw,zero) + dw
-      apx = dw + de + DMAX1(-fw,zero) + DMAX1(fe,zero)
-  !!  **************************************************************
-  
-        !!!netflowx(0,jy,jz) = qx(jx-1,jy,jz) + FluidBuryX(jx-1)
+                !!! Steefel Checked
         
-        IF (jc(1) == 2) THEN
-          apx = de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)  !  Pure advective boundary
-        ELSE
-          apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
-        END IF
+    !!! East
+        
+      IF (MeanDiffusion == 1) THEN
+        dharm = ArithmeticMean(dume,dumpx)
+      ELSE IF (MeanDiffusion == 2) THEN
+        dharm = HarmonicMean(dume,dumpx)
+      ELSE
+        dharm = GeometricMean(dume,dumpx)
+      END IF
+
+      AreaE = dyy(jy)*dzz(jx,jy,jz) 
+      dspe = dharm
+      de = AreaE*dspe/dxe
+      fe = AreaE*qxgas(jx,jy,jz)
+      ae = DMAX1(-fe,0.0D0) + de
+      
+   !!!  WEST
+      
+      IF (MeanDiffusion == 1) THEN
+        dharm = ArithmeticMean(dumw,dumpx)
+      ELSE IF (MeanDiffusion == 2) THEN
+        dharm = HarmonicMean(dumw,dumpx)
+      ELSE
+        dharm = GeometricMean(dumw,dumpx)
+      END IF
+
+      AreaW = dyy(jy)*dzz(jx,jy,jz) 
+      dspw = dharm
+      dw = AreaW*dspw/dxw
+      fw = AreaW*qxgas(jx-1,jy,jz)
+      aw = DMAX1(fw,0.0D0) + dw
+
+      apx = dw + de + DMAX1(-fw,zero) + DMAX1(fe,zero)
+      
+  !!  **************************************************************
       
       300     CONTINUE
       IF (ny == 1) GO TO 400

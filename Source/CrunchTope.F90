@@ -398,6 +398,9 @@ REAL(DP)                                                   :: totCheck
 REAL(DP)                                                   :: totChange
 REAL(DP)                                                   :: totCheckInitial
 
+REAL(DP)      :: CheckMass1
+REAL(DP)      :: CheckMass2
+
 
 REAL(DP)                                                   :: pumpterm
 
@@ -1186,6 +1189,8 @@ DO WHILE (nn <= nend)
       END DO
     END DO
   END DO
+  
+  mu_water = 0.001*secyr
 ! End of Edit by Lucien Stolze, June 2023
 !*************************************************************
 
@@ -2893,6 +2898,16 @@ END DO
         END IF
       END IF
     ELSE
+      
+        if (time > 9.0 .and. time< 10.0) then
+          CheckMass1 = qx(70,1,1) - qx(69,1,1)
+          CheckMass2 = qx(80,1,1) - qx(79,1,1)
+          write(70,177) time,dppt(1,70,1,1),CheckMass1
+          write(80,177) time,dppt(1,80,1,1),CheckMass2
+        end if
+        
+  177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)
+              
       IF (MOD(nn,ScreenInterval) == 0) THEN
 
         if (SaltCreep) THEN
