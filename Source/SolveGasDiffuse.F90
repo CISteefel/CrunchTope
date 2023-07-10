@@ -83,6 +83,7 @@ REAL(DP)                                                              :: RightHa
 REAL(DP)                                                              :: DiagonalTerm
 REAL(DP)                                                              :: portemp
 REAL(DP)                                                              :: satgas
+REAL(DP)                                                              :: satL
 
 ! *******************begin PETSc declarations of f90 variables***********
 INTEGER(I4B)             ::numprocs
@@ -112,7 +113,8 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
   jz = 1
   DO jx = 2,nx-1
     j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1  
-    satgas = 1.0 - satliq(jx,jy,jz)
+    satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+    satgas = 1.0 - satL
     portemp = por(jx,jy,jz)    
     IF (activecell(jx,jy,jz) == 0) THEN
       DiagonalTerm = 1.0
@@ -130,7 +132,8 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
 
   jx = 1
   j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1 
-  satgas = 1.0 - satliq(jx,jy,jz)
+  satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+  satgas = 1.0 - satL
   portemp = por(jx,jy,jz)   
   IF (activecell(jx,jy,jz) == 0) THEN
     DiagonalTerm = 1.0
@@ -145,7 +148,8 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
 
   jx = nx
   j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1 
-  satgas = 1.0 - satliq(jx,jy,jz)
+  satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+  satgas = 1.0 - satL
   portemp = por(jx,jy,jz)
   IF (activecell(jx,jy,jz) == 0) THEN
     DiagonalTerm = 1.0
@@ -219,7 +223,8 @@ ELSE                                                !  2D problem
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
-          satgas = 1.0 - satliq(jx,jy,jz)
+          satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+          satgas = 1.0 - satL
           portemp = por(jx,jy,jz) 
           j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1 
           IF (activecell(jx,jy,jz) == 0) THEN
@@ -241,7 +246,8 @@ END IF
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      satgas = 1.0 - satliq(jx,jy,jz)
+      satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      satgas = 1.0 - satL
       portemp = por(jx,jy,jz) 
       j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
       IF (activecell(jx,jy,jz) == 0) THEN

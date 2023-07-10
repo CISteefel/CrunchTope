@@ -30,8 +30,8 @@ INTEGER(I4B), DIMENSION(nx)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
 ! Because the residual has a unit of m year^-1, the meaning of the tolerance for the residual is different from the time-dependent case (dimensionless residula is used).
-REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7 ! tolerance for the residual
-REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-10 ! tolerance for the residual
+REAL(DP), PARAMETER                                        :: tau_r = 1.0d-10
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
 ! variables for line search

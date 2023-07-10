@@ -393,7 +393,7 @@ DO jy = 1,ny
 
     CALL AqueousToBulkConvert(jx,jy,jz,AqueousToBulk)
 
-    satl = satliq(jx,jy,jz)
+    satl = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
     satgas = 1.0d0 - satl
     IF (cylindrical) THEN
       CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
