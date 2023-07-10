@@ -1218,7 +1218,7 @@ DO WHILE (nn <= nend)
           
           IF (Richards_print) THEN
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
-            !IF (time > 5.4d-02) THEN
+            !IF (time > 10.0) THEN
             !  READ(*,*)
             !END IF
           END IF

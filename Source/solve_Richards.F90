@@ -158,7 +158,17 @@ IF (Richards_print) THEN
   
   WRITE(*,110) water_mass, water_mass_error
 110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
-  !READ(*,*)
+    
+! check water mass balance in each cell
+  DO jx = 1, nx-2
+    water_mass = 0.0d0
+    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
+    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(jx-1, jy, jz) - qx(jx, jy, jz)))/water_mass ! in percent
+    WRITE(*,130) water_mass, water_mass_error, jx
+130 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '% at the cell ', I4)
+  END DO
+  
+  READ(*,*)
 END IF
 !***********************************************************************************************************************************************
 
