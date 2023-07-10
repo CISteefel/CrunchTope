@@ -41,6 +41,10 @@ INTEGER(I4B)                                               :: no_backtrack, desc
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
 
+! variables for checking water mass balance
+REAL(DP)                                                   :: water_mass
+REAL(DP)                                                   :: water_mass_error
+
 ! initialize parameters for linear solver
 nrhs = 1
 lda = nx
@@ -57,11 +61,13 @@ CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
 
 ! update tolerance
 error_old = MAXVAL(ABS(F_residual))
-tol = tau_r * error_old + tau_a
+!tol = tau_r * error_old + tau_a
+tol = tau_a ! this tolerance should be used for problems that need very high accuracy
 
 ! begin Newton's method
 newton_loop: DO
-  IF (error_old < tol) EXIT
+  IF (error_old < tol .AND. iteration > 2) EXIT
+  !IF (error_old < tol) EXIT
   ! Evaluate the Jacobian matrix
   CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
   
@@ -90,7 +96,8 @@ newton_loop: DO
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
+    !Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tol) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -110,6 +117,11 @@ newton_loop: DO
   
   total_line = total_line + no_backtrack
   iteration = iteration + 1
+  
+  IF (Richards_print) THEN
+  WRITE(*,120) tol, error_old
+  120 FORMAT(1X, 'The tolerance is  ', ES14.4, ' , and the error is ', ES14.4)
+  END IF
 END DO newton_loop
 
 IF (iteration > maxitr) THEN
@@ -122,5 +134,32 @@ IF (Richards_print) THEN
   WRITE(*,100) iteration, total_line
   100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the Richards solver. ')
 END IF
+
+!***********************************************************************************************************************************************
+! evaluate water mass balance (this is not compatible with evaporaiton and transpiration for the "enviornmental_forcing" boundary condition.)
+IF (Richards_print) THEN
+  jy = 1
+  jz = 1
+  water_mass = 0.0d0
+  DO jx = 1, nx
+    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
+  END DO
+  
+  SELECT CASE (upper_BC_type)
+  CASE ('environmental_forcing')
+    water_mass_error = water_mass - dtflow*(qx(0, jy, jz) - (infiltration_rate + evaporate))
+    DO i = 1, transpicells
+      water_mass_error = water_mass_error + dtflow*transpirate_cell(nx - i + 1)
+    END DO
+    water_mass_error = 100.0d0*water_mass_error/water_mass ! in percent
+  CASE DEFAULT
+    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
+  END SELECT
+  
+  WRITE(*,110) water_mass, water_mass_error
+110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
+  !READ(*,*)
+END IF
+!***********************************************************************************************************************************************
 
 END SUBROUTINE solve_Richards
