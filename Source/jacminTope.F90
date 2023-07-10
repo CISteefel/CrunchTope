@@ -1033,6 +1033,7 @@ DO k = 1,nkin
 
         ELSE    !!  Non-isotope case
           
+          !!! Steefel Checked
           DO i = 1,ncomp
           IF (umin(k)=='TOC_soil' .OR. umin(k)=='TOCsoil') THEN
           liqsat_fac = 1
