@@ -168,7 +168,7 @@ IF (Richards_print) THEN
 130 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '% at the cell ', I4)
   END DO
   
-  READ(*,*)
+  !READ(*,*)
 END IF
 !***********************************************************************************************************************************************
 

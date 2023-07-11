@@ -5605,8 +5605,6 @@ END DO
 !   END DO
 ! END DO
 
-mu_water = 0.001*secyr
-
 ! End of Edit by Toshiyuki Bandai, June 2023
 !*************************************************************
 
