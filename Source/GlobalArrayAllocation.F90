@@ -269,9 +269,9 @@ IF (ny == 1 .AND. nz == 1) THEN
 
   IF (ALLOCATED(mu_water)) THEN
     DEALLOCATE(mu_water)
-    ALLOCATE(mu_water(nx+1,ny,nz))
+    ALLOCATE(mu_water(nx,ny,nz))
   ELSE
-    ALLOCATE(mu_water(nx+1,ny,nz))
+    ALLOCATE(mu_water(nx,ny,nz))
   END IF
 
   IF (ALLOCATED(rho_water_2)) THEN

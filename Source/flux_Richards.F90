@@ -93,6 +93,7 @@ CASE ('constant_flux', 'variable_flux')
   qx(nx, jy, jz) = value_upper_BC
 
 CASE ('environmental_forcing')
+  ! the flux is defined in the residual_Richards.F90 because we need to differentiate infinltration, evaporation, and transpiration. 
   CONTINUE
   
 CASE DEFAULT
