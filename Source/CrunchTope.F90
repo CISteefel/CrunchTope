@@ -420,6 +420,16 @@ REAL(DP)                                                    :: wattab
 REAL(DP), DIMENSION(:), ALLOCATABLE                         :: depth
 INTEGER(I4B)                                                :: depthwattab
 
+!*************************************************************************
+! Edit by Toshiyuki Bandai, 2023 July
+INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
+INTEGER(I4B)                                               :: n_count_evaporation = 2 ! count the number for interpolating evaporation data
+INTEGER(I4B)                                               :: n_count_transpiration = 2 ! count the number for interpolating transpiration data
+INTEGER(I4B)                                               :: n_count_temperature = 2 ! count the number for interpolating temperature data
+! End of Edit by Toshiyuki Bandai, 2023 July 
+!*************************************************************************
+
+
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
 Mat                  amatpetsc,amatD,amatP
@@ -1144,6 +1154,25 @@ DO WHILE (nn <= nend)
 
     IF (TS_1year) THEN
       time_norm = time - floor(time)
+      IF (time_norm + delt > t_temp_ts(n_count_temperature) .AND. ABS(t_temp_ts(n_count_temperature) - time_norm) > 1.0d-10) THEN
+        IF (time_norm + delt > 1.0d0) THEN
+          n_count_temperature = 2
+        ELSE IF (n_count_temperature > size(t_temp_ts)) THEN
+          CONTINUE
+        ELSE
+          delt = t_temp_ts(n_count_temperature) - time_norm
+          n_count_temperature = n_count_temperature + 1
+                  
+          WRITE(*,*) ' Adjusting time step to match the temperature data '
+          WRITE(*,5085) delt*OutputTimeScale
+          WRITE(*,*)
+        END IF
+      END IF
+                
+      IF (ABS(t_temp_ts(n_count_temperature) - time_norm - delt) < 1.0d-10) THEN
+        n_count_temperature = n_count_temperature + 1
+      END IF
+      
       DO i = 1,nb_temp_ts
       CALL  interp3(time_norm,delt,t_temp_ts,temp_ts(i,:),temp_dum(i),size(temp_ts(i,:)))
       END DO
@@ -1221,13 +1250,6 @@ DO WHILE (nn <= nend)
           DO jx = 1,nx
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
-          
-          IF (Richards_print) THEN
-            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
-            !IF (time > 0.9993) THEN 
-            !  READ(*,*)
-            !END IF
-          END IF
                   
           ! update the value used for the lower boundary condition by interpolating time series
           SELECT CASE (lower_BC_type)
@@ -1241,11 +1263,29 @@ DO WHILE (nn <= nend)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
             CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
           CASE ('environmental_forcing')
-            
             ! infiltration
             IF (infiltration_timeseries) THEN
               IF (TS_1year) THEN
                 time_norm=time-floor(time)
+                IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
+                  IF (time_norm + delt > 1.0d0) THEN
+                    n_count_infiltration = 2
+                  ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
+                    CONTINUE
+                  ELSE 
+                    delt = t_infiltration(n_count_infiltration) - time_norm
+                    n_count_infiltration = n_count_infiltration + 1
+                  
+                    WRITE(*,*) ' Adjusting time step to match the infiltration data '
+                    WRITE(*,5085) delt*OutputTimeScale
+                    WRITE(*,*)
+                  END IF
+                END IF
+                
+                IF (ABS(t_infiltration(n_count_infiltration) - time_norm - delt) < 1.0d-10) THEN
+                  n_count_infiltration = n_count_infiltration + 1
+                END IF
+                
                 CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
               ELSE
                 CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
@@ -1256,6 +1296,24 @@ DO WHILE (nn <= nend)
             IF (transpitimeseries) THEN
               IF (TS_1year) THEN
                 time_norm=time-floor(time)
+                IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+                  IF (time_norm + delt > 1.0d0) THEN
+                    n_count_transpiration = 2
+                  ELSE IF (n_count_transpiration > size(t_transpi)) THEN
+                    CONTINUE
+                  ELSE 
+                    delt = t_transpi(n_count_transpiration) - time_norm
+                    n_count_transpiration = n_count_transpiration + 1
+                  
+                    WRITE(*,*) ' Adjusting time step to match the transpiration data '
+                    WRITE(*,5085) delt*OutputTimeScale
+                    WRITE(*,*)
+                  END IF
+                END IF
+                
+                IF (ABS(t_transpi(n_count_transpiration) - time_norm - delt) < 1.0d-10) THEN
+                  n_count_transpiration = n_count_transpiration + 1
+                END IF
                 CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
               ELSE
                 CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
@@ -1266,6 +1324,26 @@ DO WHILE (nn <= nend)
             IF (evapotimeseries) THEN
               IF (TS_1year) THEN
                 time_norm=time-floor(time)
+                IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
+                  IF (time_norm + delt > 1.0d0) THEN
+                    n_count_evaporation = 2
+                    delt = 1.0d0 - time_norm
+                  ELSE IF (n_count_evaporation > size(t_evapo)) THEN
+                    CONTINUE
+                  ELSE
+                    delt = t_evapo(n_count_evaporation) - time_norm
+                    n_count_evaporation = n_count_evaporation + 1
+                  
+                    WRITE(*,*) ' Adjusting time step to match the evaporation data '
+                    WRITE(*,5085) delt*OutputTimeScale
+                    WRITE(*,*)
+                  END IF
+                END IF
+                
+                IF (ABS(t_evapo(n_count_evaporation) - time_norm - delt) < 1.0d-10) THEN
+                  n_count_evaporation = n_count_evaporation + 1
+                END IF
+                
                 CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
               ELSE
                 CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
@@ -1276,6 +1354,13 @@ DO WHILE (nn <= nend)
           CASE DEFAULT
             CONTINUE ! for constant boundary condition, do nothing
           END SELECT
+          
+          IF (Richards_print) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
+            !IF (time > 0.997) THEN 
+            !  READ(*,*)
+            !END IF
+          END IF
           
           ! solve the 1D time-dependenet Richards equation
           CALL solve_Richards(nx, ny, nz, delt)
