@@ -127,6 +127,8 @@ jz = 1
 SatPow = 10.0d0/3.0d0
 PorPow = 4.0d0/3.0d0
 
+  !!! Added July 17 by Carl (hopefully not stomped on)
+
 IF (idiffus == 0) THEN
   d_25 = dzero
 ELSE
@@ -183,10 +185,8 @@ DO jy = 1,ny
       dxw = 0.5d0*dxx(1)
       pore = por(jx+1,jy,jz)
       porw = por(jx,jy,jz)
-!!!      sate = satliq(jx+1,jy,jz)
-!!!      satw = satliq(jx,jy,jz)
-      sate = 0.5*(satliq(jx+1,jy,jz) + satliqold(jx+1,jy,jz) )
-      satw = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
+      satw = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -213,15 +213,14 @@ DO jy = 1,ny
         dumw = dumpx
 
       END IF
+      
     ELSE IF (jx == nx) THEN
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
       dxe = 0.5d0*dxx(nx)
       pore = por(jx,jy,jz)
       porw = por(jx-1,jy,jz)
-!!!      sate = satliq(jx,jy,jz)
-!!!      satw = satliq(jx-1,jy,jz)
-      sate = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
-      satw = 0.5*(satliq(jx-1,jy,jz) + satliqold(jx-1,jy,jz) )
+      sate = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
+      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (porw > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -256,10 +255,8 @@ DO jy = 1,ny
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
       pore = por(jx+1,jy,jz)
       porw = por(jx-1,jy,jz)
-!!!      sate = satliq(jx+1,jy,jz)
-!!!      satw = satliq(jx-1,jy,jz)
-      sate = 0.5*(satliq(jx+1,jy,jz) + satliqold(jx+1,jy,jz) )
-      satw = 0.5*(satliq(jx-1,jy,jz) + satliqold(jx-1,jy,jz) )
+      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
+      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -403,9 +400,7 @@ DO jy = 1,ny
     
     IF (jx == 1) THEN
       
-                !!! Steefel Checked
-      
-  !!!  EAST
+!!!  EAST
       
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
 
@@ -426,12 +421,12 @@ DO jy = 1,ny
       netflowX(1,jy,jz) = fe
       netDiffuseX(1,jy,jz) = de
       
-  !!!  WEST
+!!!  WEST
       
       avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaW = dyy(jy)*dzz(jx,jy,jz)
-      dspw = avgro*dspx(jx-1,jy,jz) + dharm
+      dspw = avgro*dspx(jx,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       netflowX(0,jy,jz) = fw
@@ -483,7 +478,7 @@ DO jy = 1,ny
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe
       
-      IF (jc(2) == 2 .or. JcByGrid(jx,jy,jz) == 2) THEN  
+      IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
         ae = DMAX1(-fe,0.0D0)       !  Pure advective boundary
         netDiffuseX(jx,jy,jz) = 0.0d0
       ELSE
@@ -491,7 +486,7 @@ DO jy = 1,ny
         netDiffuseX(jx,jy,jz) = de
       END IF
       
-      IF (jc(2) == 2 .or. JcByGrid(jx,jy,jz) == 2) THEN  
+      IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
         apx = dw +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)       !  Pure advective boundary
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
