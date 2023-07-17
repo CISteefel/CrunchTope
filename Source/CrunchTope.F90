@@ -440,6 +440,8 @@ KSP                  ksp
 !!Scalar               zeroPetsc
 ! ************************end PETSc declarations of PETSc variables ******
 
+  !!! Added July 17 by Carl (hopefully not stomped on)
+  
 Switcheroo = .false.
 
 MassBalanceError = 0.0d0
@@ -1163,9 +1165,10 @@ DO WHILE (nn <= nend)
           delt = t_temp_ts(n_count_temperature) - time_norm
           n_count_temperature = n_count_temperature + 1
                   
-          WRITE(*,*) ' Adjusting time step to match the temperature data '
-          WRITE(*,5085) delt*OutputTimeScale
-          WRITE(*,*)
+          !WRITE(*,*) ' Adjusting time step to match the temperature data '
+          !WRITE(*,5085) delt*OutputTimeScale
+          !WRITE(*,*)
+          
         END IF
       END IF
                 
@@ -1276,9 +1279,10 @@ DO WHILE (nn <= nend)
                     delt = t_infiltration(n_count_infiltration) - time_norm
                     n_count_infiltration = n_count_infiltration + 1
                   
-                    WRITE(*,*) ' Adjusting time step to match the infiltration data '
-                    WRITE(*,5085) delt*OutputTimeScale
-                    WRITE(*,*)
+                    !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+                    !WRITE(*,5085) delt*OutputTimeScale
+                    !WRITE(*,*)
+                    
                   END IF
                 END IF
                 
@@ -1305,9 +1309,9 @@ DO WHILE (nn <= nend)
                     delt = t_transpi(n_count_transpiration) - time_norm
                     n_count_transpiration = n_count_transpiration + 1
                   
-                    WRITE(*,*) ' Adjusting time step to match the transpiration data '
-                    WRITE(*,5085) delt*OutputTimeScale
-                    WRITE(*,*)
+!                   WRITE(*,*) ' Adjusting time step to match the transpiration data '
+!                   WRITE(*,5085) delt*OutputTimeScale
+!                   WRITE(*,*)
                   END IF
                 END IF
                 
@@ -1334,9 +1338,11 @@ DO WHILE (nn <= nend)
                     delt = t_evapo(n_count_evaporation) - time_norm
                     n_count_evaporation = n_count_evaporation + 1
                   
-                    WRITE(*,*) ' Adjusting time step to match the evaporation data '
-                    WRITE(*,5085) delt*OutputTimeScale
-                    WRITE(*,*)
+!                   WRITE(*,*) ' Adjusting time step to match the evaporation data '
+!                   WRITE(*,5085) delt*OutputTimeScale
+!                   WRITE(*,*)
+                    
+                    
                   END IF
                 END IF
                 
@@ -1431,7 +1437,6 @@ DO WHILE (nn <= nend)
           READ(*,*)
           STOP
         END IF
-
         
         FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
           pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
@@ -1456,26 +1461,29 @@ DO WHILE (nn <= nend)
     
       jy = 1
       jz = 1 
-      DO jx = 1, nx
-          satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
-      END DO
+!!!     DO jx = 1, nx
+!!!          satliqold(jx,jy,jz) = satliq(jx,jy,jz)
+!!!          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+!!!      END DO
+      
+      satliqold = satliq
+      satliq = theta/theta_s
 
       ! fill ghost points by linear extrapolation in x direction
-      satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-      satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-      satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-      satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+      !!!satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+      !!!satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+      !!!satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+      !!!satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
       ! fill other ghost points by zero-order extrapolation in y and z directions
-      satliq(:,-1,:) =  satliq(:,1,:)
-      satliq(:,0,:) =  satliq(:,1,:)
-      satliq(:,2,:) =  satliq(:,1,:)
-      satliq(:,3,:) =  satliq(:,1,:)
+      !!!satliq(:,-1,:) =  satliq(:,1,:)
+      !!!satliq(:,0,:) =  satliq(:,1,:)
+      !!!satliq(:,2,:) =  satliq(:,1,:)
+      !!!satliq(:,3,:) =  satliq(:,1,:)
     
-      satliq(:,:,-1) = satliq(:,:,1)
-      satliq(:,:,0) = satliq(:,:,1)
-      satliq(:,:,2) = satliq(:,:,1)
-      satliq(:,:,3) = satliq(:,:,1)
+      !!!satliq(:,:,-1) = satliq(:,:,1)
+      !!!satliq(:,:,0) = satliq(:,:,1)
+      !!!satliq(:,:,2) = satliq(:,:,1)
+      !!!satliq(:,:,3) = satliq(:,:,1)
     
     END IF
     ! End of Edit by Toshiyuki Bandai, 2023 May
@@ -2330,17 +2338,20 @@ DO WHILE (nn <= nend)
                 ELSE
                   tolmax = atol
                 END IF
+                
                 IF (SaltCreep) THEN
                   IF (DABS(fxx(ind)) > tolmax) THEN
                     icvg = 1
                   END IF
                 ELSE
                   IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
-    !!!              IF (DABS(fxx(ind)) > tolmax) THEN
+!!!                IF (DABS(fxx(ind)) > tolmax) THEN
                     icvg = 1
                   END IF
                 END IF
+                
               END DO
+              
               DO ix = 1,nexchange
                 tolmax = 1.e-10
                 ind = (j-1)*(neqn) + ix+ncomp
@@ -2348,6 +2359,7 @@ DO WHILE (nn <= nend)
                     icvg = 1
                 END IF
               END DO
+              
               DO is = 1,nsurf
                 tolmax = atol
                 ind = (j-1)*(neqn) + is+ncomp+nexchange
@@ -2355,6 +2367,7 @@ DO WHILE (nn <= nend)
                     icvg = 1
                 END IF
               END DO
+              
               DO npt = 1,npot
                 tolmax = 1.e-10
                 ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
@@ -2362,6 +2375,7 @@ DO WHILE (nn <= nend)
                     icvg = 1
                 END IF
               END DO
+              
             END DO
           END DO
 
@@ -2986,10 +3000,10 @@ END DO
     ELSE
       
         if (time > 9.0 .and. time< 10.0) then
-          CheckMass1 = qx(70,1,1) - qx(69,1,1)
-          CheckMass2 = qx(80,1,1) - qx(79,1,1)
-          write(70,177) time,dppt(1,70,1,1),CheckMass1
-          write(80,177) time,dppt(1,80,1,1),CheckMass2
+
+          CheckMass1 = qx(75,1,1) - qx(74,1,1)
+          write(75,177) time,dppt(1,75,1,1),s(1,75,1,1)
+
         end if
         
   177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)

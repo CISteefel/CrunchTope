@@ -31,7 +31,7 @@ INTEGER(I4B)                                               :: info, lda, ldb, nr
 INTEGER(I4B), DIMENSION(nx)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
-REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
 REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
