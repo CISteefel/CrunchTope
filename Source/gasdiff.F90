@@ -310,6 +310,10 @@ SUBROUTINE gasdiff(nx,ny,nz)
         dharm = GeometricMean(dume,dumpx)
       END IF
 
+      if (jx==nx) then
+        continue
+      end if
+
       AreaE = dyy(jy)*dzz(jx,jy,jz) 
       dspe = dharm
       de = AreaE*dspe/dxe

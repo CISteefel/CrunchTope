@@ -32,6 +32,8 @@ INTEGER(I4B)                                                :: nxyz
 INTEGER(I4B)                                                :: nlen1
 INTEGER(I4B)                                                :: lenformat
 
+REAL(DP)                                                    :: DummyReal
+
 nxyz = nx*ny*nz
 infiltration_file = ' '
 rate = 0.0d0
@@ -67,12 +69,16 @@ IF(ls /= 0) THEN
         lfile = ls
         booltimeseries = .true.
         id = ids + ls
-      CALL sschaine(zone,id,iff,ssch,ids,ls)
+        CALL sschaine(zone,id,iff,ssch,ids,ls)
         IF(ls /= 0) THEN
         lzs=ls
         CALL convan(ssch,lzs,res)
+        
         IF (res == 'n') THEN
-        tslength = int(DNUM(ssch))
+        tslength = JNUM(ssch)
+!!!          DummyReal = DNUM(ssch)
+!!!          tslength = INT(DummyReal)
+          continue
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' Must provide a numerical value for length time series infiltration '
