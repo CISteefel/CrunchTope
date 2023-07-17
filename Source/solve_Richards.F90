@@ -31,12 +31,13 @@ INTEGER(I4B)                                               :: info, lda, ldb, nr
 INTEGER(I4B), DIMENSION(nx)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
-REAL(DP), PARAMETER                                        :: tau_a = 5.0d-8
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7
 REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
+REAL(DP), PARAMETER                                        :: tau_line_saerch = 1.0d-3 ! below this tolerance, the line search stops
 INTEGER(I4B)                                               :: no_backtrack, descent
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
@@ -97,7 +98,8 @@ newton_loop: DO
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
     !Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tol) THEN
+    ! line search stops when the error is below the tolerance (tau_line_saerch), this is because line search is not necessary when the error is small (and in fact line search may fail when the residual is very small)
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tau_line_saerch) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -115,24 +117,24 @@ newton_loop: DO
     STOP
   END IF
   
+  IF (iteration > maxitr) THEN
+    WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '
+    READ(*,*)
+    STOP
+  END IF
+  
   total_line = total_line + no_backtrack
   iteration = iteration + 1
   
   IF (Richards_print) THEN
-  WRITE(*,120) tol, error_old
-  120 FORMAT(1X, 'The tolerance is  ', ES14.4, ' , and the error is ', ES14.4)
+  WRITE(*,120) iteration, tol, error_old
+  120 FORMAT(1X, 'At the', I3, ' th Newton iteration, the tolerance is  ', ES14.4, ' , and the error is ', ES20.8)
   END IF
 END DO newton_loop
 
-IF (iteration > maxitr) THEN
-  WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '
-  READ(*,*)
-  STOP
-END IF
-
 IF (Richards_print) THEN
   WRITE(*,100) iteration, total_line
-  100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the Richards solver. ')
+  100 FORMAT(1X, 'The Newton method needed ', I5, ' iterations with ', I3, ' line searches in the Richards solver. ')
 END IF
 
 !***********************************************************************************************************************************************

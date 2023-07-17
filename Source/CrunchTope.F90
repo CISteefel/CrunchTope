@@ -1222,8 +1222,8 @@ DO WHILE (nn <= nend)
           END DO
           
           IF (Richards_print) THEN
-            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time
-            !IF (time > 5.4d-02) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
+            !IF (time > 0.9993) THEN 
             !  READ(*,*)
             !END IF
           END IF
@@ -3031,7 +3031,7 @@ END DO
 
 
   !IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
-  IF (time+delt > prtint(nint) .AND. ABS(prtint(nint) - time) > 1.0d-14) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
+  IF (time+delt > prtint(nint) .AND. ABS(prtint(nint) - time) > 1.0d-10) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
     delt = prtint(nint) - time
     WRITE(*,*) ' Adjusting time step to match output file'
     WRITE(*,5085) delt*OutputTimeScale
@@ -3081,7 +3081,7 @@ END DO
 !          phwrite = -(sp(iplot(1),j)+gam(iplot(1),j) )/clg
 
   !IF (time >= prtint(nint) .OR. steady) THEN
-  IF (time >= prtint(nint) .OR. steady .OR. ABS(prtint(nint) - time) <= 1.0d-14) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
+  IF (time >= prtint(nint) .OR. steady .OR. ABS(prtint(nint) - time) <= 1.0d-10) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
 
     iprnt = 1
     WRITE(*,*)

@@ -36,6 +36,7 @@ INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
+REAL(DP), PARAMETER                                        :: tau_line_saerch = 1.0d-3 ! below this tolerance, the line search stops
 INTEGER(I4B)                                               :: no_backtrack, descent
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
@@ -90,7 +91,7 @@ newton_loop: DO
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tol) THEN
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tau_line_saerch) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -108,15 +109,15 @@ newton_loop: DO
     STOP
   END IF
   
+  IF (iteration > maxitr) THEN
+    WRITE(*,*) ' The Newton method failed to converge in the steady-state Richards solver. '
+    READ(*,*)
+    STOP
+  END IF
+  
   total_line = total_line + no_backtrack
   iteration = iteration + 1
 END DO newton_loop
-
-IF (iteration > maxitr) THEN
-  WRITE(*,*) ' The Newton method failed to converge in the steady-state Richards solver. '
-  READ(*,*)
-  STOP
-END IF
 
 IF (Richards_print) THEN
   WRITE(*,100) iteration, total_line

@@ -247,9 +247,9 @@ DO jy = 1,ny
       END IF
       
 !!! Hardwired by Lucien
-!!!      IF (east_river .and. ny == 1 .and. nz == 1) THEN
-!!!        dume = 0
-!!!      ENDIF
+     IF (east_river .and. ny == 1 .and. nz == 1) THEN
+       dume = 0
+     ENDIF
       
     ELSE
       dxe = 0.5d0*(dxx(jx)+dxx(jx+1))

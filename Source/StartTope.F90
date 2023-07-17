@@ -5503,9 +5503,8 @@ STOP
 ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific regions
 
   CALL read_tempregion(nout,nx,ny,nz,len(TFile),TFile,TemperatureFileFormat)
-
+  t = t_default
   IF (RunTempts) THEN
-    t = t_default
     DO jz = 1,nz
       DO jy = 1,ny
       DO jx = 1,nx
@@ -5533,9 +5532,19 @@ ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific region
           ENDIF
         END DO
         !Allocate fixed temperature to the regions:
-          DO j = 1,nb_temp_fix
-            IF (temp_region(jx,jy,jz) == reg_temp_fix(j)) THEN
-              t(jx,jy,jz) = temp_fix(j)
+      END DO
+      END DO
+      END DO
+  
+  ENDIF
+
+  IF (nb_temp_fix > 0) THEN
+  DO jz = 1,nz
+      DO jy = 1,ny
+      DO jx = 1,nx
+    DO j = 1,nb_temp_fix
+      IF (temp_region(jx,jy,jz) == reg_temp_fix(j)) THEN
+        t(jx,jy,jz) = temp_fix(j)
               ! IF (jx == 1) THEN
               ! t(0,jy,jz) = t(jx,jy,jz)
               ! ENDIF
@@ -5554,13 +5563,11 @@ ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific region
               ! IF (jz == nz) THEN
               ! t(jx,jy,nz+1) = t(jx,jy,jz)
               ! ENDIF
-            ENDIF
-        END DO
-      
-      END DO
-      END DO
-      END DO
-  
+      ENDIF
+    END DO
+    END DO
+    END DO
+    END DO
   ENDIF
 ! ************************************
 ! Finish edit by Lucien Stolze, June 2023
