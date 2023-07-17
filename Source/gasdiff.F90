@@ -131,6 +131,8 @@ SUBROUTINE gasdiff(nx,ny,nz)
   SatPow = 7.0d0/3.0d0
   PorPow = 1.0d0/3.0d0
   
+  !!! Added by Steefel July 17
+  
   DO jy = 1,ny
     DO jx = 1,nx
       IF (satliq(jx,jy,jz) > 1.0d0) THEN
