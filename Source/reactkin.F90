@@ -123,7 +123,7 @@ real(dp)                                                       :: satL
 !!REAL(DP), DIMENSION(ikin)                                      :: MoleFraction
 
 tk = t(jx,jy,jz) + 273.15D0
-satL = satliq(jx,jy,jz)
+satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
 tkinv = 1.0D0/tk
 reft = 1.0D0/(298.15D0)
 
@@ -474,7 +474,7 @@ DO ir = 1,ikin
     !    and the fluid density
     
 
-    vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)) ! [mol biomass / Kg-H2O]
+    vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satL) ! [mol biomass / Kg-H2O]
     
 !!!    m3_min/m3_pm* mol/ m3_min * m3_pm/m3_fluid * m3_fluid/kgw = mol/kgw * mol/kgw/yr   -->  mol / kgw / yr
 
