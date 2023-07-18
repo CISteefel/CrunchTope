@@ -457,9 +457,9 @@ DO jy = 1,ny
 
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       
-      dspw = avgro*dspx(jx-1,jy,jz) + dharm
+      dspw = avgro*dspx(nx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
-      fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
+      fw = AreaW*avgro*(qx(nx-1,jy,jz) + FluidBuryX(jx-1))
       aw = DMAX1(fw,0.0D0) + dw
       netflowX(nx-1,jy,jz) = fw
       netDiffuseX(nx-1,jy,jz) = dw
@@ -471,7 +471,7 @@ DO jy = 1,ny
       AreaE = dyy(jy)*dzz(jx,jy,jz)
       dspe = avgro*dspx(jx+1,jy,jz) + dharm
       de = AreaE*dspe/dxe
-      fe = AreaE*avgro*(qx(jx+1,jy,jz) + FluidBuryX(jx))
+      fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe
       
 

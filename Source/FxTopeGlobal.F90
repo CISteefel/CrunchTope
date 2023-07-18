@@ -692,7 +692,6 @@ DO i = 1,ncomp
   
   IF (jx == 1) THEN
     
-!!!    IF (jc(1) == 1) THEN    ! Dirichlet bdy
     IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
@@ -711,7 +710,6 @@ DO i = 1,ncomp
     
   ELSE IF (jx == nx) THEN
     
-!!!    IF (jc(2) == 1) THEN
     IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
