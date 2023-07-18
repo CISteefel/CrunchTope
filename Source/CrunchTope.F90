@@ -836,10 +836,10 @@ IF (CalculateFlow) THEN
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
+    satliqold = satliq
     jy = 1
     jz = 1
     DO jx = 1, nx
-        satliqold(jx,jy,jz) = satliq(jx,jy,jz)
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
@@ -1489,30 +1489,27 @@ DO WHILE (nn <= nend)
     IF (Richards) THEN
     
       jy = 1
-      jz = 1 
-!!!     DO jx = 1, nx
-!!!          satliqold(jx,jy,jz) = satliq(jx,jy,jz)
-!!!          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
-!!!      END DO
-      
+      jz = 1
       satliqold = satliq
-      satliq = theta/theta_s
+     DO jx = 1, nx
+          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+      END DO
 
       ! fill ghost points by linear extrapolation in x direction
-      !!!satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-      !!!satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-      !!!satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-      !!!satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+      satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+      satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+      satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+      satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
       ! fill other ghost points by zero-order extrapolation in y and z directions
-      !!!satliq(:,-1,:) =  satliq(:,1,:)
-      !!!satliq(:,0,:) =  satliq(:,1,:)
-      !!!satliq(:,2,:) =  satliq(:,1,:)
-      !!!satliq(:,3,:) =  satliq(:,1,:)
+      satliq(:,-1,:) =  satliq(:,1,:)
+      satliq(:,0,:) =  satliq(:,1,:)
+      satliq(:,2,:) =  satliq(:,1,:)
+      satliq(:,3,:) =  satliq(:,1,:)
     
-      !!!satliq(:,:,-1) = satliq(:,:,1)
-      !!!satliq(:,:,0) = satliq(:,:,1)
-      !!!satliq(:,:,2) = satliq(:,:,1)
-      !!!satliq(:,:,3) = satliq(:,:,1)
+      satliq(:,:,-1) = satliq(:,:,1)
+      satliq(:,:,0) = satliq(:,:,1)
+      satliq(:,:,2) = satliq(:,:,1)
+      satliq(:,:,3) = satliq(:,:,1)
     
     END IF
     ! End of Edit by Toshiyuki Bandai, 2023 May
