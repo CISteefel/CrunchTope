@@ -840,14 +840,20 @@ IF (CalculateFlow) THEN
     jy = 1
     jz = 1
     DO jx = 1, nx
+        
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
-    ! fill ghost points by linear extrapolation in x direction
+    !! fill ghost points by linear extrapolation in x direction
     satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
     satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
     satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
     satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+    ! fill ghost points by zero-order extrapolation in x direction
+    !satliq(0,jy,jz) = satliq(1,jy,jz)
+    !satliq(-1,jy,jz) = satliq(0,jy,jz)
+    !satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
+    !satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
     ! fill other ghost points by zero-order extrapolation in y and z directions
     satliq(:,-1,:) =  satliq(:,1,:)
     satliq(:,0,:) =  satliq(:,1,:)
@@ -1490,8 +1496,9 @@ DO WHILE (nn <= nend)
     
       jy = 1
       jz = 1
+      
       satliqold = satliq
-     DO jx = 1, nx
+      DO jx = 1, nx
           satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
       END DO
 
@@ -1500,6 +1507,11 @@ DO WHILE (nn <= nend)
       satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
       satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
       satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+      ! fill ghost points by zero-order extrapolation in x direction
+      !satliq(0,jy,jz) = satliq(1,jy,jz)
+      !satliq(-1,jy,jz) = satliq(0,jy,jz)
+      !satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
+      !satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
       ! fill other ghost points by zero-order extrapolation in y and z directions
       satliq(:,-1,:) =  satliq(:,1,:)
       satliq(:,0,:) =  satliq(:,1,:)
