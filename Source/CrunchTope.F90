@@ -1159,6 +1159,13 @@ DO WHILE (nn <= nend)
       IF (time_norm + delt > t_temp_ts(n_count_temperature) .AND. ABS(t_temp_ts(n_count_temperature) - time_norm) > 1.0d-10) THEN
         IF (time_norm + delt > 1.0d0) THEN
           n_count_temperature = 2
+          IF (time_norm + delt -1.0d0 > t_temp_ts(n_count_temperature) .AND. ABS(t_temp_ts(n_count_temperature) - time_norm) > 1.0d-10) THEN
+            delt = 1.0d0 + t_temp_ts(n_count_temperature) - time_norm
+            n_count_temperature = n_count_temperature + 1
+            !WRITE(*,*) ' Adjusting time step to match the temperature data '
+            !WRITE(*,5085) delt*OutputTimeScale
+            !WRITE(*,*)
+          END IF
         ELSE IF (n_count_temperature > size(t_temp_ts)) THEN
           CONTINUE
         ELSE
@@ -1273,6 +1280,14 @@ DO WHILE (nn <= nend)
                 IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
                   IF (time_norm + delt > 1.0d0) THEN
                     n_count_infiltration = 2
+                    IF (time_norm + delt -1.0d0> t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
+                      delt = 1.0d0 + t_infiltration(n_count_infiltration) - time_norm
+                      n_count_infiltration = n_count_infiltration + 1
+                      !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+                      !WRITE(*,5085) delt*OutputTimeScale
+                      !WRITE(*,*)
+                    END IF
+                    
                   ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
                     CONTINUE
                   ELSE 
@@ -1300,18 +1315,26 @@ DO WHILE (nn <= nend)
             IF (transpitimeseries) THEN
               IF (TS_1year) THEN
                 time_norm=time-floor(time)
-                IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+                IF (time_norm + delt -1.0d0> t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
                   IF (time_norm + delt > 1.0d0) THEN
                     n_count_transpiration = 2
+                    IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+                      delt = 1.0d0 + t_transpi(n_count_transpiration) - time_norm
+                      n_count_transpiration = n_count_transpiration + 1
+                      !WRITE(*,*) ' Adjusting time step to match the transpiration data '
+                      !WRITE(*,5085) delt*OutputTimeScale
+                      !WRITE(*,*)
+                    END IF
+                    
                   ELSE IF (n_count_transpiration > size(t_transpi)) THEN
                     CONTINUE
                   ELSE 
                     delt = t_transpi(n_count_transpiration) - time_norm
                     n_count_transpiration = n_count_transpiration + 1
                   
-!                   WRITE(*,*) ' Adjusting time step to match the transpiration data '
-!                   WRITE(*,5085) delt*OutputTimeScale
-!                   WRITE(*,*)
+                   !WRITE(*,*) ' Adjusting time step to match the transpiration data '
+                   !WRITE(*,5085) delt*OutputTimeScale
+                   !WRITE(*,*)
                   END IF
                 END IF
                 
@@ -1331,16 +1354,22 @@ DO WHILE (nn <= nend)
                 IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
                   IF (time_norm + delt > 1.0d0) THEN
                     n_count_evaporation = 2
-                    delt = 1.0d0 - time_norm
+                    IF (time_norm + delt -1.0d0> t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
+                      delt = 1.0d0 + t_infiltration(n_count_evaporation) - time_norm
+                      n_count_evaporation = n_count_evaporation + 1
+                      !WRITE(*,*) ' Adjusting time step to match the evaporation data '
+                      !WRITE(*,5085) delt*OutputTimeScale
+                      !WRITE(*,*)
+                    END IF
                   ELSE IF (n_count_evaporation > size(t_evapo)) THEN
                     CONTINUE
                   ELSE
                     delt = t_evapo(n_count_evaporation) - time_norm
                     n_count_evaporation = n_count_evaporation + 1
                   
-!                   WRITE(*,*) ' Adjusting time step to match the evaporation data '
-!                   WRITE(*,5085) delt*OutputTimeScale
-!                   WRITE(*,*)
+                   !WRITE(*,*) ' Adjusting time step to match the evaporation data '
+                   !WRITE(*,5085) delt*OutputTimeScale
+                   !WRITE(*,*)
                     
                     
                   END IF
@@ -1363,7 +1392,7 @@ DO WHILE (nn <= nend)
           
           IF (Richards_print) THEN
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
-            !IF (time > 0.997) THEN 
+            !IF (time > 0.999) THEN 
             !  READ(*,*)
             !END IF
           END IF
