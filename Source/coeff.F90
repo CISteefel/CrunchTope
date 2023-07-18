@@ -399,9 +399,7 @@ DO jy = 1,ny
     IF (nx == 1) GO TO 300
     
     IF (jx == 1) THEN
-      
-!!!  EAST
-      
+      !!!  EAST
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
 
       IF (MeanDiffusion == 1) THEN
@@ -421,12 +419,12 @@ DO jy = 1,ny
       netflowX(1,jy,jz) = fe
       netDiffuseX(1,jy,jz) = de
       
-!!!  WEST
+      !!!  WEST
       
       avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaW = dyy(jy)*dzz(jx,jy,jz)
-      dspw = avgro*dspx(jx,jy,jz) + dharm
+      dspw = avgro*dspx(jx-1,jy,jz) + dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       netflowX(0,jy,jz) = fw
@@ -478,7 +476,9 @@ DO jy = 1,ny
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe
       
+
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
+
         ae = DMAX1(-fe,0.0D0)       !  Pure advective boundary
         netDiffuseX(jx,jy,jz) = 0.0d0
       ELSE

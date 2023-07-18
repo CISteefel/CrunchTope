@@ -29,7 +29,7 @@ REAL(DP)                                                   :: head_ub
 REAL(DP)                                                   :: kr_ub
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
 
-xi = rho_water2*g/mu_water
+xi = rho_water_2*g/mu_water
 
 ! apply van Genuchten model to all grid cells
 jy = 1
@@ -93,6 +93,7 @@ CASE ('constant_flux', 'variable_flux')
   qx(nx, jy, jz) = value_upper_BC
 
 CASE ('environmental_forcing')
+  ! the flux is defined in the residual_Richards.F90 because we need to differentiate infinltration, evaporation, and transpiration. 
   CONTINUE
   
 CASE DEFAULT

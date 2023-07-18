@@ -30,7 +30,7 @@ REAL(DP)                                                   :: head_ub
 REAL(DP)                                                   :: kr_ub
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
 
-xi = rho_water2*g/mu_water
+xi = rho_water_2*g/mu_water
 
 ! apply van Genuchten model to all grid cells
 jy = 1

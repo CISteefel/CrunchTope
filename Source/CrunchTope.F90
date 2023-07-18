@@ -1165,9 +1165,10 @@ DO WHILE (nn <= nend)
           delt = t_temp_ts(n_count_temperature) - time_norm
           n_count_temperature = n_count_temperature + 1
                   
-!!!           WRITE(*,*) ' Adjusting time step to match the temperature data '
-!!!           WRITE(*,5085) delt*OutputTimeScale
-!!!          WRITE(*,*)
+          !WRITE(*,*) ' Adjusting time step to match the temperature data '
+          !WRITE(*,5085) delt*OutputTimeScale
+          !WRITE(*,*)
+          
         END IF
       END IF
                 
@@ -1278,9 +1279,10 @@ DO WHILE (nn <= nend)
                     delt = t_infiltration(n_count_infiltration) - time_norm
                     n_count_infiltration = n_count_infiltration + 1
                   
-!!!                     WRITE(*,*) ' Adjusting time step to match the infiltration data '
-!!!                     WRITE(*,5085) delt*OutputTimeScale
-!!!                    WRITE(*,*)
+                    !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+                    !WRITE(*,5085) delt*OutputTimeScale
+                    !WRITE(*,*)
+                    
                   END IF
                 END IF
                 
@@ -1307,9 +1309,9 @@ DO WHILE (nn <= nend)
                     delt = t_transpi(n_count_transpiration) - time_norm
                     n_count_transpiration = n_count_transpiration + 1
                   
-!!!                     WRITE(*,*) ' Adjusting time step to match the transpiration data '
-!!!                     WRITE(*,5085) delt*OutputTimeScale
-!!!                    WRITE(*,*)
+!                   WRITE(*,*) ' Adjusting time step to match the transpiration data '
+!                   WRITE(*,5085) delt*OutputTimeScale
+!                   WRITE(*,*)
                   END IF
                 END IF
                 
@@ -1336,9 +1338,11 @@ DO WHILE (nn <= nend)
                     delt = t_evapo(n_count_evaporation) - time_norm
                     n_count_evaporation = n_count_evaporation + 1
                   
-!!!                    WRITE(*,*) ' Adjusting time step to match the evaporation data '
-!!!                     WRITE(*,5085) delt*OutputTimeScale
-!!!                    WRITE(*,*)
+!                   WRITE(*,*) ' Adjusting time step to match the evaporation data '
+!                   WRITE(*,5085) delt*OutputTimeScale
+!                   WRITE(*,*)
+                    
+                    
                   END IF
                 END IF
                 
@@ -2996,8 +3000,10 @@ END DO
     ELSE
       
         if (time > 9.0 .and. time< 10.0) then
+
           CheckMass1 = qx(75,1,1) - qx(74,1,1)
           write(75,177) time,dppt(1,75,1,1),s(1,75,1,1)
+
         end if
         
   177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)

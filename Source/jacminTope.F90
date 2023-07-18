@@ -244,7 +244,7 @@ REAL(DP), PARAMETER                                             :: BoltzmannTerm
 REAL(DP)                                                        :: NucleationTerm
 REAL(DP)                                                        :: testSigma
 
-REAL(DP)                                                        :: liqsat_fac
+REAL(DP)                                                        :: liqsat_fac, sat
 
 !!!NoFractionationDissolution = .false.
 
