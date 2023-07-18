@@ -127,8 +127,6 @@ jz = 1
 SatPow = 10.0d0/3.0d0
 PorPow = 4.0d0/3.0d0
 
-  !!! Added July 17 by Carl (hopefully not stomped on)
-
 IF (idiffus == 0) THEN
   d_25 = dzero
 ELSE
@@ -473,9 +471,9 @@ DO jy = 1,ny
       avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaE = dyy(jy)*dzz(jx,jy,jz)
-      dspe = avgro*dspx(jx,jy,jz) + dharm
+      dspe = avgro*dspx(jx+1,jy,jz) + dharm
       de = AreaE*dspe/dxe
-      fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
+      fe = AreaE*avgro*(qx(jx+1,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe
       
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
