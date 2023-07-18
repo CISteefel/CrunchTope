@@ -131,6 +131,8 @@ SUBROUTINE gasdiff(nx,ny,nz)
   SatPow = 7.0d0/3.0d0
   PorPow = 1.0d0/3.0d0
   
+  !!! Added by Steefel July 17
+  
   DO jy = 1,ny
     DO jx = 1,nx
       IF (satliq(jx,jy,jz) > 1.0d0) THEN
@@ -309,6 +311,10 @@ SUBROUTINE gasdiff(nx,ny,nz)
       ELSE
         dharm = GeometricMean(dume,dumpx)
       END IF
+
+      if (jx==nx) then
+        continue
+      end if
 
       AreaE = dyy(jy)*dzz(jx,jy,jz) 
       dspe = dharm

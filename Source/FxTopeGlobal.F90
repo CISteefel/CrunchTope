@@ -226,6 +226,7 @@ REAL(DP)                                                  :: Retardation
 REAL(DP)                                                  :: check
 REAL(DP)                                                  :: A_transpi
 
+  !!! Added July 17 by Carl (hopefully not stomped on)
 
 !  This routine calculates (and assembles) the function residuals.
 
@@ -343,7 +344,6 @@ IF (jx == 1) THEN
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jdum2,jy,jz,sgw)
     END IF
 
-!!!    IF (jc(1) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
     IF (JcByGrid(jx-1,jy,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jdum2,jy,jz,scw)
     END IF
@@ -406,8 +406,7 @@ ELSE IF (jx == nx) THEN
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jdum2,jy,jz,sge)
     END IF
 
-!!!    IF (jc(2) == 1 .OR. netflowx(nx,jy,jz) < 0.0) THEN
-    IF (JcByGrid(jx+1,jy,jz) == 1 .OR. netflowx(nx,jy,jz) > 0.0) THEN
+    IF (JcByGrid(jx+1,jy,jz) == 1 .OR. netflowx(nx,jy,jz) < 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jdum2,jy,jz,sce)
     END IF
 
@@ -692,7 +691,7 @@ DO i = 1,ncomp
   IF (nx == 1) GO TO 300
   
   IF (jx == 1) THEN
-!!!    IF (jc(1) == 1) THEN    ! Dirichlet bdy
+    
     IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
@@ -704,14 +703,13 @@ DO i = 1,ncomp
       xvectors = c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
-!!        xvecgas = cg(jx,jy,jz)*sge(i)
       ELSE
         xvecgas = 0.0
       END IF
     END IF
     
   ELSE IF (jx == nx) THEN
-!!!    IF (jc(2) == 1) THEN
+    
     IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
@@ -719,23 +717,24 @@ DO i = 1,ncomp
       ELSE
         xvecgas = 0.0
       END IF
-    ELSE
-        
+    ELSE      
       xvectors = a(jx,jy,jz)*scw(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
-!!        xvecgas = ag(jx,jy,jz)*sgw(i)
       ELSE
         xvecgas = 0.0
       END IF
     END IF
+    
   ELSE
+    
     xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
     IF (isaturate == 1) THEN
       xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
     ELSE
       xvecgas = 0.0
     END IF
+    
   END IF
   
   IF (ierode == 1) THEN
@@ -906,7 +905,6 @@ DO i = 1,ncomp
 ! ************************************
 ! end of edit by Lucien Stolze, June 2023
 
-
   GasSource = 0.0
 
 !!!  IF (isaturate == 1) THEN
@@ -921,7 +919,6 @@ DO i = 1,ncomp
 !!!      GasSource = 0.0
 !!!    END IF
 !!!  END IF
-
 
   IF (jy == 1) THEN
     IF (ReadNuft .AND. infiltration /= 0) THEN
@@ -938,6 +935,7 @@ DO i = 1,ncomp
       (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) -            &
        rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
 
+
   ELSE
     aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
       (rotemp*satl*s(i,jx,jy,jz) -            &
@@ -945,7 +943,7 @@ DO i = 1,ncomp
   END IF
   
   IF (isaturate == 1) THEN
-    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz)-satgasOld*sgasn(i,jx,jy,jz))
+    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
   ELSE
     gas_accum = 0.0
     gas_transport = 0.0
@@ -964,26 +962,29 @@ DO i = 1,ncomp
 
 
   ELSE IF (nx == 1) THEN
+    
     IF (ierode == 1) THEN
       ex_transport =  df*ebu(jx,jy,jz)*sch(i,jx,jy,jz)
     END IF
     IF (isaturate == 1) THEN
       gas_transport = df*eg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
-!!    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge) - source - GasSource &
+    
     fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )&
         + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz) + yvectors*df  &
         + df*ybdflux + yvec_ex*df  &
         + yvecgas*df + ex_transport  &
         + gas_transport 
-  ELSE IF (ny == 1) THEN
-      
+    
+  ELSE IF (ny == 1) THEN  
+    
     IF (ierode == 1) THEN
       ex_transport =  df*bbu(jx,jy,jz)*sch(i,jx,jy,jz)
     END IF
     IF (isaturate == 1) THEN
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
+    
     fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xvectors*df  &
         + df*xbdflux      &   !! Advective flux 

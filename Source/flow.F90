@@ -165,7 +165,7 @@ MODULE flow
     LOGICAL(LGT)                                    :: psi_is_head ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
     LOGICAL(LGT)                                    :: theta_s_is_porosity ! True if the input to theta_s is the same as the porosity
     LOGICAL(LGT)                                    :: theta_r_is_S_r ! True if the input to theta_r is the residual saturation
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: mu_water! dynamics viscosity of water [Pa year] with a specified temperature tinit in temperature module (computed in StartTope.F90)[C]
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: mu_water! dynamics viscosity of water [Pa year]; this is temperature dependent
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE          :: head ! pressure head [L]
@@ -174,7 +174,7 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water2 ! water density as function of temperature
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water_2 ! the density of water [kg m-3]; this is temperature dependent
     
     ! soil hydraulic parameters for van Genuchten model
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
@@ -235,6 +235,8 @@ MODULE flow
     LOGICAL(LGT)                                     :: infiltration_timeseries
     LOGICAL(LGT)                                     :: infiltration_fix
     REAL(DP)                                         :: infiltration_rate
+    REAL(DP)                                         :: infiltration_rate_old
+    REAL(DP)                                         :: infiltration_rate_future
     REAL(DP), DIMENSION(:), ALLOCATABLE              :: qt_infiltration
     REAL(DP), DIMENSION(:), ALLOCATABLE              :: t_infiltration
     
