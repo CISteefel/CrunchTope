@@ -649,7 +649,7 @@ DO jy = 1,ny
       
     END IF
     
-    400     CONTINUE
+400 CONTINUE
 
     IF (nx == 1) THEN
       a(jx,jy,jz) = 0.0d0
