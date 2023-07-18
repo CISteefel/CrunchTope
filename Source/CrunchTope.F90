@@ -1273,6 +1273,7 @@ DO WHILE (nn <= nend)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
             CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
           CASE ('environmental_forcing')
+            
             ! infiltration
             IF (infiltration_timeseries) THEN
               IF (TS_1year) THEN

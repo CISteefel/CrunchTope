@@ -421,6 +421,7 @@ ELSE IF (jx == nx) THEN
     END IF
     IF (jc(2) == 1 .OR. netflowx(nx,jy,jz) < 0.0) THEN
       CALL bdrecalc(ncomp,nspec,nbnd,sce)
+            continue
     END IF
 
   END IF
@@ -846,7 +847,7 @@ DO i = 1,ncomp
     IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) /= 1) THEN
       xbdflux = a(jx,jy,jz)*scw(i)
     END IF
-  ELSE IF (jx == nx .AND. netflowx(jx,jy,jz) < 0.0) THEN
+  ELSE IF (jx == nx .AND. netflowx(nx,jy,jz) < 0.0) THEN
     IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) /= 1) THEN
       xbdflux = c(jx,jy,jz)*sce(i)
     END IF
@@ -993,6 +994,10 @@ DO i = 1,ncomp
         + gas_transport  &
         + xspecdiffw*df + xspecdiffe*df   ! Species-dependent diffusion
       continue
+      if (jx == 1) then
+        continue
+      end if
+      
   ELSE
       
     IF (ierode == 1) THEN

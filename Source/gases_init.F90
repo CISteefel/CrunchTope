@@ -68,7 +68,6 @@ INTEGER(I4B)                                               :: kk
 
 tempk = tempc + 273.15
 denmol = DLOG(1.e05/(8.314*tempk))           ! P/RT = n/V, with pressure converted from bars to Pascals
-denmol = LOG(1.e05/(8.314*283.15))           ! P/RT = n/V, with pressure converted from bars to Pascals
 
 DO kk = 1,ngas
 
