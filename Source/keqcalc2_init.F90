@@ -137,6 +137,9 @@ temp2 = temp*temp
 WriteInputP = .FALSE.
 WriteInputT = .FALSE.
 
+!!! RunIsothermal
+!!! Added by Carl 3:23
+
 ChargeSum = 0.0d0
 
 DO ik = 1,ncomp+nspec
