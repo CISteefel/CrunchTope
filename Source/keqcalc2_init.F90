@@ -134,6 +134,8 @@ LOGICAL(LGT)                                         :: WriteInputT
 temp = tempc + 273.15
 temp2 = temp*temp
 
+!!!RunIsothermal = .TRUE.
+
 WriteInputP = .FALSE.
 WriteInputT = .FALSE.
 
@@ -157,6 +159,8 @@ DO ksp = 1,nspec
     x5 = as1(ksp,5)
     keqaq_tmp(ksp) = -clg*(x1*DLOG(temp) + x2 +  &
         x3*temp + x4/temp + x5/(temp2))
+        write(*,*) keqaq_tmp(ksp)
+    read(*,*)
   END IF
 END DO
 
