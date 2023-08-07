@@ -195,6 +195,12 @@ IF (ALLOCATED(spnno2)) THEN
 ELSE
   ALLOCATE(spnno2(nx,ny,nz))
 END IF
+! IF (ALLOCATED(immobile_species)) THEN
+!   DEALLOCATE(immobile_species)
+!   ALLOCATE(immobile_species(0:ncomp))
+! ELSE
+!   ALLOCATE(immobile_species(0:ncomp))
+! END IF
 
 
 IF (ny == 1 .AND. nz == 1) THEN

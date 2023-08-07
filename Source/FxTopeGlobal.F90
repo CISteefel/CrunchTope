@@ -225,6 +225,7 @@ REAL(DP)                                                  :: GasSource
 REAL(DP)                                                  :: Retardation
 REAL(DP)                                                  :: check
 REAL(DP)                                                  :: A_transpi
+REAL(DP)                                                  :: coeff_immo
 
   !!! Added July 17 by Carl (hopefully not stomped on)
 
@@ -232,6 +233,7 @@ REAL(DP)                                                  :: A_transpi
 
 surf_accum = 0.0d0
 aq_accum = 0.0d0
+coeff_immo = 1.0
 
 jz = 1
 j = (jz-1)*nx*ny + (jy-1)*nx + jx
@@ -329,7 +331,12 @@ IF (jx == 1) THEN
 
   jdum = jx+1
   DO i = 1,ncomp
-    sce(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)
+  IF (immobile_species(i) == 1) THEN
+  coeff_immo = 0.0
+  ELSE
+  coeff_immo = 1.0
+  ENDIF
+    sce(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)!*coeff_immo
   END DO
 
   IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
@@ -391,7 +398,12 @@ ELSE IF (jx == nx) THEN
 
   jdum = jx-1
   DO i = 1,ncomp
-    scw(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)
+  IF (immobile_species(i) == 1) THEN
+  coeff_immo = 0.0
+  ELSE
+  coeff_immo = 1.0
+  ENDIF
+    scw(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)!*coeff_immo
   END DO
 
   IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
@@ -453,7 +465,12 @@ ELSE
 
   jdum = jx+1
   DO i = 1,ncomp
-    sce(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)
+  IF (immobile_species(i) == 1) THEN
+  coeff_immo = 0.0
+  ELSE
+  coeff_immo = 1.0
+  ENDIF
+    sce(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)!*coeff_immo
   END DO
   IF (isaturate == 1) THEN
     DO i = 1,ncomp
@@ -472,7 +489,12 @@ ELSE
 
   jdum = jx-1
   DO i = 1,ncomp
-    scw(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)
+  IF (immobile_species(i) == 1) THEN
+  coeff_immo = 0.0
+  ELSE
+  coeff_immo = 1.0
+  ENDIF
+    scw(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)!*coeff_immo
   END DO
   IF (isaturate == 1) THEN
     DO i = 1,ncomp
@@ -498,7 +520,12 @@ IF (jy == 1) THEN
 
   jdum = jy+1
   DO i = 1,ncomp
-    scn(i) = s(i,jx,jdum,jz)*xgram(jx,jdum,jz)
+  IF (immobile_species(i) == 1) THEN
+  coeff_immo = 0.0
+  ELSE
+  coeff_immo = 1.0
+  ENDIF
+    scn(i) = s(i,jx,jdum,jz)*xgram(jx,jdum,jz)!*coeff_immo
   END DO
 
  IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
@@ -685,7 +712,12 @@ END IF
 !!!END IF
 
 DO i = 1,ncomp
-  
+  IF (immobile_species(i) == 1) THEN
+  coeff_immo = 0.0
+  ELSE
+  coeff_immo = 1.0
+  ENDIF
+
   ind = (j-1)*(neqn) + i
   
   IF (nx == 1) GO TO 300
@@ -693,16 +725,16 @@ DO i = 1,ncomp
   IF (jx == 1) THEN
     
     IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
-      xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
+      xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
+        xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
         xvecgas = 0.0
       END IF
     ELSE
-      xvectors = c(jx,jy,jz)*sce(i)
+      xvectors = (c(jx,jy,jz)*sce(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
+        xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
         xvecgas = 0.0
       END IF
@@ -711,16 +743,16 @@ DO i = 1,ncomp
   ELSE IF (jx == nx) THEN
     
     IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
-      xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
+      xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
+        xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
         xvecgas = 0.0
       END IF
     ELSE      
-      xvectors = a(jx,jy,jz)*scw(i)
+      xvectors = (a(jx,jy,jz)*scw(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
+        xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
         xvecgas = 0.0
       END IF
@@ -728,9 +760,9 @@ DO i = 1,ncomp
     
   ELSE
     
-    xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
+    xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))!*coeff_immo
     IF (isaturate == 1) THEN
-      xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
+      xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
     ELSE
       xvecgas = 0.0
     END IF
@@ -738,22 +770,22 @@ DO i = 1,ncomp
   END IF
   
   IF (ierode == 1) THEN
-    xvec_ex = cbu(jx,jy,jz)*sex_east(i) + abu(jx,jy,jz)*sex_west(i)
+    xvec_ex = (cbu(jx,jy,jz)*sex_east(i) + abu(jx,jy,jz)*sex_west(i))!*coeff_immo
   ELSE
     xvec_ex = 0.0
   END IF
   
   IF (species_diffusion) THEN
      
-    xspecdiffw = a_d(jx,jy,jz)*(s_dsp(i,jx-1,jy,jz) - s_dsp(i,jx,jy,jz))  &
-        - (sigma_w(i)/sumsigma_w) * dgradw
-    xspecdiffe = c_d(jx,jy,jz)*(s_dsp(i,jx+1,jy,jz) - s_dsp(i,jx,jy,jz))  &
-        - (sigma_e(i)/sumsigma_e) * dgrade
+    xspecdiffw = (a_d(jx,jy,jz)*(s_dsp(i,jx-1,jy,jz) - s_dsp(i,jx,jy,jz))  &
+        - (sigma_w(i)/sumsigma_w) * dgradw)!*coeff_immo
+    xspecdiffe = (c_d(jx,jy,jz)*(s_dsp(i,jx+1,jy,jz) - s_dsp(i,jx,jy,jz))  &
+        - (sigma_e(i)/sumsigma_e) * dgrade)!*coeff_immo
 
-    xspecdiffs = f_d(jx,jy,jz)*(s_dsp(i,jx,jy-1,jz) - s_dsp(i,jx,jy,jz))  &
-        - (sigma_s(i)/sumsigma_s) * dgrads
-    xspecdiffn = d_d(jx,jy,jz)*(s_dsp(i,jx,jy+1,jz) - s_dsp(i,jx,jy,jz))  &
-        - (sigma_n(i)/sumsigma_n) * dgradn
+    xspecdiffs = (f_d(jx,jy,jz)*(s_dsp(i,jx,jy-1,jz) - s_dsp(i,jx,jy,jz))  &
+        - (sigma_s(i)/sumsigma_s) * dgrads)!*coeff_immo
+    xspecdiffn = (d_d(jx,jy,jz)*(s_dsp(i,jx,jy+1,jz) - s_dsp(i,jx,jy,jz))  &
+        - (sigma_n(i)/sumsigma_n) * dgradn)!*coeff_immo
 
 
 !!    IF (Migration) THEN
@@ -786,16 +818,16 @@ DO i = 1,ncomp
   IF (jy == 1) THEN
 !!!    IF (jc(3) == 1) THEN    ! Dirichlet bdy
     IF (jc(3) == 1 .or. JcByGrid(jx,jy-1,jz) == 1) THEN    ! Dirichlet bdy
-      yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
+      yvectors = (d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
+        yvecgas =  (dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i))!*coeff_immo
       ELSE
         yvecgas = 0.0
       END IF
     ELSE
-      yvectors = d(jx,jy,jz)*scn(i)
+      yvectors = (d(jx,jy,jz)*scn(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
+        yvecgas =  (dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i))!*coeff_immo
  !!       yvecgas =  dg(jx,jy,jz)*sgn(i)
       ELSE
         yvecgas = 0.0
@@ -804,16 +836,16 @@ DO i = 1,ncomp
   ELSE IF (jy == ny) THEN
 !!!    IF (jc(4) == 1) THEN
     IF (jc(4) == 1 .or. JcByGrid(jx,jy+1,jz) == 1) THEN    ! Dirichlet bdy
-      yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
+      yvectors = (d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
+        yvecgas =  (dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i))!*coeff_immo
       ELSE
         yvecgas = 0.0
       END IF
     ELSE
-      yvectors = f(jx,jy,jz)*scs(i)
+      yvectors = (f(jx,jy,jz)*scs(i))!*coeff_immo
       IF (isaturate == 1) THEN
-        yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
+        yvecgas =  (dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i))!*coeff_immo
 !!        yvecgas =  fg(jx,jy,jz)*sgs(i)
       ELSE
         yvecgas = 0.0
@@ -822,10 +854,10 @@ DO i = 1,ncomp
     
   ELSE
     
-    yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)   
+    yvectors = (d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i))!*coeff_immo   
     
     IF (isaturate == 1) THEN
-      yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
+      yvecgas =  (dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i))!*coeff_immo
     ELSE
       yvecgas = 0.0
     END IF
@@ -833,7 +865,7 @@ DO i = 1,ncomp
   END IF
   
   IF (ierode == 1) THEN
-    yvec_ex = dbu(jx,jy,jz)*sex_north(i) + fbu(jx,jy,jz)*sex_south(i)
+    yvec_ex = (dbu(jx,jy,jz)*sex_north(i) + fbu(jx,jy,jz)*sex_south(i))!*coeff_immo
   ELSE
     yvec_ex = 0.0
   END IF
@@ -844,11 +876,11 @@ DO i = 1,ncomp
   
   IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0) THEN
     IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) /= 1) THEN
-      xbdflux = a(jx,jy,jz)*scw(i)
+      xbdflux = (a(jx,jy,jz)*scw(i))!*coeff_immo
     END IF
   ELSE IF (jx == nx .AND. netflowx(jx,jy,jz) < 0.0) THEN
     IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) /= 1) THEN
-      xbdflux = c(jx,jy,jz)*sce(i)
+      xbdflux = (c(jx,jy,jz)*sce(i))!*coeff_immo
     END IF
   ELSE
     xbdflux = 0.0
@@ -859,11 +891,11 @@ DO i = 1,ncomp
   
   IF (jy == 1 .AND. qy(jx,0,jz) > 0.0) THEN
     IF (jc(3) == 2 .or. JcByGrid(jx,jy-1,jz) /= 1) THEN
-      ybdflux = f(jx,jy,jz)*scs(i)
+      ybdflux = (f(jx,jy,jz)*scs(i))!*coeff_immo
     END IF
   ELSE IF (jy == ny .AND. qy(jx,ny,jz) < 0.0) THEN
     IF (jc(4) == 2 .or. JcByGrid(jx,jy+1,jz) /= 1) THEN
-      ybdflux = d(jx,jy,jz)*scn(i)
+      ybdflux = (d(jx,jy,jz)*scn(i))!*coeff_immo
     END IF
   ELSE
     ybdflux = 0.0
@@ -899,7 +931,7 @@ DO i = 1,ncomp
   IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
         if (ny == 1 .AND. nz == 1) THEN
         A_transpi = dyy(jy) * dzz(jx,jy,jz)
-        source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
+        source = source - (xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume)!*coeff_immo
   ENDIF
   ENDIF
 ! ************************************
@@ -970,11 +1002,11 @@ DO i = 1,ncomp
       gas_transport = df*eg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )&
+    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )&
         + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz) + yvectors*df  &
         + df*ybdflux + yvec_ex*df  &
         + yvecgas*df + ex_transport  &
-        + gas_transport 
+        + gas_transport) !*coeff_immo
     
   ELSE IF (ny == 1) THEN  
     
@@ -985,13 +1017,13 @@ DO i = 1,ncomp
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
-        + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xvectors*df  &
-        + df*xbdflux      &   !! Advective flux 
+    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
+        + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)*coeff_immo + xvectors*df*coeff_immo  &
+        + df*xbdflux*coeff_immo      &   !! Advective flux 
         + xvec_ex*df      &   !! Erosion flux of exchangers
         + xvecgas*df + ex_transport  &
         + gas_transport  &
-        + xspecdiffw*df + xspecdiffe*df   ! Species-dependent diffusion
+        + xspecdiffw*df*coeff_immo + xspecdiffe*df*coeff_immo)!*coeff_immo   ! Species-dependent diffusion
       continue
   ELSE
       
@@ -1001,12 +1033,12 @@ DO i = 1,ncomp
     IF (isaturate == 1) THEN
       gas_transport = df*sgas(i,jx,jy,jz)* ( bg(jx,jy,jz)+ eg(jx,jy,jz) )
     END IF
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource ) &
+    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource ) &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)  &
         + xvectors*df + yvectors*df + df*xbdflux + df*ybdflux  &
         + xvec_ex*df + yvec_ex*df + xvecgas*df + yvecgas*df  &
         + ex_transport + gas_transport  &
-        + xspecdiffw*df + xspecdiffe*df + xspecdiffs*df + xspecdiffn*df ! Species-dependent diffusion
+        + xspecdiffw*df + xspecdiffe*df + xspecdiffs*df + xspecdiffn*df) !*coeff_immo ! Species-dependent diffusion
         
   END IF
   

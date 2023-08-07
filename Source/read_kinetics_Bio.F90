@@ -220,7 +220,7 @@ integer                                                       :: ios
 integer                                                       :: ic, jj, kpath, &
                                                                  im, ib, ifound, &
                                                                  jkin, jreac, ksave, &
-                                                                 npath,is
+                                                                 npath,is, icomp
 integer                                                       :: cat_pathway, &
                                                                  ana_pathway
 integer(i4b),parameter                                        :: jmax = mls
@@ -866,12 +866,12 @@ else
 
 !!    Find the substrate to trigger the metabolic lag stage (associated with ThresholdConcentrationAqueous)
       is = 0
-      do_substrateAqueous: DO I = 1,ncomp
+      do_substrateAqueousaq: DO I = 1,ncomp
         IF (SubstrateForLag == ulab(i)) THEN
           is = i
-          EXIT do_substrateAqueous
+          EXIT do_substrateAqueousaq
         END IF
-      END DO do_substrateAqueous
+      END DO do_substrateAqueousaq
 
       IF (is == 0 .and. SubstrateForLag /= ' ') THEN
         WRITE(*,*)
@@ -902,6 +902,71 @@ else
 !     biomass pointer    
       ibiomass_kin_temp(jkin)   = ib
       mintype(im) = 1
+
+!   MONOD-BIOMASS - microbially mediated reactions
+    case("MonodBiomass_new")
+
+      if (nreactkin(jkin) == 1) then
+
+        WRITE(*,506) namkin(jkin)
+        IF (nreactkin(jkin) > 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Only one parallel Monod reaction allowed for the moment'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        iaqtype(jkin) = 9
+
+      end if
+
+!     save thermodynamic limitation paramters: chi, bq, and direction
+      chi_(jkin)       = chi
+      bq_(jkin)        = bq
+      direction_(jkin) = direction
+      UseMetabolicLag_(jkin) = UseMetabolicLag
+      LagTime_(jkin) = LagTime
+      Ramptime_(jkin) = RampTime
+      ThresholdConcentration_(jkin) = ThresholdConcentration
+
+
+!!    Find the substrate to trigger the metabolic lag stage (associated with ThresholdConcentrationAqueous)
+      is = 0
+      do_substrateAqueous: DO I = 1,ncomp
+        IF (SubstrateForLag == ulab(i)) THEN
+          is = i
+          EXIT do_substrateAqueous
+        END IF
+      END DO do_substrateAqueous
+
+      IF (is == 0 .and. SubstrateForLag /= ' ') THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Primary species to be used a metabolic lag substrate not found: ',SubstrateForLag(1:20)
+        STOP
+      ELSE
+        SubstrateForLag_(jkin) = is
+      END IF
+
+!     find the biomass for this reaction in the primary species list        
+      ib = 0
+      do_biomassaq: do icomp =1,ncomp
+        
+        if (biomass == ulab(icomp)) then
+
+          ib = icomp
+          exit do_biomassaq
+           
+        end if
+        
+      end do do_biomassaq
+        
+      if (ib == 0) then
+        write(*,*)'biomass ',biomass,' for reaction: ',name,' is not in the list of minerals'
+        stop
+      end if
+
+!     biomass pointer    
+      ibiomass_kin_temp(jkin)   = ib
       
     case default
 
@@ -1203,7 +1268,7 @@ else
     END DO    !  End of loop through "inhibiting" species
 
 ! biomass
-  ELSE IF (iaqtype(jkin) == 8) THEN       !  Monod, with thermodynamic factor, F_T
+  ELSE IF (iaqtype(jkin) == 8 .OR. iaqtype(jkin) == 9) THEN       !  Monod, with thermodynamic factor, F_T
         
 !  Assume only one parallel reaction for the moment
     
@@ -1459,7 +1524,7 @@ do jj=1,ikin
       mukin(jj,ic) = mukin_(jj,ic)
     end if
  
-    if (iaqtype(jj) == 8) then
+    if (iaqtype(jj) == 8 .OR. iaqtype(jj) == 9) then
    
       if (dabs(mukin_(jj,ic)) > tiny) then
         mukinTMP(jj,ic) = mukin_cat(jj,ic)
@@ -1481,7 +1546,7 @@ do jj=1,ikin
   !!WRITE(iunit2,600) namkin(jj),keqkin(jj)/clg,(mukin(jj,i),i=1,ncomp)
   WRITE(iunit2,600) namkin(jj),keqkin(jj),(mukin(jj,i),i=1,ncomp)
 
-  if (iaqtype(jj) == 8) then
+  if (iaqtype(jj) == 8 .OR. iaqtype(jj) == 9) then
   
   ! equilibrium constant
     keqkinTMP(jj) = keq_cat(jj)

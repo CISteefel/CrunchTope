@@ -664,6 +664,23 @@ CHARACTER (LEN=mls)                                           :: min_name
 INTEGER(I4B)                                                  :: min_name_l
 REAL(DP)                                                      :: t_default !default temp for zonation case
 INTEGER(I4B)                                                  :: ssa_or_bsa
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: nam_dum
+
+LOGICAL(LGT)                                                  :: readimmspec
+INTEGER(I4B)                                                  :: immspec_index
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: immspec_id
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: immspec_name
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: immspec_name_length
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: concfile
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_conc
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_conc
+CHARACTER (LEN=mls)                                           :: con_file 
+INTEGER(I4B)                                                  :: con_file_l 
+CHARACTER (LEN=mls)                                           :: con_fileformat
+INTEGER(I4B)                                                  :: imspec_id
+CHARACTER (LEN=mls)                                           :: imspec_name
+INTEGER(I4B)                                                  :: imspec_name_l
+INTEGER(I4B)                                                  :: dumint
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
@@ -2033,6 +2050,52 @@ DO np = 1,nreactmin(k)
   END IF
 END DO
 END DO
+
+
+!  *****************immobile_species BLOCK***********************
+section = 'immobile_species'
+CALL readblock(nin,nout,section,found,ncount)
+
+IF (ncount > ncomp) THEN
+WRITE(*,*) "More immobile species than primary species..."
+STOP
+ENDIF
+
+IF (ALLOCATED(immobile_species)) THEN
+DEALLOCATE(immobile_species)
+END IF
+ALLOCATE(immobile_species(ncomp))
+ALLOCATE(nam_dum(ncount))
+ALLOCATE(immspec_ids(ncount))
+immobile_species(1:ncomp) = 0
+
+IF (found) then
+DO i = 1,ncount
+READ(nout,'(a)') nam_dum(i)
+dum1 = 0
+DO j = 1,ncomp
+IF (ulab(j) == nam_dum(i)) THEN
+dum1 = 1
+IF (chg(j) /= 0) THEN
+write(*,*) "cannot define charged species as immobile..."
+STOP
+ENDIF
+immobile_species(j) = 1
+dumint = j
+ENDIF
+IF (dum1 == 0) THEN
+WRITE(*,*) "Could not find the immobile species in the list of primary species..."
+ENDIF
+ENDDO
+immspec_ids(i) = dumint
+ENDDO
+nimm = ncount
+endif
+
+
+!  *****************RUNTIME BLOCK***********************
+
+
 
 
 !!  Now check for nucleation block
@@ -5781,6 +5844,7 @@ DO jy = 1,ny
       sp10(ik,jx,jy,jz) = spcond10(ik,jinit(jx,jy,jz))
       sp(ik,jx,jy,jz) = spcond(ik,jinit(jx,jy,jz))
     END DO
+
     DO i = 1,ncomp
       s(i,jx,jy,jz) = scond(i,jinit(jx,jy,jz))
       sn(i,jx,jy,jz) = scond(i,jinit(jx,jy,jz))
@@ -5892,13 +5956,156 @@ DO jy = 1,ny
       spsurf(is,jx,jy,jz) = LOG(convert*spcondsurf10(is,jinit(jx,jy,jz)))
     END DO
 
+    DO i = 1,ncomp
+      IF (immobile_species(i) == 1) THEN
+      !scond(i,jinit(jx,jy,jz)) = scond(i,jinit(jx,jy,jz))*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz)
+      s(i,jx,jy,jz) = s(i,jx,jy,jz)*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      sn(i,jx,jy,jz) = sn(i,jx,jy,jz)*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      ENDIF
+    ENDDO
+
+      DO ik = 1,ncomp+nspec
+      IF (immobile_species(ik) == 1) THEN
+      sp10(ik,jx,jy,jz) = sp10(ik,jx,jy,jz)*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      sp(ik,jx,jy,jz) = log(sp10(ik,jx,jy,jz)) !Convert [mol/m3] in [mol/Lw]
+      ENDIF
+      ENDDO
+    
+
   END DO
 END DO
 END DO
 
+!************************
+!Read immobile species concentration from file [mol/m3] (Stolze Lucien)
+!************************
+IF (ALLOCATED(immspec_id)) THEN
+DEALLOCATE(immspec_id)
+ENDIF
+ALLOCATE(immspec_id(50))
+
+IF (ALLOCATED(immspec_name)) THEN
+DEALLOCATE(immspec_name)
+ENDIF
+ALLOCATE(immspec_name(50))
+
+IF (ALLOCATED(immspec_name_length)) THEN
+DEALLOCATE(immspec_name_length)
+ENDIF
+ALLOCATE(immspec_name_length(50))
+
+IF (ALLOCATED(concfile)) THEN
+DEALLOCATE(concfile)
+ENDIF
+ALLOCATE(concfile(50))
+
+IF (ALLOCATED(lfile_conc)) THEN
+DEALLOCATE(lfile_conc)
+ENDIF
+ALLOCATE(lfile_conc(50))
+
+IF (ALLOCATED(FileFormatType_conc)) THEN
+DEALLOCATE(FileFormatType_conc)
+ENDIF
+ALLOCATE(FileFormatType_conc(50))
+
+
+immspec_index = 0
+CALL read_immspecfile(nout,nx,ny,nz,readimmspec,immspec_index,immspec_id,immspec_name,immspec_name_length,concfile,lfile_conc,FileFormatType_conc)
+
+IF (readimmspec) THEN
+DO i = 1,immspec_index
+  imspec_id = immspec_id(i)
+  imspec_name = immspec_name(i)
+  imspec_name_l = immspec_name_length(i)
+  con_file = concfile(i)
+  con_file_l = lfile_conc(i)
+  con_fileformat = FileFormatType_conc(i)
+
+  INQUIRE(FILE=con_file,EXIST=ext)
+        IF (.NOT. ext) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Immobile species file ', con_file(1:con_file_l) ,' for ', imspec_name(1:imspec_name_l) ,' not found.'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        OPEN(UNIT=23,FILE=con_file,STATUS='old',ERR=8001)
+        FileTemp = con_file
+        CALL stringlen(FileTemp,FileNameLength)
+        IF (con_fileformat == 'ContinuousRead') THEN
+          READ(23,*,END=1020) (((s(imspec_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+        ELSE IF (con_fileformat == 'SingleColumn') THEN
+          DO jz = 1,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) s(imspec_id,jx,jy,jz)
+              END DO
+            END DO
+          END DO
+        ELSE IF (con_fileformat == 'FullForm') THEN
+          IF (ny > 1 .AND. nz > 1) THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,zdum,s(imspec_id,jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (ny > 1 .AND. nz == 1) THEN
+            jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) xdum,ydum,s(imspec_id,jx,jy,jz)
+              END DO
+            END DO
+          ELSE
+          jz = 1
+          jy = 1
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,s(imspec_id,jx,jy,jz)
+          END DO
+          END IF
+        ELSE IF (con_fileformat == 'Unformatted') THEN
+        READ(23,END=1020) s
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Immobile species file format not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+
+ENDDO
+
+DO jz = 1,nz
+DO jy = 1,ny
+DO jx = 1,nx
+
+      DO i = 1,ncomp
+      IF (immobile_species(i) == 1) THEN
+      s(i,jx,jy,jz) = s(i,jx,jy,jz)*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      !scond(i,jinit(jx,jy,jz)) = s(i,jinit(jx,jy,jz))*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz)
+      sn(i,jx,jy,jz) = s(i,jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      sp10(i,jx,jy,jz) = s(i,jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      sp(i,jx,jy,jz) = log(sp10(i,jx,jy,jz)) !Convert [mol/m3] in [mol/Lw]
+      ENDIF
+      ENDDO
+
+      ! DO ik = 1,ncomp+nspec
+      ! IF (immobile_species(ik) == 1) THEN
+      
+      ! ENDIF
+      ! ENDDO
+ENDDO
+ENDDO
+ENDDO
+
+ENDIF
+
 !*****************************
 !Stolze Lucien, June 2023
-!START: read mineral volume fraction and bulk surface area from file
+!START: read mineral volume fraction and bulk surface area or specific surface area from file
 IF (ALLOCATED(mineral_id)) THEN
 DEALLOCATE(mineral_id)
 ENDIF
@@ -5945,9 +6152,10 @@ ENDIF
 ALLOCATE(FileFormatType_bsa(50))
 
 IF (ALLOCATED(readmin_ssa)) THEN
-  DEALLOCATE(readmin_ssa)
-  ENDIF
-  ALLOCATE(readmin_ssa(50))
+DEALLOCATE(readmin_ssa)
+ENDIF
+ALLOCATE(readmin_ssa(50))
+
 
 mineral_index = 0
 CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa,readmin_ssa)
@@ -5973,12 +6181,6 @@ DO i = 1,mineral_index
           READ(*,*)
           STOP
         END IF
-        ! IF (ALLOCATED(VG_n)) THEN
-        !   DEALLOCATE(VG_n)
-        !   ALLOCATE(VG_n(nx, ny, nz))
-        ! ELSE
-        !   ALLOCATE(VG_n(nx, ny, nz))
-        ! END IF
         OPEN(UNIT=23,FILE=vv_file,STATUS='old',ERR=8001)
         FileTemp = vv_file
         CALL stringlen(FileTemp,FileNameLength)

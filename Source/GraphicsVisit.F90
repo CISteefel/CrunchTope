@@ -410,6 +410,55 @@ fn='Aq_totconc'
 !****************
 
 !****************
+!Begin immobile species
+!****************
+
+IF (nimm > 0) THEN
+fn='Immspec'
+  ilength = 6
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Immobile species Concentrations (mol/m3)" '
+  DO ik= 1, nimm
+    StringTemp = ulab(immspec_ids(ik))
+    CALL stringlen(StringTemp,ls)
+    IF (ls > 14) THEN
+      ls = 14
+    END IF
+    StringProper(1:1) = '"'
+    StringProper(2:ls+1) = StringTemp(1:ls)
+    StringProper(ls+2:ls+3) = '"'
+    WriteString(ik) = StringProper(1:ls+3)
+  END DO
+    WRITE(8,2009) (WriteString(ik),ik=1,nimm)
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          if (activecell(jx,jy,jz) == 0) THEN
+            do i = 1,nimm
+              sprint(i) = -0.001 
+            end do
+          ELSE
+            do i = 1,nimm
+              sprint(i) = s(immspec_ids(i),jx,jy,jz)*por(jx,jy,jz)*satliq(jx,jy,jz)/ro(jx,jy,jz) !convert in mol/m3
+
+                if (sprint(i) < 1.0E-30) THEN
+                sprint(i) = 1.0E-30
+                ELSE
+                
+                END IF
+            end do
+          END IF
+        
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sprint(i),i = 1,nimm)
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+ENDIF
+
+!****************
 !! Begin pH
 !****************
 

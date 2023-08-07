@@ -196,6 +196,7 @@ REAL(DP)        :: check3
 REAL(DP)        :: check4
 REAL(DP)        :: qgdum
 REAL(DP)                                                  :: A_transpi
+REAL(DP)                                                  :: coeff_immo
 
 !! Time normalized used if time series only defined for 1 representative year:
 REAL(DP)        :: time_norm
@@ -205,6 +206,7 @@ PetscFortranAddr                                                    user(6)
 Mat                                                                 amatpetsc
 !******************end PETSc declarations *********************************
 
+coeff_immo = 1.0
 
 jz = 1
 if (delt < 1.0e-20) then
@@ -517,9 +519,14 @@ DO jy = 1,ny
 
         
         DO i = 1,ncomp
-          
+          IF (immobile_species(i) == 1) THEN
+          coeff_immo = 0.0
+          ELSE
+          coeff_immo = 1.0
+          ENDIF
+
           DO i2 = 1,ncomp
-            cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
+            cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -597,9 +604,15 @@ DO jy = 1,ny
         END IF
         
         DO i = 1,ncomp
+        IF (immobile_species(i) == 1) THEN
+        coeff_immo = 0.0
+        ELSE
+        coeff_immo = 1.0
+        ENDIF
+
           
           DO i2 = 1,ncomp
-            bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
+            bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -683,7 +696,7 @@ DO jy = 1,ny
           
           DO i2 = 1,ncomp
             ind2 = i2
-            alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
+            alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -772,11 +785,16 @@ DO jy = 1,ny
         END IF
 
         DO i = 1,ncomp
+        IF (immobile_species(i) == 1) THEN
+        coeff_immo = 0.0
+        ELSE
+        coeff_immo = 1.0
+        ENDIF
           ind = (j-1)*(neqn) + i
 
           DO i2 = 1,ncomp
             ind2 = i2
-            alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
+            alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -870,11 +888,16 @@ DO jy = 1,ny
       END IF
 
       DO i = 1,ncomp
+      IF (immobile_species(i) == 1) THEN
+        coeff_immo = 0.0
+        ELSE
+        coeff_immo = 1.0
+        ENDIF
         ind = (j-1)*(neqn) + i
 
         DO i2 = 1,ncomp
           ind2 = i2
-          alf(ind2,i,5) = xgram(jx,jdum,jz)*df*d(jx,jy,jz)*fjac(i2,i,jx,jdum,jz)
+          alf(ind2,i,5) = xgram(jx,jdum,jz)*df*d(jx,jy,jz)*fjac(i2,i,jx,jdum,jz)!*coeff_immo
         END DO
         
         IF (ierode == 1) THEN
@@ -960,11 +983,16 @@ DO jy = 1,ny
       END IF
 
       DO i = 1,ncomp
+      IF (immobile_species(i) == 1) THEN
+        coeff_immo = 0.0
+        ELSE
+        coeff_immo = 1.0
+        ENDIF
         ind = (j-1)*neqn + i
 
         DO i2 = 1,ncomp
           ind2 = i2
-          alf(ind2,i,4) = xgram(jx,jdum,jz)*df*f(jx,jy,jz)*fjac(i2,i,jx,jdum,jz)
+          alf(ind2,i,4) = xgram(jx,jdum,jz)*df*f(jx,jy,jz)*fjac(i2,i,jx,jdum,jz)!*coeff_immo
         END DO
 
         IF (ierode == 1) THEN
@@ -1281,6 +1309,9 @@ DO jy = 1,ny
       ELSE    !! Following is for no burial/erosion
 
         DO i2 = 1,ncomp        
+        IF (immobile_species(i2) == 1) THEN
+        coeff_immo = 0.0
+        ENDIF
           ind2 = i2                
           rxnmin = sumrd(i2)
 
@@ -1298,7 +1329,7 @@ DO jy = 1,ny
           source_jac = source*fjac(i2,i,jx,jy,jz) 
           ex_accum = r*fch_local(i,i2) 
           alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
-               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) 
+               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz)!*coeff_immo 
 
         END DO   ! end of I2 loop
 

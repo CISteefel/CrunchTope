@@ -246,7 +246,7 @@ DO ir = 1,ikin
 !!    affinity = 1.0
 
 !! Biomass option
-  ELSE IF (iaqtype(ir) == 8) THEN    ! Monod kinetics, but with thermodynamic fact, F_T
+  ELSE IF (iaqtype(ir) == 8 .OR. iaqtype(ir) == 9) THEN    ! Monod kinetics, but with thermodynamic fact, F_T
 
 !! NOTE: ---> This assumes only ONE parallel reaction for Monod
 
@@ -475,6 +475,47 @@ DO ir = 1,ikin
     
 
     vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satL) ! [mol biomass / Kg-H2O]
+    
+!!!    m3_min/m3_pm* mol/ m3_min * m3_pm/m3_fluid * m3_fluid/kgw = mol/kgw * mol/kgw/yr   -->  mol / kgw / yr
+
+    IF (UseMetabolicLagAqueous(jj)) THEN
+      sumkin = 0.0
+      DO ll = 1,nreactkin(ir)
+        raq(ll,ir) = MetabolicLagAqueous(jj,jx,jy,jz)*vol_temp*ratek(ll,ir)*pre_raq(ll,ir)*affinity
+        sumkin = sumkin + raq(ll,ir)
+      END DO
+    ELSE
+      sumkin = 0.0
+      DO ll = 1,nreactkin(ir)
+        ! ************************************
+        ! Edit by Lucien Stolze, June 2023
+        actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft - tkinv) )
+        raq(ll,ir) = ratek(ll,ir)*vol_temp*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir) ![mol/mol-biomass/yr]*[mol-biomass/kgw/yr]
+        ! ************************************
+        sumkin = sumkin + raq(ll,ir)
+      END DO
+    END IF
+
+  elseif (iaqtype(ir) == 9) then
+
+!   pointer to biomass for current reaction
+  !!  ib = ibiomass_kin(p_cat_kin(ir))
+    ib = ibiomass_kin(ir)
+
+    ! note on units:
+    ! 
+    ! Convert units of rate constant for micr.-mediated react. to mol/Kg-H2O/yr:
+    !   raq_tot will later be multiplied by por * satL * ro (in assemble_local and assmeblePS02)
+    !   There the mass balance is expressed per bulk volume (mol/m3-bulk/yr).
+    !
+    ! Rate constants for non-biomass reactions are defined as mol/Kg-H2O/yr. 
+    ! For  microbially-mediated reactions with a biomass term, rate constants in input
+    !    are in units of mol-reaction/mol-biomass/yr
+    !  The volume fraction of the biomass is divided by the molar volume, the liquid saturation, the porosity,
+    !    and the fluid density
+    
+
+    vol_temp = s(ib,jx,jy,jz) ! [mol biomass / Kg-H2O]
     
 !!!    m3_min/m3_pm* mol/ m3_min * m3_pm/m3_fluid * m3_fluid/kgw = mol/kgw * mol/kgw/yr   -->  mol / kgw / yr
 

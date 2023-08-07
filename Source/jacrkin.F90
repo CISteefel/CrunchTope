@@ -350,7 +350,7 @@ DO ir = 1,ikin
      END DO
 
 ! biomass 
-     ELSEIF (iaqtype(ir) == 8) THEN       ! Monod, but with thermodynamic factor, F_T
+     ELSEIF (iaqtype(ir) == 8 .OR. iaqtype(ir) == 9) THEN       ! Monod, but with thermodynamic factor, F_T
 
 
       !************************
@@ -621,6 +621,36 @@ DO ir = 1,ikin
     
     
     vol_temp = volfx(ib,jx,jy,jz) / (por(jx,jy,jz) * ro(jx,jy,jz) * satL)
+    
+    IF (UseMetabolicLagAqueous(ir)) THEN
+      DO i = 1,ncomp
+        DO ll = 1,nreactkin(ir)
+          rdkin(ir,i) = rdkin(ir,i) + MetabolicLagAqueous(ir,jx,jy,jz) * vol_temp * ratek(ll,ir) *  &
+            (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity + pre_raq(ll,ir)*affinity )
+        END DO
+      END DO
+    ELSE
+      DO i = 1,ncomp
+        DO ll = 1,nreactkin(ir)
+          ! ************************************
+          ! Edit by Lucien Stolze, June 2023
+          ! Activation energy for aqueous reactions
+          actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft-tkinv) )
+          rdkin(ir,i) = rdkin(ir,i) + vol_temp * ratek(ll,ir) * actenergyaq(ll,ir) * &
+          (pre_raq(ll,ir)*jac_sat(i) +  jac_prekin(i,ll)*affinity  )
+          ! ************************************
+        END DO
+      END DO
+    END IF
+
+    elseif (iaqtype(ir) == 9) then !monodbiomass function of aqueous species
+
+!   pointer to biomass for current reaction
+!!    ib = ibiomass_kin(p_cat_kin(ir))
+    ib = ibiomass_kin(ir)
+    
+    !write(*,*) ulab(ib)
+    vol_temp = s(ib,jx,jy,jz)
     
     IF (UseMetabolicLagAqueous(ir)) THEN
       DO i = 1,ncomp

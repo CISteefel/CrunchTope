@@ -207,5 +207,11 @@ REAL(DP)                                         :: dorm_Se
 !choose if solutes are removed by transpiration
 LOGICAL(LGT)                                     :: transpisoluteflux 
 !*******************
+!Stolze Lucien, immobile species, August 2023
+INTEGER(I4B)                                         :: nimm !number of immobile species
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: immobile_species !array of the size of the primary_species 0: mobile, 1:immobile
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE      :: immspec_ids !ids of primary species that are immobile
+
+!*******************
 
 END module transport

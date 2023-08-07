@@ -353,6 +353,7 @@ SOURCEF = \
           read_permyfile.F90\
           read_mineralfile.F90\
           read_eastriver.F90\
+          read_immspecfile.F90\
 
 OBJSF  =  crunchtype.o\
           params.o\
@@ -704,6 +705,7 @@ OBJSF  =  crunchtype.o\
           read_permyfile.o\
           read_mineralfile.o\
           read_eastriver.o\
+          read_immspecfile.o\
 
 LOCDIR   = ${CrunchTope_Dir}
 
