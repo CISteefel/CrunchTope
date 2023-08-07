@@ -199,6 +199,9 @@ LOGICAL(LGT)                                     :: east_river
 REAL(DP)                                         :: thres_root
 REAL(DP)                                         :: exp_root
 REAL(DP)                                         :: bio_decay_KX
+REAL(DP)                                         :: dorm_a
+REAL(DP)                                         :: dorm_b
+REAL(DP)                                         :: dorm_Se
 !*******************
 !Stolze Lucien, June 2023
 !choose if solutes are removed by transpiration

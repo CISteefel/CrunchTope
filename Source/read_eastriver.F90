@@ -142,6 +142,78 @@ IF(ls /= 0) THEN
             STOP
           END IF
 
+          id = ids + ls
+        CALL sschaine(zone,id,iff,ssch,ids,ls)
+        IF(ls /= 0) THEN
+          lzs=ls
+          CALL convan(ssch,lzs,res)
+          IF (res == 'n') THEN
+            dorm_a = DNUM(ssch)
+          ELSE                !  An ascii string--so bag it.
+            WRITE(*,*)
+            WRITE(*,*) ' Cant interpret string following "east_river"'
+            WRITE(*,*) ' Looking for numerical value (OM_thres1, OM_thres2, OM_exp, bio_decay_KX, dorm_a, dorm_b, dorm_Se)'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+
+          id = ids + ls
+        CALL sschaine(zone,id,iff,ssch,ids,ls)
+        IF(ls /= 0) THEN
+          lzs=ls
+          CALL convan(ssch,lzs,res)
+          IF (res == 'n') THEN
+            dorm_b = DNUM(ssch)
+          ELSE                !  An ascii string--so bag it.
+            WRITE(*,*)
+            WRITE(*,*) ' Cant interpret string following "east_river"'
+            WRITE(*,*) ' Looking for numerical value (OM_thres1, OM_thres2, OM_exp, bio_decay_KX, dorm_a, dorm_b, dorm_Se)'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+
+          id = ids + ls
+        CALL sschaine(zone,id,iff,ssch,ids,ls)
+        IF(ls /= 0) THEN
+          lzs=ls
+          CALL convan(ssch,lzs,res)
+          IF (res == 'n') THEN
+            dorm_Se = DNUM(ssch)
+          ELSE                !  An ascii string--so bag it.
+            WRITE(*,*)
+            WRITE(*,*) ' Cant interpret string following "east_river"'
+            WRITE(*,*) ' Looking for numerical value (OM_thres1, OM_thres2, OM_exp, bio_decay_KX, dorm_a, dorm_b, dorm_Se)'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' No dorm_Se release given'
+          WRITE(*,*) 'stopping'
+          WRITE(*,*)
+          STOP
+        END IF
+
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' No dorm_b release given'
+          WRITE(*,*) 'stopping'
+          WRITE(*,*)
+          STOP
+        END IF
+
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' No dorm_a release given'
+          WRITE(*,*) 'stopping'
+          WRITE(*,*)
+          STOP
+        END IF
+
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' No bio_decay_KX release given'
@@ -149,6 +221,7 @@ IF(ls /= 0) THEN
           WRITE(*,*)
           STOP
         END IF
+
 
         ELSE
           WRITE(*,*)

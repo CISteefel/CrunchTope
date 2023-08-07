@@ -355,6 +355,8 @@ DO k = 1,nkin
 !!  Imintype = 7 --> Reverse one-way, surface area = 1.0 while mineral is present
 !!  Imintype = 8 --> Microbially mediated monod with theormodynamic factor, and biomass
 !!  Imintype = 9 --> biomass first order decay !!smr-2011-04-29
+!!  Imintype = 11 --> biomass dormancy !!lstolze-2023-08-06
+!!  Imintype = 12 --> biomass activation !!lstolze-2023-08-06
 !!  Imintype = 10 -> Nucleation
 
 !!  Calculate thermodynamic term
@@ -805,11 +807,33 @@ DO k = 1,nkin
       
       ELSE IF (imintype(np,k) == 9) THEN
       IF (east_river) then
-        term2 = volfx(biomass_decay(np,k),jx,jy,jz)*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
+        term2 = volfx(biomass_decay(np,k),jx,jy,jz) !*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
+        
+        IF (umin(k)=='TOC_soil2_rel' .OR. umin(k)=='TOCsoil2_rel') THEN
+        liqsat_fac = 1
+        ! write(*,*) satliqold(jx,jy,jz)
+        ! stop
+        sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+        IF (satliq(jx,jy,jz) > thres_OM2) THEN
+          liqsat_fac = 1/(1 + (thres_OM1/sat)**exp_OM)
+        ELSE
+          liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
+        ENDIF
+        term2 = term2 * liqsat_fac
+        ENDIF
+
       ELSE
         term2 = volfx(biomass_decay(np,k),jx,jy,jz)
       ENDIF
-!!        term2 = term2/volmol(biomass_decay(np,k)) not applicable after volmol=1 for biomass
+        pre_rmin(np,k) = term2
+
+      ELSE IF (imintype(np,k) == 11) THEN
+        sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+        term2 = volfx(biomass_dormancy(np,k),jx,jy,jz) * (1/(1 + (sat/dorm_Se)**dorm_b))
+        pre_rmin(np,k) = term2
+      ELSE IF (imintype(np,k) == 12) THEN
+        sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz))
+        term2 = volfx(biomass_activation(np,k),jx,jy,jz) * (1/(1 + dorm_a*(dorm_Se/sat)**dorm_b))
         pre_rmin(np,k) = term2
 
 !       note on units:
@@ -846,7 +870,7 @@ DO k = 1,nkin
 ! biomass end        
 
 ! sergi: first order biomass decay - may 2011
-      ELSE IF (imintype(np,k) == 9) THEN 
+      ELSE IF (imintype(np,k) == 9 .OR. imintype(np,k) == 11 .OR. imintype(np,k) == 12) THEN 
 
         pre_rmin(np,k) = term2
 ! end sergi: first order biomass decay - may 2011
@@ -924,7 +948,7 @@ DO k = 1,nkin
 
 ! sergi: first order biomass decay - may 2011
       
-      ELSE IF (imintype(np,k) == 9) THEN
+      ELSE IF (imintype(np,k) == 9 .OR. imintype(np,k) == 11 .OR. imintype(np,k) == 12) THEN
       
         term1 = 1.d0
         AffinityTerm = 1.0d0
@@ -1139,8 +1163,16 @@ DO k = 1,nkin
         ! !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
         ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
         ! ELSE
-          
+        
+        IF (umin(k)=='TOC_soil2' .OR. umin(k)=='TOCsoil2') THEN  
+        ! if (volfx(k,jx,jy,jz)>1e-9) then
+        ! rmin(np,k) = rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+        ! else
+        ! rmin(np,k) = 0*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+        ! endif
+        ELSE
         rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+        ENDIF
         
         !ENDIF
           

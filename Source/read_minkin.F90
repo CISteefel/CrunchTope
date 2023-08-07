@@ -138,6 +138,8 @@ integer(i4b)                                                :: ios, im, ib, coun
 integer(i4b),dimension(:),allocatable                       :: workint
 
 namelist /BiomassDecay/                                        biomass
+namelist /BiomassDormancy/                                        biomass
+namelist /BiomassActivation/                                        biomass
 
 
 imonod = 0
@@ -769,6 +771,12 @@ IF (ssch == tempmin) THEN
 ! sergi: biomass decay
          ELSE IF (ssch == 'BiomassDecay' .OR. ssch == 'biomassdecay') THEN
            imintype(npar,nkin) = 9
+! lucien: biomass dormancy
+         ELSE IF (ssch == 'BiomassDormancy' .OR. ssch == 'biomassdormancy') THEN
+           imintype(npar,nkin) = 11
+! lucien: biomass activation
+         ELSE IF (ssch == 'BiomassActivation' .OR. ssch == 'biomassactivation') THEN
+           imintype(npar,nkin) = 12
 
 
 ! sergi: biomass decay end
@@ -1369,6 +1377,135 @@ IF (ssch == tempmin) THEN
  
 
 ! end sergi: biomass decay
+
+
+! start lucien: biomass dormancy
+  ELSE IF (imintype(np,nkin) == 11) THEN
+    
+!     first time around allocation
+      if (.not.allocated(biomass_dormancy)) then
+
+        allocate(biomass_dormancy(mreact,mrct))
+
+      end if 
+
+!     read 'biomass' namelist from file
+      read(18,nml=BiomassDormancy,iostat=ios)     
+
+!     result from read (IOS)
+      if (ios == 0) then
+
+!       successful read
+
+!       find the biomass for this reaction in the mineral list
+        ib = 0
+        count_ib = 0
+        do_biomass1: do im=1,len(namrl(im))
+
+          if (im == 1) then
+            count_ib = count_ib + 1
+          elseif (namrl(im-1) /= namrl(im)) then
+              count_ib = count_ib + 1
+          endif
+            
+          if (biomass == namrl(im)) then
+               
+            ib = count_ib
+            exit do_biomass1
+               
+          end if
+            
+        end do do_biomass1
+            
+        if (ib == 0) then
+          write(*,*)'biomass ',biomass,' for reaction: ',name,' is not in the list of minerals'
+          write(*,*)'biomass dormancy needs to be after biomass has been defined!!'
+          stop
+        end if
+        
+        biomass_dormancy(np,nkin)=ib
+      
+      else if (ios < 0) then
+
+!       no namelist to read
+        write(*,*)'namelist not found. bye'
+        stop
+
+      else if (ios > 0) then
+
+        write(*,*)'error reading namelist: goodbye'
+        write(*,nml=BiomassDormancy,iostat=ios)
+        stop
+
+      end if
+      
+      
+ 
+
+! end lucien: biomass dormancy
+
+
+! start lucien: biomass activation
+  ELSE IF (imintype(np,nkin) == 12) THEN
+    
+!     first time around allocation
+      if (.not.allocated(biomass_activation)) then
+
+        allocate(biomass_activation(mreact,mrct))
+
+      end if 
+
+!     read 'biomass' namelist from file
+      read(18,nml=BiomassActivation,iostat=ios)     
+
+!     result from read (IOS)
+      if (ios == 0) then
+
+!       successful read
+
+!       find the biomass for this reaction in the mineral list
+        ib = 0
+        count_ib = 0
+        do_biomass2: do im=1,len(namrl(im))
+
+          if (im == 1) then
+            count_ib = count_ib + 1
+          elseif (namrl(im-1) /= namrl(im)) then
+              count_ib = count_ib + 1
+          endif
+            
+          if (biomass == namrl(im)) then
+               
+            ib = count_ib
+            exit do_biomass2
+               
+          end if
+            
+        end do do_biomass2
+            
+        if (ib == 0) then
+          write(*,*)'biomass ',biomass,' for reaction: ',name,' is not in the list of minerals'
+          write(*,*)'biomass activation needs to be after biomass has been defined!!'
+          stop
+        end if
+        
+        biomass_activation(np,nkin)=ib
+      
+      else if (ios < 0) then
+
+!       no namelist to read
+        write(*,*)'namelist not found. bye'
+        stop
+
+      else if (ios > 0) then
+
+        write(*,*)'error reading namelist: goodbye'
+        write(*,nml=BiomassActivation,iostat=ios)
+        stop
+
+      end if
+      
+! end lucien: biomass activation
 
       
     ELSE                      !! If not a Monod rate law, look for species (exponential) dependences

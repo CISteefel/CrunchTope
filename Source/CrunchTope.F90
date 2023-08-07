@@ -1301,60 +1301,60 @@ DO WHILE (nn <= nend)
                 thres = 0.1
                 CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
                 CALL interp3(time_norm+delt,delt,t_infiltration,qt_infiltration(:),infiltration_rate_future,size(qt_infiltration(:)))
-                IF (time > 0) THEN
+              !   IF (time > 0) THEN
 
-                  IF (abs(infiltration_rate) < abs(infiltration_rate_old) .or. abs(infiltration_rate_future) < abs(infiltration_rate)) THEN
-                    IF ((abs(infiltration_rate_old) - abs(infiltration_rate))/abs(infiltration_rate_old + 1e-5) > thres .or. (abs(infiltration_rate) - abs(infiltration_rate_future))/(abs(infiltration_rate)+1e-5) > thres) THEN
-                    ! write(*,*) 'start'
-                    ! write(*,*) abs(infiltration_rate_old)
-                    ! write(*,*) abs(infiltration_rate)
-                    ! write(*,*) abs(infiltration_rate_future)
-                    ! write(*,*) delt
-                    DO WHILE ((abs(infiltration_rate_old) - abs(infiltration_rate))/abs(infiltration_rate_old + 1e-5) > thres .or. (abs(infiltration_rate) - abs(infiltration_rate_future))/(abs(infiltration_rate)+1e-5) > thres)
-                    delt = delt/2
-                    CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-                    CALL interp3(time_norm+delt,delt,t_infiltration,qt_infiltration(:),infiltration_rate_future,size(qt_infiltration(:)))
-                    ! write(*,*) 'reduction'
-                    ! write(*,*) abs(infiltration_rate_old)
-                    ! write(*,*) abs(infiltration_rate)
-                    ! write(*,*) abs(infiltration_rate_future)
-                    ! write(*,*) delt
-                    !STOP
-                    IF ((abs(infiltration_rate_old) - abs(infiltration_rate))/abs(infiltration_rate_old + 1e-5) <= thres .or. (abs(infiltration_rate) - abs(infiltration_rate_future))/(abs(infiltration_rate)+1e-5) <= thres) THEN
-                    exit
-                    ENDIF
-                    ENDDO
-                    ENDIF
-                  ENDIF
+              !     IF (abs(infiltration_rate) < abs(infiltration_rate_old) .or. abs(infiltration_rate_future) < abs(infiltration_rate)) THEN
+              !       IF ((abs(infiltration_rate_old) - abs(infiltration_rate))/abs(infiltration_rate_old + 1e-5) > thres .or. (abs(infiltration_rate) - abs(infiltration_rate_future))/(abs(infiltration_rate)+1e-5) > thres) THEN
+              !       ! write(*,*) 'start'
+              !       ! write(*,*) abs(infiltration_rate_old)
+              !       ! write(*,*) abs(infiltration_rate)
+              !       ! write(*,*) abs(infiltration_rate_future)
+              !       ! write(*,*) delt
+              !       DO WHILE ((abs(infiltration_rate_old) - abs(infiltration_rate))/abs(infiltration_rate_old + 1e-5) > thres .or. (abs(infiltration_rate) - abs(infiltration_rate_future))/(abs(infiltration_rate)+1e-5) > thres)
+              !       delt = delt/2
+              !       CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+              !       CALL interp3(time_norm+delt,delt,t_infiltration,qt_infiltration(:),infiltration_rate_future,size(qt_infiltration(:)))
+              !       ! write(*,*) 'reduction'
+              !       ! write(*,*) abs(infiltration_rate_old)
+              !       ! write(*,*) abs(infiltration_rate)
+              !       ! write(*,*) abs(infiltration_rate_future)
+              !       ! write(*,*) delt
+              !       !STOP
+              !       IF ((abs(infiltration_rate_old) - abs(infiltration_rate))/abs(infiltration_rate_old + 1e-5) <= thres .or. (abs(infiltration_rate) - abs(infiltration_rate_future))/(abs(infiltration_rate)+1e-5) <= thres) THEN
+              !       exit
+              !       ENDIF
+              !       ENDDO
+              !       ENDIF
+              !     ENDIF
 
 
-                  IF (abs(infiltration_rate) > abs(infiltration_rate_old) .or. abs(infiltration_rate_future) > abs(infiltration_rate)) THEN
-                    IF ((abs(infiltration_rate) - abs(infiltration_rate_old))/(abs(infiltration_rate_old)+1e-5) > thres .or. (abs(infiltration_rate_future) - abs(infiltration_rate))/(abs(infiltration_rate)+1e-5) > thres) THEN
-                    ! write(*,*) abs(infiltration_rate_old)
-                    ! write(*,*) abs(infiltration_rate)
-                    ! write(*,*) abs(infiltration_rate_future)
-                    ! write(*,*) delt
-                    ! write(*,*) (abs(infiltration_rate) - abs(infiltration_rate_old))/delt
-                    ! write(*,*) (abs(infiltration_rate_future) - abs(infiltration_rate))/delt
-                    DO WHILE ((abs(infiltration_rate) - abs(infiltration_rate_old))/(abs(infiltration_rate_old)+1e-5) > thres .or. (abs(infiltration_rate_future) - abs(infiltration_rate))/(abs(infiltration_rate)+1e-5) > thres)
-                    delt = delt/2
-                    CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-                    CALL interp3(time_norm+delt,delt,t_infiltration,qt_infiltration(:),infiltration_rate_future,size(qt_infiltration(:)))
-                    ! write(*,*) 'reduction'
-                    ! write(*,*) abs(infiltration_rate_old)
-                    ! write(*,*) abs(infiltration_rate)
-                    ! write(*,*) abs(infiltration_rate_future)
-                    ! write(*,*) delt
-                    ! write(*,*) (abs(infiltration_rate) - abs(infiltration_rate_old))/delt
-                    ! write(*,*) (abs(infiltration_rate_future) - abs(infiltration_rate))/delt
-                    ! STOP
-                    IF ((abs(infiltration_rate) - abs(infiltration_rate_old))/(abs(infiltration_rate_old)+1e-5) <= thres .or. (abs(infiltration_rate_future) - abs(infiltration_rate))/(abs(infiltration_rate)+1e-5) <= thres) THEN
-                    exit
-                    ENDIF
-                    ENDDO
-                    ENDIF
-                  ENDIF
-                  ENDIF
+              !     IF (abs(infiltration_rate) > abs(infiltration_rate_old) .or. abs(infiltration_rate_future) > abs(infiltration_rate)) THEN
+              !       IF ((abs(infiltration_rate) - abs(infiltration_rate_old))/(abs(infiltration_rate_old)+1e-5) > thres .or. (abs(infiltration_rate_future) - abs(infiltration_rate))/(abs(infiltration_rate)+1e-5) > thres) THEN
+              !       ! write(*,*) abs(infiltration_rate_old)
+              !       ! write(*,*) abs(infiltration_rate)
+              !       ! write(*,*) abs(infiltration_rate_future)
+              !       ! write(*,*) delt
+              !       ! write(*,*) (abs(infiltration_rate) - abs(infiltration_rate_old))/delt
+              !       ! write(*,*) (abs(infiltration_rate_future) - abs(infiltration_rate))/delt
+              !       DO WHILE ((abs(infiltration_rate) - abs(infiltration_rate_old))/(abs(infiltration_rate_old)+1e-5) > thres .or. (abs(infiltration_rate_future) - abs(infiltration_rate))/(abs(infiltration_rate)+1e-5) > thres)
+              !       delt = delt/2
+              !       CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+              !       CALL interp3(time_norm+delt,delt,t_infiltration,qt_infiltration(:),infiltration_rate_future,size(qt_infiltration(:)))
+              !       ! write(*,*) 'reduction'
+              !       ! write(*,*) abs(infiltration_rate_old)
+              !       ! write(*,*) abs(infiltration_rate)
+              !       ! write(*,*) abs(infiltration_rate_future)
+              !       ! write(*,*) delt
+              !       ! write(*,*) (abs(infiltration_rate) - abs(infiltration_rate_old))/delt
+              !       ! write(*,*) (abs(infiltration_rate_future) - abs(infiltration_rate))/delt
+              !       ! STOP
+              !       IF ((abs(infiltration_rate) - abs(infiltration_rate_old))/(abs(infiltration_rate_old)+1e-5) <= thres .or. (abs(infiltration_rate_future) - abs(infiltration_rate))/(abs(infiltration_rate)+1e-5) <= thres) THEN
+              !       exit
+              !       ENDIF
+              !       ENDDO
+              !       ENDIF
+              !     ENDIF
+              !     ENDIF
 
               ELSE
                 CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
