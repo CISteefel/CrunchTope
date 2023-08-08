@@ -515,7 +515,7 @@ DO ir = 1,ikin
     !    and the fluid density
     
 
-    vol_temp = s(ib,jx,jy,jz) ! [mol biomass / Kg-H2O]
+    vol_temp = sp10(ib,jx,jy,jz) ! [mol biomass / Kg-H2O]
     
 !!!    m3_min/m3_pm* mol/ m3_min * m3_pm/m3_fluid * m3_fluid/kgw = mol/kgw * mol/kgw/yr   -->  mol / kgw / yr
 
@@ -531,7 +531,7 @@ DO ir = 1,ikin
         ! ************************************
         ! Edit by Lucien Stolze, June 2023
         actenergyaq(ll,ir) = DEXP( (actk(ll,ir)/rgasKCAL)*(reft - tkinv) )
-        raq(ll,ir) = ratek(ll,ir)*vol_temp*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir) ![mol/mol-biomass/yr]*[mol-biomass/kgw/yr]
+        raq(ll,ir) = ratek(ll,ir)*vol_temp*pre_raq(ll,ir)*affinity*actenergyaq(ll,ir) ![mol/mol-biomass/yr]*[mol-biomass/kgw]
         ! ************************************
         sumkin = sumkin + raq(ll,ir)
       END DO

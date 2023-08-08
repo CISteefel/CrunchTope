@@ -650,7 +650,7 @@ DO ir = 1,ikin
     ib = ibiomass_kin(ir)
     
     !write(*,*) ulab(ib)
-    vol_temp = s(ib,jx,jy,jz)
+    vol_temp = sp10(ib,jx,jy,jz)
     
     IF (UseMetabolicLagAqueous(ir)) THEN
       DO i = 1,ncomp

@@ -1017,12 +1017,12 @@ DO i = 1,ncomp
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source*coeff_immo - GasSource)  &
+    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge*coeff_immo - source*coeff_immo - GasSource)  &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)*coeff_immo + xvectors*df*coeff_immo  &
         + df*xbdflux*coeff_immo      &   !! Advective flux 
         + xvec_ex*df*coeff_immo      &   !! Erosion flux of exchangers
-        + xvecgas*df*coeff_immo + ex_transport*coeff_immo  &
-        + gas_transport*coeff_immo  &
+        + xvecgas*df + ex_transport*coeff_immo  &
+        + gas_transport  &
         + xspecdiffw*df*coeff_immo + xspecdiffe*df*coeff_immo)!*coeff_immo   ! Species-dependent diffusion
       continue
   ELSE

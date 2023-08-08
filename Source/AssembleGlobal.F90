@@ -197,6 +197,7 @@ REAL(DP)        :: check4
 REAL(DP)        :: qgdum
 REAL(DP)                                                  :: A_transpi
 REAL(DP)                                                  :: coeff_immo
+REAL(DP)                                                  :: coeff_immo2
 
 !! Time normalized used if time series only defined for 1 representative year:
 REAL(DP)        :: time_norm
@@ -526,7 +527,12 @@ DO jy = 1,ny
           ENDIF
 
           DO i2 = 1,ncomp
-            cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
+          IF (immobile_species(i2) == 1) THEN
+          coeff_immo2 = 0.0
+          ELSE
+          coeff_immo2 = 1.0
+          ENDIF
+            cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo2
           END DO
 
           IF (ierode == 1) THEN
@@ -609,15 +615,14 @@ DO jy = 1,ny
         ELSE
         coeff_immo = 1.0
         ENDIF
-
           
           DO i2 = 1,ncomp
           IF (immobile_species(i2) == 1) THEN
-          coeff_immo = 0.0
+          coeff_immo2 = 0.0
           ELSE
-          coeff_immo = 1.0
+          coeff_immo2 = 1.0
           ENDIF
-            bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
+            bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo2
           END DO
 
           IF (ierode == 1) THEN
@@ -701,12 +706,12 @@ DO jy = 1,ny
           
           DO i2 = 1,ncomp
           IF (immobile_species(i2) == 1) THEN
-          coeff_immo = 0.0
+          coeff_immo2 = 0.0
           ELSE
-          coeff_immo = 1.0
+          coeff_immo2 = 1.0
           ENDIF
             ind2 = i2
-            alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
+            alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo2
           END DO
 
           IF (ierode == 1) THEN
@@ -804,12 +809,12 @@ DO jy = 1,ny
 
           DO i2 = 1,ncomp
           IF (immobile_species(i2) == 1) THEN
-          coeff_immo = 0.0
+          coeff_immo2 = 0.0
           ELSE
-          coeff_immo = 1.0
+          coeff_immo2 = 1.0
           ENDIF
             ind2 = i2
-            alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
+            alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo2
           END DO
 
           IF (ierode == 1) THEN
@@ -1325,9 +1330,9 @@ DO jy = 1,ny
 
         DO i2 = 1,ncomp        
         IF (immobile_species(i2) == 1) THEN
-          coeff_immo = 0.0
+          coeff_immo2 = 0.0
           ELSE
-          coeff_immo = 1.0
+          coeff_immo2 = 1.0
           ENDIF
           ind2 = i2                
           rxnmin = sumrd(i2)
@@ -1346,7 +1351,7 @@ DO jy = 1,ny
           source_jac = source*fjac(i2,i,jx,jy,jz) 
           ex_accum = r*fch_local(i,i2) 
           alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
-               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz)*coeff_immo 
+               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz)*coeff_immo2 
 
         END DO   ! end of I2 loop
 
