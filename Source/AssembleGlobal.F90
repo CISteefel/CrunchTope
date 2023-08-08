@@ -612,7 +612,12 @@ DO jy = 1,ny
 
           
           DO i2 = 1,ncomp
-            bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
+          IF (immobile_species(i2) == 1) THEN
+          coeff_immo = 0.0
+          ELSE
+          coeff_immo = 1.0
+          ENDIF
+            bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -695,6 +700,11 @@ DO jy = 1,ny
           ind = (j-1)*(neqn) + i
           
           DO i2 = 1,ncomp
+          IF (immobile_species(i2) == 1) THEN
+          coeff_immo = 0.0
+          ELSE
+          coeff_immo = 1.0
+          ENDIF
             ind2 = i2
             alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
           END DO
@@ -793,8 +803,13 @@ DO jy = 1,ny
           ind = (j-1)*(neqn) + i
 
           DO i2 = 1,ncomp
+          IF (immobile_species(i2) == 1) THEN
+          coeff_immo = 0.0
+          ELSE
+          coeff_immo = 1.0
+          ENDIF
             ind2 = i2
-            alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
+            alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -1310,8 +1325,10 @@ DO jy = 1,ny
 
         DO i2 = 1,ncomp        
         IF (immobile_species(i2) == 1) THEN
-        coeff_immo = 0.0
-        ENDIF
+          coeff_immo = 0.0
+          ELSE
+          coeff_immo = 1.0
+          ENDIF
           ind2 = i2                
           rxnmin = sumrd(i2)
 

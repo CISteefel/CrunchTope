@@ -725,14 +725,14 @@ DO i = 1,ncomp
   IF (jx == 1) THEN
     
     IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
-      xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))!*coeff_immo
+      xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))*coeff_immo
       IF (isaturate == 1) THEN
         xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
         xvecgas = 0.0
       END IF
     ELSE
-      xvectors = (c(jx,jy,jz)*sce(i))!*coeff_immo
+      xvectors = (c(jx,jy,jz)*sce(i))*coeff_immo
       IF (isaturate == 1) THEN
         xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
@@ -743,14 +743,14 @@ DO i = 1,ncomp
   ELSE IF (jx == nx) THEN
     
     IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
-      xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))!*coeff_immo
+      xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))*coeff_immo
       IF (isaturate == 1) THEN
         xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
         xvecgas = 0.0
       END IF
     ELSE      
-      xvectors = (a(jx,jy,jz)*scw(i))!*coeff_immo
+      xvectors = (a(jx,jy,jz)*scw(i))*coeff_immo
       IF (isaturate == 1) THEN
         xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
       ELSE
@@ -760,7 +760,7 @@ DO i = 1,ncomp
     
   ELSE
     
-    xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))!*coeff_immo
+    xvectors = (a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i))*coeff_immo
     IF (isaturate == 1) THEN
       xvecgas = (ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i))!*coeff_immo
     ELSE
@@ -876,11 +876,11 @@ DO i = 1,ncomp
   
   IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0) THEN
     IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) /= 1) THEN
-      xbdflux = (a(jx,jy,jz)*scw(i))!*coeff_immo
+      xbdflux = (a(jx,jy,jz)*scw(i))*coeff_immo
     END IF
   ELSE IF (jx == nx .AND. netflowx(jx,jy,jz) < 0.0) THEN
     IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) /= 1) THEN
-      xbdflux = (c(jx,jy,jz)*sce(i))!*coeff_immo
+      xbdflux = (c(jx,jy,jz)*sce(i))*coeff_immo
     END IF
   ELSE
     xbdflux = 0.0
