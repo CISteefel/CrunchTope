@@ -211,6 +211,12 @@ IF (ny == 1 .AND. nz == 1) THEN
   ELSE
     ALLOCATE(s(ncomp,0:nx+1,0:ny+1,nz))
   END IF
+  IF (ALLOCATED(s_in)) THEN
+    DEALLOCATE(s_in)
+    ALLOCATE(s_in(ncomp,0:nx+1,0:ny+1,nz))
+  ELSE
+    ALLOCATE(s_in(ncomp,0:nx+1,0:ny+1,nz))
+  END IF
   IF (ALLOCATED(sp)) THEN
     DEALLOCATE(sp)
     ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,nz))

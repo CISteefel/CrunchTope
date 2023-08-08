@@ -931,7 +931,7 @@ DO i = 1,ncomp
   IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
         if (ny == 1 .AND. nz == 1) THEN
         A_transpi = dyy(jy) * dzz(jx,jy,jz)
-        source = source - (xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume)!*coeff_immo
+        source = source - (xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume)*coeff_immo
   ENDIF
   ENDIF
 ! ************************************
@@ -1017,12 +1017,12 @@ DO i = 1,ncomp
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
+    fxx(ind) = (MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source*coeff_immo - GasSource)  &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)*coeff_immo + xvectors*df*coeff_immo  &
         + df*xbdflux*coeff_immo      &   !! Advective flux 
-        + xvec_ex*df      &   !! Erosion flux of exchangers
-        + xvecgas*df + ex_transport  &
-        + gas_transport  &
+        + xvec_ex*df*coeff_immo      &   !! Erosion flux of exchangers
+        + xvecgas*df*coeff_immo + ex_transport*coeff_immo  &
+        + gas_transport*coeff_immo  &
         + xspecdiffw*df*coeff_immo + xspecdiffe*df*coeff_immo)!*coeff_immo   ! Species-dependent diffusion
       continue
   ELSE

@@ -865,6 +865,29 @@ IF (CalculateFlow) THEN
   ! End of Edit by Toshiyuki Bandai, 2023 May
   ! **********************************************
 
+DO jz = 1,nz
+DO jy = 1,ny
+DO jx = 1,nx
+
+      DO i = 1,ncomp
+      IF (immobile_species(i) == 1) THEN
+      s(i,jx,jy,jz) = s_in(i,jx,jy,jz)*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      !scond(i,jinit(jx,jy,jz)) = s(i,jinit(jx,jy,jz))*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz)
+      sn(i,jx,jy,jz) = s(i,jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      sp10(i,jx,jy,jz) = s(i,jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      sp(i,jx,jy,jz) = log(sp10(i,jx,jy,jz)) !Convert [mol/m3] in [mol/Lw]
+      ENDIF
+      ENDDO
+
+      ! DO ik = 1,ncomp+nspec
+      ! IF (immobile_species(ik) == 1) THEN
+      
+      ! ENDIF
+      ! ENDDO
+ENDDO
+ENDDO
+ENDDO
+
 !!  Check divergence of flow field
 
   MaxDivergence = 0.00
@@ -934,7 +957,11 @@ DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
       DO ik = 1,ncomp+nspec
+        IF (immobile_species(ik) == 1) THEN
+        continue
+        ELSE
         InitialTotalMass = InitialTotalMass + sp10(ik,jx,jy,jz)*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+        ENDIF
       END DO
     END DO
   END DO

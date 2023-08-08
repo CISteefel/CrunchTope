@@ -394,6 +394,8 @@ MODULE  concentration
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: exflag
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: surflag
 
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: s_in !for immobile species (stole Lucien)
+
 
 END MODULE concentration
 

@@ -526,7 +526,7 @@ DO jy = 1,ny
           ENDIF
 
           DO i2 = 1,ncomp
-            cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
+            cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -696,7 +696,7 @@ DO jy = 1,ny
           
           DO i2 = 1,ncomp
             ind2 = i2
-            alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)!*coeff_immo
+            alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)*coeff_immo
           END DO
 
           IF (ierode == 1) THEN
@@ -1062,7 +1062,7 @@ DO jy = 1,ny
     IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
       if (ny == 1 .AND. nz == 1) THEN
       A_transpi = dyy(jy) * dzz(jx,jy,jz)
-      source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp/CellVolume
+      source = source - (xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp/CellVolume)*coeff_immo
     ENDIF
     ENDIF
 
@@ -1329,7 +1329,7 @@ DO jy = 1,ny
           source_jac = source*fjac(i2,i,jx,jy,jz) 
           ex_accum = r*fch_local(i,i2) 
           alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
-               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz)!*coeff_immo 
+               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz)*coeff_immo 
 
         END DO   ! end of I2 loop
 
