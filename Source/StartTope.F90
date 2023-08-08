@@ -6086,7 +6086,7 @@ DO jx = 1,nx
       DO i = 1,ncomp
       IF (immobile_species(i) == 1) THEN
       s_in(i,jx,jy,jz) = s(i,jx,jy,jz)
-      s(i,jx,jy,jz) = s(i,jx,jy,jz)*ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
+      s(i,jx,jy,jz) = s(i,jx,jy,jz)/ro(jx,jy,jz)/por(jx,jy,jz)/satliq(jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
       !scond(i,jinit(jx,jy,jz)) = s(i,jinit(jx,jy,jz))*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz)
       sn(i,jx,jy,jz) = s(i,jx,jy,jz) !Convert [mol/m3] in [mol/Lw]
       sp10(i,jx,jy,jz) = s(i,jx,jy,jz) !Convert [mol/m3] in [mol/Lw]

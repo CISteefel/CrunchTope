@@ -441,7 +441,7 @@ fn='Immspec'
             end do
           ELSE
             do i = 1,nimm
-              sprint(i) = s(immspec_ids(i),jx,jy,jz)*por(jx,jy,jz)*satliq(jx,jy,jz)/ro(jx,jy,jz) !convert in mol/m3
+              sprint(i) = s(immspec_ids(i),jx,jy,jz)*por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz) !convert in mol/m3
 
                 if (sprint(i) < 1.0E-30) THEN
                 sprint(i) = 1.0E-30
