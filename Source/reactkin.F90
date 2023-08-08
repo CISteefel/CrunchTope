@@ -63,7 +63,7 @@ USE medium
 USE temperature, ONLY: ro,T
 USE strings
 USE runtime, ONLY: JennyDruhan,Maggi
-USE transport, ONLY: satliq,satliqold
+USE transport, ONLY: satliq,satliqold,dorm_a,dorm_b,dorm_Se, thres_OM1, thres_OM2, exp_OM
 USE isotope
 
 IMPLICIT NONE
@@ -119,7 +119,7 @@ REAL(DP)                                                       :: snormAqueous
 
 real(dp)                                                       :: vol_temp
 real(dp)                                                       :: satL
-
+REAL(DP)                                                       :: liqsat_fac
 !!REAL(DP), DIMENSION(ikin)                                      :: MoleFraction
 
 tk = t(jx,jy,jz) + 273.15D0
@@ -188,6 +188,23 @@ DO ir = 1,ikin
       ELSE
         pre_raq(ll,ir) = DEXP(sum)
       END IF
+
+      IF (namkin(ir) == 'Biomass_dormancy') THEN
+      satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      pre_raq(ll,ir) = pre_raq(ll,ir) * (1/(1 + (satL/dorm_Se)**dorm_b))
+      ELSEIF (namkin(ir) == 'Biomass_activation') THEN
+      satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      pre_raq(ll,ir) = pre_raq(ll,ir )* (1/(1 + dorm_a*(dorm_Se/satL)**dorm_b))
+      ELSEIF (namkin(ir) == 'TOCsoil_release' .OR. namkin(ir) == 'TOCsoil_release') THEN
+      satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+      liqsat_fac = 1
+      IF (satL > thres_OM2) THEN
+        liqsat_fac = 1/(1 + (thres_OM1/satL)**exp_OM)
+      ELSE
+        liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
+      ENDIF
+      pre_raq(ll,ir) = pre_raq(ll,ir ) * liqsat_fac
+      ENDIF
 
     END DO
 

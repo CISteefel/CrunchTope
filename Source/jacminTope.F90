@@ -1045,11 +1045,6 @@ DO k = 1,nkin
               ENDIF
               jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
-            ELSEIF (umin(k)=='TOC_soil2' .OR. umin(k)=='TOCsoil2') THEN
-            ! if (volfx(k,jx,jy,jz) == 1e-9) then
-            ! jac_rmin(i,np,k) = 0*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
-            !          ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
-            ! endif
             ELSEIF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
               liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
               jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &

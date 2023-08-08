@@ -807,7 +807,7 @@ DO k = 1,nkin
       
       ELSE IF (imintype(np,k) == 9) THEN
       IF (east_river) then
-        term2 = volfx(biomass_decay(np,k),jx,jy,jz) !*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
+        term2 = volfx(biomass_decay(np,k),jx,jy,jz)*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
         
         IF (umin(k)=='TOC_soil2_rel' .OR. umin(k)=='TOCsoil2_rel') THEN
         liqsat_fac = 1
@@ -1159,22 +1159,8 @@ DO k = 1,nkin
           
         ELSE
           
-        ! IF (umin(k)=='Biomass(s)_decay') THEN
-        ! !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
-        ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
-        ! ELSE
         
-        IF (umin(k)=='TOC_soil2' .OR. umin(k)=='TOCsoil2') THEN  
-        ! if (volfx(k,jx,jy,jz)>1e-9) then
-        ! rmin(np,k) = rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
-        ! else
-        ! rmin(np,k) = 0*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
-        ! endif
-        ELSE
         rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
-        ENDIF
-        
-        !ENDIF
           
         END IF
      
