@@ -475,7 +475,7 @@ IF (nexchange > 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
-    SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+    SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
     WRITE(8,184) x(jx)*OutputDistanceScale,(spex10(nex+nexchange,jx,jy,jz)/SolidSolutionRatioTemp,nex = 1,nexch_sec)
   END DO
   CLOSE(UNIT=8,STATUS='keep')
@@ -490,7 +490,7 @@ IF (nexchange > 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
-    SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+    SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
     totex_bas = 0.0
     DO i = 1,ncomp  
       DO nex = 1,nexch_sec
@@ -514,7 +514,7 @@ IF (nsurf > 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
-    SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+    SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
     WRITE(8,184) x(jx)*OutputDistanceScale,(spsurf10(ns,jx,jy,jz)/SolidSolutionRatioTemp,ns = 1,nsurf+nsurf_sec)
   END DO
   CLOSE(UNIT=8,STATUS='keep')

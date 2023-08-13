@@ -53,6 +53,7 @@ USE mineral
 USE medium
 USE temperature
 USE Runtime, ONLY: SkipAdjust
+USE transport, ONLY: east_river
 
 IMPLICIT NONE
 
@@ -663,22 +664,22 @@ IF (found) THEN
          (SaturationCond(nchem)*porcond(nchem)*rocond(nchem))
     END IF
     IF (porcond(nchem) == 1.0d0 .AND. SolidDensity(nchem) /= 0.0d0) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Solid density is non-zero, but porosity = 100% (no solids)' 
-      WRITE(*,*) ' In Geochemical Condition: ', nchem
-      WRITE(*,*) ' Enter to continue'
-      READ(*,*)
+      ! WRITE(*,*)
+      ! WRITE(*,*) ' Solid density is non-zero, but porosity = 100% (no solids)' 
+      ! WRITE(*,*) ' In Geochemical Condition: ', nchem
+      ! WRITE(*,*) ' Enter to continue'
+      ! READ(*,*)
    END IF
 
   ELSE IF (SolidDensityFrom(nchem) == 1) THEN        !! Solid density specified, calculate solid solution ratio
 
     SolidSolutionRatio(nchem) = OneOverMassFraction(nchem)*1000.d0*SolidDensity(nchem)*(1.0-porcond(nchem))/(SaturationCond(nchem)*porcond(nchem)*rocond(nchem))   
     IF (porcond(nchem) == 1.0d0) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Solid density is non-zero, but porosity = 100% (no solids)' 
-      WRITE(*,*) ' In Geochemical Condition: ', nchem
-      WRITE(*,*) ' Enter to continue'
-      READ(*,*)
+      ! WRITE(*,*)
+      ! WRITE(*,*) ' Solid density is non-zero, but porosity = 100% (no solids)' 
+      ! WRITE(*,*) ' In Geochemical Condition: ', nchem
+      ! WRITE(*,*) ' Enter to continue'
+      ! READ(*,*)
     END IF
 
   ELSE IF (SolidDensityFrom(nchem) == 2) THEN          !! Solid solution ratio specified

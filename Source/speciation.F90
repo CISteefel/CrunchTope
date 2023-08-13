@@ -271,7 +271,7 @@ DO jz = 1,nz
       IF (nexchange > 0) THEN
 !!  SolidSolutionRatio(nchem) = 1000.d0*SolidDensity(nchem)*(1.0-porcond(nchem))/(SaturationCond(nchem)*porcond(nchem)*rocond(nchem))
 !!        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/(satliq(jx,jy,jz)*por(jx,jy,jz)*ro(jx,jy,jz)) 
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.0d0*SolidDensitygrid(jx,jy,jz)*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
 !!        WRITE(8,*) 'Exchangers        Equiv/kgw        Equiv/m^3 bulk'
         WRITE(8,*) 'Exchangers           Equiv/kgw        Equiv/g solid    Equiv/m^3 bulk'
@@ -288,7 +288,7 @@ DO jz = 1,nz
 
       namtemp = 'Surface Complex'
       IF (gimrt .AND. ierode == 1 .AND. nsurf > 0) THEN
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.0d0*SolidDensitygrid(jx,jy,jz)*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
 !!        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/BulkVolume(m^3)'
         WRITE(8,*) 'Surface complexes    Sites/kgw         Sites/g solid    Sites/BulkVolume(m^3)'
@@ -297,7 +297,7 @@ DO jz = 1,nz
           WRITE(8,515) namsurf(is),SurfacePerKgWat,ssurf(is,jy,jy,jz)/SolidSolutionRatioTemp,ssurf(is,jx,jy,jz)
         END DO
       ELSE IF (nsurf > 0) THEN
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.0d0*SolidDensitygrid(jx,jy,jz)*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
 !!        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/BulkVolume(m^3)'
         WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/g solid Sites/BulkVolume(m^3)'
@@ -314,7 +314,7 @@ DO jz = 1,nz
         WRITE(8,*)
         WRITE(8,*) 'Total Concentrations on Surface Hydroxyl Sites '
         WRITE(8,*) '---------------------------------------------- '
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.0d0*SolidDensitygrid(jx,jy,jz)*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
 !!        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/BulkVolume(m^3)'
         WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/g solid Sites/BulkVolume(m^3)'
@@ -337,7 +337,7 @@ DO jz = 1,nz
         WRITE(8,*)
         WRITE(8,*) 'Total Concentrations in Exchange Sites '
         WRITE(8,*) '-------------------------------------- '
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.0d0*SolidDensitygrid(jx,jy,jz)*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
         WRITE(8,*) 'Exchangers           Equiv/kgw        Equiv/g solid    Equiv/m^3 bulk'
         totex_bas = 0.0

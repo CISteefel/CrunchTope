@@ -641,6 +641,7 @@ LOGICAL(LGT)                                                  :: boolreg
 integer :: IERR = 0
 CHARACTER (LEN=mls)                                           :: watertablefile
 CHARACTER (LEN=mls)                                           :: WatertableFileFormat
+
 LOGICAL(LGT)                                                  :: readmineral
 INTEGER(I4B)                                                  :: mineral_index
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
@@ -681,6 +682,28 @@ INTEGER(I4B)                                                  :: imspec_id
 CHARACTER (LEN=mls)                                           :: imspec_name
 INTEGER(I4B)                                                  :: imspec_name_l
 INTEGER(I4B)                                                  :: dumint
+
+LOGICAL(LGT)                                                  :: readexchange
+INTEGER(I4B)                                                  :: exchange_index
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: exchange_id
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: exchange_name
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: exchange_name_length
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: soliddensityfile
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: cecfile
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_soliddensity
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: lfile_cec
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_soliddensity
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                :: FileFormatType_cec
+CHARACTER (LEN=mls)                                           :: sd_file 
+INTEGER(I4B)                                                  :: sd_file_l 
+CHARACTER (LEN=mls)                                           :: sd_fileformat
+CHARACTER (LEN=mls)                                           :: cec_file 
+INTEGER(I4B)                                                  :: cec_file_l 
+CHARACTER (LEN=mls)                                           :: cec_fileformat
+INTEGER(I4B)                                                  :: ex_id
+CHARACTER (LEN=mls)                                           :: ex_name
+INTEGER(I4B)                                                  :: ex_name_l
+
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
@@ -5836,6 +5859,13 @@ END IF
 CLOSE(UNIT=52)
 END IF
 
+IF (ALLOCATED(SolidDensitygrid)) THEN
+DEALLOCATE(SolidDensitygrid)
+ALLOCATE(SolidDensitygrid(nx,ny,nz))
+ELSE
+ALLOCATE(SolidDensitygrid(nx,ny,nz))
+END IF
+
 DO jz = 1,nz
 DO jy = 1,ny
   DO jx = 1,nx
@@ -5940,6 +5970,7 @@ DO jy = 1,ny
       exchangesites(ix,jx,jy,jz) = convert*totexch(ix,jinit(jx,jy,jz)) ! Now in equivalents/m3 por. med.
 !!        exchangesites(ix,jx,jy,jz) = totexch(ix,jinit(jx,jy,jz)) ! Already in equivalents/m3 por. med.
     END DO
+    SolidDensitygrid(jx,jy,jz) = SolidDensity(jinit(jx,jy,jz))
 
     do ix = 1,nexchange
       spex(ix,jx,jy,jz) = spcondex(ix,jinit(jx,jy,jz))
@@ -5976,6 +6007,227 @@ DO jy = 1,ny
   END DO
 END DO
 END DO
+
+!************************
+!Rewrite ion exchange based on spatial distribution provided in file (Stolze Lucien)
+!************************
+IF (ALLOCATED(gam)) THEN
+  DEALLOCATE(gam)
+END IF
+ALLOCATE(gam(ncomp+nspec,nx,ny,nz))
+IF (ALLOCATED(sion)) THEN
+  DEALLOCATE(sion)
+END IF
+ALLOCATE(sion(nx,ny,nz))
+sion = 0.0
+
+
+IF (ALLOCATED(exchange_id)) THEN
+DEALLOCATE(exchange_id)
+ENDIF
+ALLOCATE(exchange_id(50))
+
+IF (ALLOCATED(exchange_name)) THEN
+DEALLOCATE(exchange_name)
+ENDIF
+ALLOCATE(exchange_name(50))
+
+IF (ALLOCATED(exchange_name_length)) THEN
+DEALLOCATE(exchange_name_length)
+ENDIF
+ALLOCATE(exchange_name_length(50))
+
+IF (ALLOCATED(soliddensityfile)) THEN
+DEALLOCATE(soliddensityfile)
+ENDIF
+ALLOCATE(soliddensityfile(50))
+
+IF (ALLOCATED(cecfile)) THEN
+DEALLOCATE(cecfile)
+ENDIF
+ALLOCATE(cecfile(50))
+
+IF (ALLOCATED(lfile_soliddensity)) THEN
+DEALLOCATE(lfile_soliddensity)
+ENDIF
+ALLOCATE(lfile_soliddensity(50))
+
+IF (ALLOCATED(lfile_cec)) THEN
+DEALLOCATE(lfile_cec)
+ENDIF
+ALLOCATE(lfile_cec(50))
+
+IF (ALLOCATED(FileFormatType_soliddensity)) THEN
+DEALLOCATE(FileFormatType_soliddensity)
+ENDIF
+ALLOCATE(FileFormatType_soliddensity(50))
+
+IF (ALLOCATED(FileFormatType_cec)) THEN
+DEALLOCATE(FileFormatType_cec)
+ENDIF
+ALLOCATE(FileFormatType_cec(50))
+
+exchange_index = 0
+CALL read_exchangefile(nout,nx,ny,nz,readexchange,exchange_index,exchange_id,exchange_name,exchange_name_length,soliddensityfile,cecfile,lfile_soliddensity,lfile_cec,FileFormatType_soliddensity,FileFormatType_cec,nexchange)
+
+
+IF (readexchange) THEN
+
+IF (ALLOCATED(SolidDensitygrid)) THEN
+DEALLOCATE(SolidDensitygrid)
+ALLOCATE(SolidDensitygrid(nx,ny,nz))
+ELSE
+ALLOCATE(SolidDensitygrid(nx,ny,nz))
+END IF
+IF (ALLOCATED(cecgrid)) THEN
+DEALLOCATE(cecgrid)
+ALLOCATE(cecgrid(nexchange,nx,ny,nz))
+ELSE
+ALLOCATE(cecgrid(nexchange,nx,ny,nz))
+END IF
+
+DO i = 1,exchange_index
+        ex_id = exchange_id(i)
+        ex_name = exchange_name(i)
+        ex_name_l = exchange_name_length(i)
+        sd_file = soliddensityfile(i)
+        sd_file_l = lfile_soliddensity(i)
+        sd_fileformat = FileFormatType_soliddensity(i)
+        cec_file = cecfile(i)
+        cec_file_l = lfile_cec(i)
+        cec_fileformat = FileFormatType_cec(i)
+
+        INQUIRE(FILE=sd_file,EXIST=ext)
+        IF (.NOT. ext) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Solid density file ', sd_file(1:sd_file_l) ,' for ', ex_name(1:ex_name_l) ,' not found.'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        OPEN(UNIT=23,FILE=sd_file,STATUS='old',ERR=8001)
+        FileTemp = sd_file
+        CALL stringlen(FileTemp,FileNameLength)
+        IF (sd_fileformat == 'ContinuousRead') THEN
+          READ(23,*,END=1020) (((SolidDensitygrid(jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+        ELSE IF (sd_fileformat == 'SingleColumn') THEN
+          DO jz = 1,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) SolidDensitygrid(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+        ELSE IF (sd_fileformat == 'FullForm') THEN
+          IF (ny > 1 .AND. nz > 1) THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,zdum,SolidDensitygrid(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (ny > 1 .AND. nz == 1) THEN
+            jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) xdum,ydum,SolidDensitygrid(jx,jy,jz)
+              END DO
+            END DO
+          ELSE
+          jz = 1
+          jy = 1
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,SolidDensitygrid(jx,jy,jz)
+          END DO
+          END IF
+        ELSE IF (sd_fileformat == 'Unformatted') THEN
+        READ(23,END=1020) SolidDensitygrid
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Solid density file format not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+  
+
+        INQUIRE(FILE=cec_file,EXIST=ext)
+        IF (.NOT. ext) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' CEC file ', cec_file(1:bsa_file_l) ,' for ', ex_name(1:ex_name_l) ,' not found.'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        OPEN(UNIT=23,FILE=cec_file,STATUS='old',ERR=8001)
+        FileTemp = cec_file
+        CALL stringlen(FileTemp,FileNameLength)
+        IF (cec_fileformat == 'ContinuousRead') THEN
+          READ(23,*,END=1020) (((cecgrid(ex_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+        ELSE IF (cec_fileformat == 'SingleColumn') THEN
+          DO jz = 1,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) cecgrid(ex_id,jx,jy,jz)
+              END DO
+            END DO
+          END DO
+        ELSE IF (cec_fileformat == 'FullForm') THEN
+          IF (ny > 1 .AND. nz > 1) THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,ydum,zdum,cecgrid(ex_id,jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          ELSE IF (ny > 1 .AND. nz == 1) THEN
+            jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) xdum,ydum,cecgrid(ex_id,jx,jy,jz)
+              END DO
+            END DO
+          ELSE
+          jz = 1
+          jy = 1
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,cecgrid(ex_id,jx,jy,jz)
+          END DO
+          END IF
+        ELSE IF (cec_fileformat == 'Unformatted') THEN
+        READ(23,END=1020) cecgrid
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' CECE file format not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+  !stop
+ENDDO
+
+!! Now overwrite the total amount of sites and recalculate the initial exchanger composition:
+DO jz = 1,nz
+DO jy = 1,ny
+DO jx = 1,nx
+
+DO ix = 1,nexchange
+exchangesites(ix,jx,jy,jz) = exchangesites(ix,jx,jy,jz)* &
+(cecgrid(ix,jx,jy,jz)*SolidDensitygrid(jx,jy,jz))/(cec(ix,jinit(jx,jy,jz))*SolidDensity(jinit(jx,jy,jz)))* &
+(1-por(jx,jy,jz))/(1-porcond(jinit(jx,jy,jz)))
+ENDDO
+
+gam(i,jx,jy,jz) = 0
+CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
+
+ENDDO
+ENDDO
+ENDDO
+
+ENDIF
+
 
 !************************
 !Read immobile species concentration from file [mol/m3] (Stolze Lucien)

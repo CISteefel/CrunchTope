@@ -92,6 +92,7 @@ CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormat
 INTEGER(I4B)                                                :: dummy
 
 nxyz = nx*ny*nz
+readimmspec = .false.
 !volfracfile = ' '
 !bsafile = ' '
 !mineral_index = 0

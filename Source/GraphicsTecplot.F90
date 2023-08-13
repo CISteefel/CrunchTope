@@ -520,7 +520,7 @@ IF (nexchange>0) THEN
     DO jy = 1,ny
       DO jx = 1,nx
         totex_bas = 0.0
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         DO i = 1,ncomp  
           DO nex = 1,nexch_sec
             totex_bas(i) = totex_bas(i) + muexc(nex,i)*spex10(nex+nexchange,jx,jy,jz)
@@ -545,7 +545,7 @@ IF (nsurf>0) THEN
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spsurf10(ns,jx,jy,jz)/SolidSolutionRatioTemp,ns = 1,nsurf+nsurf_sec)
       END DO
     END DO
@@ -565,7 +565,7 @@ IF (nsurf>0) THEN
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         totex_bas = 0.0
         DO i = 1,ncomp  
           DO ns = 1,nsurf_sec

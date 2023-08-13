@@ -132,7 +132,7 @@ IF(ls /= 0) THEN
     END IF
 
   END DO
-  IF (ssch(1:ls) == 'read_mineral_file' .OR. ssch(1:ls) == 'read_immobile_species_file') THEN
+  IF (ssch(1:ls) == 'read_mineral_file' .OR. ssch(1:ls) == 'read_immobile_species_file' .OR. ssch(1:ls) == 'read_exchange_file') THEN
   GO TO 10
   ELSE
   WRITE(*,*)

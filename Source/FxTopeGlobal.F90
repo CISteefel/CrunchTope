@@ -238,7 +238,7 @@ coeff_immo = 1.0
 jz = 1
 j = (jz-1)*nx*ny + (jy-1)*nx + jx
 
-Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
+Retardation = 0.001d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
 
 pi = DACOS(-1.0d0)
 portemp = por(jx,jy,jz)

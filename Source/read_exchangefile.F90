@@ -43,12 +43,12 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral_name,mineral_name_length,volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa,readmin_ssa)
+SUBROUTINE read_exchangefile(nout,nx,ny,nz,readexchange,exchange_index,exchange_id,exchange_name,exchange_name_length,soliddensityfile,cecfile,lfile_soliddensity,lfile_cec,FileFormatType_soliddensity,FileFormatType_cec,nexchange)
 USE crunchtype
 USE params
 USE flow
 USE strings
-USE mineral
+USE concentration
 
 IMPLICIT NONE
 
@@ -58,18 +58,18 @@ INTEGER(I4B), INTENT(IN)                                                        
 INTEGER(I4B), INTENT(IN)                                                               :: nx
 INTEGER(I4B), INTENT(IN)                                                               :: ny
 INTEGER(I4B), INTENT(IN)                                                               :: nz
-LOGICAL(LGT), INTENT(IN OUT)                                                           :: readmineral
-INTEGER(I4B), INTENT(IN OUT)                                                           :: mineral_index
-INTEGER(I4B),  INTENT(IN OUT)                                   :: mineral_id(50)
-INTEGER(I4B),  INTENT(IN OUT)                                   :: lfile_volfrac(50)
-INTEGER(I4B),  INTENT(IN OUT)                                  :: lfile_bsa(50)
-CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: mineral_name(50)
-INTEGER(I4B),  INTENT(IN OUT)                             :: mineral_name_length(50)
-CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: volfracfile(50)
-CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: bsafile(50)
-CHARACTER (LEN=mls),  INTENT(IN OUT)                           :: FileFormatType_volfrac(50)
-CHARACTER (LEN=mls),  INTENT(IN OUT)                          :: FileFormatType_bsa(50)
-INTEGER(I4B),  INTENT(IN OUT)                                   :: readmin_ssa(50)
+LOGICAL(LGT), INTENT(IN OUT)                                                           :: readexchange
+INTEGER(I4B), INTENT(IN OUT)                                                           :: exchange_index
+INTEGER(I4B), INTENT(IN)                           :: nexchange
+INTEGER(I4B),  INTENT(IN OUT)                                   :: exchange_id(50)
+INTEGER(I4B),  INTENT(IN OUT)                                   :: lfile_soliddensity(50)
+INTEGER(I4B),  INTENT(IN OUT)                                  :: lfile_cec(50)
+CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: exchange_name(50)
+INTEGER(I4B),  INTENT(IN OUT)                             :: exchange_name_length(50)
+CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: soliddensityfile(50)
+CHARACTER (LEN=mls),  INTENT(IN OUT)                            :: cecfile(50)
+CHARACTER (LEN=mls),  INTENT(IN OUT)                           :: FileFormatType_soliddensity(50)
+CHARACTER (LEN=mls),  INTENT(IN OUT)                          :: FileFormatType_cec(50)
 
 !  Internal variables and arrays
 
@@ -79,82 +79,75 @@ INTEGER(I4B)                                                :: iff
 INTEGER(I4B)                                                :: ids
 INTEGER(I4B)                                                :: ls
 INTEGER(I4B)                                                :: lzs
-INTEGER(I4B)                                                :: mineralname_lzs
+INTEGER(I4B)                                                :: exchangename_lzs
 INTEGER(I4B)                                                :: nxyz
 INTEGER(I4B)                                                :: nlen1
 INTEGER(I4B)                                                :: lenformat
-CHARACTER (LEN=mls)                                         :: mineralname
+CHARACTER (LEN=mls)                                         :: exchangename
 INTEGER(I4B)                                                :: dummyboolean
 INTEGER(I4B)                                                :: tracer
-INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: mineral_id_dum
-INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: lfile_volfrac_dum
-INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: lfile_bsa_dum
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: mineralname_dum
-INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: mineralname_lzs_dum
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: volfracfile_dum
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: bsafile_dum
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_volfrac_dum
-CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_bsa_dum
-INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: readmin_ssa_dum
-INTEGER(I4B)                                                :: dummy
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: exchange_id_dum
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: lfile_soliddensity_dum
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: lfile_cec_dum
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: exchangename_dum
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE                     :: exchangename_lzs_dum
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: soliddensityfile_dum
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: cecfile_dum
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_soliddensity_dum
+CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE                     :: FileFormatType_cec_dum
 
 nxyz = nx*ny*nz
-readmineral = .false.
-!volfracfile = ' '
-!bsafile = ' '
-!mineral_index = 0
+!soliddensityfile = ' '
+!cecfile = ' '
+!exchange_index = 0
 tracer = 0
-dummy = size(umin)
 
-IF (ALLOCATED(mineral_id_dum)) THEN
-  DEALLOCATE(mineral_id_dum)
-ENDIF
-ALLOCATE(mineral_id_dum(50))
+readexchange = .false.
 
-IF (ALLOCATED(mineralname_dum)) THEN
-  DEALLOCATE(mineralname_dum)
+IF (ALLOCATED(exchange_id_dum)) THEN
+  DEALLOCATE(exchange_id_dum)
 ENDIF
-ALLOCATE(mineralname_dum(50))
+ALLOCATE(exchange_id_dum(50))
 
-IF (ALLOCATED(mineralname_lzs_dum)) THEN
-  DEALLOCATE(mineralname_lzs_dum)
+IF (ALLOCATED(exchangename_dum)) THEN
+  DEALLOCATE(exchangename_dum)
 ENDIF
-ALLOCATE(mineralname_lzs_dum(50))
+ALLOCATE(exchangename_dum(50))
 
-IF (ALLOCATED(volfracfile_dum)) THEN
-  DEALLOCATE(volfracfile_dum)
+IF (ALLOCATED(exchangename_lzs_dum)) THEN
+  DEALLOCATE(exchangename_lzs_dum)
 ENDIF
-ALLOCATE(volfracfile_dum(50))
+ALLOCATE(exchangename_lzs_dum(50))
 
-IF (ALLOCATED(bsafile_dum)) THEN
-  DEALLOCATE(bsafile_dum)
+IF (ALLOCATED(soliddensityfile_dum)) THEN
+  DEALLOCATE(soliddensityfile_dum)
 ENDIF
-ALLOCATE(bsafile_dum(50))
+ALLOCATE(soliddensityfile_dum(50))
 
-IF (ALLOCATED(lfile_volfrac_dum)) THEN
-  DEALLOCATE(lfile_volfrac_dum)
+IF (ALLOCATED(cecfile_dum)) THEN
+  DEALLOCATE(cecfile_dum)
 ENDIF
-ALLOCATE(lfile_volfrac_dum(50))
+ALLOCATE(cecfile_dum(50))
 
-IF (ALLOCATED(lfile_bsa_dum)) THEN
-  DEALLOCATE(lfile_bsa_dum)
+IF (ALLOCATED(lfile_soliddensity_dum)) THEN
+  DEALLOCATE(lfile_soliddensity_dum)
 ENDIF
-ALLOCATE(lfile_bsa_dum(50))
+ALLOCATE(lfile_soliddensity_dum(50))
 
-IF (ALLOCATED(FileFormatType_volfrac_dum)) THEN
-  DEALLOCATE(FileFormatType_volfrac_dum)
+IF (ALLOCATED(lfile_cec_dum)) THEN
+  DEALLOCATE(lfile_cec_dum)
 ENDIF
-ALLOCATE(FileFormatType_volfrac_dum(50))
+ALLOCATE(lfile_cec_dum(50))
 
-IF (ALLOCATED(FileFormatType_bsa_dum)) THEN
-  DEALLOCATE(FileFormatType_bsa_dum)
+IF (ALLOCATED(FileFormatType_soliddensity_dum)) THEN
+  DEALLOCATE(FileFormatType_soliddensity_dum)
 ENDIF
-ALLOCATE(FileFormatType_bsa_dum(50))
+ALLOCATE(FileFormatType_soliddensity_dum(50))
 
-IF (ALLOCATED(readmin_ssa_dum)) THEN
-  DEALLOCATE(readmin_ssa_dum)
+IF (ALLOCATED(FileFormatType_cec_dum)) THEN
+  DEALLOCATE(FileFormatType_cec_dum)
 ENDIF
-ALLOCATE(readmin_ssa_dum(50))
+ALLOCATE(FileFormatType_cec_dum(50))
 
 REWIND nout
 
@@ -170,43 +163,43 @@ IF(ls /= 0) THEN
   lzs=ls
   CALL convan(ssch,lzs,res)
   
-  IF (ssch == 'read_mineral_file' .OR. ssch =='read_mineral_dataset') THEN
+  IF (ssch == 'read_exchange_file' .OR. ssch =='read_exchange_dataset') THEN
   
-  readmineral = .true.
+  readexchange = .true.
 
-!  Looking for a mineral name
+!  Looking for a exchange name
 
     
-!  Looking for mineral volume fraction file name
+!  Looking for solid density file name
     
   id = ids + ls
   CALL sschaine(zone,id,iff,ssch,ids,ls)
   IF(ls /= 0) THEN
     lzs=ls
     CALL stringtype(ssch,lzs,res)
-    mineralname = ssch
-    mineralname_lzs = lzs
+    exchangename = ssch
+    exchangename_lzs = lzs
     
     i = 0
-    DO WHILE (i /= size(umin))
+    DO WHILE (i /= nexchange)
     i = i+1
-    IF (mineralname == umin(i)) THEN
+    IF (exchangename == namexc(i)) THEN
     dummyboolean = 1
     exit
     ENDIF
     END DO
     IF (dummyboolean == 1) THEN
-    mineral_index = mineral_index + 1
-    mineral_id_dum(mineral_index) = i
-    mineralname_dum(mineral_index) = mineralname
-    mineralname_lzs_dum(mineral_index) = lzs
+    exchange_index = exchange_index + 1
+    exchange_id_dum(exchange_index) = i
+    exchangename_dum(exchange_index) = exchangename
+    exchangename_lzs_dum(exchange_index) = lzs
     dummyboolean = 0
     WRITE(*,*)
-    WRITE(*,*) ' Mineral distribution of ', mineralname(1: mineralname_lzs), ' initialized from file.'
+    WRITE(*,*) ' Solid density distribution of ', exchangename(1: exchangename_lzs), ' initialized from file.'
     WRITE(*,*)
     ELSE
     WRITE(*,*)
-    WRITE(*,*) ' Could not find mineral ', mineralname(1: mineralname_lzs), ' specified in read_mineral_file...'
+    WRITE(*,*) ' Could not find solid density ', exchangename(1: exchangename_lzs), ' specified in read_exchange_file...'
     WRITE(*,*)
     STOP
     ENDIF
@@ -217,26 +210,26 @@ IF(ls /= 0) THEN
     IF(ls /= 0) THEN
       lzs=ls
       CALL stringtype(ssch,lzs,res)
-      volfracfile_dum(mineral_index) = ssch
-      lfile_volfrac_dum(mineral_index) = ls
+      soliddensityfile_dum(exchange_index) = ssch
+      lfile_soliddensity_dum(exchange_index) = ls
   
 !!  *****************************************************************
-!!    Now, check for a file format for mineral volume fraction
+!!    Now, check for a file format for solid density
       id = ids + ls
       CALL sschaine(zone,id,iff,ssch,ids,ls)
       lenformat = ls
       CALL majuscules(ssch,lenformat)
       IF (ls /= 0) THEN
         IF (ssch == 'singlecolumn') THEN
-          FileFormatType_volfrac_dum(mineral_index) = 'SingleColumn'
+          FileFormatType_soliddensity_dum(exchange_index) = 'SingleColumn'
         ELSE IF (ssch == 'continuousread') THEN
-          FileFormatType_volfrac_dum(mineral_index) = 'ContinuousRead'
+          FileFormatType_soliddensity_dum(exchange_index) = 'ContinuousRead'
         ELSE IF (ssch == 'unformatted') THEN
-          FileFormatType_volfrac_dum(mineral_index) = 'Unformatted' 
+          FileFormatType_soliddensity_dum(exchange_index) = 'Unformatted' 
         ELSE IF (ssch == 'distanceplusvariable' .OR. ssch == 'fullform' .OR. ssch == 'full') THEN
-          FileFormatType_volfrac_dum(mineral_index) = 'FullForm'    
+          FileFormatType_soliddensity_dum(exchange_index) = 'FullForm'    
         ELSE IF (ssch == 'singlefile3d') THEN
-          FileFormatType_volfrac_dum(mineral_index) = 'SingleFile3D'
+          FileFormatType_soliddensity_dum(exchange_index) = 'SingleFile3D'
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' File format not recognized: ', ssch(1:lenformat)
@@ -245,61 +238,40 @@ IF(ls /= 0) THEN
           STOP
         ENDIf
       ELSE    !! No file format provided, so assume default
-        FileFormatType_volfrac_dum(mineral_index) = 'SingleColumn'
+        FileFormatType_soliddensity_dum(exchange_index) = 'SingleColumn'
       ENDIF
-
-      !!  *****************************************************************
-      !!    Now, check for a type of surface area
-
-      id = ids + ls
-      CALL sschaine(zone,id,iff,ssch,ids,ls)
-      IF(ls /= 0) THEN
-        lzs=ls
-        CALL convan(ssch,lzs,res)
-    
-        IF (ssch == 'bsa' ) THEN
-          readmin_ssa_dum(mineral_index) = 0
-        ELSEIF (ssch == 'ssa' ) THEN
-          readmin_ssa_dum(mineral_index) = 1
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Surface area type not recognized: ', ssch(1:lenformat)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        ENDIF   
 
 
 
 !!  *****************************************************************
 
-    !  Looking for mineral bsa file name
+    !  Looking for CEC file name
     
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     IF(ls /= 0) THEN
       lzs=ls
       CALL stringtype(ssch,lzs,res)
-      bsafile_dum(mineral_index) = ssch
-      lfile_bsa_dum(mineral_index) = ls
+      cecfile_dum(exchange_index) = ssch
+      lfile_cec_dum(exchange_index) = ls
 
     !!  *****************************************************************
-!!    Now, check for a file format for mineral bsa
+!!    Now, check for a file format for cec
       id = ids + ls
       CALL sschaine(zone,id,iff,ssch,ids,ls)
       lenformat = ls
       CALL majuscules(ssch,lenformat)
       IF (ls /= 0) THEN
         IF (ssch == 'singlecolumn') THEN
-          FileFormatType_bsa_dum(mineral_index) = 'SingleColumn'
+          FileFormatType_cec_dum(exchange_index) = 'SingleColumn'
         ELSE IF (ssch == 'continuousread') THEN
-          FileFormatType_bsa_dum(mineral_index) = 'ContinuousRead'
+          FileFormatType_cec_dum(exchange_index) = 'ContinuousRead'
         ELSE IF (ssch == 'unformatted') THEN
-          FileFormatType_bsa_dum(mineral_index) = 'Unformatted' 
+          FileFormatType_cec_dum(exchange_index) = 'Unformatted' 
         ELSE IF (ssch == 'distanceplusvariable' .OR. ssch == 'fullform' .OR. ssch == 'full') THEN
-          FileFormatType_bsa_dum(mineral_index) = 'FullForm'    
+          FileFormatType_cec_dum(exchange_index) = 'FullForm'    
         ELSE IF (ssch == 'singlefile3d') THEN
-          FileFormatType_bsa_dum(mineral_index) = 'SingleFile3D'
+          FileFormatType_cec_dum(exchange_index) = 'SingleFile3D'
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' File format not recognized: ', ssch(1:lenformat)
@@ -308,44 +280,34 @@ IF(ls /= 0) THEN
           STOP
         ENDIf
       ELSE    !! No file format provided, so assume default
-        FileFormatType_bsa_dum(mineral_index) = 'SingleColumn'
+        FileFormatType_cec_dum(exchange_index) = 'SingleColumn'
       ENDIF
 
-  mineral_id = mineral_id_dum
-  volfracfile = volfracfile_dum
-  lfile_volfrac = lfile_volfrac_dum
-  FileFormatType_volfrac = FileFormatType_volfrac_dum
-  bsafile = bsafile_dum
-  lfile_bsa = lfile_bsa_dum
-  FileFormatType_bsa = FileFormatType_bsa_dum
-  mineral_name = mineralname_dum
-  mineral_name_length = mineralname_lzs_dum
-  readmin_ssa = readmin_ssa_dum
-
+  exchange_id = exchange_id_dum
+  soliddensityfile = soliddensityfile_dum
+  lfile_soliddensity = lfile_soliddensity_dum
+  FileFormatType_soliddensity = FileFormatType_soliddensity_dum
+  cecfile = cecfile_dum
+  lfile_cec = lfile_cec_dum
+  FileFormatType_cec = FileFormatType_cec_dum
+  exchange_name = exchangename_dum
+  exchange_name_length = exchangename_lzs_dum
     
 
     ELSE
       WRITE(*,*)
-      WRITE(*,*) ' No file name for mineral surface area for ', mineralname(1: mineralname_lzs),' in "read_mineral_file" in initial_condition section '
+      WRITE(*,*) ' No file name for cec for ', exchangename(1: exchangename_lzs),' in "read_exchange_file" in initial_condition section '
       WRITE(*,*)
       READ(*,*)
       STOP
     END IF
 
-  ELSE
-    WRITE(*,*)
-    WRITE(*,*) ' Information on mineral surface area for ', mineralname(1: mineralname_lzs),' in "read_mineral_file" not specified. '
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-
 
 
 
     ELSE
       WRITE(*,*)
-      WRITE(*,*) ' No file name for volfrac for ', mineralname(1: mineralname_lzs),' in "read_mineral_file" in initial_condition section '
+      WRITE(*,*) ' No file name for soliddensity for ', exchangename(1: exchangename_lzs),' in "read_exchange_file" in initial_condition section '
       WRITE(*,*)
       READ(*,*)
       STOP
@@ -353,7 +315,7 @@ IF(ls /= 0) THEN
     
   ELSE
   WRITE(*,*)
-  WRITE(*,*) ' No information provided in "read_mineralfile" in initial_condition section '
+  WRITE(*,*) ' No information provided in "read_exchangefile" in initial_condition section '
   WRITE(*,*)
   READ(*,*)
   ENDIF  
@@ -377,4 +339,4 @@ END IF
 
 
 1000 RETURN
-END SUBROUTINE read_mineralfile
+END SUBROUTINE read_exchangefile

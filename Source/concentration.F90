@@ -123,6 +123,8 @@ MODULE  concentration
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE           :: SolidDensityFrom
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: SolidSolutionRatio
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: SolidDensity
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE               :: SolidDensitygrid
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE            :: cecgrid
 
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE    :: stringarray
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE    :: PestExchangeList
@@ -394,7 +396,7 @@ MODULE  concentration
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: exflag
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: surflag
 
-  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: s_in !for immobile species (stole Lucien)
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: s_in !for immobile species (stolze Lucien)
 
 
 END MODULE concentration

@@ -1429,7 +1429,7 @@ IF (nexchange > 0) THEN
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
                 (spex10(nex+nexchange,jx,jy,jz)/SolidSolutionRatioTemp,nex = 1,nexch_sec)
       END DO
@@ -1437,7 +1437,7 @@ IF (nexchange > 0) THEN
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn='totexchange'
+  fn='exchange_tot'
   ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
@@ -1458,7 +1458,7 @@ IF (nexchange > 0) THEN
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         totex_bas = 0.0
         DO i = 1,ncomp
           DO nex = 1,nexch_sec
@@ -1467,6 +1467,36 @@ IF (nexchange > 0) THEN
         END DO
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
                 z(jz)*OutputDistanceScale,(totex_bas(i)/SolidSolutionRatioTemp,i = 1,ncomp)
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
+  fn='exchange_sites'
+  ilength = 8
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Exchanger Sites (mol/g solid)" '
+  DO ix = 1,nexchange
+    StringTemp = namexc(ix)
+    CALL stringlen(StringTemp,ls)
+    IF (ls > 14) THEN
+      ls = 14
+    END IF
+    StringProper(1:1) = '"'
+    StringProper(2:ls+1) = StringTemp(1:ls)
+    StringProper(ls+2:ls+3) = '"'
+    WriteString(ix) = StringProper(1:ls+3)
+  END DO
+  WRITE(8,2009) (WriteString(ix),ix=1,nexchange)
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+      !SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+      SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
+                (exchangesites(ix,jx,jy,jz)/SolidSolutionRatioTemp,ix = 1,nexchange)
       END DO
     END DO
   END DO
@@ -1506,7 +1536,7 @@ IF (nsurf>0) THEN
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, &
                 (spsurf10(ns,jx,jy,jz)/SolidSolutionRatioTemp,ns = 1,nsurf+nsurf_sec)
       END DO
@@ -1535,7 +1565,7 @@ IF (nsurf>0) THEN
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensitygrid(jx,jy,jz)*(1.0-por(jx,jy,jz))
         totex_bas = 0.0
         DO i = 1,ncomp
           DO ns = 1,nsurf_sec
