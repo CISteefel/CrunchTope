@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -79,20 +79,42 @@ REAL(DP)                                                           :: vx4
 INTEGER(I4B)                                                       :: jx
 INTEGER(I4B)                                                       :: jy
 INTEGER(I4B)                                                       :: jz
+REAL(DP)                                                           :: satliq_x
+REAL(DP)                                                           :: satliq_xx
+REAL(DP)                                                           :: satliq_yy
+REAL(DP)                                                           :: satliq_zz
 
 IF (ny==1 .AND. nz==1) THEN      !!  1D case
 
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-     
-        vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
-        vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
-        vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
+
+        satliq_x = 0.5d0*(satliqold(jx,jy,jz)+satliq(jx,jy,jz))
+        IF (jx == nx) THEN
+        satliq_xx = satliq_x
+        ELSE
+        satliq_xx = 0.5d0*(satliqold(jx+1,jy,jz)+satliq(jx+1,jy,jz))
+        ENDIF
+        IF (jy == ny) THEN
+        satliq_yy = satliq_x
+        ELSE
+        satliq_yy = 0.5d0*(satliqold(jx,jy+1,jz)+satliq(jx,jy+1,jz))
+        ENDIF
+        IF (jz == nz) THEN
+        satliq_zz = satliq_x
+        ELSE
+        satliq_zz = 0.5d0*(satliqold(jx,jy,jz+1)+satliq(jx,jy,jz+1))
+        ENDIF
+
+        vx = qx(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz))) * (0.5d0*(satliq_x + satliq_xx)))
+        vy = qy(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz))) * (0.5d0*(satliq_x + satliq_yy)))
+        vz = qz(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1))) * (0.5d0*(satliq_x + satliq_zz)))
 
         qbar = DSQRT( vx*vx + vy*vy + vz*vz )
 
         IF (qbar /= 0.0) THEN
+
           dspx(jx,jy,jz) = alft*( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )*qbar +  &
             (alfl-alft)*( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )*vx*vx/qbar
           
@@ -109,15 +131,32 @@ IF (ny==1 .AND. nz==1) THEN      !!  1D case
     END DO
   END DO
 
-ELSE IF (nz==1) THEN             !!  2D case
+ELSE IF (ny>1 .and. nz==1) THEN             !!  2D case
 
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-     
-        vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
-        vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
-        vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
+
+        satliq_x = 0.5d0*(satliqold(jx,jy,jz)+satliq(jx,jy,jz))
+        IF (jx == nx) THEN
+        satliq_xx = satliq_x
+        ELSE
+        satliq_xx = 0.5d0*(satliqold(jx+1,jy,jz)+satliq(jx+1,jy,jz))
+        ENDIF
+        IF (jy == ny) THEN
+        satliq_yy = satliq_x
+        ELSE
+        satliq_yy = 0.5d0*(satliqold(jx,jy+1,jz)+satliq(jx,jy+1,jz))
+        ENDIF
+        IF (jz == nz) THEN
+        satliq_zz = satliq_x
+        ELSE
+        satliq_zz = 0.5d0*(satliqold(jx,jy,jz+1)+satliq(jx,jy,jz+1))
+        ENDIF
+
+        vx = qx(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz))) * (0.5d0*(satliq_x + satliq_xx)))
+        vy = qy(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz))) * (0.5d0*(satliq_x + satliq_yy)))
+        vz = qz(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1))) * (0.5d0*(satliq_x + satliq_zz)))
 
         qbar = DSQRT( vx*vx + vy*vy + vz*vz )
 
@@ -201,10 +240,27 @@ ELSE
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+
+      satliq_x = 0.5d0*(satliqold(jx,jy,jz)+satliq(jx,jy,jz))
+      IF (jx == nx) THEN
+      satliq_xx = satliq_x
+      ELSE
+      satliq_xx = 0.5d0*(satliqold(jx+1,jy,jz)+satliq(jx+1,jy,jz))
+      ENDIF
+      IF (jy == ny) THEN
+      satliq_yy = satliq_x
+      ELSE
+      satliq_yy = 0.5d0*(satliqold(jx,jy+1,jz)+satliq(jx,jy+1,jz))
+      ENDIF
+      IF (jz == nz) THEN
+      satliq_zz = satliq_x
+      ELSE
+      satliq_zz = 0.5d0*(satliqold(jx,jy,jz+1)+satliq(jx,jy,jz+1))
+      ENDIF
      
-      vx = qx(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz)) )
-      vy = qy(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz)) )
-      vz = qz(jx,jy,jz)/( 0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1)) )
+      vx = qx(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx+1,jy,jz))) * (0.5d0*(satliq_x + satliq_xx)))
+      vy = qy(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx,jy+1,jz))) * (0.5d0*(satliq_x + satliq_yy)))
+      vz = qz(jx,jy,jz)/( (0.5d0*(por(jx,jy,jz)+por(jx,jy,jz+1))) * (0.5d0*(satliq_x + satliq_zz)))
 
       qbar = DSQRT( vx*vx + vy*vy + vz*vz )
 

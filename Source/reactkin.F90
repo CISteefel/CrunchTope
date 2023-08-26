@@ -189,10 +189,12 @@ DO ir = 1,ikin
         pre_raq(ll,ir) = DEXP(sum)
       END IF
 
-      IF (namkin(ir) == 'Biomass_dormancy') THEN
+      IF (namkin(ir) == 'Biomass_dormancy' .or. namkin(ir) == 'Biomass_dormancy1' .or. &
+       namkin(ir) == 'Biomass_dormancy2' .or. namkin(ir) == 'Biomass_dormancy3'  .or. namkin(ir) == 'Biomass_dormancy4') THEN
       satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
       pre_raq(ll,ir) = pre_raq(ll,ir) * (1/(1 + (satL/dorm_Se)**dorm_b))
-      ELSEIF (namkin(ir) == 'Biomass_activation') THEN
+      ELSEIF (namkin(ir) == 'Biomass_activation' .or. namkin(ir) == 'Biomass_activation1' .or. &
+      namkin(ir) == 'Biomass_activation2' .or. namkin(ir) == 'Biomass_activation3' .or. namkin(ir) == 'Biomass_activation4') THEN
       satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
       pre_raq(ll,ir) = pre_raq(ll,ir )* (1/(1 + dorm_a*(dorm_Se/satL)**dorm_b))
       ELSEIF (namkin(ir) == 'TOCsoil_release' .OR. namkin(ir) == 'TOCsoil_release') THEN

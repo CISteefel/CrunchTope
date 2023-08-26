@@ -1046,7 +1046,8 @@ DO k = 1,nkin
               jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
             ELSEIF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
-              liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
+              sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+              liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
               jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
             ELSE

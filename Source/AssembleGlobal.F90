@@ -702,6 +702,11 @@ DO jy = 1,ny
         END IF
         
         DO i = 1,ncomp
+        IF (immobile_species(i) == 1) THEN
+        coeff_immo = 0.0
+        ELSE
+        coeff_immo = 1.0
+        ENDIF
           ind = (j-1)*(neqn) + i
           
           DO i2 = 1,ncomp
@@ -1082,7 +1087,7 @@ DO jy = 1,ny
     IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
       if (ny == 1 .AND. nz == 1) THEN
       A_transpi = dyy(jy) * dzz(jx,jy,jz)
-      source = source - (xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp/CellVolume)*coeff_immo
+      source = source - (xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp/CellVolume)!*coeff_immo
     ENDIF
     ENDIF
 
@@ -1348,7 +1353,7 @@ DO jy = 1,ny
                 *(1.0 + Retardation*distrib(i) ) 
           END IF
 
-          source_jac = source*fjac(i2,i,jx,jy,jz) 
+          source_jac = source*fjac(i2,i,jx,jy,jz)*coeff_immo2  
           ex_accum = r*fch_local(i,i2) 
           alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
                + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz)*coeff_immo2 
