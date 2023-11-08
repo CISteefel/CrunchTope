@@ -8,6 +8,7 @@ USE concentration
 USE medium
 USE flow
 USE transport
+USE runtime
 
 IMPLICIT NONE
 
@@ -45,6 +46,7 @@ INTEGER(I4B)                                               :: total_line
 ! variables for checking water mass balance
 REAL(DP)                                                   :: water_mass
 REAL(DP)                                                   :: water_mass_error
+REAL(DP)                                                   :: PrintSeconds
 
 ! initialize parameters for linear solver
 nrhs = 1
@@ -67,6 +69,17 @@ tol = tau_a ! this tolerance should be used for problems that need very high acc
 
 ! begin Newton's method
 newton_loop: DO
+
+    IF (walltime) THEN
+      call CPU_TIME(PrintSeconds)
+      IF ((PrintSeconds/60.0d0) > wall_t) THEN
+        write(*,*)
+        write(*,*) 'WALLTIME REACHED'
+        write(*,*)
+        stop
+      ENDIF
+    ENDIF
+
   IF (error_old < tol .AND. iteration > 2) EXIT
   !IF (error_old < tol) EXIT
   ! Evaluate the Jacobian matrix
@@ -85,6 +98,18 @@ newton_loop: DO
   
   ! line search
   line: DO
+
+    IF (walltime) THEN
+      call CPU_TIME(PrintSeconds)
+      IF ((PrintSeconds/60.0d0) > wall_t) THEN
+        write(*,*)
+        write(*,*) 'WALLTIME REACHED'
+        write(*,*)
+        stop
+      ENDIF
+    ENDIF
+
+
     IF (descent /= 0 .OR. no_backtrack > 100) EXIT line
     ! update water potential
     DO jx = 1, nx

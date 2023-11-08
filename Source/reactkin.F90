@@ -63,7 +63,7 @@ USE medium
 USE temperature, ONLY: ro,T
 USE strings
 USE runtime, ONLY: JennyDruhan,Maggi
-USE transport, ONLY: satliq,satliqold,dorm_a,dorm_b,dorm_Se, thres_OM1, thres_OM2, exp_OM
+USE transport, ONLY: satliq,satliqold,dorm_a,dorm_b,dorm_Se, thres_OM1, thres_OM2, exp_OM, immobile_species
 USE isotope
 
 IMPLICIT NONE
@@ -158,7 +158,10 @@ DO ir = 1,ikin
   ELSE
     sum = 0.0d0
     DO i = 1,ncomp
+      IF (immobile_species(i) == 1 .AND. namkin(ir) /= 'TOCsoil_sorption') THEN
+      ELSE
       sum = sum + mukin(ir,i)*sp(i,jx,jy,jz)
+      ENDIF
     END DO
     satlog(ir,jx,jy,jz) = sum - clg*keqkin(ir)
     satkin(ir) = DEXP(satlog(ir,jx,jy,jz))

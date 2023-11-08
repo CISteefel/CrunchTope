@@ -2107,6 +2107,19 @@ DO WHILE (nn <= nend)
         iterat = 0
 
     newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
+          
+          IF (time > 1e-3) THEN
+          IF (walltime) THEN
+            call CPU_TIME(PrintSeconds)
+            IF ((PrintSeconds/60.0d0)>wall_t) then
+              write(*,*)
+              write(*,*) 'WALLTIME REACHED'
+              write(*,*)
+              STOP
+            ENDIF
+          ENDIF
+          ENDIF
+          
           NE = NE + 1
           iterat = iterat + 1
 

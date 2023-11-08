@@ -50,7 +50,7 @@ USE concentration
 USE mineral
 USE solver
 USE medium
-USE transport, ONLY: satliq,satliqold
+USE transport, ONLY: satliq,satliqold,immobile_species
 USE isotope
 
 ! biomass
@@ -213,7 +213,11 @@ DO ir = 1,ikin
   ELSE
     affinity = 1.0 - satkin(ir)
     DO i = 1,ncomp
+      IF (immobile_species(i) == 1 .AND. namkin(ir) /= 'TOCsoil_sorption') THEN
+      jac_sat(i) = 0
+      ELSE
       jac_sat(i) = -mukin(ir,i)*satkin(ir)
+      ENDIF
     END DO
   END IF
   

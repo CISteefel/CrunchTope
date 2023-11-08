@@ -8,6 +8,7 @@ USE concentration
 USE medium
 USE flow
 USE transport
+USE runtime
 
 IMPLICIT NONE
 
@@ -40,6 +41,7 @@ REAL(DP), PARAMETER                                        :: tau_line_saerch = 
 INTEGER(I4B)                                               :: no_backtrack, descent
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
+REAL(DP)                                                   :: PrintSeconds
 
 ! initialize parameters for linear solver
 nrhs = 1
@@ -62,6 +64,17 @@ tol = tau_a ! this tolerance should be used for problems that need very high acc
 
 ! begin Newton's method
 newton_loop: DO
+
+  IF (walltime) THEN
+      call CPU_TIME(PrintSeconds)
+      IF ((PrintSeconds/60.0d0) > wall_t) THEN
+        write(*,*)
+        write(*,*) 'WALLTIME REACHED'
+        write(*,*)
+        stop
+      ENDIF
+    ENDIF
+
   IF (error_old < tol .AND. iteration > 2) EXIT
   ! Evaluate the Jacobian matrix
   CALL Jacobian_Richards_steady(nx, ny, nz, J)
@@ -79,6 +92,18 @@ newton_loop: DO
   
   ! line search
   line: DO
+
+    IF (walltime) THEN
+      call CPU_TIME(PrintSeconds)
+      IF ((PrintSeconds/60.0d0) > wall_t) THEN
+        write(*,*)
+        write(*,*) 'WALLTIME REACHED'
+        write(*,*)
+        stop
+      ENDIF
+    ENDIF
+
+
     IF (descent /= 0 .OR. no_backtrack > 100) EXIT line
     ! update water potential
     DO jx = 1, nx
