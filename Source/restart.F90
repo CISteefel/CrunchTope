@@ -124,8 +124,12 @@ IF (.NOT. ext) THEN
 !    ****** PETSc closeout finished *********
       READ(*,*)
       STOP
-    END IF
+END IF
 !!   *******  PETSc Closeout   *****************
+
+write(*,*)
+write(*,*) ' ---->>> READING RESTART FILE ----'
+write(*,*)
 
 iures = 131
 INQUIRE(FILE=restartfile,OPENED=truefalse)
@@ -139,8 +143,7 @@ END IF
     READ(iures) time
     READ(iures) nn
     READ(iures) nint
-    READ(iures) DummyReal,dtold,DummyReal,DummyReal,DummyReal,dtmax
-
+    READ(iures) DummyReal,dtold,DummyReal,DummyReal,DummyReal,DummyReal
     READ(iures) keqaq
     READ(iures) keqgas
     READ(iures) keqsurf
@@ -160,14 +163,17 @@ END IF
     READ(iures) spgas
     READ(iures) spgasold
     READ(iures) spgas10
+    
     IF (isaturate==1) then
       READ(iures) sgas
       READ(iures) sgasn
     ENDIF
+    
     if (ierode==1) then
       READ(iures) ssurf
       READ(iures) ssurfn
     endif
+    
     READ(iures) sexold
     READ(iures) ssurfold
     READ(iures) spsurf
@@ -175,11 +181,14 @@ END IF
     READ(iures) spsurfold 
     READ(iures) raq_tot
     READ(iures) sion
+    
     IF (ALLOCATED(IntegerDummyArray)) THEN
       DEALLOCATE(IntegerDummyArray)
     END IF
+    
     ALLOCATE(IntegerDummyArray(nxyz))
-    READ(iures) IntegerDummyArray
+    !!!READ(iures) IntegerDummyArray
+    
 !!!    READ(iures) jinit
     READ(iures) keqmin
     READ(iures) volfx
@@ -189,7 +198,6 @@ END IF
       DEALLOCATE(RealDummyArray)
     END IF
     ALLOCATE(RealDummyArray(nrct*nxyz))
-    
     READ(iures) RealDummyArray
     READ(iures) RealDummyArray
     READ(iures) RealDummyArray
@@ -197,21 +205,28 @@ END IF
 !!!    READ(iures) volinByGrid
 !!!    READ(iures) specificByGrid
     READ(iures) LogPotential
-
     READ(iures) t
     READ(iures) told
     READ(iures) ro   
     READ(iures) por 
+    
+    read(iures) permx
+    read(iures) permy
+    read(iures) permz
+    read(iures) perminx
+    read(iures) perminy
+    read(iures) perminz
+    
     READ(iures) satliq
     READ(iures) qxgas
     READ(iures) qygas
     READ(iures) qzgas
-    READ(iures) pres
-    
+!!!    READ(iures) pres
     READ(iures) ActiveCell
     READ(iures) VolSaveByTimeStep
     READ(iures) Volsave
     READ(iures) ncounter
+    
   
   porin = por
 

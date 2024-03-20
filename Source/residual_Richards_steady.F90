@@ -38,5 +38,6 @@ END DO
 
 ! upper boundary
 F_residual(nx) = qx(nx, jy, jz) - qx(nx-1, jy, jz)
+ 
 
 END SUBROUTINE residual_Richards_steady

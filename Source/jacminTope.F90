@@ -571,14 +571,6 @@ DO k = 1,nkin
                   jac_sat = 0.0d0
                 END IF
 
-!!!              write(*,*) umin(k)
-!!!              write(*,*)
-!!!              do i = 1,ncomp
-!!!                dumstring = ulab(i)
-!!!                write(*,*) dumstring,jac_sat(i),jac_check(i)
-!!!              end do
-!!!              write(*,*)
-!!!              read(*,*)
 
               ELSE
   

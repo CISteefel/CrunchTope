@@ -79,17 +79,67 @@ INTEGER(I4B)                                               :: ItPoint
 
 CHARACTER (LEN=3)                                          :: ulabPrint
 
+REAL(DP),PARAMETER                                    :: Avogadro=6.02252E23
+REAL(DP),PARAMETER                                    :: BoltzmannConstant=1.36E-23
+REAL(DP),PARAMETER                                    :: pi=3.14159265359
+REAL(DP),PARAMETER                                    :: log_10=2.30258509299405
+REAL(DP),PARAMETER                                    :: ConvertBarsToAtm=0.986923
+REAL(DP)                                              :: U1
+REAL(DP)                                              :: U2
+REAL(DP)                                              :: U3
+REAL(DP)                                              :: U4
+REAL(DP)                                              :: U5
+REAL(DP)                                              :: U6
+REAL(DP)                                              :: U7
+REAL(DP)                                              :: U8
+REAL(DP)                                              :: U9
+REAL(DP)                                              :: C_BradleyPitz
+REAL(DP)                                              :: D1000_bradleyPitz
+REAL(DP)                                              :: B_BradleyPitz
+REAL(DP)                                              :: RgasAppelo
+
+REAL(DP)                                              :: P_bars
+
+REAL(DP)                                              :: eps_r
+
+REAL(DP)                                              :: b1
+REAL(DP)                                              :: b2
+REAL(DP)                                              :: b3
+REAL(DP)                                              :: b4
+REAL(DP)                                              :: b5
+REAL(DP)                                              :: b6
+
+REAL(DP)                                              :: th
+REAL(DP)                                              :: rho_0_sat
+REAL(DP)                                              :: rho_0
+REAL(DP)                                              :: p0
+REAL(DP)                                              :: p1
+REAL(DP)                                              :: p2
+REAL(DP)                                              :: p3
+REAL(DP)                                              :: p_sat
+REAL(DP)                                              :: pa
+REAL(DP)                                              :: e2_Dkt
+REAL(DP)                                              :: DH_B
+REAL(DP)                                              :: DH_A
+REAL(DP)                                              :: tCritical
+REAL(DP)                                              :: Av
+REAL(DP)                                              :: PartialLogEps
+REAL(DP)                                              :: act_H2O
+
+
 ChargeSum = 0.0d0
 TotalMoles = 0.0d0
+tconv = 273.15d0
+tempk = tempc + tconv
 
 DO ik = 1,ncomp+nspec
   ulabPrint = ulab(ik)
-  IF (ulabPrint(1:3) /= 'H2O' .or. ulabPrint(1:3) /= 'HHO') THEN
+!!!  IF (ulabPrint(1:3) /= 'H2O') THEN
     TotalMoles = TotalMoles + sptmp10(ik)
     ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
-  ELSE
-    CONTINUE
-  END IF
+!!!  ELSE
+!!!    CONTINUE
+!!!   END IF
 END DO
 
 sion_tmp = 0.50D0*ChargeSum
@@ -148,13 +198,9 @@ DO ik = 1,ncomp+nspec
     IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
       
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
+      gamtmp(IK) = clg*gamWaterCheck
+      
 !!!   Assumes molecular weight of H2O of 18.01528
-      IF (gamWaterCheck < 0.0d0) THEN
-        gamtmp(ik) = DLOG(1.0d0/55.50843506)
-      ELSE
-        gamtmp(ik) = DLOG(gamWaterCheck/55.50843506)
-!!!                                        55.50843506
-      END IF
 
     ELSE
         aa1 = 0.10d0*sion_tmp
@@ -188,13 +234,79 @@ END DO
 
 IF (SaltCreep) THEN
   
-  aa1 = -(ah*chg(ikNa)*chg(ikNa)*sqrt_sion)/                &
-              (1.0d0 + 4.08*bh*sqrt_sion)                   &         
+  U1 = 3.4279E2
+  U2 = -5.0866E-3
+  U3 = 9.4690E-7
+  U4 = -2.0525
+  U5 = 3.1159E3
+  U6 = -1.8289E2
+  U7 = -8.0325E3
+  U8 = 4.2142E6
+  U9 = 2.1417
+  
+  C_BradleyPitz = U4 + U5/(U6 + tempk)
+  D1000_bradleyPitz = U1 *EXP(U2*tempk + U3*tempk*tempk)
+  B_BradleyPitz = U7 + U8/tempk + U9*tempk
+  
+  pa = 1.0
+  P_bars = pa/ConvertBarsToAtm                        !! Conversion to bars
+  RgasAppelo = 82.0574587      !! (atm cm^3 mol^-1 K^-1)
+
+  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz + 1000.0) )  
+    
+  tCritical = 647.096                      
+  th = 1 - tempK / tCritical
+  
+  b1 = 1.99274064
+  b2 = 1.09965342
+  b3 = -0.510839303
+  b4 = -1.75493479
+  b5 = -45.5170352
+  b6 = -6.7469445e5
+  
+  rho_0_sat = 322.0 * (1.0 + b1 * th**0.3333 + b2 * th**0.66666 + b3 * th**(5.0/3.0) + b4 * th**(16.0/3.0) +   &
+                b5 * th**(43.0/3.0) + b6 * th**(110.0/3.0) )
+  
+  p0 =  5.1880000E-02 + tempc * (-4.1885519E-04 + tempc * ( 6.6780748E-06 + tempc * (-3.6648699E-08 + tempc *  8.3501912E-11)))
+  p1 = -6.0251348E-06 + tempc * ( 3.6696407E-07 + tempc * (-9.2056269E-09 + tempc * ( 6.7024182E-11 + tempc * -1.5947241E-13)))
+  p2 = -2.2983596E-09 + tempc * (-4.0133819E-10 + tempc * ( 1.2619821E-11 + tempc * (-9.8952363E-14 + tempc *  2.3363281E-16)))
+  p3 =  7.0517647E-11 + tempc * ( 6.8566831E-12 + tempc * (-2.2829750E-13 + tempc * ( 1.8113313E-15 + tempc * -4.2475324E-18)))
+  
+  gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
+      
+  if (gamwatercheck <= 1.0) then
+    p_sat = exp(11.6702 - 3816.44 / (tempk - 46.13)) * gamwatercheck
+  else
+    p_sat = exp(11.6702 - 3816.44 / (tempk - 46.13))
+  end if  
+
+  if (pa < p_sat) then
+    pa = p_sat
+  else
+    pa = pa - (p_sat - 1e-6)
+  end if
+
+  rho_0 = rho_0_sat + pa * (p0 + pa * (p1 + pa * (p2 + dsqrt(pa) * p3)))
+
+  e2_DkT = 1.671008d-3 / (eps_r * tempk)
+  
+
+  DH_B = dsqrt( 8.0 * pi * AVOGADRO * e2_DkT * rho_0 / 1.0E06 )     
+     !!! // Debye length parameter, 1/cm(mol/kg)^-0.5
+
+  DH_A = DH_B * e2_DkT / (2.0d0 * clg)
+  
+  DH_B = DH_B * 1.0E-08
+  
+!!! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+  
+  aa1 = -(DH_A * chg(ikNa)*chg(ikNa)*sqrt_sion)/                      &
+              (1.0d0 + 4.08 * DH_B * sqrt_sion)                       &     
               + 0.082*sion_tmp
   gamtmp(ikNa) = clg*aa1
   
-  aa1 = -(ah*chg(ikCl)*chg(ikCl)*sqrt_sion)/                &
-              (1.0d0 + 3.63*bh*sqrt_sion)                   &         
+  aa1 = -(DH_A  * chg(ikCl)*chg(ikCl)*sqrt_sion)/                      &
+              (1.0d0 + 3.63 * DH_B * sqrt_sion)                        &  
               + 0.017*sion_tmp
   gamtmp(ikCl) = clg*aa1
   

@@ -108,14 +108,17 @@ IF (ALLOCATED(gam)) THEN
   DEALLOCATE(gam)
 END IF
 ALLOCATE(gam(ncomp+nspec,nx,ny,nz))
+
 IF (ALLOCATED(keqaq)) THEN
   DEALLOCATE(keqaq)
 END IF
 ALLOCATE(keqaq(nspec,nx,ny,nz))
+
 IF (ALLOCATED(keqgas)) THEN
   DEALLOCATE(keqgas)
 END IF
 ALLOCATE(keqgas(ngas,nx,ny,nz))
+
 IF (ALLOCATED(keqsurf)) THEN
   DEALLOCATE(keqsurf)
 END IF
@@ -131,10 +134,11 @@ ALLOCATE(keqmin(nreactmax,nrct,nx,ny,nz))
 ALLOCATE(silogGlobal(nreactmax,nrct,nx,ny,nz))
 
 gam = 0.0
-keqaq = 0.0
-keqgas = 0.0
-keqsurf = 0.0
-keqmin = 0.0
+keqaq = 500.00
+keqgas = 500.00
+keqsurf = 500.00
+keqmin = 500.00
+
 IF (ALLOCATED(a)) THEN
   DEALLOCATE(a)
 END IF

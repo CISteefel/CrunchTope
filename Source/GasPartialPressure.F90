@@ -75,6 +75,7 @@ INTEGER(I4B)                                               :: kk
 
 ln_fco2 = 0.0d0
 tempk = t(jx,jy,jz) + 273.15
+
 !!denmol = DLOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 IF (Duan .OR. Duan2006) THEN
@@ -82,15 +83,11 @@ IF (Duan .OR. Duan2006) THEN
 END IF
 
 DO kk = 1,ngas
-
-
-
+  
     sum = 0.0
     DO i = 1,ncomp
       sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
     END DO
-
-
 
   IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)

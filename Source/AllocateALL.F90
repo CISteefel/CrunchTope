@@ -136,6 +136,28 @@ END IF
 ALLOCATE(sppTMP10(ncomp+nspec))
 sppTMP10 = 0.0
 
+IF (ALLOCATED(gamTMP)) THEN
+  DEALLOCATE(gamTMP)
+END IF
+ALLOCATE(gamTMP(ncomp+nspec))
+gamTMP = 0.0
+IF (ALLOCATED(gamTMP)) THEN
+  DEALLOCATE(gamTMP)
+END IF
+ALLOCATE(gamTMP(ncomp+nspec))
+gamTMP = 0.0
+
+IF (ALLOCATED(keqaqTMP)) THEN
+  DEALLOCATE(keqaqTMP)
+END IF
+ALLOCATE(keqaqTMP(nspec))
+keqaqTMP = 500.0
+IF (ALLOCATED(keqaqTMP)) THEN
+  DEALLOCATE(keqaqTMP)
+END IF
+ALLOCATE(keqaqTMP(nspec))
+keqaqTMP = 500.0
+
 IF (ALLOCATED(sppTMPperturb)) THEN
   DEALLOCATE(sppTMPperturb)
 END IF
@@ -146,6 +168,28 @@ IF (ALLOCATED(sppTMP10perturb)) THEN
 END IF
 ALLOCATE(sppTMP10perturb(ncomp+nspec))
 sppTMP10perturb = 0.0
+
+IF (ALLOCATED(stmp)) THEN
+  DEALLOCATE(stmp)
+END IF
+ALLOCATE(stmp(ncomp))
+stmp = 0.0
+IF (ALLOCATED(stmp)) THEN
+  DEALLOCATE(stmp)
+END IF
+ALLOCATE(stmp(ncomp))
+stmp = 0.0
+
+IF (ALLOCATED(NumericalJac)) THEN
+  DEALLOCATE(NumericalJac)
+END IF
+ALLOCATE(NumericalJac(ncomp,ncomp))
+NumericalJac = 0.0
+IF (ALLOCATED(NumericalJac)) THEN
+  DEALLOCATE(NumericalJac)
+END IF
+ALLOCATE(NumericalJac(ncomp,ncomp))
+NumericalJac = 0.0
 
 
 !!  Allocation of Crystal Size Distribution stuff

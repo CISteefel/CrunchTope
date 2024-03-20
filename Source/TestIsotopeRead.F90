@@ -1,0 +1,58 @@
+
+SUBROUTINE TestIsotopeRead
+USE crunchtype
+
+IMPLICIT NONE
+
+!  External arrays and variables
+
+
+! Internal arrays and variables
+
+REAL(DP)                                      :: sum
+
+INTEGER(I4B)                                  :: j
+
+ CO3 = ["C12O16O16O16--";"C12O17O17O17--";"C12O18O18O18--";
+           "C12O17O16O16--";"C12O17O17O16--";
+           "C12O18O16O16--";"C12O18O18O16--";
+           "C12O18O18O17--";"C12O18O17O17--";
+           "C12O18O17O16--";
+           "C13O16O16O16--";"C13O17O17O17--";"C13O18O18O18--";
+           "C13O17O16O16--";"C13O17O17O16--";
+           "C13O18O16O16--";"C13O18O18O16--";
+           "C13O18O18O17--";"C13O18O17O17--";
+           "C13O18O17O16--";
+           ];
+   HCO3 = ["HC12O16O16O16-";"HC12O17O17O17-";"HC12O18O18O18-";
+           "HC12O17O16O16-";"HC12O17O17O16-";
+           "HC12O18O16O16-";"HC12O18O18O16-";
+           "HC12O18O18O17-";"HC12O18O17O17-";
+           "HC12O18O17O16-";
+           "HC13O16O16O16-";"HC13O17O17O17-";"HC13O18O18O18-";
+           "HC13O17O16O16-";"HC13O17O17O16-";
+           "HC13O18O16O16-";"HC13O18O18O16-";
+           "HC13O18O18O17-";"HC13O18O17O17-";
+           "HC13O18O17O16-";
+           ];
+    CO2 = ["C12O16O16(g)";"C12O17O17(g)";"C12O18O18(g)";
+           "C12O17O16(g)";"C12O18O16(g)";"C12O18O17(g)";
+           "C13O16O16(g)";"C13O17O17(g)";"C13O18O18(g)";
+           "C13O17O16(g)";"C13O18O16(g)";"C13O18O17(g)";
+           ];
+    
+    HHCO3 = ["HHC12O16O16O16";"HHC12O17O17O17";"HHC12O18O18O18";
+           "HHC12O17O16O16";"HHC12O17O17O16";
+           "HHC12O18O16O16";"HHC12O18O18O16";
+           "HHC12O18O18O17";"HHC12O18O17O17";
+           "HHC12O18O17O16";
+           "HHC13O16O16O16";"HHC13O17O17O17";"HHC13O18O18O18";
+           "HHC13O17O16O16";"HHC13O17O17O16";
+           "HHC13O18O16O16";"HHC13O18O18O16";
+           "HHC13O18O18O17";"HHC13O18O17O17";
+           "HHC13O18O17O16";
+           ];
+       % 16O 17O 18O 12C 13C H
+
+RETURN
+END SUBROUTINE TestIsotopeRead

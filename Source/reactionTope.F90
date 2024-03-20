@@ -853,11 +853,11 @@ DO k = 1,nkin
 
       ELSE IF (east_river .and. umin(k)=='Root_respiration') THEN
       
-      pre_rmin(np,k) = term2
+        pre_rmin(np,k) = term2
 
       ELSE IF (east_river .and. umin(k)=='Root_exudates') THEN 
 
-      pre_rmin(np,k) = term2
+        pre_rmin(np,k) = term2
 
       ELSE IF (HyperbolicInhibition(np,k)) THEN  
         pre_rmin(np,k) = term2

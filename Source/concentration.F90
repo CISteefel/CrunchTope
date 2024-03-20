@@ -90,7 +90,6 @@ MODULE  concentration
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: keqsurf_tmp
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: sptmp  !  temporary array for ln species concentration
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: sptmp10
-  REAL(DP), DIMENSION(:), ALLOCATABLE               :: gamtmp
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: stmp
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: dxxt
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: dyyt
@@ -250,6 +249,8 @@ MODULE  concentration
   REAL(DP), DIMENSION(:),ALLOCATABLE                 :: sgaspump
   REAL(DP), DIMENSION(:),ALLOCATABLE                 :: sppTMP
   REAL(DP), DIMENSION(:),ALLOCATABLE                 :: sppTMP10
+  REAL(DP), DIMENSION(:),ALLOCATABLE                 :: gamTMP
+  REAL(DP), DIMENSION(:),ALLOCATABLE                 :: keqaqTMP
   REAL(DP), DIMENSION(:),ALLOCATABLE                 :: sppTMPperturb
   REAL(DP), DIMENSION(:),ALLOCATABLE                 :: sppTMP10perturb
 
@@ -393,6 +394,8 @@ MODULE  concentration
 
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: exflag
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: surflag
+  
+  REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: NumericalJac
 
 
 END MODULE concentration

@@ -134,10 +134,10 @@ INTEGER(I4B), INTENT(IN)                           :: nz
   END IF
   ALLOCATE(fjac_loc(ncomp,ncomp))
   gam = 0.0
-  keqaq = 0.0
-  keqgas = 0.0
-  keqsurf = 0.0
-  keqmin = 0.0
+  keqaq = 500.00
+  keqgas = 500.00
+  keqsurf = 500.00
+  keqmin = 500.00
   fjac_loc = 0.0
   IF (ALLOCATED(ssurfn)) THEN
     DEALLOCATE(ssurfn)

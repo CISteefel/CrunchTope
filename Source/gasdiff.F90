@@ -150,20 +150,21 @@ SUBROUTINE gasdiff(nx,ny,nz)
       
       porp = por(jx,jy,jz)
     
-      !satp = 1.0-satliq(jx,jy,jz)    
-      satp = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
+      satp = 1.0-satliq(jx,jy,jz)    
+!!!      satp = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
       
       IF (nx == 1) GO TO 100
       
       IF (jx == 1) THEN
+        
         dxe = 0.5*(dxx(jx)+dxx(jx+1))
         dxw = 0.5*dxx(1)
         pore = por(jx+1,jy,jz)
-        !sate = 1.0-satliq(jx+1,jy,jz)
-        sate = 0.5*( 1.0-satliq(jx+1,jy,jz) + 1.0-satliqold(jx+1,jy,jz) )
+        sate = 1.0-satliq(jx+1,jy,jz)
+!!!        sate = 0.5*( 1.0-satliq(jx+1,jy,jz) + 1.0-satliqold(jx+1,jy,jz) )
         porw = por(jx,jy,jz)
-        !satw = 1.0-satliq(jx,jy,jz)
-        satw = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
+        satw = 1.0-satliq(jx,jy,jz)
+!!!        satw = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
         if (east_river .and. gad_diff_T) then
           gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
           dume = pore*sate*gasd
@@ -176,15 +177,17 @@ SUBROUTINE gasdiff(nx,ny,nz)
           dumpx = porp*satp*gasd
         endif
         dumw = dumpx
+        
       ELSE IF (jx == nx .and. gad_diff_T) THEN
+        
         dxw = 0.5*(dxx(jx)+dxx(jx-1))
         dxe = 0.5*dxx(nx)
         pore = por(jx,jy,jz)
-        !sate = 1.0-satliq(jx,jy,jz)
-        sate = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
+        sate = 1.0-satliq(jx,jy,jz)
+!!!        sate = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
         porw = por(jx-1,jy,jz)
-        !satw = 1.0-satliq(jx-1,jy,jz)
-        satw = 0.5*( 1.0-satliq(jx-1,jy,jz) + 1.0-satliqold(jx-1,jy,jz) )
+        satw = 1.0-satliq(jx-1,jy,jz)
+!!!        satw = 0.5*( 1.0-satliq(jx-1,jy,jz) + 1.0-satliqold(jx-1,jy,jz) )
         if (east_river .and. gad_diff_T) then
           gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas*(((t(jx-1,jy,jz)+273.15)/273.15)**1.81)
           dumw = porw*satw*gasd
@@ -197,15 +200,17 @@ SUBROUTINE gasdiff(nx,ny,nz)
           dumpx = porp*satp*gasd
         endif
         dume = dumpx
+        
       ELSE
+        
         dxe = 0.5*(dxx(jx)+dxx(jx+1))
         dxw = 0.5*(dxx(jx)+dxx(jx-1))
         pore = por(jx+1,jy,jz)
-        !sate = 1.0-satliq(jx+1,jy,jz)
-        sate = 0.5*( 1.0-satliq(jx+1,jy,jz) + 1.0-satliqold(jx+1,jy,jz) )
+        sate = 1.0-satliq(jx+1,jy,jz)
+!!!        sate = 0.5*( 1.0-satliq(jx+1,jy,jz) + 1.0-satliqold(jx+1,jy,jz) )
         porw = por(jx-1,jy,jz)
-        !satw = 1.0-satliq(jx-1,jy,jz)
-        satw = 0.5*( 1.0-satliq(jx-1,jy,jz) + 1.0-satliqold(jx-1,jy,jz) )
+        satw = 1.0-satliq(jx-1,jy,jz)
+!!!        satw = 0.5*( 1.0-satliq(jx-1,jy,jz) + 1.0-satliqold(jx-1,jy,jz) )
         if (east_river .and. gad_diff_T) then
           gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas*(((t(jx+1,jy,jz)+273.15)/273.15)**1.81)
           dume = pore*sate*gasd

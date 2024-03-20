@@ -52,7 +52,7 @@ USE concentration
 USE mineral
 USE solver
 USE medium
-USE mineral, ONLY: dppt
+
 USE transport
 USE flow
 USE temperature

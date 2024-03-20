@@ -84,11 +84,12 @@ countval=count(tseries_select>tstart .AND. tseries_select<(tstart+tint))
 
 
 IF (countval<1) THEN
-!! 1) if no values of the time series are within the desired time interval: interpolate by using the nearest values of the the time series
+  
+!!!  1) if no values of the time series are within the desired time interval: interpolate by using the nearest values of the the time series
 
-slope=((ydat2(tpos_high)-ydat2(tpos_low))/(tseries2(tpos_high)-tseries2(tpos_low)))  
+  slope=((ydat2(tpos_high)-ydat2(tpos_low))/(tseries2(tpos_high)-tseries2(tpos_low)))  
 
-yout=((tstart+(tint)/2)-tseries2(tpos_low))*slope + ydat2(tpos_low)
+  yout=((tstart+(tint)/2)-tseries2(tpos_low))*slope + ydat2(tpos_low)
 
 
 
@@ -125,34 +126,33 @@ ELSE
     ALLOCATE(ydatdum2(1:(size(tseries_within,dim=1)+1)))
   END IF
 
-DO index = 1,(size(tseries_within,dim=1)+1)
+  DO index = 1,(size(tseries_within,dim=1)+1)
 
-  if (index==1) THEN
+    if (index==1) THEN
 
   
-  weight(index)=(tseries_within(index)-tstart)/(tint)
+      weight(index)=(tseries_within(index)-tstart)/(tint)
   
-  ydatdum(index)=(ydat_within(index)+ymin)/2 
+      ydatdum(index)=(ydat_within(index)+ymin)/2 
 
-  elseif (index==((size(tseries_within,dim=1)+1))) THEN
+    elseif (index==((size(tseries_within,dim=1)+1))) THEN 
   
+      weight(index)=((tstart+tint)-tseries_within(index-1))/(tint)  
+      ydatdum(index)=(ymax+ydat_within(index-1))/2 
+    else
   
-  weight(index)=((tstart+tint)-tseries_within(index-1))/(tint)  
-  ydatdum(index)=(ymax+ydat_within(index-1))/2 
-  else
+      weight(index)=(tseries_within(index)-tseries_within(index-1))/(tint)  
+      ydatdum(index)=(ydat_within(index)+ydat_within(index-1))/2 
   
-  weight(index)=(tseries_within(index)-tseries_within(index-1))/(tint)  
-  ydatdum(index)=(ydat_within(index)+ydat_within(index-1))/2 
-  
-  END IF
+    END IF
 
-  ydatdum2(index)=weight(index)*ydatdum(index)  
+    ydatdum2(index)=weight(index)*ydatdum(index)  
   
-END DO
-yout=sum(ydatdum2)
+  END DO
+  yout=sum(ydatdum2)
 
 
-    END IF      
+END IF      
 
 !!    if (tstart>2) then
 !!      WRITE(*,*) 'I am stopping'

@@ -176,6 +176,7 @@ REAL(DP)                                      :: sum
 REAL(DP)                                      :: rotemp
 REAL(DP)                                      :: portemp
 REAL(DP)                                      :: satl
+REAL(DP)                                      :: satlold
 REAL(DP)                                      :: faraday
 REAL(DP)                                      :: gramsperL
 REAL(DP)                                      :: delta_z
@@ -395,6 +396,8 @@ DO jy = 1,ny
 
     satl = satliq(jx,jy,jz)
     satgas = 1.0d0 - satl
+    satlold = satliqold(jx,jy,jz)
+    
     IF (cylindrical) THEN
       CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
       df = 1.0d0
@@ -1184,7 +1187,7 @@ DO jy = 1,ny
       
 !  Update the residual, adding reaction terms and exchange terms
       
-      fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + satl*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
+      fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
  
       sumrd = 0.0d0
       sumjackin = 0.0d0
@@ -1230,7 +1233,7 @@ DO jy = 1,ny
         DO i2 = 1,ncomp        
           ind2 = i2                
           rxnmin = sumrd(i2)
-          rxnaq = satl*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
+          rxnaq =  0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
           IF (i /= ikh2o) THEN
             aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
                *(1.0 + Retardation*distrib(i) )

@@ -51,6 +51,7 @@ USE temperature
 USE params
 USE CrunchFunctions
 USE flow
+USE mineral, only: SaltCreep
 
 IMPLICIT NONE
 
@@ -127,6 +128,10 @@ jz = 1
 SatPow = 10.0d0/3.0d0
 PorPow = 4.0d0/3.0d0
 
+IF (SaltCreep) THEN
+  PorPow = 3.50
+END IF
+
 IF (idiffus == 0) THEN
   d_25 = dzero
 ELSE
@@ -172,8 +177,8 @@ DO jy = 1,ny
     j = (jy-1)*nx+jx
     
     porp = por(jx,jy,jz)
-!!!    satp = satliq(jx,jy,jz)
-    satp = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
+    satp = satliq(jx,jy,jz)
+!!!    satp = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
     
     IF (nx == 1) GO TO 100
     
@@ -183,8 +188,10 @@ DO jy = 1,ny
       dxw = 0.5d0*dxx(1)
       pore = por(jx+1,jy,jz)
       porw = por(jx,jy,jz)
-      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
-      satw = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
+!!!      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
+!!!      satw = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
+      sate = satliq(jx+1,jy,jz)
+      satw = satliq(jx,jy,jz)
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -217,8 +224,10 @@ DO jy = 1,ny
       dxe = 0.5d0*dxx(nx)
       pore = por(jx,jy,jz)
       porw = por(jx-1,jy,jz)
-      sate = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
-      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
+!!!      sate = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
+!!!      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
+      sate = satliq(jx,jy,jz)
+      satw = satliq(jx-1,jy,jz)
       IF (UseThresholdPorosity) THEN
         IF (porw > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -253,8 +262,10 @@ DO jy = 1,ny
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
       pore = por(jx+1,jy,jz)
       porw = por(jx-1,jy,jz)
-      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
-      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
+!!!      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
+!!!      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
+      sate = satliq(jx+1,jy,jz)
+      satw = satliq(jx-1,jy,jz)
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -422,7 +433,12 @@ DO jy = 1,ny
       avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaW = dyy(jy)*dzz(jx,jy,jz)
-      dspw = avgro*dspx(jx-1,jy,jz) + dharm
+      if (jx == 1) then
+        dspw = avgro*dspx(jx,jy,jz) + dharm
+      else
+        dspw = avgro*dspx(jx-1,jy,jz) + dharm
+      end if
+
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       netflowX(0,jy,jz) = fw
@@ -443,7 +459,7 @@ DO jy = 1,ny
       
     ELSE IF (jx == nx) THEN
          
-   !!!  WEST
+  !!!  WEST
       
       avgro = 0.5d0*( ro(jx-1,jy,jz) + ro(jx,jy,jz) )
 
@@ -464,12 +480,12 @@ DO jy = 1,ny
       netflowX(nx-1,jy,jz) = fw
       netDiffuseX(nx-1,jy,jz) = dw
       
-  !!!  EAST
+  !!! EAST
       
       avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaE = dyy(jy)*dzz(jx,jy,jz)
-      dspe = avgro*dspx(jx+1,jy,jz) + dharm
+      dspe = avgro*dspx(jx,jy,jz) + dharm
       de = AreaE*dspe/dxe
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe

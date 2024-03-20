@@ -302,6 +302,7 @@ IF (DensityModule /= 'temperature') THEN
 ELSE
   MassFraction = 1.0
 END IF
+
 AqueousToBulk = MassFraction*SaturationCond(nco)*porcond(nco)*rocond(nco)
 
 sqrt_sion = 0.0
@@ -1379,7 +1380,9 @@ DO  ktrial = 1,ntrial
     END DO
     
 !!!    write(123,*) PressureTemp,stmp(1)
-    write(123,*) tempc,stmp(1)
+    if (SaltCreep) THEN
+      write(123,*) tempc,stmp(1)
+    end if
 
     namtemp = 'Exchange'
     IF (nexchange > 0) THEN
@@ -1727,7 +1730,6 @@ DO  ktrial = 1,ntrial
       silnTMP = sumiap - keqmin_tmp(1,k)
       siprnt = silnTMP/clg
       WRITE(iunit2,509) umin(k),siprnt
-      WRITE(iunit2,*) ' Omega                  ', 10**(siprnt)
     END DO
     
     DEALLOCATE(u)

@@ -77,20 +77,19 @@ DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
 !!        GoBack = .FALSE.
-10      DO ksp = 1,nspec
-
-
+10    DO ksp = 1,nspec
+     
             sum = 0.0D0
             DO i = 1,ncomp
               sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
             END DO
 
-
         sp(ksp+ncomp,jx,jy,jz) = keqaq(ksp,jx,jy,jz) - gam(ksp+ncomp,jx,jy,jz) + sum
         sp10(ksp+ncomp,jx,jy,jz) = DEXP(sp(ksp+ncomp,jx,jy,jz))
              
       END DO
-    END DO
+      
+    END DO 
   END DO
 END DO
 

@@ -944,7 +944,8 @@ DO i = 1,ncomp
   END IF
   
   IF (isaturate == 1) THEN
-    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
+!!!    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
+        gas_accum = portemp*r*satgas*(sgas(i,jx,jy,jz) - sgasn(i,jx,jy,jz))
   ELSE
     gas_accum = 0.0
     gas_transport = 0.0
@@ -987,13 +988,18 @@ DO i = 1,ncomp
     END IF
     
     fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
-        + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xvectors*df  &
-        + df*xbdflux      &   !! Advective flux 
-        + xvec_ex*df      &   !! Erosion flux of exchangers
-        + xvecgas*df + ex_transport  &
-        + gas_transport  &
-        + xspecdiffw*df + xspecdiffe*df   ! Species-dependent diffusion
-      continue
+              + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)   &  !! Diagonal aqueous transport
+              + xvectors*df     &   !! Off-diagonal aqueous transport
+              + df*xbdflux      &   !! Advective flux through boundary
+              + xvec_ex*df      &   !! Erosion flux of exchangers
+              + ex_transport    &   !! exchanger burial or transport
+              + xvecgas*df      &   !! off-diagonal gas transport
+              + gas_transport   &   !! diagonal gas transport
+              + xspecdiffw*df   &   !! Species-dependent diffusion
+              + xspecdiffe*df       !! Species-dependent diffusion
+    
+      CONTINUE
+      
       if (jx == 1) then
         continue
       end if

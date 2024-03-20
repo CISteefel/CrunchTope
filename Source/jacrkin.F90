@@ -141,8 +141,6 @@ REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
 !!REAL(DP), DIMENSION(ncomp)                           :: sppTMP10perturb
 !!REAL(DP), DIMENSION(ncomp)                           :: sppTMPperturb
 
-ALLOCATE(stmp(ncomp))
-
 tk = t(jx,jy,jz) + 273.15D0
 satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
 tkinv = 1.0D0/tk
@@ -662,7 +660,6 @@ DO ir = 1,ikin
   
 END DO
 
-DEALLOCATE(stmp)
 
 RETURN
 END SUBROUTINE jacrkin

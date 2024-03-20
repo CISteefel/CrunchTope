@@ -1,0 +1,60 @@
+    WRITE(iures) time
+    WRITE(iures) nn
+    WRITE(iures) nint
+    WRITE(iures) delt,dtold,tstep,deltmin,dtmaxcour,dtmax
+    WRITE(iures) keqaq
+    WRITE(iures) keqgas
+    WRITE(iures) keqsurf
+    WRITE(iures) xgram
+    WRITE(iures) spnO2
+    WRITE(iures) spnnO2
+    WRITE(iures) sp
+    WRITE(iures) s
+    WRITE(iures) sn
+    WRITE(iures) sp10
+    WRITE(iures) spold
+    WRITE(iures) spex
+    WRITE(iures) spex10
+    WRITE(iures) gam
+    WRITE(iures) exchangesites
+    WRITE(iures) spexold
+    WRITE(iures) spgas
+    WRITE(iures) spgasold
+    WRITE(iures) spgas10
+    IF (isaturate==1) then
+      WRITE(iures) sgas
+      WRITE(iures) sgasn
+    ENDIF
+    if (ierode==1) then
+      WRITE(iures) ssurf
+      WRITE(iures) ssurfn
+    endif
+    WRITE(iures) sexold
+    WRITE(iures) ssurfold
+    WRITE(iures) spsurf
+    WRITE(iures) spsurf10
+    WRITE(iures) spsurfold
+    WRITE(iures) raq_tot
+    WRITE(iures) sion
+    WRITE(iures) jinit          --> (IntegerDummyArray(nxyz))
+    WRITE(iures) keqmin
+    WRITE(iures) volfx
+    WRITE(iures) dppt
+    WRITE(iures) area
+    WRITE(iures) areainByGrid   --> RealDummyArray(nrct*nxyz)
+    WRITE(iures) volinByGrid    --> (RealDummyArray(nrct*nxyz)
+    WRITE(iures) specificByGrid --> (RealDummyArray(nrct*nxyz)
+    WRITE(iures) LogPotential
+    WRITE(iures) t
+    WRITE(iures) told
+    WRITE(iures) ro
+    WRITE(iures) por
+    WRITE(iures) satliq
+    WRITE(iures) qxgas
+    WRITE(iures) qygas
+    WRITE(iures) qzgas
+    WRITE(iures) pres
+    WRITE(iures) ActiveCell
+    WRITE(iures) VolSaveByTimeStep
+    WRITE(iures) Volsave
+    WRITE(iures) ncounter

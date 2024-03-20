@@ -269,6 +269,7 @@ INTEGER(I4B), PARAMETER                                       :: ndimdummy=500
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: work1
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                         :: work2
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: work3
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: work3b
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE                     :: work4
 
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: workint1
@@ -387,7 +388,7 @@ CHARACTER (LEN=mls)                                           :: modflowstring
 CHARACTER (LEN=mls)                                           :: SaturationFileFormat
 CHARACTER (LEN=mls)                                           :: PorosityFileFormat
 CHARACTER (LEN=mls)                                           :: GridVolumeFileFormat
-CHARACTER (LEN=mls)                                  :: BurialFileFormat
+CHARACTER (LEN=mls)                                           :: BurialFileFormat
 CHARACTER (LEN=mls)                                           :: TortuosityFileFormat
 CHARACTER (LEN=mls)                                           :: GasVelocityFileFormat
 CHARACTER (LEN=mls)                                           :: PermFileFormat
@@ -610,7 +611,7 @@ INTEGER(I4B)                                                  :: kFlag
 INTEGER(I4B)                                                  :: npFlag
 INTEGER(I4B)                                                  :: jPoint
 
-REAL(DP)                                           :: StressMaxVal
+REAL(DP)                                                      :: StressMaxVal
 
 INTEGER(I4B)                                                  :: nBoundaryConditionZone
 
@@ -887,6 +888,11 @@ parchar = 'saltcreep'
 parfind = ' '
 SaltCreep = .FALSE.
 CALL read_logical(nout,lchar,parchar,parfind,SaltCreep)
+
+parchar = 'calcitecreep'
+parfind = ' '
+CalciteCreep = .FALSE.
+CALL read_logical(nout,lchar,parchar,parfind,CalciteCreep)
 
 parchar = 'montterri'
 parfind = ' '
@@ -5161,17 +5167,61 @@ if (nmmLogical) then
 
   jz = 1
   ALLOCATE(stress(nx,ny,1))
+  
+  OPEN(UNIT=53,FILE='RoughFracture-Dec11.dat',STATUS='OLD',ERR=6001)
+  allocate(work3b(nx,ny,nz))
+  
+  jinit = 2
 
   nhet = 0
   DO jy = 1,ny
     DO jx= 1,nx
+      
       nhet = nhet + 1
       IF (SaltCreep) THEN
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-!!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
+!!!                            x    y    bn    mt             sx    sy    txy   dx    dy    sig1  sig3            re-sig1  re-sig
 
         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+        
+!!! --- > CalciteCreep *********************************
+        
+      ELSE IF (CalciteCreep) THEN
+        
+        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
+!!!                            x    y    bn    mt             sx    sy    txy   dx    dy    sig1  sig3            re-sig1  re-sig
 
+        
+!!!        READ(53,*,END=1020) xdum,ydum, work3(jx,jy,jz), zdum
+!!!                            x    y    bn    mt   
+        
+        work3(jx,jy,jz) = work3(jx,jy,jz) + 1.0
+        
+        if (work3(jx,jy,jz) > 0.999d0 .and. work3(jx,jy,jz) < 1.001d0) then
+          jinit(jx,jy,jz) = 1   
+        end if
+        
+        READ(53,*,END=1020) xdum,ydum, work3b(jx,jy,jz), zdum
+!!!                                  x    y       mt            junk
+        
+        if (work3b(jx,jy,jz) > 1.999d0 .and. work3b(jx,jy,jz) <2.001) then
+          if (jinit(jx,jy,jz) == 1) then
+            continue
+          else
+            jinit(jx,jy,jz) = 3 
+          end if
+        end if 
+        
+        if (jy > 120) then
+          jinit(jx,jy,jz) = 2
+!!!          stress(jx,jy,jz) = 2.50E06
+        end if
+        if (jy < 30) then
+          jinit(jx,jy,jz) = 2
+!!!          stress(jx,jy,jz) = 2.50E06
+        end if
+      
+        
       ELSE IF (FractureNetwork) THEN
 
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
@@ -5187,11 +5237,19 @@ if (nmmLogical) then
   END DO
 
   CLOSE(UNIT=52)
+  CLOSE(UNIT=53)
+  deallocate(work3b)
   
-  StressMaxVal= MaxVal(ABS(stress*1.0E-06))
+  stress = stress/2.0
+  !!!stress = 10**5
+  
+  StressMaxVal= MaxVal(ABS(stress*1.0E-5))
+
+  
   write(*,*)
-  write(*,*) ' StressMaxVal =', StressMaxVal
+  write(*,*) ' StressMaxVal (bars) =', StressMaxVal
   write(*,*)
+
 
 END IF
 
@@ -5496,7 +5554,7 @@ DO jz = 1,nz
     END DO
   END DO
 END DO
-STOP
+
 ! ************************************
 ! Edit by Lucien Stolze, June 2023
 ! Temperature time series
@@ -5566,7 +5624,7 @@ ELSEIF (jtemp == 3) THEN !! Temperature time series allocated to specific region
 ! Finish edit by Lucien Stolze, June 2023
 
 ELSEIF (jtemp == 0) THEN
-t = tinit
+  t = tinit
 ELSE
 
 DO jz = 1,nz
@@ -7994,7 +8052,7 @@ section = 'flow'
 CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
-WRITE(*,*) ' Flow block found'
+  WRITE(*,*) ' Flow block found'
 END IF
 
 velocityfile = ' '
@@ -8267,6 +8325,7 @@ ELSE
     WRITE(*,*)
     WRITE(*,*) ' Flow will be calculated'
     WRITE(*,*)
+    
    
   ! ********************************************
   ! Edit by Toshiyuki Bandai 2023 May
@@ -9890,6 +9949,38 @@ ELSE
 END IF
 
 IF (CalculateFlow) THEN
+  
+  IF (CalciteCreep) THEN
+    DO jz = 1,nz
+      DO jy = 1,ny
+         DO jx = 1,nx
+          IF (jinit(jx,jy,jz) == 1) THEN
+            permX(jx,jy,jz) =   1.0E-10
+            permY(jx,jy,jz) =   1.0E-10
+            perminX(jx,jy,jz) = 1.0E-10
+            perminY(jx,jy,jz) = 1.0E-10
+ !!!           porin(jx,jy,jz) = 0.999
+ !!!           por(jx,jy,jz) =   0.999
+          ELSE IF (jinit(jx,jy,jz) == 3) THEN
+            permX(jx,jy,jz) =   1.0E-13
+            permY(jx,jy,jz) =   1.0E-13
+            perminX(jx,jy,jz) = 1.0E-13
+            perminY(jx,jy,jz) = 1.0E-13
+ !!!           porin(jx,jy,jz) = 0.999
+ !!!           por(jx,jy,jz) =   0.999
+          ELSE
+            permX(jx,jy,jz) = 1.0E-18
+            permY(jx,jy,jz) = 1.0E-18
+            perminX(jx,jy,jz) = 1.0E-18
+            perminY(jx,jy,jz) = 1.0E-18
+ !!!           porin(jx,jy,jz) = 0.0001
+ !!!           por(jx,jy,jz)   = 0.0001
+          ENDIF
+        END DO
+      END DO
+    END DO
+  ENDIF
+  
   permxOld = permx
   permyOld = permy
   permzOld = permz

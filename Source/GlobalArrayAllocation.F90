@@ -229,12 +229,14 @@ IF (ny == 1 .AND. nz == 1) THEN
   ELSE
     ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,ny,nz))
   END IF
+  
   IF (ALLOCATED(spgas)) THEN
     DEALLOCATE(spgas)
-    ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,nz))
+    ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,0:nz+1))
   ELSE
-    ALLOCATE(spgas(ngas,0:nx+1,ny,nz))
+    ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,0:nz+1))
   END IF
+  
   IF (ALLOCATED(LogPotential)) THEN
     DEALLOCATE(LogPotential)
     ALLOCATE(LogPotential(nsurf,0:nx+1,ny,nz))
@@ -320,12 +322,14 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
   ELSE
     ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,0:ny+1,nz))
   END IF
+  
   IF (ALLOCATED(spgas)) THEN
     DEALLOCATE(spgas)
     ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,nz))
   ELSE
     ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,nz))
   END IF
+  
   IF (ALLOCATED(LogPotential)) THEN
     DEALLOCATE(LogPotential)
     ALLOCATE(LogPotential(nsurf,0:nx+1,0:ny+1,nz))
@@ -482,12 +486,14 @@ ELSE
   ELSE
     ALLOCATE(spsurf(nsurf+nsurf_sec,0:nx+1,0:ny+1,0:nz+1))
   END IF
+  
   IF (ALLOCATED(spgas)) THEN
     DEALLOCATE(spgas)
     ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,0:nz+1))
   ELSE
     ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,0:nz+1))
   END IF
+  
   IF (ALLOCATED(LogPotential)) THEN
     DEALLOCATE(LogPotential)
     ALLOCATE(LogPotential(nsurf,0:nx+1,0:ny+1,0:nz+1))
@@ -549,12 +555,12 @@ ELSE
 END IF
 
 
-IF (ALLOCATED(spgasold)) THEN
-  DEALLOCATE(spgasold)
-  ALLOCATE(spgasold(ngas,nx,ny,nz))
-ELSE
-  ALLOCATE(spgasold(ngas,nx,ny,nz))
-END IF
+  IF (ALLOCATED(spgasold)) THEN
+    DEALLOCATE(spgasold)
+    ALLOCATE(spgasold(ngas,0:nx+1,0:ny+1,0:nz+1))
+  ELSE
+    ALLOCATE(spgasold(ngas,0:nx+1,0:ny+1,0:nz+1))
+  END IF
 
 IF (ALLOCATED(spsurfold)) THEN
   DEALLOCATE(spsurfold)

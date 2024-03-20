@@ -90,11 +90,33 @@ REAL(DP)                                              :: D1000_bradleyPitz
 REAL(DP)                                              :: B_BradleyPitz
 REAL(DP)                                              :: partialEpsInverse
 REAL(DP)                                              :: partialLogEps
-REAL(DP)                                              :: Vm_Na
-REAL(DP)                                              :: Vm_Cl
+
 REAL(DP)                                              :: Vm_NaCl
+REAL(DP)                                              :: Vm_CaCO3
+
 REAL(DP)                                              :: Vm_Na_zero
 REAL(DP)                                              :: Vm_Cl_zero
+REAL(DP)                                              :: Vm_Ca_zero
+REAL(DP)                                              :: Vm_CO3_zero
+REAL(DP)                                              :: Vm_HCO3_zero
+REAL(DP)                                              :: Vm_CO2_zero
+REAL(DP)                                              :: Vm_OH_zero
+
+REAL(DP)                                              :: Vm_Na
+REAL(DP)                                              :: Vm_Cl
+REAL(DP)                                              :: Vm_Ca
+REAL(DP)                                              :: Vm_CO3
+REAL(DP)                                              :: Vm_HCO3
+REAL(DP)                                              :: Vm_CO2
+REAL(DP)                                              :: Vm_OH
+
+REAL(DP)                                              :: DeltaV_r1
+REAL(DP)                                              :: DeltaV_r2
+REAL(DP)                                              :: DeltaV_r3
+REAL(DP)                                              :: DeltaV_r4
+REAL(DP)                                              :: DeltaV_r5
+REAL(DP)                                              :: DeltaV_r6
+
 REAL(DP)                                              :: bh
 REAL(DP)                                              :: Chargesum
 REAL(DP)                                              :: sqrt_sion
@@ -107,6 +129,14 @@ REAL(DP)                                              :: RgasAppelo
 REAL(DP)                                              :: ConvertBarsToAtm
 REAL(DP)                                              :: ConvertPaToBars
 
+REAL(DP)                                              :: PressureCorrection
+REAL(DP)                                              :: PressureCorrection1
+REAL(DP)                                              :: PressureCorrection2
+REAL(DP)                                              :: PressureCorrection3
+REAL(DP)                                              :: PressureCorrection4
+REAL(DP)                                              :: PressureCorrection5
+REAL(DP)                                              :: PressureCorrection6
+
 INTEGER(I4B)                                         :: ksp
 INTEGER(I4B)                                         :: kg
 INTEGER(I4B)                                         :: k
@@ -114,8 +144,11 @@ INTEGER(I4B)                                         :: ik
 INTEGER(I4B)                                         :: msub
 INTEGER(I4B)                                         :: ns
 INTEGER(I4B)                                         :: np
+INTEGER(I4B)                                         :: kkk
+INTEGER(I4B)                                         :: ikOH
+INTEGER(I4B)                                         :: ikHCO3
 
-temp = t(jx,jy,jz) + 273.15
+temp = t(jx,jy,jz) + 273.15d0
 temp2 = temp*temp
 
 ChargeSum = 0.0d0
@@ -183,14 +216,176 @@ IF (SaltCreep) THEN
   RgasAppelo = 82.0574587      !! (atm cm^3 mol^-1 K^-1)
 
   
-  P_appelo = ABS(stress(jx,jy,jz)) * ConvertBarsToAtm * ConvertPaToBars   !! Conversion to ATM
-  P_bars = ABS(stress(jx,jy,jz)) * ConvertPaToBars                        !! Conversion to bars
+!!!  P_appelo = ABS(stress(jx,jy,jz)) * ConvertBarsToAtm * ConvertPaToBars   !! Conversion to ATM
+!!!  P_bars = ABS(stress(jx,jy,jz)) * ConvertPaToBars                        !! Conversion to bars
+  
+  P_bars = 1.0d0
   
   IF (P_bars > 2000.0) THEN
     P_bars = 2000.0
   ELSE
     P_bars = 1.0
+    P_Appelo = 1.0
   END IF
+  
+  bh = 0.3288
+  
+  U1 = 3.4279E2
+  U2 = -5.0866E-3
+  U3 = 9.4690E-7
+  U4 = -2.0525
+  U5 = 3.1159E3
+  U6 = -1.8289E2
+  U7 = -8.0325E3
+  U8 = 4.2142E6
+  U9 = 2.1417
+  
+  C_BradleyPitz = U4 + U5/(U6 + temp)
+  D1000_bradleyPitz = U1 * DEXP(U2*temp + U3*temp*temp)
+  B_BradleyPitz = U7 + U8/temp + U9*temp
+  
+  eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) )  
+
+  partialLogEps = C_BradleyPitz/       &
+      (  (B_BradleyPitz + P_bars) * ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) +   &
+          D1000_bradleyPitz )  )
+  
+  partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_bars) *    &
+              ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
+  
+  
+  Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))
+  
+   !!! Vm(T, pb, I) = 41.84 * (a1 * 0.1 + a2 * 100 / (2600 + pb)  + a3 / (T - 228) +  &
+ !!!                       a4 * 1e4 / (2600 + pb) / (T - 228) - W * QBrn ) +         &
+ !!!                       z^2 / 2 * Av * f(I^0.5) + (i1 + i2 / (T - 228) + i3 * (T - 228)) * I^i4
+  
+!!          -Vm   a1     a2     a3      a4     W      a0  i1     i2    i3         i4
+!!! Na+     -Vm   2.28   -4.38  -4.1    -0.586  0.09   4   0.3    52     -3.33e-3   0.45
+!!! Cl-     -Vm   4.465   4.801  4.325  -2.847  1.748  0  -0.331  20.16   0         1 
+!!! Ca      -Vm  -0.3456 -7.252  6.149  -2.479  1.239  5   1.60  -57.1   -6.12E-03  1
+!!! CO3     -Vm   4.91    0.00   0.00   -5.41   4.76   0   0.386  89.7   -1.57e-2   1
+!!! HCO3    -Vm   8.54    0.00  -11.7    0.00   1.60   0   0.000  116.0   0.000     1
+!!! CO2(aq) -Vm   20.85  -46.93 -79.0   27.9  -0.193  0   0.000  0.00     0.000    0
+!!! OH-     -Vm   -9.66   28.5   80.0    -22.9   1.89  0   1.09   0.00     0.00     1
+  
+  
+  Vm_Na_zero = 41.84 * ( 0.1 * 2.28 + 100.0*(-4.38)/(2600.0 + P_appelo) + (-4.10)/(temp-228.0) +  &
+                 10000.0*(-0.586)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 0.09*1.0E+05 * partialEpsInverse )
+  
+  Vm_Cl_zero = 41.84 * (0.1 * 4.465 + 100.0*(4.801)/(2600.0 + P_appelo) + (4.325)/(temp-228.0) +   &
+                 10000.0*(-2.847)/( (2600.0 + P_appelo)*(temp-228.0) ) - 1.748*1.0E+05 * partialEpsInverse)
+  
+  Vm_Ca_zero = 41.84 * ( 0.1 * (-0.3456) + 100.0*(-7.252)/(2600.0 + P_appelo) + (6.149)/(temp-228.0) +  &
+                 10000.0*(-2.479)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 1.239*1.0E+05 * partialEpsInverse )
+  
+  Vm_CO3_zero = 41.84 * ( 0.1 * (4.91) + 100.0*(0.00)/(2600.0 + P_appelo) + (0.00)/(temp-228.0) +  &
+                 10000.0*(-5.41)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 4.76*1.0E+05 * partialEpsInverse )
+  
+  Vm_HCO3_zero = 41.84 * ( 0.1 * (8.54) + 100.0*(0.00)/(2600.0 + P_appelo) + (-11.7)/(temp-228.0) +  &
+                 10000.0*(0.00)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 1.60*1.0E+05 * partialEpsInverse )
+  
+  Vm_CO2_zero = 41.84 * ( 0.1 * (20.85) + 100.0*(-46.93)/(2600.0 + P_appelo) + (-79.0)/(temp-228.0) +  &
+                 10000.0*(27.9)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - (-0.193)*1.0E+05 * partialEpsInverse )
+  
+  Vm_OH_zero  = 41.84 * ( 0.1 * (-9.66) + 100.0*( 28.50)/(2600.0 + P_appelo) + ( 80.0)/(temp-228.0) +  &
+                 10000.0*(-22.9)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - (1.89)*1.0E+05 * partialEpsInverse )
+  
+  
+  !!! +++++++++++++++++++++++++++++++++++++++
+
+  ikCa = 2
+  ikCO3 = -2
+  ikHCO3 = -1.0
+  ikOH = -1.0
+
+!!! PRIMARY_SPECIES
+!!! H+
+!!! CO2(aq)
+!!! Ca++
+!!! Na+
+!!! Cl-
+!!! Tracer
+!!! Bogus
+!!! END
+
+!!! SECONDARY_SPECIES
+!!! OH-
+!!! HCO3-
+!!! CO3--
+!!! END
+  
+  Vm_Na = Vm_Na_zero + Av*0.5*chg(ikNa)*chg(ikNa) * sqrt_sion/(1.0d0 + 4.0*0.3288*sqrt_sion)     &
+                 + ( 0.30 + 52.0/(temp - 228.0)      + (-3.33E-03) * (temp - 228.0) )*sion_tmp**0.566
+  
+  Vm_Cl = Vm_Cl_zero + Av*0.5*chg(ikCl)*chg(ikCl) * sqrt_sion/(1.0d0 + 0.0*sqrt_sion)     &
+                + ( -0.331 + 20.16/(temp - 228.0)    + 0.0 * (temp - 228.0) )*sion_tmp**1.00
+  
+  Vm_Ca = Vm_Ca_zero + Av*0.5*(2.0)*(2.0) * sqrt_sion/(1.0d0 + 5.0*0.3288*sqrt_sion)     &
+                 + ( 1.60 + (-57.1)/(temp - 228.0)   + (-6.12E-03) * (temp - 228.0) )*sion_tmp**1.00
+  
+  Vm_CO3 = Vm_CO3_zero + Av*0.5*(-2.0)*(-2.0) * sqrt_sion/(1.0d0 + 0.0*0.3288*sqrt_sion)     &
+                 + ( 0.386 + (89.7)/(temp - 228.0)   + (-1.57-02) * (temp - 228.0) )*sion_tmp**1.00
+  
+  Vm_HCO3 = Vm_HCO3_zero + Av*0.5*(-1.0)*(-1.0) * sqrt_sion/(1.0d0 + 0.0*0.3288*sqrt_sion)     &
+                 + ( 0.0 + (116.0)/(temp - 228.0)    + (0.00) * (temp - 228.0) )*sion_tmp**1.00
+  
+  VM_CO2 = Vm_CO2_zero 
+  
+  Vm_OH = Vm_OH_zero + Av*0.5*(-1.0)*(-1.0) * sqrt_sion/(1.0d0 + 0.0*0.3288*sqrt_sion)     &
+                 + ( 1.09 + (0.0)/(temp - 228.0)    + (0.00) * (temp - 228.0) )*sion_tmp**1.00
+  
+  Vm_NaCl = 27.015
+  Vm_CaCO3 = 36.9340
+
+  DeltaV_r1 = Vm_Na + Vm_Cl  - Vm_NaCl
+  DeltaV_r2 = Vm_Ca + Vm_CO3 - Vm_CaCO3
+  DeltaV_r3 = Vm_CO2 - Vm_HCO3  !! Apparent molal volume of H+ assumed = 0
+  DeltaV_r4 = Vm_CO2 - Vm_CO3   !! Apparent molal volume of H+ assumed = 0
+  DeltaV_r5 = -Vm_OH            !! Apparent molal volume of H+ assumed = 0
+  
+  PressureCorrection1 = DeltaV_r1 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! Halite
+  PressureCorrection2 = DeltaV_r2 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! Calcite
+  PressureCorrection3 = DeltaV_r3 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! HCO3-
+  PressureCorrection4 = DeltaV_r4 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! CO3--
+  PressureCorrection5 = DeltaV_r5 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! OH-
+  
+  keqmin(1,2,jx,jy,jz) = keqmin(1,2,jx,jy,jz)/clg
+  keqmin(1,2,jx,jy,jz) = ( keqmin(1,2,jx,jy,jz)  - PressureCorrection2 )   !! Calcite
+  
+  keqaq_tmp(1) = ( keqaq_tmp(1)  - PressureCorrection5 )   !! OH-
+  keqaq_tmp(2) = ( keqaq_tmp(2)  - PressureCorrection3 )   !! HCO3-
+  keqaq_tmp(3) = ( keqaq_tmp(3)  - PressureCorrection4 )   !! CO3--
+  
+  keqmin(1,2,jx,jy,jz) = clg*keqmin(1,2,jx,jy,jz)
+  keqaq(1,jx,jy,jz)    = clg*keqaq(1,jx,jy,jz)
+  keqaq(2,jx,jy,jz)    = clg*keqaq(2,jx,jy,jz)
+  keqaq(2,jx,jy,jz)    = clg*keqaq(3,jx,jy,jz)
+  
+END IF
+!!! *****  End of SaltCreep *********************************************************
+
+!!! ************  For CalciteCreep **************************************************
+IF (CalciteCreep) THEN
+  
+  ConvertBarsToAtm = 0.986923
+  ConvertPaToBars = 1.0E-05
+  RgasAppelo = 82.0574587      !! (atm cm^3 mol^-1 K^-1)
+
+  
+  P_appelo = ABS(stress(jx,jy,jz)) * ConvertBarsToAtm * ConvertPaToBars   !! Conversion to ATM
+  P_bars = ABS(stress(jx,jy,jz)) * ConvertPaToBars                        !! Conversion to bars
+  
+  
+  IF (P_bars > 2000.0) THEN
+    P_bars = 2000.0
+  END IF
+  
+  bh = 0.3288
+  
+ !!! write(*,*) ' Pressure (bars) = ',P_bars
+  
+  P_appelo = P_bars * ConvertBarsToAtm                        !! Conversion to bars
   
   bh = 0.3288
   
@@ -207,7 +402,7 @@ IF (SaltCreep) THEN
   C_BradleyPitz = U4 + U5/(U6 + temp)
   D1000_bradleyPitz = U1 *EXP(U2*temp + U3*temp*temp)
   B_BradleyPitz = U7 + U8/temp + U9*temp
-  
+    
   eps_r = D1000_bradleyPitz + C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) )  
 
   partialLogEps = C_BradleyPitz/       &
@@ -217,39 +412,165 @@ IF (SaltCreep) THEN
   partialEpsInverse = C_BradleyPitz/(  (B_BradleyPitz + P_bars) *    &
               ( C_BradleyPitz * Log( (B_BradleyPitz + P_bars)/(B_BradleyPitz+1000.0) ) + D1000_bradleyPitz )**2  )
   
+  Av = ( RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05) )
   
-  Av = (RgasAppelo * temp * 0.5114 * 2.0/3.0 * 2.303 * (3.0 * partialLogEps - 4.52E-05))
+ !!! Vm(T, pb, I) = 41.84 * (a1 * 0.1 + a2 * 100 / (2600 + pb)  + a3 / (T - 228) +  &
+ !!!                       a4 * 1e4 / (2600 + pb) / (T - 228) - W * QBrn ) +         &
+ !!!                       z^2 / 2 * Av * f(I^0.5) + (i1 + i2 / (T - 228) + i3 * (T - 228)) * I^i4
+  
+!!          -Vm   a1     a2     a3      a4     W      a0  i1     i2    i3         i4
+!!! Na+     -Vm   2.28   -4.38  -4.1    -0.586  0.09   4   0.3    52     -3.33e-3   0.45
+!!! Cl-     -Vm   4.465   4.801  4.325  -2.847  1.748  0  -0.331  20.16   0         1 
+!!! Ca      -Vm  -0.3456 -7.252  6.149  -2.479  1.239  5   1.60  -57.1   -6.12E-03  1
+!!! CO3     -Vm   4.91    0.00   0.00   -5.41   4.76   0   0.386  89.7   -1.57e-2   1
+!!! HCO3    -Vm   8.54    0.00  -11.7    0.00   1.60   0   0.000  116.0   0.000     1
+!!! CO2(aq) -Vm   20.85  -46.93 -79.0   27.9  -0.193  0   0.000  0.00     0.000    0
+!!! OH-     -Vm   -9.66   28.5   80.0    -22.9   1.89  0   1.09   0.00     0.00     1
+  
+ !!!! CO3 from PHREEQc.dat: 	-Vm  5.95  0  0  -5.67  6.85  0  1.37  106  -0.0343  1 # ref. 1
   
   Vm_Na_zero = 41.84 * ( 0.1 * 2.28 + 100.0*(-4.38)/(2600.0 + P_appelo) + (-4.10)/(temp-228.0) +  &
                  10000.0*(-0.586)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 0.09*1.0E+05 * partialEpsInverse )
+  
   Vm_Cl_zero = 41.84 * (0.1 * 4.465 + 100.0*(4.801)/(2600.0 + P_appelo) + (4.325)/(temp-228.0) +   &
                  10000.0*(-2.847)/( (2600.0 + P_appelo)*(temp-228.0) ) - 1.748*1.0E+05 * partialEpsInverse)
   
-  Vm_Na = Vm_Na_zero + Av*0.5*chg(ikNa)*chg(ikNa) * sqrt_sion/(1.0d0 + 4.0*0.3288*sqrt_sion)     &
-                 + ( 0.30 + 52.0/(temp - 228.0)   + -3.33E-03 * (temp - 228.0) )*sion_tmp**0.566
-  Vm_Cl = Vm_Cl_zero + Av*0.5*chg(ikCl)*chg(ikCl) * sqrt_sion/(1.0d0 + 0.0*sqrt_sion)     &
-                + ( -0.331 + 20.16/(temp - 228.0) + 0.0 * (temp - 228.0) )*sion_tmp**1.00
+  Vm_Ca_zero = 41.84 * ( 0.1 * (-0.3456) + 100.0*(-7.252)/(2600.0 + P_appelo) + (6.149)/(temp-228.0) +  &
+                 10000.0*(-2.479)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 1.239*1.0E+05 * partialEpsInverse )
   
-  Vm_NaCl = 27.1
+  Vm_CO3_zero = 41.84 * ( 0.1 * (4.91) + 100.0*(0.00)/(2600.0 + P_appelo) + (0.00)/(temp-228.0) +  &
+                 10000.0*(-5.41)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 4.76*1.0E+05 * partialEpsInverse )
+  
+  Vm_HCO3_zero = 41.84 * ( 0.1 * (8.54) + 100.0*(0.00)/(2600.0 + P_appelo) + (-11.7)/(temp-228.0) +  &
+                 10000.0*(0.00)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - 1.60*1.0E+05 * partialEpsInverse )
+  
+  Vm_CO2_zero = 41.84 * ( 0.1 * (20.85) + 100.0*(-46.93)/(2600.0 + P_appelo) + (-79.0)/(temp-228.0) +  &
+                 10000.0*(27.9)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - (-0.193)*1.0E+05 * partialEpsInverse )
+  
+  Vm_OH_zero  = 41.84 * ( 0.1 * (-9.66) + 100.0*( 28.50)/(2600.0 + P_appelo) + ( 80.0)/(temp-228.0) +  &
+                 10000.0*(-22.9)/ ( (2600.0 + P_appelo)*(temp-228.0) )  - (1.89)*1.0E+05 * partialEpsInverse )
+  
+  !!! +++++++++++++++++++++++++++++++++++++++
 
-  DeltaV_r = Vm_Na + Vm_Cl - Vm_NaCl
+  ikCa = 2
+  ikCO3 = -2
+  ikHCO3 = -1.0
+  ikOH = -1.0
+
+!!! PRIMARY_SPECIES
+!!! H+
+!!! CO2(aq)
+!!! Ca++
+!!! Na+
+!!! Cl-
+!!! Tracer
+!!! Bogus
+!!! END
+
+!!! SECONDARY_SPECIES
+!!! OH-
+!!! HCO3-
+!!! CO3--
+!!! END
   
-  keqmin(1,1,jx,jy,jz) = ( keqmin(1,1,jx,jy,jz)/clg - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
+  Vm_Na = Vm_Na_zero + Av*0.5*chg(ikNa)*chg(ikNa) * sqrt_sion/(1.0d0 + 4.0*0.3288*sqrt_sion)     &
+                 + ( 0.30 + 52.0/(temp - 228.0)      + (-3.33E-03) * (temp - 228.0) )*sion_tmp**0.566
   
-!!!  keqmin(1,1,jx,jy,jz) = ( 1.570 - DeltaV_r * (P_appelo - 1.0)/(2.303*RgasAppelo*temp) )
+  Vm_Cl = Vm_Cl_zero + Av*0.5*chg(ikCl)*chg(ikCl) * sqrt_sion/(1.0d0 + 0.0*sqrt_sion)     &
+                + ( -0.331 + 20.16/(temp - 228.0)    + 0.0 * (temp - 228.0) )*sion_tmp**1.00
   
-!!!  write(*,*) 'Pressure (atm) = ', P_appelo
+  Vm_Ca = Vm_Ca_zero + Av*0.5*(2.0)*(2.0) * sqrt_sion/(1.0d0 + 5.0*0.3288*sqrt_sion)     &
+                 + ( 1.60 + (-57.1)/(temp - 228.0)   + (-6.12E-03) * (temp - 228.0) )*sion_tmp**1.00
   
-!!!    write(*,*) ' DeltaV_r =   ', DeltaV_r
-!!!    write(*,*) ' keqmin_tmp = ', keqmin_tmp(1,1)
-!!!    write(*,*)
-!!!    write(*,*)
-!!!    read(*,*)
+  Vm_CO3 = Vm_CO3_zero + Av*0.5*(-2.0)*(-2.0) * sqrt_sion/(1.0d0 + 0.0*0.3288*sqrt_sion)     &
+                 + ( 0.386 + (89.7)/(temp - 228.0)   + (-1.57-02) * (temp - 228.0) )*sion_tmp**1.00
   
-  keqmin(1,1,jx,jy,jz) = clg*keqmin(1,1,jx,jy,jz) 
+  Vm_HCO3 = Vm_HCO3_zero + Av*0.5*(-1.0)*(-1.0) * sqrt_sion/(1.0d0 + 0.0*0.3288*sqrt_sion)     &
+                 + ( 0.0 + (116.0)/(temp - 228.0)    + (0.00) * (temp - 228.0) )*sion_tmp**1.00
   
-END IF
-!!!  *********************************************************
+  VM_CO2 = Vm_CO2_zero 
+  
+  Vm_OH = Vm_OH_zero + Av*0.5*(-1.0)*(-1.0) * sqrt_sion/(1.0d0 + 0.0*0.3288*sqrt_sion)     &
+                 + ( 1.09 + (0.0)/(temp - 228.0)    + (0.00) * (temp - 228.0) )*sion_tmp**1.00
+  
+  Vm_NaCl = 27.015
+  Vm_CaCO3 = 36.9340
+
+  DeltaV_r1 = Vm_Na + Vm_Cl  - Vm_NaCl
+  DeltaV_r2 = Vm_Ca + Vm_CO2 - Vm_CaCO3
+  DeltaV_r3 = Vm_CO2 - Vm_HCO3  !! Apparent molal volume of H+ assumed = 0
+  DeltaV_r4 = Vm_CO2 - Vm_CO3   !! Apparent molal volume of H+ assumed = 0
+  DeltaV_r5 = -Vm_OH            !! Apparent molal volume of H+ assumed = 0
+  
+  DeltaV_r6 = Vm_Ca + Vm_HCO3 - Vm_CaCO3
+  
+  !! +++++++++++++++++++++++++
+  
+  !!! A_temp1 = -713.4616
+  !!! A_temp2 = -.1201241
+  !!! A_temp3 = 37302.21
+  !!! A_temp4 = 262.4583
+  !!! A_temp5 = -2106915.
+  !!! A_temp6 = 0.0
+  
+  !!! MolarEnergy = temp * 0.00831470
+  
+  !!! PHREEQc van't Hoff equation = logK_25 - Delta H * (298.15 - temp) /(2.303 * 298.15 * MolarEnergy)
+  !!! keqmin_tmp(1,1) = 1.570 - 1.37 *(298.15 - temp)/(2.303 * 298.15 * MolarEnergy)
+  
+  !!!PHREEQc log Ks
+  
+ !!! keqmin_tmp(1,1) = (A_temp1 + A_temp2*temp + A_temp3/temp + A_temp4*LOG10(temp) +    &
+ !!!                     A_temp5/(temp*temp) + A_temp6*temp*temp )
+  
+ !!! ++++++++++++++++++++++++++++++++++++++++++++
+  
+  PressureCorrection1 = DeltaV_r1 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! Halite
+  PressureCorrection2 = DeltaV_r2 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! Calcite with CO2 (H+ molar volume = 0)
+  PressureCorrection3 = DeltaV_r3 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! HCO3-
+  PressureCorrection4 = DeltaV_r4 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! CO3--
+  PressureCorrection5 = DeltaV_r5 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! OH-
+  PressureCorrection6 = DeltaV_r6 * (P_appelo - 1.0)/(2.303*RgasAppelo*temp)   !! Calcite with bicarb
+  
+  !!! PressureCorrection2 = 0.0
+  PressureCorrection3 = 0.0
+  PressureCorrection4 = 0.0
+  PressureCorrection5 = 0.0
+  PressureCorrection6 = 0.0
+  
+  !!! write(*,*) 'Pressure correction (Calcite) = ', PressureCorrection2
+  !!! write(*,*) 'Pressure correction (HCO3) = ', PressureCorrection3
+  !!! write(*,*) 'Pressure correction (CO3) = ', PressureCorrection4
+  !!! write(*,*) 'Pressure correction (OH) = ', PressureCorrection5
+  !!! write(*,*) 'Pressure correction (Calcite with bicarb) = ', PressureCorrection6
+
+  keqmin(1,2,jx,jy,jz) = keqmin(1,2,jx,jy,jz)/clg
+  keqmin(2,2,jx,jy,jz) = keqmin(2,2,jx,jy,jz)/clg
+  keqmin(3,2,jx,jy,jz) = keqmin(3,2,jx,jy,jz)/clg
+      
+  keqaq(1,jx,jy,jz)    = keqaq(1,jx,jy,jz)/clg
+  keqaq(2,jx,jy,jz)    = keqaq(2,jx,jy,jz)/clg
+  keqaq(3,jx,jy,jz)    = keqaq(3,jx,jy,jz)/clg
+  
+  keqmin(1,2,jx,jy,jz) = ( keqmin(1,2,jx,jy,jz)  - PressureCorrection2 )   !! Calcite
+  keqmin(2,2,jx,jy,jz) = ( keqmin(2,2,jx,jy,jz)  - PressureCorrection2 )   !! Calcite
+  keqmin(3,2,jx,jy,jz) = ( keqmin(3,2,jx,jy,jz)  - PressureCorrection2 )   !! Calcite
+  
+  keqaq(1,jx,jy,jz) = ( keqaq(1,jx,jy,jz)  - PressureCorrection5 )   !! OH-
+  keqaq(2,jx,jy,jz) = ( keqaq(2,jx,jy,jz)  - PressureCorrection3 )   !! HCO3-
+  keqaq(3,jx,jy,jz) = ( keqaq(3,jx,jy,jz)  - PressureCorrection4 )   !! CO3--
+  
+  keqmin(1,2,jx,jy,jz) = clg*keqmin(1,2,jx,jy,jz)
+  keqmin(2,2,jx,jy,jz) = clg*keqmin(2,2,jx,jy,jz)
+  keqmin(3,2,jx,jy,jz) = clg*keqmin(3,2,jx,jy,jz)
+  
+  keqaq(1,jx,jy,jz)    = clg*keqaq(1,jx,jy,jz)
+  keqaq(2,jx,jy,jz)    = clg*keqaq(2,jx,jy,jz)
+  keqaq(3,jx,jy,jz)    = clg*keqaq(3,jx,jy,jz)
+
+  
+END IF   !!! End of CalciteCreep
+!!! *********************************************************************************
 
 DO ns = 1,nsurf_sec
   ksp = msub + ngas + nspec + ns

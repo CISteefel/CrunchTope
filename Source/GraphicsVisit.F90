@@ -190,6 +190,7 @@ REAL(DP), DIMENSION(nrct)                                  :: sumMoleMineral
 CHARACTER (LEN=mls),DIMENSION(ncomp+nspec+nrct)                 :: WriteString
 CHARACTER (LEN=mls)                                        :: StringProper
 CHARACTER (LEN=mls)                                        :: StringTemp
+CHARACTER (LEN=mls)                                        :: writeMaterial
 
 REAL(DP), DIMENSION(ncomp)                                 :: sprint
 
@@ -931,6 +932,43 @@ ENDIF
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
              WritePermx, WritePermy, WritePermz
         END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+    
+301 format (1x,i3,1x,i3,1x,a8,2x, f6.3,2x,f6.3)
+    
+    fn = 'permeabilityByGrid'
+    ilength = 18
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Log Permeability (m^2)" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "X-Perm" "Y-Perm" "Z-Perm"'
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+            DO jx = 1,nx
+              DO jy = 1,ny
+
+          IF (permx(jx,jy,jz) == 0.0) THEN
+            WritePermx = -30.00
+          ELSE
+            WritePermx = Log10(permx(jx,jy,jz))
+          END IF
+          IF (permy(jx,jy,jz) == 0.0) THEN
+            WritePermy = -30.00
+          ELSE
+            WritePermy = Log10(permy(jx,jy,jz))
+          END IF
+        if (jinit(jx,jy,jz) == 1) then
+          writeMaterial = 'Fracture'
+        else
+          writeMaterial = 'S'
+        end if
+        
+        WRITE(8,301) jy, jx, writeMaterial, y(jy)*100,x(jx)*100
+
+        END DO
+        
       END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')

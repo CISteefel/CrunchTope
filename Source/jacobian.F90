@@ -83,7 +83,6 @@ DO jz = 1,nz
         DO i = 1,ncomp
           IF (muaq(ksp,i) /= 0.0) THEN
             mutemp = muaq(ksp,i)
-!            DO i2 = 1,ncomp
 
             DO i2 = 1,i-1
 

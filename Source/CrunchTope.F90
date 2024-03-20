@@ -542,7 +542,7 @@ endif
 !  ************** End PETSc initialize ***************************************
 
 dtmax = tstep
-neqn = ncomp + nexchange + nsurf + npot
+neqn = ncomp + nsurf + nexchange + npot
 
 IF (nstop == 0) THEN
   WRITE(*,*)
@@ -1006,6 +1006,10 @@ IF (irestart == 1) THEN
 
 END IF
 
+write(*,*) 
+write(*,*) 'Pressure at boundary = ', pres(0,75,1)
+write(*,*)
+
 
 !!  Check to see if the problem is fully saturated initially and changes to unsaturated
 !!  with the call to "ReadFlowField".
@@ -1242,7 +1246,7 @@ DO WHILE (nn <= nend)
         ro(:,ny+1,:) = ro(:,ny,:)
         ro(:,:,0) = ro(:,:,1)
         ro(:,:,nz+1) = ro(:,:,nz)
-
+        
         IF (jpor == 1 .OR. jpor == 3) THEN
           IF (.not. CubicLaw) THEN
             CALL porperm(nx,ny,nz)
@@ -1272,6 +1276,7 @@ DO WHILE (nn <= nend)
           SELECT CASE (upper_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
             CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
+            
           CASE ('environmental_forcing')
             
             ! infiltration
@@ -1311,6 +1316,9 @@ DO WHILE (nn <= nend)
                 CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
               END IF
             END IF
+            
+            write(77,*) time, ' Infiltration rate = ',infiltration_rate
+            
             
             ! transpiration            
             IF (transpitimeseries) THEN
@@ -1492,7 +1500,7 @@ DO WHILE (nn <= nend)
       jy = 1
       jz = 1
       satliqold = satliq
-     DO jx = 1, nx
+      DO jx = 1, nx
           satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
       END DO
 
@@ -2018,9 +2026,26 @@ DO WHILE (nn <= nend)
         DO jy = 1,ny
           DO jx = 1,nx
             CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
+            if (jx > 240) then
+              continue
+            end if
           END DO
         END DO
 
+
+        IF (igamma == 3 .or. igamma ==2) THEN
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
+                IF (Duan .OR. Duan2006) THEN
+                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+                ELSE
+                  CALL gamma(ncomp,nspec,jx,jy,jz)
+                END IF
+            END DO
+          END DO
+        END IF
+        
         jz = 1
         DO jy = 1,ny
           DO jx = 1,nx
@@ -2036,18 +2061,6 @@ DO WHILE (nn <= nend)
           CALL CalciteStoichiometry(nx,ny,nz)
         END IF
 
-        IF (igamma == 3) THEN
-          jz = 1
-          DO jy = 1,ny
-            DO jx = 1,nx
-                IF (Duan .OR. Duan2006) THEN
-                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-                ELSE
-                  CALL gamma(ncomp,nspec,jx,jy,jz)
-                END IF
-            END DO
-          END DO
-        END IF
     ! **************  START NEWTON LOOP  *******************
 
         5000     NE = 0
@@ -2059,7 +2072,29 @@ DO WHILE (nn <= nend)
           iterat = iterat + 1
 
           CALL species(ncomp,nspec,nx,ny,nz)
-          CALL jacobian(ncomp,nspec,nx,ny,nz)
+          call jacobian(ncomp,nspec,nx,ny,nz)  
+
+          if (igamma == 2) then
+            
+             jz = 1
+             DO jy = 1,ny
+               DO jx = 1,nx
+                 
+                 IF (Duan .OR. Duan2006) THEN
+!!!                   CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+                 ELSE
+                   CALL gamma(ncomp,nspec,jx,jy,jz)
+                 END IF
+                 
+                 CALL totconc(ncomp,nspec,jx,jy,jz)
+                 
+                 CALL JacobianNumerical2(ncomp,nspec,nx,ny,nz)
+                 
+               END DO
+             END DO 
+              
+          end if
+              
           IF (ierode == 1) THEN
             CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
             CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
@@ -2068,13 +2103,6 @@ DO WHILE (nn <= nend)
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
-              IF (igamma == 2) THEN
-                IF (Duan .OR. Duan2006) THEN
-                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-                ELSE
-                  CALL gamma(ncomp,nspec,jx,jy,jz)
-                END IF
-              END IF
 
               IF (isaturate == 1) THEN
                 CALL gases(ncomp,ngas,jx,jy,jz)
@@ -2085,7 +2113,7 @@ DO WHILE (nn <= nend)
               IF (species_diffusion) THEN
                 CALL jacobian_plus(ncomp,nspec,jx,jy,jz)
               ELSE
-
+                continue
               END IF
               IF (isaturate == 1) THEN
                 CALL jacgas(ncomp,ngas,jx,jy,jz)
@@ -2473,19 +2501,19 @@ DO WHILE (nn <= nend)
             END DO
           END DO
 
-          IF (igamma == 2) THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx = 1,nx
-                IF (Duan .OR. Duan2006) THEN
-                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-                ELSE
-                  CALL gamma(ncomp,nspec,jx,jy,jz)
-                END IF
-                END DO
-              END DO
-            END DO
-          END IF
+  !!!        IF (igamma == 2) THEN
+   !!!           DO jz = 1,nz
+   !!!             DO jy = 1,ny
+   !!!               DO jx = 1,nx
+    !!!              IF (Duan .OR. Duan2006) THEN
+   !!!                 CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+   !!!               ELSE
+   !!!                 CALL gamma(ncomp,nspec,jx,jy,jz)
+   !!!               END IF
+   !!!               END DO
+    !!!            END DO
+   !!!           END DO
+    !!!        END IF
 
           WRITE(*,*)
           WRITE(*,*) '***** NO CONVERGENCE OF NEWTON ITERATIONS IN GIMRT *****'
@@ -2616,9 +2644,9 @@ END DO
     ! write(*,*) area(1,nx,1,1)
     ! write(*,*) area(2,nx,1,1)
     ! stop
-    IF (FractureNetwork .and. CubicLaw) THEN
-      call rmesh51(nx,ny)
-    END IF
+!!!    IF (FractureNetwork .and. CubicLaw) THEN
+!!!      call rmesh51(nx,ny)
+!!!    END IF
     IF (KateMaher) THEN
       CALL CalciteBulkStoichiometry(nx,ny,nz,delt)
     END IF
@@ -3026,10 +3054,19 @@ END DO
       END IF
     ELSE
       
-        if (time > 9.0 .and. time< 10.0) then
+        if (time > 0.0 .and. time< 10.0) then
 
-          CheckMass1 = qx(75,1,1) - qx(74,1,1)
-          write(75,177) time,dppt(1,75,1,1),s(1,75,1,1)
+          write(101,177) time,dppt(1,1,1,1),satliq(1,1,1),s(1,1,1,1)
+          write(80,177)  time,dppt(1,80,1,1),satliq(80,1,1),s(1,80,1,1)
+          write(85,177)  time,dppt(1,85,1,1),satliq(85,1,1),s(1,85,1,1)
+
+          write(90,177)  time,dppt(1,90,1,1),satliq(90,1,1),s(1,90,1,1)
+          write(95,177)  time,dppt(1,95,1,1),satliq(95,1,1),s(1,95,1,1)
+          write(100,177) time,dppt(1,100,1,1),satliq(100,1,1),s(1,100,1,1)
+          
+          write(200,177) time,-sp(2,100,1,1)/2.303, s(4,100,1,1), sp10(ncomp+2,100,1,1)
+          write(201,177) time,-sp(2,1,1,1)/2.303, s(4,1,1,1), sp10(ncomp+2,1,1,1)
+          write(180,177) time,-sp(2,80,1,1)/2.303, s(4,80,1,1), sp10(ncomp+2,80,1,1)
 
         end if
         
@@ -3236,9 +3273,9 @@ END DO
 
   END IF
 
-    IF (FractureNetwork .and. CubicLaw) THEN
-      call rmesh51(nx,ny)
-    END IF
+!!!    IF (FractureNetwork .and. CubicLaw) THEN
+!!!      call rmesh51(nx,ny)
+!!!    END IF
 
   IF (iprnt == 1) THEN
     !!Stolze Lucien: to create and overwrite the restart file at each printout
@@ -3256,7 +3293,6 @@ END DO
     WRITE(iures) nn
     WRITE(iures) nint
     WRITE(iures) delt,dtold,tstep,deltmin,dtmaxcour,dtmax
-
     WRITE(iures) keqaq
     WRITE(iures) keqgas
     WRITE(iures) keqsurf
@@ -3276,6 +3312,7 @@ END DO
     WRITE(iures) spgas
     WRITE(iures) spgasold
     WRITE(iures) spgas10
+    
     IF (isaturate==1) then
       WRITE(iures) sgas
       WRITE(iures) sgasn
@@ -3284,6 +3321,7 @@ END DO
       WRITE(iures) ssurf
       WRITE(iures) ssurfn
     endif
+    
     WRITE(iures) sexold
     WRITE(iures) ssurfold
     WRITE(iures) spsurf
@@ -3291,7 +3329,7 @@ END DO
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
-    WRITE(iures) jinit
+    !!!WRITE(iures) jinit
     WRITE(iures) keqmin
     WRITE(iures) volfx
     WRITE(iures) dppt
@@ -3304,6 +3342,14 @@ END DO
     WRITE(iures) told
     WRITE(iures) ro
     WRITE(iures) por
+    
+    WRITE(iures) permx
+    WRITE(iures) permy
+    WRITE(iures) permz
+    WRITE(iures) perminx
+    WRITE(iures) perminy
+    WRITE(iures) perminz
+    
     WRITE(iures) satliq
     WRITE(iures) qxgas
     WRITE(iures) qygas
@@ -3580,15 +3626,24 @@ END DO
     WRITE(iures) ro
 
     WRITE(iures) por
+    
+    WRITE(iures) permx
+    WRITE(iures) permy
+    WRITE(iures) permz
+    WRITE(iures) perminx
+    WRITE(iures) perminy
+    WRITE(iures) perminz
 
     WRITE(iures) satliq
     WRITE(iures) qxgas
     WRITE(iures) qygas
     WRITE(iures) qzgas
-    WRITE(iures) pres
+ !!!   WRITE(iures) pres
+    
   !!!  WRITE(iures) dspy
   !!!  WRITE(iures) dspz
   !!!  WRITE(iures) qg
+    
     WRITE(iures) ActiveCell
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
