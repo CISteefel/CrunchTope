@@ -14,7 +14,7 @@
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" MultiProcessorCompilation="true" Optimization="optimizeDisabled" InterproceduralOptimizations="ipoSingleFile" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\finclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(I_MPI_ONEAPI_ROOT)\lib\release;$(I_MPI_ONEAPI_ROOT)\include;$(ONEAPI_ROOT)\mkl\2022.1.0\lib\intel64" WarnUnalignedData="false" LocalSavedScalarsZero="true" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" BuildDependencies="true" OutputCarriageControl="outputCCFortran" BoundsCheck="true" UninitializedVariablesCheck="true" UseMkl="mklParallel"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" InterproceduralOptimizations="ipoSingleFile" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\finclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(I_MPI_ONEAPI_ROOT)\lib\release;$(I_MPI_ONEAPI_ROOT)\include;$(ONEAPI_ROOT)\mkl\2022.1.0\lib\intel64" WarnUnalignedData="false" LocalSavedScalarsZero="true" FloatingPointModel="source" OutputCarriageControl="outputCCFortran" UseMkl="mklParallel"/>
 				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(I_MPI_ONEAPI_ROOT)\lib\release;$(I_MPI_ONEAPI_ROOT)\include;$(ONEAPI_ROOT)\mkl\2022.1.0\lib\intel64" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="Gdi32.lib User32.lib Advapi32.lib Kernel32.lib Ws2_32.lib libpetsc.lib impi.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -117,6 +117,7 @@
 		<File RelativePath="..\Source\gamma_init.F90"/>
 		<File RelativePath="..\Source\gamma_init_co2.F90"/>
 		<File RelativePath="..\Source\gamma_local.F90"/>
+		<File RelativePath="..\Source\GammaResidual.F90"/>
 		<File RelativePath="..\Source\gascoeffCylinder.F90"/>
 		<File RelativePath="..\Source\gasdiff.F90"/>
 		<File RelativePath="..\Source\gases.F90"/>
@@ -151,11 +152,12 @@
 		<File RelativePath="..\Source\jacgas.F90"/>
 		<File RelativePath="..\Source\jacgas_local.F90"/>
 		<File RelativePath="..\Source\jacminTope.F90"/>
-		<File RelativePath="..\Source\jacobian.F90"/>
+		<File RelativePath="..\Source\Jacobian.F90"/>
 		<File RelativePath="..\Source\jacobian_init.F90"/>
 		<File RelativePath="..\Source\jacobian_plus.F90"/>
 		<File RelativePath="..\Source\Jacobian_Richards.F90"/>
 		<File RelativePath="..\Source\Jacobian_Richards_steady.F90"/>
+		<File RelativePath="..\Source\JacobianNumerical2.F90"/>
 		<File RelativePath="..\Source\jacpotential.F90"/>
 		<File RelativePath="..\Source\JacPotentialLocal.F90"/>
 		<File RelativePath="..\Source\jacrkin.F90"/>
