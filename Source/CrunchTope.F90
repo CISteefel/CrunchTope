@@ -3056,22 +3056,7 @@ END DO
         END IF
       END IF
     ELSE
-      
-        if (time > 0.0 .and. time< 10.0) then
-
-          write(101,177) time,dppt(1,1,1,1),satliq(1,1,1),s(1,1,1,1)
-          write(80,177)  time,dppt(1,80,1,1),satliq(80,1,1),s(1,80,1,1)
-          write(85,177)  time,dppt(1,85,1,1),satliq(85,1,1),s(1,85,1,1)
-
-          write(90,177)  time,dppt(1,90,1,1),satliq(90,1,1),s(1,90,1,1)
-          write(95,177)  time,dppt(1,95,1,1),satliq(95,1,1),s(1,95,1,1)
-          write(100,177) time,dppt(1,100,1,1),satliq(100,1,1),s(1,100,1,1)
-          
-          write(200,177) time,-sp(2,100,1,1)/2.303, s(4,100,1,1), sp10(ncomp+2,100,1,1)
-          write(201,177) time,-sp(2,1,1,1)/2.303, s(4,1,1,1), sp10(ncomp+2,1,1,1)
-          write(180,177) time,-sp(2,80,1,1)/2.303, s(4,80,1,1), sp10(ncomp+2,80,1,1)
-
-        end if
+  
         
   177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)
               
