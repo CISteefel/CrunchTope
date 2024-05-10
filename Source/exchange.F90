@@ -90,6 +90,7 @@ IF (iexc == 1) THEN        ! Gaines-Thomas convention
 
 
     sum = sum + muexc(nex,ix+ncomp)*spex(ix,jx,jy,jz)
+    
     activity = EXP(-keqexc(nex) + sum + bfit(nex)*sion(jx,jy,jz) )
     aexch(nex) = activity
     spex10(nex+nexchange,jx,jy,jz) = activity*exchangetemp/(muexc(nex,ix+ncomp))  

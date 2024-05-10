@@ -6399,7 +6399,7 @@ DO jz = 1,nz
       spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
     end do
     DO ix = 1,nexchange+nexch_sec
-      spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+      spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
     END DO
 
     DO is = 1,nsurf
@@ -6452,7 +6452,7 @@ DO jz = 1,nz
       spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
     end do
     DO ix = 1,nexchange+nexch_sec
-      spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+      spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
     END DO
 
     DO is = 1,nsurf
@@ -10749,23 +10749,23 @@ anisotropyY = 1.0d0
 !!!anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
-  MillingtonQuirk = .TRUE.
+MillingtonQuirk = .FALSE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
-DEALLOCATE(tortuosity)
-ALLOCATE(tortuosity(nx,ny,nz))
+  DEALLOCATE(tortuosity)
+  ALLOCATE(tortuosity(nx,ny,nz))
 ELSE
-ALLOCATE(tortuosity(nx,ny,nz))
+  ALLOCATE(tortuosity(nx,ny,nz))
 END IF
 
 tortuosity = 1.0d0
 
 IF (ALLOCATED(anisotropyZ)) THEN
-DEALLOCATE(anisotropyZ)
-ALLOCATE(anisotropyZ(nx,ny,nz))
+  DEALLOCATE(anisotropyZ)
+  ALLOCATE(anisotropyZ(nx,ny,nz))
 ELSE
-ALLOCATE(anisotropyZ(nx,ny,nz))
+  ALLOCATE(anisotropyZ(nx,ny,nz))
 END IF
 
 anisotropyZ = 1.0d0
@@ -10933,7 +10933,7 @@ IF (constant_tortuosity) THEN
   WRITE(*,*)
   WRITE(*,*) ' Constant tortuosity option specified'
   WRITE(*,*)
-  MillingtonQuirk = .TRUE.
+  MillingtonQuirk = .FALSE.
   IF (TortuosityOption /= 'none') THEN
     CALL stringlen(TortuosityOption,ls)
     WRITE(*,*)
@@ -10944,7 +10944,7 @@ IF (constant_tortuosity) THEN
 ELSE
 
 !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
-
+  MillingtonQuirk = .FALSE.
   TortuosityFile = ' '
   ReadTortuosity = .FALSE.
   CALL read_TortuosityFile(nout,nx,ny,nz,constant_tortuosity,TortuosityFile,lfile,TortuosityFileFormat)
@@ -10971,7 +10971,7 @@ ELSE
 
     CALL read_TortuosityByZone(nout,nx,ny,nz)
 
-     IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
+    IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
 
 !!        WRITE(*,*)
 !!        WRITE(*,*) ' No default tortuosity given'
@@ -10980,7 +10980,6 @@ ELSE
 !!        STOP
 
     ELSE
-  MillingtonQuirk = .TRUE.
       WRITE(*,*)
       WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
       WRITE(*,*)
@@ -10989,7 +10988,7 @@ ELSE
 ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
     IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-      MillingtonQuirk = .TRUE.
+      MillingtonQuirk = .FALSE.
       Tortuosity = TortuosityZone(0)
 
 !       Next, initialize tortuosity from various zones
@@ -11018,7 +11017,7 @@ ELSE
       END IF
 
     ELSE
-  MillingtonQuirk = .TRUE.
+      MillingtonQuirk = .TRUE.
     END IF
 
     DEALLOCATE(TortuosityZone)
@@ -11041,7 +11040,7 @@ ELSE
         READ(*,*)
         STOP
       END IF
-  MillingtonQuirk = .TRUE.
+      MillingtonQuirk = .FALSE.
       OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
       FileTemp = TortuosityFile
       CALL stringlen(FileTemp,FileNameLength)
@@ -11212,7 +11211,7 @@ IF (ThresholdPorosity == 0.0d0) THEN
   UseThresholdPorosity = .FALSE.
 ELSE
   UseThresholdPorosity = .TRUE.
-  MillingtonQuirk = .TRUE.
+  MillingtonQuirk = .FALSE.
   parchar = 'tortuosity_below'
   parfind = ' '
   realjunk = 0.0

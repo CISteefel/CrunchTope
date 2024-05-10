@@ -135,6 +135,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tol
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: totex_bas
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: totequiv
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: totSurf_bas
+REAL(DP), DIMENSION(:), ALLOCATABLE                        :: totSurf_sites
 
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: fj
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: fj_num
@@ -232,6 +233,7 @@ LOGICAL(LGT)                                               :: NeedChargeBalance
 LOGICAL(LGT)                                               :: ChargeOK
 LOGICAL(LGT)                                               :: InitializeMineralEquilibrium
 
+REAL(DP)                                                   :: cecCalculate
 REAL(DP)                                                   :: MeanSaltConcentration
 REAL(DP)                                                   :: MassFraction
 REAL(DP)                                                   :: Kd
@@ -280,6 +282,7 @@ ALLOCATE(tol(neqn))
 ALLOCATE(totex_bas(ncomp))
 ALLOCATE(totequiv(ncomp))
 ALLOCATE(totSurf_bas(ncomp))
+ALLOCATE(totSurf_sites(nsurf))
 ALLOCATE(fj(neqn,neqn))
 ALLOCATE(fj_num(neqn,neqn))
 ALLOCATE(indx(neqn))
@@ -1249,8 +1252,6 @@ DO  ktrial = 1,ntrial
    if (ktrial == 4999) THEN
      continue
    end if
-   
-!!!   write(*,*) ' fxmaxx =',fxmaxx
   
   IF (fxmaxx < atol .AND. DABS(fxmaxPotential) < 1.0E-08 .AND. ktrial > 20 .AND. ChargeOK) THEN
     
@@ -1303,7 +1304,7 @@ DO  ktrial = 1,ntrial
 '              ',1x,'          ', '       Activity')
 204 FORMAT(' Species         ','     Molality',1X,'  Activity',1x,  &
 '     Molality ',1x,'    Activity ', '  Coefficient','    Type')
-515 FORMAT(a14,3X,1PE12.4,5X,1PE12.4,3x,1PE12.4)
+515 FORMAT(a14,3X,1PE12.4,5X,1PE12.4,3x,1PE12.4,3x,1PE12.4 )
 
     sum = 0.0D0
     DO ik = 1,ncomp+nspec
@@ -1383,31 +1384,38 @@ DO  ktrial = 1,ntrial
     if (SaltCreep) THEN
       write(123,*) tempc,stmp(1)
     end if
+    
 
     namtemp = 'Exchange'
     IF (nexchange > 0) THEN
+      write(iunit2,*) ' +++++++++++++++++++++++ '
       WRITE(iunit2,*)
       WRITE(iunit2,*) 'Exchangers        Equiv/kgw        Equiv/g solid  Equiv/m^3 bulk'
       TotalExchangeEquivalents = 0.0d0
+      cecCalculate = 0.0d0
       DO ix = 1,nexchange
         IF (SolidSolutionRatio(nco) == 0.0d0) THEN
           WRITE(iunit2,515) namexc(ix),totextmp(ix),0.0d0
         ELSE
-          WRITE(iunit2,515) namexc(ix),totextmp(ix),totextmp(ix)/SolidSolutionRatio(nco),totextmp(ix)*porcond(nco)*rocond(nco)
+          WRITE(iunit2,515) namexc(ix),totextmp(ix),totextmp(ix)/SolidSolutionRatio(nco),   &
+            totextmp(ix)*porcond(nco)*rocond(nco)
         END IF
+        cecCalculate = cecCalculate + totextmp(ix)/SolidSolutionRatio(nco)
         TotalExchangeEquivalents = TotalExchangeEquivalents + totextmp(ix)
       END DO
     END IF
 
     namtemp = 'Surface Complex'
     IF (nsurf > 0) THEN
+      write(iunit2,*) ' +++++++++++++++++++++++ '
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Surface complex   Sites/kgw        Moles/g solid  Moles/m^3 bulk'
+      WRITE(iunit2,*) 'Surface complex   Sites/kgw        Sites/g solid  Sites/m^3 bulk'
       DO is = 1,nsurf
         IF (SolidSolutionRatio(nco) == 0.0d0) THEN
           WRITE(iunit2,515) namsurf(is),ssurftmp(is),0.0d0
         ELSE
-          WRITE(iunit2,515) namsurf(is),ssurftmp(is),ssurftmp(is)/SolidSolutionRatio(nco),ssurftmp(is)*porcond(nco)*rocond(nco)
+          WRITE(iunit2,515) namsurf(is),ssurftmp(is),ssurftmp(is)/SolidSolutionRatio(nco),  &
+            ssurftmp(is)*porcond(nco)*rocond(nco)
         END IF
       END DO
     END IF
@@ -1418,7 +1426,7 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,*) 'Total Concentrations on Surface Hydroxyl Sites '
       WRITE(iunit2,*) '---------------------------------------------- '
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Primary Species   Moles/kgw       Moles/g solid'
+      WRITE(iunit2,*) 'Primary Species   Moles/kgw       Moles/g solid   '
       totSurf_bas = 0.0
       DO i = 1,ncomp  
         DO ns = 1,nsurf_sec
@@ -1429,6 +1437,32 @@ DO  ktrial = 1,ntrial
             WRITE(iunit2,515) ulab(i),totSurf_bas(i),0.0D0 
           ELSE
             WRITE(iunit2,515) ulab(i),totSurf_bas(i),totSurf_bas(i)/SolidSolutionRatio(nco)
+          END IF
+        END IF
+      END DO
+      DO is = 1,nsurf
+        WRITE(iunit2,515) namsurf(is),spsurftmp10(is),spsurftmp10(is)/SolidSolutionRatio(nco) 
+      END DO
+      
+      
+     WRITE(iunit2,*)
+      WRITE(iunit2,*) 'Total Number of Surface Hydroxyl Sites '
+      WRITE(iunit2,*) '---------------------------------------------- '
+      WRITE(iunit2,*)
+      WRITE(iunit2,*) 'Surface Complex  SC Sites/kgw  SC Sites/g solid   '
+      WRITE(iunit2,*) '                 (Includes filled and unfilled sites) '
+      totSurf_sites = 0.0
+      
+      DO is = 1,nsurf  
+        DO ns = 1,nsurf_sec
+          totSurf_sites(is) = totSurf_sites(is) + musurf(ns,is+ncomp)*spsurftmp10(ns+nsurf)
+        END DO
+        totSurf_sites(is) = totSurf_sites(is) + spsurftmp10(nsurf)
+        IF (totSurf_sites(is) /= 0.0) THEN
+          IF (SolidSolutionRatio(nco) == 0.0d0) THEN
+            WRITE(iunit2,515) namsurf(is),totSurf_sites(is),0.0D0 
+          ELSE
+            WRITE(iunit2,515) namsurf(is),totSurf_sites(is),totSurf_sites(is)/SolidSolutionRatio(nco)
           END IF
         END IF
       END DO
@@ -1498,7 +1532,7 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,*) 'Total Concentrations in Exchange Sites '
       WRITE(iunit2,*) '-------------------------------------- '
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Primary Species   Moles/kgw       Moles/g solid   Equiv/g solid'
+      WRITE(iunit2,*) 'Primary Species   Moles/kgw       Moles/g solid   Equiv/g solid  Equiv Fraction'
       totex_bas = 0.0d0
       totequiv = 0.0d0
       TotalExchangeMoles = 0.0d0
@@ -1516,7 +1550,8 @@ DO  ktrial = 1,ntrial
           EquivPerGSolids = totequiv(i)/SolidSolutionRatio(nco)
         END IF
         IF (totex_bas(i) /= 0.0) THEN
-          WRITE(iunit2,515) ulab(i),totex_bas(i),MolePerGSolids, EquivPerGSolids
+          WRITE(iunit2,515) ulab(i),totex_bas(i),MolePerGSolids, &
+              EquivPerGSolids, EquivPerGSolids/cecCalculate
         END IF
         TotalExchangeMoles = TotalExchangeMoles + totex_bas(i)
       END DO

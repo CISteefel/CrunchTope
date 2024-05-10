@@ -473,6 +473,12 @@ WRITE(*,*) '                        All Rights Reserved                         
 WRITE(*,*)
 WRITE(*,*) '   ********************************************************************'
 
+WRITE(*,*)
+WRITE(*,*) ' ---------------> Starting Crunch simulation'
+WRITE(*,*)
+
+CALL sleep(1)
+
 IF (.NOT. RunningPest) THEN
 
 
@@ -1006,9 +1012,6 @@ IF (irestart == 1) THEN
 
 END IF
 
-write(*,*) 
-write(*,*) 'Pressure at boundary = ', pres(0,75,1)
-write(*,*)
 
 
 !!  Check to see if the problem is fully saturated initially and changes to unsaturated

@@ -679,11 +679,6 @@ END IF
   sumsigma_n = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx,jy+1,jz)*sumwtchg(jx,jy+1,jz))
 END IF
 
-!!!IF (isaturate == 1) THEN
-!!!  IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
-!!!    call GasInjection(ncomp,nspec,ngas,sgaspump,jx,jy,jz)
-!!!  END IF
-!!!END IF
 
 DO i = 1,ncomp
   
@@ -693,32 +688,35 @@ DO i = 1,ncomp
   
   IF (jx == 1) THEN
     
-    IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
+    IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN            ! Dirichlet boundary    
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
         xvecgas = 0.0
       END IF
-    ELSE
+      
+    ELSE                                                            ! Pure advective boundary   
       xvectors = c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
         xvecgas = 0.0
       END IF
+      
     END IF
     
   ELSE IF (jx == nx) THEN
     
-    IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
+    IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN            ! Dirichlet boundary     
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
         xvecgas = 0.0
       END IF
-    ELSE      
+      
+    ELSE                                                          ! Pure advective boundary      
       xvectors = a(jx,jy,jz)*scw(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
@@ -776,7 +774,6 @@ DO i = 1,ncomp
     xspecdiffs = 0.0
     
   END IF
-  
 
 ! ************************
   
@@ -785,15 +782,16 @@ DO i = 1,ncomp
   IF (ny == 1) GO TO 400
   
   IF (jy == 1) THEN
-!!!    IF (jc(3) == 1) THEN    ! Dirichlet bdy
-    IF (jc(3) == 1 .or. JcByGrid(jx,jy-1,jz) == 1) THEN    ! Dirichlet bdy
+
+    IF (jc(3) == 1 .or. JcByGrid(jx,jy-1,jz) == 1) THEN            ! Dirichlet boundary  
       yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
       IF (isaturate == 1) THEN
         yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
       ELSE
         yvecgas = 0.0
       END IF
-    ELSE
+      
+    ELSE                                                           ! Pure advective boundary  
       yvectors = d(jx,jy,jz)*scn(i)
       IF (isaturate == 1) THEN
         yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
@@ -801,17 +799,20 @@ DO i = 1,ncomp
       ELSE
         yvecgas = 0.0
       END IF
+      
     END IF
+    
   ELSE IF (jy == ny) THEN
-!!!    IF (jc(4) == 1) THEN
-    IF (jc(4) == 1 .or. JcByGrid(jx,jy+1,jz) == 1) THEN    ! Dirichlet bdy
+
+    IF (jc(4) == 1 .or. JcByGrid(jx,jy+1,jz) == 1) THEN            ! Dirichlet boundary  
       yvectors = d(jx,jy,jz)*scn(i) + f(jx,jy,jz)*scs(i)
       IF (isaturate == 1) THEN
         yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
       ELSE
         yvecgas = 0.0
       END IF
-    ELSE
+      
+    ELSE                                                           ! Pure advective boundary  
       yvectors = f(jx,jy,jz)*scs(i)
       IF (isaturate == 1) THEN
         yvecgas =  dg(jx,jy,jz)*sgn(i) + fg(jx,jy,jz)*sgs(i)
@@ -819,6 +820,7 @@ DO i = 1,ncomp
       ELSE
         yvecgas = 0.0
       END IF
+      
     END IF
     
   ELSE
@@ -844,13 +846,21 @@ DO i = 1,ncomp
   IF (nx == 1) GO TO 500
   
   IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0) THEN
-    IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) /= 1) THEN
+    
+    IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN
       xbdflux = a(jx,jy,jz)*scw(i)
+    ELSE
+      xbdflux = 0.0d0
     END IF
+    
   ELSE IF (jx == nx .AND. netflowx(nx,jy,jz) < 0.0) THEN
-    IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) /= 1) THEN
+    
+    IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN
       xbdflux = c(jx,jy,jz)*sce(i)
+    ELSE
+      xbdflux = 0.0d0
     END IF
+    
   ELSE
     xbdflux = 0.0
   END IF
@@ -859,13 +869,15 @@ DO i = 1,ncomp
   IF (ny == 1) GO TO 600
   
   IF (jy == 1 .AND. qy(jx,0,jz) > 0.0) THEN
-    IF (jc(3) == 2 .or. JcByGrid(jx,jy-1,jz) /= 1) THEN
+    IF (jc(3) /= 1 .or. JcByGrid(jx,jy-1,jz) == 2) THEN
       ybdflux = f(jx,jy,jz)*scs(i)
     END IF
+    
   ELSE IF (jy == ny .AND. qy(jx,ny,jz) < 0.0) THEN
-    IF (jc(4) == 2 .or. JcByGrid(jx,jy+1,jz) /= 1) THEN
+    IF (jc(4) /= 1 .or. JcByGrid(jx,jy+1,jz) == 2) THEN
       ybdflux = d(jx,jy,jz)*scn(i)
     END IF
+    
   ELSE
     ybdflux = 0.0
   END IF
@@ -898,10 +910,10 @@ DO i = 1,ncomp
 ! Edit by Lucien Stolze, June 2023
 ! Extract solutes via transpiration
   IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
-        if (ny == 1 .AND. nz == 1) THEN
+    IF (ny == 1 .AND. nz == 1) THEN
         A_transpi = dyy(jy) * dzz(jx,jy,jz)
         source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
-  ENDIF
+    ENDIF
   ENDIF
 ! ************************************
 ! end of edit by Lucien Stolze, June 2023
@@ -972,13 +984,16 @@ DO i = 1,ncomp
       gas_transport = df*eg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )&
-        + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz) + yvectors*df  &
-        + df*ybdflux + yvec_ex*df  &
-        + yvecgas*df + ex_transport  &
-        + gas_transport 
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )  &
+        + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)         & !! Diagonal aqueous transport
+        + yvectors*df         &  !! off-diagonal aqueous transport
+        + df*ybdflux          &  !! advective flux through boundary
+        + yvec_ex*df          &  !! erosion flux of exchangers
+        + yvecgas*df          &  !! off-diagonal gas transport
+        + ex_transport        &  !! exchanger burial or transport
+        + gas_transport          !! diagonal gas transport
     
-  ELSE IF (ny == 1) THEN  
+  ELSE IF (ny == 1) THEN                !!!  1D in the X direction
     
     IF (ierode == 1) THEN
       ex_transport =  df*bbu(jx,jy,jz)*sch(i,jx,jy,jz)
@@ -989,20 +1004,14 @@ DO i = 1,ncomp
     
     fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
               + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)   &  !! Diagonal aqueous transport
-              + xvectors*df     &   !! Off-diagonal aqueous transport
-              + df*xbdflux      &   !! Advective flux through boundary
-              + xvec_ex*df      &   !! Erosion flux of exchangers
+              + xvectors*df     &   !! off-diagonal aqueous transport
+              + df*xbdflux      &   !! advective flux through boundary
+              + xvec_ex*df      &   !! erosion flux of exchangers
               + ex_transport    &   !! exchanger burial or transport
               + xvecgas*df      &   !! off-diagonal gas transport
               + gas_transport   &   !! diagonal gas transport
               + xspecdiffw*df   &   !! Species-dependent diffusion
               + xspecdiffe*df       !! Species-dependent diffusion
-    
-      CONTINUE
-      
-      if (jx == 1) then
-        continue
-      end if
       
   ELSE
       

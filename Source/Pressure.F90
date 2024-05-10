@@ -52,7 +52,7 @@ USE temperature
 USE flow
 USE CrunchFunctions
 
-#include "petsc/finclude/petscmat.h"
+#include "petsc/finclude/petsc.h"
 USE petscmat
  
 IMPLICIT NONE

@@ -44,9 +44,11 @@
     
 subroutine GIMRTCrunchPETScTolerances(user,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 USE crunchtype
-USE solver, ONLY:  GIMRTlevel, GIMRT_SolverMethod, GIMRT_PCMethod
+USE solver
+USE mpi
  
-#include "petsc/finclude/petscksp.h"
+#include "petsc/finclude/petsc.h"
+USE petscmat
 USE petscksp
 
 IMPLICIT NONE

@@ -44,14 +44,14 @@
     
 subroutine CrunchPETScInitializeChemistry(nx,ny,nz,neqn,xvec,bvec,amatpetsc,userC,ierr)
 USE crunchtype
-USE solver, ONLY:  xn,fxx
+USE solver
+USE mpi
 
-USE petscksp
+#include "petsc/finclude/petsc.h"
+
 USE petscmat
-#include <petsc/finclude/petscksp.h>
-#include <petsc/finclude/petscmat.h>
+USE petscksp
 
- 
 IMPLICIT NONE
 
 !  External variables and arrays
