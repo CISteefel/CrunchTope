@@ -44,7 +44,6 @@
 subroutine CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 USE crunchtype
 USE flow, ONLY:  XvecCrunchP, BvecCrunchP
-USE  mpi
 
 #include "petsc/finclude/petsc.h"
 USE petscmat

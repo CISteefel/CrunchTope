@@ -45,7 +45,6 @@
 subroutine CrunchPETScInitializeChemistry(nx,ny,nz,neqn,xvec,bvec,amatpetsc,userC,ierr)
 USE crunchtype
 USE solver
-USE mpi
 
 #include "petsc/finclude/petsc.h"
 
