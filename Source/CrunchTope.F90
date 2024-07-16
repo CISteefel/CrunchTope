@@ -3597,7 +3597,7 @@ END DO
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
-    WRITE(iures) jinit
+    !WRITE(iures) jinit
 
 !!    WRITE(iures) mumin_decay
     WRITE(iures) keqmin
