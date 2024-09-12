@@ -111,6 +111,8 @@ MODULE  concentration
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: ExchangeCon 
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: TotChargeSave
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: PestScale
+  
+  REAL(DP), DIMENSION(:), ALLOCATABLE               :: azero
 
   REAL(DP), DIMENSION(:), ALLOCATABLE               :: DatabaseTemperature
 
@@ -355,6 +357,10 @@ MODULE  concentration
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: H2Oreacted
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: spnO2
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: spnnO2
+  
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: gammawater
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: lngammawater
+    
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sp
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: s
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sn
@@ -362,7 +368,8 @@ MODULE  concentration
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spold
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spex
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spex10
-  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: gam
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: gamma
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: lngamma
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: exchangesites
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spexold
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sch
@@ -396,6 +403,9 @@ MODULE  concentration
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: surflag
   
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: NumericalJac
+  
+  REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE        :: deriv_gamma
+  REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE        :: deriv_conc
 
 
 END MODULE concentration

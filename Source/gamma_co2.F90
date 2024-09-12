@@ -222,22 +222,22 @@ DO ik = 1,ncomp+nspec
 
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
 !!!   Assumes molecular weight of H2O of 18.01528
-      IF (gamWaterCheck < 0.0d0) THEN
-        gam(ik,jx,jy,jz) = DLOG(1.0d0/55.50843506)
-      ELSE
-        gam(ik,jx,jy,jz) = DLOG(gamWaterCheck/55.50843506)
-      END IF
+!!!      IF (gamWaterCheck < 0.0d0) THEN
+!!!        gam(ik,jx,jy,jz) = DLOG(1.0d0/55.50843506)
+!!!      ELSE
+!!!        gam(ik,jx,jy,jz) = DLOG(gamWaterCheck/55.50843506)
+!!!      END IF
       
     ELSE IF (ulab(ik) == 'CO2(aq)') THEN
 
       call calc_lambda(pg,tk,lambda)
       call calc_xi    (pg,tk,xi)
-      gam(ik,jx,jy,jz) = 2.0d0 * lambda * cations_lambda &
+      gamma(ik,jx,jy,jz) = 2.0d0 * lambda * cations_lambda &
                        + xi * anions_Cl * cations_xi &
                        - 0.07d0 * anions_SO4                ! natural log already 
 
     ELSE
-      gam(ik,jx,jy,jz) = clg*0.10d0*sion_tmp
+      gamma(ik,jx,jy,jz) = clg*0.10d0*sion_tmp
     END IF
     
   ELSE
@@ -256,7 +256,7 @@ DO ik = 1,ncomp+nspec
             + bdt*sion_tmp
     END IF
 
-    gam(ik,jx,jy,jz) = clg*aa1
+    gamma(ik,jx,jy,jz) = clg*aa1
 
   END IF
 

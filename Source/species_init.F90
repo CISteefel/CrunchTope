@@ -63,11 +63,15 @@ INTEGER(I4B)                                                :: nk
 
 REAL(DP)                                                    :: sum
 
+CHARACTER (LEN=3)                              :: ulabprint
+
 DO ksp = 1,nspec
   sum = 0.0D0
   DO i = 1,ncomp
-
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
       sum = sum + muaq(ksp,i)*(sptmp(i) + gamtmp(i))
+    END IF
 
   END DO
   nk = ksp + ncomp

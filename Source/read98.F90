@@ -154,7 +154,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                                :: ax0
 REAL(DP), DIMENSION(:), ALLOCATABLE                                :: zx
 REAL(DP), DIMENSION(:), ALLOCATABLE                                :: bdotSecondary
 REAL(DP), DIMENSION(:), ALLOCATABLE                                :: vbarkin
-REAL(DP), DIMENSION(:), ALLOCATABLE                                :: azero
+!!!REAL(DP), DIMENSION(:), ALLOCATABLE                                :: azero
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                              :: coef
 
 CHARACTER (LEN=mls)                                                :: parchar
@@ -930,7 +930,7 @@ DEALLOCATE(zx)
 DEALLOCATE(bdotPrimary)
 DEALLOCATE(bdotSecondary)
 DEALLOCATE(vbarkin)
-DEALLOCATE(azero)
+!!!DEALLOCATE(azero)
 DEALLOCATE(coef)
 
 RETURN

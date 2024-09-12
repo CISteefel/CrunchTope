@@ -420,6 +420,8 @@ REAL(DP)                                                    :: wattab
 REAL(DP), DIMENSION(:), ALLOCATABLE                         :: depth
 INTEGER(I4B)                                                :: depthwattab
 
+CHARACTER (LEN=3)                                           :: ulabPrint
+
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2023 July
 INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
@@ -473,12 +475,6 @@ WRITE(*,*) '                        All Rights Reserved                         
 WRITE(*,*)
 WRITE(*,*) '   ********************************************************************'
 
-WRITE(*,*)
-WRITE(*,*) ' ---------------> Starting Crunch simulation'
-WRITE(*,*)
-
-CALL sleep(1)
-
 IF (.NOT. RunningPest) THEN
 
 
@@ -529,8 +525,6 @@ str_min = 0
 str_sec = 0
 str_millisec = 0
 
-
-
 ! ************ Initialize PETSc stuff ***************************************
 if( InputFileCounter == 1) then
   call PetscInitialize(PETSC_NULL_CHARACTER,ierr)
@@ -548,7 +542,9 @@ endif
 !  ************** End PETSc initialize ***************************************
 
 dtmax = tstep
-neqn = ncomp + nsurf + nexchange + npot
+
+!!! Last two unknowns are ionic strength and activity of water (gammawater)
+neqn = ncomp + nexchange + nsurf + npot + 1 + 1
 
 IF (nstop == 0) THEN
   WRITE(*,*)
@@ -933,12 +929,17 @@ IF (ALLOCATED(InitialMass)) THEN
 END IF
 ALLOCATE(InitialMass(nx,ny,nz))
 
+
+      
 InitialTotalMass = 0.0d0
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
       DO ik = 1,ncomp+nspec
-        InitialTotalMass = InitialTotalMass + sp10(ik,jx,jy,jz)*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+        ulabPrint = ulab(ik)
+        IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+         InitialTotalMass = InitialTotalMass + sp10(ik,jx,jy,jz)*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+        ENDIF
       END DO
     END DO
   END DO
@@ -1011,7 +1012,6 @@ IF (irestart == 1) THEN
      amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
 
 END IF
-
 
 
 !!  Check to see if the problem is fully saturated initially and changes to unsaturated
@@ -1249,7 +1249,7 @@ DO WHILE (nn <= nend)
         ro(:,ny+1,:) = ro(:,ny,:)
         ro(:,:,0) = ro(:,:,1)
         ro(:,:,nz+1) = ro(:,:,nz)
-        
+
         IF (jpor == 1 .OR. jpor == 3) THEN
           IF (.not. CubicLaw) THEN
             CALL porperm(nx,ny,nz)
@@ -1862,10 +1862,11 @@ DO WHILE (nn <= nend)
           IF (igamma == 3) THEN
 
             IF (Duan .OR. Duan2006) THEN
-              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+!!!              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
             ELSE
-              CALL gamma(ncomp,nspec,jx,jy,jz)
+!!!              CALL !!! gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             END IF
+            CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
 
           END IF
 
@@ -1931,11 +1932,13 @@ DO WHILE (nn <= nend)
         DO jz = 1,nz
           DO jy = 1,ny
             DO jx = 1,nx
-            IF (Duan .OR. Duan2006) THEN
-              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-            ELSE
-              CALL gamma(ncomp,nspec,jx,jy,jz)
-            END IF
+!!!            IF (Duan .OR. Duan2006) THEN
+!!!              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+!!!            ELSE
+!!!              CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+!!!            END IF
+              
+            CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             END DO
           END DO
         END DO
@@ -2029,22 +2032,22 @@ DO WHILE (nn <= nend)
         DO jy = 1,ny
           DO jx = 1,nx
             CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
-            if (jx > 240) then
-              continue
-            end if
           END DO
         END DO
 
 
-        IF (igamma == 3 .or. igamma ==2) THEN
+        IF (igamma == 3 .or. igamma == 2 .or. igamma == 0) THEN
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
                 IF (Duan .OR. Duan2006) THEN
-                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-                ELSE
-                  CALL gamma(ncomp,nspec,jx,jy,jz)
-                END IF
+                  
+!!!                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+                 ELSE
+!!!                   CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+                 END IF
+                  
+                CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             END DO
           END DO
         END IF
@@ -2074,30 +2077,32 @@ DO WHILE (nn <= nend)
           NE = NE + 1
           iterat = iterat + 1
 
-          CALL species(ncomp,nspec,nx,ny,nz)
-          call jacobian(ncomp,nspec,nx,ny,nz)  
+          CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
+		  call jacobian(ncomp,nspec,nx,ny,nz)								   
 
-          if (igamma == 2) then
             
-             jz = 1
-             DO jy = 1,ny
-               DO jx = 1,nx
+          jz = 1
+          DO jy = 1,ny
+            DO jx = 1,nx
                  
-                 IF (Duan .OR. Duan2006) THEN
-!!!                   CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-                 ELSE
-                   CALL gamma(ncomp,nspec,jx,jy,jz)
-                 END IF
+              IF (Duan .OR. Duan2006) THEN
+!!!                    CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+              ELSE
+!!!                    CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+              END IF
+                  
+              if (igamma == 2) then
+                CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+              end if
+ 
+              CALL totconc(ncomp,nspec,jx,jy,jz)
                  
-                 CALL totconc(ncomp,nspec,jx,jy,jz)
-                 
-                 CALL JacobianNumerical2(ncomp,nspec,nx,ny,nz)
+
                  
                END DO
              END DO 
-              
-          end if
-              
+                          
+          
           IF (ierode == 1) THEN
             CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
             CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
@@ -2116,7 +2121,7 @@ DO WHILE (nn <= nend)
               IF (species_diffusion) THEN
                 CALL jacobian_plus(ncomp,nspec,jx,jy,jz)
               ELSE
-                continue
+
               END IF
               IF (isaturate == 1) THEN
                 CALL jacgas(ncomp,ngas,jx,jy,jz)
@@ -2180,9 +2185,9 @@ DO WHILE (nn <= nend)
 
             IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
 
-            IF (switcheroo) then
-              write(*,*) ' Using Hindmarsh solver with PETSc constructed arrays'
-            end if
+              IF (switcheroo) then
+                write(*,*) ' Using Hindmarsh solver with PETSc constructed arrays'
+              end if
 
               DO jx = 1,nx
                 j = jx
@@ -2190,8 +2195,8 @@ DO WHILE (nn <= nend)
                   ind = (j-1)*(neqn) + i
                   yh(i,jx) = -fxx(ind)
                 END DO
+                
               END DO
-
 
               CALL decbt90(neqn,nx,ier)
               CALL solbt90(neqn,nx)
@@ -2309,6 +2314,29 @@ DO WHILE (nn <= nend)
                   LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) +   &
                       yh(npt+ncomp+nexchange+nsurf,jx)
                 END DO
+                
+          !!!   Update ionic strength
+                
+                ind = ncomp + nexchange + nsurf + npot + 1 
+                IF (DABS(yh(ind,jx)) > MaximumCorrection) THEN
+                  yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
+                ELSE
+                  CONTINUE
+                END IF
+                
+                sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + yh(ind,jx) )
+                
+          !!!   Update lngammawater
+                
+                ind = ncomp + nexchange + nsurf + npot + 1 + 1
+                IF (DABS(yh(ind,jx) ) > MaximumCorrection) THEN
+                  yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
+                ELSE
+                  CONTINUE
+                END IF
+                
+                lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + yh(ind,jx)           
+                
               END DO
             END DO
 
@@ -2318,6 +2346,7 @@ DO WHILE (nn <= nend)
             errmax = 0.0D0
             DO jy = 1,ny
               DO jx = 1,nx
+                
                 j = (jy-1)*nx+jx
                 DO i = 1,ncomp
                   IF (ulab(i) == "O2(aq)") THEN
@@ -2379,6 +2408,29 @@ DO WHILE (nn <= nend)
     !!!              END IF
                   LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) + xn(ind)
                 END DO
+                
+                !!!   Update ionic strength
+                
+                ind = ncomp + nexchange + nsurf + npot + 1
+                IF (DABS(xn(ind)) > MaximumCorrection) THEN
+                  xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                ELSE
+                  CONTINUE
+                END IF
+                  
+                sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
+                
+          !!!   Update lngammawater
+                
+                ind = ncomp + nexchange + nsurf + npot + 1 + 1
+                IF (DABS(xn(ind)) > MaximumCorrection) THEN
+                  xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                ELSE
+                  CONTINUE
+                END IF
+                
+                lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + xn(ind) 
+                
               END DO
             END DO
 
@@ -2511,7 +2563,7 @@ DO WHILE (nn <= nend)
     !!!              IF (Duan .OR. Duan2006) THEN
    !!!                 CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
    !!!               ELSE
-   !!!                 CALL gamma(ncomp,nspec,jx,jy,jz)
+   !!!                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
    !!!               END IF
    !!!               END DO
     !!!            END DO
@@ -2554,7 +2606,7 @@ DO WHILE (nn <= nend)
     !      END DO
     !    END IF
 
-        CALL species(ncomp,nspec,nx,ny,nz)
+        CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
         CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
         jz = 1
@@ -2647,9 +2699,9 @@ END DO
     ! write(*,*) area(1,nx,1,1)
     ! write(*,*) area(2,nx,1,1)
     ! stop
-!!!    IF (FractureNetwork .and. CubicLaw) THEN
-!!!      call rmesh51(nx,ny)
-!!!    END IF
+    IF (FractureNetwork .and. CubicLaw) THEN
+      call rmesh51(nx,ny)
+    END IF
     IF (KateMaher) THEN
       CALL CalciteBulkStoichiometry(nx,ny,nz,delt)
     END IF
@@ -2694,7 +2746,7 @@ END DO
     END DO
     END DO
 
-    CALL species(ncomp,nspec,nx,ny,nz)
+    CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
     CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
     GO TO 6000
@@ -3056,7 +3108,7 @@ END DO
         END IF
       END IF
     ELSE
-  
+    
         
   177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)
               
@@ -3230,7 +3282,7 @@ END DO
 185 FORMAT(1PE12.5,12x,100(1X,1PE16.8))
 
 !        if (ulab(iplot(1)).eq.'h+' .or. ulab(iplot(1).eq.'H+' .and. nplot.eq.1) then
-!          phwrite = -(sp(iplot(1),j)+gam(iplot(1),j) )/clg
+!          phwrite = -(sp(iplot(1),j)+lngamma(iplot(1),j) )/clg
 
   !IF (time >= prtint(nint) .OR. steady) THEN
   IF (time >= prtint(nint) .OR. steady .OR. ABS(prtint(nint) - time) <= 1.0d-10) THEN ! 1.0d-14 is a small number to avoid numerical issues in the Richards solver
@@ -3261,9 +3313,9 @@ END DO
 
   END IF
 
-!!!    IF (FractureNetwork .and. CubicLaw) THEN
-!!!      call rmesh51(nx,ny)
-!!!    END IF
+    IF (FractureNetwork .and. CubicLaw) THEN
+      call rmesh51(nx,ny)
+    END IF
 
   IF (iprnt == 1) THEN
     !!Stolze Lucien: to create and overwrite the restart file at each printout
@@ -3294,13 +3346,12 @@ END DO
     WRITE(iures) spold
     WRITE(iures) spex
     WRITE(iures) spex10
-    WRITE(iures) gam
+    WRITE(iures) lngamma
     WRITE(iures) exchangesites
     WRITE(iures) spexold
     WRITE(iures) spgas
     WRITE(iures) spgasold
     WRITE(iures) spgas10
-    
     IF (isaturate==1) then
       WRITE(iures) sgas
       WRITE(iures) sgasn
@@ -3309,7 +3360,6 @@ END DO
       WRITE(iures) ssurf
       WRITE(iures) ssurfn
     endif
-    
     WRITE(iures) sexold
     WRITE(iures) ssurfold
     WRITE(iures) spsurf
@@ -3330,14 +3380,6 @@ END DO
     WRITE(iures) told
     WRITE(iures) ro
     WRITE(iures) por
-    
-    WRITE(iures) permx
-    WRITE(iures) permy
-    WRITE(iures) permz
-    WRITE(iures) perminx
-    WRITE(iures) perminy
-    WRITE(iures) perminz
-    
     WRITE(iures) satliq
     WRITE(iures) qxgas
     WRITE(iures) qygas
@@ -3575,7 +3617,7 @@ END DO
     WRITE(iures) spold
     WRITE(iures) spex
     WRITE(iures) spex10
-    WRITE(iures) gam
+    WRITE(iures) lngamma
     WRITE(iures) exchangesites
     WRITE(iures) spexold
 !!    WRITE(iures) sch
@@ -3597,7 +3639,7 @@ END DO
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
-    !WRITE(iures) jinit
+    WRITE(iures) jinit
 
 !!    WRITE(iures) mumin_decay
     WRITE(iures) keqmin
@@ -3614,24 +3656,15 @@ END DO
     WRITE(iures) ro
 
     WRITE(iures) por
-    
-    WRITE(iures) permx
-    WRITE(iures) permy
-    WRITE(iures) permz
-    WRITE(iures) perminx
-    WRITE(iures) perminy
-    WRITE(iures) perminz
 
     WRITE(iures) satliq
     WRITE(iures) qxgas
     WRITE(iures) qygas
     WRITE(iures) qzgas
- !!!   WRITE(iures) pres
-    
+    WRITE(iures) pres
   !!!  WRITE(iures) dspy
   !!!  WRITE(iures) dspz
   !!!  WRITE(iures) qg
-    
     WRITE(iures) ActiveCell
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave

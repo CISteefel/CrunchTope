@@ -51,7 +51,6 @@ USE temperature
 USE params
 USE CrunchFunctions
 USE flow
-USE mineral, only: SaltCreep
 
 IMPLICIT NONE
 
@@ -128,15 +127,24 @@ jz = 1
 SatPow = 10.0d0/3.0d0
 PorPow = 4.0d0/3.0d0
 
-IF (SaltCreep) THEN
-  PorPow = 3.50
-END IF
-
 IF (idiffus == 0) THEN
   d_25 = dzero
 ELSE
   d_25 = dcoeff
 END IF
+
+!!jz = 1
+!!DO jy = 1,ny
+!!  DO jx = 1,nx
+!!    j = (jy-1)*nx+jx
+!!    tk = 273.15d0 + t(jx,jy,jz)
+!!    IF (idiffus == 0) THEN
+!!      dstar(jx,jy,jz) = dzero*DEXP((activation/rgas)*(tk25 - 1.0d0/tk))/formation
+!!    ELSE
+!!      dstar(jx,jy,jz) = dcoeff/formation
+!!    END IF
+!!  END DO
+!!END DO
 
 jz = 1
 DO jy = 1,ny
@@ -179,7 +187,6 @@ DO jy = 1,ny
 !!!      satw = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx,jy,jz)
-      
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -194,21 +201,20 @@ DO jy = 1,ny
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*sate*porp*tort
         dumw = dumpx
-        
       ELSE IF (MillingtonQuirk) THEN
+
         dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
+
         dumw = dumpx
-        
       ELSE
-        dume  = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
+        dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
         dumw = dumpx
 
       END IF
       
     ELSE IF (jx == nx) THEN
-      
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
       dxe = 0.5d0*dxx(nx)
       pore = por(jx,jy,jz)
@@ -217,7 +223,6 @@ DO jy = 1,ny
 !!!      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
       sate = satliq(jx,jy,jz)
       satw = satliq(jx-1,jy,jz)
-      
       IF (UseThresholdPorosity) THEN
         IF (porw > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -232,21 +237,22 @@ DO jy = 1,ny
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort  
         dume = dumpx 
-        
       ELSE IF (MillingtonQuirk) THEN
         dumw = ro(jx-1,jy,jz)*(satw)**(SatPow)*(porw)**(PorPow)*dstar(jx-1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
         dume = dumpx
-        
       ELSE
         dumw = ro(jx-1,jy,jz)*satw*porw*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
         dume = dumpx
-        
       END IF
       
-    ELSE
+!!! Hardwired by Lucien
+!!!      IF (east_river .and. ny == 1 .and. nz == 1) THEN
+!!!        dume = 0
+!!!      ENDIF
       
+    ELSE
       dxe = 0.5d0*(dxx(jx)+dxx(jx+1))
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
       pore = por(jx+1,jy,jz)
@@ -255,7 +261,6 @@ DO jy = 1,ny
 !!!      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx-1,jy,jz)
-      
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -275,12 +280,10 @@ DO jy = 1,ny
           tort = TortuosityBelowThreshold
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort
-        
       ELSE IF (MillingtonQuirk) THEN
         dume = ro(jx+1,jy,jz)*(sate)**(SatPow)*(pore)**(PorPow)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)
         dumw = ro(jx-1,jy,jz)*(satw)**(SatPow)*(porw)**(PorPow)*dstar(jx-1,jy,jz)
-        
       ELSE
         dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
@@ -292,7 +295,6 @@ DO jy = 1,ny
     IF (ny == 1) GO TO 200
     
     IF (jy == 1) THEN
-      
       dyn = 0.5d0*(dyy(jy)+dyy(jy+1))
       dys = 0.5d0*dyy(1)
       porn = por(jx,jy+1,jz)
@@ -301,7 +303,6 @@ DO jy = 1,ny
 !!!      sats = satliq(jx,jy,jz)
       satn = 0.5*(satliq(jx,jy+1,jz) + satliqold(jx,jy+1,jz) )
       sats = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
-      
       IF (UseThresholdPorosity) THEN
         IF (porn > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -316,20 +317,16 @@ DO jy = 1,ny
         END IF
         dumpy = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyY
         dums = dumpy
-        
       ELSE IF (MillingtonQuirk) THEN
         dumn = ro(jx,jy+1,jz)*(satn)**(SatPow)*(por(jx,jy+1,jz))**(PorPow)*dstar(jx,jy+1,jz)*anisotropyY
         dumpy = ro(jx,jy,jz)*(satp)**(SatPow)*(por(jx,jy,jz))**(PorPow)*dstar(jx,jy,jz)*anisotropyY
         dums = dumpy
-        
       ELSE
         dumn = ro(jx,jy+1,jz)*satn*porn*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
         dumpy = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
-        dums = dumpy       
+        dums = dumpy
       END IF
-      
     ELSE IF (jy == ny) THEN
-      
       dys = 0.5d0*(dyy(jy)+dyy(jy-1))
       dyn = 0.5d0*dyy(ny)
       porn = por(jx,jy,jz)
@@ -345,7 +342,6 @@ DO jy = 1,ny
           tort = TortuosityBelowThreshold
         END IF
         dums = ro(jx,jy-1,jz)*dstar(jx,jy-1,jz)*sats*pors*tort*anisotropyY
-        
         IF (por(jx,jy,jz) > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
@@ -353,18 +349,15 @@ DO jy = 1,ny
         END IF
         dumpy = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyY
         dumn = dumpy
-        
       ELSE IF (MillingtonQuirk) THEN
         dums = ro(jx,jy-1,jz)*(sats)**(SatPow)*(pors)**(PorPow)*dstar(jx,jy-1,jz)*anisotropyY
         dumpy = ro(jx,jy,jz) *(satp)**(SatPow)*(porp)**(PorPow)*dstar(jx,jy,jz)*anisotropyY
         dumn = dumpy
-        
       ELSE
         dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
         dumpy = ro(jx,jy,jz) *satp*porP*dstar(jx,jy,jz)  *anisotropyY*tortuosity(jx,jy,jz)
         dumn = dumpy
       END IF
-      
     ELSE
       
       dyn = 0.5d0*(dyy(jy)+dyy(jy+1))
@@ -383,7 +376,6 @@ DO jy = 1,ny
           tort = TortuosityBelowThreshold
         END IF
         dumn = ro(jx,jy+1,jz)*dstar(jx,jy+1,jz)*satn*porn*tort*anisotropyY
-        
         IF (pors > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
@@ -396,25 +388,21 @@ DO jy = 1,ny
           tort = TortuosityBelowThreshold
         END IF
         dumpy = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort*anisotropyY
-        
       ELSE IF (MillingtonQuirk) THEN
         dumn = ro(jx,jy+1,jz) *(satn)**(SatPow)* (porn)**(PorPow) *dstar(jx,jy+1,jz)*anisotropyY
         dums = ro(jx,jy-1,jz) *(sats)**(SatPow)* (pors)**(PorPow) *dstar(jx,jy-1,jz)*anisotropyY
         dumpy = ro(jx,jy,jz)  *(satp)**(SatPow)* (porp)**(PorPow) *dstar(jx,jy,jz)  *anisotropyY
-        
       ELSE
         dumn = ro(jx,jy+1,jz)*satn*porn*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
         dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
         dumpy = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
       END IF
-      
     END IF
     
     200     CONTINUE
     IF (nx == 1) GO TO 300
     
     IF (jx == 1) THEN
-      
       !!!  EAST
       avgro = 0.5d0*( ro(jx+1,jy,jz) + ro(jx,jy,jz) )
 
@@ -435,32 +423,32 @@ DO jy = 1,ny
       netflowX(1,jy,jz) = fe
       netDiffuseX(1,jy,jz) = de
       
-      !!!  WEST (boundary)
+      !!!  WEST
       
       avgro = ro(jx,jy,jz)
       dharm = dumpx
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       !!! Use dispersivity at grid cell #1 (not ghost cell)
+										   
+		  
       dspw = avgro*dspx(jx,jy,jz) + dharm
 
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       netflowX(0,jy,jz) = fw
       
-      !!! Now the treatment of the "WEST" boundary
-      
       IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN  
-        aw = DMAX1(fw,0.0D0)                                  !  Pure advective boundary
+        aw = DMAX1(fw,0.0D0)       !  Pure advective boundary
         netDiffuseX(jx-1,jy,jz) = 0.0d0
       ELSE
-        aw = DMAX1(fw,0.0D0) + dw                             !  Dirichlet boundary
+        aw = DMAX1(fw,0.0D0) + dw
         netDiffuseX(jx-1,jy,jz) = dw
       END IF
       
       IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN  
-        apx = de +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)    !  Pure advective boundary
+        apx = de +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)  !  Pure advective boundary
       ELSE
-        apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)    !  Dirichlet boundary
+        apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       END IF
       
     ELSE IF (jx == nx) THEN
@@ -486,7 +474,7 @@ DO jy = 1,ny
       netflowX(nx-1,jy,jz) = fw
       netDiffuseX(nx-1,jy,jz) = dw
       
-  !!! EAST (boundary)
+  !!! EAST
       
       avgro = ro(jx,jy,jz)
       dharm = dumpx
@@ -496,19 +484,20 @@ DO jy = 1,ny
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe
       
+
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
 
-        ae = DMAX1(-fe,0.0D0)                                    !  Pure advective boundary
+        ae = DMAX1(-fe,0.0D0)       !  Pure advective boundary
         netDiffuseX(jx,jy,jz) = 0.0d0
       ELSE
-        ae = DMAX1(-fe,0.0D0) + de                               !  Dirichlet boundary
+        ae = DMAX1(-fe,0.0D0) + de
         netDiffuseX(jx,jy,jz) = de
       END IF
       
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
         apx = dw +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)       !  Pure advective boundary
       ELSE
-        apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)       !  Dirichlet boundary
+        apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       END IF
       
     ELSE     !!! Not jx /= 1 .or. jx /= nx

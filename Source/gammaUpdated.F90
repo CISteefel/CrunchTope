@@ -42,7 +42,7 @@
 
 !!!      ****************************************
     
-SUBROUTINE gammaCalc(ncomp,nspec,jx,jy,jz)
+SUBROUTINE gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
 USE crunchtype
 USE params
 USE concentration
@@ -56,9 +56,13 @@ IMPLICIT NONE
 
 INTEGER(I4B), INTENT(IN)                                   :: ncomp
 INTEGER(I4B), INTENT(IN)                                   :: nspec
+INTEGER(I4B), INTENT(IN)                                   :: nsurf
+INTEGER(I4B), INTENT(IN)                                   :: nexchange
+INTEGER(I4B), INTENT(IN)                                   :: npot
 INTEGER(I4B), INTENT(IN)                                   :: jx 
 INTEGER(I4B), INTENT(IN)                                   :: jy
 INTEGER(I4B), INTENT(IN)                                   :: jz
+INTEGER(I4B), INTENT(IN)                                   :: igamma
 
 !  Internal variables
 
@@ -73,40 +77,37 @@ REAL(DP)                                                   :: GamWaterCheck
 
 REAL(DP)                                                   :: dhad,dhbd,tempk,tconv
 
+!!!INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: ik
 INTEGER(I4B)                                               :: it
 INTEGER(I4B)                                               :: ItPoint
+INTEGER(I4B)                                               :: pos_der
+
 REAL(DP)                                                   :: tempc
-REAL(DP)                                                   :: sqrt_sion
+REAL(DP)                                                   :: sqrt_IonS
+REAL(DP)                                                   :: tmp1
+REAL(DP)                                                   :: tmp2
+REAL(DP)                                                   :: tmp3
+REAL(DP)                                                   :: gammawaterTMP
+REAL(DP)                                                   :: bdotpar
 
 CHARACTER (LEN=3)                                          :: ulabPrint
+
+LOGICAL(LGT)                                              :: Davies
+LOGICAL(LGT)                                              :: Wateq_Extended_DH
+LOGICAL(LGT)                                              :: Helgeson
+LOGICAL(LGT)                                              :: Unity
   
+Davies = .FALSE.
+Helgeson = .FALSE.
+Unity = .FALSE.
+Wateq_Extended_DH = .FALSE.
+
+gammawater(jx,jy,jz) = EXP(lngammawater(jx,jy,jz))
+gammawaterTMP = gammawater(jx,jy,jz)
 tempc = t(jx,jy,jz)
-
-ChargeSum = 0.0d0
-TotalMoles = 0.0d0
-
-DO ik = 1,ncomp+nspec
-    
-  ulabPrint = ulab(ik)
-  IF (ulabPrint(1:3) /= 'H2O' .or. ulabPrint(1:3) /= 'HHO') THEN
-    TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
-    ChargeSum  = ChargeSum + sp10(ik,jx,jy,jz)*chg(ik)*chg(ik)
-  ELSE
-    CONTINUE
-  END IF
-    
-END DO
-
-sion_tmp = 0.50D0*ChargeSum
-sion(jx,jy,jz) = sion_tmp
-
-IF (sion_tmp < 25.0d0) THEN
-  sqrt_sion = DSQRT(sion_tmp)
-ELSE
-  sion_tmp = 0.0d0
-  sqrt_sion = 0.0d0
-END IF
+sion_tmp = sion(jx,jy,jz)
+sqrt_IonS = SQRT(sion_tmp)
 
 IF (ntemp == 1) THEN
   ah = adh(1)
@@ -140,72 +141,94 @@ ELSE
 
 END IF
 
-IF (Benchmark) THEN
-  tconv = 273.15d0
-  tempk = tempc + tconv
-  call dhconst(ah,bh,tempk,tconv)
-END IF
+!*** Now calculate the activity coefficients for : water, other uncharged species, charged species
 
-DO ik = 1,ncomp+nspec
+gamma(:,jx,jy,jz) = 1D0
+lngamma(:,jx,jy,jz)  = 0D0
+deriv_gamma(:,:,jx,jy,jz) = 0D0 
 
-  IF (chg(ik) == 0.0D0) THEN
-    
+IF (igamma == 0) THEN ! unit activity coefficient except for water
+
+  DO ik = 1,ncomp+nspec
     ulabPrint = ulab(ik)
-    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO' ) THEN
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      gamma(ik,jx,jy,jz) = gammawaterTMP
+      lngamma(ik,jx,jy,jz) = LOG(gammawaterTMP)
+      pos_der = ncomp + nexchange + nsurf + npot + 1 + 1       ! gamma water
+      deriv_gamma(ik,pos_der,jx,jy,jz) = gammawaterTMP                  ! gammawater is a primary variable  
+    END IF
+    
+  END DO
 
-!!!      gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
-!!!   Assumes molecular weight of H2O of 18.01528
-!!!      IF (gamWaterCheck < 0.0d0) THEN
-!!!        gamma(ik,jx,jy,jz) = DLOG(1.0d0/55.50843506)
-        CONTINUE
+ELSE
+
+  DO ik = 1,ncomp+nspec
+  
+    IF (IncludeBdot) THEN
+      IF (azero(ik) == 0.0d0) THEN
+        Davies = .TRUE.
       ELSE
-        gamma(ik,jx,jy,jz) = DLOG(gamWaterCheck/55.50843506)
+        Wateq_Extended_DH = .TRUE.
       END IF
-
     ELSE
-      
-      gamma(ik,jx,jy,jz) = clg*0.10d0*sion_tmp
-      
+      Helgeson = .TRUE. !!  Helgesonian-LLNL bdot expression based on extended Debye-Huckel
     END IF
-
-  ELSE
-
-    IF (IncludeBdot) THEN  
-
-      IF (acmp(ik) == 0.0d0) THEN      !! Davies equation
-        aa1 = -0.5115d0*chg(IK)*chg(IK)* (sqrt_sion/(1.0d0 + sqrt_sion)  - 0.24d0*sion_tmp  )
-      ELSE                  !! WATEQ extended Debye-Huckel
-        aa1 = -(ah*chg(IK)*chg(IK)*sqrt_sion)/            &
-              (1.0d0 + acmp(IK)*bh*sqrt_sion)                   &         
-              + bdotParameter(ik)*sion_tmp
+    
+    ulabPrint = ulab(ik)   
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      gamma(ik,jx,jy,jz) = gammawaterTMP
+      lngamma(ik,jx,jy,jz) = LOG(gammawaterTMP)
+      pos_der = ncomp + nexchange + nsurf + npot + 1 + 1      ! gamma water--note that activity of water is 1 + 1 
+      deriv_gamma(ik,pos_der,jx,jy,jz) = gammawaterTMP            ! gammawater is a primary variable  
+  
+    ELSE IF (chg(ik) == 0D0) THEN ! neutral species
+      
+      lngamma(ik,jx,jy,jz) = clg * 0.1D0 * sion_tmp
+      gamma(ik,jx,jy,jz) = EXP(lngamma(ik,jx,jy,jz))
+      pos_der = ncomp + nexchange + nsurf + npot + 1          ! ionic strength
+      deriv_gamma(ik,pos_der,jx,jy,jz) = gamma(ik,jx,jy,jz) * lngamma(ik,jx,jy,jz) 
+  
+    ELSE ! charged species
+  
+      IF (Davies) THEN
+        aa1 = - clg * ah * chg(ik) * chg(ik)
+        lngamma(ik,jx,jy,jz) = aa1 * (sqrt_IonS/(1.0d0 + sqrt_IonS)  - 0.3d0 * sion_tmp  )
+        gamma(ik,jx,jy,jz) = EXP(lngamma(ik,jx,jy,jz))
+  
+        !*** Only one non-zero derivative = relative to ionic strength
+        pos_der = ncomp + nexchange + nsurf + npot + 1
+        deriv_gamma(ik,pos_der,jx,jy,jz) = aa1 * gamma(ik,jx,jy,jz) * sion_tmp *         &
+                  ( ( 0.5D0 / (sion_tmp + sqrt_IonS) - 0.5D0 / ((1 + sqrt_IonS)*(1 + sqrt_IonS)) ) - 0.3D0 )
+      END IF 
+  
+      IF (Helgeson) then
+        bdotpar = bdt
+      ELSE IF (Wateq_Extended_DH) THEN
+        bdotpar = bdotparameter(ik)
+      ElSE
+        bdotpar = 0.0d0
       END IF
-
-    ELSE                    !!  Helgesonian-LLNL bdot expression based on extended Debye-Huckel
-      aa1 = -(ah*chg(IK)*chg(IK)*sqrt_sion)/              &
-            (1.0d0 + acmp(IK)*bh*sqrt_sion)                  &         
-            + bdt*sion_tmp
+  
+      IF (Helgeson .OR. Wateq_Extended_DH) THEN
+  
+        tmp1 = 1D0 + bh * azero(IK) * sqrt_IonS 
+        tmp2 = ah * chg(ik) * chg(ik)
+        tmp3 = 0.5D0 * bh * azero(IK) * sion_tmp
+        
+  
+        lngamma(ik,jx,jy,jz) = clg * ( - (tmp2 * sqrt_IonS) / tmp1 + bdotpar * sion_tmp)
+        gamma(ik,jx,jy,jz) = EXP(lngamma(ik,jx,jy,jz))
+  
+        !*** Only one non-zero derivative = relative to ionic strength
+        pos_der = ncomp + nexchange + nsurf + npot + 1
+        deriv_gamma(ik,pos_der,jx,jy,jz) = clg * gamma(ik,jx,jy,jz) *    &
+                      ( (- 0.5D0 * tmp2 * sqrt_IonS) /tmp1 + tmp2 * tmp3 / (tmp1 * tmp1) + bdotpar * sion_tmp ) 
+      END IF
+  
     END IF
-
-    gamma(ik,jx,jy,jz) = clg*aa1
-
-  END IF
-
-END DO
-
-IF (SaltCreep) THEN
-  
-  aa1 = -(ah*chg(ikNa)*chg(ikNa)*sqrt_sion)/            &
-              (1.0d0 + 4.08*bh*sqrt_sion)                   &         
-              + 0.082*sion_tmp
-  gamma(ikNa,jx,jy,jz) = clg*aa1
-  
-  aa1 = -(ah*chg(ikCl)*chg(ikCl)*sqrt_sion)/            &
-              (1.0d0 + 3.63*bh*sqrt_sion)                   &         
-              + 0.017*sion_tmp
-  gamma(ikCl,jx,jy,jz) = clg*aa1
-  
+  END DO  
 END IF
 
 RETURN
-END SUBROUTINE gammaCalc
+END SUBROUTINE gammaUpdated
 !*****************************************************************

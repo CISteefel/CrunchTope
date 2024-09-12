@@ -79,11 +79,12 @@ INTEGER(I4B), INTENT(IN)                           :: nz
 
 !!  Internal arrays and variables
 
-IF (ALLOCATED(sion)) THEN
-  DEALLOCATE(sion)
-END IF
-ALLOCATE(sion(nx,ny,nz))
-sion = 0.0
+!!! IF (ALLOCATED(sion)) THEN
+!!!   DEALLOCATE(sion)
+!!! END IF
+!!! ALLOCATE(sion(nx,ny,nz))
+!!! sion = 0.0
+
 IF (ALLOCATED(fxmax)) THEN
   DEALLOCATE(fxmax)
 END IF
@@ -141,11 +142,39 @@ IF (ALLOCATED(gamTMP)) THEN
 END IF
 ALLOCATE(gamTMP(ncomp+nspec))
 gamTMP = 0.0
-IF (ALLOCATED(gamTMP)) THEN
-  DEALLOCATE(gamTMP)
+
+
+IF (ALLOCATED(lngamma)) THEN
+  DEALLOCATE(lngamma)
 END IF
-ALLOCATE(gamTMP(ncomp+nspec))
-gamTMP = 0.0
+ALLOCATE(lngamma(ncomp+nspec,nx,ny,nz))
+lngamma = 0.0
+
+IF (ALLOCATED(lngammawater)) THEN
+  DEALLOCATE(lngammawater)
+END IF
+ALLOCATE(lngammawater(nx,ny,nz))
+lngammawater = 0.0
+
+IF (ALLOCATED(gammawater)) THEN
+  DEALLOCATE(gammawater)
+END IF
+ALLOCATE(gammawater(nx,ny,nz))
+gammawater = 1.0
+
+IF (ALLOCATED(deriv_gamma)) THEN
+  DEALLOCATE(deriv_gamma)
+END IF
+ALLOCATE(deriv_gamma(ncomp+nspec,neqn,nx,ny,nz))
+deriv_gamma = 0.0
+
+IF (ALLOCATED(deriv_conc)) THEN
+  DEALLOCATE(deriv_conc)
+END IF
+ALLOCATE(deriv_conc(ncomp+nspec,neqn,nx,ny,nz))
+deriv_conc = 0.0
+
+
 
 IF (ALLOCATED(keqaqTMP)) THEN
   DEALLOCATE(keqaqTMP)

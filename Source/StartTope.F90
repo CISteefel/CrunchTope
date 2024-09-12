@@ -269,7 +269,6 @@ INTEGER(I4B), PARAMETER                                       :: ndimdummy=500
 REAL(DP), DIMENSION(:), ALLOCATABLE                           :: work1
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                         :: work2
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: work3
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                       :: work3b
 REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE                     :: work4
 
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: workint1
@@ -388,7 +387,7 @@ CHARACTER (LEN=mls)                                           :: modflowstring
 CHARACTER (LEN=mls)                                           :: SaturationFileFormat
 CHARACTER (LEN=mls)                                           :: PorosityFileFormat
 CHARACTER (LEN=mls)                                           :: GridVolumeFileFormat
-CHARACTER (LEN=mls)                                           :: BurialFileFormat
+CHARACTER (LEN=mls)                                  :: BurialFileFormat
 CHARACTER (LEN=mls)                                           :: TortuosityFileFormat
 CHARACTER (LEN=mls)                                           :: GasVelocityFileFormat
 CHARACTER (LEN=mls)                                           :: PermFileFormat
@@ -416,6 +415,8 @@ INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: nstp
 LOGICAL(LGT), DIMENSION(:), ALLOCATABLE                       :: cnhIn
 LOGICAL(LGT), DIMENSION(:), ALLOCATABLE                       :: riverIn
 LOGICAL(LGT), DIMENSION(:), ALLOCATABLE                       :: wellIn
+
+REAL(DP), DIMENSION(:), ALLOCATABLE                           :: sionInit
 
 REAL(DP), PARAMETER                                           :: eps=1.e-12
 
@@ -665,6 +666,9 @@ CHARACTER (LEN=mls)                                           :: min_name
 INTEGER(I4B)                                                  :: min_name_l
 REAL(DP)                                                      :: t_default !default temp for zonation case
 INTEGER(I4B)                                                  :: ssa_or_bsa
+
+REAL(DP)                                                      :: ChargeSum
+
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
@@ -1629,6 +1633,11 @@ parchar = 'Duan'
 parfind = ' '
 Duan = .FALSE.
 CALL read_logical(nout,lchar,parchar,parfind,Duan)
+IF (Duan) THEN
+  write(*,*) ' Duan option temporarily disabled'
+  write(*,*)
+  stop
+END IF
 
 parchar = 'Duan2006'
 parfind = ' '
@@ -1636,6 +1645,11 @@ Duan2006 = .FALSE.
 CALL read_logical(nout,lchar,parchar,parfind,Duan2006)
 IF (Duan) THEN
   Duan2006 = .FALSE.
+END IF
+IF (Duan2006) THEN
+  write(*,*) ' Duan2006 option temporarily disabled'
+  write(*,*)
+  stop
 END IF
 
 parchar = 'Maggi'
@@ -2873,6 +2887,7 @@ DO npt = 1,npot
 END DO
 END DO
 
+!!!neqn = ncomp + nsurf + nexchange + npot + 1 + 1
 neqn = ncomp + nsurf + nexchange + npot
 
 !  Temporary arrays deallocated later in START98
@@ -3373,18 +3388,15 @@ END IF
 
 !  Read in geochemical conditions
 
-WRITE(iunit2,*)
-WRITE(iunit2,*) ' ******  GEOCHEMICAL CONDITIONS INPUT  ******'
-WRITE(iunit2,*)
+!!! WRITE(iunit2,*)
+!!! WRITE(iunit2,*) ' ******  GEOCHEMICAL CONDITIONS INPUT  ******'
+!!! WRITE(iunit2,*)
 
 WRITE(*,*)
 WRITE(*,*) ' ---> READING GEOCHEMICAL CONDITIONS  '
 WRITE(*,*)
 
 REWIND nin
-!DO i = 1,ncomp+nspec
-!  WRITE(*,*) ulab(i)
-!END DO
 
 IF (ALLOCATED(SolidDensityFrom)) THEN
 DEALLOCATE(SolidDensityFrom)
@@ -3416,12 +3428,21 @@ ALLOCATE(conversion(mchem))
 ELSE
 ALLOCATE(conversion(mchem))
 END IF
+
 IF (ALLOCATED(unitsflag)) THEN
 DEALLOCATE(unitsflag)
 ALLOCATE(unitsflag(mchem))
 ELSE
 ALLOCATE(unitsflag(mchem))
 END IF
+
+IF (ALLOCATED(sionInit)) THEN
+  DEALLOCATE(sionInit)
+  ALLOCATE(sionInit(mchem))
+ELSE
+  ALLOCATE(sionInit(mchem))
+END IF
+
 
 IF (Duan .OR. Duan2006) THEN
 IF (ALLOCATED(GasPressureTotalInit)) THEN
@@ -3462,57 +3483,35 @@ WRITE(*,*) 'You have not specified any geochemical conditions'
 READ(*,*)
 STOP
 END IF
+
 IF (nchem > 1) THEN
-!  WRITE(*,*) 'Number of geochemical conditions specified = ', nchem
 WRITE(iunit2,*) 'Number of geochemical conditions specified = ', nchem
 END IF
 
 DO k = 1,nchem
 
-!  DO i = 1,ncomp
-!    WRITE(*,*)
-!    WRITE(*,*) ' Species = ',ulab(i)
-!    WRITE(*,*) ' itype = ',itype(i,k)
-!    WRITE(*,*)
-!  END DO
+!!! dumstring = condlabel(k)
+!!! CALL stringlen(dumstring,ls)
+!!! WRITE(iunit2,*)
+!!! WRITE(iunit2,*) ' Condition Label: ',dumstring(1:ls)
+!!! WRITE(iunit2,*)
 
-dumstring = condlabel(k)
-CALL stringlen(dumstring,ls)
-!  WRITE(*,*)
-!  WRITE(*,*) ' Condition Label: ',dumstring(1:ls)
-!  WRITE(*,*) ' Condition title ',condtitle(k)
-!  WRITE(*,*)
-WRITE(iunit2,*)
-WRITE(iunit2,*) ' Condition Label: ',dumstring(1:ls)
-!  WRITE(iunit2,*) ' Condition title ',condtitle(k)
-WRITE(iunit2,*)
+!!! WRITE(iunit2,*)
+!!! WRITE(iunit2,596)
+!!! DO i = 1,ncomp
+!!!   WRITE(iunit2,595) ulab(i),itype(i,k),guess(i,k), ctot(i,k),constraint(i,k)
+!!! END DO
 
-!  WRITE(*,*)
-!  WRITE(*,596)
-!  DO i = 1,ncomp
-!    WRITE(*,595) ulab(i),itype(i,k),guess(i,k), ctot(i,k),constraint(i,k)
-!  END DO
+  portemp = porcond(k)
 
-WRITE(iunit2,*)
-WRITE(iunit2,596)
-DO i = 1,ncomp
-  WRITE(iunit2,595) ulab(i),itype(i,k),guess(i,k), ctot(i,k),constraint(i,k)
-END DO
+!!! WRITE(iunit2,*)
+!!! WRITE(iunit2,599) portemp
+!!! WRITE(iunit2,*)
+!!! WRITE(iunit2,*)
 
-portemp = porcond(k)
-
-WRITE(iunit2,*)
-WRITE(iunit2,599) portemp
-WRITE(iunit2,*)
-WRITE(iunit2,*)
-!  WRITE(*,*)
-!  WRITE(*,599) portemp
-!  WRITE(*,*)
-!  WRITE(*,*)
-
-DO i = 1,ncomp
-  ncon(i,k) = constraint(i,k)
-END DO
+  DO i = 1,ncomp
+    ncon(i,k) = constraint(i,k)
+  END DO
 
 END DO
 
@@ -3782,6 +3781,7 @@ DO ik = 1,ncomp+nspec
   spcond(ik,nco) = sptmp(ik)
   spcond10(ik,nco) = sptmp10(ik)
 END DO
+
 DO kk = 1,ngas
   spcondgas(kk,nco) = spgastmp(kk)
   spcondgas10(kk,nco) = spgastmp10(kk)
@@ -3818,6 +3818,15 @@ DO ns = 1,nsurf_sec
   spcondsurf(is,nco) = spsurftmp(is)
   spcondsurf10(is,nco) = spsurftmp10(is)
 END DO
+
+ChargeSum = 0.0d0
+DO ik = 1,ncomp+nspec
+  ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
+END DO
+sionInit(nco) = 0.50D0*ChargeSum
+
+gammawater = 1.0d0
+lngammawater = 0.0d0
 
 !  Map the species to an array dimensioned to number of geochemical conditions
 
@@ -5031,6 +5040,7 @@ END IF
 !   *****************  GLOBAL ARRAYS  ***********************
 !    Allocate global arrays, mostly over the spatial domain
 CALL GlobalArrayAllocation(ncomp,nspec,nkin,nrct,ngas,npot,nexchange,nexch_sec,nsurf,nsurf_sec,ikin,nx,ny,nz)
+
 qx = 0.0d0
 qy = 0.0d0
 qz = 0.0d0
@@ -5167,61 +5177,17 @@ if (nmmLogical) then
 
   jz = 1
   ALLOCATE(stress(nx,ny,1))
-  
-  OPEN(UNIT=53,FILE='RoughFracture-Dec11.dat',STATUS='OLD',ERR=6001)
-  allocate(work3b(nx,ny,nz))
-  
-  jinit = 2
 
   nhet = 0
   DO jy = 1,ny
     DO jx= 1,nx
-      
       nhet = nhet + 1
       IF (SaltCreep) THEN
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-!!!                            x    y    bn    mt             sx    sy    txy   dx    dy    sig1  sig3            re-sig1  re-sig
+!!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
 
         jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
-        
-!!! --- > CalciteCreep *********************************
-        
-      ELSE IF (CalciteCreep) THEN
-        
-        READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-!!!                            x    y    bn    mt             sx    sy    txy   dx    dy    sig1  sig3            re-sig1  re-sig
 
-        
-!!!        READ(53,*,END=1020) xdum,ydum, work3(jx,jy,jz), zdum
-!!!                            x    y    bn    mt   
-        
-        work3(jx,jy,jz) = work3(jx,jy,jz) + 1.0
-        
-        if (work3(jx,jy,jz) > 0.999d0 .and. work3(jx,jy,jz) < 1.001d0) then
-          jinit(jx,jy,jz) = 1   
-        end if
-        
-        READ(53,*,END=1020) xdum,ydum, work3b(jx,jy,jz), zdum
-!!!                                  x    y       mt            junk
-        
-        if (work3b(jx,jy,jz) > 1.999d0 .and. work3b(jx,jy,jz) <2.001) then
-          if (jinit(jx,jy,jz) == 1) then
-            continue
-          else
-            jinit(jx,jy,jz) = 3 
-          end if
-        end if 
-        
-        if (jy > 120) then
-          jinit(jx,jy,jz) = 2
-!!!          stress(jx,jy,jz) = 2.50E06
-        end if
-        if (jy < 30) then
-          jinit(jx,jy,jz) = 2
-!!!          stress(jx,jy,jz) = 2.50E06
-        end if
-      
-        
       ELSE IF (FractureNetwork) THEN
 
         READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
@@ -5237,19 +5203,11 @@ if (nmmLogical) then
   END DO
 
   CLOSE(UNIT=52)
-  CLOSE(UNIT=53)
-  deallocate(work3b)
   
-  stress = stress/2.0
-  !!!stress = 10**5
-  
-  StressMaxVal= MaxVal(ABS(stress*1.0E-5))
-
-  
+  StressMaxVal= MaxVal(ABS(stress*1.0E-06))
   write(*,*)
-  write(*,*) ' StressMaxVal (bars) =', StressMaxVal
+  write(*,*) ' StressMaxVal =', StressMaxVal
   write(*,*)
-
 
 END IF
 
@@ -5942,10 +5900,26 @@ DO jy = 1,ny
     DO is = 1,nsurf
       spsurf(is,jx,jy,jz) = LOG(convert*spcondsurf10(is,jinit(jx,jy,jz)))
     END DO
-
+    
   END DO
 END DO
 END DO
+
+IF (ALLOCATED(sion)) THEN
+  DEALLOCATE(sion)
+  ALLOCATE(sion(nx,ny,nz))
+ELSE
+  ALLOCATE(sion(nx,ny,nz))
+END IF
+
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+      sion(jx,jy,jz) = sionInit(jinit(jx,jy,jz))
+    END DO
+  END DO
+END DO
+
 
 !*****************************
 !Stolze Lucien, June 2023
@@ -6024,12 +5998,14 @@ DO i = 1,mineral_index
           READ(*,*)
           STOP
         END IF
+        
         ! IF (ALLOCATED(VG_n)) THEN
         !   DEALLOCATE(VG_n)
         !   ALLOCATE(VG_n(nx, ny, nz))
         ! ELSE
         !   ALLOCATE(VG_n(nx, ny, nz))
         ! END IF
+        
         OPEN(UNIT=23,FILE=vv_file,STATUS='old',ERR=8001)
         FileTemp = vv_file
         CALL stringlen(FileTemp,FileNameLength)
@@ -6380,7 +6356,6 @@ DO jz = 1,nz
       STOP
     END IF
 
-
     DO ik = 1,ncomp+nspec
       sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
       sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
@@ -6399,7 +6374,7 @@ DO jz = 1,nz
       spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
     end do
     DO ix = 1,nexchange+nexch_sec
-      spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
+      spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
     END DO
 
     DO is = 1,nsurf
@@ -6452,7 +6427,7 @@ DO jz = 1,nz
       spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
     end do
     DO ix = 1,nexchange+nexch_sec
-      spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
+      spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
     END DO
 
     DO is = 1,nsurf
@@ -7363,6 +7338,7 @@ WRITE(iunit2,*) '----> No update of porosity'
 WRITE(*,*)      '--> Porosity set by "fix_porosity" or "set_porosity" keywords'
 WRITE(*,*)      '----> No update of porosity'
 END IF
+
 IF (igamma == 0) THEN
 WRITE(iunit2,*) '--> Unit activity coefficients'
 WRITE(*,*) '--> Unit activity coefficients'
@@ -7373,6 +7349,7 @@ WRITE(iunit2,*) '    NEGLECTED in Jacobian calculation'
 WRITE(*,*) '--> Extended Debye-Huckel activity model used'
 WRITE(*,*) '--> Dependence on activity coefficients'
 WRITE(*,*) '    NEGLECTED in Jacobian calculation'
+
 ELSE IF (igamma == 3) THEN
 WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
 WRITE(iunit2,*) '--> Activity coefficients only computed'
@@ -7380,6 +7357,7 @@ WRITE(iunit2,*) '    at beginning of time step '
 WRITE(*,*) '--> Extended Debye-Huckel activity model used'
 WRITE(*,*) '--> Activity coefficients only computed'
 WRITE(*,*) '    at beginning of time step '
+
 ELSE
 WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
 WRITE(iunit2,*) '--> Dependence on activity coefficients'
@@ -8052,7 +8030,7 @@ section = 'flow'
 CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
-  WRITE(*,*) ' Flow block found'
+WRITE(*,*) ' Flow block found'
 END IF
 
 velocityfile = ' '
@@ -8325,7 +8303,6 @@ ELSE
     WRITE(*,*)
     WRITE(*,*) ' Flow will be calculated'
     WRITE(*,*)
-    
    
   ! ********************************************
   ! Edit by Toshiyuki Bandai 2023 May
@@ -9223,7 +9200,6 @@ ELSE
 
 ! First, initialize X permeability to default permeability (permzonex(0))
 
-
       IF (.NOT. ReadPerm) THEN
         perminx = permzonex(0)
       END IF
@@ -9949,38 +9925,6 @@ ELSE
 END IF
 
 IF (CalculateFlow) THEN
-  
-  IF (CalciteCreep) THEN
-    DO jz = 1,nz
-      DO jy = 1,ny
-         DO jx = 1,nx
-          IF (jinit(jx,jy,jz) == 1) THEN
-            permX(jx,jy,jz) =   1.0E-10
-            permY(jx,jy,jz) =   1.0E-10
-            perminX(jx,jy,jz) = 1.0E-10
-            perminY(jx,jy,jz) = 1.0E-10
- !!!           porin(jx,jy,jz) = 0.999
- !!!           por(jx,jy,jz) =   0.999
-          ELSE IF (jinit(jx,jy,jz) == 3) THEN
-            permX(jx,jy,jz) =   1.0E-13
-            permY(jx,jy,jz) =   1.0E-13
-            perminX(jx,jy,jz) = 1.0E-13
-            perminY(jx,jy,jz) = 1.0E-13
- !!!           porin(jx,jy,jz) = 0.999
- !!!           por(jx,jy,jz) =   0.999
-          ELSE
-            permX(jx,jy,jz) = 1.0E-18
-            permY(jx,jy,jz) = 1.0E-18
-            perminX(jx,jy,jz) = 1.0E-18
-            perminY(jx,jy,jz) = 1.0E-18
- !!!           porin(jx,jy,jz) = 0.0001
- !!!           por(jx,jy,jz)   = 0.0001
-          ENDIF
-        END DO
-      END DO
-    END DO
-  ENDIF
-  
   permxOld = permx
   permyOld = permy
   permzOld = permz
@@ -10749,23 +10693,23 @@ anisotropyY = 1.0d0
 !!!anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
-MillingtonQuirk = .FALSE.
+  MillingtonQuirk = .TRUE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
-  DEALLOCATE(tortuosity)
-  ALLOCATE(tortuosity(nx,ny,nz))
+DEALLOCATE(tortuosity)
+ALLOCATE(tortuosity(nx,ny,nz))
 ELSE
-  ALLOCATE(tortuosity(nx,ny,nz))
+ALLOCATE(tortuosity(nx,ny,nz))
 END IF
 
 tortuosity = 1.0d0
 
 IF (ALLOCATED(anisotropyZ)) THEN
-  DEALLOCATE(anisotropyZ)
-  ALLOCATE(anisotropyZ(nx,ny,nz))
+DEALLOCATE(anisotropyZ)
+ALLOCATE(anisotropyZ(nx,ny,nz))
 ELSE
-  ALLOCATE(anisotropyZ(nx,ny,nz))
+ALLOCATE(anisotropyZ(nx,ny,nz))
 END IF
 
 anisotropyZ = 1.0d0
@@ -10933,7 +10877,7 @@ IF (constant_tortuosity) THEN
   WRITE(*,*)
   WRITE(*,*) ' Constant tortuosity option specified'
   WRITE(*,*)
-  MillingtonQuirk = .FALSE.
+  MillingtonQuirk = .TRUE.
   IF (TortuosityOption /= 'none') THEN
     CALL stringlen(TortuosityOption,ls)
     WRITE(*,*)
@@ -10944,7 +10888,7 @@ IF (constant_tortuosity) THEN
 ELSE
 
 !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
-  MillingtonQuirk = .FALSE.
+
   TortuosityFile = ' '
   ReadTortuosity = .FALSE.
   CALL read_TortuosityFile(nout,nx,ny,nz,constant_tortuosity,TortuosityFile,lfile,TortuosityFileFormat)
@@ -10971,7 +10915,7 @@ ELSE
 
     CALL read_TortuosityByZone(nout,nx,ny,nz)
 
-    IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
+     IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
 
 !!        WRITE(*,*)
 !!        WRITE(*,*) ' No default tortuosity given'
@@ -10980,6 +10924,7 @@ ELSE
 !!        STOP
 
     ELSE
+  MillingtonQuirk = .TRUE.
       WRITE(*,*)
       WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
       WRITE(*,*)
@@ -10988,7 +10933,7 @@ ELSE
 ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
     IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-      MillingtonQuirk = .FALSE.
+      MillingtonQuirk = .TRUE.
       Tortuosity = TortuosityZone(0)
 
 !       Next, initialize tortuosity from various zones
@@ -11017,7 +10962,7 @@ ELSE
       END IF
 
     ELSE
-      MillingtonQuirk = .TRUE.
+  MillingtonQuirk = .TRUE.
     END IF
 
     DEALLOCATE(TortuosityZone)
@@ -11040,7 +10985,7 @@ ELSE
         READ(*,*)
         STOP
       END IF
-      MillingtonQuirk = .FALSE.
+  MillingtonQuirk = .TRUE.
       OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
       FileTemp = TortuosityFile
       CALL stringlen(FileTemp,FileNameLength)
@@ -11211,7 +11156,7 @@ IF (ThresholdPorosity == 0.0d0) THEN
   UseThresholdPorosity = .FALSE.
 ELSE
   UseThresholdPorosity = .TRUE.
-  MillingtonQuirk = .FALSE.
+  MillingtonQuirk = .TRUE.
   parchar = 'tortuosity_below'
   parfind = ' '
   realjunk = 0.0
@@ -11593,8 +11538,11 @@ DEALLOCATE(SolidSolutionRatio)
 #endif
 DEALLOCATE(SolidDensityFrom)
 IF (Duan .OR. Duan2006) THEN
-DEALLOCATE(vrInitial)
+  DEALLOCATE(vrInitial)
 END IF
+
+DEALLOCATE(sionInit)
+
 CLOSE(UNIT=8)
 
 2001 FORMAT(2X,'Darcian flux (m**3/m**2/yr) = ',1PE11.2)

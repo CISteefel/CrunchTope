@@ -104,10 +104,10 @@ scw = 0.0d0
 scn = 0.0d0
 scs = 0.0d0
 
-IF (ALLOCATED(gam)) THEN
-  DEALLOCATE(gam)
+IF (ALLOCATED(gamma)) THEN
+  DEALLOCATE(gamma)
 END IF
-ALLOCATE(gam(ncomp+nspec,nx,ny,nz))
+ALLOCATE(gamma(ncomp+nspec,nx,ny,nz))
 
 IF (ALLOCATED(keqaq)) THEN
   DEALLOCATE(keqaq)
@@ -133,7 +133,7 @@ ALLOCATE(keqmin(nreactmax,nrct,nx,ny,nz))
   END IF
 ALLOCATE(silogGlobal(nreactmax,nrct,nx,ny,nz))
 
-gam = 0.0
+gamma = 0.0
 keqaq = 500.00
 keqgas = 500.00
 keqsurf = 500.00
@@ -588,31 +588,38 @@ IF (nxyz == 1) THEN
   xn = 0.0
   indd = 0
 ELSE IF (nxyz == nx .AND. ihindmarsh == 1) THEN
+  
   IF (ALLOCATED(aah)) THEN
     DEALLOCATE(aah)
   END IF
   ALLOCATE(aah(neqn,neqn,nx))
+  
   IF (ALLOCATED(bbh)) THEN
     DEALLOCATE(bbh)
   END IF
   ALLOCATE(bbh(neqn,neqn,nx))
+  
   IF (ALLOCATED(cch)) THEN
     DEALLOCATE(cch)
   END IF
   ALLOCATE(cch(neqn,neqn,nx))
+  
   IF (ALLOCATED(yh)) THEN
     DEALLOCATE(yh)
   END IF
   ALLOCATE(yh(neqn,nx))
+  
   IF (ALLOCATED(indexx)) THEN
     DEALLOCATE(indexx)
   END IF
   ALLOCATE(indexx(neqn,nx))
+  
   aah = 0.0
   bbh = 0.0
   cch = 0.0
   yh = 0.0
   indexx = 0
+  
   IF (ALLOCATED(aaa)) THEN
     DEALLOCATE(aaa)
   END IF

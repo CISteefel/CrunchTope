@@ -728,17 +728,6 @@ IF (found) THEN
       k = kexch(ix)
       CALL read_ionexchangeMIN(nout,ix,nchem,ncomp,nexchange,speciesfound)
       IF (icec(ix) == 1) THEN                                             !!  Calculate from equivalents/g mineral and the mineral volume fraction
-!!        IF (volin(k,nchem) <= 0.0d0) THEN
-!!          dumstring = umin(k)
-!!          CALL stringlen(dumstring,ls)
-!!          WRITE(*,*)
-!!          WRITE(*,*) ' Initial volume fraction exchanger mineral must be > 0'
-!!          WRITE(*,*) ' Exchange on mineral: ', dumstring(1:ls)
-!!          WRITE(*,*) ' In geochemical condition: ', nchem
-!!          WRITE(*,*)
-!!          READ(*,*)
-!!          STOP
-!!        END IF
         totexch(ix,nchem) = OneOverMassFraction(nchem)*cec(ix,nchem)*wtmin(k)*volin(k,nchem)/(volmol(k)*SaturationCond(nchem)*porcond(nchem)*rocond(nchem))  
       ELSE IF (icec(ix) == 0) THEN                                         !!  Direct specification of totexch (equivalents/kgw)--need to calculate CEC for later use if mineral fraction changes
         cec(ix,nchem) = totexch(ix,nchem)*volmol(k)*SaturationCond(nchem)*porcond(nchem)*rocond(nchem)/(wtmin(k)*volin(k,nchem)*OneOverMassFraction(nchem))

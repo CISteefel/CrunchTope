@@ -198,6 +198,23 @@ REAL(DP)        :: check4
 REAL(DP)        :: qgdum
 REAL(DP)                                                  :: A_transpi
 
+INTEGER(I4B)                                   :: pos_IonS
+INTEGER(I4B)                                   :: pos_GammaWater
+INTEGER(I4B)                                   :: pos_der
+INTEGER(I4B)                                   :: nk
+INTEGER(I4B)                                   :: icomp
+INTEGER(I4B)                                   :: ksp
+REAL(DP)                                       :: IonicStrength
+REAL(DP)                                       :: ChargeSum
+REAL(DP)                                       :: TotalMoles
+REAL(DP)                                       :: sumder
+REAL(DP)                                       :: gammaH2O
+INTEGER(I4B)                                   :: icomp2
+
+REAL(DP), DIMENSION(ncomp + nsurf + nexchange + npot + 1 + 1,ncomp + nsurf + nexchange + npot + 1 + 1)    :: der_residuals
+
+CHARACTER (LEN=3)                              :: ulabprint
+
 !! Time normalized used if time series only defined for 1 representative year:
 REAL(DP)        :: time_norm
 REAL(DP), DIMENSION(:), ALLOCATABLE                   :: temp_dum
@@ -224,8 +241,8 @@ faraday = 96485.0
 
 !*******************end PETSc index initialization ***************
 
-
-neqn = ncomp + nsurf + nexchange + npot
+!!! Adding two additional unknowns, one for ionic strength, one for water activity
+neqn = ncomp + nsurf + nexchange + npot + 1 + 1
 nxyz = nx*ny*nz
 ntotal = 0
 surf_accum = 0.0d0
@@ -425,6 +442,9 @@ DO jy = 1,ny
     END IF
     
     alf = 0.0d0
+    aah(:,:,jx) = 0.0d0
+    bbh(:,:,jx) = 0.0d0
+    cch(:,:,jx) = 0.0d0
     
     IF (ierode /= 1) THEN
       IF (nexchange > 0) THEN
@@ -1188,7 +1208,7 @@ DO jy = 1,ny
 !  Update the residual, adding reaction terms and exchange terms
       
       fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
- 
+      
       sumrd = 0.0d0
       sumjackin = 0.0d0
       
@@ -1228,8 +1248,8 @@ DO jy = 1,ny
         END IF
       END DO
 
-
       IF (ierode == 1) THEN 
+        
         DO i2 = 1,ncomp        
           ind2 = i2                
           rxnmin = sumrd(i2)
@@ -1302,6 +1322,7 @@ DO jy = 1,ny
           ex_accum = r*fch_local(i,i2) 
           alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
                + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) 
+          continue
 
         END DO   ! end of I2 loop
 
@@ -1352,12 +1373,13 @@ DO jy = 1,ny
         DO i2 = 1,neqn
           aah(i,i2,jx) = alf(i2,i,2)
         END DO
-
       END IF
       
-    END DO     ! end of I loop
+    END DO     ! end of I primary species loop
 
-    do ix = 1,nexchange
+!!! Start of IX exchange loop
+    
+    DO ix = 1,nexchange
       sum = 0.0
       do nex = 1,nexch_sec
         sum = sum + muexc(nex,ix+ncomp)*spex10(nex+nexchange,jx,jy,jz)
@@ -1391,7 +1413,9 @@ DO jy = 1,ny
         END DO
       END IF
 
-    END DO
+    END DO     ! end of IX exchange loop
+    
+!!! Start of IS surface complex loop
     
     DO is = 1,nsurf
 
@@ -1453,12 +1477,13 @@ DO jy = 1,ny
         END DO
       END IF
       
-    END DO           !  End of IS loop
+    END DO           !  End of IS surface complex loop
 
 !  Jacobian entries:  Dependence of residual of surface potential equation on 
 !     other unknowns (ncomp,nsurf,npot)
     
-
+!!! Start of NPT electrical potential loop
+    
     DO npt = 1,npot
 
       ncol = npt + ncomp + nexchange + nsurf
@@ -1522,9 +1547,8 @@ DO jy = 1,ny
           alf(nrow,ncol,2) = 0.0d0
         END IF
 
-    END DO          !!  End of npt (potential) loop
-
-
+      END DO    !!!  End of npt2 (potential) loop
+      
 !!   *********************************************************************************
 
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
@@ -1533,13 +1557,177 @@ DO jy = 1,ny
         END DO
       END IF
 
-    END DO
+    END DO                   !!! End of NPT electrical potential loop
     
-    GO TO 850
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      
+!!! --> Start of new functionality section (Ionic Strength and Activity of Water)
+    
+      pos_IonS       = ncomp + nexchange + nsurf + npot + 1
+      pos_gammawater = ncomp + nexchange + nsurf + npot + 1 + 1
+      
+!!! --> Add in residual for Ionic Strength
+       
+      der_residuals(pos_IonS,:) = 0D0
+      
+      ChargeSum = 0.0d0
+      DO ik = 1,ncomp+nspec
+        ChargeSum  = ChargeSum + sp10(ik,jx,jy,jz)*chg(ik)*chg(ik)
+      END DO
+      
+!!!      sion(jx,jy,jz) = 0.5d0 * ChargeSum
+      IonicStrength = sion(jx,jy,jz)
+      
+!!! Residual for ionic strength
+      ind = (j-1)*(neqn) + pos_IonS
+      fxx(ind) =  LOG( 0.5D0 * ChargeSum / IonicStrength)
+ 
+!!!  NOTE: First subscript points to residual, second to variable differentiated with respect to...
+      
+      !!! Derivative of ionic strength with respect to "icomp" primary species
+      DO icomp = 1, ncomp
+        sumder = 0D0
+        ulabPrint = ulab(icomp)
+        IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+          sumder = sp10(icomp,jx,jy,jz)*chg(icomp)*chg(icomp)
+          DO ksp = 1, nspec
+            nk = ksp + ncomp
+            sumder = sumder + chg(nk)*chg(nk) * deriv_conc(nk,icomp,jx,jy,jz)
+          END DO
+        END IF
+
+        der_residuals(pos_IonS,icomp) = sumder / ChargeSum
+        continue
+        
+      END DO  
+      
+!!! Derivative of ionic strength with respect to ionic strength (diagonal)
+      pos_der = ncomp + nexchange + nsurf + npot + 1     !! Diagonal element 
+      sumder = 0D0
+      DO ksp = 1, nspec
+        nk = ksp + ncomp
+        sumder = sumder + chg(nk)*chg(nk) * deriv_conc(nk,pos_der,jx,jy,jz)
+      END DO
+      der_residuals(pos_IonS,pos_der) = sumder / ChargeSum - 1.0D0
+
+
+!!! Derivative of ionic strength with respect to gamma water
+      pos_der = ncomp + nexchange + nsurf + npot + 1 + 1
+      sumder = 0D0
+      DO ksp = 1, nspec
+        nk = ksp + ncomp
+        sumder = sumder + chg(nk)*chg(nk) * deriv_conc(nk,pos_der,jx,jy,jz)
+      END DO
+      der_residuals(pos_IonS,pos_der) = sumder / ChargeSum
+      
+!!!             +++++++++++++++++++++++++++++++++
+         
+!!! --> Add in residual for activity of water
+      
+      der_residuals(pos_gammawater,:) = 0D0
+      
+      gammawater(jx,jy,jz) = EXP( lngammawater(jx,jy,jz) )
+      gammaH2O = gammawater(jx,jy,jz)
+      
+      TotalMoles = 0.0d0
+      DO ik = 1,ncomp+nspec
+        ulabPrint = ulab(ik)
+        IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+          TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
+        END IF
+      END DO
+      
+      ind = (j-1)*(neqn) + pos_gammawater
+      
+      fxx(ind) = LOG( (1.0d0 - 0.017d0*TotalMoles)/ gammaH2O )
+        
+!!!   Derivative of activity of water (gammawater) with respect to primary species 
+
+      sumder = 0D0
+      DO icomp = 1, ncomp
+
+        ulabPrint = ulab(icomp)
+        IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+          
+          sumder = sp10(icomp,jx,jy,jz)
+          DO ksp = 1, nspec
+            nk = ncomp + ksp
+            sumder = sumder + deriv_conc(nk,icomp,jx,jy,jz)
+          END DO
+
+        END IF
+
+        der_residuals(pos_gammawater,icomp) = - 0.017D0 * sumder / (1.0D0 - 0.017D0 * TotalMoles) 
+
+      END DO  
+
+!!! Derivative of activity of water (gammawater) with respect to ionic strength
+      
+      pos_der = ncomp+nexchange+nsurf+npot + 1
+      sumder = 0D0
+      DO ksp = 1, nspec
+        nk = ncomp + ksp
+        sumder = sumder + deriv_conc(nk,pos_der,jx,jy,jz)
+      END DO
+      der_residuals(pos_gammawater,pos_der) = - 0.017D0 * sumder / (1.0D0 - 0.017D0 * TotalMoles)
+!!!      der_residuals(pos_gammawater,pos_der) = 0.0d0
+      
+!!! Derivative of activity of water (gammawater) with respect to gamma water (diagonal)
+      
+      pos_der = ncomp+nexchange+nsurf+npot + 1 + 1
+      sumder = 0D0
+      DO ksp = 1, nspec
+        nk = ncomp + ksp
+        sumder = sumder + deriv_conc(nk,pos_der,jx,jy,jz)
+      END DO
+      der_residuals(pos_gammawater,pos_der) = - 0.017D0 * sumder / (1.0D0 - 0.017D0 * TotalMoles) - 1.0d0
+
+      
+!!! -->  der_residuals(pos_IonS,pos_der)
+!!! -->  der_residuals(pos_gammawater,pos_der)
+    
+      
+!!! ---> First, residual for ionic strength
+      
+      do icomp2 = 1,ncomp
+        alf(icomp2,pos_IonS,2)  = der_residuals(pos_IonS,icomp2)
+        IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+          aah(pos_IonS,icomp2,jx) = der_residuals(pos_IonS,icomp2)
+        endif 
+      end do
+      
+      alf(pos_IonS,pos_IonS,2)  = der_residuals(pos_IonS,pos_IonS)
+      IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+        aah(pos_IonS,pos_IonS,jx) = der_residuals(pos_IonS,pos_IonS)
+      endif
+      
+      alf(pos_gammawater,pos_IonS,2)  = der_residuals(pos_IonS,pos_gammawater)
+      IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+        aah(pos_IonS,pos_gammawater,jx) = der_residuals(pos_IonS,pos_gammawater) 
+      endif
+      
+!!! Then, residual for gammawater
+      
+      do icomp2 = 1,ncomp
+        alf(icomp2,pos_gammawater,2)  = der_residuals(pos_gammawater,icomp2)
+        IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+          aah(pos_gammawater,icomp2,jx) = der_residuals(pos_gammawater,icomp2)
+        endif
+      end do
+      
+      alf(pos_gammawater,pos_gammawater,2)  = der_residuals(pos_gammawater,pos_gammawater)
+      IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+        aah(pos_gammawater,pos_gammawater,jx) = der_residuals(pos_gammawater,pos_gammawater)
+      endif
+      
+      alf(pos_IonS,pos_gammawater,2)  = der_residuals(pos_gammawater,pos_IonS)
+      IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+        aah(pos_gammawater,pos_IonS,jx) = der_residuals(pos_gammawater,pos_IonS)
+      endif
     
 !  Case where nxyz = 1
     
-    850     IF (nxyz == 1) THEN
+    IF (nxyz == 1) THEN
       DO i = 1,neqn
         DO i2 = 1,neqn
           ind2 = i2
@@ -1551,13 +1739,14 @@ DO jy = 1,ny
     
 !  For fixed concentration boundary conditions
     
-
-    800     IF (activecell(jx,jy,jz) == 0) THEN
+800 IF (activecell(jx,jy,jz) == 0) THEN
+      
       DO ix = 1,nexchange
         ind = (j-1)*(neqn) + ix+ncomp
         fxx(ind) = spex10(ix,jx,jy,jz) - spcondex10(ix,jinit(jx,jy,jz))*   &
                xgram(jx,jy,jz)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz)
       END DO
+      
       DO i = 1,ncomp
         ind2 = i
         alf(ind2,i,2) = sp10(i,jx,jy,jz)
@@ -1565,6 +1754,7 @@ DO jy = 1,ny
           aah(i,i,jx) = alf(ind2,i,2)
         END IF
       END DO
+      
       DO ix = 1,nexchange
         ind2 =  ix+ncomp
         alf(ind2,ix+ncomp,2) = spex10(ix,jx,jy,jz)
@@ -1572,6 +1762,7 @@ DO jy = 1,ny
           aah(ix+ncomp,ix+ncomp,jx) = alf(ind2,ix+ncomp,2)
         END IF
       END DO
+      
       DO is = 1,nsurf
         ind2 = is+ncomp+nexchange
         alf(ind2,is+ncomp+nexchange,2) = spsurf10(is,jx,jy,jz)
@@ -1579,29 +1770,7 @@ DO jy = 1,ny
           aah(is+ncomp+nexchange,is+ncomp+nexchange,jx) = alf(ind2,is+ncomp+nexchange,2)
         END IF
       END DO
-    END IF
-
-    IF (ikh2o /= 0) THEN
-
-      alf(:,ikh2o,:) = 0.0d0
-
-      ind = (j-1)*(neqn) + ikh2o
-      fxx(ind) = sp10(ikh2o,jx,jy,jz) - 55.40d0
-
-      ind2 = ikh2o
-      alf(ind2,ikh2o,2) = sp10(ikh2o,jx,jy,jz)
-      IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
-
-        aah(ikh2o,:,jx) = 0.0d0
-        bbh(ikh2o,:,jx) = 0.0d0
-        cch(ikh2o,:,jx) = 0.0d0
-        aah(:,ikh2o,jx) = 0.0d0
-        bbh(:,ikh2o,jx) = 0.0d0
-        cch(:,ikh2o,jx) = 0.0d0
-        aah(ikh2o,ikh2o,jx) = alf(ikh2o,ikh2o,2)
-
-      END IF
-
+      
     END IF
 
     IF (ihindmarsh == 0 .OR. nxyz /= nx) THEN

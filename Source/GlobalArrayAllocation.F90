@@ -282,6 +282,8 @@ IF (ny == 1 .AND. nz == 1) THEN
   ELSE
     ALLOCATE(rho_water_2(nx,ny,nz))
   END IF
+  
+
 
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
