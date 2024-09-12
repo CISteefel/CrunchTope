@@ -1,0 +1,69 @@
+For Windows:
+
+-------------------------> Full MPI <----------------------------------
+Launch Command window (cm)
+After setting setvars.bat in C:\Program Files (x86)\Intel\oneAPI
+From same Command Window -->   
+
+Or launch the Intel oneAPI command prompt for Intel 64 for Visual Studio 2022 (from the list of Apps in Windows 11)
+
+C:\cygwin64\bin\mintty.exe -
+
+Verify that "icx" and "ifx" are found ("which ifx")
+
+cd \cygdrive\c\petsc-3.21.2
+
+export PETSC_DIR=\cygdrive\c\petsc-3.21.2
+export PETSC_ARCH=oneAPI-MPI-opt
+
+./configure PETSC_ARCH=mpi-oneAPI-opt \
+--with-cc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_icx \
+--with-fc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_ifx \
+--with-cxx=0 \
+--with-mpi-include=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/include \
+--with-mpi-lib=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/lib/impi.lib \
+--with-mpiexec=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/bin/mpiexec.exe  \
+--with-blaslapack-dir=/cygdrive/c/PROGRA~2/Intel/oneAPI/2024.1/lib \
+--with-debugging=0 \
+--with-shared-libraries=0 \
+FPPFLAGS=-I/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/include/mpi
+
+-----------------------> --with-mpi=0 (no MPI) <----------------------------------
+Launch Command window (cm)
+After setting setvars.bat in C:\Program Files (x86)\Intel\oneAPI
+From same Command Window -->   
+
+Or launch the Intel oneAPI command prompt for Intel 64 for Visual Studio 2022 (from the list of Apps in Windows 11)
+
+C:\cygwin64\bin\mintty.exe -
+
+Verify that "icx" and "ifx" are found ("which ifx")
+
+cd \cygdrive\c\petsc-3.21.2
+
+export PETSC_DIR=\cygdrive\c\petsc-3.21.2
+export PETSC_ARCH=oneAPI-noMPI-opt
+
+./configure PETSC_ARCH=oneAPI-noMPI-opt \
+--with-cc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_icx \
+--with-fc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_ifx \
+--with-cxx=0 \
+--with-mpi=0 \
+--with-blaslapack-dir=/cygdrive/c/PROGRA~2/Intel/oneAPI/2024.1/lib \
+--with-debugging=0 \
+--with-shared-libraries=0 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+For Linux:
+
+export I_MPI_CC=icx && export I_MPI_CXX=icpx && export I_MPI_F90=ifx
+
+./configure  PETSC_ARCH=mpi-oneAPI-opt  \
+--with-cc=mpiicc \
+--with-cxx=mpiicpc  \
+--with-fc=mpif90  \
+COPTFLAGS=" -g -O3"  \
+FOPTFLAGS=" -g -O3"  \
+CXXOPTFLAGS=" -g -O3"  \
+--with-debugging=0   \
+--with-blaslapack-dir=/opt/intel/oneapi/mkl 
