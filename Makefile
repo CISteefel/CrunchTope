@@ -102,6 +102,7 @@ SOURCEF = \
           gamma_init_co2.F90\
           gamma_init.F90\
           gamma_local.F90\
+	  GammaResidual.F90\
           gascoeffCylinder.F90\
           gasdiff.F90\
           gases.F90\
@@ -138,6 +139,7 @@ SOURCEF = \
           jacobian_plus.F90\
           jacpotential.F90\
           JacPotentialLocal.F90\
+	  JacobianNumerical2.F90\
           jacrkin.F90\
           jacsurf.F90\
           jacsurf_init.F90\
@@ -453,6 +455,7 @@ OBJSF  =  crunchtype.o\
           gamma_init_co2.o\
           gamma_init.o\
           gamma_local.o\
+	  GammaResidual.o\
           gascoeffCylinder.o\
           gasdiff.o\
           gases.o\
@@ -489,6 +492,7 @@ OBJSF  =  crunchtype.o\
           jacobian_plus.o\
           jacpotential.o\
           JacPotentialLocal.o\
+	  JacobianNumerical2.o\
           jacrkin.o\
           jacsurf.o\
           jacsurf_init.o\
