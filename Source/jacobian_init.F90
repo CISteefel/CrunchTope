@@ -63,6 +63,13 @@ INTEGER(I4B)                                         :: i
 INTEGER(I4B)                                         :: i2
 INTEGER(I4B)                                         :: ksp
 
+REAL(DP)                                             :: spec_conc
+REAL(DP)                                             :: mutemp
+
+
+INTEGER(I4B)                                         :: kk
+
+
 DO i = 1,ncomp
   DO i2 = 1,ncomp
     sum = 0.0
@@ -73,6 +80,7 @@ DO i = 1,ncomp
   END DO
   dpsi(i,i) = dpsi(i,i) + sptmp10(i)
 END DO
+
 
 RETURN
 END SUBROUTINE jacobian_init

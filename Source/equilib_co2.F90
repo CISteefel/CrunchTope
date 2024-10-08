@@ -246,6 +246,9 @@ REAL(DP)                                                   :: TotalExchangeMoles
 REAL(DP)                                                   :: vrInOut
 REAL(DP)                                                   :: fxMaxPotential
 REAL(DP)                                                   :: ChargeSum
+REAL(DP)                                                   :: lnActivity
+
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 
 CHARACTER (LEN=1)                                          :: trans
@@ -346,8 +349,10 @@ DO i = 1,ncomp
     pg = pg + ctot(i,nco)   !! Not just CO2, but all of the gases.  These are augmented below by the partial pressures of gases not specified as constraints
     
   ELSE IF (itype(i,nco) == 2) THEN
+    
     ncharge = ncharge + 1
     NeedChargeBalance = .TRUE.
+    
   ELSE
     WRITE(*,*)
     WRITE(*,*) ' Incorrect option for initialization specified'
@@ -456,7 +461,9 @@ DO i = 1,ncomp
       END IF
     END IF
   END IF
-  IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
+  
+!!!  IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
+  IF (ulab(i) == 'H2O') THEN
     sptmp10(i) = 55.50843506
     sptmp(i) = DLOG(sptmp10(i))
   END IF
@@ -513,7 +520,7 @@ DO  ktrial = 1,ntrial
     if (Duan .OR. Duan2006) then
       call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
     else
-      CALL gamma_init(ncomp,nspec,tempc,sqrt_sion,sion_tmp)
+      CALL gamma_init(ncomp,nspec,igamma,tempc,sqrt_sion,sion_tmp)
     end if
   ELSE
 
@@ -522,6 +529,7 @@ DO  ktrial = 1,ntrial
       ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
     END DO
     sion_tmp = 0.50D0*ChargeSum
+    
     IF (sion_tmp < 25.0d0) THEN
       sqrt_sion = DSQRT(sion_tmp)
     ELSE
@@ -584,13 +592,16 @@ DO  ktrial = 1,ntrial
       feq(i) = stmp(i) - ctot(i,nco)
        
       IF (check > 1000000.0 .AND. iTotNegative(i) == 0) THEN
+        
         sptmp(i) = sptmp(i) - clg    !! If calculated total concentration too high, reduce primary species
         sptmp10(i) = DEXP(sptmp(i))
         if (ihalf < 2000) then
           ihalf = ihalf + 1
           bagit = .TRUE.
         end if
+        
       ELSE IF (check < 1.e-07  .AND. iTotNegative(i) == 0) THEN
+        
         sptmp(i) = sptmp(i) + clg
         sptmp10(i) = DEXP(sptmp(i))
         if (ihalf < 2000) then
@@ -611,6 +622,7 @@ DO  ktrial = 1,ntrial
           GO TO 400
         END IF
       END DO
+      
       WRITE(*,*)
       WRITE(*,*)
       WRITE(*,*) 'Constraint mineral not listed in input file'
@@ -623,9 +635,17 @@ DO  ktrial = 1,ntrial
       
       400       CONTINUE
       sumiap = 0.0D0
+      lnActivity = 0.0d0
       DO  i2 = 1,ncomp
+        
+        ulabPrint = ulab(i2)
+        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+          lnActivity = gamtmp(i2) 
+         ELSE
+          lnActivity = (sptmp(i2)+gamtmp(i2))
+        endif
 
-          sumiap = sumiap + mumin(1,k,i2)* (sptmp(i2)+gamtmp(i2))
+        sumiap = sumiap + mumin(1,k,i2) * lnActivity
 
       END DO
 
@@ -638,10 +658,10 @@ DO  ktrial = 1,ntrial
         IF (feq(i) > clg) THEN
            sptmp(i) = sptmp(i) - clg
            sptmp10(i) = DEXP(sptmp(i))
-         if (ihalf < 2000) then
-          ihalf = ihalf + 1
-          bagit = .TRUE.
-        end if
+          if (ihalf < 2000) then
+            ihalf = ihalf + 1
+            bagit = .TRUE.
+          end if
         END IF
 
         IF (bagit) THEN
@@ -660,6 +680,7 @@ DO  ktrial = 1,ntrial
           GOTO 500
         END IF
       END DO
+      
       WRITE(*,*)
       WRITE(*,*)
       WRITE(*,*) 'Constraint gas not listed in input file'
@@ -673,9 +694,18 @@ DO  ktrial = 1,ntrial
       
       500       CONTINUE
       sumiap = 0.0D0
+      lnActivity = 0.0d0
       DO i2 = 1,ncomp
+        
+        ulabPrint = ulab(i2)
+        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+          lnActivity = gamtmp(i2) 
+!!!         lnActivity = 0.0d0
+        ELSE
+          lnActivity = (sptmp(i2)+gamtmp(i2))
+        endif
 
-          sumiap = sumiap + mugas(kg,i2)* (sptmp(i2)+gamtmp(i2))
+        sumiap = sumiap + mugas(kg,i2) * lnActivity
 
       END DO
 
@@ -687,6 +717,7 @@ DO  ktrial = 1,ntrial
         END IF
       
         check = sumiap + keqgas_tmp(kg) - ln_fco2 - LOG(ctot(i,nco))
+        
       ELSE IF (Duan2006) THEN
         ln_fco2 = 0.0d0
         IF (i == ico2) THEN
@@ -702,12 +733,25 @@ DO  ktrial = 1,ntrial
       feq(i) = check
 
     ELSE IF (itype(i,nco) == 7) THEN
-!!      feq(i) = EXP(sptmp(i)+gamtmp(i)) - guess(i,nco)
-      feq(i) = (sptmp(i)+gamtmp(i)) - DLOG(guess(i,nco))
+      
+      lnActivity = 0.0d0
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+        
+!!!        lnActivity = gamtmp(i)
+        lnActivity = 0.0d0
+      else 
+        lnActivity = sptmp(i)+gamtmp(i)
+      end if
+      
+      feq(i) = lnActivity - DLOG(guess(i,nco))
+      
     ELSE IF (itype(i,nco) == 8) THEN
-!!      feq(i) = sptmp10(i) -  guess(i,nco)
+      
       feq(i) = sptmp(i) -  DLOG(guess(i,nco))
+      
     ELSE IF (itype(i,nco) == 2) THEN
+      
       IF (chg(i) < 0.0) THEN
         ichg = -1
       ELSE IF (chg(i) > 0.0) THEN
@@ -759,6 +803,7 @@ DO  ktrial = 1,ntrial
       EXIT
     END IF
     feq(ix+ncomp) =  sumactivity(ix) - 1.0
+    
   END DO
 
   IF (bagit) then
@@ -799,31 +844,37 @@ DO  ktrial = 1,ntrial
       END DO
 
     ELSE IF (itype(i,nco) == 3) THEN
+      
       DO k = 1,nrct
         IF (umin(k) == ncon(i,nco)) THEN
           kk = k + nspec
           GO TO 401
         END IF
       END DO
+      
       WRITE(*,*) 'Constraint mineral not listed in input file'
       READ(*,*)
       STOP
-      401       CONTINUE
+401   CONTINUE
+      
       DO i2 = 1,ncomp
         fj(i,i2) = mumin(1,k,i2)
       END DO
 
     ELSE IF (itype(i,nco) == 4) THEN
+      
       DO kg = 1,ngas
         IF (namg(kg) == ncon(i,nco)) THEN
           kk = kg + nspec + nrct
           GO TO 501
         END IF
       END DO
+      
       WRITE(*,*) 'Constraint gas not listed in input file'
       READ(*,*)
       STOP
-      501       CONTINUE
+501   CONTINUE
+      
       DO i2 = 1,ncomp
         fj(i,i2) = mugas(kg,i2)
       END DO
@@ -832,7 +883,8 @@ DO  ktrial = 1,ntrial
 
       DO i2 = 1,ncomp
         IF (i2 == i) THEN
-!!          fj(i,i2) = DEXP(sptmp(i)+gamtmp(i))
+!!!          fj(i,i2) = DEXP(sptmp(i)+gamtmp(i))
+!!!          fj(i,i2) = DEXP(gamtmp(i))
           fj(i,i2) = 1.0d0
         ELSE
           fj(i,i2) = 0.0
@@ -855,10 +907,6 @@ DO  ktrial = 1,ntrial
       IF (ChargeBalance) THEN
         DO i2 = 1,ncomp
           fj(i,i2) = 0.0
-!!          DO i3 = 1,ncomp
-!!            fj(i,i2) = fj(i,i2) + chg(i3)*dpsi(i3,i2) + chg(i3)*fsurftmp(i3,i2)
-!!            fj(i,i2) = fj(i,i2) + chg(i3)*dpsi(i3,i2) 
-!!          END DO
           DO ksp = 1,nspec
             fj(i,i2) = fj(i,i2) + chg(ksp+ncomp)*muaq(ksp,i2)*sptmp10(ksp+ncomp)
           END DO
@@ -1206,9 +1254,7 @@ DO  ktrial = 1,ntrial
      END IF
     u(i+ncomp+nexchange+nsurf) = u(i+ncomp+nexchange+nsurf) + beta(i+ncomp+nexchange+nsurf)
   END DO
-  if (ktrial > 19 ) then
-    continue
-  end if
+
   DO i = 1,ncomp
     sptmp(i) = u(i)
     sptmp10(i) = DEXP(sptmp(i))
@@ -1253,7 +1299,7 @@ DO  ktrial = 1,ntrial
       if (Duan .OR. Duan2006) then
         call gamma_init_co2(ncomp,nspec,tempc,sqrt_sion,pg)
       else
-        CALL gamma_init(ncomp,nspec,tempc,sqrt_sion,sion_tmp)
+        CALL gamma_init(ncomp,nspec,igamma,tempc,sqrt_sion,sion_tmp)
       end if
     END IF
     

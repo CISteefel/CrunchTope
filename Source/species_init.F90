@@ -69,7 +69,9 @@ DO ksp = 1,nspec
   sum = 0.0D0
   DO i = 1,ncomp
     ulabPrint = ulab(i)
-    IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      sum = sum + muaq(ksp,i)*(gamtmp(i))
+    ELSE
       sum = sum + muaq(ksp,i)*(sptmp(i) + gamtmp(i))
     END IF
 

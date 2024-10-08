@@ -103,22 +103,10 @@ id = 1
 iff = mls
 CALL sschaine(zone,id,iff,ssch,ids,ls)
 IF(ls /= 0) THEN
+  
   lzs=ls
-!        call convan(ssch,lzs,res)
   CALL stringtype(ssch,lzs,res)
-!!!  IF (res /= 'a') THEN
-!!!    WRITE(*,*)
-!!!    WRITE(*,*) ' Geochemical input should start with an ASCII string'
-!!!    WRITE(*,*) '   In condition: ', dumstring(1:lcond)
-!!!    WRITE(*,*) '   String found', ssch(1:30)
-!!!    WRITE(*,*) '       ABORTING RUN  '
-!!!    WRITE(*,*)
-!!!    READ(*,*)
-!!!    STOP
-!!!    WRITE(*,*)
-!!!    READ(*,*)
-!!!    STOP
-!!!  END IF
+
 END IF
 IF (ssch == ulab(i)) THEN
   speciesfound = .true.     ! primary species found
@@ -132,13 +120,13 @@ IF(ls /= 0) THEN
   lzs=ls
 !        call convan(ssch,lzs,res)
   CALL stringtype(ssch,lzs,res)
-  IF (res == 'n') THEN
+  IF (res == 'n') THEN                !!! Reading a number "n"
 !  Read the concentration
     ctot(i,isolution) = DNUM(ssch)
     IF (ctot(i,isolution) == 0.0) THEN
       ctot(i,isolution) = 1.e-30
     END IF
-    itype(i,isolution) = 1
+    itype(i,isolution) = 1            !!! itype = 1 is total concentration constraint
     
 !  Check to see if total concentration should include surface species (exchange and surface complexes)
     
@@ -166,6 +154,7 @@ IF(ls /= 0) THEN
     END IF
     
   ELSE
+    
 !  An ascii string--
 !  First, check to see if it is "charge"
     IF (ssch == 'charge' .OR. ssch == 'Charge' .OR. ssch == 'CHARGE') THEN
@@ -173,7 +162,7 @@ IF(ls /= 0) THEN
       GO TO 200
     END IF
     
-!    then, check to see if it is a mineral
+!   Then, check to see if it is a mineral
     DO k = 1,nrct
       tempstring = umin(k)
       IF (ssch == tempstring) THEN
@@ -182,7 +171,7 @@ IF(ls /= 0) THEN
         GO TO 200
       END IF
     END DO
-!  next, check to see if it is a gas
+!   Next, check to see if it is a gas
     DO ll = 1,ngas
       tempstring = namg(ll)
       IF (ssch == tempstring) THEN
@@ -201,7 +190,9 @@ IF(ls /= 0) THEN
     READ(*,*)
     STOP
   END IF
+  
 ELSE
+  
   WRITE(*,*)
   WRITE(*,*)   ' No information given following primary species'
   stringspecies = ulab(i)
@@ -216,7 +207,8 @@ END IF
 200 id = ids + ls
 CALL sschaine(zone,id,iff,ssch,ids,ls)
 
-IF (constraingas) THEN    ! Using gas constraint
+IF (constraingas) THEN                     !!! Using gas constraint
+  
   itype(i,isolution) = 4
   IF(ls /= 0) THEN
     lzs=ls
@@ -269,13 +261,15 @@ IF (constraingas) THEN    ! Using gas constraint
   END IF
 END IF
 
-IF (constrainmin) THEN    ! Using mineral constraint
+IF (constrainmin) THEN                  !!! Using mineral constraint
+  
   itype(i,isolution) = 3
   IF(ls /= 0) THEN
     lzs=ls
 !          call convan(ssch,lzs,res)
     CALL stringtype(ssch,lzs,res)
-    IF (res == 'n') THEN
+    
+    IF (res == 'n') THEN                !!! Number trailing mineral name, treat it as a guess
       guess(i,isolution) = DNUM(ssch)
       RETURN
     ELSE    ! Mineral constraint, but trailing string not a number
@@ -295,13 +289,19 @@ IF (constrainmin) THEN    ! Using mineral constraint
 END IF
 
 ! Case where a numerical value (concentration or activity) provided following
-!   the primary species name--check for constraint specification
+!   the primary species name--check for constraint specification (NOTE: rarely used)
+
+!!! Example:   Ca++   0.001  activity
+!!! Example:   Ca++   0.001  total
+!!! Example:   Ca++   0.001  concentration
+
 
 IF(ls /= 0) THEN
+  
   lzs=ls
-!        call convan(ssch,lzs,res)
   CALL stringtype(ssch,lzs,res)
-  IF (res == 'a') THEN       ! ASCII string
+  IF (res == 'a') THEN                 !!! ASCII string
+    
     IF (ssch == 'total') THEN
       itype(i,isolution) = 1
     ELSE IF (ssch == 'species') THEN
@@ -318,13 +318,13 @@ IF(ls /= 0) THEN
       WRITE(*,*) '   In condition: ', dumstring(1:lcond)
     END IF
     
-!  Now, check for a guess
+!  Now, check for a guess after checking to see if the type of constraint (activity, concentration, total, ...) has been mentioned
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     IF(ls /= 0) THEN
       lzs=ls
 !            call convan(ssch,lzs,res)
-      CALL stringtype(ssch,lzs,res)
+      CALL stringtype(ssch,lzs,res)      !!! Checking for a number to use as a guess (optional input)
       IF (res == 'n') THEN
         guess(i,isolution) = DNUM(ssch)
       ELSE          ! ASCII string when expecting a number--ignore it
@@ -333,9 +333,9 @@ IF(ls /= 0) THEN
     ELSE        !  No guess provided
       RETURN
     END IF
+    
   ELSE
-    itype(i,isolution) = 1     ! No trailing ASCII string, so assume
-!                                      default--total concentration
+    itype(i,isolution) = 1              !!! No trailing ASCII string, so assume default--total concentration
     IF(ls /= 0) THEN
       guess(i,isolution) = DNUM(ssch)
     ELSE        !  No guess provided

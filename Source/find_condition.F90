@@ -312,6 +312,7 @@ IF (found) THEN
    CALL units_concentration(nout,unitsflag,nchem,labeltemp,lcond)
   
   DO i = 1,ncomp     ! Cycle through primary species list
+    
     iunivar = 0
     phfound = .false.
     speciesfound = .false.
@@ -320,6 +321,7 @@ IF (found) THEN
       ph(nchem) = -500.0
       guessph(nchem) = -500.0
       constraint(i,nchem) = ' '
+      
 !  Check to see if pH is given, rather than H+
       CALL read_ph(nout,ph,guessph,i,nchem,constraint,nrct,phfound)
       IF (phfound) THEN                !              itype(i,nchem) = 7
@@ -349,7 +351,7 @@ IF (found) THEN
         
       ELSE
         
-!  Case where concentration of H+ is given
+!  Case where total concentration of H+ is given
         
         CALL read_concentration(nout,i,nchem,constraint,  &
             ncomp,nspec,nrct,ngas,speciesfound)
@@ -389,9 +391,12 @@ IF (found) THEN
         END IF
         
       END IF
+      
     ELSE                ! For other concentrations
       
-      guess(i,nchem) = 1.E-06
+      IF (ulab(i) /= 'H2O' .and. ulab(i) /= 'HHO') THEN
+        guess(i,nchem) = 1.E-06
+      ENDIF
     
       
 !     write(*,*)
@@ -417,9 +422,11 @@ IF (found) THEN
           READ(*,*)
           STOP
         END IF
+        
       ELSE IF (unitsflag(nchem) == 3) THEN              !  Units in mmol/kg
         ctot(i,nchem) = ctot(i,nchem)*0.001
         guess(i,nchem) = guess(i,nchem)*0.001
+        
       ELSE IF (unitsflag(nchem) == 4) THEN              !  Units in umol/kg
         ctot(i,nchem) = ctot(i,nchem)*1.E-06
         guess(i,nchem) = guess(i,nchem)*1.E-06
@@ -428,36 +435,47 @@ IF (found) THEN
         CONTINUE
       END IF
       
-!     write(*,*) ctot(i,nchem),guess(i,nchem)
-!            write(*,*) constraint(i,nchem)
-!            write(*,*) ' Gas pp = ',gaspp(i,nchem)
-!     write(*,*) ' Itype = ',itype(i,nchem)
       IF (itype(i,nchem) == 4) THEN
         ctot(i,nchem) = gaspp(i,nchem)
       END IF
+  
+  !!! Put in some guesses for the various constraints where none have been provided
       IF (guess(i,nchem) == 0.0) THEN
+        
         IF (itype(i,nchem) == 1) THEN
           guess(i,nchem) = ctot(i,nchem)
         END IF
+        
         IF (itype(i,nchem) == 7) THEN
-          guess(i,nchem) = ctot(i,nchem)
+          
+          IF (ulab(i)  == 'H2O' .OR. ulab(i) == 'HHO') THEN
+            guess(i,nchem) = ctot(i,nchem)
+          ELSE
+            guess(i,nchem) = ctot(i,nchem)
+          ENDIF
+          
         END IF
+        
         IF (itype(i,nchem) == 8) THEN
           guess(i,nchem) = ctot(i,nchem)
         END IF
-        IF (itype(i,nchem) == 4) THEN
+        
+        IF (itype(i,nchem) == 4) THEN           !!! Gas constraint
           IF (ulab(i) == 'o2(aq)' .OR. ulab(i) == 'O2(aq)') THEN
             guess(i,nchem) = 0.0013*ctot(i,nchem)
           ELSE
             guess(i,nchem) = 1.e-10
           END IF
         END IF
+        
         IF (itype(i,nchem) == 3) THEN
           guess(i,nchem) = 1.e-15
         END IF
+        
         IF (itype(i,nchem) == 2) THEN
           guess(i,nchem) = 1.e-06
         END IF
+        
       END IF
       
     END IF

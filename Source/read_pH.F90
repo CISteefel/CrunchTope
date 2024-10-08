@@ -112,10 +112,12 @@ IF(ls /= 0) THEN
 !        call convan(ssch,lzs,res)
   CALL stringtype(ssch,lzs,res)
   IF (res == 'n') THEN
-    itype(i,isolution) = 7
-!  Read the pH value
+    
+    itype(i,isolution) = 7        !!! Identifies it as an "activity"
     ph(isolution) = DNUM(ssch)
+    
   ELSE
+    
 !  An ascii string, so check for charge balance, then a mineral name
     IF (ssch == 'charge' .OR. ssch == 'Charge' .OR. ssch == 'CHARGE') THEN
       itype(i,isolution) = 2

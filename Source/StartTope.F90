@@ -3458,8 +3458,8 @@ unitsflag = 1
 SaturationCond = FixSaturation
 
 CALL find_condition(nin,nout,found,phfound,ncomp,  &
-  nspec,nrct,nkin,ngas,nexchange,nsurf,ndecay,   &
-  ph,guessph,constraint,nchem,unitsflag,jpor,    &
+  nspec,nrct,nkin,ngas,nexchange,nsurf,ndecay,     &
+  ph,guessph,constraint,nchem,unitsflag,jpor,      &
   DensityModule,RunningPest)
 
 IF (nchem > mchem) THEN
@@ -3490,24 +3490,7 @@ END IF
 
 DO k = 1,nchem
 
-!!! dumstring = condlabel(k)
-!!! CALL stringlen(dumstring,ls)
-!!! WRITE(iunit2,*)
-!!! WRITE(iunit2,*) ' Condition Label: ',dumstring(1:ls)
-!!! WRITE(iunit2,*)
-
-!!! WRITE(iunit2,*)
-!!! WRITE(iunit2,596)
-!!! DO i = 1,ncomp
-!!!   WRITE(iunit2,595) ulab(i),itype(i,k),guess(i,k), ctot(i,k),constraint(i,k)
-!!! END DO
-
   portemp = porcond(k)
-
-!!! WRITE(iunit2,*)
-!!! WRITE(iunit2,599) portemp
-!!! WRITE(iunit2,*)
-!!! WRITE(iunit2,*)
 
   DO i = 1,ncomp
     ncon(i,k) = constraint(i,k)
@@ -3530,52 +3513,49 @@ END IF
 dumstring = ulab(ikmast)
 CALL stringlen(dumstring,ls)
 
-!WRITE(*,*)
-!WRITE(*,*) ' Master variable = ', dumstring(1:ls)
-!WRITE(*,*)
-
 
 ikph = 0
 ikFe2 = 0
 ikFe3 = 0
 ikO2 = 0
+ikH2O = 0
+
 DO ik = 1,ncomp+nspec
 
-IF(ulab(ik) == 'H+' .OR. ulab(ik) == 'h+') THEN
-  ikph = ik
-END IF
-IF (ulab(ik) == 'Fe++') THEN
-  ikFe2 = ik
-END IF
-IF (ulab(ik) == 'Fe+++') THEN
-  ikFe3 = ik
-END IF
-IF(ulab(ik) == 'O2(aq)' .OR. ulab(ik) == 'o2(aq)') THEN
-  ikO2 = ik
-END IF
-IF (ulab(ik) == 'Na+') THEN
-  ikNa = ik
-END IF
-IF (ulab(ik) == 'Cl-') THEN
-  ikCl= ik
-END IF
+  IF(ulab(ik) == 'H+' .OR. ulab(ik) == 'h+') THEN
+    ikph = ik
+  END IF
+  IF (ulab(ik) == 'Fe++') THEN
+    ikFe2 = ik
+  END IF
+  IF (ulab(ik) == 'Fe+++') THEN
+    ikFe3 = ik
+  END IF
+  IF(ulab(ik) == 'O2(aq)' .OR. ulab(ik) == 'o2(aq)') THEN
+    ikO2 = ik
+  END IF
+  IF (ulab(ik) == 'Na+') THEN
+    ikNa = ik
+  END IF
+  IF (ulab(ik) == 'Cl-') THEN
+    ikCl= ik
+  END IF
+  
 END DO
-
-!!IF (ikFe2 /= 0 .and. ikFe3 /= 0 .and. iko2 /= 0) THEN
-
 
 ikTracer = 0
 DO ik = 1,ncomp+nspec
-IF(ulab(ik) == 'Tracer' .OR. ulab(ik) == 'Tracer(aq)' .or. ulab(ik)=='tracer') THEN
-  ikTracer = ik
-END IF
+  IF(ulab(ik) == 'Tracer' .OR. ulab(ik) == 'Tracer(aq)' .or. ulab(ik)=='tracer') THEN
+    ikTracer = ik
+  END IF
 END DO
 
 H2Opresent = .FALSE.
 DO i = 1,ncomp
-IF(ulab(i) == 'H2O' .OR. ulab(ik) == 'h2o') THEN
-  H2Opresent = .TRUE.
-END IF
+  IF(ulab(i) == 'H2O' .OR. ulab(i) == 'h2o' .OR. ulab(i) == 'HHO') THEN
+    H2Opresent = .TRUE.
+    ikH2O = i
+  END IF
 END DO
 
 
@@ -3619,7 +3599,7 @@ END IF
 CALL PestSurface(nout,ncomp,nchem)
 
 ELSE
-pest = .FALSE.
+  pest = .FALSE.
 END IF
 
 !  *****************ISOTOPES BLOCK***********************
@@ -3715,16 +3695,6 @@ dumstring = condlabel(nco)
 CALL stringlen(dumstring,ls)
 
 tempc = tempcond(nco)
-
-!!  sumpor = 0.0
-!!  DO k = 1,nkin
-!!    sumpor = sumpor + volin(k,nco)
-!!  END DO
-!!  IF (jpor == -1) THEN
-!!    portemp = constantpor
-!!  ELSE
-!!    portemp = 1.0 - sumpor
-!!  END IF
 
 portemp = porcond(nco)
 PressureTemp = PressureCond(nco)

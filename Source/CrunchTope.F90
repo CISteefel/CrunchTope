@@ -1138,6 +1138,7 @@ DO WHILE (nn <= nend)
 !!!  call Flash(ncomp,nspec,nrct,ngas,nsurf,igamma,ikph,nco,nexchange,nexch_sec,nsurf_sec,npot,neqn,DensityModule,jx,jy,jz)
 
   IF (.NOT. ReadNuft) THEN
+    
     roOld = ro
     DO jz = 1,nz
       DO jy = 1,ny
@@ -1146,6 +1147,7 @@ DO WHILE (nn <= nend)
         END DO
       END DO
     END DO
+    
   END IF
 
   IF (nexchange > 0) THEN
@@ -3041,6 +3043,12 @@ END DO
 !!    write(*,*)
 
 !  **********************  END GIMRT BLOCK  *********************************
+  
+  if (time > 9.0 .and. time < 10.0) then
+
+    write(75,*) time,dppt(1,75,1,1),s(1,75,1,1)
+
+  end if
 
 !  Store values of master variable
   phmax = 0.0
