@@ -93,6 +93,23 @@ This will be using the working directory as PETSC_DIR. Or directly,
 
 `export PETSC_DIR=/cygdrive/c/software/petsc`
 
+### Configure PETSc without MPI (optimized version)
+
+Before configuring PETSc with MPI, run the following command:
+
+`export PETSC_ARCH=oneAPI-noMPI-opt`
+
+```
+./configure PETSC_ARCH=oneAPI-noMPI-opt \
+--with-cc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_icx \
+--with-fc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_ifx \
+--with-cxx=0 \
+--with-mpi=0 \
+--with-blaslapack-dir=/cygdrive/c/PROGRA~2/Intel/oneAPI/2024.2/lib \
+--with-debugging=0 \
+--with-shared-libraries=0 
+```
+
 ### Configure PETSc with MPI (optimized version)
 
 Inside the PETSc folder, run the script below to configure the PETSc. The value set for PETSC_ARCH will override what is set elsewhere (e.g., in Windows Environment Variables, or in .bashrc). One can create as many PETSC_ARCH as needed, since each configure build will create a separate directory with that name. The user can then switch between these various PETSC_ARCH options, using either the Windows Environment Variable setting for PETSC_ARCH, or in the user’s .bashrc profile.
