@@ -1,28 +1,25 @@
-# Instructions for Building PETSc and CrunchFlow on Windows
+# Instructions for Building PETSc and CrunchFlow on Windows (edited on 2024/10/08)
 ## Install Microsoft Visual Studio with Fortran compilers
 
-You can install Microsoft Visual Studio 2022 from the [link](https://visualstudio.microsoft.com/downloads/). Unfortunately, Microsoft Visual Studio 2019 is not available at the moment.
+We recommend to use Microsoft Visual Studio Community 2022 to build CrunchFlow on Windows. You can install Microsoft Visual Studio Community 2022 from the [link](https://visualstudio.microsoft.com/downloads/). When installing it, we select "Python development" and "Desktop development with C++".
 
 For Fortran compilers, we need to install [Intel oneAPI Base Kit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html#gs.9yaz3k) and [oneAPI HPC toolkit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit.html#gs.9yazr2).  It is recommeneded to install Intel oneAPI Base Kit first. The following instructions assume the following versions:
-VisualStudio: Visual Studio Community 2022 17.10.0
+VisualStudio: Visual Studio Community 2022 17.11.0
 Intel oneAPI Base Toolkit: 2024.1 (C:\Program Files (x86)\Intel\oneAPI)
 Intel HPC Toolkit: 2024.1 (C:\Program Files (x86)\Intel\oneAPI)
 
-Once you stalled them, create a new Visual Studio project to confirm Fortan option is available (you can see "Fortran" in "Empty Project" for example) and run a simple Fortran program:
+Once you stalled them, create a new Visual Studio project to confirm Fortran option is available (you can see "Fortran" in "Empty Project" for example) and run a simple Fortran program. You can add a Fortran file by selecting "Add New Item" in "Project". The name of the file can be "test.F90". Copy and paste the codes below to the file:
 ```
 program main      
 print *, "Hello, World!"
 read(*,*)
 end program main
 ```
- Make sure that Visual Studio can find Fortran compiler. You may need to change the system variable
-`IFORT_COMPILER24`
-to where the Fortran compiler is. For example, it can be
-`C:\Program Files (x86)\Intel\oneAPI\compiler\2024.1\bin`
+Then, build it by selecting "Build Solution" in "Build". We got an issue with finding "libifcoremdd.dll" file when running the executable file. To fix the issue, you can add the path to the file "C:\Program Files (x86)\Intel\oneAPI\compiler\2024.2\bin" for example to the system path.
 
 ## Building PETSc on Windows
 
-Since the configure scripts for PETSc really work well only with UNIX or Linux type systems, the recommended approach is to Cygwin (see the PETSc documentation on [Microsoft Windows Installation](https://petsc.org/main/install/windows/)).
+Since the configure scripts for PETSc really work well only with UNIX or Linux type systems, our recommended approach is to Cygwin (follow the section "Native Microsoft/Intel Windows Compilers" in the PETSc documentation on [Microsoft Windows Installation](https://petsc.org/main/install/windows/)).
 
 
 ### Install Cygwin
@@ -39,48 +36,42 @@ Next, we need to remove Cygwin link.exe to avoid conflict with the Intel ifort c
 
 ### Install PETSc
 
-It turns out that much of the difficulty in getting PETSc to build easily is due to the failure to find the right Environmental Variables and compilers in the Cygwin BASH shell.  Open a Windows (or DOS) Command shell (type “cmd” in Windows). Then navigate within the Command window to:
+It turns out that much of the difficulty in getting PETSc to build easily is due to the failure to find the right Environmental Variables and compilers in the Cygwin BASH shell. Open "Intel oneAPI command prompt for Intel 64 for Visual Studio 2022" from Windows, and this will start a DOS Command shell with working compilers. After these are set, run the command within the same Command window where you have just set the Intel Environment Variables (no double-clicking) to
 
-`C:\Program Files (x86)\Intel\oneAPI\`
+'C:\cygwin64\bin\mintty.exe -'
 
-and give the command:
+This launches a bash shell in the Cygwin Unix environment, but it has to be done by command line from the same Windows Command window where the environment variables were set. If everything has worked correctly, the Cygwin bash shell should have inherited the Environment Variable settings from running the “setvars.bat” script. Test for this by now running within the same Cygwin terminal from a directory other than the one actually containing the files so as to test whether the compilers are in the system search paths:
 
-`setvars.bat intel64`
-
-This will set the various Intel oneAPI flags. After these are set, change directories within the same Command window where you have just set the Intel Environment Variables (no double-clicking) to
-
-`C:\cygwin64\bin`
-
-then login in to a Cygwin (bash) shell with:
-
-`bash.exe -login`
-
-This launches a bash shell in the Cygwin Unix environment, but it has to be done by command line from the same Windows Command window where the environment variables were set.
-
-If everything has worked correctly, the Cygwin bash shell should have inherited the Environment Variable settings from running the “setvars.bat” script.  Test for this by now running within the same Cygwin terminal from a directory other than the one actually containing the files so as to test whether the compilers are in the system search paths:
-
-`which icx`
+'which icx'
 
 and
 
-`which ifx`
+'which ifx'
 
-The location of these compilers should be echoed, if not, the paths have not been set correctly. If not (i.e., you get a message like “No ifort found in …”,), then you will need to add the location of these files manually when configuring PETSc. Cygwin may not know the command `which`. In such a case, follow the direction [here](https://stackoverflow.com/questions/14797194/cygwin-ls-command-not-found).
+The location of these compilers should be echoed, if not, the paths have not been set correctly.  If not (i.e., you get a message like “No ifx found in …”,), then you will need to add the location of these files manually.
 
-Then, change directories to where you want to install PETSc, usually something like (note that we use the cygdrive/c address rather than C:\software) when in the Cygwin terminal):
+Note that Cygwin may not know the command `which`. In such a case, follow the direction [here](https://stackoverflow.com/questions/14797194/cygwin-ls-command-not-found).
+
+Then, change directories to where you want to install PETSc, usually something like (note that we use the 'cygdrive/c' address rather than 'C:\software') when in the Cygwin terminal):
 
 `cd /cygdrive/c/software`
 
-Next, install PETSc on your machine. You can install PETSc from Github repository by following the steps:
+If the directory does not exist, you can create it by
 
-`mkdir ~/software`
+'mkdir software'
 
-`$ cd ~/software`
+after moving to '/cygdrive/c' directory.
 
-`$ git clone -b release https://gitlab.com/petsc/petsc petsc`
-`git pull`
+Next, install PETSc on your machine. Installing PETSc from Github does not work well. So, download the tar ball from [here link](https://petsc.org/main/install/download/):
 
-Then, we set a variable `PETSC_DIR` by
+petsc-3.22.0.tar.gz
+
+and then ideally in C:\software:
+
+'gunzip petsc-3.22.0.tar.gz'
+'tar xvf petsc-3.22.0.tar'
+
+At this point, you can change the name of the directory from "petsc-3.22.0" to "petsc". Then, we set a variable `PETSC_DIR` by
 
 `$ cd petsc`
 `export PETSC_DIR=$PWD`
@@ -93,14 +84,39 @@ This will be using the working directory as PETSC_DIR. Or directly,
 
 Inside the PETSc folder, run the script below to configure the PETSc. The value set for PETSC_ARCH will override what is set elsewhere (e.g., in Windows Environment Variables, or in .bashrc).  One can create as many PETSC_ARCH as needed, since each configure build will create a separate directory with that name.  The user can then switch between these various PETSC_ARCH options, using either the Windows Environment Variable setting for PETSC_ARCH, or in the user’s .bashrc profile.
 
-For statically linked libraries for optimized version is
+In my case, ifx did not work. So, I used ifort.
 
-`./configure PETSC_ARCH=win64-opt --with-cc=icx --with-fc=ifx --with-cxx=0 --with-mpi=0 --download-fblaslapack --with-debugging=0 --with-shared-libraries=0`
-
-You may need to change the directory for the blas and lapack in the Intel oneAPI.
+'
+./configure PETSC_ARCH=oneAPI-noMPI-opt \
+--with-cc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_icx \
+--with-fc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_ifort \
+--with-cxx=0 \
+--with-mpi=0 \
+--with-blaslapack-dir=/cygdrive/c/PROGRA~2/Intel/oneAPI/2024.1/lib \
+--with-debugging=0 \
+--with-shared-libraries=0
+'
 
 For MPI,
-`./configure PETSC_ARCH=mpi-oneAPI-opt --with-cc=icx --with-fc=ifx --with-cxx=0 --with-mpi-include=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/include --with-mpi-lib=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/lib/impi.lib --with-mpiexec=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/bin/mpiexec.exe --download-fblaslapack --with-debugging=0 --with-shared-libraries=0 FPPFLAGS=-I/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/include/mpi`
+
+'export PETSC_ARCH=oneAPI-MPI-opt'
+
+and
+
+`./configure PETSC_ARCH=oneAPI-MPI-opt \
+--with-cc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_icx \
+--with-fc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_ifort \
+--with-cxx=0 \
+--with-mpi-include=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/include \
+--with-mpi-lib=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/lib/impi.lib \
+--with-mpiexec=/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/bin/mpiexec.exe  \
+--with-blaslapack-dir=/cygdrive/c/PROGRA~2/Intel/oneAPI/2024.2/lib \
+--with-debugging=0 \
+--with-shared-libraries=0 \
+FPPFLAGS=-I/cygdrive/c/PROGRA~2/Intel/oneAPI/mpi/latest/include/mpi
+
+`
+You may need to change the version of oneAPI your version from 2024.2.
 
 ### Build PETSc libraries
 
