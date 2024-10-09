@@ -52,7 +52,6 @@ USE concentration
 USE mineral
 USE solver
 USE medium
-
 USE transport
 USE flow
 USE temperature
@@ -170,7 +169,7 @@ IF (FirstCall) THEN
     WRITE(90,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
     DO jy = 1,ny
       DO jx = 1,nx
-        phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         WRITE(90,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,phprt
       END DO
     END DO
@@ -180,7 +179,7 @@ ELSE
     WRITE(90,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
     DO jy = 1,ny
       DO jx = 1,nx
-        phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         WRITE(90,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,phprt
       END DO
     END DO

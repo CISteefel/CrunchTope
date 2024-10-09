@@ -72,14 +72,14 @@ DO ksp = 1,nspec
 
     sum = 0.0D0
     DO i = 1,ncomp
-      sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
+      sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
     END DO
 
  
 
 
   nk = ncomp + ksp
-  sp(nk,jx,jy,jz) = keqaq(ksp,jx,jy,jz) - gam(nk,jx,jy,jz) + sum
+  sp(nk,jx,jy,jz) = keqaq(ksp,jx,jy,jz) - lngamma(nk,jx,jy,jz) + sum
   sp10(nk,jx,jy,jz) = EXP(sp(nk,jx,jy,jz))
 END DO
 

@@ -86,7 +86,7 @@ DO k = 1,nrct
 
       sumiap = 0.0D0
       DO i = 1,ncomp
-        sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
+        sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
       END DO
 
 

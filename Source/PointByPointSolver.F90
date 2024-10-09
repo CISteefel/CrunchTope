@@ -100,7 +100,7 @@ DO ne = 1,newton
 !! IF (igamma == 2) THEN
   IF (UpdateGammaInNewton) THEN
     IF (Duan) THEN
-      CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+!!!      CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
     ELSE
       CALL gamma(ncomp,nspec,jx,jy,jz)
     END IF

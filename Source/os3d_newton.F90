@@ -150,11 +150,13 @@ DO ne = 1,newton
   END IF
 
   IF (igamma == 2) THEN
-    IF (Duan .OR. Duan2006) THEN
-      CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-    ELSE
-      CALL gamma(ncomp,nspec,jx,jy,jz)
-    END IF
+!!!    IF (Duan .OR. Duan2006) THEN
+!!!      CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
+!!!    ELSE
+!!!      CALL gamma(ncomp,nspec,jx,jy,jz)
+!!!    END IF
+    
+    CALL gammaUpdated(ncomp,nspec,jx,jy,jz)
   END IF
 
   CALL SpeciesLocal(ncomp,nspec,jx,jy,jz)

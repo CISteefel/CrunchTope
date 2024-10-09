@@ -244,7 +244,7 @@ IF (ikph /= 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
-    phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+    phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
     WRITE(8,183) x(jx)*OutputDistanceScale,phprt
   END DO
   CLOSE(UNIT=8,STATUS='keep')
@@ -263,7 +263,7 @@ IF (ikph /= 0) THEN
   jy = 1
   jz = 1
   DO jx = 1,nx
-    phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+    phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
     WRITE(8,184) x(jx)*OutputDistanceScale, phprt,(sp(ik,jx,jy,jz)/clg,ik = 1,ncomp+nspec)
   END DO
 ELSE

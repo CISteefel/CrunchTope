@@ -148,7 +148,7 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
             CALL ExchangeConcentration(jx,jy,jz,ncomp,nexchange,nexch_sec)
           END IF
           IF (ikph /= 0) THEN
-            phwrite = -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz) )/clg
+            phwrite = -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz) )/clg
           ELSE
             phwrite = 0.0
           END IF
@@ -245,7 +245,7 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
           END IF
 
           IF (ikph /= 0) THEN
-            phwrite = -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz) )/clg
+            phwrite = -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz) )/clg
           ELSE
             phwrite = 0.0
           END IF

@@ -173,10 +173,10 @@ DO i2 = 1,ncomp
       sum = 0.0D0
       DO ii = 1,ncomp
 
-          sum = sum + muaq(ksp,ii)*(sppTMP(ii) + gam(ii,jx,jy,jz))
+          sum = sum + muaq(ksp,ii)*(sppTMP(ii) + lngamma(ii,jx,jy,jz))
 
       END DO
-      sppTMP(ksp+ncomp) = keqaq(ksp,jx,jy,jz) - gam(ksp+ncomp,jx,jy,jz) + sum
+      sppTMP(ksp+ncomp) = keqaq(ksp,jx,jy,jz) - lngamma(ksp+ncomp,jx,jy,jz) + sum
       sppTMP10(ksp+ncomp) = EXP(sppTMP(ksp+ncomp))  
 !!    END IF
 

@@ -45,7 +45,7 @@
 SUBROUTINE mineral_update(nx,ny,nz,nrct,dt,dtnew,ineg,jpor,deltmin)
 USE crunchtype
 USE params
-
+!!!USE runtime, ONLY: voltol,inagaki,inagaki2,ncounter,ReadGautier,ForsteriteCapillary
 USE concentration
 USE mineral
 USE medium

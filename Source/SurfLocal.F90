@@ -91,7 +91,7 @@ REAL(DP)                                                    :: LogTotalEquivalen
 
             sum = 0.0
             DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
+              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
             END DO
 
 
@@ -122,7 +122,7 @@ REAL(DP)                                                    :: LogTotalEquivalen
 
             sum = 0.0
             DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
+              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
             END DO
 
 

@@ -145,7 +145,7 @@ IF (ikph /= 0) THEN
       DO jy=1,ny
          j = (jy-1)*nx + jx
          DO jz=1,nz
-            WRITE(32,432) -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+            WRITE(32,432) -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
          ENDDO
       ENDDO
    ENDDO

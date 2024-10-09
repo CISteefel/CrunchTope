@@ -235,7 +235,7 @@ DO jz = 1,nz
       WRITE(8,557) ro(jx,jy,jz)
       WRITE(8,411) sion(jx,jy,jz)
       IF (ikph /= 0) THEN
-        pHprint = -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        pHprint = -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         WRITE(8,5022) pHprint
       END IF
       IF (O2Found) THEN     !  Calculate pe based on O2-H2O couple
@@ -244,7 +244,7 @@ DO jz = 1,nz
           5025 FORMAT(2x,'Solution pe and Eh require H2(g) be included')
         ELSE
           peprint = (-0.5*keqgas(npointH2gas,jx,jy,jz) +             &
-            0.25*(sp(npointO2aq,jx,jy,jz)+gam(npointO2aq,jx,jy,jz)) -     &  
+            0.25*(sp(npointO2aq,jx,jy,jz)+lngamma(npointO2aq,jx,jy,jz)) -     &  
             pHprint*clg + 0.25*keqgas(npointO2gas,jx,jy,jz) )/clg
           WRITE(8,5023) peprint
           Ehprint = peprint*clg*rgas*(t(jx,jy,jz)+273.15)/23.06
@@ -405,10 +405,10 @@ DO jz = 1,nz
       DO ik = 1,ncomp+nspec
         spbase = DLOG10(sp10(ik,jx,jy,jz))
 
-          actprint = (sp(ik,jx,jy,jz)+gam(ik,jx,jy,jz))/clg
+          actprint = (sp(ik,jx,jy,jz)+lngamma(ik,jx,jy,jz))/clg
 
         actprint10 = 10**(actprint)
-        WRITE(8,202) ulab(ik),spbase,actprint,sp10(ik,jx,jy,jz),actprint10,EXP(gam(ik,jx,jy,jz)),namtemp
+        WRITE(8,202) ulab(ik),spbase,actprint,sp10(ik,jx,jy,jz),actprint10,EXP(lngamma(ik,jx,jy,jz)),namtemp
       END DO  
 
     WRITE(8,*)
@@ -428,7 +428,7 @@ DO jz = 1,nz
         sumiap = 0.0D0
         DO i = 1,ncomp
 
-            sumiap = sumiap + mumin(1,k,i)* (sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
+            sumiap = sumiap + mumin(1,k,i)* (sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
 
         END DO
         silnTMP = sumiap - keqmin(1,k,jx,jy,jz)
