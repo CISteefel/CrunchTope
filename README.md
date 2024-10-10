@@ -37,7 +37,7 @@ When installing Cygwin from the [link](https://www.cygwin.com/), make sure you a
 
 ### Remove Cygwin link.exe
 
-Next, we need to remove Cygwin link.exe to avoid conflict with the Intel ifort compiler. In a Cygwin BASH shell (search on your Windows machine and you can find "Cygwin64 Terminal" and run it as administrator), type the following command:
+Next, we need to remove Cygwin link.exe to avoid conflict with the Intel ifort compiler. In a Cygwin BASH shell (search on your Windows machine and you can find "Cygwin64 Terminal"), type the following command:
 
 `mv /usr/bin/link.exe /usr/bin/link-cygwin.exe`
 
