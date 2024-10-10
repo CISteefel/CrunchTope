@@ -102,14 +102,14 @@ DO k = 1,nkin
         kk = kcrossaff(np,k)
         sumiap = 0.0D0
         DO i = 1,ncomp
-          sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(spptmp(i)+gam(i,jx,jy,jz))
+          sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(spptmp(i)+lngamma(i,jx,jy,jz))
         END DO
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
         si(np,k) = 10**(silog(np,k))
       ELSE
         sumiap = 0.0D0
         DO i = 1,ncomp
-          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(spptmp(i)+gam(i,jx,jy,jz))
+          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(spptmp(i)+lngamma(i,jx,jy,jz))
         END DO
         silogTMP = (sumiap - keqmin(np,k,jx,jy,jz))/clg
         silnTMP = clg*silogTMP
@@ -159,13 +159,13 @@ DO k = 1,nkin
             IF (itot_min(kk,np,k) == 1) THEN
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
-              term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz)+sp(i,jx,jy,jz))
+              term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
             END IF
           ELSE
             IF (itot_min(kk,np,k) == 1) THEN
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
-              term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz)+sppTMP(i))
+              term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sppTMP(i))
             END IF
           END IF
         END DO

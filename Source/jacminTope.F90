@@ -83,7 +83,7 @@ END interface
 interface
   SUBROUTINE AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,AffinityTerm,time)
     USE crunchtype
-    USE concentration, ONLY: gam
+    USE concentration, ONLY: gamma,sn,sppTMP10,ulab,ikh2o
     IMPLICIT NONE
     INTEGER(I4B), INTENT(IN)                                        :: ncomp
     INTEGER(I4B), INTENT(IN)                                        :: nrct
@@ -424,7 +424,7 @@ DO k = 1,nkin
               sumiap = 0.0D0
               DO i2 = 1,ncomp
 
-                  sumiap = sumiap + mumin(1,k,i2)*( sppTMP(i2) + gam(i2,jx,jy,jz) )
+                  sumiap = sumiap + mumin(1,k,i2)*( sppTMP(i2) + lngamma(i2,jx,jy,jz) )
 
               END DO
               

@@ -46,7 +46,7 @@ SUBROUTINE AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,AffinityTerm,time)
 USE crunchtype
 USE params
 USE runtime, ONLY: JennyDruhan,UseBulkMineral,LagSurface
-USE concentration, ONLY: gam,sn,sppTMP10,ulab,ikh2o
+USE concentration, ONLY: lngamma,gamma,sn,sppTMP10,ulab,ikh2o
 USE mineral
 USE medium
 USE temperature
@@ -111,7 +111,7 @@ END IF
 
   sumiap = 0.0D0
   DO i = 1,ncomp
-    sumiap = sumiap + mumin(npp,kk,i)*(sppTMP(i)+gam(i,jx,jy,jz))
+    sumiap = sumiap + mumin(npp,kk,i)*(sppTMP(i)+ lngamma(i,jx,jy,jz))
   END DO
 
 

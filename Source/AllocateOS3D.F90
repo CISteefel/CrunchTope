@@ -100,10 +100,12 @@ INTEGER(I4B), INTENT(IN)                           :: nz
   END IF
   ALLOCATE(sorp(nx,ny,nz))
   sorp = 1.0
-  IF (ALLOCATED(gam)) THEN
-    DEALLOCATE(gam)
+  
+  IF (ALLOCATED(gamma)) THEN
+    DEALLOCATE(gamma)
   END IF
-  ALLOCATE(gam(ncomp+nspec,nx,ny,nz))
+  ALLOCATE(gamma(ncomp+nspec,nx,ny,nz))
+  
   IF (ALLOCATED(keqaq)) THEN
     DEALLOCATE(keqaq)
   END IF
@@ -133,12 +135,14 @@ INTEGER(I4B), INTENT(IN)                           :: nz
     DEALLOCATE(fjac_loc)
   END IF
   ALLOCATE(fjac_loc(ncomp,ncomp))
-  gam = 0.0
+  
+  gamma = 0.0
   keqaq = 500.00
   keqgas = 500.00
   keqsurf = 500.00
   keqmin = 500.00
   fjac_loc = 0.0
+  
   IF (ALLOCATED(ssurfn)) THEN
     DEALLOCATE(ssurfn)
   END IF

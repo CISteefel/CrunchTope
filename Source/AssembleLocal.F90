@@ -145,7 +145,7 @@ source = 0.0
 Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
 
 r = 1.0/delt      
-neqn = ncomp + nsurf + nexchange + npot
+neqn = ncomp + nsurf + nexchange + npot + 1 + 1
 IF (cylindrical) THEN
   CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
   df = 1.0d0

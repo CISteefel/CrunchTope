@@ -105,7 +105,7 @@ IF (ikph /= 0) THEN
    DO jx=1,nx
       DO jy=1,ny
          DO jz=1,nz
-            WRITE(32,432) -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+            WRITE(32,432) -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
          END DO
       END DO
    END DO
@@ -120,7 +120,7 @@ IF (ikO2 /= 0) THEN
    DO jx=1,nx
       DO jy=1,ny
          DO jz=1,nz
-            WRITE(32,432) (sp(ikO2,jx,jy,jz)+gam(ikO2,jx,jy,jz))/clg
+            WRITE(32,432) (sp(ikO2,jx,jy,jz)+lngamma(ikO2,jx,jy,jz))/clg
          END DO
       END DO
    END DO

@@ -402,7 +402,7 @@ ELSE IF (ny > 1 .AND. nz == 1) THEN             !!  2D case, X and Y
     jz = 1
     DO jy = 1,ny
       DO jx = 1,nx
-        phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         WRITE(8,183) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,phprt
       END DO
     END DO
@@ -1038,7 +1038,7 @@ END IF
     jy = 1
     DO jz = 1,nz
       DO jx = 1,nx
-        phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         WRITE(8,183) x(jx)*OutputDistanceScale,z(jz)*OutputDistanceScale,phprt
       END DO
     END DO
@@ -1426,15 +1426,15 @@ END IF
     jz = 1
     DO jy = 1,ny
       DO jx = 1,nx
-        pHprint = -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        pHprint = -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         IF (ikh2o /= 0) THEN
           peprint = (-0.5d0*keqgas(npointH2gas,jx,jy,jz) +             &
-            0.25d0*( sp(npointO2aq,jx,jy,jz)+gam(npointO2aq,jx,jy,jz)) - 0.5*gam(ikh2o,jx,jy,jz) -     &  
+            0.25d0*( sp(npointO2aq,jx,jy,jz)+lngamma(npointO2aq,jx,jy,jz)) - 0.5*lngamma(ikh2o,jx,jy,jz) -     &  
             pHprint*clg + 0.25d0*keqgas(npointO2gas,jx,jy,jz) )/clg
 !!          Ehprint = peprint*clg*rgas*(t(jx,jy,jz)+273.15)/23.06
         ELSE
           peprint = (-0.5d0*keqgas(npointH2gas,jx,jy,jz) +             &
-            0.25d0*( sp(npointO2aq,jx,jy,jz)+gam(npointO2aq,jx,jy,jz)) -     &  
+            0.25d0*( sp(npointO2aq,jx,jy,jz)+lngamma(npointO2aq,jx,jy,jz)) -     &  
             pHprint*clg + 0.25d0*keqgas(npointO2gas,jx,jy,jz) )/clg
         END IF
         WRITE(8,184) x(jx)*OutputDistanceScale,peprint 
@@ -1457,8 +1457,8 @@ END IF
     DO jy = 1,ny
       DO jx = 1,nx
 
-        fe2print = ( sp(ikfe2,jx,jy,jz)+gam(ikfe2,jx,jy,jz) )/clg
-        fe3print = ( sp(ikfe3,jx,jy,jz)+gam(ikfe3,jx,jy,jz) )/clg
+        fe2print = ( sp(ikfe2,jx,jy,jz)+lngamma(ikfe2,jx,jy,jz) )/clg
+        fe3print = ( sp(ikfe3,jx,jy,jz)+lngamma(ikfe3,jx,jy,jz) )/clg
         peprint = 13.02825 + fe3print - fe2print 
         WRITE(8,184) x(jx)*OutputDistanceScale,peprint 
 
@@ -1501,7 +1501,7 @@ END IF
     jz = 1
     DO jy = 1,ny
       DO jx = 1,nx
-        phprt =  -(sp(ikph,jx,jy,jz)+gam(ikph,jx,jy,jz))/clg
+        phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
         WRITE(8,185) x(jx)*OutputDistanceScale,phprt
       END DO
     END DO

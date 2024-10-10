@@ -98,7 +98,7 @@ DO jz = 1,nz
 
             sum = 0.0
             DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
+              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
             END DO
 
 
@@ -127,7 +127,7 @@ DO jz = 1,nz
 
             sum = 0.0
             DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + gam(i,jx,jy,jz))
+              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
             END DO
 
  

@@ -40,74 +40,95 @@
 !!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or 
 !!! derivative works thereof, in binary and source code form.
 
-!!!      ****************************************  
+!!!      ****************************************
 
-SUBROUTINE GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
+SUBROUTINE jacobianCT(ncomp,nspec,nx,ny,nz)
 USE crunchtype
 USE params
 USE concentration
-USE temperature
-USE runtime, ONLY: Duan,Duan2006
+USE solver
 
 IMPLICIT NONE
 
 !  External variables
 
-INTEGER(I4B), INTENT(IN)                                   :: ncomp
-INTEGER(I4B), INTENT(IN)                                   :: ngas
-REAL(DP), DIMENSION(:)                                     :: gastmp10
-INTEGER(I4B), INTENT(IN)                                   :: jx
-INTEGER(I4B), INTENT(IN)                                   :: jy
-INTEGER(I4B), INTENT(IN)                                   :: jz
+INTEGER(I4B), INTENT(IN)                             :: ncomp
+INTEGER(I4B), INTENT(IN)                             :: nspec
+INTEGER(I4B), INTENT(IN)                             :: nx
+INTEGER(I4B), INTENT(IN)                             :: ny
+INTEGER(I4B), INTENT(IN)                             :: nz
 
 !  Internal variables
 
-REAL(DP)                                                   :: sum
-REAL(DP)                                                   :: temp
-REAL(DP)                                                   :: tempk
-REAL(DP)                                                   :: denmol
-REAL(DP)                                                   :: pg
-REAL(DP)                                                   :: ln_fco2
-REAL(DP)                                                   :: vrInOut
+REAL(DP)                                             :: sum
+REAL(DP)                                             :: spec_conc
+REAL(DP)                                             :: mutemp
 
-INTEGER(I4B)                                               :: i
-INTEGER(I4B)                                               :: kk
+INTEGER(I4B)                                         :: i
+INTEGER(I4B)                                         :: i2
+INTEGER(I4B)                                         :: kk
+INTEGER(I4B)                                         :: ksp
+INTEGER(I4B)                                         :: jx
+INTEGER(I4B)                                         :: jy
+INTEGER(I4B)                                         :: jz
 
-ln_fco2 = 0.0d0
-tempk = t(jx,jy,jz) + 273.15
+INTEGER(I4B)                                   :: pos_der
+INTEGER(I4B)                                   :: nk
+INTEGER(I4B)                                   :: icomp
 
-!!denmol = DLOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
+fjac = 0.0d0
 
-IF (Duan .OR. Duan2006) THEN
-  pg = GasPressureTotal(jx,jy,jz)
-END IF
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
 
-DO kk = 1,ngas
-  
-    sum = 0.0
-    DO i = 1,ncomp
-      sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
+      DO icomp = 1,ncomp
+        
+ ! derivative of total concentration / icomp concentration
+        ulabPrint = ulab(icomp)
+        IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+        DO ider = 1, ncomp
+          ulabPrint = ulab(ider)
+          IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+            sum = 0D0
+            DO ksp = 1,nspec
+              nk = ksp + ncomp
+              sum = sum + muaq(ksp,icomp) * deriv_conc(nk,ider,jx,jy,jz)
+            END DO      
+            fjac(ider,icomp,jx,jy,jz) = deriv_conc(icomp,ider,jx,jy,jz) + sum
+
+          ELSE    !! For H2O
+            
+            fjac(ider,icomp,jx,jy,jz) = 0.d0
+        ! deriv / gammawater
+            pos_der = ncomp + nexchange + nsurf + npot + 1 + 1
+            sum = 0D0
+            DO ksp = 1,scalar%nspec
+              nk = ksp + scalar%ncomp
+              sum = sum + muaq(ksp,icomp) * deriv_conc(nk,pos_der,jx,jy,jz)
+            END DO      
+            
+            aqspecies(ncell,icomp,pos_der,1)%deriv_totconc = sum
+            
+          END IF    
+        END DO
+
+    ! derivative of total concentration / ionic strength
+        sum = 0D0
+        pos_der = ncomp + nexchange + nsurf + npot + 1 
+        DO ksp = 1,scalar%nspec
+          nk = ksp + scalar%ncomp
+          sum = sum + muaq(ksp,icomp) * deriv_conc(nk,pos_der,jx,jy,jz)
+        END DO      
+        
+        aqspecies(ncell,icomp,pos_der,1)%deriv_totconc = sum
+   
+      END IF ! derivative is 0 for icomp = water
+
     END DO
-
-  IF (Duan) THEN
-    ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-    if (namg(kk) == 'CO2(g)') then
-      vrInOut = vrSave(jx,jy,jz)
-      call fugacity_co2(pg,tempk,ln_fco2,vrInOut)
-      vrSave(jx,jy,jz) = vrInOut
-    end if
-  ELSE IF (Duan2006) THEN
-    ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-    if (namg(kk) == 'CO2(g)') then
-      vrInOut = vrSave(jx,jy,jz)
-      call fugacity_co24(pg,tempk,ln_fco2,vrInOut)
-      vrSave(jx,jy,jz) = vrInOut
-    end if
-  END IF
-
-  gastmp10(kk) = DEXP(keqgas(kk,jx,jy,jz) + sum - ln_fco2)  
+  END DO
 END DO
 
 RETURN
-END SUBROUTINE GasPartialPressure
-!  **************************************************************
+END SUBROUTINE jacobianCT
+!***********************************************************

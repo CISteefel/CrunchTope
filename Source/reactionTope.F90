@@ -375,7 +375,7 @@ DO k = 1,nkin
 
           sumiap = 0.0D0
           DO i = 1,ncomp
-            sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
+            sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
           END DO
 
 
@@ -392,7 +392,7 @@ DO k = 1,nkin
 
           sumiap = 0.0D0
           DO i = 1,ncomp
-            sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
+            sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
           END DO
 
 
@@ -407,7 +407,7 @@ DO k = 1,nkin
 
           sumiap = 0.0D0
           DO i = 1,ncomp
-            sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+gam(i,jx,jy,jz))
+            sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
           END DO
 
         
@@ -649,7 +649,7 @@ DO k = 1,nkin
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
 
-                term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz)+sp(i,jx,jy,jz))
+                term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
 
             END IF
           ELSE
@@ -657,7 +657,7 @@ DO k = 1,nkin
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
 
-                term2 = term2 + depend(kk,np,k)*(gam(i,jx,jy,jz)+sp(i,jx,jy,jz))
+                term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
 
             END IF
           END IF
