@@ -43,7 +43,7 @@
 !!!      ****************************************
 
     
-SUBROUTINE SolveGasDiffuse(nx,ny,nz,nn,icomp,delt,user,amatD)
+SUBROUTINE SolveGasDiffuse(nx,ny,nz,nn,icomp,delt,userD,amatD)
 USE crunchtype
 USE params
 USE concentration
@@ -94,7 +94,7 @@ REAL(DP), PARAMETER      ::zero=0.0
 !*********************end PETSc declarations ******************************
 
 ! ******************** PETSC declarations ********************************
-PetscFortranAddr     user(6)
+PetscFortranAddr     userD(6)
 Mat                  amatD
 ! ************************end PETSc declarations of PETSc variables ******
 

@@ -218,6 +218,7 @@ CHARACTER (LEN=3)                              :: ulabprint
 !! Time normalized used if time series only defined for 1 representative year:
 REAL(DP)        :: time_norm
 REAL(DP), DIMENSION(:), ALLOCATABLE                   :: temp_dum
+
 !********************* PETSc declarations ********************************
 PetscFortranAddr                                                    user(6)
 Mat                                                                 amatpetsc

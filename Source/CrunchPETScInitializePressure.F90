@@ -65,7 +65,7 @@ INTEGER(I4B)                                                          :: nxyz
 INTEGER(I4B)                                                          :: linefil
 
 ! ******************** PETSC declarations ********************************
-PetscFortranAddr     userP(*)
+PetscFortranAddr     userP(6)
 Mat                  amatP
 Vec                  bvecP,xvecP
 !!SLES                 sles
