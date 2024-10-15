@@ -8280,61 +8280,61 @@ ELSE
    
   ! ********************************************
   ! Edit by Toshiyuki Bandai 2023 May
-  Toshi_allocate: IF (Richards) THEN
+  Richards_allocate: IF (Richards) THEN
   ! allocate state variable for the Richards equation
   ! water potential psi
     IF (ALLOCATED(psi)) THEN
       DEALLOCATE(psi)
-      ALLOCATE(psi(nx, ny, nz))
+      ALLOCATE(psi(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(psi(nx, ny, nz))
+      ALLOCATE(psi(0:nx+1, ny, nz))
     END IF
      
     ! volumetric water content theta
     IF (ALLOCATED(theta)) THEN
       DEALLOCATE(theta)
-      ALLOCATE(theta(nx, ny, nz))
+      ALLOCATE(theta(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(theta(nx, ny, nz))
+      ALLOCATE(theta(0:nx+1, ny, nz))
     END IF
     
     IF (ALLOCATED(theta_prev)) THEN
       DEALLOCATE(theta_prev)
-      ALLOCATE(theta_prev(nx, ny, nz))
+      ALLOCATE(theta_prev(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(theta_prev(nx, ny, nz))
+      ALLOCATE(theta_prev(0:nx+1, ny, nz))
     END IF
 
     ! derivative of volumetric water content theta
     IF (ALLOCATED(dtheta)) THEN
       DEALLOCATE(dtheta)
-      ALLOCATE(dtheta(nx, ny, nz))
+      ALLOCATE(dtheta(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(dtheta(nx, ny, nz))
+      ALLOCATE(dtheta(0:nx+1, ny, nz))
     END IF
 
     ! head values
     IF (ALLOCATED(head)) THEN
       DEALLOCATE(head)
-      ALLOCATE(head(nx, ny, nz))
+      ALLOCATE(head(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(head(nx, ny, nz))
+      ALLOCATE(head(0:nx+1, ny, nz))
     END IF
 
     ! relative permeability
     IF (ALLOCATED(kr)) THEN
       DEALLOCATE(kr)
-      ALLOCATE(kr(nx, ny, nz))
+      ALLOCATE(kr(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(kr(nx, ny, nz))
+      ALLOCATE(kr(0:nx+1, ny, nz))
     END IF
 
     ! derivative of relative permeability
     IF (ALLOCATED(dkr)) THEN
       DEALLOCATE(dkr)
-      ALLOCATE(dkr(nx, ny, nz))
+      ALLOCATE(dkr(0:nx+1, ny, nz))
     ELSE
-      ALLOCATE(dkr(nx, ny, nz))
+      ALLOCATE(dkr(0:nx+1, ny, nz))
     END IF
      
     ! allocate and read van-Genuchten parameters
@@ -8346,12 +8346,12 @@ ELSE
       ! theta_s is the same as the porosity, so no need to read vg_theta_s
       IF (ALLOCATED(theta_s)) THEN
         DEALLOCATE(theta_s)
-        ALLOCATE(theta_s(nx, ny, nz))
+        ALLOCATE(theta_s(0:nx+1, ny, nz))
       ELSE
-        ALLOCATE(theta_s(nx, ny, nz))
+        ALLOCATE(theta_s(0:nx+1, ny, nz))
       END IF
       
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+      FORALL (jx=0:nx+1, jy=1:ny, jz=1:nz)
         theta_s(jx,jy,jz) = por(jx,jy,jz)
       END FORALL
     ELSE
@@ -8681,7 +8681,7 @@ ELSE
     !! convert unit
     !psi_s = psi_s/dist_scale
     
-  END IF Toshi_allocate
+  END IF Richards_allocate
   ! ***************************************************
   ! End of Edit by Toshiyuki Bandai 2023 May
      
