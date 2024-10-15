@@ -22,13 +22,15 @@ END
 OUTPUT
 time_units               days
 spatial_profile          1.0 4.0 6.5
+time_series          Tracer1.out 10 1 1
+time_series_print    Tracer
+time_series_units    Mol/kgw
+time_series_interval 1
 END
 
 TRANSPORT
 distance_units meters
 time_units     seconds
-fix_diffusion  1e-9
-dispersivity   0.1 0 
 END
 
 FLOW
@@ -52,14 +54,11 @@ vg_alpha   120 1.43
 vg_n       120 1.506
 upper_bc_type constant_flux -0.2
 lower_bc_type constant_flux 0.0
-
 END
 
 BOUNDARY_CONDITIONS
-x_begin   ambient       flux
+x_begin   injection   flux
 x_end     ambient       flux
-y_begin   injection     flux
-y_end     ambient       flux
 END
 
 INITIAL_CONDITIONS
@@ -84,7 +83,7 @@ Condition        ambient
 units            mol/kg
 temperature      25.0
 pH               7.00
-Tracer           1e-25
+Tracer           0.000001
 END
 
 POROSITY
@@ -92,6 +91,8 @@ fix_porosity 0.33
 porosity_update false
 END
 
+! adding H+ is necessary to prevent non-convergence 
+! due to the addiiton of ionic strength
 PRIMARY_SPECIES
 Tracer
 H+

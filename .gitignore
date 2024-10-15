@@ -1,1 +1,6 @@
-# there are no files or folders to ignore
+# ignore visual studio files
+CrunchTope.*
+
+# ignore visual studio output files
+x64
+.vs
