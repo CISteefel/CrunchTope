@@ -543,7 +543,7 @@ endif
 
 dtmax = tstep
 
-!!! Last two unknowns are ionic strength and activity of water (gammawater)
+!!! Last two unknowns are ionic strength (sion[jx,jy,jz] and activity of water (gammawater[jx,jy,jz] )
 neqn = ncomp + nexchange + nsurf + npot + 1 + 1
 
 IF (nstop == 0) THEN

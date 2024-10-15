@@ -3795,6 +3795,10 @@ DO ik = 1,ncomp+nspec
 END DO
 sionInit(nco) = 0.50D0*ChargeSum
 
+IF (sionInit(nco) == 0.0d0) THEN
+  sionInit(nco) = 1.0D-06
+ENDIF
+
 gammawater = 1.0d0
 lngammawater = 0.0d0
 

@@ -82,13 +82,10 @@ reft = 1.0/298.15
 DO k = 1,nrct
   DO np = 1,nreactmin(k)
 
-
-
       sumiap = 0.0D0
       DO i = 1,ncomp
         sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
       END DO
-
 
     silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
   END DO

@@ -45,7 +45,8 @@ subroutine CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
 USE crunchtype
 USE flow, ONLY:  XvecCrunchP, BvecCrunchP
 
-#include "petsc/finclude/petsc.h"
+#include "petsc/finclude/petscmat.h"
+#include "petsc/finclude/petscksp.h"
 USE petscmat
 USE petscksp
  
@@ -64,7 +65,7 @@ INTEGER(I4B)                                                          :: nxyz
 INTEGER(I4B)                                                          :: linefil
 
 ! ******************** PETSC declarations ********************************
-PetscFortranAddr     userP(*)
+PetscFortranAddr     userP(6)
 Mat                  amatP
 Vec                  bvecP,xvecP
 !!SLES                 sles

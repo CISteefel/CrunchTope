@@ -95,7 +95,6 @@ IF(ls /= 0) THEN
     originlab = .TRUE.
   ELSE IF (ssch == 'kaleidagraph') THEN
     kaleidagraph = .TRUE.
-    tecplot = .FALSE.
   ELSE IF (ssch == 'nview') THEN
     nview = .TRUE.
   ELSE
