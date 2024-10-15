@@ -9423,7 +9423,7 @@ ELSE
     
     ! ********************************************
     ! Edit by Toshiyuki Bandai, 2023 May
-    Toshi_permeability: IF (Richards) THEN
+    Richards_permeability: IF (Richards) THEN
       ! allocate permeability at faces
       IF (ALLOCATED(K_faces_x)) THEN
         DEALLOCATE(K_faces_x)
@@ -9440,12 +9440,13 @@ ELSE
         IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
           K_faces_x(i, 1, 1) = permx(i, 1, 1)
         ELSE
-          numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (x(i+1) - x(i))
-          denominator = 0.5d0 * permx(i, 1, 1) * dxx(i) + 0.5d0 * permx(i+1, 1, 1) * dxx(i+1)
+          ! distance weighted harmonic mean
+          numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
+          denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
           K_faces_x(i, 1, 1) = numerator / denominator
         END IF
       END DO
-    END IF Toshi_permeability
+    END IF Richards_permeability
     
     ! Read lower and upper boundary conditions for steady-state problem
     Toshi_boundary_conditions: IF (Richards) THEN

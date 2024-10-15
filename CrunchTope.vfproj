@@ -5,7 +5,7 @@
 	</Platforms>
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
-			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" WarnUnalignedData="false" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" UseMkl="mklParallel"/>
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" MultiProcessorCompilation="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" WarnUnalignedData="false" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" UseMkl="mklParallel"/>
 			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="libpetsc.lib impi.lib Advapi32.lib  Gdi32.lib User32.lib  Kernel32.lib Ws2_32.lib mkl_intel_thread.lib libiomp5md.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -109,7 +109,8 @@
 			<File RelativePath=".\Source\fitgamma.F90"/>
 			<File RelativePath=".\Source\Flash.F90"/>
 			<File RelativePath=".\Source\flow.F90"/>
-			<File RelativePath=".\Source\flux_Richards.F90"/>
+			<File RelativePath=".\Source\flux_Richards.F90">
+			</File>
 			<File RelativePath=".\Source\flux_Richards_steady.F90"/>
 			<File RelativePath=".\Source\FluxWeightedConcentrationInitialize.F90"/>
 			<File RelativePath=".\Source\FluxWeightedConcentrationWrite.F90"/>
@@ -295,13 +296,16 @@
 			<File RelativePath=".\Source\read_TortuosityByZone.F90"/>
 			<File RelativePath=".\Source\read_tortuosityfile.F90"/>
 			<File RelativePath=".\Source\read_transpiration.F90"/>
-			<File RelativePath=".\Source\read_vanGenuchten_parameters.F90"/>
-			<File RelativePath=".\Source\read_vgafile.F90"/>
+			<File RelativePath=".\Source\read_vanGenuchten_parameters.F90">
+			</File>
+			<File RelativePath=".\Source\read_vgafile.F90">
+			</File>
 			<File RelativePath=".\Source\read_vgnfile.F90"/>
 			<File RelativePath=".\Source\read_walltime.F90"/>
 			<File RelativePath=".\Source\read_watertable_timeseries.F90"/>
 			<File RelativePath=".\Source\read_watertablefile.F90"/>
-			<File RelativePath=".\Source\read_wcrfile.F90"/>
+			<File RelativePath=".\Source\read_wcrfile.F90">
+			</File>
 			<File RelativePath=".\Source\readblock.F90"/>
 			<File RelativePath=".\Source\readbreak.F90"/>
 			<File RelativePath=".\Source\readCaseSensitive.F90"/>
@@ -321,14 +325,16 @@
 			<File RelativePath=".\Source\readtype3.F90"/>
 			<File RelativePath=".\Source\readtypescan1.F90"/>
 			<File RelativePath=".\Source\reallocate.F90"/>
-			<File RelativePath=".\Source\residual_Richards.F90"/>
+			<File RelativePath=".\Source\residual_Richards.F90">
+			</File>
 			<File RelativePath=".\Source\residual_Richards_steady.F90"/>
 			<File RelativePath=".\Source\restart.F90"/>
 			<File RelativePath=".\Source\rocalc.F90"/>
 			<File RelativePath=".\Source\RunTime.F90"/>
 			<File RelativePath=".\Source\satcalc.F90"/>
 			<File RelativePath=".\Source\solbt90.F90"/>
-			<File RelativePath=".\Source\solve_Richards.F90"/>
+			<File RelativePath=".\Source\solve_Richards.F90">
+			</File>
 			<File RelativePath=".\Source\solve_Richards_steady.F90"/>
 			<File RelativePath=".\Source\SolveDiffuse.F90"/>
 			<File RelativePath=".\Source\SolveDiffuseSpherical.F90"/>
