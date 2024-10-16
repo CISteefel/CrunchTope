@@ -3408,8 +3408,10 @@ END DO
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
     IF (Richards) THEN
+        WRITE(iures) psi
         WRITE(iures) head
         WRITE(iures) theta
+        WRITE(iures) theta_prev
     END IF
     ! End of Edit by Toshiyuki Bandai 2023 May
     !*********************************************
@@ -3687,8 +3689,10 @@ END DO
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
     IF (Richards) THEN
+        WRITE(iures) psi
         WRITE(iures) head
         WRITE(iures) theta
+        WRITE(iures) theta_prev
     END IF
     ! End of Edit by Toshiyuki Bandai 2023 May
     !*********************************************
