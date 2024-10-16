@@ -666,6 +666,7 @@ IF (CalculateFlow) THEN
   ro(:,:,0) = ro(:,:,1)
   ro(:,:,nz+1) = ro(:,:,nz)
 
+  ! compute face permeability (harx etc.) based on distance-weighted harmonic mean
   CALL harmonic(nx,ny,nz)
 
   MaxPermeabilityX = MAXVAL(harx)
@@ -697,7 +698,7 @@ IF (CalculateFlow) THEN
 
  ! Edit by Toshiyuki Bandai 2023 May
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
- PETSc_if: IF (Richards) THEN
+ initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
@@ -735,7 +736,7 @@ IF (CalculateFlow) THEN
 
  ! End of edit by Toshiyuki Bandai, 2023 May
  ! ******************************************************************
- ELSE PETSc_if
+ ELSE initial_flow_solver_if
 !!  atolksp = 1.D-50
 !!  rtolksp = 1.D-25
 !!  dtolksp = 1.D+05
@@ -790,7 +791,7 @@ IF (CalculateFlow) THEN
     WRITE(*,*) ' Steady state flow failed to converge '
   END IF
 
- END If PETSc_if
+ END If initial_flow_solver_if
  ! End of If construct for solvers needing PETSc or not
  
 !     ***** PETSc closeout*******
@@ -838,7 +839,6 @@ IF (CalculateFlow) THEN
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
-    satliqold = satliq
     jy = 1
     jz = 1
     DO jx = 1, nx
@@ -860,6 +860,8 @@ IF (CalculateFlow) THEN
     satliq(:,:,0) = satliq(:,:,1)
     satliq(:,:,2) = satliq(:,:,1)
     satliq(:,:,3) = satliq(:,:,1)
+    
+    satliqold = satliq
   
   END IF
   ! End of Edit by Toshiyuki Bandai, 2023 May
