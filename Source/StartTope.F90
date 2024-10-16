@@ -9420,7 +9420,9 @@ ELSE
         DEALLOCATE(jzzpermz_hi)
 
       END IF
-    
+
+      !!!  End of section where choosing between perm file read and zone specification      END IF
+      
     ! ********************************************
     ! Edit by Toshiyuki Bandai, 2023 May
     Richards_permeability: IF (Richards) THEN
@@ -9449,7 +9451,7 @@ ELSE
     END IF Richards_permeability
     
     ! Read lower and upper boundary conditions for steady-state problem
-    Toshi_boundary_conditions: IF (Richards) THEN
+    Richards_boundary_conditions: IF (Richards) THEN
       IF (Richards_steady) THEN
         ! lower boundary condition
         BC_location = 0
@@ -9741,8 +9743,6 @@ ELSE
           transpirate = transpirate/(dist_scale * time_scale)
           WRITE(*,*) 'stop'
         END IF
-
-        
       
       CASE DEFAULT
         WRITE(*,*)
@@ -9752,23 +9752,23 @@ ELSE
         STOP
       END SELECT
     
-      ! Read initial condition for steady-state or transient problem
-      parchar = 'read_richards_ic_file'
-      parfind = ' '
-      Richards_IC_File = ' '
-      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
-      IF (parfind == ' ') THEN
-        WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
-        psi = 0.0d0
-      ELSE
-        Richards_IC_File = dumstring
-        CALL stringlen(Richards_IC_File,ls)
-        WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
-      END IF
+    END IF Richards_boundary_conditions
     
-    END IF Toshi_boundary_conditions
+    !Read initial condition for steady-state or transient problem
+    parchar = 'read_richards_ic_file'
+    parfind = ' '
+    Richards_IC_File = ' '
+    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
+    IF (parfind == ' ') THEN
+      WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
+      psi = 0.0d0
+    ELSE
+      Richards_IC_File = dumstring
+      CALL stringlen(Richards_IC_File,ls)
+      WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
+    END IF
     
-    Toshi_initial_conditions: IF (Richards) THEN
+    Richards_initial_conditions: IF (Richards) THEN
       read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
         INQUIRE(FILE=Richards_IC_File,EXIST=ext)
       IF (.NOT. ext) THEN
@@ -9806,12 +9806,11 @@ ELSE
         END IF
         CLOSE(UNIT=52)
       END IF read_ic_Rihcards
-    END IF Toshi_initial_conditions
+    END IF Richards_initial_conditions
     ! End of edit by Toshiyuki Bandai, 2023 May
     ! ********************************************
       
-!!!  End of section where choosing between perm file read and zone specification      END IF
-
+    
     CALL read_gravity(nout)
 
     IF (ALLOCATED(activecellPressure)) THEN

@@ -45,6 +45,7 @@ permeability_z 0 default
 
 !!RICHARD
 ns_solve FALSE
+gravity 0.0 90.0 90.0 up
 Richards  TRUE
 Richards_steady FALSE
 read_richards_ic_file initial_test_infiltration.csv SingleColumn
