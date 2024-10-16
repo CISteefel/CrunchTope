@@ -1266,7 +1266,7 @@ DO WHILE (nn <= nend)
         
         ! Edit by Toshiyuki Bandai 2023 May
         ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
-        PETSc_if_time: IF (Richards) THEN
+        flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
         ! store the previous time step water content
           jy = 1
@@ -1419,10 +1419,40 @@ DO WHILE (nn <= nend)
           
           ! solve the 1D time-dependenet Richards equation
           CALL solve_Richards(nx, ny, nz, delt)
+          
+          
+          ! update saturation
+          jy = 1
+          jz = 1
+          satliqold = satliq
+          DO jx = 1, nx
+              satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+          END DO
+
+          ! fill ghost points by linear extrapolation in x direction
+          !satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
+          !satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
+          !satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
+          !satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
+          ! fill other ghost points by zero-order extrapolation
+          satliq(0,jy,jz) = satliq(1,jy,jz)
+          satliq(-1,jy,jz) = satliq(0,jy,jz)
+          satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
+          satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
+    
+          satliq(:,-1,:) =  satliq(:,1,:)
+          satliq(:,0,:) =  satliq(:,1,:)
+          satliq(:,2,:) =  satliq(:,1,:)
+          satliq(:,3,:) =  satliq(:,1,:)
+    
+          satliq(:,:,-1) = satliq(:,:,1)
+          satliq(:,:,0) = satliq(:,:,1)
+          satliq(:,:,2) = satliq(:,:,1)
+          satliq(:,:,3) = satliq(:,:,1)
         
         ! End of edit by Toshiyuki Bandai, 2023 May
         ! ******************************************************************
-        ELSE PETSc_if_time
+        ELSE flow_solver_if_time
    
         atolksp = 1.D-50
         rtolksp = GimrtRTOLKSP
@@ -1465,7 +1495,7 @@ DO WHILE (nn <= nend)
     !!!    IF (MOD(nn,ScreenInterval) == 0) THEN
     !!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
     !!!    END IF
-        END If PETSc_if_time
+        
         
         IF (ierr /= 0) then
           WRITE(*,*)
@@ -1501,40 +1531,10 @@ DO WHILE (nn <= nend)
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
+        
+        END If flow_solver_if_time
          
          
-    ! **********************************************
-    ! Edit by Toshiyuki Bandai, 2023 May
-    ! calculate saturation from volumetric water content
-    IF (Richards) THEN
-    
-      jy = 1
-      jz = 1
-      satliqold = satliq
-      DO jx = 1, nx
-          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
-      END DO
-
-      ! fill ghost points by linear extrapolation in x direction
-      satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-      satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-      satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-      satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
-      ! fill other ghost points by zero-order extrapolation in y and z directions
-      satliq(:,-1,:) =  satliq(:,1,:)
-      satliq(:,0,:) =  satliq(:,1,:)
-      satliq(:,2,:) =  satliq(:,1,:)
-      satliq(:,3,:) =  satliq(:,1,:)
-    
-      satliq(:,:,-1) = satliq(:,:,1)
-      satliq(:,:,0) = satliq(:,:,1)
-      satliq(:,:,2) = satliq(:,:,1)
-      satliq(:,:,3) = satliq(:,:,1)
-    
-    END IF
-    ! End of Edit by Toshiyuki Bandai, 2023 May
-    ! **********************************************
-    
   END IF
 
 !! Return here to restart time step after failure
