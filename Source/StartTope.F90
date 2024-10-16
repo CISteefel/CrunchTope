@@ -5595,7 +5595,7 @@ END DO
 !   END DO
 ! END DO
 
-mu_water = 0.001*secyr
+mu_water = 0.0010005*secyr ! dynamic viscosity of water
 
 ! End of Edit by Toshiyuki Bandai, June 2023
 !*************************************************************

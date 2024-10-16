@@ -21,6 +21,9 @@ INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
+REAL(DP)                                                   :: psi_grad ! gradient of water potential
+REAL(DP)                                                   :: q_diff ! diffusion flow
+REAL(DP)                                                   :: q_grav ! gravitational flow
 REAL(DP)                                                   :: psi_lb
 REAL(DP)                                                   :: head_lb
 REAL(DP)                                                   :: kr_lb
@@ -37,13 +40,16 @@ jz = 1
 DO jx = 1, nx
   CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                  theta(jx, jy, jz), kr(jx, jy, jz), dtheta(jx, jy, jz), dkr(jx, jy, jz))
-  head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
+  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x(jx)
 END DO
 
-! internal faces
+! internal faces (only gravitational flow is upwinded)
 DO jx = 1, nx - 1
-  qx(jx, jy, jz) = -xi(jx, jy, jz)*K_faces_x(jx, jy, jz)/(x(jx+1) - x(jx))*(kr(jx+1, jy, jz)*MAX(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0d0) &
-                      + kr(jx, jy, jz)*MIN(head(jx+1, jy, jz) - head(jx, jy, jz), 0.0d0))
+  psi_grad = (psi(jx+1, jy, jz) - psi(jx, jy, jz))/(x(jx+1) - x(jx))
+  kr_faces = (kr(jx, jy, jz)*dxx(jx+1) + kr(jx+1, jy, jz)*dxx(jx))/(dxx(jx+1) + dxx(jx))
+  q_diff = -xi(jx, jy, jz)*K_faces_x(jx, jy, jz)*kr_faces*psi_grad
+  q_grav = -SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(kr(jx+1, jy, jz) * xi(jx+1, jy, jz), kr(jx, jy, jz) * xi(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  qx(jx, jy, jz) = q_diff + q_grav
 END DO
 
 ! lower boundary face

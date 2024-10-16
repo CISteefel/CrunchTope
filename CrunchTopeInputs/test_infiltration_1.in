@@ -4,8 +4,8 @@ END
 
 RUNTIME
 time_units       days
-timestep_max     0.001
-timestep_init    0.001
+timestep_max     0.01
+timestep_init    0.01
 time_tolerance   0.001
 ResidualTolerance   1.0E-9 
 correction_max   2
@@ -47,14 +47,15 @@ permeability_z 0 default
 ns_solve FALSE
 gravity 0.0 90.0 90.0 up
 Richards  TRUE
+Richards_print True
 Richards_steady FALSE
 read_richards_ic_file initial_test_infiltration.csv SingleColumn
 vg_theta_r 120 0.0
 vg_theta_s 120 0.33
 vg_alpha   120 1.43
 vg_n       120 1.506
-upper_bc_type constant_flux -0.2
-lower_bc_type constant_flux 0.0
+upper_bc_type constant_flux 0.0
+lower_bc_type constant_flux -0.2
 END
 
 BOUNDARY_CONDITIONS

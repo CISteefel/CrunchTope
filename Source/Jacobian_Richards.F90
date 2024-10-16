@@ -43,7 +43,7 @@ jz = 1
 DO jx = 1, nx
   CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                           theta(jx, jy, jz), kr(jx, jy, jz), dtheta(jx, jy, jz), dkr(jx, jy, jz))
-  head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
+  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x(jx)
 END DO
 
 ! evaluate Jacobian matrix
@@ -51,13 +51,16 @@ J = 0.0 ! initialize Jacobian matrix
 
 ! interior cells
 inner: DO jx = 2, nx - 1
+  kr_faces_up = (kr(jx, jy, jz)*dxx(jx+1) + kr(jx+1, jy, jz)*dxx(jx))/(dxx(jx+1) + dxx(jx))
+  kr_faces_down = (kr(jx-1, jy, jz)*dxx(jx) + kr(jx, jy, jz)*dxx(jx-1))/(dxx(jx) + dxx(jx-1))
+  
   J(jx, jx - 1) = dtflow/dxx(jx) * xi(jx, jy, jz) * K_faces_x(jx-1, jy, jz) / (x(jx) - x(jx - 1))* &
               MERGE(-kr(jx, jy, jz), dkr(jx-1, jy, jz)*(head(jx, jy, jz) - head(jx-1, jy, jz)) - kr(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0)
-  J(jx, jx) = dtheta(jx, jy, jz) + &
-          dtflow/dxx(jx) * xi(jx, jy, jz) * K_faces_x(jx-1, jy, jz) / (x(jx) - x(jx - 1)) &
-          *MERGE(dkr(jx, jy, jz)*(head(jx, jy, jz) - head(jx-1, jy, jz)) + kr(jx, jy, jz), kr(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0) &    
-          - dtflow/dxx(jx) * xi(jx, jy, jz) * K_faces_x(jx, jy, jz) / (x(jx + 1) - x(jx)) &
-          * MERGE(-kr(jx+1, jy, jz), dkr(jx, jy, jz)*(head(jx+1, jy, jz) - head(jx, jy, jz)) - kr(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0)
+  J(jx, jx) = dtheta(jx, jy, jz) + & 
+              dtflow/dxx(jx)*(xi(jx, jy, jz)*K_faces_x(jx, jy, jz)*()/(x(jx+1) - x(jx)) -SignGravity*COSD(x_angle)*xi(jx, jy, jz)*K_faces_x(jx, jy, jz) *MERGE(0, dkr(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)) - & ! q at jx
+              dtflow/dxx(jx)*(-xi(jx, jy, jz)*K_faces_x(jx-1, jy, jz)/(x(jx) - x(jx-1)) -SignGravity*COSD(x_angle)*xi(jx, jy, jz)*K_faces_x(jx-1, jy, jz) *MERGE(dkr(jx, jy, jz), 0.0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)) ! q at jx-1
+  
+  
   J(jx, jx + 1) = - dtflow/dxx(jx) * xi(jx, jy, jz) * K_faces_x(jx, jy, jz) / (x(jx + 1) - x(jx)) &
               * MERGE(dkr(jx+1, jy, jz)*(head(jx+1, jy, jz) - head(jx, jy, jz)) + kr(jx+1, jy, jz), kr(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0)
 END DO inner

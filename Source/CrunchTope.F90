@@ -1237,14 +1237,14 @@ DO WHILE (nn <= nend)
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+        !mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
         rho_water_2 = 0.99823d0 * 1.0E3
         !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
       END DO
     END DO
   END DO
   
-  !mu_water = 0.001*secyr
+  mu_water = 0.0010005*secyr
 ! End of Edit by Lucien Stolze, June 2023
 !*************************************************************
 

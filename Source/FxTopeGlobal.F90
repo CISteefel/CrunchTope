@@ -247,6 +247,9 @@ satlOld = satliqOld(jx,jy,jz)
 satgas = 1.0 - satl
 satgasOld = 1.0 - satlOld
 
+!xbdflux = 0.0d0
+!ybdflux = 0.0d0
+
 r = 1.0D0/dt
 IF (cylindrical) THEN
   CellVolume = dyy(jy)*pi*( (x(jx)+dxx(jx)/2.0d0 )**2.0d0 - ( x(jx)-dxx(jx)/2.0d0 )**2.0d0  )
