@@ -5584,7 +5584,7 @@ END DO
 ! mu_water is defined in Flow module
 DO jz = 1,nz
   DO jy = 1,ny
-    DO jx = 1,nx
+    DO jx = 0,nx+1
       mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
       rho_water_2 = 0.99823d0 * 1.0E3
       !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
@@ -8365,7 +8365,7 @@ ELSE
       END IF
     
     ! if theta_s does not match porosity, make a warning
-      DO jx = 1, nx
+      DO jx = 0, nx+1
         DO jy = 1, ny
           DO jz = 1, nz
             IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
@@ -8410,9 +8410,9 @@ ELSE
         END IF
         IF (ALLOCATED(theta_r)) THEN
           DEALLOCATE(theta_r)
-          ALLOCATE(theta_r(nx, ny, nz))
+          ALLOCATE(theta_r(0:nx+1, ny, nz))
         ELSE
-          ALLOCATE(theta_r(nx, ny, nz))
+          ALLOCATE(theta_r(0:nx+1, ny, nz))
         END IF
         OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
         FileTemp = wcrfile
@@ -8505,9 +8505,9 @@ ELSE
       END IF
       IF (ALLOCATED(VG_alpha)) THEN
         DEALLOCATE(VG_alpha)
-        ALLOCATE(VG_alpha(nx, ny, nz))
+        ALLOCATE(VG_alpha(0:nx+1, ny, nz))
       ELSE
-        ALLOCATE(VG_alpha(nx, ny, nz))
+        ALLOCATE(VG_alpha(0:nx+1, ny, nz))
       END IF
       OPEN(UNIT=23,FILE=vgafile,STATUS='old')
       FileTemp = vgafile
@@ -8603,9 +8603,9 @@ ELSE
         END IF
         IF (ALLOCATED(VG_n)) THEN
           DEALLOCATE(VG_n)
-          ALLOCATE(VG_n(nx, ny, nz))
+          ALLOCATE(VG_n(0:nx+1, ny, nz))
         ELSE
-          ALLOCATE(VG_n(nx, ny, nz))
+          ALLOCATE(VG_n(0:nx+1, ny, nz))
         END IF
         OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
         FileTemp = vgnfile
@@ -9806,6 +9806,10 @@ ELSE
         END IF
         CLOSE(UNIT=52)
       END IF read_ic_Rihcards
+      
+    ! fill the ghost cell
+      psi(0,jy,jz) = psi(1,jy,jz)
+      psi(nx,jy,jz) = psi(nx+1,jy,jz)
     END IF Richards_initial_conditions
     ! End of edit by Toshiyuki Bandai, 2023 May
     ! ********************************************

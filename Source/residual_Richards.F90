@@ -23,7 +23,7 @@ INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow
-REAL(DP), DIMENSION(nx), INTENT(OUT)                       :: F_residual
+REAL(DP), DIMENSION(nx + 2), INTENT(OUT)                       :: F_residual
 
 !REAL(DP)                                                   :: water_balance ! water balance to prevent the cell from drying out
 !REAL(DP)                                                   :: adjusted_extraction ! total water extraction (=evaporation + transpiration) adjusted to prevent the cell from drying out
@@ -32,17 +32,62 @@ F_residual= 0.0
 
 jy = 1
 jz = 1
-! lower boundary
-F_residual(1) = theta(1, jy, jz) - theta_prev(1, jy, jz) + (qx(1, jy, jz) - qx(0, jy, jz))*dtflow/dxx(1)
+!! lower boundary
+!F_residual(1) = theta(1, jy, jz) - theta_prev(1, jy, jz) + (qx(1, jy, jz) - qx(0, jy, jz))*dtflow/dxx(1)
 
 ! internal cells
-DO jx = 2, nx-1
+DO jx = 1, nx
   F_residual(jx) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + (qx(jx, jy, jz) - qx(jx-1, jy, jz))*dtflow/dxx(jx)
 END DO
 
-! upper boundary
+! boundary condition at the inlet (begin boundary condition)
+
 SELECT CASE (upper_BC_type)
+CASE ('constant_dirichlet', 'variable_dirichlet')
+  CONTINUE
+  
+CASE ('constant_neumann', 'variable_neumann')
+  CONTINUE
+  
 CASE ('constant_flux', 'variable_flux')
+  F_residual(0) = qx(0, jy, jz) - value_upper_BC
+  
+CASE ('environmental_forcing')
+  CONTINUE
+  
+CASE DEFAULT
+  WRITE(*,*)
+  WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+  
+END SELECT
+
+
+! boundary condition at the inlet (end boundary condition)
+SELECT CASE (lower_BC_type)
+CASE ('constant_dirichlet', 'variable_dirichlet')
+  CONTINUE
+  
+CASE ('constant_neumann', 'variable_neumann')
+  CONTINUE
+  
+CASE ('constant_flux', 'variable_flux')
+  F_residual(nx+1) = qx(nx, jy, jz) - value_lower_BC
+  
+CASE DEFAULT
+  WRITE(*,*)
+  WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+  
+END SELECT
+
+! upper boundary
+!SELECT CASE (upper_BC_type)
+!CASE ('constant_flux', 'variable_flux')
   ! check if the prescribed flux (evaporation) is smaller than the remaining water in the top cell
   ! note that the flux is positive for evaporation
   !water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - qx(nx, jy, jz)*dtflow/dxx(nx)  ! the unit is dimensionless
@@ -50,7 +95,7 @@ CASE ('constant_flux', 'variable_flux')
   !  ! the top cell is extremely dry, update the flux into the top cell to prevent the cell from drying out
   !  qx(nx, jy, jz) = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz) - 0.001d0)*dxx(nx)/dtflow
   !END IF
-  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
+  !F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
    
 !CASE ('environmental_forcing')
 !  ! check if the total water extraction (infiltration + evaporation + transpiration) is smaller than the remaining water in the top cell
@@ -90,8 +135,8 @@ CASE ('constant_flux', 'variable_flux')
 !    END DO
 !  END IF
     
-CASE DEFAULT
-  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
-END SELECT
+!CASE DEFAULT
+!  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
+!END SELECT
 
 END SUBROUTINE residual_Richards

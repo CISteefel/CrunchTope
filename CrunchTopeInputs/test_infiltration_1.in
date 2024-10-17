@@ -45,7 +45,7 @@ permeability_z 0 default
 
 !!RICHARD
 ns_solve FALSE
-gravity 0.0 90.0 90.0 up
+gravity 0.0 90.0 90.0 down
 Richards  TRUE
 Richards_print True
 Richards_steady FALSE

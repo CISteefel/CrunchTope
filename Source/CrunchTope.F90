@@ -841,7 +841,7 @@ IF (CalculateFlow) THEN
     
     jy = 1
     jz = 1
-    DO jx = 1, nx
+    DO jx = 0, nx+1
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
@@ -851,9 +851,7 @@ IF (CalculateFlow) THEN
     !satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
     !satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
     ! fill other ghost points by zero-order extrapolation
-    satliq(0,jy,jz) = satliq(1,jy,jz)
     satliq(-1,jy,jz) = satliq(0,jy,jz)
-    satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
     satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
     satliq(:,-1,:) =  satliq(:,1,:)
     satliq(:,0,:) =  satliq(:,1,:)
@@ -1115,7 +1113,7 @@ nn = 0
 ! record initial state by Toshiyuki Bandai 2023, May
 IF (Richards) THEN
   OPEN(unit = 10, file = 'initial_condition.out')
-  DO jx = 1, nx
+  DO jx = 0, nx+1
     WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
   END DO
   CLOSE(10)
@@ -1236,7 +1234,7 @@ DO WHILE (nn <= nend)
 
   DO jz = 1,nz
     DO jy = 1,ny
-      DO jx = 1,nx
+      DO jx = 0,nx+1
         !mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
         rho_water_2 = 0.99823d0 * 1.0E3
         !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)

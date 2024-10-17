@@ -22,17 +22,17 @@ INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow ! time step for flow
 
-REAL(DP), DIMENSION(nx)                                    :: F_residual ! residual
-REAL(DP), DIMENSION(nx, nx)                                :: J ! Jacobian matrix
-REAL(DP), DIMENSION(nx)                                    :: dpsi_Newton ! Newton step
+REAL(DP), DIMENSION(nx+2)                                    :: F_residual ! residual
+REAL(DP), DIMENSION(nx+2, nx+2)                                :: J ! Jacobian matrix
+REAL(DP), DIMENSION(nx+2)                                    :: dpsi_Newton ! Newton step
 
 ! parameters for the linear solver
 INTEGER(I4B)                                               :: info, lda, ldb, nrhs
-INTEGER(I4B), DIMENSION(nx)                                :: ipiv
+INTEGER(I4B), DIMENSION(nx+2)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
 REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
-REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
+!REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
 ! variables for line search
@@ -48,8 +48,8 @@ REAL(DP)                                                   :: water_mass_error
 
 ! initialize parameters for linear solver
 nrhs = 1
-lda = nx
-ldb = nx
+lda = nx + 2
+ldb = nx + 2
 
 ! initialize parameters for Newton's method
 iteration = 0
