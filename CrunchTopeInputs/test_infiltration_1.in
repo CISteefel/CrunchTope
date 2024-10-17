@@ -22,7 +22,7 @@ END
 OUTPUT
 time_units               days
 spatial_profile          1.0 4.0 6.5
-time_series          Tracer1.out 10 1 1
+time_series          Tracer1.out 1 1 1
 time_series_print    Tracer
 time_series_units    Mol/kgw
 time_series_interval 1

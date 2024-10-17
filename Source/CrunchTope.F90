@@ -1242,7 +1242,7 @@ DO WHILE (nn <= nend)
     END DO
   END DO
   
-  mu_water = 0.0010005*secyr
+  mu_water = 0.0010005d0*secyr
 ! End of Edit by Lucien Stolze, June 2023
 !*************************************************************
 
@@ -1270,7 +1270,7 @@ DO WHILE (nn <= nend)
           jy = 1
           jz = 1
           jz = 1
-          DO jx = 1,nx
+          DO jx = 0,nx+1
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
                   
@@ -1423,7 +1423,7 @@ DO WHILE (nn <= nend)
           jy = 1
           jz = 1
           satliqold = satliq
-          DO jx = 1, nx
+          DO jx = 0, nx+1
               satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
           END DO
 

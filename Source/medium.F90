@@ -74,6 +74,15 @@ MODULE medium
   REAL(DP), dimension(:,:,:), allocatable         :: dzz
   REAL(DP), dimension(:,:,:), allocatable         :: dxy
   
+  ! *************************************************
+  ! For Richards solver by Toshiyuki Bandai Oct, 2024
+  ! these are necessary because the Richards solver handles ghost cells differently from other solvers in Crunch
+  REAL(DP), dimension(:), allocatable             :: x_2
+  REAL(DP), dimension(:), allocatable             :: dxx_2
+  ! End of edits by Toshiyuki Bandai Oct, 2024
+  ! *************************************************
+  
+  
   LOGICAL(LGT)                                                 :: PressureFound
 
 

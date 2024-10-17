@@ -32,11 +32,8 @@ REAL(DP)                                                   :: q_grav ! gravitati
 !REAL(DP)                                                   :: psi_ub
 !REAL(DP)                                                   :: head_ub
 !REAL(DP)                                                   :: kr_ub
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi_faces ! physical constant at faces
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: kr_faces ! relative permeability at faces
 
-xi = rho_water_2*g/mu_water
+xi_2 = rho_water_2*g/mu_water
 
 ! apply van Genuchten model to all grid cells
 jy = 1
@@ -44,20 +41,20 @@ jz = 1
 DO jx = 0, nx+1
   CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                  theta(jx, jy, jz), kr(jx, jy, jz), dtheta(jx, jy, jz), dkr(jx, jy, jz))
-  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x(jx)
+  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x_2(jx)
 END DO
 
 ! compute xi and kr at faces
 DO jx = 0, nx
-  xi_faces(jx, jy, jz) = (xi(jx, jy, jz)*dxx(jx+1) + xi(jx+1, jy, jz)*dxx(jx))/(dxx(jx+1) + dxx(jx))
-  kr_faces(jx, jy, jz) = (kr(jx, jy, jz)*dxx(jx+1) + kr(jx+1, jy, jz)*dxx(jx))/(dxx(jx+1) + dxx(jx))
+  xi_2_faces(jx, jy, jz) = (xi_2(jx, jy, jz)*dxx_2(jx+1) + xi_2(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
+  kr_faces(jx, jy, jz) = (kr(jx, jy, jz)*dxx_2(jx+1) + kr(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
 END DO
 
 ! flux at faces (only gravitational flow is upwinded)
 DO jx = 0, nx
-  psi_grad = (psi(jx+1, jy, jz) - psi(jx, jy, jz))/(x(jx+1) - x(jx))
-  q_diff = -xi_faces(jx, jy, jz)*K_faces_x(jx, jy, jz)*kr_faces(jx, jy, jz)*psi_grad
-  q_grav = -SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(kr(jx+1, jy, jz) * xi(jx+1, jy, jz), kr(jx, jy, jz) * xi(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  psi_grad = (psi(jx+1, jy, jz) - psi(jx, jy, jz))/(x_2(jx+1) - x_2(jx))
+  q_diff = -xi_2_faces(jx, jy, jz)*K_faces_x(jx, jy, jz)*kr_faces(jx, jy, jz)*psi_grad
+  q_grav = -SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(kr(jx+1, jy, jz) * xi_2(jx+1, jy, jz), kr(jx, jy, jz) * xi_2(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
   qx(jx, jy, jz) = q_diff + q_grav
 END DO
 

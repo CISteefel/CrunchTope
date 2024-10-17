@@ -173,9 +173,13 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential psi from previous line search trial [L]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr_faces ! relative permeability at cell faces [-]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water_2 ! the density of water [kg m-3]; this is temperature dependent
-    
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2 ! physical constant used in the Richards equation (xi is already used)
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2_faces ! physical constant in the Richards equation at faces
+
+
     ! soil hydraulic parameters for van Genuchten model
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity

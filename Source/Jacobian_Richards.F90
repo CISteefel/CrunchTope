@@ -13,8 +13,7 @@ IMPLICIT NONE
 INTEGER(I4B), INTENT(IN)                                   :: nx
 INTEGER(I4B), INTENT(IN)                                   :: ny
 INTEGER(I4B), INTENT(IN)                                   :: nz
-REAL(DP), INTENT(OUT), DIMENSION(nx+2, nx+2)                   :: J ! Jacobian matrix
-
+REAL(DP), INTENT(OUT), DIMENSION(0:nx+1, 0:nx+1)                   :: J ! Jacobian matrix
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
@@ -22,36 +21,33 @@ INTEGER(I4B)                                               :: jz
 REAL(DP), INTENT(IN)                                       :: dtflow
 
 ! variables not declared in CrunchTope
-REAL(DP)                                                   :: psi_lb
-REAL(DP)                                                   :: head_lb
-REAL(DP)                                                   :: theta_lb
-REAL(DP)                                                   :: dtheta_lb
-REAL(DP)                                                   :: kr_lb
-REAL(DP)                                                   :: dkr_lb
-REAL(DP)                                                   :: psi_ub
-REAL(DP)                                                   :: head_ub
-REAL(DP)                                                   :: theta_ub
-REAL(DP)                                                   :: dtheta_ub
-REAL(DP)                                                   :: kr_ub
-REAL(DP)                                                   :: dkr_ub
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi_faces ! physical constant at faces
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: kr_faces ! relative permeability at faces
+!REAL(DP)                                                   :: psi_lb
+!REAL(DP)                                                   :: head_lb
+!REAL(DP)                                                   :: theta_lb
+!REAL(DP)                                                   :: dtheta_lb
+!REAL(DP)                                                   :: kr_lb
+!REAL(DP)                                                   :: dkr_lb
+!REAL(DP)                                                   :: psi_ub
+!REAL(DP)                                                   :: head_ub
+!REAL(DP)                                                   :: theta_ub
+!REAL(DP)                                                   :: dtheta_ub
+!REAL(DP)                                                   :: kr_ub
+!REAL(DP)                                                   :: dkr_ub
 
-xi = rho_water_2*g/mu_water
+xi_2 = rho_water_2*g/mu_water
 
 jy = 1
 jz = 1
 DO jx = 0, nx+1
   CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                           theta(jx, jy, jz), kr(jx, jy, jz), dtheta(jx, jy, jz), dkr(jx, jy, jz))
-  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x(jx)
+  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x_2(jx)
 END DO
 
 ! compute xi and kr at faces
 DO jx = 0, nx
-  xi_faces(jx, jy, jz) = (xi(jx, jy, jz)*dxx(jx+1) + xi(jx+1, jy, jz)*dxx(jx))/(dxx(jx+1) + dxx(jx))
-  kr_faces(jx, jy, jz) = (kr(jx, jy, jz)*dxx(jx+1) + kr(jx+1, jy, jz)*dxx(jx))/(dxx(jx+1) + dxx(jx))
+  xi_2_faces(jx, jy, jz) = (xi_2(jx, jy, jz)*dxx_2(jx+1) + xi_2(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
+  kr_faces(jx, jy, jz) = (kr(jx, jy, jz)*dxx_2(jx+1) + kr(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
 END DO
 
 
@@ -62,33 +58,33 @@ J = 0.0 ! initialize Jacobian matrix
 inner: DO jx = 1, nx  
   ! add diffusive flux part
   !! q at jx-1 part
-  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx(jx) * K_faces_x(jx-1, jy, jz) * xi_faces(jx-1, jy, jz) / (x(jx) - x(jx-1)) * &
-                (dkr(jx-1, jy, jz)*dxx(jx)/(dxx(jx) + dxx(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx_2(jx) * K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
   
   !! q at jx-1 part
-  J(jx, jx) = J(jx, jx) + dtflow/dxx(jx) * K_faces_x(jx-1, jy, jz) * xi_faces(jx-1, jy, jz) / (x(jx) - x(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx(jx-1)/(dxx(jx) + dxx(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  J(jx, jx) = J(jx, jx) + dtflow/dxx_2(jx) * K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
   
   !! q at jx part
-  J(jx, jx) = J(jx, jx) - dtflow/dxx(jx) * K_faces_x(jx, jy, jz) * xi_faces(jx, jy, jz) / (x(jx+1) - x(jx)) * &
-                (dkr(jx, jy, jz)*dxx(jx+1)/(dxx(jx+1) + dxx(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) - kr_faces(jx, jy, jz))
+  J(jx, jx) = J(jx, jx) - dtflow/dxx_2(jx) * K_faces_x(jx, jy, jz) * xi_2_faces(jx, jy, jz) / (x_2(jx+1) - x_2(jx)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx+1)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) - kr_faces(jx, jy, jz))
   
   !! q at jx part
-  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx(jx) * K_faces_x(jx, jy, jz) * xi_faces(jx, jy, jz) / (x(jx+1) - x(jx)) * &
-                (dkr(jx+1, jy, jz)*dxx(jx)/(dxx(jx+1) + dxx(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) + kr_faces(jx, jy, jz))
+  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx_2(jx) * K_faces_x(jx, jy, jz) * xi_2_faces(jx, jy, jz) / (x_2(jx+1) - x_2(jx)) * &
+                (dkr(jx+1, jy, jz)*dxx_2(jx)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) + kr_faces(jx, jy, jz))
   
   ! add gravitational flux part
   !! q at jx-1 part
-  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
   !! q at jx-1 part
-  J(jx, jx) = J(jx, jx) + dtflow/dxx(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  J(jx, jx) = J(jx, jx) + dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
   !! q at jx part
-  J(jx, jx) = J(jx, jx) - dtflow/dxx(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(0.0d0, dkr(jx, jy, jz) * xi(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  J(jx, jx) = J(jx, jx) - dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(0.0d0, dkr(jx, jy, jz) * xi_2(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
   
   !! q at jx part
-  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(dkr(jx+1, jy, jz) * xi(jx+1, jy, jz), 0.0d0, head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(dkr(jx+1, jy, jz) * xi_2(jx+1, jy, jz), 0.0d0, head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
   
   ! add temporal derivative part
   J(jx, jx) = J(jx, jx) + dtheta(jx, jy, jz)
@@ -106,17 +102,17 @@ CASE ('constant_neumann', 'variable_neumann')
 CASE ('constant_flux', 'variable_flux')
   ! add diffusive flux part
   jx = 1
-  J(0, 0) = J(0, 0) -  K_faces_x(jx-1, jy, jz) * xi_faces(jx-1, jy, jz) / (x(jx) - x(jx-1)) * &
-                (dkr(jx-1, jy, jz)*dxx(jx)/(dxx(jx) + dxx(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  J(0, 0) = J(0, 0) -  K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
   
-  J(0, 1) = J(0, 1) - K_faces_x(jx-1, jy, jz) * xi_faces(jx-1, jy, jz) / (x(jx) - x(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx(jx-1)/(dxx(jx) + dxx(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  J(0, 1) = J(0, 1) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
   
   ! add gravitational flux part
   jx = 1
-  J(0, 0) = J(0, 0) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  J(0, 0) = J(0, 0) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
-  J(0, 1) = J(0, 1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  J(0, 1) = J(0, 1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
   
 CASE ('environmental_forcing')
@@ -142,16 +138,16 @@ CASE ('constant_neumann', 'variable_neumann')
 CASE ('constant_flux', 'variable_flux')
   ! add diffusive flux part
   jx = nx + 1
-  J(nx+1, nx) = J(nx+1, nx) - K_faces_x(jx-1, jy, jz) * xi_faces(jx-1, jy, jz) / (x(jx) - x(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx(jx-1)/(dxx(jx) + dxx(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  J(nx+1, nx) = J(nx+1, nx) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
   
-  J(nx+1, nx+1) = J(nx+1, nx+1) - K_faces_x(jx-1, jy, jz) * xi_faces(jx-1, jy, jz) / (x(jx) - x(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx(jx-1)/(dxx(jx) + dxx(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  J(nx+1, nx+1) = J(nx+1, nx+1) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
   
   ! add gravitational flux part
-  J(nx+1, nx) = J(nx+1, nx) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  J(nx+1, nx) = J(nx+1, nx) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
-  J(nx+1, nx+1) = J(nx+1, nx+1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  J(nx+1, nx+1) = J(nx+1, nx+1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
 CASE DEFAULT
   WRITE(*,*)

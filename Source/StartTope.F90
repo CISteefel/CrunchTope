@@ -8281,6 +8281,42 @@ ELSE
   ! ********************************************
   ! Edit by Toshiyuki Bandai 2023 May
   Richards_allocate: IF (Richards) THEN
+    
+    IF ((ny > 1) .OR. (nz > 1)) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Currently, Richards solver is supported for one-dimensional problem'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    ELSE
+    ! get the discretization for the Ricahrds for one-dimension
+      IF (ALLOCATED(x_2)) THEN
+        DEALLOCATE(x_2)
+        ALLOCATE(x_2(0:nx+1))
+      ELSE
+        ALLOCATE(x_2(0:nx+1))
+      END IF
+  
+      IF (ALLOCATED(dxx_2)) THEN
+        DEALLOCATE(dxx_2)
+        ALLOCATE(dxx_2(0:nx+1))
+      ELSE
+        ALLOCATE(dxx_2(0:nx+1))
+      END IF
+  
+      DO jx = 1, nx
+        x_2(jx) = x(jx)
+        dxx_2(jx) = dxx(jx)
+      END DO
+    
+      ! fill the ghost cells
+      dxx_2(0) = dxx_2(1)
+      dxx_2(nx+1) = dxx_2(nx)
+  
+      x_2(0) = -0.5d0*dxx_2(0)
+      x_2(nx+1) = x_2(nx)+0.5d0*(dxx_2(nx) + dxx_2(nx+1))
+    END IF
+  
   ! allocate state variable for the Richards equation
   ! water potential psi
     IF (ALLOCATED(psi)) THEN
@@ -8337,6 +8373,30 @@ ELSE
       ALLOCATE(dkr(0:nx+1, ny, nz))
     END IF
      
+    ! relative permeability at cell faces
+    IF (ALLOCATED(kr_faces)) THEN
+      DEALLOCATE(kr_faces)
+      ALLOCATE(kr_faces(0:nx, ny, nz))
+    ELSE
+      ALLOCATE(kr_faces(0:nx, ny, nz))
+    END IF
+     
+    ! physical constant used in the Richards equation
+    IF (ALLOCATED(xi_2)) THEN
+      DEALLOCATE(xi_2)
+      ALLOCATE(xi_2(0:nx+1, ny, nz))
+    ELSE
+      ALLOCATE(xi_2(0:nx+1, ny, nz))
+    END IF
+    
+    ! physical constant used in the Richards equation at cell faces
+    IF (ALLOCATED(xi_2_faces)) THEN
+      DEALLOCATE(xi_2_faces)
+      ALLOCATE(xi_2_faces(0:nx, ny, nz))
+    ELSE
+      ALLOCATE(xi_2_faces(0:nx, ny, nz))
+    END IF
+    
     ! allocate and read van-Genuchten parameters
     VG_error = 0
     
@@ -9808,8 +9868,9 @@ ELSE
       END IF read_ic_Rihcards
       
     ! fill the ghost cell
-      psi(0,jy,jz) = psi(1,jy,jz)
-      psi(nx,jy,jz) = psi(nx+1,jy,jz)
+      psi(0,1,1) = psi(1,1,1)
+      psi(nx+1,1,1) = psi(nx,1,1)
+      
     END IF Richards_initial_conditions
     ! End of edit by Toshiyuki Bandai, 2023 May
     ! ********************************************

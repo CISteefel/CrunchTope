@@ -23,21 +23,20 @@ INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow
-REAL(DP), DIMENSION(nx + 2), INTENT(OUT)                       :: F_residual
+REAL(DP), DIMENSION(0:nx + 1), INTENT(OUT)                       :: F_residual
 
 !REAL(DP)                                                   :: water_balance ! water balance to prevent the cell from drying out
 !REAL(DP)                                                   :: adjusted_extraction ! total water extraction (=evaporation + transpiration) adjusted to prevent the cell from drying out
+
 
 F_residual= 0.0
 
 jy = 1
 jz = 1
-!! lower boundary
-!F_residual(1) = theta(1, jy, jz) - theta_prev(1, jy, jz) + (qx(1, jy, jz) - qx(0, jy, jz))*dtflow/dxx(1)
 
 ! internal cells
 DO jx = 1, nx
-  F_residual(jx) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + (qx(jx, jy, jz) - qx(jx-1, jy, jz))*dtflow/dxx(jx)
+  F_residual(jx) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + (qx(jx, jy, jz) - qx(jx-1, jy, jz))*dtflow/dxx_2(jx)
 END DO
 
 ! boundary condition at the inlet (begin boundary condition)
