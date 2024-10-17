@@ -180,14 +180,14 @@ DO jy = 1,ny
     IF (jx == 1) THEN
       
       dxe = 0.5d0*(dxx(jx)+dxx(jx+1))
-      dxw = 0.5d0*dxx(1)
+      dxw = dxx(1)
       pore = por(jx+1,jy,jz)
       porw = por(jx,jy,jz)
 !!!      sate = 0.5*( satliq(jx+1,jy,jz)+satliqold(jx+1,jy,jz) )
 !!!      satw = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx,jy,jz)
-      IF (UseThresholdPorosity) THEN
+      IF (UseThresholdPorosity) THEN    
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
         ELSE
@@ -215,8 +215,9 @@ DO jy = 1,ny
       END IF
       
     ELSE IF (jx == nx) THEN
+      
       dxw = 0.5d0*(dxx(jx)+dxx(jx-1))
-      dxe = 0.5d0*dxx(nx)
+      dxe = dxx(nx)
       pore = por(jx,jy,jz)
       porw = por(jx-1,jy,jz)
 !!!      sate = 0.5*( satliq(jx,jy,jz)+satliqold(jx,jy,jz) )
@@ -296,7 +297,7 @@ DO jy = 1,ny
     
     IF (jy == 1) THEN
       dyn = 0.5d0*(dyy(jy)+dyy(jy+1))
-      dys = 0.5d0*dyy(1)
+      dys = dyy(1)
       porn = por(jx,jy+1,jz)
       pors = por(jx,jy,jz)
 !!!      satn = satliq(jx,jy+1,jz)
@@ -328,7 +329,7 @@ DO jy = 1,ny
       END IF
     ELSE IF (jy == ny) THEN
       dys = 0.5d0*(dyy(jy)+dyy(jy-1))
-      dyn = 0.5d0*dyy(ny)
+      dyn = dyy(ny)
       porn = por(jx,jy,jz)
       pors = por(jx,jy-1,jz)
 !!!      satn = satliq(jx,jy,jz)
@@ -430,7 +431,6 @@ DO jy = 1,ny
       AreaW = dyy(jy)*dzz(jx,jy,jz)
       !!! Use dispersivity at grid cell #1 (not ghost cell)
 										   
-		  
       dspw = avgro*dspx(jx,jy,jz) + dharm
 
       dw = AreaW*dspw/dxw
@@ -450,7 +450,7 @@ DO jy = 1,ny
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       END IF
-      
+  
     ELSE IF (jx == nx) THEN
          
   !!!  WEST
@@ -473,6 +473,7 @@ DO jy = 1,ny
       aw = DMAX1(fw,0.0D0) + dw
       netflowX(nx-1,jy,jz) = fw
       netDiffuseX(nx-1,jy,jz) = dw
+      apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       
   !!! EAST
       
@@ -484,7 +485,6 @@ DO jy = 1,ny
       fe = AreaE*avgro*(qx(jx,jy,jz) + FluidBuryX(jx))
       netflowX(nx,jy,jz) = fe
       
-
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
 
         ae = DMAX1(-fe,0.0D0)       !  Pure advective boundary
@@ -499,6 +499,7 @@ DO jy = 1,ny
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       END IF
+      
       
     ELSE     !!! Not jx /= 1 .or. jx /= nx
       
@@ -670,6 +671,7 @@ DO jy = 1,ny
       a(jx,jy,jz) = -aw
       c(jx,jy,jz) = -ae
       b(jx,jy,jz) = apx
+      
       
     END IF
     
