@@ -37,7 +37,6 @@ INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
-!REAL(DP), PARAMETER                                        :: tau_line_saerch = 1.0d-3 ! below this tolerance, the line search stops
 INTEGER(I4B)                                               :: no_backtrack, descent
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
@@ -55,21 +54,14 @@ ldb = nx + 2
 iteration = 0
 total_line = 0
 
-! Evaluate the flux and the residual
-!CALL flux_Richards(nx, ny, nz)
-
-!CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
-
 ! update tolerance
 error_old = 1.0d20 ! at least one Newton iteration will be conducted
-!error_old = MAXVAL(ABS(F_residual))
 !tol = tau_r * error_old + tau_a
 tol = tau_a ! this tolerance should be used for problems that need very high accuracy
 
 ! begin Newton's method
 newton_loop: DO
-  IF (error_old < tol .AND. iteration > 2) EXIT
-  !IF (error_old < tol) EXIT
+  IF (error_old < tol) EXIT
   ! Evaluate the flux and the residual
   CALL flux_Richards(nx, ny, nz)
   CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
@@ -102,8 +94,6 @@ newton_loop: DO
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
     Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
-    ! line search stops when the error is below the tolerance (tau_line_saerch), this is because line search is not necessary when the error is small (and in fact line search may fail when the residual is very small)
-    !Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tau_line_saerch) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -115,11 +105,11 @@ newton_loop: DO
         
   END DO line
   
-  !IF (no_backtrack > 100) THEN
-  !  WRITE(*,*) ' Line search failed in the Richards solver. '
-  !  READ(*,*)
-  !  STOP
-  !END IF
+  IF (no_backtrack > 30) THEN
+    WRITE(*,*) ' Line search failed in the Richards solver. '
+    READ(*,*)
+    STOP
+  END IF
   
   IF (iteration > maxitr) THEN
     WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '

@@ -36,15 +36,15 @@ value = 0.0d0
 ! determine BC_string depending on the location of the boundary and the type of the problem (steady or time-dependent)
 IF (BC_location == 0) THEN
   IF (Richards_steady) THEN
-    BC_string = 'lower_bc_type_steady'
+    BC_string = 'x_begin_bc_type_steady'
   ELSE
-    BC_string = 'lower_bc_type'
+    BC_string = 'x_begin_bc_type'
   END IF
 ELSE IF (BC_location == 1) THEN
   IF (Richards_steady) THEN
-    BC_string = 'upper_bc_type_steady'
+    BC_string = 'x_end_bc_type_steady'
   ELSE
-    BC_string = 'upper_bc_type'
+    BC_string = 'x_end_bc_type'
   END IF
 ELSE
   WRITE(*,*)
@@ -72,7 +72,7 @@ IF(ls /= 0) THEN
       lzs=ls
       CALL convan(ssch,lzs,res)
       IF (res == 'n') THEN
-        WRITE(*,*) ' Must provide a character to specify the type of the upper boudnary condition. '
+        WRITE(*,*) ' Must provide a character to specify the type of the boudnary condition. '
       ELSE
         ! select the type of boundary condition
         CALL stringtype(ssch,lzs,res)

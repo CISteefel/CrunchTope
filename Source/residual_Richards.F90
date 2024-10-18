@@ -41,7 +41,7 @@ END DO
 
 ! boundary condition at the inlet (begin boundary condition)
 
-SELECT CASE (upper_BC_type)
+SELECT CASE (x_begin_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
   CONTINUE
   
@@ -49,14 +49,14 @@ CASE ('constant_neumann', 'variable_neumann')
   CONTINUE
   
 CASE ('constant_flux', 'variable_flux')
-  F_residual(0) = qx(0, jy, jz) - value_upper_BC
+  F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
   
-CASE ('environmental_forcing')
-  CONTINUE
+!CASE ('environmental_forcing')
+!  CONTINUE
   
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', x_begin_BC_type, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
@@ -65,7 +65,7 @@ END SELECT
 
 
 ! boundary condition at the inlet (end boundary condition)
-SELECT CASE (lower_BC_type)
+SELECT CASE (x_end_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
   CONTINUE
   
@@ -73,11 +73,11 @@ CASE ('constant_neumann', 'variable_neumann')
   CONTINUE
   
 CASE ('constant_flux', 'variable_flux')
-  F_residual(nx+1) = qx(nx, jy, jz) - value_lower_BC
+  F_residual(nx+1) = qx(nx, jy, jz) - value_x_end_BC
   
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', x_end_BC_type, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP

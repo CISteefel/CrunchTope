@@ -20,55 +20,55 @@ INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
-REAL(DP), DIMENSION(nx)                                    :: F_residual ! residual
-REAL(DP), DIMENSION(nx, nx)                                :: J ! Jacobian matrix
-REAL(DP), DIMENSION(nx)                                    :: dpsi_Newton ! Newton step
+REAL(DP), DIMENSION(0:nx+1)                                    :: F_residual ! residual
+REAL(DP), DIMENSION(0:nx+1, 0:nx+1)                                :: J ! Jacobian matrix
+REAL(DP), DIMENSION(0:nx+1)                                    :: dpsi_Newton ! Newton step
 
 ! parameters for the linear solver
 INTEGER(I4B)                                               :: info, lda, ldb, nrhs
-INTEGER(I4B), DIMENSION(nx)                                :: ipiv
+INTEGER(I4B), DIMENSION(0:nx+1)                                :: ipiv
 
 ! parameters for Newtons' method for forward problem
-! Because the residual has a unit of m year^-1, the meaning of the tolerance for the residual is different from the time-dependent case (dimensionless residula is used).
-REAL(DP), PARAMETER                                        :: tau_a = 1.0d-7 ! tolerance for the residual
-REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
+REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
+!REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
 
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
-REAL(DP), PARAMETER                                        :: tau_line_saerch = 1.0d-3 ! below this tolerance, the line search stops
 INTEGER(I4B)                                               :: no_backtrack, descent
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
 
+! variables for checking water mass balance
+REAL(DP)                                                   :: water_mass
+REAL(DP)                                                   :: water_mass_error
+
 ! initialize parameters for linear solver
 nrhs = 1
-lda = nx
-ldb = nx
+lda = nx + 2
+ldb = nx + 2
 
 ! initialize parameters for Newton's method
 iteration = 0
 total_line = 0
 
-! Evaluate the flux and the residual
-CALL flux_Richards_steady(nx, ny, nz)
-
-CALL residual_Richards_steady(nx, ny, nz, F_residual)
-
 ! update tolerance
-error_old = MAXVAL(ABS(F_residual))
+error_old = 1.0d20 ! at least one Newton iteration will be conducted
 !tol = tau_r * error_old + tau_a
 tol = tau_a ! this tolerance should be used for problems that need very high accuracy
 
 ! begin Newton's method
 newton_loop: DO
-  IF (error_old < tol .AND. iteration > 2) EXIT
+  IF (error_old < tol) EXIT
+  ! Evaluate the flux and the residual
+  CALL flux_Richards_steady(nx, ny, nz)
+  CALL residual_Richards_steady(nx, ny, nz, F_residual)
   ! Evaluate the Jacobian matrix
   CALL Jacobian_Richards_steady(nx, ny, nz, J)
   
   dpsi_Newton = -F_residual
   ! Solve the linear system
-  CALL dgesv(nx, nrhs, j, lda, ipiv, dpsi_Newton, ldb, info)
+  CALL dgesv(nx+2, nrhs, j, lda, ipiv, dpsi_Newton, ldb, info)
   
   ! Armijo line search
   alpha_line = 1.0d-4
@@ -79,9 +79,9 @@ newton_loop: DO
   
   ! line search
   line: DO
-    IF (descent /= 0 .OR. no_backtrack > 100) EXIT line
+    IF (descent /= 0 .OR. no_backtrack > 30) EXIT line
     ! update water potential
-    DO jx = 1, nx
+    DO jx = 0, nx+1
       psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
     END DO
     ! evaluate the flux and the residual
@@ -91,7 +91,7 @@ newton_loop: DO
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tau_line_saerch) THEN
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -103,25 +103,30 @@ newton_loop: DO
         
   END DO line
   
-  IF (no_backtrack > 100) THEN
-    WRITE(*,*) ' Line search failed in the steady-state Richards solver. '
+  IF (no_backtrack > 30) THEN
+    WRITE(*,*) ' Line search failed in the Richards solver. '
     READ(*,*)
     STOP
   END IF
   
   IF (iteration > maxitr) THEN
-    WRITE(*,*) ' The Newton method failed to converge in the steady-state Richards solver. '
+    WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '
     READ(*,*)
     STOP
   END IF
   
   total_line = total_line + no_backtrack
   iteration = iteration + 1
+  
+  IF (Richards_print) THEN
+  WRITE(*,120) iteration, tol, error_old
+  120 FORMAT(1X, 'At the', I3, ' th Newton iteration, the tolerance is  ', ES14.4, ' , and the error is ', ES20.8)
+  END IF
 END DO newton_loop
 
 IF (Richards_print) THEN
   WRITE(*,100) iteration, total_line
-  100 FORMAT(1X, 'The Newton method needed ', I3, ' iterations with ', I3, ' line searches in the steady-state Richards solver. ')
+  100 FORMAT(1X, 'The Newton method needed ', I5, ' iterations with ', I3, ' line searches in the Richards solver. ')
 END IF
 
 END SUBROUTINE solve_Richards_steady

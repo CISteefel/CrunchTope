@@ -696,7 +696,7 @@ IF (CalculateFlow) THEN
     END DO
   END IF
 
- ! Edit by Toshiyuki Bandai 2023 May
+ ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
@@ -711,30 +711,30 @@ IF (CalculateFlow) THEN
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
      
-     SELECT CASE (lower_BC_type)
+     SELECT CASE (x_begin_BC_type)
      CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-       value_lower_BC = values_lower_BC(1)
+       value_x_begin_BC = values_x_begin_BC(1)
      CASE DEFAULT
        CONTINUE ! do nothing for constant boundary conditions
      END SELECT
      
-     SELECT CASE (upper_BC_type)
+     SELECT CASE (x_end_BC_type)
      CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-       value_upper_BC = values_upper_BC(1)
+       value_x_end_BC = values_x_end_BC(1)
        CALL flux_Richards(nx, ny, nz)
-     CASE ('environmental_forcing')
-       lower_BC_type_steady = lower_BC_type
-       upper_BC_type_steady = 'constant_flux'
-       value_upper_BC = qt_infiltration(1) + qt_evapo(1)
+     !CASE ('environmental_forcing')
+     !  lower_BC_type_steady = lower_BC_type
+     !  upper_BC_type_steady = 'constant_flux'
+     !  value_upper_BC = qt_infiltration(1) + qt_evapo(1)
        
-       CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
+       !CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
      CASE DEFAULT
        CALL flux_Richards(nx, ny, nz)
      END SELECT
     
    END IF steady_Richards
 
- ! End of edit by Toshiyuki Bandai, 2023 May
+ ! End of edit by Toshiyuki Bandai, 2024 Oct
  ! ******************************************************************
  ELSE initial_flow_solver_if
 !!  atolksp = 1.D-50
@@ -835,7 +835,7 @@ IF (CalculateFlow) THEN
   
     
   ! **********************************************
-  ! Edit by Toshiyuki Bandai, 2023 May
+  ! Edit by Toshiyuki Bandai, 2024 Oct.
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
@@ -866,7 +866,7 @@ IF (CalculateFlow) THEN
     satliqold = satliq
   
   END IF
-  ! End of Edit by Toshiyuki Bandai, 2023 May
+  ! End of Edit by Toshiyuki Bandai, 2024 Oct.
   ! **********************************************
 
 !!  Check divergence of flow field
@@ -1274,134 +1274,134 @@ DO WHILE (nn <= nend)
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
                   
-          ! update the value used for the lower boundary condition by interpolating time series
-          SELECT CASE (lower_BC_type)
+          ! update the value used for the x_begin boundary condition by interpolating time series
+          SELECT CASE (x_begin_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp3(time, delt, t_lower_BC, values_lower_BC(:), value_lower_BC, size(values_lower_BC(:)))
+            CALL interp3(time, delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
           CASE DEFAULT
             CONTINUE ! for constant boundary condition, do nothing
           END SELECT
           
-          SELECT CASE (upper_BC_type)
+          SELECT CASE (x_end_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
+            CALL interp3(time, delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
             
-          CASE ('environmental_forcing')
-            
-            ! infiltration
-            IF (infiltration_timeseries) THEN
-              IF (TS_1year) THEN
-                time_norm=time-floor(time)
-                IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
-                  IF (time_norm + delt > 1.0d0) THEN
-                    n_count_infiltration = 2
-                    IF (time_norm + delt -1.0d0> t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
-                      delt = 1.0d0 + t_infiltration(n_count_infiltration) - time_norm
-                      n_count_infiltration = n_count_infiltration + 1
-                      !WRITE(*,*) ' Adjusting time step to match the infiltration data '
-                      !WRITE(*,5085) delt*OutputTimeScale
-                      !WRITE(*,*)
-                    END IF
-                    
-                  ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
-                    CONTINUE
-                  ELSE 
-                    delt = t_infiltration(n_count_infiltration) - time_norm
-                    n_count_infiltration = n_count_infiltration + 1
-                  
-                    !WRITE(*,*) ' Adjusting time step to match the infiltration data '
-                    !WRITE(*,5085) delt*OutputTimeScale
-                    !WRITE(*,*)
-                    
-                  END IF
-                END IF
-                
-                IF (ABS(t_infiltration(n_count_infiltration) - time_norm - delt) < 1.0d-10) THEN
-                  n_count_infiltration = n_count_infiltration + 1
-                END IF
-                
-                CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-              ELSE
-                CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-              END IF
-            END IF
-            
-            write(77,*) time, ' Infiltration rate = ',infiltration_rate
-            
-            
-            ! transpiration            
-            IF (transpitimeseries) THEN
-              IF (TS_1year) THEN
-                time_norm=time-floor(time)
-                IF (time_norm + delt -1.0d0> t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
-                  IF (time_norm + delt > 1.0d0) THEN
-                    n_count_transpiration = 2
-                    IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
-                      delt = 1.0d0 + t_transpi(n_count_transpiration) - time_norm
-                      n_count_transpiration = n_count_transpiration + 1
-                      !WRITE(*,*) ' Adjusting time step to match the transpiration data '
-                      !WRITE(*,5085) delt*OutputTimeScale
-                      !WRITE(*,*)
-                    END IF
-                    
-                  ELSE IF (n_count_transpiration > size(t_transpi)) THEN
-                    CONTINUE
-                  ELSE 
-                    delt = t_transpi(n_count_transpiration) - time_norm
-                    n_count_transpiration = n_count_transpiration + 1
-                  
-                   !WRITE(*,*) ' Adjusting time step to match the transpiration data '
-                   !WRITE(*,5085) delt*OutputTimeScale
-                   !WRITE(*,*)
-                  END IF
-                END IF
-                
-                IF (ABS(t_transpi(n_count_transpiration) - time_norm - delt) < 1.0d-10) THEN
-                  n_count_transpiration = n_count_transpiration + 1
-                END IF
-                CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-              ELSE
-                CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-              END IF
-            END IF
-            
-            ! evaporation
-            IF (evapotimeseries) THEN
-              IF (TS_1year) THEN
-                time_norm=time-floor(time)
-                IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
-                  IF (time_norm + delt > 1.0d0) THEN
-                    n_count_evaporation = 2
-                    IF (time_norm + delt -1.0d0> t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
-                      delt = 1.0d0 + t_infiltration(n_count_evaporation) - time_norm
-                      n_count_evaporation = n_count_evaporation + 1
-                      !WRITE(*,*) ' Adjusting time step to match the evaporation data '
-                      !WRITE(*,5085) delt*OutputTimeScale
-                      !WRITE(*,*)
-                    END IF
-                  ELSE IF (n_count_evaporation > size(t_evapo)) THEN
-                    CONTINUE
-                  ELSE
-                    delt = t_evapo(n_count_evaporation) - time_norm
-                    n_count_evaporation = n_count_evaporation + 1
-                  
-                   !WRITE(*,*) ' Adjusting time step to match the evaporation data '
-                   !WRITE(*,5085) delt*OutputTimeScale
-                   !WRITE(*,*)
-                    
-                    
-                  END IF
-                END IF
-                
-                IF (ABS(t_evapo(n_count_evaporation) - time_norm - delt) < 1.0d-10) THEN
-                  n_count_evaporation = n_count_evaporation + 1
-                END IF
-                
-                CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-              ELSE
-                CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-              END IF
-            END IF
+          !CASE ('environmental_forcing')
+          !  
+          !  ! infiltration
+          !  IF (infiltration_timeseries) THEN
+          !    IF (TS_1year) THEN
+          !      time_norm=time-floor(time)
+          !      IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
+          !        IF (time_norm + delt > 1.0d0) THEN
+          !          n_count_infiltration = 2
+          !          IF (time_norm + delt -1.0d0> t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
+          !            delt = 1.0d0 + t_infiltration(n_count_infiltration) - time_norm
+          !            n_count_infiltration = n_count_infiltration + 1
+          !            !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+          !            !WRITE(*,5085) delt*OutputTimeScale
+          !            !WRITE(*,*)
+          !          END IF
+          !          
+          !        ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
+          !          CONTINUE
+          !        ELSE 
+          !          delt = t_infiltration(n_count_infiltration) - time_norm
+          !          n_count_infiltration = n_count_infiltration + 1
+          !        
+          !          !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+          !          !WRITE(*,5085) delt*OutputTimeScale
+          !          !WRITE(*,*)
+          !          
+          !        END IF
+          !      END IF
+          !      
+          !      IF (ABS(t_infiltration(n_count_infiltration) - time_norm - delt) < 1.0d-10) THEN
+          !        n_count_infiltration = n_count_infiltration + 1
+          !      END IF
+          !      
+          !      CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+          !    ELSE
+          !      CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+          !    END IF
+          !  END IF
+          !  
+          !  write(77,*) time, ' Infiltration rate = ',infiltration_rate
+          !  
+          !  
+          !  ! transpiration            
+          !  IF (transpitimeseries) THEN
+          !    IF (TS_1year) THEN
+          !      time_norm=time-floor(time)
+          !      IF (time_norm + delt -1.0d0> t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+          !        IF (time_norm + delt > 1.0d0) THEN
+          !          n_count_transpiration = 2
+          !          IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+          !            delt = 1.0d0 + t_transpi(n_count_transpiration) - time_norm
+          !            n_count_transpiration = n_count_transpiration + 1
+          !            !WRITE(*,*) ' Adjusting time step to match the transpiration data '
+          !            !WRITE(*,5085) delt*OutputTimeScale
+          !            !WRITE(*,*)
+          !          END IF
+          !          
+          !        ELSE IF (n_count_transpiration > size(t_transpi)) THEN
+          !          CONTINUE
+          !        ELSE 
+          !          delt = t_transpi(n_count_transpiration) - time_norm
+          !          n_count_transpiration = n_count_transpiration + 1
+          !        
+          !         !WRITE(*,*) ' Adjusting time step to match the transpiration data '
+          !         !WRITE(*,5085) delt*OutputTimeScale
+          !         !WRITE(*,*)
+          !        END IF
+          !      END IF
+          !      
+          !      IF (ABS(t_transpi(n_count_transpiration) - time_norm - delt) < 1.0d-10) THEN
+          !        n_count_transpiration = n_count_transpiration + 1
+          !      END IF
+          !      CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+          !    ELSE
+          !      CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+          !    END IF
+          !  END IF
+          !  
+          !  ! evaporation
+          !  IF (evapotimeseries) THEN
+          !    IF (TS_1year) THEN
+          !      time_norm=time-floor(time)
+          !      IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
+          !        IF (time_norm + delt > 1.0d0) THEN
+          !          n_count_evaporation = 2
+          !          IF (time_norm + delt -1.0d0> t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
+          !            delt = 1.0d0 + t_infiltration(n_count_evaporation) - time_norm
+          !            n_count_evaporation = n_count_evaporation + 1
+          !            !WRITE(*,*) ' Adjusting time step to match the evaporation data '
+          !            !WRITE(*,5085) delt*OutputTimeScale
+          !            !WRITE(*,*)
+          !          END IF
+          !        ELSE IF (n_count_evaporation > size(t_evapo)) THEN
+          !          CONTINUE
+          !        ELSE
+          !          delt = t_evapo(n_count_evaporation) - time_norm
+          !          n_count_evaporation = n_count_evaporation + 1
+          !        
+          !         !WRITE(*,*) ' Adjusting time step to match the evaporation data '
+          !         !WRITE(*,5085) delt*OutputTimeScale
+          !         !WRITE(*,*)
+          !          
+          !          
+          !        END IF
+          !      END IF
+          !      
+          !      IF (ABS(t_evapo(n_count_evaporation) - time_norm - delt) < 1.0d-10) THEN
+          !        n_count_evaporation = n_count_evaporation + 1
+          !      END IF
+          !      
+          !      CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+          !    ELSE
+          !      CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+          !    END IF
+          !  END IF
           
           
           CASE DEFAULT

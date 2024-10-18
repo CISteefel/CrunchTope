@@ -20,20 +20,6 @@ INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow
 
-! variables not declared in CrunchTope
-!REAL(DP)                                                   :: psi_lb
-!REAL(DP)                                                   :: head_lb
-!REAL(DP)                                                   :: theta_lb
-!REAL(DP)                                                   :: dtheta_lb
-!REAL(DP)                                                   :: kr_lb
-!REAL(DP)                                                   :: dkr_lb
-!REAL(DP)                                                   :: psi_ub
-!REAL(DP)                                                   :: head_ub
-!REAL(DP)                                                   :: theta_ub
-!REAL(DP)                                                   :: dtheta_ub
-!REAL(DP)                                                   :: kr_ub
-!REAL(DP)                                                   :: dkr_ub
-
 xi_2 = rho_water_2*g/mu_water
 
 jy = 1
@@ -92,7 +78,7 @@ inner: DO jx = 1, nx
 END DO inner
 
 ! boundary condition at the inlet (begin boundary condition)
-SELECT CASE (upper_BC_type)
+SELECT CASE (x_begin_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
   CONTINUE
   
@@ -115,12 +101,12 @@ CASE ('constant_flux', 'variable_flux')
   J(0, 1) = J(0, 1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
   
-CASE ('environmental_forcing')
-  CONTINUE
+!CASE ('environmental_forcing')
+!  CONTINUE
   
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', x_begin_BC_type, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
@@ -128,7 +114,7 @@ CASE DEFAULT
 END SELECT
 
 ! boundary condition at the inlet (end boundary condition)
-SELECT CASE (lower_BC_type)
+SELECT CASE (x_end_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
   CONTINUE
   
@@ -151,74 +137,11 @@ CASE ('constant_flux', 'variable_flux')
   
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', x_end_BC_type, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
   
 END SELECT
-
-
-
-!! the derivative of the lower boundary flux with respect to the first cell psi depends on boundary condition
-!SELECT CASE (lower_BC_type)
-!CASE ('constant_dirichlet', 'variable_dirichlet')
-!  head_lb = value_lower_BC + (x(jx) - 0.5d0 * dxx(jx))
-!  CALL vanGenuchten_model_kr(value_lower_BC, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
-!  J(1, 1) = J(1, 1) + dtflow/dxx(1) * xi(jx, jy, jz)*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*MERGE(dkr(1, jy, jz)*(head(1, jy, jz) - head_lb) + kr(1, jy, jz), kr_lb, head(1, jy, jz) - head_lb >= 0)
-!CASE ('constant_neumann', 'variable_neumann')
-!  psi_lb = psi(1, jy, jz) - value_lower_BC*(0.5d0 * dxx(jx))
-!  head_lb = psi_lb + (x(jx) - 0.5d0 * dxx(jx))
-!  CALL vanGenuchten_model(psi_lb, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
-!                          theta_lb, kr_lb, dtheta_lb, dkr_lb)
-!  ! head(1, jy, jz) - head_lb does not depend on psi(1, jy, jz), so the derivative is simple
-!  ! derivative of k_lb with respect to psi_1 is dkr_lb * d psi_lb/d psi_1 = dkr_lb
-!  J(1, 1) = J(1, 1) + dtflow/dxx(1) * xi(jx, jy, jz)*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*MERGE(dkr(1, jy, jz)*(head(1, jy, jz) - head_lb), dkr_lb*(head(1, jy, jz) - head_lb), head(1, jy, jz) - head_lb >= 0)
-!  CONTINUE
-!CASE ('constant_flux', 'variable_flux')
-!  ! the derivative of the lower boundary flux with respect to the first cell psi is zero, so do nothing
-!  CONTINUE
-!CASE DEFAULT
-!  WRITE(*,*)
-!  WRITE(*,*) ' The boundary condition type ', lower_BC_type, ' is not supported. '
-!  WRITE(*,*)
-!  READ(*,*)
-!  STOP
-!  
-!END SELECT
-!
-!
-!! upper boundary (the last cell)
-!jx = nx
-!J(nx, nx - 1) = dtflow/dxx(nx) * xi(jx, jy, jz) * K_faces_x(nx-1, jy, jz) / (x(nx) - x(nx-1)) * &
-!                MERGE(-kr(nx, jy, jz), dkr(nx-1, jy, jz)*(head(nx, jy, jz) - head(nx-1, jy, jz)) - kr(nx-1, jy, jz), head(nx, jy, jz) - head(nx-1, jy, jz) >= 0)
-!
-!J(nx, nx) = dtheta(nx, jy, jz) + dtflow/dxx(nx) * xi(jx, jy, jz) * K_faces_x(nx-1, jy, jz) / (x(nx) - x(nx-1)) &
-!            *MERGE(dkr(nx, jy, jz)*(head(nx, jy, jz) - head(nx-1, jy, jz)) + kr(nx, jy, jz), kr(nx-1, jy, jz), head(nx, jy, jz) - head(nx-1, jy, jz) >= 0)
-!
-!! the derivative of the upper boundary flux with respect to the lass cell psi depends on boundary condition
-!SELECT CASE (upper_BC_type)
-!CASE ('constant_dirichlet', 'variable_dirichlet')
-!  head_ub = value_upper_BC + (x(jx) + 0.5d0 * dxx(jx))
-!  CALL vanGenuchten_model_kr(value_upper_BC, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_ub)
-!  J(nx, nx) = J(nx, nx) - dtflow/dxx(nx) * xi(jx, jy, jz)*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*MERGE(-kr_ub, dkr(nx, jy, jz)*(head_ub - head(nx, jy, jz)), head_ub - head(nx, jy, jz) >= 0)
-!  
-!CASE ('constant_neumann', 'variable_neumann')
-!  CONTINUE
-!CASE ('constant_flux', 'variable_flux')
-!  ! the derivative of the upper boundary flux with respect to the last cell psi is zero, so do nothing
-!  CONTINUE
-!  
-!CASE ('environmental_forcing')
-!  ! the derivative of the upper boundary flux with respect to the last cell psi is zero, so do nothing
-!  CONTINUE
-!CASE DEFAULT
-!  WRITE(*,*)
-!  WRITE(*,*) ' The boundary condition type ', upper_BC_type, ' is not supported. '
-!  WRITE(*,*)
-!  READ(*,*)
-!  STOP
-!  
-!END SELECT
 
 END SUBROUTINE Jacobian_Richards
