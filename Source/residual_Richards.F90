@@ -23,7 +23,9 @@ INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow
-REAL(DP), DIMENSION(0:nx + 1), INTENT(OUT)                       :: F_residual
+REAL(DP), DIMENSION(0:nx + 1), INTENT(OUT)                 :: F_residual
+
+REAL(DP)                                                   :: psi_b ! water potential at a boundary
 
 !REAL(DP)                                                   :: water_balance ! water balance to prevent the cell from drying out
 !REAL(DP)                                                   :: adjusted_extraction ! total water extraction (=evaporation + transpiration) adjusted to prevent the cell from drying out
@@ -43,6 +45,9 @@ END DO
 
 SELECT CASE (x_begin_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
+  psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
+  F_residual(0) = psi_b - value_x_begin_BC
+  
   CONTINUE
   
 CASE ('constant_neumann', 'variable_neumann')
@@ -67,7 +72,8 @@ END SELECT
 ! boundary condition at the inlet (end boundary condition)
 SELECT CASE (x_end_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
-  CONTINUE
+  psi_b = (psi(nx, jy, jz)*dxx_2(nx+1) + psi(nx+1, jy, jz)*dxx_2(nx))/(dxx_2(nx) + dxx_2(nx+1))
+  F_residual(nx+1) = psi_b - value_x_end_BC
   
 CASE ('constant_neumann', 'variable_neumann')
   CONTINUE

@@ -80,8 +80,8 @@ END DO inner
 ! boundary condition at the inlet (begin boundary condition)
 SELECT CASE (x_begin_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
-  CONTINUE
-  
+  J(0, 0) = dxx_2(1)/(dxx_2(0) + dxx_2(1))
+  J(0, 1) = dxx_2(0)/(dxx_2(0) + dxx_2(1))
 CASE ('constant_neumann', 'variable_neumann')
   CONTINUE
   
@@ -116,7 +116,8 @@ END SELECT
 ! boundary condition at the inlet (end boundary condition)
 SELECT CASE (x_end_BC_type)
 CASE ('constant_dirichlet', 'variable_dirichlet')
-  CONTINUE
+  J(nx+1, nx) = dxx_2(nx+1)/(dxx_2(nx) + dxx_2(nx+1))
+  J(nx+1, nx+1) = dxx_2(nx)/(dxx_2(nx) + dxx_2(nx+1))
   
 CASE ('constant_neumann', 'variable_neumann')
   CONTINUE
