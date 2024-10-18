@@ -26,6 +26,7 @@ REAL(DP), INTENT(IN)                                       :: dtflow
 REAL(DP), DIMENSION(0:nx + 1), INTENT(OUT)                 :: F_residual
 
 REAL(DP)                                                   :: psi_b ! water potential at a boundary
+REAL(DP)                                                   :: psi_grad_b ! water potential gradient at a boundary
 
 !REAL(DP)                                                   :: water_balance ! water balance to prevent the cell from drying out
 !REAL(DP)                                                   :: adjusted_extraction ! total water extraction (=evaporation + transpiration) adjusted to prevent the cell from drying out
@@ -51,7 +52,8 @@ CASE ('constant_dirichlet', 'variable_dirichlet')
   CONTINUE
   
 CASE ('constant_neumann', 'variable_neumann')
-  CONTINUE
+  psi_grad_b = (psi(1, jy, jz) - psi(0, jy, jz))/(x_2(1) - x_2(0))
+  F_residual(0) = psi_grad_b - value_x_begin_BC
   
 CASE ('constant_flux', 'variable_flux')
   F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
@@ -76,7 +78,8 @@ CASE ('constant_dirichlet', 'variable_dirichlet')
   F_residual(nx+1) = psi_b - value_x_end_BC
   
 CASE ('constant_neumann', 'variable_neumann')
-  CONTINUE
+  psi_grad_b = (psi(nx+1, jy, jz) - psi(nx, jy, jz))/(x_2(nx+1) - x_2(nx))
+  F_residual(nx+1) = psi_grad_b - value_x_end_BC
   
 CASE ('constant_flux', 'variable_flux')
   F_residual(nx+1) = qx(nx, jy, jz) - value_x_end_BC

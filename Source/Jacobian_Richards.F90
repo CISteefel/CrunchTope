@@ -83,7 +83,8 @@ CASE ('constant_dirichlet', 'variable_dirichlet')
   J(0, 0) = dxx_2(1)/(dxx_2(0) + dxx_2(1))
   J(0, 1) = dxx_2(0)/(dxx_2(0) + dxx_2(1))
 CASE ('constant_neumann', 'variable_neumann')
-  CONTINUE
+  J(0, 0) = 1.0d0/(x_2(1) - x_2(0))
+  J(0, 1) = -1.0d0/(x_2(1) - x_2(0))
   
 CASE ('constant_flux', 'variable_flux')
   ! add diffusive flux part
@@ -120,7 +121,8 @@ CASE ('constant_dirichlet', 'variable_dirichlet')
   J(nx+1, nx+1) = dxx_2(nx)/(dxx_2(nx) + dxx_2(nx+1))
   
 CASE ('constant_neumann', 'variable_neumann')
-  CONTINUE
+  J(nx+1, nx) = -1.0d0 / (x_2(nx+1) - x_2(nx))
+  J(nx+1, nx+1) = 1.0d0 / (x_2(nx+1) - x_2(nx))
   
 CASE ('constant_flux', 'variable_flux')
   ! add diffusive flux part
