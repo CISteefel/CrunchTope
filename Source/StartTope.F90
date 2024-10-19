@@ -9660,12 +9660,7 @@ ELSE
             value_x_end_BC = (value_x_end_BC - pressure_air)/(rho_water*9.80665d0)
         END IF
       CASE ('constant_neumann')
-        WRITE(*,*)
-        WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type, ' is not supported for the x_end boundary condition. '
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-        !CONTINUE ! no unit conversion
+        CONTINUE ! no unit conversion
       CASE ('constant_flux')
         value_x_end_BC = value_x_end_BC/(dist_scale * time_scale)
       !CASE ('variable_dirichlet')
