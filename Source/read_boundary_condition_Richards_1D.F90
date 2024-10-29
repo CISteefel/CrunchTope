@@ -1,4 +1,4 @@
-SUBROUTINE read_boundary_condition_Richards(nout, Richards_steady, BC_location, BC_type, BC_file, value, lfile, constant_BC, time_length)
+SUBROUTINE read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, BC_type, BC_file, value, lfile, constant_BC, time_length)
 ! This subroutine reads the boundary condition for the Richards equation
 USE crunchtype
 USE CrunchFunctions
@@ -181,4 +181,4 @@ ELSE         ! No string found
 END IF
 
 1000 RETURN
-END SUBROUTINE read_boundary_condition_Richards
+END SUBROUTINE read_boundary_condition_Richards_1D

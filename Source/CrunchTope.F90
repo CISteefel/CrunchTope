@@ -829,12 +829,6 @@ IF (CalculateFlow) THEN
 
   IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
-  ELSE IF (Richards) THEN
-    ! the velocity was already calcuated in the stead-state program
-    FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
-    END FORALL
-    CONTINUE
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
@@ -851,12 +845,7 @@ IF (CalculateFlow) THEN
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
-    ! fill ghost points by linear extrapolation in x direction
-    !satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-    !satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-    !satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-    !satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
-    ! fill other ghost points by zero-order extrapolation
+    ! fill ghost points by zero-order extrapolation
     satliq(-1,jy,jz) = satliq(0,jy,jz)
     satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
     satliq(:,-1,:) =  satliq(:,1,:)
@@ -1277,9 +1266,12 @@ DO WHILE (nn <= nend)
         ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
         flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
+          IF (Richards_print) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
+          END IF
+          
         ! store the previous time step water content
           jy = 1
-          jz = 1
           jz = 1
           DO jx = 0,nx+1
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
@@ -1419,12 +1411,7 @@ DO WHILE (nn <= nend)
             CONTINUE ! for constant boundary condition, do nothing
           END SELECT
           
-          IF (Richards_print) THEN
-            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
-            !IF (time > 0.999) THEN 
-            !  READ(*,*)
-            !END IF
-          END IF
+          
           
           ! solve the 1D time-dependenet Richards equation
           CALL solve_Richards(nx, ny, nz, delt)
@@ -1438,12 +1425,7 @@ DO WHILE (nn <= nend)
               satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
           END DO
 
-          ! fill ghost points by linear extrapolation in x direction
-          !satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-          !satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-          !satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-          !satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
-          ! fill other ghost points by zero-order extrapolation
+          ! fill ghost points by zero-order extrapolation
           satliq(0,jy,jz) = satliq(1,jy,jz)
           satliq(-1,jy,jz) = satliq(0,jy,jz)
           satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
@@ -1532,11 +1514,6 @@ DO WHILE (nn <= nend)
 
         IF (NavierStokes) THEN
             CALL velocalcNS(nx,ny,nz,delt)
-        ELSE IF (Richards) THEN
-          ! the velocity was already calcuated
-          FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-              pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
-          END FORALL
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
@@ -2095,7 +2072,7 @@ DO WHILE (nn <= nend)
           iterat = iterat + 1
 
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-		  call jacobian(ncomp,nspec,nx,ny,nz)								   
+		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
 
             
           jz = 1

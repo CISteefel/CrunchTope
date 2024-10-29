@@ -327,9 +327,9 @@ fn='Aq_totconc'
   WRITE(8,2012)
   2012 FORMAT('VARIABLES = "X"          "Y"              "Z"           "X Velocity"     "Y-Velocity"     "Z-Velocity" ')
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
+    DO jz = 0,nz
+      DO jy = 0,ny
+        DO jx = 0,nx
           WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
                 z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
       END DO
