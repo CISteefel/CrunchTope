@@ -431,6 +431,12 @@ INTEGER(I4B)                                               :: n_count_temperatur
 ! End of Edit by Toshiyuki Bandai, 2023 July 
 !*************************************************************************
 
+!*************************************************************************
+! Added by Toshiyuki Bandai, 2024 Aug. to measure walltime for time stepping
+character(10) :: time_WallTime1
+character(10) :: time_WallTime2
+!*************************************************************************
+
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -1105,6 +1111,11 @@ END IF
 !!!  Call timestep-dependent re-speciation routine to check whether initial state should be updated  FLASH
 
 !*************************START OF TIME LOOP**************************
+
+!!! measure wall time
+call date_and_time(TIME=time_WallTime1)
+WRITE(iunit2,*) "Time for the beginning of time stepping: ", time_WallTime1
+!!!
 
 iteration_tot = 0
 
@@ -3568,6 +3579,18 @@ END DO
         WRITE(*,*)
         WRITE(*,*) '  *** RUN SUCCESSFULLY COMPLETED *** '
         WRITE(*,*)
+        
+        
+        !************************************
+        !OPEN(iunit2,access='append', status='old')
+        call date_and_time(TIME=time_WallTime2)
+        WRITE(iunit2,*) "Time for the End of Time Stepping: ", time_WallTime2
+        CLOSE(iunit2,STATUS='keep')
+        write(*,*) "Time for the Beginning of Time Stepping: ", time_WallTime1
+        write(*,*) "Time for the End of Time Stepping: ", time_WallTime2
+        read(*,*)
+        !************************************
+        
       END IF
 
       CALL date_and_time(dumm1,dumm2,dumm3,curr_time)

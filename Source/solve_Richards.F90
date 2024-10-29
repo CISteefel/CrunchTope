@@ -22,9 +22,9 @@ INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow ! time step for flow
 
-REAL(DP), DIMENSION(0:nx+1)                                    :: F_residual ! residual
-REAL(DP), DIMENSION(0:nx+1, 0:nx+1)                                :: J ! Jacobian matrix
-REAL(DP), DIMENSION(0:nx+1)                                    :: dpsi_Newton ! Newton step
+REAL(DP), ALLOCATABLE                                  :: F_residual(:) ! residual
+REAL(DP), ALLOCATABLE                           :: J(:, :) ! Jacobian matrix
+REAL(DP), ALLOCATABLE                                  :: dpsi_Newton(:) ! Newton step
 
 ! parameters for the linear solver
 INTEGER(I4B)                                               :: info, lda, ldb, nrhs
@@ -44,6 +44,28 @@ INTEGER(I4B)                                               :: total_line
 ! variables for checking water mass balance
 REAL(DP)                                                   :: water_mass
 REAL(DP)                                                   :: water_mass_error
+
+! allocate arrays
+IF (ALLOCATED(F_residual)) THEN
+  DEALLOCATE(F_residual)
+  ALLOCATE(F_residual(0:nx+1))
+ELSE
+  ALLOCATE(F_residual(0:nx+1))
+END IF
+
+IF (ALLOCATED(J)) THEN
+  DEALLOCATE(J)
+  ALLOCATE(J(0:nx+1, 0:nx+1))
+ELSE
+  ALLOCATE(J(0:nx+1, 0:nx+1))
+END IF
+
+IF (ALLOCATED(dpsi_Newton)) THEN
+  DEALLOCATE(dpsi_Newton)
+  ALLOCATE(dpsi_Newton(0:nx+1))
+ELSE
+  ALLOCATE(dpsi_Newton(0:nx+1))
+END IF
 
 ! initialize parameters for linear solver
 nrhs = 1
