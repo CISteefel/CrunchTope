@@ -5577,29 +5577,6 @@ DO jy = 1,ny
 END DO
 END DO
 
-!*************************************************************
-! Edit by Toshiyuki Bandai, June 2023
-! Edit by Lucien Stolze, June 2023
-! compute the dynamics viscosity of water [Pa year] based on local temperature
-! mu_water is defined in Flow module
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO jx = 0,nx+1
-      mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-      rho_water_2 = 0.99823d0 * 1.0E3
-      !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
-    END DO
-  END DO
-END DO
-!     END DO
-!   END DO
-! END DO
-
-mu_water = 0.0010005*secyr ! dynamic viscosity of water
-
-! End of Edit by Toshiyuki Bandai, June 2023
-!*************************************************************
-
 roOld = ro
 
 !! WRITE(iunit2,*)
@@ -6681,10 +6658,6 @@ spbgas = 0.0
 spexb = 0.0
 spsurfb = 0.0
 
-! if (Richards) THEN
-! CALL read_bound_richard(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
-!    nsurf,nsurf_sec)
-! ELSE
 CALL read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
    nsurf,nsurf_sec)
 !ENDIF
@@ -8282,121 +8255,31 @@ ELSE
   ! Edit by Toshiyuki Bandai 2023 May
   Richards_allocate: IF (Richards) THEN
     
-    IF ((ny > 1) .OR. (nz > 1)) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Currently, Richards solver is supported for one-dimensional problem'
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    ELSE
-    ! get the discretization for the Ricahrds for one-dimension
-      IF (ALLOCATED(x_2)) THEN
-        DEALLOCATE(x_2)
-        ALLOCATE(x_2(0:nx+1))
-      ELSE
-        ALLOCATE(x_2(0:nx+1))
-      END IF
-  
-      IF (ALLOCATED(dxx_2)) THEN
-        DEALLOCATE(dxx_2)
-        ALLOCATE(dxx_2(0:nx+1))
-      ELSE
-        ALLOCATE(dxx_2(0:nx+1))
-      END IF
-  
-      DO jx = 1, nx
-        x_2(jx) = x(jx)
-        dxx_2(jx) = dxx(jx)
+    CALL RichardsArrayAllocation(nx,ny,nz)
+    
+    !*************************************************************
+    ! Edit by Toshiyuki Bandai, Oct. 2024
+    ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
+    ! mu_water is defined in Flow module
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 0,nx+1
+          mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+          rho_water_2 = 0.99823d0 * 1.0E3
+          !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
+        END DO
       END DO
-    
-      ! fill the ghost cells
-      dxx_2(0) = dxx_2(1)
-      dxx_2(nx+1) = dxx_2(nx)
-  
-      x_2(0) = -0.5d0*dxx_2(0)
-      x_2(nx+1) = x_2(nx)+0.5d0*(dxx_2(nx) + dxx_2(nx+1))
-    END IF
-  
-  ! allocate state variable for the Richards equation
-  ! water potential psi
-    IF (ALLOCATED(psi)) THEN
-      DEALLOCATE(psi)
-      ALLOCATE(psi(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(psi(0:nx+1, ny, nz))
-    END IF
-     
-    ! volumetric water content theta
-    IF (ALLOCATED(theta)) THEN
-      DEALLOCATE(theta)
-      ALLOCATE(theta(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(theta(0:nx+1, ny, nz))
-    END IF
-    
-    IF (ALLOCATED(theta_prev)) THEN
-      DEALLOCATE(theta_prev)
-      ALLOCATE(theta_prev(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(theta_prev(0:nx+1, ny, nz))
-    END IF
+    END DO
+    !     END DO
+    !   END DO
+    ! END DO
 
-    ! derivative of volumetric water content theta
-    IF (ALLOCATED(dtheta)) THEN
-      DEALLOCATE(dtheta)
-      ALLOCATE(dtheta(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(dtheta(0:nx+1, ny, nz))
-    END IF
+    mu_water = 0.0010005*secyr ! dynamic viscosity of water
 
-    ! head values
-    IF (ALLOCATED(head)) THEN
-      DEALLOCATE(head)
-      ALLOCATE(head(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(head(0:nx+1, ny, nz))
-    END IF
+    ! End of Edit by Toshiyuki Bandai, Oct. 2024
+    !*************************************************************
 
-    ! relative permeability
-    IF (ALLOCATED(kr)) THEN
-      DEALLOCATE(kr)
-      ALLOCATE(kr(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(kr(0:nx+1, ny, nz))
-    END IF
 
-    ! derivative of relative permeability
-    IF (ALLOCATED(dkr)) THEN
-      DEALLOCATE(dkr)
-      ALLOCATE(dkr(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(dkr(0:nx+1, ny, nz))
-    END IF
-     
-    ! relative permeability at cell faces
-    IF (ALLOCATED(kr_faces)) THEN
-      DEALLOCATE(kr_faces)
-      ALLOCATE(kr_faces(0:nx, ny, nz))
-    ELSE
-      ALLOCATE(kr_faces(0:nx, ny, nz))
-    END IF
-     
-    ! physical constant used in the Richards equation
-    IF (ALLOCATED(xi_2)) THEN
-      DEALLOCATE(xi_2)
-      ALLOCATE(xi_2(0:nx+1, ny, nz))
-    ELSE
-      ALLOCATE(xi_2(0:nx+1, ny, nz))
-    END IF
-    
-    ! physical constant used in the Richards equation at cell faces
-    IF (ALLOCATED(xi_2_faces)) THEN
-      DEALLOCATE(xi_2_faces)
-      ALLOCATE(xi_2_faces(0:nx, ny, nz))
-    ELSE
-      ALLOCATE(xi_2_faces(0:nx, ny, nz))
-    END IF
-    
     ! allocate and read van-Genuchten parameters
     VG_error = 0
     
@@ -8404,13 +8287,7 @@ ELSE
     
     IF (theta_s_is_porosity) THEN
       ! theta_s is the same as the porosity, so no need to read vg_theta_s
-      IF (ALLOCATED(theta_s)) THEN
-        DEALLOCATE(theta_s)
-        ALLOCATE(theta_s(0:nx+1, ny, nz))
-      ELSE
-        ALLOCATE(theta_s(0:nx+1, ny, nz))
-      END IF
-      
+    
       FORALL (jx=0:nx+1, jy=1:ny, jz=1:nz)
         theta_s(jx,jy,jz) = por(jx,jy,jz)
       END FORALL
@@ -8468,12 +8345,7 @@ ELSE
           READ(*,*)
           STOP
         END IF
-        IF (ALLOCATED(theta_r)) THEN
-          DEALLOCATE(theta_r)
-          ALLOCATE(theta_r(0:nx+1, ny, nz))
-        ELSE
-          ALLOCATE(theta_r(0:nx+1, ny, nz))
-        END IF
+        
         OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
         FileTemp = wcrfile
         CALL stringlen(FileTemp,FileNameLength)
@@ -8563,12 +8435,7 @@ ELSE
         READ(*,*)
         STOP
       END IF
-      IF (ALLOCATED(VG_alpha)) THEN
-        DEALLOCATE(VG_alpha)
-        ALLOCATE(VG_alpha(0:nx+1, ny, nz))
-      ELSE
-        ALLOCATE(VG_alpha(0:nx+1, ny, nz))
-      END IF
+      
       OPEN(UNIT=23,FILE=vgafile,STATUS='old')
       FileTemp = vgafile
       CALL stringlen(FileTemp,FileNameLength)
@@ -8661,12 +8528,7 @@ ELSE
           READ(*,*)
           STOP
         END IF
-        IF (ALLOCATED(VG_n)) THEN
-          DEALLOCATE(VG_n)
-          ALLOCATE(VG_n(0:nx+1, ny, nz))
-        ELSE
-          ALLOCATE(VG_n(0:nx+1, ny, nz))
-        END IF
+        
         OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
         FileTemp = vgnfile
         CALL stringlen(FileTemp,FileNameLength)

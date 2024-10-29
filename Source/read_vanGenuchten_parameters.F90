@@ -74,12 +74,7 @@ ELSE
       
       SELECT CASE (parchar)
       CASE ('vg_theta_r')
-        IF (ALLOCATED(theta_r)) THEN
-          DEALLOCATE(theta_r)
-          ALLOCATE(theta_r(0:nx+1, ny, nz))
-        ELSE
-          ALLOCATE(theta_r(0:nx+1, ny, nz))
-        END IF
+
         
         jxx = 0
         DO i = 1, nzone
@@ -94,14 +89,7 @@ ELSE
         theta_r(nx+1, ny, nz) = theta_r(nx, ny, nz)
         
         
-      CASE ('vg_theta_s')
-        IF (ALLOCATED(theta_s)) THEN
-          DEALLOCATE(theta_s)
-          ALLOCATE(theta_s(0:nx+1, ny, nz))
-        ELSE
-          ALLOCATE(theta_s(0:nx+1, ny, nz))
-        END IF
-        
+      CASE ('vg_theta_s')        
         jxx = 0
         DO i = 1, nzone
           DO jx = 1, ncells_VG(i)
@@ -116,13 +104,6 @@ ELSE
         
         
       CASE ('vg_alpha')
-        IF (ALLOCATED(VG_alpha)) THEN
-          DEALLOCATE(VG_alpha)
-          ALLOCATE(VG_alpha(0:nx+1, ny, nz))
-        ELSE
-          ALLOCATE(VG_alpha(0:nx+1, ny, nz))
-        END IF
-        
         jxx = 0
         DO i = 1, nzone
           DO jx = 1, ncells_VG(i)
@@ -136,12 +117,6 @@ ELSE
         VG_alpha(nx+1, ny, nz) = VG_alpha(nx, ny, nz)
       
       CASE ('vg_n')
-        IF (ALLOCATED(VG_n)) THEN
-          DEALLOCATE(VG_n)
-          ALLOCATE(VG_n(0:nx+1, ny, nz))
-        ELSE
-          ALLOCATE(VG_n(0:nx+1, ny, nz))
-        END IF
         
         jxx = 0
         DO i = 1, nzone
