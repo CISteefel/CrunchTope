@@ -433,8 +433,8 @@ INTEGER(I4B)                                               :: n_count_temperatur
 
 !*************************************************************************
 ! Added by Toshiyuki Bandai, 2024 Aug. to measure walltime for time stepping
-character(10) :: time_WallTime1
-character(10) :: time_WallTime2
+!character(10) :: time_WallTime1
+!character(10) :: time_WallTime2
 !*************************************************************************
 
 
@@ -1113,8 +1113,8 @@ END IF
 !*************************START OF TIME LOOP**************************
 
 !!! measure wall time
-call date_and_time(TIME=time_WallTime1)
-WRITE(iunit2,*) "Time for the beginning of time stepping: ", time_WallTime1
+!call date_and_time(TIME=time_WallTime1)
+!WRITE(iunit2,*) "Time for the beginning of time stepping: ", time_WallTime1
 !!!
 
 iteration_tot = 0
@@ -3581,15 +3581,15 @@ END DO
         WRITE(*,*)
         
         
-        !************************************
-        !OPEN(iunit2,access='append', status='old')
-        call date_and_time(TIME=time_WallTime2)
-        WRITE(iunit2,*) "Time for the End of Time Stepping: ", time_WallTime2
-        CLOSE(iunit2,STATUS='keep')
-        write(*,*) "Time for the Beginning of Time Stepping: ", time_WallTime1
-        write(*,*) "Time for the End of Time Stepping: ", time_WallTime2
-        read(*,*)
-        !************************************
+        !!************************************
+        !!OPEN(iunit2,access='append', status='old')
+        !call date_and_time(TIME=time_WallTime2)
+        !WRITE(iunit2,*) "Time for the End of Time Stepping: ", time_WallTime2
+        !CLOSE(iunit2,STATUS='keep')
+        !write(*,*) "Time for the Beginning of Time Stepping: ", time_WallTime1
+        !write(*,*) "Time for the End of Time Stepping: ", time_WallTime2
+        !read(*,*)
+        !!************************************
         
       END IF
 
