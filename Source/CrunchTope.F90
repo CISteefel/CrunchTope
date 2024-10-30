@@ -1280,14 +1280,14 @@ DO WHILE (nn <= nend)
           ! update the value used for the x_begin boundary condition by interpolating time series
           SELECT CASE (x_begin_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp3(time, delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
+            CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
           CASE DEFAULT
             CONTINUE ! for constant boundary condition, do nothing
           END SELECT
           
           SELECT CASE (x_end_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp3(time, delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
+            CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
             
           !CASE ('environmental_forcing')
           !  
