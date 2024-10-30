@@ -247,6 +247,7 @@ satlOld = satliqOld(jx,jy,jz)
 satgas = 1.0 - satl
 satgasOld = 1.0 - satlOld
 
+! initialize these terms here to avoid a compiler from ignoring the initialization in branches
 xbdflux = 0.0d0
 ybdflux = 0.0d0
 
