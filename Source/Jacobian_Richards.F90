@@ -74,7 +74,7 @@ inner: DO jx = 1, nx
   
   ! add temporal derivative part
   J(jx, jx) = J(jx, jx) + dtheta(jx, jy, jz)
-    
+  
 END DO inner
 
 ! boundary condition at the inlet (begin boundary condition)

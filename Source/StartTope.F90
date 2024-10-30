@@ -9704,57 +9704,73 @@ ELSE
         
     END IF Richards_boundary_conditions
     
-    !Read initial condition for steady-state or transient problem
-    parchar = 'read_richards_ic_file'
-    parfind = ' '
-    Richards_IC_File = ' '
-    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
-    IF (parfind == ' ') THEN
-      WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
-      psi = 0.0d0
-    ELSE
-      Richards_IC_File = dumstring
-      CALL stringlen(Richards_IC_File,ls)
-      WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
-    END IF
+    
     
     Richards_initial_conditions: IF (Richards) THEN
+      
+      !Read initial condition for steady-state or transient problem
+      parchar = 'read_richards_ic_file'
+      parfind = ' '
+      Richards_IC_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
+      IF (parfind == ' ') THEN
+        WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
+        psi = 0.0d0
+      ELSE
+        Richards_IC_File = dumstring
+        CALL stringlen(Richards_IC_File,ls)
+        WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
+      END IF
+    
+    
       read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
         INQUIRE(FILE=Richards_IC_File,EXIST=ext)
-      IF (.NOT. ext) THEN
-        CALL stringlen(Richards_IC_File,ls)
-        WRITE(*,*)
-        WRITE(*,*) ' Initial condition file not found: ', Richards_IC_File(1:ls)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-        OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
-        FileTemp = Richards_IC_File
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (Richards_IC_FileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(52,*,END=1020) psi(jx,jy,jz)
+        IF (.NOT. ext) THEN
+          IF (Richards_steady) THEN
+            WRITE(*,*) ' The initial condition file was not found for steady-state problem. Set to zero water potential at all cells. '
+            psi = 0.0d0
+          
+          ELSE
+            CALL stringlen(Richards_IC_File,ls)
+            WRITE(*,*)
+            WRITE(*,*) ' Initial condition file not found for time-dependent problem: ', Richards_IC_File(1:ls)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_IC_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_IC_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) psi(jx,jy,jz)
+                END DO
               END DO
             END DO
-          END DO
-          ! convert unit
-          psi = psi / dist_scale
+              
+            ! the input value is in pressure [Pa], convert to pressure head [m]
+            IF (.NOT. psi_is_head) THEN
+              psi = (psi - pressure_air)/(rho_water*9.80665d0)
+            END IF
           
-          ! the input value is in pressure [Pa], convert to pressure head [m]
-          IF (.NOT. psi_is_head) THEN
-            psi = (psi - pressure_air)/(rho_water*9.80665d0)
+            ! convert unit
+            psi = psi / dist_scale
+          
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Richards Initial condition file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
           END IF
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Richards Initial condition file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
+          CLOSE(UNIT=52)
+        
         END IF
-        CLOSE(UNIT=52)
+        
       END IF read_ic_Rihcards
       
     ! fill the ghost cell

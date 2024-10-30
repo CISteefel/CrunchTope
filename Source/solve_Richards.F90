@@ -22,18 +22,19 @@ INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow ! time step for flow
 
-REAL(DP), ALLOCATABLE                                  :: F_residual(:) ! residual
-REAL(DP), ALLOCATABLE                           :: J(:, :) ! Jacobian matrix
-REAL(DP), ALLOCATABLE                                  :: dpsi_Newton(:) ! Newton step
+REAL(DP), ALLOCATABLE                                      :: F_residual(:) ! residual
+REAL(DP), ALLOCATABLE                                      :: J(:, :) ! Jacobian matrix
+REAL(DP), ALLOCATABLE                                      :: dpsi_Newton(:) ! Newton step
 
 ! parameters for the linear solver
 INTEGER(I4B)                                               :: info, lda, ldb, nrhs
-INTEGER(I4B), DIMENSION(0:nx+1)                                :: ipiv
+INTEGER(I4B), DIMENSION(0:nx+1)                            :: ipiv
 
 ! parameters for Newtons' method for forward problem
 REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
 !REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
-INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
+INTEGER(I4B), PARAMETER                                    :: maxitr_Newton = 100
+INTEGER(I4B), PARAMETER                                    :: maxitr_line_search = 10
 
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
@@ -42,8 +43,8 @@ INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
 
 ! variables for checking water mass balance
-REAL(DP)                                                   :: water_mass
-REAL(DP)                                                   :: water_mass_error
+!REAL(DP)                                                   :: water_mass
+!REAL(DP)                                                   :: water_mass_error
 
 ! allocate arrays
 IF (ALLOCATED(F_residual)) THEN
@@ -79,16 +80,23 @@ total_line = 0
 ! update tolerance
 error_old = 1.0d20 ! at least one Newton iteration will be conducted
 !tol = tau_r * error_old + tau_a
-tol = tau_a ! this tolerance should be used for problems that need very high accuracy
+tol = tau_a
 
 ! begin Newton's method
 newton_loop: DO
   IF (error_old < tol) EXIT
   ! Evaluate the flux and the residual
   CALL flux_Richards(nx, ny, nz)
-  CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
-  ! Evaluate the Jacobian matrix
-  CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
+  
+  IF (Richards_steady) THEN
+    CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
+    ! Evaluate the Jacobian matrix
+    CALL Jacobian_Richards_steady(nx, ny, nz, dtflow, J)
+  ELSE
+    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    ! Evaluate the Jacobian matrix
+    CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
+  END IF
   
   dpsi_Newton = -F_residual
   ! Solve the linear system
@@ -103,14 +111,18 @@ newton_loop: DO
   
   ! line search
   line: DO
-    IF (descent /= 0 .OR. no_backtrack > 30) EXIT line
+    IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
     ! update water potential
     DO jx = 0, nx+1
       psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
     END DO
     ! evaluate the flux and the residual
     CALL flux_Richards(nx, ny, nz)
-    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    IF (Richards_steady) THEN
+      CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
+    ELSE
+      CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    END IF
   
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
@@ -127,13 +139,13 @@ newton_loop: DO
         
   END DO line
   
-  IF (no_backtrack > 30) THEN
-    WRITE(*,*) ' Line search failed in the Richards solver. '
-    READ(*,*)
-    STOP
-  END IF
+  !IF (no_backtrack > maxitr_line_search) THEN
+  !  WRITE(*,*) ' Line search failed in the Richards solver. '
+  !  READ(*,*)
+  !  STOP
+  !END IF
   
-  IF (iteration > maxitr) THEN
+  IF (iteration > maxitr_Newton) THEN
     WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '
     READ(*,*)
     STOP

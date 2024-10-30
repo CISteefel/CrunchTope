@@ -653,10 +653,6 @@ IF (CalculateFlow) THEN
   
   dtflow = delt
   !dtflow = 1.0D-10
-  
-  WRITE(*,*)
-  WRITE(*,*) ' Running flow field to steady state prior to chemistry'
-  WRITE(*,*)
 
   harx = 0.0
   hary = 0.0
@@ -708,36 +704,47 @@ IF (CalculateFlow) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
-   !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-     CALL solve_Richards_steady(nx, ny, nz)
-   
+     CALL solve_Richards(nx, ny, nz, dtflow)
+     Richards_steady = .FALSE.
    ELSE steady_Richards
+     
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
      
-     SELECT CASE (x_begin_BC_type)
-     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-       value_x_begin_BC = values_x_begin_BC(1)
-     CASE DEFAULT
-       CONTINUE ! do nothing for constant boundary conditions
-     END SELECT
+     IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+       SELECT CASE (x_begin_BC_type)
+       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+         value_x_begin_BC = values_x_begin_BC(1)
+       CASE DEFAULT
+         CONTINUE ! do nothing for constant boundary conditions
+       END SELECT
      
-     SELECT CASE (x_end_BC_type)
-     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-       value_x_end_BC = values_x_end_BC(1)
-       CALL flux_Richards(nx, ny, nz)
-     !CASE ('environmental_forcing')
-     !  lower_BC_type_steady = lower_BC_type
-     !  upper_BC_type_steady = 'constant_flux'
-     !  value_upper_BC = qt_infiltration(1) + qt_evapo(1)
+       SELECT CASE (x_end_BC_type)
+       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+         value_x_end_BC = values_x_end_BC(1)
+         CALL flux_Richards(nx, ny, nz)
+
+       CASE DEFAULT
+         CALL flux_Richards(nx, ny, nz)
+       END SELECT
        
-       !CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
-     CASE DEFAULT
-       CALL flux_Richards(nx, ny, nz)
-     END SELECT
-    
+     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+       WRITE(*,*)
+       WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
+       WRITE(*,*)
+       READ(*,*)
+       STOP
+     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+       WRITE(*,*)
+       WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+       WRITE(*,*)
+       READ(*,*)
+       STOP
+     END IF
+      
+        
    END IF steady_Richards
 
  ! End of edit by Toshiyuki Bandai, 2024 Oct
@@ -756,7 +763,11 @@ IF (CalculateFlow) THEN
   ksp%v = userP(6)
 
   CALL KSPSetOperators(ksp,amatP,amatP,ierr)
-
+  
+  WRITE(*,*)
+  WRITE(*,*) ' Running flow field to steady state prior to chemistry'
+  WRITE(*,*)
+  
   IF (NavierStokes) THEN
     CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
   ELSE
