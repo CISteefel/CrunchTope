@@ -246,6 +246,8 @@ satl = satliq(jx,jy,jz)
 satlOld = satliqOld(jx,jy,jz)
 satgas = 1.0 - satl
 satgasOld = 1.0 - satlOld
+xbdflux = 0.0d0
+ybdflux = 0.0d0
 
 ! initialize these terms here to avoid a compiler from ignoring the initialization in branches
 xbdflux = 0.0d0
@@ -350,6 +352,7 @@ IF (jx == 1) THEN
 
     IF (JcByGrid(jx-1,jy,jz) == 1 .OR. netflowx(jdum2,jy,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jdum2,jy,jz,scw)
+
     END IF
 
   ELSE    !!  Conventional face treatment of BC
@@ -850,13 +853,17 @@ DO i = 1,ncomp
   IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0) THEN
     IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN
       xbdflux = a(jx,jy,jz)*scw(i)
+    ELSE
+      xbdflux = 0.0d0
     END IF
   ELSE IF (jx == nx .AND. netflowx(nx,jy,jz) < 0.0) THEN
     IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN
       xbdflux = c(jx,jy,jz)*sce(i)
+    ELSE
+      xbdflux = 0.0d0
     END IF
   ELSE
-    xbdflux = 0.0
+    xbdflux = 0.0d0
   END IF
   
   500   CONTINUE
@@ -865,13 +872,17 @@ DO i = 1,ncomp
   IF (jy == 1 .AND. qy(jx,0,jz) > 0.0) THEN
     IF (jc(3) == 2 .or. JcByGrid(jx,jy-1,jz) == 2) THEN
       ybdflux = f(jx,jy,jz)*scs(i)
+    ELSE
+      ybdflux = 0.0d0
     END IF
   ELSE IF (jy == ny .AND. qy(jx,ny,jz) < 0.0) THEN
     IF (jc(4) == 2 .or. JcByGrid(jx,jy+1,jz) == 2) THEN
       ybdflux = d(jx,jy,jz)*scn(i)
+    ELSE
+      ybdflux = 0.0d0
     END IF
   ELSE
-    ybdflux = 0.0
+    ybdflux = 0.0d0
   END IF
   
 600 CONTINUE
@@ -1003,10 +1014,6 @@ DO i = 1,ncomp
               + xspecdiffe*df       !! Species-dependent diffusion
     
       CONTINUE
-      
-      if (jx == 1) then
-        continue
-      end if
       
   ELSE
       
