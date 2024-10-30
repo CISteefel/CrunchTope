@@ -178,8 +178,8 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water_2 ! the density of water [kg m-3]; this is temperature dependent
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2 ! physical constant used in the Richards equation (xi is already used)
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2_faces ! physical constant in the Richards equation at faces
-
-
+    REAL(DP)                                        :: psi_0 ! minimum water potential allowed when selecting 'atomosphere' boundary condition
+    REAL(DP)                                        :: dpsi_max ! maximum update for water potential during the Newton iteration
     ! soil hydraulic parameters for van Genuchten model
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity

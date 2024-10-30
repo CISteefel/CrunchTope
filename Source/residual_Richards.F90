@@ -57,7 +57,15 @@ CASE ('constant_neumann', 'variable_neumann')
   
 CASE ('constant_flux', 'variable_flux')
   F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
-  
+
+CASE ('constant_atomosphere', 'variable_atomosphere')
+  psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
+  IF (psi_b < psi_0) THEN
+    ! the boundary water potential is below psi_0, so switch to Dirichlet BC
+    F_residual(0) = psi_b - psi_0
+  ELSE
+    F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
+  END IF
 !CASE ('environmental_forcing')
 !  CONTINUE
   

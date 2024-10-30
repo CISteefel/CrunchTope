@@ -34,8 +34,7 @@ INTEGER(I4B), DIMENSION(0:nx+1)                            :: ipiv
 REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
 !REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
 INTEGER(I4B), PARAMETER                                    :: maxitr_Newton = 100
-INTEGER(I4B), PARAMETER                                    :: maxitr_line_search = 10
-
+INTEGER(I4B), PARAMETER                                    :: maxitr_line_search = 30
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
 INTEGER(I4B)                                               :: no_backtrack, descent
@@ -114,7 +113,12 @@ newton_loop: DO
     IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
     ! update water potential
     DO jx = 0, nx+1
-      psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
+      IF (ABS(lam * dpsi_Newton(jx)) > dpsi_max) THEN
+        psi(jx, ny, nz) = psi(jx, ny, nz) + SIGN(dpsi_max, dpsi_Newton(jx))
+      ELSE
+        psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
+      END IF
+      
     END DO
     ! evaluate the flux and the residual
     CALL flux_Richards(nx, ny, nz)

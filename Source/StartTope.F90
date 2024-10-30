@@ -8105,7 +8105,7 @@ ELSE
       CALL read_logical(nout,lchar,parchar,parfind,NavierStokes)
       ! ***************************************************
 
-      ! Select Richards solver by Toshiyuki Bandai, 2023 May
+      ! Select Richards solver by Toshiyuki Bandai, 2024 Oct.
       Richards = .FALSE.
       parchar = 'Richards'
       parfind = ' '
@@ -8157,7 +8157,37 @@ ELSE
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,theta_r_is_S_r)
       
-      ! End of Edit by Toshiyuki Bandai, 2023 May
+      ! set the minimum water potential allowed at the boundary when selecting atomosphere boundary condition
+      
+      parchar = 'set_psi_0'
+      parfind = ' '
+      realjunk = 0.0
+      CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+      IF (parfind == ' ') THEN
+        psi_0 = -1.0d4  ! Use default
+      ELSE
+        psi_0 = realjunk
+      END IF
+
+      ! convert unit
+      psi_0 = psi_0 / dist_scale
+      
+      
+      ! set the maximum water potential updated during Newton iterations
+      parchar = 'set_dpsi_max'
+      parfind = ' '
+      realjunk = 0.0
+      CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+      IF (parfind == ' ') THEN
+        dpsi_max = 1.0d3  ! Use default
+      ELSE
+        dpsi_max = realjunk
+      END IF
+
+      ! convert unit
+      dpsi_max = dpsi_max / dist_scale
+      
+      ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
     
     IF (ALLOCATED(harx)) THEN
@@ -9385,7 +9415,7 @@ ELSE
           
           CASE ('constant_neumann')
             WRITE(*,*)
-            WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type, ' is not supported for the x_begin boundary condition for the steady-state Richards equation. '
+            WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the x_begin boundary condition for the steady-state Richards equation. '
             WRITE(*,*)
             READ(*,*)
             STOP
@@ -9458,7 +9488,7 @@ ELSE
           END IF
         CASE ('constant_neumann')
           CONTINUE ! no unit conversion
-        CASE ('constant_flux')
+        CASE ('constant_flux', 'constant_atomosphere')
           value_x_begin_BC = value_x_begin_BC/(dist_scale * time_scale)
         CASE ('variable_dirichlet')
         
@@ -9496,7 +9526,7 @@ ELSE
           ! unit conversion for the time for the variable boundary condition
           t_x_begin_BC = t_x_begin_BC*time_scale
           CONTINUE ! no unit conversion
-        CASE ('variable_flux')
+        CASE ('variable_flux', 'variable_atomosphere')
         
           IF (ALLOCATED(t_x_begin_BC)) THEN
             DEALLOCATE(t_x_begin_BC)
@@ -9510,7 +9540,8 @@ ELSE
         
           values_x_begin_BC = values_x_begin_BC/(dist_scale * time_scale)
           ! unit conversion for the time for the variable boundary condition
-          t_x_begin_BC = t_x_begin_BC*time_scale
+          t_x_begin_BC = t_x_begin_BC*time_scale          
+          
         CASE DEFAULT
           WRITE(*,*)
           WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type, ' is not supported. '

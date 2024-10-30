@@ -715,7 +715,7 @@ IF (CalculateFlow) THEN
      
      IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
        SELECT CASE (x_begin_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
          value_x_begin_BC = values_x_begin_BC(1)
        CASE DEFAULT
          CONTINUE ! do nothing for constant boundary conditions
@@ -724,11 +724,10 @@ IF (CalculateFlow) THEN
        SELECT CASE (x_end_BC_type)
        CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
          value_x_end_BC = values_x_end_BC(1)
-         CALL flux_Richards(nx, ny, nz)
-
        CASE DEFAULT
-         CALL flux_Richards(nx, ny, nz)
+         CONTINUE ! do nothing for constant boundary conditions
        END SELECT
+       CALL flux_Richards(nx, ny, nz)
        
      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
        WRITE(*,*)
@@ -1297,7 +1296,7 @@ DO WHILE (nn <= nend)
                   
           ! update the value used for the x_begin boundary condition by interpolating time series
           SELECT CASE (x_begin_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
             CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
           CASE DEFAULT
             CONTINUE ! for constant boundary condition, do nothing

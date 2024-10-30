@@ -82,7 +82,7 @@ IF(ls /= 0) THEN
         ! read further information on the boundary condition
         bc_case: SELECT CASE (BC_type)
           
-        CASE ('constant_dirichlet', 'constant_neumann', 'constant_flux') bc_case
+        CASE ('constant_dirichlet', 'constant_neumann', 'constant_flux', 'constant_atomosphere') bc_case
           constant_BC = .TRUE.
           CALL sschaine(zone,id,iff,ssch,ids,ls)
           ! obtain the value of the constant boundary condition
@@ -105,7 +105,7 @@ IF(ls /= 0) THEN
             READ(*,*)
             STOP  
           ENDIF
-        CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux') bc_case
+        CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere') bc_case
           constant_BC = .FALSE.
           ! variable boundary condition
           CALL sschaine(zone,id,iff,ssch,ids,ls)

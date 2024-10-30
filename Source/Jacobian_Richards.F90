@@ -19,6 +19,7 @@ INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow
+REAL(DP)                                                   :: psi_b ! water potential at a boundary
 
 xi_2 = rho_water_2*g/mu_water
 
@@ -101,6 +102,27 @@ CASE ('constant_flux', 'variable_flux')
   
   J(0, 1) = J(0, 1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
   
+CASE ('constant_atomosphere', 'variable_atomosphere')
+  psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
+  IF (psi_b < psi_0) THEN
+    ! the boundary water potential is below psi_0, so switch to Dirichlet BC
+    J(0, 0) = dxx_2(1)/(dxx_2(0) + dxx_2(1))
+    J(0, 1) = dxx_2(0)/(dxx_2(0) + dxx_2(1))
+  ELSE
+    ! add diffusive flux part
+    jx = 1
+    J(0, 0) = J(0, 0) -  K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                  (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  
+    J(0, 1) = J(0, 1) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                  (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  
+    ! add gravitational flux part
+    jx = 1
+    J(0, 0) = J(0, 0) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
+    J(0, 1) = J(0, 1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  END IF
   
 !CASE ('environmental_forcing')
 !  CONTINUE
