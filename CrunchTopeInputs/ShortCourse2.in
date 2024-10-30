@@ -13,16 +13,16 @@ debye-huckel     false
 master           Tracer
 database_sweep   no
 speciate_only    false
-gimrt            false
-graphics         kaleidagraph
+gimrt            true
+!graphics         kaleidagraph
 database         datacom.dbs
 screen_output    1000
 END
  
 OUTPUT
 time_units           years
-spatial_profile      50.0   
-time_series          Tracer1.out 100 1 1
+spatial_profile      1.0   
+time_series          Tracer1.out 1 1 1
 time_series_print    Tracer
 time_series_units    Mol/kgw
 time_series_interval 1
@@ -32,16 +32,25 @@ TRANSPORT
 distance_units meters
 time_units     years
 fix_diffusion  0.0
-dispersivity   0.5
+dispersivity   0.0
+!!!dispersivity   0.5
+END
+
+FLOW
+time_units       years
+distance_units   meters
+constant_flow    1.0
 END
 
 BOUNDARY_CONDITIONS
-x_begin   junk1     flux
-x_end     junk2     flux
+!x_begin   junk1     flux
+!x_end     junk2     flux
+x_begin   junk1     Dirichlet
+x_end     junk2     Dirichlet
 END
 
 INITIAL_CONDITIONS
-junk2   1-100
+junk2   1-100 1-1 1-1
 END
 
 DISCRETIZATION
@@ -51,6 +60,8 @@ END
 
 Condition junk1
 units            mol/kg
+set_porosity     1.0
+pH 7.0
 temperature      25.0
 Tracer           0.1
 END
@@ -58,14 +69,9 @@ END
 Condition junk2
 units            mol/kg
 temperature      25.0
-Tracer           0.000001
 set_porosity     1.0
-END
- 
-FLOW
-time_units       years
-distance_units   meters
-constant_flow    1.0
+pH 7.0
+Tracer           0.000001
 END
  
 POROSITY
@@ -74,6 +80,7 @@ END
  
 PRIMARY_SPECIES
 Tracer
+H+
 END
  
 

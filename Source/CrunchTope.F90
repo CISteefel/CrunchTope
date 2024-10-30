@@ -431,6 +431,12 @@ INTEGER(I4B)                                               :: n_count_temperatur
 ! End of Edit by Toshiyuki Bandai, 2023 July 
 !*************************************************************************
 
+!*************************************************************************
+! Added by Toshiyuki Bandai, 2024 Aug. to measure walltime for time stepping
+!character(10) :: time_WallTime1
+!character(10) :: time_WallTime2
+!*************************************************************************
+
 
 ! ******************** PETSC declarations ********************************
 PetscFortranAddr     userC(6),userD(6),userP(6),user(6)
@@ -647,10 +653,6 @@ IF (CalculateFlow) THEN
   
   dtflow = delt
   !dtflow = 1.0D-10
-  
-  WRITE(*,*)
-  WRITE(*,*) ' Running flow field to steady state prior to chemistry'
-  WRITE(*,*)
 
   harx = 0.0
   hary = 0.0
@@ -666,6 +668,7 @@ IF (CalculateFlow) THEN
   ro(:,:,0) = ro(:,:,1)
   ro(:,:,nz+1) = ro(:,:,nz)
 
+  ! compute face permeability (harx etc.) based on distance-weighted harmonic mean
   CALL harmonic(nx,ny,nz)
 
   MaxPermeabilityX = MAXVAL(harx)
@@ -695,47 +698,57 @@ IF (CalculateFlow) THEN
     END DO
   END IF
 
- ! Edit by Toshiyuki Bandai 2023 May
+ ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
- PETSc_if: IF (Richards) THEN
+ initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
-   !WRITE(*,*) ' Solves the steady state Richards equation. '
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-     CALL solve_Richards_steady(nx, ny, nz)
-   
+     CALL solve_Richards(nx, ny, nz, dtflow)
+     Richards_steady = .FALSE.
    ELSE steady_Richards
+     
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
      
-     SELECT CASE (lower_BC_type)
-     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-       value_lower_BC = values_lower_BC(1)
-     CASE DEFAULT
-       CONTINUE ! do nothing for constant boundary conditions
-     END SELECT
+     IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+       SELECT CASE (x_begin_BC_type)
+       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
+         value_x_begin_BC = values_x_begin_BC(1)
+       CASE DEFAULT
+         CONTINUE ! do nothing for constant boundary conditions
+       END SELECT
      
-     SELECT CASE (upper_BC_type)
-     CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-       value_upper_BC = values_upper_BC(1)
+       SELECT CASE (x_end_BC_type)
+       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+         value_x_end_BC = values_x_end_BC(1)
+       CASE DEFAULT
+         CONTINUE ! do nothing for constant boundary conditions
+       END SELECT
        CALL flux_Richards(nx, ny, nz)
-     CASE ('environmental_forcing')
-       lower_BC_type_steady = lower_BC_type
-       upper_BC_type_steady = 'constant_flux'
-       value_upper_BC = qt_infiltration(1) + qt_evapo(1)
        
-       CALL flux_Richards_steady(nx, ny, nz) ! use this subroutine because flux_Richards needs theta_prev for this boundary condition
-     CASE DEFAULT
-       CALL flux_Richards(nx, ny, nz)
-     END SELECT
-    
+     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+       WRITE(*,*)
+       WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
+       WRITE(*,*)
+       READ(*,*)
+       STOP
+     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+       WRITE(*,*)
+       WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+       WRITE(*,*)
+       READ(*,*)
+       STOP
+     END IF
+      
+        
    END IF steady_Richards
 
- ! End of edit by Toshiyuki Bandai, 2023 May
+ ! End of edit by Toshiyuki Bandai, 2024 Oct
  ! ******************************************************************
- ELSE PETSc_if
+ ELSE initial_flow_solver_if
 !!  atolksp = 1.D-50
 !!  rtolksp = 1.D-25
 !!  dtolksp = 1.D+05
@@ -749,7 +762,11 @@ IF (CalculateFlow) THEN
   ksp%v = userP(6)
 
   CALL KSPSetOperators(ksp,amatP,amatP,ierr)
-
+  
+  WRITE(*,*)
+  WRITE(*,*) ' Running flow field to steady state prior to chemistry'
+  WRITE(*,*)
+  
   IF (NavierStokes) THEN
     CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
   ELSE
@@ -790,7 +807,7 @@ IF (CalculateFlow) THEN
     WRITE(*,*) ' Steady state flow failed to converge '
   END IF
 
- END If PETSc_if
+ END If initial_flow_solver_if
  ! End of If construct for solvers needing PETSc or not
  
 !     ***** PETSc closeout*******
@@ -822,35 +839,25 @@ IF (CalculateFlow) THEN
 
   IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
-  ELSE IF (Richards) THEN
-    ! the velocity was already calcuated in the stead-state program
-    FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
-    END FORALL
-    CONTINUE
   ELSE
       CALL velocalc(nx,ny,nz)
   END IF
   
     
   ! **********************************************
-  ! Edit by Toshiyuki Bandai, 2023 May
+  ! Edit by Toshiyuki Bandai, 2024 Oct.
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
-    satliqold = satliq
     jy = 1
     jz = 1
-    DO jx = 1, nx
+    DO jx = 0, nx+1
         satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
     END DO
     
-    ! fill ghost points by linear extrapolation in x direction
-    satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-    satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-    satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-    satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
-    ! fill other ghost points by zero-order extrapolation in y and z directions
+    ! fill ghost points by zero-order extrapolation
+    satliq(-1,jy,jz) = satliq(0,jy,jz)
+    satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
     satliq(:,-1,:) =  satliq(:,1,:)
     satliq(:,0,:) =  satliq(:,1,:)
     satliq(:,2,:) =  satliq(:,1,:)
@@ -860,9 +867,11 @@ IF (CalculateFlow) THEN
     satliq(:,:,0) = satliq(:,:,1)
     satliq(:,:,2) = satliq(:,:,1)
     satliq(:,:,3) = satliq(:,:,1)
+    
+    satliqold = satliq
   
   END IF
-  ! End of Edit by Toshiyuki Bandai, 2023 May
+  ! End of Edit by Toshiyuki Bandai, 2024 Oct.
   ! **********************************************
 
 !!  Check divergence of flow field
@@ -1102,17 +1111,29 @@ END IF
 
 !*************************START OF TIME LOOP**************************
 
+!!! measure wall time
+!call date_and_time(TIME=time_WallTime1)
+!WRITE(iunit2,*) "Time for the beginning of time stepping: ", time_WallTime1
+!!!
+
 iteration_tot = 0
 
 nn = 0
 !**********************************************
-! record initial state by Toshiyuki Bandai 2023, May
+! record initial state by Toshiyuki Bandai 2024, Oct.
 IF (Richards) THEN
-  OPEN(unit = 10, file = 'initial_condition.out')
-  DO jx = 1, nx
-    WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
+  OPEN(unit = 10, file = 'initial_condition_Richards.tec', ACCESS='sequential',STATUS='unknown')
+  WRITE(10,*) 'TITLE = "Initial condition for Richards solver" '
+  WRITE(10,*) 'VARIABLES = "X" "Y" "Z" "Water Content" "Water Potential" "Liquid Saturation"'
+  WRITE(10,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(10, '(6(1X,1PE16.7))') x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+              z(jz)*OutputDistanceScale,theta(jx,jy,jz), psi(jx,jy,jz), satliq(jx,jy,jz)
+      END DO
+    END DO
   END DO
-  CLOSE(10)
 END IF
 !**********************************************
 
@@ -1230,15 +1251,15 @@ DO WHILE (nn <= nend)
 
   DO jz = 1,nz
     DO jy = 1,ny
-      DO jx = 1,nx
-        mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+      DO jx = 0,nx+1
+        !mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
         rho_water_2 = 0.99823d0 * 1.0E3
         !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
       END DO
     END DO
   END DO
   
-  !mu_water = 0.001*secyr
+  mu_water = 0.0010005d0*secyr
 ! End of Edit by Lucien Stolze, June 2023
 !*************************************************************
 
@@ -1260,163 +1281,186 @@ DO WHILE (nn <= nend)
         
         ! Edit by Toshiyuki Bandai 2023 May
         ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
-        PETSc_if_time: IF (Richards) THEN
+        flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
+          IF (Richards_print) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
+          END IF
+          
         ! store the previous time step water content
           jy = 1
           jz = 1
-          jz = 1
-          DO jx = 1,nx
+          DO jx = 0,nx+1
             theta_prev(jx,jy,jz) = theta(jx,jy,jz)
           END DO
                   
-          ! update the value used for the lower boundary condition by interpolating time series
-          SELECT CASE (lower_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp3(time, delt, t_lower_BC, values_lower_BC(:), value_lower_BC, size(values_lower_BC(:)))
+          ! update the value used for the x_begin boundary condition by interpolating time series
+          SELECT CASE (x_begin_BC_type)
+          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
+            CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
           CASE DEFAULT
             CONTINUE ! for constant boundary condition, do nothing
           END SELECT
           
-          SELECT CASE (upper_BC_type)
+          SELECT CASE (x_end_BC_type)
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp3(time, delt, t_upper_BC, values_upper_BC(:), value_upper_BC, size(values_upper_BC(:)))
+            CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
             
-          CASE ('environmental_forcing')
-            
-            ! infiltration
-            IF (infiltration_timeseries) THEN
-              IF (TS_1year) THEN
-                time_norm=time-floor(time)
-                IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
-                  IF (time_norm + delt > 1.0d0) THEN
-                    n_count_infiltration = 2
-                    IF (time_norm + delt -1.0d0> t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
-                      delt = 1.0d0 + t_infiltration(n_count_infiltration) - time_norm
-                      n_count_infiltration = n_count_infiltration + 1
-                      !WRITE(*,*) ' Adjusting time step to match the infiltration data '
-                      !WRITE(*,5085) delt*OutputTimeScale
-                      !WRITE(*,*)
-                    END IF
-                    
-                  ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
-                    CONTINUE
-                  ELSE 
-                    delt = t_infiltration(n_count_infiltration) - time_norm
-                    n_count_infiltration = n_count_infiltration + 1
-                  
-                    !WRITE(*,*) ' Adjusting time step to match the infiltration data '
-                    !WRITE(*,5085) delt*OutputTimeScale
-                    !WRITE(*,*)
-                    
-                  END IF
-                END IF
-                
-                IF (ABS(t_infiltration(n_count_infiltration) - time_norm - delt) < 1.0d-10) THEN
-                  n_count_infiltration = n_count_infiltration + 1
-                END IF
-                
-                CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-              ELSE
-                CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-              END IF
-            END IF
-            
-            write(77,*) time, ' Infiltration rate = ',infiltration_rate
-            
-            
-            ! transpiration            
-            IF (transpitimeseries) THEN
-              IF (TS_1year) THEN
-                time_norm=time-floor(time)
-                IF (time_norm + delt -1.0d0> t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
-                  IF (time_norm + delt > 1.0d0) THEN
-                    n_count_transpiration = 2
-                    IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
-                      delt = 1.0d0 + t_transpi(n_count_transpiration) - time_norm
-                      n_count_transpiration = n_count_transpiration + 1
-                      !WRITE(*,*) ' Adjusting time step to match the transpiration data '
-                      !WRITE(*,5085) delt*OutputTimeScale
-                      !WRITE(*,*)
-                    END IF
-                    
-                  ELSE IF (n_count_transpiration > size(t_transpi)) THEN
-                    CONTINUE
-                  ELSE 
-                    delt = t_transpi(n_count_transpiration) - time_norm
-                    n_count_transpiration = n_count_transpiration + 1
-                  
-                   !WRITE(*,*) ' Adjusting time step to match the transpiration data '
-                   !WRITE(*,5085) delt*OutputTimeScale
-                   !WRITE(*,*)
-                  END IF
-                END IF
-                
-                IF (ABS(t_transpi(n_count_transpiration) - time_norm - delt) < 1.0d-10) THEN
-                  n_count_transpiration = n_count_transpiration + 1
-                END IF
-                CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-              ELSE
-                CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-              END IF
-            END IF
-            
-            ! evaporation
-            IF (evapotimeseries) THEN
-              IF (TS_1year) THEN
-                time_norm=time-floor(time)
-                IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
-                  IF (time_norm + delt > 1.0d0) THEN
-                    n_count_evaporation = 2
-                    IF (time_norm + delt -1.0d0> t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
-                      delt = 1.0d0 + t_infiltration(n_count_evaporation) - time_norm
-                      n_count_evaporation = n_count_evaporation + 1
-                      !WRITE(*,*) ' Adjusting time step to match the evaporation data '
-                      !WRITE(*,5085) delt*OutputTimeScale
-                      !WRITE(*,*)
-                    END IF
-                  ELSE IF (n_count_evaporation > size(t_evapo)) THEN
-                    CONTINUE
-                  ELSE
-                    delt = t_evapo(n_count_evaporation) - time_norm
-                    n_count_evaporation = n_count_evaporation + 1
-                  
-                   !WRITE(*,*) ' Adjusting time step to match the evaporation data '
-                   !WRITE(*,5085) delt*OutputTimeScale
-                   !WRITE(*,*)
-                    
-                    
-                  END IF
-                END IF
-                
-                IF (ABS(t_evapo(n_count_evaporation) - time_norm - delt) < 1.0d-10) THEN
-                  n_count_evaporation = n_count_evaporation + 1
-                END IF
-                
-                CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-              ELSE
-                CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-              END IF
-            END IF
+          !CASE ('environmental_forcing')
+          !  
+          !  ! infiltration
+          !  IF (infiltration_timeseries) THEN
+          !    IF (TS_1year) THEN
+          !      time_norm=time-floor(time)
+          !      IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
+          !        IF (time_norm + delt > 1.0d0) THEN
+          !          n_count_infiltration = 2
+          !          IF (time_norm + delt -1.0d0> t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
+          !            delt = 1.0d0 + t_infiltration(n_count_infiltration) - time_norm
+          !            n_count_infiltration = n_count_infiltration + 1
+          !            !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+          !            !WRITE(*,5085) delt*OutputTimeScale
+          !            !WRITE(*,*)
+          !          END IF
+          !          
+          !        ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
+          !          CONTINUE
+          !        ELSE 
+          !          delt = t_infiltration(n_count_infiltration) - time_norm
+          !          n_count_infiltration = n_count_infiltration + 1
+          !        
+          !          !WRITE(*,*) ' Adjusting time step to match the infiltration data '
+          !          !WRITE(*,5085) delt*OutputTimeScale
+          !          !WRITE(*,*)
+          !          
+          !        END IF
+          !      END IF
+          !      
+          !      IF (ABS(t_infiltration(n_count_infiltration) - time_norm - delt) < 1.0d-10) THEN
+          !        n_count_infiltration = n_count_infiltration + 1
+          !      END IF
+          !      
+          !      CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+          !    ELSE
+          !      CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
+          !    END IF
+          !  END IF
+          !  
+          !  write(77,*) time, ' Infiltration rate = ',infiltration_rate
+          !  
+          !  
+          !  ! transpiration            
+          !  IF (transpitimeseries) THEN
+          !    IF (TS_1year) THEN
+          !      time_norm=time-floor(time)
+          !      IF (time_norm + delt -1.0d0> t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+          !        IF (time_norm + delt > 1.0d0) THEN
+          !          n_count_transpiration = 2
+          !          IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
+          !            delt = 1.0d0 + t_transpi(n_count_transpiration) - time_norm
+          !            n_count_transpiration = n_count_transpiration + 1
+          !            !WRITE(*,*) ' Adjusting time step to match the transpiration data '
+          !            !WRITE(*,5085) delt*OutputTimeScale
+          !            !WRITE(*,*)
+          !          END IF
+          !          
+          !        ELSE IF (n_count_transpiration > size(t_transpi)) THEN
+          !          CONTINUE
+          !        ELSE 
+          !          delt = t_transpi(n_count_transpiration) - time_norm
+          !          n_count_transpiration = n_count_transpiration + 1
+          !        
+          !         !WRITE(*,*) ' Adjusting time step to match the transpiration data '
+          !         !WRITE(*,5085) delt*OutputTimeScale
+          !         !WRITE(*,*)
+          !        END IF
+          !      END IF
+          !      
+          !      IF (ABS(t_transpi(n_count_transpiration) - time_norm - delt) < 1.0d-10) THEN
+          !        n_count_transpiration = n_count_transpiration + 1
+          !      END IF
+          !      CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+          !    ELSE
+          !      CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
+          !    END IF
+          !  END IF
+          !  
+          !  ! evaporation
+          !  IF (evapotimeseries) THEN
+          !    IF (TS_1year) THEN
+          !      time_norm=time-floor(time)
+          !      IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
+          !        IF (time_norm + delt > 1.0d0) THEN
+          !          n_count_evaporation = 2
+          !          IF (time_norm + delt -1.0d0> t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
+          !            delt = 1.0d0 + t_infiltration(n_count_evaporation) - time_norm
+          !            n_count_evaporation = n_count_evaporation + 1
+          !            !WRITE(*,*) ' Adjusting time step to match the evaporation data '
+          !            !WRITE(*,5085) delt*OutputTimeScale
+          !            !WRITE(*,*)
+          !          END IF
+          !        ELSE IF (n_count_evaporation > size(t_evapo)) THEN
+          !          CONTINUE
+          !        ELSE
+          !          delt = t_evapo(n_count_evaporation) - time_norm
+          !          n_count_evaporation = n_count_evaporation + 1
+          !        
+          !         !WRITE(*,*) ' Adjusting time step to match the evaporation data '
+          !         !WRITE(*,5085) delt*OutputTimeScale
+          !         !WRITE(*,*)
+          !          
+          !          
+          !        END IF
+          !      END IF
+          !      
+          !      IF (ABS(t_evapo(n_count_evaporation) - time_norm - delt) < 1.0d-10) THEN
+          !        n_count_evaporation = n_count_evaporation + 1
+          !      END IF
+          !      
+          !      CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+          !    ELSE
+          !      CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
+          !    END IF
+          !  END IF
           
           
           CASE DEFAULT
             CONTINUE ! for constant boundary condition, do nothing
           END SELECT
           
-          IF (Richards_print) THEN
-            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
-            !IF (time > 0.999) THEN 
-            !  READ(*,*)
-            !END IF
-          END IF
+          
           
           ! solve the 1D time-dependenet Richards equation
           CALL solve_Richards(nx, ny, nz, delt)
+          
+          
+          ! update saturation
+          jy = 1
+          jz = 1
+          satliqold = satliq
+          DO jx = 0, nx+1
+              satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+          END DO
+
+          ! fill ghost points by zero-order extrapolation
+          satliq(0,jy,jz) = satliq(1,jy,jz)
+          satliq(-1,jy,jz) = satliq(0,jy,jz)
+          satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
+          satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
+    
+          satliq(:,-1,:) =  satliq(:,1,:)
+          satliq(:,0,:) =  satliq(:,1,:)
+          satliq(:,2,:) =  satliq(:,1,:)
+          satliq(:,3,:) =  satliq(:,1,:)
+    
+          satliq(:,:,-1) = satliq(:,:,1)
+          satliq(:,:,0) = satliq(:,:,1)
+          satliq(:,:,2) = satliq(:,:,1)
+          satliq(:,:,3) = satliq(:,:,1)
         
         ! End of edit by Toshiyuki Bandai, 2023 May
         ! ******************************************************************
-        ELSE PETSc_if_time
+        ELSE flow_solver_if_time
    
         atolksp = 1.D-50
         rtolksp = GimrtRTOLKSP
@@ -1459,7 +1503,7 @@ DO WHILE (nn <= nend)
     !!!    IF (MOD(nn,ScreenInterval) == 0) THEN
     !!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
     !!!    END IF
-        END If PETSc_if_time
+        
         
         IF (ierr /= 0) then
           WRITE(*,*)
@@ -1487,48 +1531,13 @@ DO WHILE (nn <= nend)
 
         IF (NavierStokes) THEN
             CALL velocalcNS(nx,ny,nz,delt)
-        ELSE IF (Richards) THEN
-          ! the velocity was already calcuated
-          FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-              pres(jx,jy,jz) = head(jx,jy,jz) * ro(jx,jy,jz) * 9.80665d0
-          END FORALL
         ELSE
             CALL velocalc(nx,ny,nz)
         END IF
+        
+        END If flow_solver_if_time
          
          
-    ! **********************************************
-    ! Edit by Toshiyuki Bandai, 2023 May
-    ! calculate saturation from volumetric water content
-    IF (Richards) THEN
-    
-      jy = 1
-      jz = 1
-      satliqold = satliq
-      DO jx = 1, nx
-          satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
-      END DO
-
-      ! fill ghost points by linear extrapolation in x direction
-      satliq(0,jy,jz) = satliq(1,jy,jz) - dxx(1)*((satliq(2,jy,jz) - satliq(1,jy,jz))/(0.5d0 * dxx(2) + 0.5d0 * dxx(1)))
-      satliq(-1,jy,jz) = 2*satliq(0,jy,jz) - satliq(1,jy,jz)
-      satliq(nx+1,jy,jz) = satliq(nx,jy,jz) + dxx(nx)*((satliq(nx,jy,jz) - satliq(nx-1,jy,jz))/(0.5d0 * dxx(nx-1) + 0.5d0 * dxx(nx)))
-      satliq(nx+2,jy,jz) = 2*satliq(nx+1,jy,jz) - satliq(nx,jy,jz)
-      ! fill other ghost points by zero-order extrapolation in y and z directions
-      satliq(:,-1,:) =  satliq(:,1,:)
-      satliq(:,0,:) =  satliq(:,1,:)
-      satliq(:,2,:) =  satliq(:,1,:)
-      satliq(:,3,:) =  satliq(:,1,:)
-    
-      satliq(:,:,-1) = satliq(:,:,1)
-      satliq(:,:,0) = satliq(:,:,1)
-      satliq(:,:,2) = satliq(:,:,1)
-      satliq(:,:,3) = satliq(:,:,1)
-    
-    END IF
-    ! End of Edit by Toshiyuki Bandai, 2023 May
-    ! **********************************************
-    
   END IF
 
 !! Return here to restart time step after failure
@@ -2080,7 +2089,7 @@ DO WHILE (nn <= nend)
           iterat = iterat + 1
 
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-		  call jacobian(ncomp,nspec,nx,ny,nz)								   
+		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
 
             
           jz = 1
@@ -3043,12 +3052,6 @@ END DO
 !!    write(*,*)
 
 !  **********************  END GIMRT BLOCK  *********************************
-  
-  if (time > 9.0 .and. time < 10.0) then
-
-    write(75,*) time,dppt(1,75,1,1),s(1,75,1,1)
-
-  end if
 
 !  Store values of master variable
   phmax = 0.0
@@ -3400,12 +3403,12 @@ END DO
     WRITE(iures) ncounter
     
     !********************************************
-    ! Edit by Toshiyuki Bandai 2023 May
+    ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-        WRITE(iures) head
+        WRITE(iures) psi
         WRITE(iures) theta
     END IF
-    ! End of Edit by Toshiyuki Bandai 2023 May
+    ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
 
 
@@ -3562,6 +3565,18 @@ END DO
         WRITE(*,*)
         WRITE(*,*) '  *** RUN SUCCESSFULLY COMPLETED *** '
         WRITE(*,*)
+        
+        
+        !!************************************
+        !!OPEN(iunit2,access='append', status='old')
+        !call date_and_time(TIME=time_WallTime2)
+        !WRITE(iunit2,*) "Time for the End of Time Stepping: ", time_WallTime2
+        !CLOSE(iunit2,STATUS='keep')
+        !write(*,*) "Time for the Beginning of Time Stepping: ", time_WallTime1
+        !write(*,*) "Time for the End of Time Stepping: ", time_WallTime2
+        !read(*,*)
+        !!************************************
+        
       END IF
 
       CALL date_and_time(dumm1,dumm2,dumm3,curr_time)
@@ -3681,8 +3696,10 @@ END DO
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
     IF (Richards) THEN
+        WRITE(iures) psi
         WRITE(iures) head
         WRITE(iures) theta
+        WRITE(iures) theta_prev
     END IF
     ! End of Edit by Toshiyuki Bandai 2023 May
     !*********************************************

@@ -62,12 +62,12 @@ ydat2(size(ydat)+1 : size(ydat)*2-1) = ydat(2:size(ydat))
 !!Select the bounds and part of the time series corresponding to the interval
 
       tpos_low = minloc(abs(tseries2 - tstart),1)
-      if (((tseries2(tpos_low) - tstart)>0) .AND. (tpos_low>1)) then
+      if (((tseries2(tpos_low) - tstart)>0.0d0) .AND. (tpos_low>1)) then
         tpos_low = tpos_low-1
       end if
     
       tpos_high = minloc(abs(tseries2 - (tstart + tint)),1)
-      if (((tseries2(tpos_high) - (tstart + tint))<0) .AND. (tpos_high<size(tseries2))) then
+      if (((tseries2(tpos_high) - (tstart + tint))<0.0d0) .AND. (tpos_high<size(tseries2))) then
         tpos_high = tpos_high+1
       end if
     

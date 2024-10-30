@@ -22,59 +22,84 @@ INTEGER(I4B)                                               :: jz
 
 REAL(DP), INTENT(IN)                                       :: dtflow ! time step for flow
 
-REAL(DP), DIMENSION(nx)                                    :: F_residual ! residual
-REAL(DP), DIMENSION(nx, nx)                                :: J ! Jacobian matrix
-REAL(DP), DIMENSION(nx)                                    :: dpsi_Newton ! Newton step
+REAL(DP), ALLOCATABLE                                      :: F_residual(:) ! residual
+REAL(DP), ALLOCATABLE                                      :: J(:, :) ! Jacobian matrix
+REAL(DP), ALLOCATABLE                                      :: dpsi_Newton(:) ! Newton step
 
 ! parameters for the linear solver
 INTEGER(I4B)                                               :: info, lda, ldb, nrhs
-INTEGER(I4B), DIMENSION(nx)                                :: ipiv
+INTEGER(I4B), DIMENSION(0:nx+1)                            :: ipiv
 
 ! parameters for Newtons' method for forward problem
 REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
-REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
-INTEGER(I4B), PARAMETER                                    :: maxitr = 1000
-
+!REAL(DP), PARAMETER                                        :: tau_r = 1.0d-7
+INTEGER(I4B), PARAMETER                                    :: maxitr_Newton = 100
+INTEGER(I4B), PARAMETER                                    :: maxitr_line_search = 30
 ! variables for line search
 REAL(DP)                                                   :: error_old, tol, alpha_line, lam, error_new
-REAL(DP), PARAMETER                                        :: tau_line_saerch = 1.0d-3 ! below this tolerance, the line search stops
 INTEGER(I4B)                                               :: no_backtrack, descent
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
 
 ! variables for checking water mass balance
-REAL(DP)                                                   :: water_mass
-REAL(DP)                                                   :: water_mass_error
+!REAL(DP)                                                   :: water_mass
+!REAL(DP)                                                   :: water_mass_error
+
+! allocate arrays
+IF (ALLOCATED(F_residual)) THEN
+  DEALLOCATE(F_residual)
+  ALLOCATE(F_residual(0:nx+1))
+ELSE
+  ALLOCATE(F_residual(0:nx+1))
+END IF
+
+IF (ALLOCATED(J)) THEN
+  DEALLOCATE(J)
+  ALLOCATE(J(0:nx+1, 0:nx+1))
+ELSE
+  ALLOCATE(J(0:nx+1, 0:nx+1))
+END IF
+
+IF (ALLOCATED(dpsi_Newton)) THEN
+  DEALLOCATE(dpsi_Newton)
+  ALLOCATE(dpsi_Newton(0:nx+1))
+ELSE
+  ALLOCATE(dpsi_Newton(0:nx+1))
+END IF
 
 ! initialize parameters for linear solver
 nrhs = 1
-lda = nx
-ldb = nx
+lda = nx + 2
+ldb = nx + 2
 
 ! initialize parameters for Newton's method
 iteration = 0
 total_line = 0
 
-! Evaluate the flux and the residual
-CALL flux_Richards(nx, ny, nz)
-
-CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
-
 ! update tolerance
-error_old = MAXVAL(ABS(F_residual))
+error_old = 1.0d20 ! at least one Newton iteration will be conducted
 !tol = tau_r * error_old + tau_a
-tol = tau_a ! this tolerance should be used for problems that need very high accuracy
+tol = tau_a
 
 ! begin Newton's method
 newton_loop: DO
-  IF (error_old < tol .AND. iteration > 2) EXIT
-  !IF (error_old < tol) EXIT
-  ! Evaluate the Jacobian matrix
-  CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
+  IF (error_old < tol) EXIT
+  ! Evaluate the flux and the residual
+  CALL flux_Richards(nx, ny, nz)
+  
+  IF (Richards_steady) THEN
+    CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
+    ! Evaluate the Jacobian matrix
+    CALL Jacobian_Richards_steady(nx, ny, nz, dtflow, J)
+  ELSE
+    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    ! Evaluate the Jacobian matrix
+    CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
+  END IF
   
   dpsi_Newton = -F_residual
   ! Solve the linear system
-  CALL dgesv(nx, nrhs, j, lda, ipiv, dpsi_Newton, ldb, info)
+  CALL dgesv(nx+2, nrhs, j, lda, ipiv, dpsi_Newton, ldb, info)
   
   ! Armijo line search
   alpha_line = 1.0d-4
@@ -85,21 +110,28 @@ newton_loop: DO
   
   ! line search
   line: DO
-    IF (descent /= 0 .OR. no_backtrack > 100) EXIT line
+    IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
     ! update water potential
-    DO jx = 1, nx
-      psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
+    DO jx = 0, nx+1
+      IF (ABS(lam * dpsi_Newton(jx)) > dpsi_max) THEN
+        psi(jx, ny, nz) = psi(jx, ny, nz) + SIGN(dpsi_max, dpsi_Newton(jx))
+      ELSE
+        psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
+      END IF
+      
     END DO
     ! evaluate the flux and the residual
     CALL flux_Richards(nx, ny, nz)
-    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    IF (Richards_steady) THEN
+      CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
+    ELSE
+      CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    END IF
   
     ! update tolerance
     error_new = MAXVAL(ABS(F_residual))
     ! Check if Armijo conditions are satisfied
-    !Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
-    ! line search stops when the error is below the tolerance (tau_line_saerch), this is because line search is not necessary when the error is small (and in fact line search may fail when the residual is very small)
-    Armijo: IF (error_new < error_old - error_old*alpha_line*lam .OR. error_new < tau_line_saerch) THEN
+    Armijo: IF (error_new < error_old - error_old*alpha_line*lam) THEN
       error_old = error_new
       descent = 1
     ELSE Armijo
@@ -111,13 +143,13 @@ newton_loop: DO
         
   END DO line
   
-  IF (no_backtrack > 100) THEN
-    WRITE(*,*) ' Line search failed in the Richards solver. '
-    READ(*,*)
-    STOP
-  END IF
+  !IF (no_backtrack > maxitr_line_search) THEN
+  !  WRITE(*,*) ' Line search failed in the Richards solver. '
+  !  READ(*,*)
+  !  STOP
+  !END IF
   
-  IF (iteration > maxitr) THEN
+  IF (iteration > maxitr_Newton) THEN
     WRITE(*,*) ' The Newton method failed to converge in the Richards solver. '
     READ(*,*)
     STOP
@@ -139,27 +171,27 @@ END IF
 
 !***********************************************************************************************************************************************
 ! evaluate water mass balance (this is not compatible with evaporaiton and transpiration for the "enviornmental_forcing" boundary condition.)
-IF (Richards_print) THEN
-  jy = 1
-  jz = 1
-  water_mass = 0.0d0
-  DO jx = 1, nx
-    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
-  END DO
-  
-  SELECT CASE (upper_BC_type)
-  CASE ('environmental_forcing')
-    water_mass_error = water_mass - dtflow*(qx(0, jy, jz) - (infiltration_rate + evaporate))
-    DO i = 1, transpicells
-      water_mass_error = water_mass_error + dtflow*transpirate_cell(nx - i + 1)
-    END DO
-    water_mass_error = 100.0d0*water_mass_error/water_mass ! in percent
-  CASE DEFAULT
-    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
-  END SELECT
-  
-  WRITE(*,110) water_mass, water_mass_error
-110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
+!IF (Richards_print) THEN
+!  jy = 1
+!  jz = 1
+!  water_mass = 0.0d0
+!  DO jx = 1, nx
+!    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
+!  END DO
+!  
+!  SELECT CASE (upper_BC_type)
+!  CASE ('environmental_forcing')
+!    water_mass_error = water_mass - dtflow*(qx(0, jy, jz) - (infiltration_rate + evaporate))
+!    DO i = 1, transpicells
+!      water_mass_error = water_mass_error + dtflow*transpirate_cell(nx - i + 1)
+!    END DO
+!    water_mass_error = 100.0d0*water_mass_error/water_mass ! in percent
+!  CASE DEFAULT
+!    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
+!  END SELECT
+!  
+!  WRITE(*,110) water_mass, water_mass_error
+!110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
     
 ! check water mass balance in each cell
 !  DO jx = 1, nx - transpicells
@@ -171,7 +203,7 @@ IF (Richards_print) THEN
 !  END DO
 !  
   !READ(*,*)
-END IF
+!END IF
 !***********************************************************************************************************************************************
 
 END SUBROUTINE solve_Richards

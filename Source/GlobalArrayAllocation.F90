@@ -197,7 +197,7 @@ ELSE
 END IF
 
 
-IF (ny == 1 .AND. nz == 1) THEN
+IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
 
   IF (ALLOCATED(s)) THEN
     DEALLOCATE(s)
@@ -267,32 +267,9 @@ IF (ny == 1 .AND. nz == 1) THEN
     ALLOCATE(t(0:nx+1,ny,nz))
   ELSE
     ALLOCATE(t(0:nx+1,ny,nz))
-  END IF
+  END IF    
 
-  IF (ALLOCATED(mu_water)) THEN
-    DEALLOCATE(mu_water)
-    ALLOCATE(mu_water(nx,ny,nz))
-  ELSE
-    ALLOCATE(mu_water(nx,ny,nz))
-  END IF
-
-  IF (ALLOCATED(rho_water_2)) THEN
-    DEALLOCATE(rho_water_2)
-    ALLOCATE(rho_water_2(nx,ny,nz))
-  ELSE
-    ALLOCATE(rho_water_2(nx,ny,nz))
-  END IF
-  
-
-
-!!!  IF (ALLOCATED(por)) THEN
-!!!    DEALLOCATE(por)
-!!!    ALLOCATE(por(0:nx+1,ny,nz))
-!!!  ELSE
-!!!    ALLOCATE(por(0:nx+1,ny,nz))
-!!!  END IF
-
-ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
 
   IF (ALLOCATED(s)) THEN
     DEALLOCATE(s)
@@ -370,9 +347,9 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
   END IF
   IF (ALLOCATED(rho_water_2)) THEN
     DEALLOCATE(rho_water_2)
-    ALLOCATE(rho_water_2(nx,ny,nz))
+    ALLOCATE(rho_water_2(0:nx+1,ny,nz))
   ELSE
-    ALLOCATE(rho_water_2(nx,ny,nz))
+    ALLOCATE(rho_water_2(0:nx+1,ny,nz))
   END IF
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
@@ -456,7 +433,7 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN
 !!!    ALLOCATE(por(0:nx+1,ny,0:nz+1))
 !!!  END IF
 
-ELSE
+ELSE ! three-dimensional problem
 
   IF (ALLOCATED(s)) THEN
     DEALLOCATE(s)

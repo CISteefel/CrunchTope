@@ -939,52 +939,6 @@ CLOSE(UNIT=8,STATUS='keep')
 
 END IF
 
-IF (Richards) THEN
-  fn = 'VG_alpha'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Van Genuchten alpha (m-1)" '
-    WRITE(8,*) 'VARIABLES = "X"     "VG_alpha"'
-    WRITE(8,*) 'ZONE I=', nx, ' F=POINT'
-    jy = 1
-    jz = 1
-    DO jx = 1,nx
-    WRITE(8,184) x(jx)*OutputDistanceScale, VG_alpha(jx,jy,jz)*10000
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-
-    fn = 'VG_n'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Van Genuchten n (-)" '
-    WRITE(8,*) 'VARIABLES = "X"     "VG_n"'
-    WRITE(8,*) 'ZONE I=', nx, ' F=POINT'
-    jy = 1
-    jz = 1
-    DO jx = 1,nx
-    WRITE(8,184) x(jx)*OutputDistanceScale, VG_n(jx,jy,jz)
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-
-    fn = 'VG_wcres'
-    ilength = 12
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Van Genuchten wat cont residual (-)" '
-    WRITE(8,*) 'VARIABLES = "X"     "Wcres" '
-    WRITE(8,*) 'ZONE I=', nx, ' F=POINT'
-    jy = 1
-    jz = 1
-    DO jx = 1,nx
-    WRITE(8,184) x(jx)*OutputDistanceScale, theta_r(jx,jy,jz)
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-ENDIF
-
-
-
 502 FORMAT('temperature    ' ,f8.2)
 503 FORMAT(a20,4X,1PE12.4)
 504 FORMAT('END')

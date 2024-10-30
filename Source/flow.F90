@@ -173,9 +173,13 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential psi from previous line search trial [L]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr_faces ! relative permeability at cell faces [-]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water_2 ! the density of water [kg m-3]; this is temperature dependent
-    
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2 ! physical constant used in the Richards equation (xi is already used)
+    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2_faces ! physical constant in the Richards equation at faces
+    REAL(DP)                                        :: psi_0 ! minimum water potential allowed when selecting 'atomosphere' boundary condition
+    REAL(DP)                                        :: dpsi_max ! maximum update for water potential during the Newton iteration
     ! soil hydraulic parameters for van Genuchten model
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity
@@ -185,23 +189,23 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
     
     ! boundary conditions
-    CHARACTER (LEN=264)                             :: upper_BC_type ! the type of the upper boundary condition
-    CHARACTER (LEN=264)                             :: lower_BC_type ! the type of the lower boundary condition
-    LOGICAL(LGT)                                    :: upper_constant_BC ! logical variable to determine whether the upper boundary condition is constant or not (time-dependent)
-    LOGICAL(LGT)                                    :: lower_constant_BC ! logical variable to determine whether the lower boundary condition is constant or not (time-dependent)
-    REAL(DP)                                        :: value_upper_BC ! value of upper boundary condition. the content depends on the type of boundary condition.
-    REAL(DP)                                        :: value_lower_BC ! value of lower boundary condition. the content depends on the type of boundary condition.
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_upper_BC ! values of upper boundary condition for time-dependent problem
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_lower_BC ! values of lower boundary condition for time-dependent problem
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_upper_BC ! time of upper boundary condition [T]
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_lower_BC ! time of lower boundary condition [T]
+    CHARACTER (LEN=264)                             :: x_begin_BC_type ! the type of the x_begin boundary condition
+    CHARACTER (LEN=264)                             :: x_end_BC_type ! the type of the x_end boundary condition
+    LOGICAL(LGT)                                    :: x_begin_constant_BC ! logical variable to determine whether the x_begin boundary condition is constant or not (time-dependent)
+    LOGICAL(LGT)                                    :: x_end_constant_BC ! logical variable to determine whether the x_end boundary condition is constant or not (time-dependent)
+    REAL(DP)                                        :: value_x_begin_BC ! value of x_begin boundary condition. the content depends on the type of boundary condition.
+    REAL(DP)                                        :: value_x_end_BC ! value of x_end boundary condition. the content depends on the type of boundary condition.
+    REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_x_begin_BC ! values of x_begin boundary condition for time-dependent problem
+    REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_x_end_BC ! values of x_end boundary condition for time-dependent problem
+    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_x_begin_BC ! time of x_begin boundary condition [T]
+    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_x_end_BC ! time of x_end boundary condition [T]
     
-    CHARACTER (LEN=264)                             :: upper_BC_type_steady ! the type of the upper boundary condition for the steady state problem
-    CHARACTER (LEN=264)                             :: lower_BC_type_steady ! the type of the lower boundary condition for the steady state problem
-    REAL(DP)                                        :: value_upper_BC_steady ! value of upper boundary condition for the steady state problem. the content depends on the type of boundary condition.
-    REAL(DP)                                        :: value_lower_BC_steady ! value of lower boundary condition for the steady state problem. the content depends on the type of boundary condition.
-    LOGICAL(LGT)                                    :: upper_constant_BC_steady ! logical variable to determine whether the upper boundary condition is constant or not (time-dependent); this must be TRUE
-    LOGICAL(LGT)                                    :: lower_constant_BC_steady ! logical variable to determine whether the lower boundary condition is constant or not (time-dependent); this must be TRUE
+    CHARACTER (LEN=264)                             :: x_begin_BC_type_steady ! the type of the x_begin boundary condition for the steady state problem
+    CHARACTER (LEN=264)                             :: x_end_BC_type_steady ! the type of the x_end boundary condition for the steady state problem
+    REAL(DP)                                        :: value_x_begin_BC_steady ! value of x_begin boundary condition for the steady state problem. the content depends on the type of boundary condition.
+    REAL(DP)                                        :: value_x_end_BC_steady ! value of x_end boundary condition for the steady state problem. the content depends on the type of boundary condition.
+    LOGICAL(LGT)                                    :: x_begin_constant_BC_steady ! logical variable to determine whether the x_begin boundary condition is constant or not (time-dependent); this must be TRUE
+    LOGICAL(LGT)                                    :: x_end_constant_BC_steady ! logical variable to determine whether the x_end boundary condition is constant or not (time-dependent); this must be TRUE
     ! End of edits by Toshiyuki Bandai May, 2023
     ! *************************************************
     

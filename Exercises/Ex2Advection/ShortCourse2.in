@@ -14,15 +14,15 @@ master           Tracer
 database_sweep   no
 speciate_only    false
 gimrt            true
-graphics         kaleidagraph
+!graphics         kaleidagraph
 database         datacom.dbs
 screen_output    1000
 END
  
 OUTPUT
 time_units           years
-spatial_profile      50.0   
-time_series          Tracer1.out 100 1 1
+spatial_profile      100.0   
+time_series          Tracer1.out 50 1 1
 time_series_print    Tracer
 time_series_units    Mol/kgw
 time_series_interval 1
@@ -32,8 +32,7 @@ TRANSPORT
 distance_units meters
 time_units     years
 fix_diffusion  0.0
-dispersivity   0.0
-!!!dispersivity   0.5
+dispersivity   0.0001
 END
 
 FLOW
@@ -56,11 +55,21 @@ distance_units  meters
 xzones 100 1.00
 END
 
+! adding Na+ and Cl- as background solution is necessary to prevent non-convergence 
+! due to the addiiton of ionic strength
+PRIMARY_SPECIES
+Tracer
+Na+
+Cl-
+END
+
 Condition junk1
 units            mol/kg
 set_porosity     1.0
 temperature      25.0
 Tracer           0.1
+Na+              0.01
+Cl-              0.01
 END
 
 Condition junk2
@@ -68,14 +77,12 @@ units            mol/kg
 temperature      25.0
 set_porosity     1.0
 Tracer           0.000001
+Na+              0.01
+Cl-              0.01
 END
  
 POROSITY
 fix_porosity     1.0
-END
- 
-PRIMARY_SPECIES
-Tracer
 END
  
 

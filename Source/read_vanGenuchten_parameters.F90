@@ -74,12 +74,7 @@ ELSE
       
       SELECT CASE (parchar)
       CASE ('vg_theta_r')
-        IF (ALLOCATED(theta_r)) THEN
-          DEALLOCATE(theta_r)
-          ALLOCATE(theta_r(nx, ny, nz))
-        ELSE
-          ALLOCATE(theta_r(nx, ny, nz))
-        END IF
+
         
         jxx = 0
         DO i = 1, nzone
@@ -89,15 +84,12 @@ ELSE
           END DO
         END DO
         
+        ! fill the ghost cells
+        theta_r(0, ny, nz) = theta_r(1, ny, nz)
+        theta_r(nx+1, ny, nz) = theta_r(nx, ny, nz)
         
-      CASE ('vg_theta_s')
-        IF (ALLOCATED(theta_s)) THEN
-          DEALLOCATE(theta_s)
-          ALLOCATE(theta_s(nx, ny, nz))
-        ELSE
-          ALLOCATE(theta_s(nx, ny, nz))
-        END IF
         
+      CASE ('vg_theta_s')        
         jxx = 0
         DO i = 1, nzone
           DO jx = 1, ncells_VG(i)
@@ -106,15 +98,12 @@ ELSE
           END DO
         END DO
         
+        ! fill the ghost cells
+        theta_s(0, ny, nz) = theta_s(1, ny, nz)
+        theta_s(nx+1, ny, nz) = theta_s(nx, ny, nz)
+        
         
       CASE ('vg_alpha')
-        IF (ALLOCATED(VG_alpha)) THEN
-          DEALLOCATE(VG_alpha)
-          ALLOCATE(VG_alpha(nx, ny, nz))
-        ELSE
-          ALLOCATE(VG_alpha(nx, ny, nz))
-        END IF
-        
         jxx = 0
         DO i = 1, nzone
           DO jx = 1, ncells_VG(i)
@@ -122,14 +111,12 @@ ELSE
             VG_alpha(jxx, ny, nz) = value_VG(i)
           END DO
         END DO
+        
+        ! fill the ghost cells
+        VG_alpha(0, ny, nz) = VG_alpha(1, ny, nz)
+        VG_alpha(nx+1, ny, nz) = VG_alpha(nx, ny, nz)
       
       CASE ('vg_n')
-        IF (ALLOCATED(VG_n)) THEN
-          DEALLOCATE(VG_n)
-          ALLOCATE(VG_n(nx, ny, nz))
-        ELSE
-          ALLOCATE(VG_n(nx, ny, nz))
-        END IF
         
         jxx = 0
         DO i = 1, nzone
@@ -138,6 +125,9 @@ ELSE
             VG_n(jxx, ny, nz) = value_VG(i)
           END DO
         END DO
+        
+        VG_n(0, ny, nz) = VG_n(1, ny, nz)
+        VG_n(nx+1, ny, nz) = VG_n(nx, ny, nz)
       
       ! this is for modified van Genuchten model        
       !CASE ('vg_psi_s')

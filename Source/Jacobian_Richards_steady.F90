@@ -1,4 +1,4 @@
-SUBROUTINE Jacobian_Richards_steady(nx, ny, nz, J)
+SUBROUTINE Jacobian_Richards_steady(nx, ny, nz, dtflow, J)
 USE crunchtype
 USE io
 USE params
@@ -13,113 +13,133 @@ IMPLICIT NONE
 INTEGER(I4B), INTENT(IN)                                   :: nx
 INTEGER(I4B), INTENT(IN)                                   :: ny
 INTEGER(I4B), INTENT(IN)                                   :: nz
-REAL(DP), INTENT(OUT), DIMENSION(nx, nx)                   :: J ! Jacobian matrix
-
+REAL(DP), INTENT(OUT), DIMENSION(0:nx+1, 0:nx+1)                   :: J ! Jacobian matrix
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 
-! variables not declared in CrunchTope
-REAL(DP)                                                   :: psi_lb
-REAL(DP)                                                   :: head_lb
-REAL(DP)                                                   :: theta_lb
-REAL(DP)                                                   :: dtheta_lb
-REAL(DP)                                                   :: kr_lb
-REAL(DP)                                                   :: dkr_lb
-REAL(DP)                                                   :: psi_ub
-REAL(DP)                                                   :: head_ub
-REAL(DP)                                                   :: theta_ub
-REAL(DP)                                                   :: dtheta_ub
-REAL(DP)                                                   :: kr_ub
-REAL(DP)                                                   :: dkr_ub
-REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: xi ! physical constant
+REAL(DP), INTENT(IN)                                       :: dtflow
 
-xi = rho_water_2*g/mu_water
+xi_2 = rho_water_2*g/mu_water
 
 jy = 1
 jz = 1
-DO jx = 1, nx
+DO jx = 0, nx+1
   CALL vanGenuchten_model(psi(jx, jy, jz), theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
                           theta(jx, jy, jz), kr(jx, jy, jz), dtheta(jx, jy, jz), dkr(jx, jy, jz))
-  head(jx, jy, jz) = psi(jx, jy, jz) + x(jx)
+  head(jx, jy, jz) = psi(jx, jy, jz) + SignGravity * COSD(x_angle) * x_2(jx)
 END DO
+
+! compute xi and kr at faces
+DO jx = 0, nx
+  xi_2_faces(jx, jy, jz) = (xi_2(jx, jy, jz)*dxx_2(jx+1) + xi_2(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
+  kr_faces(jx, jy, jz) = (kr(jx, jy, jz)*dxx_2(jx+1) + kr(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
+END DO
+
 
 ! evaluate Jacobian matrix
 J = 0.0 ! initialize Jacobian matrix
-
+  
 ! interior cells
-inner: DO jx = 2, nx - 1
-  J(jx, jx - 1) = xi(jx, jy, jz) * K_faces_x(jx-1, jy, jz) / (x(jx) - x(jx - 1))* &
-              MERGE(-kr(jx, jy, jz), dkr(jx-1, jy, jz)*(head(jx, jy, jz) - head(jx-1, jy, jz)) - kr(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0)
-  J(jx, jx) = xi(jx, jy, jz) * K_faces_x(jx-1, jy, jz) / (x(jx) - x(jx - 1)) &
-          *MERGE(dkr(jx, jy, jz)*(head(jx, jy, jz) - head(jx-1, jy, jz)) + kr(jx, jy, jz), kr(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0) &    
-          - xi(jx, jy, jz) * K_faces_x(jx, jy, jz) / (x(jx + 1) - x(jx)) &
-          * MERGE(-kr(jx+1, jy, jz), dkr(jx, jy, jz)*(head(jx+1, jy, jz) - head(jx, jy, jz)) - kr(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0)
-  J(jx, jx + 1) = - xi(jx, jy, jz) * K_faces_x(jx, jy, jz) / (x(jx + 1) - x(jx)) &
-              * MERGE(dkr(jx+1, jy, jz)*(head(jx+1, jy, jz) - head(jx, jy, jz)) + kr(jx+1, jy, jz), kr(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0)
+inner: DO jx = 1, nx  
+  ! add diffusive flux part
+  !! q at jx-1 part
+  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx_2(jx) * K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  
+  !! q at jx-1 part
+  J(jx, jx) = J(jx, jx) + dtflow/dxx_2(jx) * K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  
+  !! q at jx part
+  J(jx, jx) = J(jx, jx) - dtflow/dxx_2(jx) * K_faces_x(jx, jy, jz) * xi_2_faces(jx, jy, jz) / (x_2(jx+1) - x_2(jx)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx+1)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) - kr_faces(jx, jy, jz))
+  
+  !! q at jx part
+  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx_2(jx) * K_faces_x(jx, jy, jz) * xi_2_faces(jx, jy, jz) / (x_2(jx+1) - x_2(jx)) * &
+                (dkr(jx+1, jy, jz)*dxx_2(jx)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) + kr_faces(jx, jy, jz))
+  
+  ! add gravitational flux part
+  !! q at jx-1 part
+  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
+  !! q at jx-1 part
+  J(jx, jx) = J(jx, jx) + dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
+  !! q at jx part
+  J(jx, jx) = J(jx, jx) - dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(0.0d0, dkr(jx, jy, jz) * xi_2(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  
+  !! q at jx part
+  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx_2(jx) * SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(dkr(jx+1, jy, jz) * xi_2(jx+1, jy, jz), 0.0d0, head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  
+  
 END DO inner
 
-! lower boundary (the first cell)
-jx = 1
-J(1, 1) = - xi(jx, jy, jz)*K_faces_x(1, jy, jz)/(x(2) - x(1))*MERGE(-kr(2, jy, jz), dkr(1, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) - kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
-
-J(1, 2) = - xi(jx, jy, jz) * K_faces_x(1, jy, jz) / (x(2) - x(1)) * MERGE(dkr(2, jy, jz)*(head(2, jy, jz) - head(1, jy, jz)) + kr(2, jy, jz), kr(1, jy, jz), head(2, jy, jz) - head(1, jy, jz) >= 0)
-
-! the derivative of the lower boundary flux with respect to the first cell psi depends on boundary condition
-SELECT CASE (lower_BC_type_steady)
+! boundary condition at the inlet (begin boundary condition)
+SELECT CASE (x_begin_BC_type_steady)
 CASE ('constant_dirichlet')
-  head_lb = value_lower_BC_steady + (x(jx) - 0.5d0 * dxx(jx))
-  CALL vanGenuchten_model_kr(value_lower_BC_steady, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_lb)
-  J(1, 1) = J(1, 1) + xi(jx, jy, jz)*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*MERGE(dkr(1, jy, jz)*(head(1, jy, jz) - head_lb) + kr(1, jy, jz), kr_lb, head(1, jy, jz) - head_lb >= 0)
+  J(0, 0) = dxx_2(1)/(dxx_2(0) + dxx_2(1))
+  J(0, 1) = dxx_2(0)/(dxx_2(0) + dxx_2(1))
 CASE ('constant_neumann')
-  psi_lb = psi(1, jy, jz) - value_lower_BC_steady*(0.5d0 * dxx(jx))
-  head_lb = psi_lb + (x(jx) - 0.5d0 * dxx(jx))
-  CALL vanGenuchten_model(psi_lb, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), &
-                          theta_lb, kr_lb, dtheta_lb, dkr_lb)
-  ! head(1, jy, jz) - head_lb does not depend on psi(1, jy, jz), so the derivative is simple
-  ! derivative of k_lb with respect to psi_1 is dkr_lb * d psi_lb/d psi_1 = dkr_lb
-  J(1, 1) = J(1, 1) + xi(jx, jy, jz)*K_faces_x(0, jy, jz)/(dxx(1)*0.5d0)*MERGE(dkr(1, jy, jz)*(head(1, jy, jz) - head_lb), dkr_lb*(head(1, jy, jz) - head_lb), head(1, jy, jz) - head_lb >= 0)
-  CONTINUE
+  J(0, 0) = 1.0d0/(x_2(1) - x_2(0))
+  J(0, 1) = -1.0d0/(x_2(1) - x_2(0))
+  
 CASE ('constant_flux')
-  ! the derivative of the lower boundary flux with respect to the first cell psi is zero, so do nothing
-  CONTINUE
+  ! add diffusive flux part
+  jx = 1
+  J(0, 0) = J(0, 0) -  K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  
+  J(0, 1) = J(0, 1) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  
+  ! add gravitational flux part
+  jx = 1
+  J(0, 0) = J(0, 0) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
+  J(0, 1) = J(0, 1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
+  
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', lower_BC_type_steady, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', x_begin_BC_type_steady, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
   
 END SELECT
 
-
-! upper boundary (the last cell)
-jx = nx
-J(nx, nx - 1) = xi(jx, jy, jz) * K_faces_x(nx-1, jy, jz) / (x(nx) - x(nx-1)) * &
-                MERGE(-kr(nx, jy, jz), dkr(nx-1, jy, jz)*(head(nx, jy, jz) - head(nx-1, jy, jz)) - kr(nx-1, jy, jz), head(nx, jy, jz) - head(nx-1, jy, jz) >= 0)
-
-J(nx, nx) = xi(jx, jy, jz) * K_faces_x(nx-1, jy, jz) / (x(nx) - x(nx-1)) &
-            *MERGE(dkr(nx, jy, jz)*(head(nx, jy, jz) - head(nx-1, jy, jz)) + kr(nx, jy, jz), kr(nx-1, jy, jz), head(nx, jy, jz) - head(nx-1, jy, jz) >= 0)
-
-! the derivative of the upper boundary flux with respect to the lass cell psi depends on boundary condition
-SELECT CASE (upper_BC_type_steady)
+! boundary condition at the inlet (end boundary condition)
+SELECT CASE (x_end_BC_type_steady)
 CASE ('constant_dirichlet')
-  head_ub = value_upper_BC_steady + (x(jx) + 0.5d0 * dxx(jx))
-  CALL vanGenuchten_model_kr(value_upper_BC_steady, theta_r(jx, jy, jz), theta_s(jx, jy, jz), VG_alpha(jx, jy, jz), VG_n(jx, jy, jz), kr_ub)
-  J(nx, nx) = J(nx, nx) - xi(jx, jy, jz)*K_faces_x(nx, jy, jz)/(dxx(nx)*0.5d0)*MERGE(-kr_ub, dkr(nx, jy, jz)*(head_ub - head(nx, jy, jz)), head_ub - head(nx, jy, jz) >= 0)
+  J(nx+1, nx) = dxx_2(nx+1)/(dxx_2(nx) + dxx_2(nx+1))
+  J(nx+1, nx+1) = dxx_2(nx)/(dxx_2(nx) + dxx_2(nx+1))
   
 CASE ('constant_neumann')
-  CONTINUE
+  J(nx+1, nx) = -1.0d0 / (x_2(nx+1) - x_2(nx))
+  J(nx+1, nx+1) = 1.0d0 / (x_2(nx+1) - x_2(nx))
+  
 CASE ('constant_flux')
-  ! the derivative of the upper boundary flux with respect to the last cell psi is zero, so do nothing
-  CONTINUE
+  ! add diffusive flux part
+  jx = nx + 1
+  J(nx+1, nx) = J(nx+1, nx) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  
+  J(nx+1, nx+1) = J(nx+1, nx+1) - K_faces_x(jx-1, jy, jz) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  
+  ! add gravitational flux part
+  J(nx+1, nx) = J(nx+1, nx) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
+  J(nx+1, nx+1) = J(nx+1, nx+1) - SignGravity*COSD(x_angle)*K_faces_x(jx-1, jy, jz)*MERGE(dkr(jx, jy, jz) * xi_2(jx, jy, jz), 0.0d0, head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)
+  
 CASE DEFAULT
   WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', upper_BC_type_steady, ' is not supported. '
+  WRITE(*,*) ' The boundary condition type ', x_end_BC_type_steady, ' is not supported. '
   WRITE(*,*)
   READ(*,*)
   STOP
   
 END SELECT
-  
+
 END SUBROUTINE Jacobian_Richards_steady
