@@ -1,0 +1,47 @@
+name: CrunchTope CI
+
+on: [workflow_dispatch, push, pull_request]
+
+env:
+  # Customizing build type
+  BUILD_TYPE: DEBUG
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: package-install
+      run: |
+        sudo apt-get -qq update
+        sudo apt -qq install gfortran libopenmpi-dev libhdf5-openmpi-dev hdf5-helpers
+
+    - name: directories-variables
+      run: |
+        echo "PETSC_DIR=$HOME/petsc" >> $GITHUB_ENV
+        echo "PETSC_ARCH=debug" >> $GITHUB_ENV
+
+    - name: petsc-install
+      run: |
+        git clone https://gitlab.com/petsc/petsc.git --branch v3.19.4 $PETSC_DIR
+        cd $PETSC_DIR
+        echo "CrunchTope >> Configuring petsc"
+        PETSC_ARCH=$PETSC_ARCH ./configure --with-mpi=1 --with-debugging=1 --with-shared-libraries=1 --download-fblaslapack=1 --with-hdf5-dir=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
+        echo "CrunchTope >> Building petsc"
+        make
+
+    - uses: actions/checkout@v2
+    
+    - name: crunchtope-build
+      run: |
+        cd Source
+        echo "Building CrunchTope"
+        make
+        
+    - name: crunchtope-run
+      run: |
+        cd Exercises/Ex1Speciation
+        echo "Running Ex1Speciation"
+        ../../Source/CrunchTope ShortCourse1.in
+
