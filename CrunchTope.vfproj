@@ -110,7 +110,6 @@
 			<File RelativePath=".\Source\Flash.F90"/>
 			<File RelativePath=".\Source\flow.F90"/>
 			<File RelativePath=".\Source\flux_Richards.F90"/>
-			<File RelativePath=".\Source\flux_Richards_steady.F90"/>
 			<File RelativePath=".\Source\FluxWeightedConcentrationInitialize.F90"/>
 			<File RelativePath=".\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath=".\Source\FormatForNameList.F90"/>
@@ -142,6 +141,7 @@
 			<File RelativePath=".\Source\GraphicsVisit.F90"/>
 			<File RelativePath=".\Source\harmonic.F90"/>
 			<File RelativePath=".\Source\InitializeCalciteStoichiometry.F90"/>
+			<File RelativePath=".\Source\interp.F90"/>
 			<File RelativePath=".\Source\interp3.F90"/>
 			<File RelativePath=".\Source\io.F90"/>
 			<File RelativePath=".\Source\isotope-read_series.F90"/>
@@ -213,7 +213,7 @@
 			<File RelativePath=".\Source\read98.F90"/>
 			<File RelativePath=".\Source\read_AqueousFluxSeries.F90"/>
 			<File RelativePath=".\Source\read_bound.F90"/>
-			<File RelativePath=".\Source\read_boundary_condition_Richards.F90"/>
+			<File RelativePath=".\Source\read_boundary_condition_Richards_1D.F90"/>
 			<File RelativePath=".\Source\read_BoundaryConditionsByZone.F90"/>
 			<File RelativePath=".\Source\read_burialfile.F90"/>
 			<File RelativePath=".\Source\read_CatabolicPath.F90"/>
@@ -324,12 +324,12 @@
 			<File RelativePath=".\Source\residual_Richards.F90"/>
 			<File RelativePath=".\Source\residual_Richards_steady.F90"/>
 			<File RelativePath=".\Source\restart.F90"/>
+			<File RelativePath=".\Source\RichardsArrayAllocation.F90"/>
 			<File RelativePath=".\Source\rocalc.F90"/>
 			<File RelativePath=".\Source\RunTime.F90"/>
 			<File RelativePath=".\Source\satcalc.F90"/>
 			<File RelativePath=".\Source\solbt90.F90"/>
 			<File RelativePath=".\Source\solve_Richards.F90"/>
-			<File RelativePath=".\Source\solve_Richards_steady.F90"/>
 			<File RelativePath=".\Source\SolveDiffuse.F90"/>
 			<File RelativePath=".\Source\SolveDiffuseSpherical.F90"/>
 			<File RelativePath=".\Source\SolveGasDiffuse.F90"/>
