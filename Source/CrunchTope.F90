@@ -1121,13 +1121,20 @@ iteration_tot = 0
 
 nn = 0
 !**********************************************
-! record initial state by Toshiyuki Bandai 2023, May
+! record initial state by Toshiyuki Bandai 2024, Oct.
 IF (Richards) THEN
-  OPEN(unit = 10, file = 'initial_condition.out')
-  DO jx = 0, nx+1
-    WRITE(10,*) theta(jx, 1, 1), psi(jx, 1, 1), satliq(jx, 1, 1) 
+  OPEN(unit = 10, file = 'initial_condition_Richards.tec', ACCESS='sequential',STATUS='unknown')
+  WRITE(10,*) 'TITLE = "Initial condition for Richards solver" '
+  WRITE(10,*) 'VARIABLES = "X" "Y" "Z" "Water Content" "Water Potential" "Liquid Saturation"'
+  WRITE(10,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(10, '(6(1X,1PE16.7))') x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+              z(jz)*OutputDistanceScale,theta(jx,jy,jz), psi(jx,jy,jz), satliq(jx,jy,jz)
+      END DO
+    END DO
   END DO
-  CLOSE(10)
 END IF
 !**********************************************
 
@@ -3046,12 +3053,6 @@ END DO
 !!    write(*,*)
 
 !  **********************  END GIMRT BLOCK  *********************************
-  
-  if (time > 9.0 .and. time < 10.0) then
-
-    write(75,*) time,dppt(1,75,1,1),s(1,75,1,1)
-
-  end if
 
 !  Store values of master variable
   phmax = 0.0
@@ -3403,14 +3404,12 @@ END DO
     WRITE(iures) ncounter
     
     !********************************************
-    ! Edit by Toshiyuki Bandai 2023 May
+    ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
         WRITE(iures) psi
-        WRITE(iures) head
         WRITE(iures) theta
-        WRITE(iures) theta_prev
     END IF
-    ! End of Edit by Toshiyuki Bandai 2023 May
+    ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
 
 

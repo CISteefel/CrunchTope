@@ -210,6 +210,15 @@ END IF
     READ(iures) VolSaveByTimeStep
     READ(iures) Volsave
     READ(iures) ncounter
+    !********************************************
+    ! Edit by Toshiyuki Bandai 2024 Oct.
+    IF (Richards) THEN
+      READ(iures) psi
+      READ(iures) theta
+    END IF
+    ! End of Edit by Toshiyuki Bandai 2024 Oct.
+    !*********************************************
+    
     
   
   porin = por
