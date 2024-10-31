@@ -29,6 +29,11 @@
 - [read_vg_alpha](#read_vg_alpha)
 - [read_vg_n](#read_vg_n)
 - [read_vg_theta_r](#read_vg_theta_r)
+- [x_begin_bc_type ](#x_end_bc_type)
+- [x_begin_bc_type ](#x_end_bc_type)
+- [set_evaporation_boundary](#set_evaporation_boundary)
+- [set_psi_0](#set_psi_0)
+- [set_dpsi_max](#set_dpsi_max)
 
 [Keywords for gas transport](#keywords-for-gas-transport)
 - [constant_gasflow](#constant_gasflow)
@@ -603,8 +608,8 @@ theta_s_is_porosity [logical]
 [logical] = true or false (Default=true) 
 
 #### Explanation
-This keyword indicates whether the $theta_s$ parameter in the van Genuchten model is the same as the porosity value, or not.
-If false is selected, users need to provide information on the $theta_s$ parameter by the keyword vg_theta_s.
+This keyword indicates whether the $\theta_s$ parameter in the van Genuchten model is the same as the porosity value, or not.
+If false is selected, users need to provide information on the $\theta_s$ parameter by the keyword vg_theta_s.
 Otherwise, porosity value is used for the $theta_s$ parameter in the van Genuchten model.
 
 #### Example
@@ -633,8 +638,6 @@ This keyward was added to be compatible with PFLOTRAN input file.
 ```
 vg_is_n true
 ```
-
-
 
 
 ### vg_alpha
@@ -761,6 +764,146 @@ read_vg_theta_r
 Read theta_r parameter in the van Genuchten model from a file.
 
 #### Example
+
+
+### x_begin_bc_type 
+
+#### Syntax
+```
+x_begin_bc_type [BC_type] [value or file name] [number of time steps in the file]
+```
+#### Explanation
+This keyword set the type and the type of boundary condition applied to the x_begin boundary (i.e., between jx = 0 and jx = 1).
+Currently, the following boundary conditions are available:
+- constant_Dirichlet
+- constant_neumann
+- constant_flux
+- constant_atomosphere
+- variable_Dirichlet
+- variable_neumann
+- variable_flux
+- variable_atomosphere
+
+Dirichlet boundary conditions enforce the water potential at the boundary to be the specified value.
+Neumann boundary conditions enforce the gradient of the water potential at the boundary to be the specified value.
+Flux boundary conditions enforce the water flux at the boundary to be the specified value.
+Atomosphere boundary conditions swtich between Dirichlet and flux boundary conditions depending on the water potentail at the surface.
+Until the boundary water potential is above threshold value $\psi_0$ ($-10^4$ m by default but can be chanaged by the keyword set_psi_0), flux boundary condition is used.
+Once the boundary water potential is below the threshold (i.e., the surface soil is extremely dry), Dirichlet boundary condition with $psi_0$ is applied. 
+Thus, the value for the flux boundary condition needs to be provided here.
+When selecting constant boundary conditions, the value for the constnat boundary condition needs to be provided.
+When selecting variable boundary conditions, the file name for the transient boundary condition data needs to be provided.
+The format of the file is explained in the example below.
+
+#### Example
+```
+x_begin_bc_type constant_flux 0.2
+```
+for constant flux boundary condition.
+
+```
+x_begin_bc_type variable_flux water_upper_BC.dat 12
+```
+for transient flux boundary condition. Here, the water_upper_BC.dat file is
+
+```
+0.000000000000000000e+00 1.000000000000000056e-01
+2.500000000000000000e-01 1.000000000000000056e-01
+2.510000000000000009e-01 0.000000000000000000e+00
+3.000000000000000000e+00 0.000000000000000000e+00
+3.009999999999999787e+00 1.000000000000000056e-01
+3.250000000000000000e+00 1.000000000000000056e-01
+3.250999999999999890e+00 0.000000000000000000e+00
+6.000000000000000000e+00 0.000000000000000000e+00
+6.009999999999999787e+00 1.000000000000000056e-01
+6.250000000000000000e+00 1.000000000000000056e-01
+6.251000000000000334e+00 0.000000000000000000e+00
+9.000000000000000000e+00 0.000000000000000000e+00
+```
+, where the first column is the time, and the second column is the value. 
+These data are interpolated for during time stepping to get a value used for each step.
+
+
+### x_end_bc_type 
+
+#### Syntax
+```
+x_end_bc_type [BC_type] [value or file name] [number of time steps in the file]
+```
+#### Explanation
+This keyword set the type and the type of boundary condition applied to the x_end boundary (i.e., between jx = nx and jx = nx+1).
+Currently, the following boundary conditions are available:
+- constant_Dirichlet
+- constant_neumann
+- constant_flux
+- variable_Dirichlet
+- variable_neumann
+- variable_flux
+
+Dirichlet boundary conditions enforce the water potential at the boundary to be the specified value.
+Neumann boundary conditions enforce the gradient of the water potential at the boundary to be the specified value.
+Flux boundary conditions enforce the water flux at the boundary to be the specified value.
+When selecting constant boundary conditions, the value for the constnat boundary condition needs to be provided.
+When selecting variable boundary conditions, the file name for the transient boundary condition data needs to be provided.
+The format of the file is explained in the example below.
+
+#### Example
+```
+x_end_bc_type constant_neumann 0.0
+```
+for constant Neumann boundary condition.
+
+
+### set_evaporation_boundary 
+#### Syntax
+```
+set_evaporation_boundary [BC_location]
+```
+
+#### Explanation
+This keyword sets the boundary, where no chemcial transport due to advection is applied.
+This keyword is used to simulate the accumulation of chemical species near the soil surface due to evaporation.
+
+#### Example
+```
+set_evaporation_boundary x_begin
+```
+
+
+### set_psi_0
+#### Syntax
+```
+set_psi_0 [value]
+```
+
+#### Explanation
+This keyword sets minimum water potentail allowed at the atomospheric boundary.
+This value corresponds to the water potetial equal to the vapor in the air.
+The default value is $\psi_0 = -10^4$ m.
+The unit follows the unit in the flow block.
+
+#### Example
+```
+set_psi_0 -1.0d3
+```
+
+
+### set_dpsi_max 
+#### Syntax
+```
+set_dpsi_max [value]
+```
+
+#### Explanation
+This keyword sets the maximum water potentail change allowed during Newton iterations.
+The default value is $\psi_0 = -10^3$ m.
+The unit follows the unit in the flow block.
+When the Richards solver is not converged, a smaller value of this value may help the convergence (not always though).
+
+#### Example
+```
+set_dpsi_max 1.0d2
+```
 
 
 ## Keywords for gas transport
