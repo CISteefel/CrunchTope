@@ -29,8 +29,10 @@
 - [read_vg_alpha](#read_vg_alpha)
 - [read_vg_n](#read_vg_n)
 - [read_vg_theta_r](#read_vg_theta_r)
-- [x_begin_bc_type ](#x_end_bc_type)
-- [x_begin_bc_type ](#x_end_bc_type)
+- [x_begin_bc_type](#x_begin_bc_type)
+- [x_end_bc_type ](#x_end_bc_type)
+- [x_begin_bc_type_steady](#x_begin_bc_type_steady)
+- [x_end_bc_type_steady](#x_end_bc_type_steady)
 - [set_evaporation_boundary](#set_evaporation_boundary)
 - [set_psi_0](#set_psi_0)
 - [set_dpsi_max](#set_dpsi_max)
@@ -852,6 +854,54 @@ The format of the file is explained in the example below.
 x_end_bc_type constant_neumann 0.0
 ```
 for constant Neumann boundary condition.
+
+### x_begin_bc_type_steady
+
+#### Syntax
+```
+x_begin_bc_type_steady [BC_type] [value]
+```
+#### Explanation
+This keyword set the type and the type of boundary condition applied to the x_begin boundary (i.e., between jx = 0 and jx = 1) for steady-state Richards equation.
+Currently, the following boundary conditions are available:
+- constant_Dirichlet
+- constant_neumann
+- constant_flux
+
+Dirichlet boundary conditions enforce the water potential at the boundary to be the specified value.
+Neumann boundary conditions enforce the gradient of the water potential at the boundary to be the specified value.
+Flux boundary conditions enforce the water flux at the boundary to be the specified value.
+When selecting constant boundary conditions, the value for the constnat boundary condition needs to be provided.
+
+#### Example
+```
+x_begin_bc_type_steady constant_flux 0.0
+```
+for constant flux boundary condition for the steady-state Richards equation to get the intiial condition.
+
+### x_end_bc_type_steady
+
+#### Syntax
+```
+x_end_bc_type_steady [BC_type] [value]
+```
+#### Explanation
+This keyword set the type and the type of boundary condition applied to the x_end boundary (i.e., between jx =  and jx = nx+1) for steady-state Richards equation.
+Currently, the following boundary conditions are available:
+- constant_Dirichlet
+- constant_neumann
+- constant_flux
+
+Dirichlet boundary conditions enforce the water potential at the boundary to be the specified value.
+Neumann boundary conditions enforce the gradient of the water potential at the boundary to be the specified value.
+Flux boundary conditions enforce the water flux at the boundary to be the specified value.
+When selecting constant boundary conditions, the value for the constnat boundary condition needs to be provided.
+
+#### Example
+```
+x_end_bc_type_steady constant_Dirichlet 0.0
+```
+for constant Dirichlet boundary condition for the steady-state Richards equation to get the intiial condition.
 
 
 ### set_evaporation_boundary 
