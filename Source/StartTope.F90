@@ -8187,6 +8187,17 @@ ELSE
       ! convert unit
       dpsi_max = dpsi_max / dist_scale
       
+      ! flag to prevent chemical transport due to evaporation at a boundary
+      parchar = 'set_evaporation_boundary'
+      parfind = ' '
+      evaporation_boundary = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind == ' ') THEN
+       evaporation_boundary = ' '
+      ELSE
+        evaporation_boundary = dumstring
+      END IF
+      
       ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
     

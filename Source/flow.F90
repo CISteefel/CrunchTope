@@ -200,6 +200,8 @@ MODULE flow
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_x_begin_BC ! time of x_begin boundary condition [T]
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_x_end_BC ! time of x_end boundary condition [T]
     
+    CHARACTER (LEN=264)                             :: evaporation_boundary ! which boundry prevents chemical transport due to evaporation
+  
     CHARACTER (LEN=264)                             :: x_begin_BC_type_steady ! the type of the x_begin boundary condition for the steady state problem
     CHARACTER (LEN=264)                             :: x_end_BC_type_steady ! the type of the x_end boundary condition for the steady state problem
     REAL(DP)                                        :: value_x_begin_BC_steady ! value of x_begin boundary condition for the steady state problem. the content depends on the type of boundary condition.

@@ -279,7 +279,8 @@
 			<File RelativePath=".\Source\read_snapshot.F90"/>
 			<File RelativePath=".\Source\read_SolidDensity.F90"/>
 			<File RelativePath=".\Source\read_speciesdiffusion.F90"/>
-			<File RelativePath=".\Source\read_steady.F90"/>
+			<File RelativePath=".\Source\read_steady.F90">
+			</File>
 			<File RelativePath=".\Source\read_string.F90"/>
 			<File RelativePath=".\Source\read_surface.F90"/>
 			<File RelativePath=".\Source\read_surfacecomplex.F90"/>
@@ -335,7 +336,8 @@
 			<File RelativePath=".\Source\SolveGasDiffuse.F90"/>
 			<File RelativePath=".\Source\solver.F90"/>
 			<File RelativePath=".\Source\speciation.F90"/>
-			<File RelativePath=".\Source\species.F90"/>
+			<File RelativePath=".\Source\species.F90">
+			</File>
 			<File RelativePath=".\Source\species_init.F90"/>
 			<File RelativePath=".\Source\SpeciesLocal.F90"/>
 			<File RelativePath=".\Source\squeeze.F90"/>
