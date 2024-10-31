@@ -47,7 +47,7 @@ END DO
 DO jx = 0, nx
   psi_grad = (psi(jx+1, jy, jz) - psi(jx, jy, jz))/(x_2(jx+1) - x_2(jx))
   q_diff = -xi_2_faces(jx, jy, jz)*K_faces_x(jx, jy, jz)*kr_faces(jx, jy, jz)*psi_grad
-  q_grav = -SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(kr(jx+1, jy, jz) * xi_2(jx+1, jy, jz), kr(jx, jy, jz) * xi_2(jx, jy, jz), head(jx+1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+  q_grav = -SignGravity*COSD(x_angle)*K_faces_x(jx, jy, jz)*MERGE(kr(jx+1, jy, jz) * xi_2(jx+1, jy, jz), kr(jx, jy, jz) * xi_2(jx, jy, jz), SignGravity * COSD(x_angle) * (x_2(jx+1) - x_2(jx)) >= 0.0d0)
   qx(jx, jy, jz) = q_diff + q_grav
 END DO
 
