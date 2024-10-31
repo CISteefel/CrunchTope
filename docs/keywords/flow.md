@@ -585,7 +585,7 @@ theta_r_is_S_r [logical]
 [logical] = true or false (Default=false) 
 
 #### Explanation
-This keyword indicates whether the input to the $\theta_r_$ parameter (“residual water content”) in the van Genuchten model is residual saturation, or not.
+This keyword indicates whether the input to the $\theta_r$ parameter (“residual water content”) in the van Genuchten model is residual saturation, or not.
 If true is selected, the input value (keyword vg_theta_r) is interpreted as the residual saturation and converted into the residual water content by residual_water_content = $\theta_r \theta_s$.
 
 #### Example
