@@ -323,6 +323,7 @@ SOURCEF = \
           read_watertablefile.F90\
           read_watertable_timeseries.F90\
           interp.F90\
+          interp3.F90\
           read_transpiration.F90\
           read_evaporation.F90\
           read_timeseries.F90\
@@ -672,6 +673,7 @@ OBJSF  =  crunchtype.o\
           read_pumplocationsfile.o\
           read_watertablefile.o\
           read_watertable_timeseries.o\
+          interp.o\
           interp3.o\
           read_transpiration.o\
           read_evaporation.o\
