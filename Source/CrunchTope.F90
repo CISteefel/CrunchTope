@@ -2045,10 +2045,15 @@ DO WHILE (nn <= nend)
         ELSE
           IF (ReadNuft) THEN
             IF (cylindrical) THEN
-              CALL coeffCylinderNUFT(nx,ny,nz)
+!!!              CALL coeffCylinderNUFT(nx,ny,nz)
             ELSE
-              CALL coeffNuft(nx,ny,nz)
+!!!              CALL coeffNuft(nx,ny,nz)
             END IF
+            write(*,*) ' !!!!!!!!!!!!!!!!!!!!!!!! '
+            write(*,*) ' NUFT option disabled '
+            write(*,*) ' !!!!!!!!!!!!!!!!!!!!!!!! '
+            write(*,*)
+            stop
           ELSE
             IF (cylindrical) THEN
               CALL coeffCylinder(nx,ny,nz)
