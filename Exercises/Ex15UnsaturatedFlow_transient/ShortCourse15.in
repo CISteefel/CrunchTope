@@ -1,0 +1,114 @@
+TITLE
+1D transport with unsaturated flow (transient boundary condition)
+END
+
+RUNTIME
+time_units       days
+timestep_max     0.01
+timestep_init    0.01
+time_tolerance   10.0
+ResidualTolerance   1.0E-9 
+correction_max   2
+debye-huckel     yes
+model_spinup     yes
+master           Tracer
+hindmarsh        false 
+database_sweep   no
+speciate_only    false
+gimrt            true
+database         datacom.dbs
+screen_output    10000
+END
+
+OUTPUT
+time_units               days
+spatial_profile          1.0 3.0 5.0 7.0 9.0
+time_series          Tracer1.out 10 1 1
+time_series          Tracer2.out 30 1 1
+time_series_units    Mol/kgw
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units     seconds
+fix_diffusion  1.0e-09
+!dispersivity   0.01
+!dispersivity   0.0
+END
+
+
+FLOW
+time_units       days
+distance_units   meters
+calculate_flow  TRUE
+
+!!PERMEABILITY
+permeability_x 2.95e-13 default
+permeability_y 0 default
+permeability_z 0 default
+
+!!RICHARD
+ns_solve FALSE
+gravity 0.0 90.0 90.0 up
+Richards  TRUE
+!Richards_print True
+Richards_steady FALSE
+read_richards_ic_file initial_condition.csv SingleColumn
+vg_theta_r 150 0.0
+vg_theta_s 150 0.33
+vg_alpha   150 1.43
+vg_n       150 1.506
+x_begin_bc_type variable_flux water_upper_BC.dat 12
+x_end_bc_type constant_neumann 0.0
+END
+
+POROSITY
+fix_porosity 0.33
+porosity_update false
+END
+
+BOUNDARY_CONDITIONS
+x_begin     injection     Dirichlet
+x_end   initial   Dirichlet
+END
+
+INITIAL_CONDITIONS
+initial   1-150 1-1 1-1
+END
+
+DISCRETIZATION
+distance_units  meters
+xzones 150 0.01
+yzones 1 1
+zzones 1 1
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+END
+
+SECONDARY_SPECIES
+OH-
+END
+
+Condition initial
+units            mol/kg
+temperature      30.0
+Tracer         1.0E-8
+H+             1.0E-8
+END
+
+Condition injection
+units            mol/kg
+temperature      30.0
+Tracer         1.0E-3
+H+             1.0E-3
+END
+
+
+TEMPERATURE
+set_temperature  30.0
+END
+

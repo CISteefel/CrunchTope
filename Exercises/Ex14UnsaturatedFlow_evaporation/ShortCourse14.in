@@ -1,0 +1,113 @@
+TITLE
+1D transport with unsaturated flow (evaporation from the surface (x_begin))
+END
+
+RUNTIME
+time_units       days
+timestep_max     0.01
+timestep_init    0.01
+time_tolerance   10.0
+ResidualTolerance   1.0E-9 
+correction_max   2
+debye-huckel     yes
+model_spinup     yes
+master           Tracer
+hindmarsh        false 
+database_sweep   no
+speciate_only    false
+gimrt            true
+generate_velocity_vector True
+database         datacom.dbs
+screen_output    1000
+END
+
+OUTPUT
+time_units               days
+spatial_profile          1.0 4.0 6.5
+time_series          Tracer1.out 1 1 1
+time_series          Tracer2.out 10 1 1
+time_series_units    Mol/kgw
+time_series_interval 1
+END
+
+TRANSPORT
+distance_units meters
+time_units     seconds
+fix_diffusion  1.0e-09
+!fix_diffusion  0.0
+dispersivity   0.0
+END
+
+
+FLOW
+time_units       days
+distance_units   meters
+calculate_flow  True
+
+!PERMEABILITY
+permeability_x 2.95e-13 default
+permeability_y 0 default
+permeability_z 0 default
+!RICHARD
+gravity 0.0 90.0 90.0 up ! gravity is from x_begin to x_end
+Richards  TRUE ! Richards solver is used to compute velocity
+Richards_print TRUE ! Newton and line search results are not printed
+Richards_steady FALSE ! steady-state Richards solver is not used to the initial condition for time-dependent Richards solver
+read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
+!! van Genuchten parameters
+vg_theta_r 25 0.1
+vg_theta_s 25 0.45
+vg_alpha   25 5.0
+vg_n       25 2.0
+!! boundary conditions for time-dependent Richards solver
+!!! atmospheric boundary condition at x_begin
+!!! Because the gravity is from x_begin to x_end, the negative value means evaporation
+x_begin_bc_type constant_atomosphere -0.005
+!set_psi_0 -1.0d4 ! minimum water potentail allowed at the atomospheric boundary
+!set_dpsi_max 1.0d3 ! maximum change in water potentail during Newton iterations
+!!! flux boundary condition at x_end
+x_end_bc_type constant_flux 0.0
+set_evaporation_boundary x_begin ! evaporation boundary is set to x_begin, so no chemical transport due to evaporation at the boundary
+END
+
+POROSITY
+fix_porosity 0.45
+porosity_update false
+END
+
+BOUNDARY_CONDITIONS
+x_begin    initial      flux
+x_end   initial   flux
+END
+
+INITIAL_CONDITIONS
+initial   1-25 1-1 1-1
+END
+
+DISCRETIZATION
+distance_units  meters
+xzones 25 0.004
+yzones 1 1
+zzones 1 1
+END
+
+PRIMARY_SPECIES
+Tracer
+H+
+END
+
+SECONDARY_SPECIES
+OH-
+END
+
+Condition initial
+units            mol/kg
+temperature      30.0
+Tracer         1.0E-3
+H+             1.0E-3
+END
+
+TEMPERATURE
+set_temperature  30.0
+END
+

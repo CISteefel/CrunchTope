@@ -1457,8 +1457,42 @@ DO WHILE (nn <= nend)
           satliq(:,:,0) = satliq(:,:,1)
           satliq(:,:,2) = satliq(:,:,1)
           satliq(:,:,3) = satliq(:,:,1)
-        
-        ! End of edit by Toshiyuki Bandai, 2023 May
+          
+          ! the velocity at the boundary is forced to zero when the vector goes outward
+          ! not to consider chemcial transport via evaporation
+          IF (evaporation_boundary /= ' ') THEN
+            SELECT CASE (evaporation_boundary)
+              CASE ('x_begin')
+                DO jz = 1,nz
+                  DO jy = 1,ny
+                    jx = 0
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END DO
+                END DO
+                
+              CASE ('x_end')
+                DO jz = 1,nz
+                  DO jy = 1,ny
+                    jx = nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END DO
+                END DO
+  
+              CASE DEFAULT
+              WRITE(*,*)
+              WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+  
+            END SELECT
+
+          END IF       
+        ! End of edit by Toshiyuki Bandai, 2024 Oct
         ! ******************************************************************
         ELSE flow_solver_if_time
    
