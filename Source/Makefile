@@ -232,7 +232,6 @@ SOURCEF = \
           read_pressureAlternative.F90\
           read_pump.F90\
           read_restart.F90\
-		  read_boundary_condition_Richards.F90\
           read_series.F90\
           read_snapshot.F90\
           read_SolidDensity.F90\
@@ -323,6 +322,7 @@ SOURCEF = \
           read_pumplocationsfile.F90\
           read_watertablefile.F90\
           read_watertable_timeseries.F90\
+          interp.F90\
           interp3.F90\
           read_transpiration.F90\
           read_evaporation.F90\
@@ -332,9 +332,10 @@ SOURCEF = \
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
           flux_Richards.F90\
+		  RichardsArrayAllocation.F90\
 		  Jacobian_Richards.F90\
 		  Jacobian_Richards_steady.F90\
-		  read_boundary_condition_Richards.F90\
+		  read_boundary_condition_Richards_1D.F90\
 		  read_vanGenuchten_parameters.F90\
 		  residual_Richards.F90\
 		  residual_Richards_steady.F90\
@@ -582,7 +583,6 @@ OBJSF  =  crunchtype.o\
           read_pressureAlternative.o\
           read_pump.o\
           read_restart.o\
-		  read_boundary_condition_Richards.o\
           read_series.o\
           read_snapshot.o\
           read_SolidDensity.o\
@@ -673,6 +673,7 @@ OBJSF  =  crunchtype.o\
           read_pumplocationsfile.o\
           read_watertablefile.o\
           read_watertable_timeseries.o\
+          interp.o\
           interp3.o\
           read_transpiration.o\
           read_evaporation.o\
@@ -680,11 +681,11 @@ OBJSF  =  crunchtype.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
-          read_infiltration_2.o\
           flux_Richards.o\
+		  RichardsArrayAllocation.o\
 		  Jacobian_Richards.o\
 		  Jacobian_Richards_steady.o\
-		  read_boundary_condition_Richards.o\
+		  read_boundary_condition_Richards_1D.o\
 		  read_vanGenuchten_parameters.o\
 		  residual_Richards.o\
 		  residual_Richards_steady.o\
