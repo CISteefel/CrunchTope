@@ -98,11 +98,10 @@ SOURCEF = \
           FxTopeGlobal.F90\
           FxTopeLocal.F90\
           gamma_co2.F90\
-          gamma.F90\
+          gammaUpdated.F90\
           gamma_init_co2.F90\
           gamma_init.F90\
           gamma_local.F90\
-	  GammaResidual.F90\
           gascoeffCylinder.F90\
           gasdiff.F90\
           gases.F90\
@@ -139,7 +138,6 @@ SOURCEF = \
           jacobian_plus.F90\
           jacpotential.F90\
           JacPotentialLocal.F90\
-	  JacobianNumerical2.F90\
           jacrkin.F90\
           jacsurf.F90\
           jacsurf_init.F90\
@@ -324,7 +322,7 @@ SOURCEF = \
           read_pumplocationsfile.F90\
           read_watertablefile.F90\
           read_watertable_timeseries.F90\
-          interp3.F90\
+          interp.F90\
           read_transpiration.F90\
           read_evaporation.F90\
           read_timeseries.F90\
@@ -333,10 +331,10 @@ SOURCEF = \
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
           flux_Richards.F90\
-		  flux_Richards_steady.F90\
+		  RichardsArrayAllocation.F90\
 		  Jacobian_Richards.F90\
 		  Jacobian_Richards_steady.F90\
-		  read_boundary_condition_Richards.F90\
+		  read_boundary_condition_Richards_1D.F90\
 		  read_vanGenuchten_parameters.F90\
 		  residual_Richards.F90\
 		  residual_Richards_steady.F90\
@@ -450,11 +448,10 @@ OBJSF  =  crunchtype.o\
           FxTopeGlobal.o\
           FxTopeLocal.o\
           gamma_co2.o\
-          gamma.o\
+          gammaUpdated.o\
           gamma_init_co2.o\
           gamma_init.o\
           gamma_local.o\
-	  GammaResidual.o\
           gascoeffCylinder.o\
           gasdiff.o\
           gases.o\
@@ -491,7 +488,6 @@ OBJSF  =  crunchtype.o\
           jacobian_plus.o\
           jacpotential.o\
           JacPotentialLocal.o\
-	  JacobianNumerical2.o\
           jacrkin.o\
           jacsurf.o\
           jacsurf_init.o\
@@ -683,12 +679,11 @@ OBJSF  =  crunchtype.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
-          read_infiltration_2.o\
           flux_Richards.o\
-		  flux_Richards_steady.o\
+		  RichardsArrayAllocation.o\
 		  Jacobian_Richards.o\
 		  Jacobian_Richards_steady.o\
-		  read_boundary_condition_Richards.o\
+		  read_boundary_condition_Richards_1D.o\
 		  read_vanGenuchten_parameters.o\
 		  residual_Richards.o\
 		  residual_Richards_steady.o\
