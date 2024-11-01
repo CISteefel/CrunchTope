@@ -246,8 +246,6 @@ satl = satliq(jx,jy,jz)
 satlOld = satliqOld(jx,jy,jz)
 satgas = 1.0 - satl
 satgasOld = 1.0 - satlOld
-xbdflux = 0.0d0
-ybdflux = 0.0d0
 
 ! initialize these terms here to avoid a compiler from ignoring the initialization in branches
 xbdflux = 0.0d0
