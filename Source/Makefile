@@ -339,7 +339,6 @@ SOURCEF = \
 		  residual_Richards.F90\
 		  residual_Richards_steady.F90\
 		  solve_Richards.F90\
-		  solve_Richards_steady.F90\
 		  vanGenuchten_model.F90\
 		  vanGenuchten_model_kr.F90\
           read_tempreg.F90\
@@ -690,7 +689,6 @@ OBJSF  =  crunchtype.o\
 		  residual_Richards.o\
 		  residual_Richards_steady.o\
 		  solve_Richards.o\
-		  solve_Richards_steady.o\
 		  vanGenuchten_model.o\
 		  vanGenuchten_model_kr.o\
           read_tempreg.o\
