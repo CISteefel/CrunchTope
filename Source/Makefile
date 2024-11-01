@@ -232,6 +232,7 @@ SOURCEF = \
           read_pressureAlternative.F90\
           read_pump.F90\
           read_restart.F90\
+		  read_boundary_condition_Richards.F90\
           read_series.F90\
           read_snapshot.F90\
           read_SolidDensity.F90\
@@ -582,6 +583,7 @@ OBJSF  =  crunchtype.o\
           read_pressureAlternative.o\
           read_pump.o\
           read_restart.o\
+		  read_boundary_condition_Richards.o\
           read_series.o\
           read_snapshot.o\
           read_SolidDensity.o\
