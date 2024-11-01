@@ -27,7 +27,7 @@ jobs:
         git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
         cd $PETSC_DIR
         echo "CrunchTope >> Configuring petsc"
-        PETSC_ARCH=$PETSC_ARCH ./configure  --with-cc=mpiicc  --with-cxx=mpiicpc  --with-fc=mpif90  COPTFLAGS=" -g -O3"  FOPTFLAGS=" -g -O3"  CXXOPTFLAGS=" -g -O3" --with-debugging=0 --with-blaslapack-dir=/opt/intel/oneapi/mkl  PETSC_ARCH=mpi-oneAPI-opt
+                PETSC_ARCH=$PETSC_ARCH ./configure --with-mpi=1 --with-debugging=1 --with-shared-libraries=1 --download-fblaslapack=1 --with-hdf5-dir=/usr/lib/x86_64-linux-gnu/hdf5/openmpi
         echo "CrunchTope >> Building petsc"
         make
 
