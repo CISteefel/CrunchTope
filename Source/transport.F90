@@ -154,8 +154,10 @@ MODULE transport
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: htvd
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: sorp
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: ctvd
-  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: netflowx
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: netflowX
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: netDiffuseX
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: netflowY
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: netDiffuseY
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: dstar
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: s_dsp
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: s_chg

@@ -246,6 +246,8 @@ satl = satliq(jx,jy,jz)
 satlOld = satliqOld(jx,jy,jz)
 satgas = 1.0 - satl
 satgasOld = 1.0 - satlOld
+xbdflux = 0.0d0
+ybdflux = 0.0d0
 
 ! initialize these terms here to avoid a compiler from ignoring the initialization in branches
 xbdflux = 0.0d0
@@ -519,8 +521,7 @@ IF (jy == 1) THEN
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jx,jdum2,jz,sgs)
     END IF
 
-!!!    IF (jc(3) == 1 .OR. qy(jx,0,jz) > 0.0) THEN
-    IF (JcByGrid(jx,jy-1,jz) == 1) THEN
+    IF (JcByGrid(jx,jy-1,jz) == 1 .OR. netflowY(jx,jdum2,jz) > 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jx,jdum2,jz,scs)
     END IF
 
@@ -581,8 +582,7 @@ IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
       CALL bdgas_by_grid(ncomp,nspec,nrct,ngas,jx,jdum2,jz,sgn)
     END IF
 
-!!!    IF (jc(4) == 1 .OR. qy(jx,ny,jz) < 0.0) THEN
-    IF (JcByGrid(jx,jy+1,jz) == 1) THEN
+    IF (JcByGrid(jx+1,jy,jz) == 1 .OR. netflowY(jx,ny,jz) < 0.0) THEN
       CALL bdrecalc_by_grid(ncomp,nspec,jx,jdum2,jz,scn)
     END IF
 

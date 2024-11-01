@@ -368,6 +368,7 @@ DO jz = 1,nz
     IF (nz == 1) GO TO 250
     
     IF (jz == 1) THEN
+      
       dzup= 0.5*(dzz(jx,jy,jz)+dzz(jx,jy,jz+1))
       dzdn= 0.5*dzz(jx,jy,jz)
       porup = por(jx,jy,jz+1)
