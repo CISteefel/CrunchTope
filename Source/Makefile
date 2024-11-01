@@ -98,7 +98,7 @@ SOURCEF = \
           FxTopeGlobal.F90\
           FxTopeLocal.F90\
           gamma_co2.F90\
-          gamma.F90\
+          gammaUpdated.F90\
           gamma_init_co2.F90\
           gamma_init.F90\
           gamma_local.F90\
@@ -449,7 +449,7 @@ OBJSF  =  crunchtype.o\
           FxTopeGlobal.o\
           FxTopeLocal.o\
           gamma_co2.o\
-          gamma.o\
+          gammaUpdated.o\
           gamma_init_co2.o\
           gamma_init.o\
           gamma_local.o\
