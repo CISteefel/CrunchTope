@@ -3,7 +3,7 @@ ShortCourse1.in:  Short course carbonate speciation
 END
 
 RUNTIME
-speciate_only   false
+speciate_only   true
 database_sweep  false
 database        datacom_13C.dbs
 graphics        tecplot
