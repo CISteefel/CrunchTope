@@ -12,7 +12,7 @@ WORKDIR /home/crunch_user
 # PETSc install
 RUN git clone https://gitlab.com/petsc/petsc.git petsc
 WORKDIR /home/crunch_user/petsc
-RUN git checkout v3.20.4
+RUN git checkout v3.21.6
 ARG PETSC_DIR=/home/crunch_user/petsc
 ARG PETSC_ARCH=intel-opt
 RUN ./configure --with-cc=icx --with-cxx=icpx --with-fc=ifx --with-debugging=0 --with-shared-libraries=0 --with-blas-lapack-dir=/opt/intel/oneapi/mkl/2024.0/lib --with-x=0 LIBS=-lstdc++ --with-c2html=0 --with-cxx-dialect=C++11 --with-mpi=0
