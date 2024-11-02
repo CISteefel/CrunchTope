@@ -12,7 +12,7 @@ correction_max   2.0
 debye-huckel     true
 database_sweep   no
 speciate_only    false
-gimrt            false
+gimrt            true
 graphics         tecplot
 database         datacom.dbs
 screen_output    100

@@ -9,7 +9,7 @@ database        datacom_13C.dbs
 !!!graphics        tecplot  !! Produces *.tec file for snapshot in time
 graphics        kaleidagraph
 density_module  temperature
-gimrt   false
+gimrt           false
 END
 
 OUTPUT

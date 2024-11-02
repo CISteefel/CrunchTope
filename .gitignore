@@ -1,5 +1,7 @@
 # ignore visual studio files
 CrunchTope.*
+
+
 # but selectively track the project file
 !CrunchTope.vfproj
 
