@@ -7,6 +7,12 @@ x64
 
 # ignore input files
 *.in
+*.dbs
+*.dat
+*.x
+*.y
+
+
 # but selectively track input files (shortcourse input files)
 !ShortCourse*.in
 !test_infiltration_1.in
