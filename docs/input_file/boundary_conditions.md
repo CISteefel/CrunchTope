@@ -21,6 +21,12 @@ x_end  condition_name  boundary_condition_type
 ```
 Default:  None.
 
+Alternatively, you could specify boundary conditions via
+```
+boundarycondition   condition_name  zone [jxbegin-jxend   jybegin-jyend   jzbegin-jzend]  boundary_condition_type 
+boundarycondition   condition_name  zone [jxbegin-jxend   jybegin-jyend   jzbegin-jzend]  boundary_condition_type 
+```
+
 ## Explanation
 
 Boundary conditions are set for ghost cells outside the faces of the 3D domain.
@@ -32,3 +38,11 @@ In the case of a flux specification, the code uses the value and direction of th
 For a pure diffusion problem (i.e., with no advective flux via flow across the boundary of the domain), a flux specification will result in a no-flux boundary.
 In the case of a Dirichlet boundary in GIMRT mode, this will cause both advective and diffusive flux to be calculated.
 To use a Dirichlet condition in OS3D mode requires that an initial condition be fixed just inside the boundary of the problem.
+
+
+## Example
+
+```
+boundarycondition   ambient  zone 0-0 1-1 1-1  flux 
+boundarycondition   injection  zone 101-101 1-1  1-1  dirichlet 
+```
