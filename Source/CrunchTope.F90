@@ -421,6 +421,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                         :: depth
 INTEGER(I4B)                                                :: depthwattab
 
 CHARACTER (LEN=3)                                           :: ulabPrint
+REAL(DP)                                                    :: sionPrint
 
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2023 July
@@ -2374,7 +2375,11 @@ DO WHILE (nn <= nend)
                   CONTINUE
                 END IF
                 
-                sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + yh(ind,jx) )
+                IF ( sion(jx,jy,jz) == 0.0d0 ) THEN
+                  sion(jx,jy,jz) = 1.0D-06
+                ELSE
+                  sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + yh(ind,jx) )
+                END IF
                 
           !!!   Update lngammawater
                 

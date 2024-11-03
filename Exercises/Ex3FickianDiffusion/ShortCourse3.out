@@ -1,0 +1,46 @@
+ 
+  ************************** CrunchFlow ******************************
+    
+                   Authors:  C.I. STEEFEL, S. MOLINS 
+                       *** Copyright Notice ***          
+  ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of Califor
+ nia, through Lawrence Berkeley National Laboratory
+  (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï
+ ¿½ All rights reserved.
+ 
+  If you have questions about your rights to use or distribute this software, pl
+ ease contact 
+  Berkeley Lab Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.  
+ 
+  NOTICE.ï¿½ This Software was developed under funding from the U.S. Department 
+ of Energy and the U.S. Government 
+  consequently retains certain rights. As such, the U.S. Government has been gra
+ nted for itself and others acting 
+  on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the S
+ oftware to reproduce, distribute copies to the public, 
+  prepare derivative works, and perform publicly and display publicly, and to pe
+ rmit other to do so.
+    
+ 
+ 
+  ShortCourse7.in: Tracer test involving diffusion                        
+ 
+ 
+ 
+   ---> Using database: datacom.dbs                                                                                         
+ 
+ 
+ Number of components =                     1
+ 
+  1 Tracer            
+ 
+ Number of secondary species in input file =            0
+ 
+ 
+ Number of kinetic minerals =            0
+ 
+ 
+  Using database file: datacom.dbs
+ 
+  temperature interpolation coefficients
+                  ln(T+Tk)        1         T+Tk      (T+Tk)**-1   (t+tk)**-2
