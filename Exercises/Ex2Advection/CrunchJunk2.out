@@ -1,0 +1,6 @@
+distance_units meters                                                                                                                                                                                                                                                   
+time_units     years                                                                                                                                                                                                                                                    
+fix_diffusion  0.0                                                                                                                                                                                                                                                      
+dispersivity   0.0001                                                                                                                                                                                                                                                   
+ 
+ 

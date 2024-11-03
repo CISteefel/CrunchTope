@@ -116,18 +116,35 @@ IF (ALLOCATED(qzgas)) THEN
 ELSE
   ALLOCATE(qzgas(nx,ny,0:nz))
 END IF
-IF (ALLOCATED(netflowx)) THEN
-  DEALLOCATE(netflowx)
-  ALLOCATE(netflowx(0:nx,ny,nz))
+
+IF (ALLOCATED(netflowX)) THEN
+  DEALLOCATE(netflowX)
+  ALLOCATE(netflowX(0:nx,ny,nz))
 ELSE
-  ALLOCATE(netflowx(0:nx,ny,nz))
+  ALLOCATE(netflowX(0:nx,ny,nz))
 END IF
+
 IF (ALLOCATED(netDiffuseX)) THEN
   DEALLOCATE(netDiffuseX)
   ALLOCATE(netDiffuseX(0:nx,ny,nz))
 ELSE
   ALLOCATE(netDiffuseX(0:nx,ny,nz))
 END IF
+
+IF (ALLOCATED(netflowY)) THEN
+  DEALLOCATE(netflowY)
+  ALLOCATE(netflowY(nx,0:ny,nz))
+ELSE
+  ALLOCATE(netflowY(nx,0:ny,nz))
+END IF
+
+IF (ALLOCATED(netDiffuseY)) THEN
+  DEALLOCATE(netDiffuseY)
+  ALLOCATE(netDiffuseY(nx,0:ny,nz))
+ELSE
+  ALLOCATE(netDiffuseY(nx,0:ny,nz))
+END IF
+
 IF (ALLOCATED(satliq)) THEN
   DEALLOCATE(satliq)
   ALLOCATE(satliq(-1:nx+2,-1:ny+2,-1:nz+2))

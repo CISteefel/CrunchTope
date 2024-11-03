@@ -11,10 +11,12 @@ x64
 *.dat
 *.x
 *.y
-*.vx
-*.vy
+fort.*
 
 # but selectively track input files (shortcourse input files)
+!datacom.dbs
+!copper.dbs
+!Benchmark-LichtnerCopper.in
 !ShortCourse1.in
 !ShortCourse2react.in
 !ShortCourse3.in
@@ -28,6 +30,7 @@ x64
 !ShortCourse12a.in
 !ShortCourse12b.in
 !ShortCourse12c.in
+!ShortCourse16.in
 !test_infiltration_1.in
 !test1_8C_PLM_open.in
 !test2_20C_PLM_open.in

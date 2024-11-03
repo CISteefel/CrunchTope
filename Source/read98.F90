@@ -216,6 +216,7 @@ REAL(DP)                                                           :: yrsec
 REAL(DP)                                                           :: temp
 
 LOGICAL(LGT)                                                       :: NameListFormat
+LOGICAL(LGT)                                                       :: IonsOK
 
 ALLOCATE(namc(nc))
 ALLOCATE(namcx(mcmplx))
@@ -878,9 +879,24 @@ DO ik = 1,ncmplx
   bdotParameter(ik+ncomp) = bdotSecondary(ik)
 END DO
 
-!is      do k = 1,mnrl
-!is        umin(k) = namk(k)
-!is      end do
+IonsOK = .FALSE.
+!!! Check to see there are ions present, otherwise it blow up in the activity of water calculation
+DO ik = 1,ncomp+ncmplx
+  IF (chg(ik) /= 0.0d0) THEN
+    IonsOK = .TRUE.
+  END IF
+END DO
+
+IF (.NOT. IonsOK) THEN
+  write(*,*)
+  write(*,*) ' You need ions in solution for ionic strength master variable'
+  write(*,*) ' You can add to CONDITIONS (for example) '
+  write(*,*)
+  write(*,*) ' Na+    0.001 '
+  write(*,*) ' Cl-    0.001 '
+  write(*,*)
+  stop
+END IF
 
 WRITE(iunit2,*)
 DO m = 1, mnrl

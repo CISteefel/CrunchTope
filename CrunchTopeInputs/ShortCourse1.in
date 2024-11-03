@@ -4,12 +4,12 @@ END
 
 RUNTIME
 speciate_only   false
-database_sweep  true
+database_sweep  false
 database        datacom_13C.dbs
 !!!graphics        tecplot  !! Produces *.tec file for snapshot in time
 graphics        kaleidagraph
 density_module  temperature
-gimrt           false
+gimrt           true
 END
 
 OUTPUT
@@ -29,6 +29,7 @@ Ca++
 Na+
 Cl-
 Tracer
+H2O
 END
 
 Condition        speciate1   Fix pCO2 and calculate pH based on charge balance
@@ -40,6 +41,7 @@ CO2(aq)          CO2(g)   3.12E-04
 Na+              0.01  
 Cl-              0.01
 Ca++             0.00
+H2O              55.50843506
 Tracer           0.000001
 Calcite          0.01   1.0
 END
@@ -54,6 +56,7 @@ Na+              0.01
 Cl-              charge
 Ca++             0.01
 Tracer           0.000001
+H2O    55.50843506
 !!Calcite          0.00   1.0 (bulk m^2/m^3)
 !!Calcite        0.00   ssa 0.01 (m^2/g)
 
@@ -69,6 +72,7 @@ Na+              0.01
 Cl-              0.01
 Ca++             0.00
 Tracer           0.1
+H2O    55.50843506
 !!Calcite          0.00   1.0
 END
 
@@ -82,6 +86,7 @@ Na+              0.01
 Cl-              0.01
 Ca++             0.00
 Tracer           0.1
+H2O    55.50843506
 !!Calcite          0.00   1.0
 END
 
@@ -95,6 +100,7 @@ Na+              0.01
 Cl-              0.01
 Ca++             0.00
 Tracer           0.1
+H2O    55.50843506
 Portlandite          0.1   1.0
 END
 

@@ -211,11 +211,10 @@ ELSE
   
       IF (Helgeson .OR. Wateq_Extended_DH) THEN
   
-        tmp1 = 1D0 + bh * azero(IK) * sqrt_IonS 
+        tmp1 = 1.0D0 + bh * azero(IK) * sqrt_IonS 
         tmp2 = ah * chg(ik) * chg(ik)
         tmp3 = 0.5D0 * bh * azero(IK) * sion_tmp
         
-  
         lngamma(ik,jx,jy,jz) = clg * ( - (tmp2 * sqrt_IonS) / tmp1 + bdotpar * sion_tmp)
         gamma(ik,jx,jy,jz) = EXP(lngamma(ik,jx,jy,jz))
   

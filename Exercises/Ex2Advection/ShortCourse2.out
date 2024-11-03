@@ -1,0 +1,179 @@
+ 
+  ************************** CrunchFlow ******************************
+    
+                   Authors:  C.I. STEEFEL, S. MOLINS 
+                       *** Copyright Notice ***          
+  ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of Califor
+ nia, through Lawrence Berkeley National Laboratory
+  (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï
+ ¿½ All rights reserved.
+ 
+  If you have questions about your rights to use or distribute this software, pl
+ ease contact 
+  Berkeley Lab Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.  
+ 
+  NOTICE.ï¿½ This Software was developed under funding from the U.S. Department 
+ of Energy and the U.S. Government 
+  consequently retains certain rights. As such, the U.S. Government has been gra
+ nted for itself and others acting 
+  on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the S
+ oftware to reproduce, distribute copies to the public, 
+  prepare derivative works, and perform publicly and display publicly, and to pe
+ rmit other to do so.
+    
+ 
+ 
+  ShortCourse2.in: Tracer test in one dimension                           
+ 
+ 
+ 
+   ---> Using database: datacom.dbs                                                                                         
+ 
+ 
+ Number of components =                     3
+ 
+  1 Tracer            
+  2 Na+               
+  3 Cl-               
+ 
+ Number of secondary species in input file =            0
+ 
+ 
+ Number of kinetic minerals =            0
+ 
+ 
+  Using database file: datacom.dbs
+ 
+  temperature interpolation coefficients
+                  ln(T+Tk)        1         T+Tk      (T+Tk)**-1   (t+tk)**-2
+ 
+  ***KINETIC INPUTS***
+ 
+   MINERAL
+ 
+ Number of geochemical conditions specified =            2
+ 
+   ********  SPECIATION OF GEOCHEMICAL CONDITIONS  ********
+ 
+ 
+ *********************************************
+  ---> GEOCHEMICAL CONDITION: junk1
+ 
+  Temperature (C)         =     25.000
+  Porosity                =      1.000
+  Liquid Saturation       =      1.000
+  Liquid Density (kg/m^3) =    997.075
+  Solid Density (kg/m^3)  =      0.000
+  Solid:Solution Ratio    =      0.000
+  Ionic Strength          =      0.010
+  Total Charge            =  0.000E+00
+ 
+ Total Aqueous Concentrations of Primary Species  
+ --------------------------------------- 
+ 
+ Species                Molality     Constraint    Constraint Phase 
+ Tracer              1.00000E-01     Total                           
+ Na+                 1.00000E-02     Total                           
+ Cl-                 1.00000E-02     Total                           
+ 
+ Concentrations of Individual Species, Exchangers, and Surface Complexes 
+ ----------------------------------------------------------------------- 
+ 
+                           Log        Log                                 Activity
+ Species              Molality   Activity      Molality      Activity   Coefficient    Type
+  Tracer                -1.000     -1.000     1.000E-01     1.000E-01     1.000E+00  Aqueous 
+  Na+                   -2.000     -2.000     1.000E-02     1.000E-02     1.000E+00  Aqueous 
+  Cl-                   -2.000     -2.000     1.000E-02     1.000E-02     1.000E+00  Aqueous 
+ 
+ 
+  ****** Partial pressure of gases (bars) *****
+ 
+ 
+  ****** Saturation state of minerals (log[Q/K] *****
+ 
+ 
+ *********************************************
+  ---> GEOCHEMICAL CONDITION: junk2
+ 
+  Temperature (C)         =     25.000
+  Porosity                =      1.000
+  Liquid Saturation       =      1.000
+  Liquid Density (kg/m^3) =    997.075
+  Solid Density (kg/m^3)  =      0.000
+  Solid:Solution Ratio    =      0.000
+  Ionic Strength          =      0.010
+  Total Charge            =  0.000E+00
+ 
+ Total Aqueous Concentrations of Primary Species  
+ --------------------------------------- 
+ 
+ Species                Molality     Constraint    Constraint Phase 
+ Tracer              1.00000E-06     Total                           
+ Na+                 1.00000E-02     Total                           
+ Cl-                 1.00000E-02     Total                           
+ 
+ Concentrations of Individual Species, Exchangers, and Surface Complexes 
+ ----------------------------------------------------------------------- 
+ 
+                           Log        Log                                 Activity
+ Species              Molality   Activity      Molality      Activity   Coefficient    Type
+  Tracer                -6.000     -6.000     1.000E-06     1.000E-06     1.000E+00  Aqueous 
+  Na+                   -2.000     -2.000     1.000E-02     1.000E-02     1.000E+00  Aqueous 
+  Cl-                   -2.000     -2.000     1.000E-02     1.000E-02     1.000E+00  Aqueous 
+ 
+ 
+  ****** Partial pressure of gases (bars) *****
+ 
+ 
+  ****** Saturation state of minerals (log[Q/K] *****
+ 
+ 
+                SPECIATION OF  
+      INITIAL AND BOUNDARY CONDITIONS 
+           SUCCESSFULLY COMPLETED
+ 
+ 
+   NZ =            1
+ 
+  Cell  Distance (m)
+   1    5.000E-01
+ 
+ 
+ Number of heterogeneities =            1
+ 
+ 
+ Parameters for this run:
+ 
+  Maximum timestep (yrs) =    1.000E-02
+  Maximum timestep (yrs) =    1.000E-02
+ 
+ --> Porosity set by "fix_porosity" or "set_porosity" keywords
+ ----> No update of porosity
+ --> Unit activity coefficients
+ 
+  Temperature (C) at J = 1            25.00
+  Temperature gradient (C/m) =         0.00
+ 
+ Graphics files printed at (yrs)
+   1.0000E+02
+
+ 
+  Constant velocities have been specified
+ 
+   X Darcy velocity =    1.00000000000000     
+   Y Darcy velocity =   0.000000000000000E+000
+ 
+ 
+ 
+ 
+   Using constant diffusion coefficient
+  Diffusion coefficient (m**2/yr) =       0.0000E+00
+ 
+ 
+  Longitudinal dispersivity (m) =     1.0000E-04
+  Transverse dispersivity (m) =       1.0000E-04
+ 
+ 
+         INITIALIZATION COMPLETED 
+          STARTING TIMESTEPPING 
+ 
