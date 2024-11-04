@@ -224,7 +224,7 @@ INTEGER(I4B)                                              :: ind
 REAL(DP)                                                  :: GasSource
 REAL(DP)                                                  :: Retardation
 REAL(DP)                                                  :: check
-REAL(DP)                                                  :: A_transpi
+!REAL(DP)                                                  :: A_transpi
 
   !!! Added July 17 by Carl (hopefully not stomped on)
 
@@ -910,12 +910,12 @@ DO i = 1,ncomp
 ! ************************************
 ! Edit by Lucien Stolze, June 2023
 ! Extract solutes via transpiration
-  IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
-        if (ny == 1 .AND. nz == 1) THEN
-        A_transpi = dyy(jy) * dzz(jx,jy,jz)
-        source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
-  ENDIF
-  ENDIF
+  !IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
+  !      if (ny == 1 .AND. nz == 1) THEN
+  !      A_transpi = dyy(jy) * dzz(jx,jy,jz)
+  !      source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
+  !ENDIF
+  !ENDIF
 ! ************************************
 ! end of edit by Lucien Stolze, June 2023
 

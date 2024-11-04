@@ -299,9 +299,8 @@
 			<File RelativePath=".\Source\read_vgafile.F90"/>
 			<File RelativePath=".\Source\read_vgnfile.F90"/>
 			<File RelativePath=".\Source\read_walltime.F90"/>
-			<File RelativePath=".\Source\read_watertable_timeseries.F90"/>
-			<File RelativePath=".\Source\read_watertablefile.F90"/>
-			<File RelativePath=".\Source\read_wcrfile.F90"/>
+			<File RelativePath=".\Source\read_wcrfile.F90">
+			</File>
 			<File RelativePath=".\Source\readblock.F90"/>
 			<File RelativePath=".\Source\readbreak.F90"/>
 			<File RelativePath=".\Source\readCaseSensitive.F90"/>

@@ -1021,37 +1021,6 @@ ENDIF
           END DO
         END DO
         CLOSE(UNIT=8,STATUS='keep')
-        
-        IF (evapofix .or. evapotimeseries) THEN
-          fn = 'evapo_rate'
-          ilength = 12
-          CALL newfile(fn,suf1,fnv,nint,ilength)
-          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-          WRITE(8,*) 'TITLE = "evaporate [mm/yr]" '
-          WRITE(8,*) 'VARIABLES = "evapo"'
-          WRITE(8,*) ' F=POINT'
-          WRITE(8,184) evaporate*1000+1e-9
-          CLOSE(UNIT=8,STATUS='keep')
-        END IF
-
-        IF (transpifix .or. transpitimeseries) THEN
-          fn = 'transpi_rate'
-          ilength = 12
-          CALL newfile(fn,suf1,fnv,nint,ilength)
-          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-          WRITE(8,*) 'TITLE = "transpirate [mm/yr]" '
-          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_a"'
-          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-              WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-              transpirate_cell(jx)*1000+1e-9
-              END DO
-            END DO
-          END DO
-          CLOSE(UNIT=8,STATUS='keep')
-        ENDIF
       
       ELSE
         fn='pressure'

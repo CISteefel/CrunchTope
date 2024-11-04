@@ -70,9 +70,6 @@ MODULE flow
     LOGICAL(LGT)                                 :: NavierStokes
     
     INTEGER(I4B)                                 :: n_substep
-    ! Leverett scaling option added by Lucien Stolze 2021
-    
-    LOGICAL(LGT)                                 :: leverettscaling
     
     INTEGER(I4B)                                 :: infiltration
     
@@ -185,7 +182,6 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_alpha ! van Genuchten alpha parameter [L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_n ! van Genuchten n parameter [-]
-    !REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water potential [L], refer to modified van Genuchten model
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
     
     ! boundary conditions
@@ -220,31 +216,32 @@ MODULE flow
     REAL(DP), DIMENSION(:), ALLOCATABLE          :: qgt
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
     LOGICAL(LGT)                                   :: pumptimeseries
-    !! Dynamic water table Lucien Stolze 20211201
-    REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
-    LOGICAL(LGT)                                   :: watertabletimeseries
-    !!Evapotranspiration timeseries
-    REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
-    REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_transpi
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_transpi
-    ! Lucien Stolze: evapotranspiration
-    LOGICAL(LGT)                                     :: evapofix !fixed evaporation
-    LOGICAL(LGT)                                     :: evapotimeseries !transient evaporation
-    LOGICAL(LGT)                                     :: transpifix !fixed transpiration
-    LOGICAL(LGT)                                     :: transpitimeseries !transient transpiration
-    REAL(DP)                                         :: evaporate !evaporation rate
-    REAL(DP)                                         :: transpirate !transpiration rate
-    INTEGER(I4B)                                     :: transpicells !nb of transpiration cells
-    ! infiltration timeseries added by Toshiyuki Bandai June, 2023
-    LOGICAL(LGT)                                     :: infiltration_timeseries
-    LOGICAL(LGT)                                     :: infiltration_fix
-    REAL(DP)                                         :: infiltration_rate
-    REAL(DP), DIMENSION(:), ALLOCATABLE              :: qt_infiltration
-    REAL(DP), DIMENSION(:), ALLOCATABLE              :: t_infiltration
     
-    REAL(DP), DIMENSION(:), ALLOCATABLE              :: transpirate_cell
+    !!! Dynamic water table Lucien Stolze 20211201
+    !REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
+    !REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
+    !LOGICAL(LGT)                                   :: watertabletimeseries
+    !!!Evapotranspiration timeseries
+    !REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
+    !REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
+    !REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_transpi
+    !REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_transpi
+    !! Lucien Stolze: evapotranspiration
+    !LOGICAL(LGT)                                     :: evapofix !fixed evaporation
+    !LOGICAL(LGT)                                     :: evapotimeseries !transient evaporation
+    !LOGICAL(LGT)                                     :: transpifix !fixed transpiration
+    !LOGICAL(LGT)                                     :: transpitimeseries !transient transpiration
+    !REAL(DP)                                         :: evaporate !evaporation rate
+    !REAL(DP)                                         :: transpirate !transpiration rate
+    !INTEGER(I4B)                                     :: transpicells !nb of transpiration cells
+    !! infiltration timeseries added by Toshiyuki Bandai June, 2023
+    !LOGICAL(LGT)                                     :: infiltration_timeseries
+    !LOGICAL(LGT)                                     :: infiltration_fix
+    !REAL(DP)                                         :: infiltration_rate
+    !REAL(DP), DIMENSION(:), ALLOCATABLE              :: qt_infiltration
+    !REAL(DP), DIMENSION(:), ALLOCATABLE              :: t_infiltration
+    !
+    !REAL(DP), DIMENSION(:), ALLOCATABLE              :: transpirate_cell
     
     END MODULE flow
     

@@ -8310,20 +8310,9 @@ ELSE
     ! Edit by Toshiyuki Bandai, Oct. 2024
     ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
     ! mu_water is defined in Flow module
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 0,nx+1
-          mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-          rho_water_2 = 0.99823d0 * 1.0E3
-          !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
-        END DO
-      END DO
-    END DO
-    !     END DO
-    !   END DO
-    ! END DO
-
-    mu_water = 0.0010005*secyr ! dynamic viscosity of water
+    mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+    rho_water_2 = 0.99823d0 * 1.0E3
+    mu_water = 0.0010005*secyr ! dynamic viscosity of water     
 
     ! End of Edit by Toshiyuki Bandai, Oct. 2024
     !*************************************************************
@@ -8337,7 +8326,7 @@ ELSE
     IF (theta_s_is_porosity) THEN
       ! theta_s is the same as the porosity, so no need to read vg_theta_s
     
-      FORALL (jx=0:nx+1, jy=1:ny, jz=1:nz)
+      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
         theta_s(jx,jy,jz) = por(jx,jy,jz)
       END FORALL
     ELSE
@@ -8365,7 +8354,18 @@ ELSE
         END DO
       END DO
     END IF
-  
+    
+    ! fill ghost cells
+    text = 'VG_theta_s'
+    lowX = LBOUND(theta_s,1)
+    lowY = LBOUND(theta_s,2)
+    lowZ = LBOUND(theta_s,3)
+    highX = UBOUND(theta_s,1)
+    highY = UBOUND(theta_s,2)
+    highZ = UBOUND(theta_s,3)
+    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,theta_s,TEXT)
+
+    
   !!!!!!!!!!!!!!!!!!!!!!!!!
   ! residual water content (theta_r)
   !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -8636,22 +8636,10 @@ ELSE
       ! End edit by Lucien Stolze, June 2023
     
     IF (.NOT. vg_is_n) THEN
-        ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
-        VG_n = 1.0d0/(1.0d0 - VG_n)
+      ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
+      VG_n = 1.0d0/(1.0d0 - VG_n)
     END IF
-    
-  ! psi_s parameter in the modified van Genuchten model
-    !parchar = 'vg_psi_s'
-    !CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-    !IF (VG_error == 1) THEN
-    !  WRITE(*,*)
-    !  WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-    !  WRITE(*,*)
-    !  STOP
-    !END IF
-    !! convert unit
-    !psi_s = psi_s/dist_scale
-    
+        
   END IF Richards_allocate
   ! ***************************************************
   ! End of Edit by Toshiyuki Bandai 2023 May
@@ -9872,13 +9860,13 @@ ELSE
 
 
 
-    watertabletimeseries = .FALSE.
-    CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
-    IF (watertabletimeseries) THEN
-    CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
-    !!else
-    !!  CALL read_pump(nout,nx,ny,nz,nchem)
-    ENDIF
+    !watertabletimeseries = .FALSE.
+    !CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
+    !IF (watertabletimeseries) THEN
+    !CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
+    !!!else
+    !!!  CALL read_pump(nout,nx,ny,nz,nchem)
+    !ENDIF
 
     parchar = 'initialize_hydrostatic'
     parfind = ' '

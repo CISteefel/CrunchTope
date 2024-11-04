@@ -612,7 +612,7 @@ theta_s_is_porosity [logical]
 #### Explanation
 This keyword indicates whether the $\theta_s$ parameter in the van Genuchten model is the same as the porosity value, or not.
 If false is selected, users need to provide information on the $\theta_s$ parameter by the keyword vg_theta_s.
-Otherwise, porosity value is used for the $theta_s$ parameter in the van Genuchten model.
+Otherwise, porosity value is used for the $theta_s$ parameter in the van Genuchten model, so the user does not need to provide $\theta_s$ value.
 
 #### Example
 

@@ -436,32 +436,6 @@ IF (isaturate==1) THEN
   
 END IF
 
-IF ((transpifix .OR. transpitimeseries)) THEN
-  2013 FORMAT('# Units: mm/yr')
-  fn='transpirate'
-  ilength = 11
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Transpiration rate (mm/yr)" '
-  WRITE(8,2013)
-  DO jx = 1,nx
-          WRITE(8,184) x(jx)*OutputDistanceScale, transpirate_cell(jx)*1000
-  END DO
-  CLOSE(UNIT=8,STATUS='keep')
-ENDIF
-
-IF ((evapofix .OR. evapotimeseries)) THEN
-  fn='transpirate'
-  ilength = 11
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Transpiration rate (mm/yr)" '
-  WRITE(8,2013)
-  WRITE(8,184) x(nx)*OutputDistanceScale, evaporate*1000
-  CLOSE(UNIT=8,STATUS='keep')
-ENDIF
-
-
 IF (nexchange > 0) THEN
   fn='exchange'
   ilength = 8

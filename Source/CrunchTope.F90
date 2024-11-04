@@ -616,35 +616,35 @@ IF (CalculateFlow) THEN
 !*************************************************************
 ! Edit by Lucien Stolze, June 2023
 ! Water table time series for multidimensional model (Richard)
-  IF (watertabletimeseries) THEN
-    
-    jz=1
-    jx=0
-    DO jy = 1,ny
-      IF (TS_1year) THEN
-        time_norm=time-floor(time)
-        CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      ELSE
-        CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      END IF
-      if (pres(jx,jy,jz)==0) then
-        permx(jx,jy,jz)=0
-      end if
-    END DO
-    
-  END IF
+  !IF (watertabletimeseries) THEN
+  !  
+  !  jz=1
+  !  jx=0
+  !  DO jy = 1,ny
+  !    IF (TS_1year) THEN
+  !      time_norm=time-floor(time)
+  !      CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+  !    ELSE
+  !      CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
+  !    END IF
+  !    if (pres(jx,jy,jz)==0) then
+  !      permx(jx,jy,jz)=0
+  !    end if
+  !  END DO
+  !  
+  !END IF
 
 !*************************************************************
 ! Edit by Lucien Stolze, June 2023
 ! Pump time series (Richard)
-  IF (pumptimeseries) THEN
-    IF (TS_1year) THEN
-      time_norm=time-floor(time)
-    CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-      ELSE
-    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-      END IF
-  END IF
+  !IF (pumptimeseries) THEN
+  !  IF (TS_1year) THEN
+  !    time_norm=time-floor(time)
+  !  CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+  !    ELSE
+  !  CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
+  !    END IF
+  !END IF
   
   SteadyFlow = .FALSE.
 
