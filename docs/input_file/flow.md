@@ -537,6 +537,23 @@ This should be turned on only when you want to diagnose the convergence.
 Richards_print true
 ```
 
+### richards_ic
+
+#### Syntax
+```
+richards_ic [value]
+```
+[value] is the initial water potential used for both steady-state and time-dependent Richards solver.
+
+#### Explanation
+This keyword sets the initial condition for the water potential for the Richards solver to a constant value throughout the spatial domain.
+This keyword is read only when the keyword 'read_richards_ic_file' is not provided.
+
+#### Example
+``` 
+richards_ic -1.0
+```
+
 
 ### read_richards_ic_file
 
@@ -545,10 +562,11 @@ Richards_print true
 read_richards_ic_file [filename] [format]
 ```
 [filename] gives the name of the file (up to 132 characters) containing initial condition (water potential or head) values for the Richards equation over the entire spatial domain.
-[format]= SingleColumn, ContinuousRead, FullFormat, or Unformatted (Default: SingleColumn)
+[format]= SingleColumn (Default: SingleColumn)
 
 #### Explanation
 Read the initial condition for the Richards equation from a file.
+If this keyword is used, the keyword 'richards_ic' is ignored.
 
 #### Example
 ```

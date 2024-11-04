@@ -9265,7 +9265,7 @@ ELSE
       !!!  End of section where choosing between perm file read and zone specification      END IF
       
     ! ********************************************
-    ! Edit by Toshiyuki Bandai, 2023 May
+    ! Edit by Toshiyuki Bandai, 2024 Oct
     Richards_permeability: IF (Richards) THEN
 
       K_faces(0) = permx(1, 1, 1)
@@ -9274,7 +9274,7 @@ ELSE
       ! compute face permeability
       DO i = 1, nx - 1
         IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
-          K_faces(i, 1, 1) = permx(i, 1, 1)
+          K_faces(i) = permx(i, 1, 1)
         ELSE
           ! distance weighted harmonic mean
           numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
@@ -9504,101 +9504,6 @@ ELSE
           values_x_end_BC = values_x_end_BC/(dist_scale * time_scale)
           ! unit conversion for the time for the variable boundary condition
           t_x_end_BC = t_x_end_BC*time_scale
-        !
-        !CASE ('environmental_forcing')
-        !  ! import infiltration, evaporation, and transpiration data
-        !
-        !  ! bool for whether the time series is provided or not
-        !  infiltration_timeseries = .FALSE.
-        !  evapotimeseries = .FALSE.
-        !  transpitimeseries = .FALSE.
-        !
-        !  ! bool for whether the forcing is constant or not
-        !  infiltration_fix = .FALSE.
-        !  evapofix = .FALSE.
-        !  transpifix = .FALSE.
-        !
-        !  ! infiltration
-        !  CALL read_infiltration_2(nout,nx,ny,nz,infiltration_file,infiltration_rate,lfile,infiltration_fix,infiltration_timeseries,tslength)
-        !  IF (infiltration_timeseries) THEN
-        !    IF (ALLOCATED(t_infiltration)) THEN
-        !      DEALLOCATE(t_infiltration)
-        !    END IF
-        !    IF (ALLOCATED(qt_infiltration)) THEN
-        !      DEALLOCATE(qt_infiltration)
-        !    END IF
-        !    ALLOCATE(t_infiltration(tslength))
-        !    ALLOCATE(qt_infiltration(tslength))
-        !    CALL read_timeseries(nout,nx,ny,nz,t_infiltration,qt_infiltration,lfile,infiltration_file,tslength)
-        !  
-        !    ! unit conversion for the time for the variable boundary condition
-        !    qt_infiltration = qt_infiltration/(dist_scale * time_scale)
-        !    t_infiltration = t_infiltration*time_scale
-        !  ENDIF
-        !
-        !  IF (infiltration_fix) THEN
-        !    infiltration_rate = infiltration_rate/(dist_scale * time_scale)
-        !  END IF
-        !
-        !  ! evaporation
-        !  CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
-        !  IF (evapotimeseries) THEN
-        !    IF (ALLOCATED(t_evapo)) THEN
-        !      DEALLOCATE(t_evapo)
-        !    END IF
-        !    IF (ALLOCATED(qt_evapo)) THEN
-        !      DEALLOCATE(qt_evapo)
-        !    END IF
-        !    ALLOCATE(t_evapo(tslength))
-        !    ALLOCATE(qt_evapo(tslength))
-        !    CALL read_timeseries(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
-        !  
-        !    ! unit conversion for the time for the variable boundary condition
-        !    qt_evapo = qt_evapo/(dist_scale * time_scale)
-        !    t_evapo = t_evapo*time_scale
-        !  
-        !    ! evaporate = qt_evapo(1)
-        !    ! STOP
-        !  ENDIF
-        !
-        !  IF (evapofix) THEN
-        !    evaporate = evaporate/(dist_scale * time_scale)
-        !  END IF
-        !
-        !
-        !
-        !  ! transpiration
-        !  IF (ALLOCATED(transpirate_cell)) THEN
-        !    DEALLOCATE(transpirate_cell)
-        !  END IF
-        !  ALLOCATE(transpirate_cell(nx))
-        !  transpirate_cell = 0
-        !  
-        !  CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
-        !  IF (transpitimeseries) THEN
-        !    IF (ALLOCATED(t_transpi)) THEN
-        !      DEALLOCATE(t_transpi)
-        !    END IF
-        !    IF (ALLOCATED(qt_transpi)) THEN
-        !      DEALLOCATE(qt_transpi)
-        !    END IF
-        !    ALLOCATE(t_transpi(tslength))
-        !    ALLOCATE(qt_transpi(tslength))
-        !    CALL read_timeseries(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
-        !    qt_transpi = qt_transpi/transpicells
-        !  
-        !    qt_transpi = qt_transpi/(dist_scale * time_scale)
-        !    t_transpi = t_transpi*time_scale
-        !    !transpirate = qt_transpi(1)
-        !    !WRITE(*,*) transpirate
-        !   ! STOP
-        !  ENDIF
-        !
-        !  IF (transpifix) THEN
-        !    transpirate = transpirate / transpicells
-        !    transpirate = transpirate/(dist_scale * time_scale)
-        !    WRITE(*,*) 'stop'
-        !  END IF
       
         CASE DEFAULT
           WRITE(*,*)
@@ -9633,32 +9538,20 @@ ELSE
       parfind = ' '
       Richards_IC_File = ' '
       CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
-      IF (parfind == ' ') THEN
-        WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
-        psi = 0.0d0
-      ELSE
+      
+      IF (parfind /= ' ') THEN
         Richards_IC_File = dumstring
         CALL stringlen(Richards_IC_File,ls)
         WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
-      END IF
-    
-    
-      read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
+        
         INQUIRE(FILE=Richards_IC_File,EXIST=ext)
         IF (.NOT. ext) THEN
-          IF (Richards_steady) THEN
-            WRITE(*,*) ' The initial condition file was not found for steady-state problem. Set to zero water potential at all cells. '
-            psi = 0.0d0
-          
-          ELSE
-            CALL stringlen(Richards_IC_File,ls)
-            WRITE(*,*)
-            WRITE(*,*) ' Initial condition file not found for time-dependent problem: ', Richards_IC_File(1:ls)
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-        
+          CALL stringlen(Richards_IC_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' Initial condition file not found Ricahrds solver: ', Richards_IC_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
         ELSE
           OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
           FileTemp = Richards_IC_File
@@ -9672,14 +9565,6 @@ ELSE
               END DO
             END DO
               
-            ! the input value is in pressure [Pa], convert to pressure head [m]
-            IF (.NOT. psi_is_head) THEN
-              psi = (psi - pressure_air)/(rho_water*9.80665d0)
-            END IF
-          
-            ! convert unit
-            psi = psi / dist_scale
-          
           ELSE
             WRITE(*,*)
             WRITE(*,*) ' Richards Initial condition file format not recognized'
@@ -9690,15 +9575,51 @@ ELSE
           CLOSE(UNIT=52)
         
         END IF
-        
-      END IF read_ic_Rihcards
+      ELSE
+        WRITE(*,*) ' Constant initial condition is set for the Ricahrds solver. '
       
-    ! fill the ghost cell
-      psi(0,1,1) = psi(1,1,1)
-      psi(nx+1,1,1) = psi(nx,1,1)
+        parchar = 'richards_ic'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        IF (parfind == ' ') THEN
+          IF (Richards_steady) THEN
+            WRITE(*,*) ' The initial condition was not found for the steady-state Richards solver in the input file. Set to zero water potential at all cells. '
+            psi = 0.0d0
+          
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Initial condition for the time-dependent Richards solver not found. '
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        ELSE
+          psi = realjunk
+        END IF
+      END IF
+      
+      ! fill ghost cells
+      text = 'psi'
+      lowX = LBOUND(psi,1)
+      lowY = LBOUND(psi,2)
+      lowZ = LBOUND(psi,3)
+      highX = UBOUND(psi,1)
+      highY = UBOUND(psi,2)
+      highZ = UBOUND(psi,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VG_alpha,TEXT)
+    
+      ! the input value is in pressure [Pa], convert to pressure head [m]
+      IF (.NOT. psi_is_head) THEN
+        psi = (psi - pressure_air)/(rho_water*9.80665d0)
+      END IF
+          
+      ! convert unit
+      psi = psi / dist_scale
+            
       
     END IF Richards_initial_conditions
-    ! End of edit by Toshiyuki Bandai, 2023 May
+    ! End of edit by Toshiyuki Bandai, 2024 Oct
     ! ********************************************
       
     

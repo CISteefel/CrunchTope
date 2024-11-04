@@ -213,7 +213,7 @@
 			<File RelativePath=".\Source\read98.F90"/>
 			<File RelativePath=".\Source\read_AqueousFluxSeries.F90"/>
 			<File RelativePath=".\Source\read_bound.F90"/>
-			<File RelativePath=".\Source\read_boundary_condition_Richards_1D.F90"/>
+			<File RelativePath=".\Source\read_boundary_condition_Richards.F90"/>
 			<File RelativePath=".\Source\read_BoundaryConditionsByZone.F90"/>
 			<File RelativePath=".\Source\read_burialfile.F90"/>
 			<File RelativePath=".\Source\read_CatabolicPath.F90"/>

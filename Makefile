@@ -333,7 +333,7 @@ SOURCEF = \
 		  RichardsArrayAllocation.F90\
 		  Jacobian_Richards.F90\
 		  Jacobian_Richards_steady.F90\
-		  read_boundary_condition_Richards_1D.F90\
+		  read_boundary_condition_Richards.F90\
 		  read_vanGenuchten_parameters.F90\
 		  residual_Richards.F90\
 		  residual_Richards_steady.F90\
@@ -683,7 +683,7 @@ OBJSF  =  crunchtype.o\
 		  RichardsArrayAllocation.o\
 		  Jacobian_Richards.o\
 		  Jacobian_Richards_steady.o\
-		  read_boundary_condition_Richards_1D.o\
+		  read_boundary_condition_Richards.o\
 		  read_vanGenuchten_parameters.o\
 		  residual_Richards.o\
 		  residual_Richards_steady.o\

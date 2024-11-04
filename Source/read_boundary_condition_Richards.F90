@@ -1,4 +1,4 @@
-SUBROUTINE read_boundary_condition_Richards(nout, Richards_steady, BC_location, BC_type, BC_file, value, lfile, constant_BC, time_length)
+SUBROUTINE read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, BC_type, BC_file, value, lfile, constant_BC, time_length)
 ! This subroutine reads the boundary condition for the Richards equation
 USE crunchtype
 USE CrunchFunctions
@@ -36,15 +36,15 @@ value = 0.0d0
 ! determine BC_string depending on the location of the boundary and the type of the problem (steady or time-dependent)
 IF (BC_location == 0) THEN
   IF (Richards_steady) THEN
-    BC_string = 'lower_bc_type_steady'
+    BC_string = 'x_begin_bc_type_steady'
   ELSE
-    BC_string = 'lower_bc_type'
+    BC_string = 'x_begin_bc_type'
   END IF
 ELSE IF (BC_location == 1) THEN
   IF (Richards_steady) THEN
-    BC_string = 'upper_bc_type_steady'
+    BC_string = 'x_end_bc_type_steady'
   ELSE
-    BC_string = 'upper_bc_type'
+    BC_string = 'x_end_bc_type'
   END IF
 ELSE
   WRITE(*,*)
@@ -72,7 +72,7 @@ IF(ls /= 0) THEN
       lzs=ls
       CALL convan(ssch,lzs,res)
       IF (res == 'n') THEN
-        WRITE(*,*) ' Must provide a character to specify the type of the upper boudnary condition. '
+        WRITE(*,*) ' Must provide a character to specify the type of the boudnary condition. '
       ELSE
         ! select the type of boundary condition
         CALL stringtype(ssch,lzs,res)
@@ -82,7 +82,7 @@ IF(ls /= 0) THEN
         ! read further information on the boundary condition
         bc_case: SELECT CASE (BC_type)
           
-        CASE ('constant_dirichlet', 'constant_neumann', 'constant_flux') bc_case
+        CASE ('constant_dirichlet', 'constant_neumann', 'constant_flux', 'constant_atomosphere') bc_case
           constant_BC = .TRUE.
           CALL sschaine(zone,id,iff,ssch,ids,ls)
           ! obtain the value of the constant boundary condition
@@ -105,7 +105,7 @@ IF(ls /= 0) THEN
             READ(*,*)
             STOP  
           ENDIF
-        CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux') bc_case
+        CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere') bc_case
           constant_BC = .FALSE.
           ! variable boundary condition
           CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -181,4 +181,4 @@ ELSE         ! No string found
 END IF
 
 1000 RETURN
-END SUBROUTINE read_boundary_condition_Richards
+END SUBROUTINE read_boundary_condition_Richards_1D
