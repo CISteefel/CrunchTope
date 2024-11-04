@@ -1,4 +1,4 @@
-SUBROUTINE read_vanGenuchten_parameters(nout,parchar, nx,ny,nz,nzones_VG_params, VG_error)
+SUBROUTINE read_vanGenuchten_parameters(nout,parchar,parfind, nx,ny,nz,nzones_VG_params,VG_error)
 USE crunchtype
 USE CrunchFunctions
 USE params
@@ -16,6 +16,7 @@ INTEGER(I4B), INTENT(IN)                                    :: nz
 INTEGER(I4B), INTENT(OUT)                                   :: nzones_VG_params
 INTEGER(I4B), INTENT(INOUT)                                 :: VG_error ! error flag for reading van Genuchten parameters
 CHARACTER (LEN=mls), INTENT(IN)                             :: parchar ! character for each van Genuchten parameter in the input file
+CHARACTER (LEN=mls), INTENT(IN OUT)                         :: parfind
 
 !  Internal variables and arrays
 
@@ -48,6 +49,7 @@ IF(ls /= 0) THEN
   lzs=ls
   CALL convan(ssch,lzs,res)
   IF (ssch == parchar) THEN
+    parfind = parchar
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     IF(ls /= 0) THEN
