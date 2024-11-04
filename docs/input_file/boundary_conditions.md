@@ -26,6 +26,7 @@ Alternatively, you could specify boundary conditions via
 boundarycondition   condition_name  zone [jxbegin-jxend   jybegin-jyend   jzbegin-jzend]  boundary_condition_type 
 boundarycondition   condition_name  zone [jxbegin-jxend   jybegin-jyend   jzbegin-jzend]  boundary_condition_type 
 ```
+You cannot mix the these two ways to specify boundary conditions.
 
 ## Explanation
 
