@@ -200,11 +200,11 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   END IF
   
   ! allocate permeability at faces
-  IF (ALLOCATED(K_faces_x)) THEN
-    DEALLOCATE(K_faces_x)
-    ALLOCATE(K_faces_x(0:nx, ny, nz))
+  IF (ALLOCATED(K_faces)) THEN
+    DEALLOCATE(K_faces)
+    ALLOCATE(K_faces(0:nx))
   ELSE
-    ALLOCATE(K_faces_x(0:nx, ny, nz))
+    ALLOCATE(K_faces(0:nx))
   END IF
   
   

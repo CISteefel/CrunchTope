@@ -1,161 +1,309 @@
-SUBROUTINE read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-! This subroutine reads the van Genuchten parameters from the input file
+SUBROUTINE read_vanGenuchten_parameters(nout,parchar, nx,ny,nz,nzones_VG_params, VG_error)
 USE crunchtype
+USE CrunchFunctions
 USE params
 USE flow
+USE strings
 
 IMPLICIT NONE
 
-INTERFACE
-  SUBROUTINE read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
-  USE crunchtype
-  USE params
-  USE strings
-  IMPLICIT NONE
-  INTEGER(I4B), INTENT(IN)                                    :: nout
-  INTEGER(I4B), INTENT(OUT)                                   :: lchar
-  CHARACTER (LEN=mls), INTENT(IN)                             :: parchar
-  CHARACTER (LEN=mls), INTENT(IN OUT)                         :: parfind
-  INTEGER(I4B), INTENT(OUT)                                   :: lenarray
-  REAl(DP), DIMENSION(:), INTENT(IN OUT)                      :: realmult
-  CHARACTER (LEN=mls), INTENT(IN)                             :: section
-  END SUBROUTINE read_multpar
-END INTERFACE
+!  External variables and arrays
 
+INTEGER(I4B), INTENT(IN)                                    :: nout
+INTEGER(I4B), INTENT(IN)                                    :: nx
+INTEGER(I4B), INTENT(IN)                                    :: ny
+INTEGER(I4B), INTENT(IN)                                    :: nz
+INTEGER(I4B), INTENT(OUT)                                   :: nzones_VG_params
+INTEGER(I4B), INTENT(INOUT)                                 :: VG_error ! error flag for reading van Genuchten parameters
+CHARACTER (LEN=mls), INTENT(IN)                             :: parchar ! character for each van Genuchten parameter in the input file
 
-INTEGER(I4B)                                                 :: i
-INTEGER(I4B)                                                 :: ii
-INTEGER(I4B)                                                 :: jx
-INTEGER(I4B)                                                 :: jxx
+!  Internal variables and arrays
 
+INTEGER(I4B)                                                :: id
+INTEGER(I4B)                                                :: iff
+INTEGER(I4B)                                                :: ids
+INTEGER(I4B)                                                :: ls
+INTEGER(I4B)                                                :: lzs
+INTEGER(I4B)                                                :: nxyz
+INTEGER(I4B)                                                :: nlen1
+INTEGER(I4B)                                                :: ls_a
+INTEGER(I4B)                                                :: ls_b
+INTEGER(I4B)                                                :: l
 
-INTEGER(I4B), INTENT(INOUT)                                  :: lchar ! length of character array
-INTEGER(I4B)                                                 :: lenarray ! length of the array in the input file
-INTEGER(I4B), INTENT(IN)                                     :: nx
-INTEGER(I4B), INTENT(IN)                                     :: ny
-INTEGER(I4B), INTENT(IN)                                     :: nz
-INTEGER(I4B), INTENT(IN)                                     :: nout ! unit number for output file
-INTEGER(I4B)                                                 :: nzone ! number of zones for each van Genuchten parameter
-INTEGER(I4B), INTENT(INOUT)                                  :: VG_error ! error flag for reading van Genuchten parameters
+REAL(DP)                                                    :: VG_params_tmp
 
-CHARACTER (LEN=mls), INTENT(INOUT)                           :: parchar ! character for each van Genuchten parameter in the input file
-CHARACTER (LEN=mls), INTENT(INOUT)                           :: parfind ! character found in the input file
+nxyz = nx*ny*nz
 
-CHARACTER (LEN=mls), INTENT(IN)                              :: section ! the name of the section
-REAL(DP), DIMENSION(:), ALLOCATABLE                          :: realmult
-REAL(DP), DIMENSION(:), ALLOCATABLE                          :: ncells_VG ! arrays for the number of cells for each van Genuchten parameter
-REAL(DP), DIMENSION(:), ALLOCATABLE                          :: value_VG ! array for value of van Genuchten parameter for each cell
+VG_params_zone(0) = 0.0
+REWIND nout
 
-parfind = ' '
-ALLOCATE(realmult(1000))
-realmult = 0.0
-CALL read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
-
-IF (parfind == ' ') THEN
-
-ELSE
-  IF (realmult(1) <= 0.0) THEN
-    WRITE(*,*) ' The number of cells must be positive. '
-    VG_error = 1
-  ELSE
-!  Check to see if there are an even number values given
-!  One for the number of cells, the second for parameter value
-    IF (MOD(lenarray, 2) == 0) THEN
-      nzone = lenarray/2
-      
-      ALLOCATE(ncells_VG(nzone))
-      ALLOCATE(value_VG(nzone))
-      
-      DO i = 1, lenarray, 2
-        ii = (i+1)/2
-        ncells_VG(ii) = realmult(i)
-        value_VG(ii) = realmult(i+1)
-      END DO
-      
-      SELECT CASE (parchar)
-      CASE ('vg_theta_r')
-
-        
-        jxx = 0
-        DO i = 1, nzone
-          DO jx = 1, ncells_VG(i)
-            jxx = jxx + 1
-            theta_r(jxx, ny, nz) = value_VG(i)
-          END DO
-        END DO
-        
-        ! fill the ghost cells
-        theta_r(0, ny, nz) = theta_r(1, ny, nz)
-        theta_r(nx+1, ny, nz) = theta_r(nx, ny, nz)
-        
-        
-      CASE ('vg_theta_s')        
-        jxx = 0
-        DO i = 1, nzone
-          DO jx = 1, ncells_VG(i)
-            jxx = jxx + 1
-            theta_s(jxx, ny, nz) = value_VG(i)
-          END DO
-        END DO
-        
-        ! fill the ghost cells
-        theta_s(0, ny, nz) = theta_s(1, ny, nz)
-        theta_s(nx+1, ny, nz) = theta_s(nx, ny, nz)
-        
-        
-      CASE ('vg_alpha')
-        jxx = 0
-        DO i = 1, nzone
-          DO jx = 1, ncells_VG(i)
-            jxx = jxx + 1
-            VG_alpha(jxx, ny, nz) = value_VG(i)
-          END DO
-        END DO
-        
-        ! fill the ghost cells
-        VG_alpha(0, ny, nz) = VG_alpha(1, ny, nz)
-        VG_alpha(nx+1, ny, nz) = VG_alpha(nx, ny, nz)
-      
-      CASE ('vg_n')
-        
-        jxx = 0
-        DO i = 1, nzone
-          DO jx = 1, ncells_VG(i)
-            jxx = jxx + 1
-            VG_n(jxx, ny, nz) = value_VG(i)
-          END DO
-        END DO
-        
-        VG_n(0, ny, nz) = VG_n(1, ny, nz)
-        VG_n(nx+1, ny, nz) = VG_n(nx, ny, nz)
-      
-      ! this is for modified van Genuchten model        
-      !CASE ('vg_psi_s')
-      !  IF (ALLOCATED(psi_s)) THEN
-      !    DEALLOCATE(psi_s)
-      !    ALLOCATE(psi_s(nx, ny, nz))
-      !  ELSE
-      !    ALLOCATE(psi_s(nx, ny, nz))
-      !  END IF
-      !  
-      !  jxx = 0
-      !  DO i = 1, nzone
-      !    DO jx = 1, ncells_VG(i)
-      !      jxx = jxx + 1
-      !      psi_s(jxx, ny, nz) = value_VG(i)
-      !    END DO
-      !  END DO
-        
-      CASE DEFAULT
-        WRITE(*,*) ' The parameter could not be allocated and inserted. '
+nzones_VG_params = 0
+10 READ(nout,'(a)',END=500) zone
+nlen1 = LEN(zone)
+CALL majuscules(zone,nlen1)
+id = 1
+iff = mls
+CALL sschaine(zone,id,iff,ssch,ids,ls)
+IF(ls /= 0) THEN
+  lzs=ls
+  CALL convan(ssch,lzs,res)
+  IF (ssch == parchar) THEN
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (res == 'n') THEN
+        VG_params_tmp = DNUM(ssch)
+      ELSE                !  An ascii string--so bag it.
+        WRITE(*,*)
+        WRITE(*,*) ' Cant interpret string following a VG parameter', parchar
+        WRITE(*,*) ' Looking for numerical value'
+        WRITE(*,*)
         VG_error = 1
-      END SELECT
-
-    ELSE
-      WRITE(*, *) ' Both cell number and parameter value must be specified. '
-      VG_error = 1
-    END IF
-  END IF
-END IF
+        RETURN
+      END IF
       
+! Now look for ASCII string indicating location of a VG parameter
+      
+      id = ids + ls
+      CALL sschaine(zone,id,iff,ssch,ids,ls)
+      IF(ls /= 0) THEN
+        lzs=ls
+        CALL convan(ssch,lzs,res)
+        IF (res == 'a') THEN
+          IF (ssch == 'default' .OR. ssch == 'all') THEN
+            VG_params_zone(0) = VG_params_tmp
+          ELSE IF (ssch == 'zone') THEN
+            
+!  "Zone" specified, so look for locations
+            
+            nzones_VG_params = nzones_VG_params + 1
+            IF (nzones_VG_params > mperm) THEN
+              WRITE(*,*)
+              WRITE(*,*)  ' Number of VG parameters zones dimensioned too small'
+              WRITE(*,*)  ' Number of VG parameters zones = ',nzones_VG_params
+              WRITE(*,*)  ' Dimension of VG parameters zones = ',mperm
+              WRITE(*,*)  ' Contact the code developer at CISteefel@lbl.gov '
+              WRITE(*,*)
+              VG_error = 1
+              RETURN
+            END IF
+            
+            VG_params_zone(nzones_VG_params) = VG_params_tmp
+            
+            id = ids + ls
+            CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
+            IF(ls /= 0) THEN
+              lzs=ls_a
+              CALL convan(ssch_a,lzs,res)
+              IF (res == 'n') THEN
+                jxx_VG_params_lo(nzones_VG_params) = JNUM(ssch_a)
+              ELSE                !  An ascii string--so bag it.
+                WRITE(*,*)
+                WRITE(*,*) ' A grid location should follow zone specification'
+                WRITE(*,*) ' Dont know what to do with this string', parchar
+                WRITE(*,*)
+                VG_error = 1
+                RETURN
+              END IF
+              IF (ls_b /= 0) THEN
+                lzs=ls_b
+                CALL convan(ssch_b,lzs,res)
+                IF (res == 'n') THEN
+                  jxx_VG_params_hi(nzones_VG_params) = JNUM(ssch_b)
+
+                ELSE                !  An ascii string--so bag it.
+                  WRITE(*,*)
+                  WRITE(*,*) ' A grid location should follow zone specification'
+                  WRITE(*,*) ' Dont know what to do with this string', parchar
+                  WRITE(*,*)
+                  VG_error = 1
+                  RETURN
+                END IF
+              ELSE
+                jxx_VG_params_hi(nzones_VG_params) = jxx_VG_params_lo(nzones_VG_params)   !  Assume jxx_VG_params_hi=jxx_VG_params_lo
+              END IF
+            ELSE                  ! Zero length trailing string
+              WRITE(*,*)
+              WRITE(*,*) ' No X or Y grid location given for a VG parameter', parchar
+              WRITE(*,*) ' VG parameter zone ',nzones_VG_params
+              WRITE(*,*)
+              VG_error = 1
+              RETURN
+            END IF
+            
+            WRITE(*,*)
+            WRITE(*,*) ' VG parameter zone number ',nzones_VG_params
+            WRITE(*,*) ' jxx_VG_params_lo = ', jxx_VG_params_lo(nzones_VG_params)
+            WRITE(*,*) ' jxx_VG_params_hi = ',jxx_VG_params_hi(nzones_VG_params)
+            WRITE(*,*)
+            
+            id = ids + ls
+            CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
+            IF(ls /= 0) THEN
+              lzs=ls_a
+              CALL convan(ssch_a,lzs,res)
+              IF (res == 'n') THEN
+                jyy_VG_params_lo(nzones_VG_params) = JNUM(ssch_a)
+              ELSE                !  An ascii string--so bag it.
+                WRITE(*,*)
+                WRITE(*,*) ' No Y location for a VG parameter', parchar
+                WRITE(*,*)
+                VG_error = 1
+                RETURN
+              END IF
+              IF (ls_b /= 0) THEN
+                lzs=ls_b
+                CALL convan(ssch_b,lzs,res)
+                IF (res == 'n') THEN
+                  jyy_VG_params_hi(nzones_VG_params) = JNUM(ssch_b)
+                ELSE                !  An ascii string--so bag it.
+                  WRITE(*,*)
+                  WRITE(*,*) ' A grid location should follow zone specification'
+                  WRITE(*,*) ' Dont know what to do with this string after a VG parameter', parchar
+                  WRITE(*,*)
+                  VG_error = 1
+                  RETURN
+                END IF
+              ELSE
+                jyy_VG_params_hi(nzones_VG_params) = jyy_VG_params_lo(nzones_VG_params)   !  Assume jyy_VG_params_hi=jyy_VG_params_lo
+              END IF
+            ELSE                  ! Zero length trailing string
+              WRITE(*,*)
+              WRITE(*,*) ' No Y location given for a VG parameter zone'
+              WRITE(*,*) ' VG parameter zone number ',nzones_VG_params
+              WRITE(*,*)
+              VG_error = 1
+              RETURN
+            END IF
+              
+            WRITE(*,*)
+            WRITE(*,*) ' jyy_VG_params_lo = ',jyy_VG_params_lo(nzones_VG_params)
+            WRITE(*,*) ' jyy_VG_params_hi = ',jyy_VG_params_hi(nzones_VG_params)
+            WRITE(*,*)    
+            
+            id = ids + ls
+            CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
+            IF(ls /= 0) THEN
+              lzs=ls_a
+              CALL convan(ssch_a,lzs,res)
+              IF (res == 'n') THEN
+                jzz_VG_params_lo(nzones_VG_params) = JNUM(ssch_a)
+              ELSE                !  An ascii string--so bag it.
+                WRITE(*,*)
+                WRITE(*,*) ' No Z location for a VG parameter ', parchar
+                WRITE(*,*)
+                VG_error = 1
+                RETURN
+              END IF
+              IF (ls_b /= 0) THEN
+                lzs=ls_b
+                CALL convan(ssch_b,lzs,res)
+                IF (res == 'n') THEN
+                  jzz_VG_params_hi(nzones_VG_params) = JNUM(ssch_b)
+                ELSE                !  An ascii string--so bag it.
+                  WRITE(*,*)
+                  WRITE(*,*) ' A grid location should follow zone specification'
+                  WRITE(*,*) ' Dont know what to do with this string after a VG parameter', parchar
+                  WRITE(*,*)
+                  VG_error = 1
+                  RETURN  
+                END IF
+              ELSE
+                jzz_VG_params_hi(nzones_VG_params) = jzz_VG_params_lo(nzones_VG_params)   !  Assume jzz_VG_params_hi=jzz_VG_params_lo
+              END IF
+            ELSE                  ! Zero length trailing string
+              WRITE(*,*)
+              WRITE(*,*) ' No Z location given for a VG parameter zone'
+              WRITE(*,*) ' VG parameter zone number ',nzones_VG_params
+              WRITE(*,*)
+              VG_error = 1
+              RETURN
+            END IF
+              
+            WRITE(*,*)
+            WRITE(*,*) ' jzz_VG_params_lo = ',jzz_VG_params_lo(nzones_VG_params)
+            WRITE(*,*) ' jzz_VG_params_hi = ',jzz_VG_params_hi(nzones_VG_params)
+            WRITE(*,*)    
+
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Dont understand string following a VG parameter value'
+            WRITE(*,*) ssch(1:ls)
+            WRITE(*,*)
+            VG_error = 1
+            RETURN
+          END IF
+          
+        ELSE                !  A number--so bag it.
+          WRITE(*,*)
+          WRITE(*,*) ' Cant interpret string following a VG parameter value'
+          WRITE(*,*) ' Looking for ASCII string'
+          WRITE(*,*)
+          VG_error = 1
+          RETURN
+        END IF
+      ELSE   ! Assume this is default if nothing else given
+        VG_params_zone(0) = VG_params_tmp
+      END IF
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' No value given for a VG parameter', parchar
+      VG_error = 1
+      RETURN
+    END IF
+  ELSE
+    GO TO 10
+  END IF
+  
+END IF
+
+GO TO 10
+
+500 DO l = 1,nzones_VG_params
+  IF (jxx_VG_params_hi(l) > nx) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a VG parameter at JX > NX'
+    WRITE(*,*)
+    VG_error = 1
+    RETURN
+  END IF
+  IF (jyy_VG_params_hi(l) > ny) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a VG parameter at JY > NY'
+    WRITE(*,*)
+    VG_error = 1
+    RETURN
+  END IF
+  IF (jzz_VG_params_hi(l) > nz) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a VG parameter at JZ > NZ'
+    WRITE(*,*)
+    VG_error = 1
+    RETURN
+  END IF
+  IF (jxx_VG_params_lo(l) < 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a VG parameter at JX < 0'
+    WRITE(*,*)
+    VG_error = 1
+    RETURN
+  END IF
+  IF (jyy_VG_params_lo(l) < 1) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a VG parameter at JY < 1'
+    WRITE(*,*)
+    VG_error = 1
+    RETURN
+  END IF
+  IF (jzz_VG_params_lo(l) < 1) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a VG parameter at JZ < 1'
+    VG_error = 1
+    RETURN
+  END IF
+END DO
+
+RETURN
 END SUBROUTINE read_vanGenuchten_parameters

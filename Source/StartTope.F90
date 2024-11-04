@@ -670,6 +670,7 @@ REAL(DP)                                                      :: ChargeSum
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
+INTEGER(I4B)                                 :: nzones_VG_params ! number of zones when reading VG parameter from input file
 REAL(DP)                                     :: numerator ! used to compute permeability at faces
 REAL(DP)                                     :: denominator ! used to compute permeability at faces
 CHARACTER (LEN=mls)                          :: Richards_IC_File ! file name for Richards initial condition
@@ -8318,6 +8319,14 @@ ELSE
 
     ! allocate and read van-Genuchten parameters
     VG_error = 0
+    nzones_VG_params = 0
+    ALLOCATE(VG_params_zone(0:mperm))
+    ALLOCATE(jxx_VG_params_lo(mperm))
+    ALLOCATE(jxx_VG_params_hi(mperm))
+    ALLOCATE(jyy_VG_params_lo(mperm))
+    ALLOCATE(jyy_VG_params_hi(mperm))
+    ALLOCATE(jzz_VG_params_lo(mperm))
+    ALLOCATE(jzz_VG_params_hi(mperm))
     
   ! saturated water content theta_s (=porosity)
     
@@ -8329,16 +8338,32 @@ ELSE
       END FORALL
     ELSE
       parchar = 'vg_theta_s'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+      CALL read_vanGenuchten_parameters(nout,parchar,nx,ny,nz,nzones_VG_params, VG_error)
+      
       IF (VG_error == 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
         WRITE(*,*)
+        READ(*,*)
         STOP
       END IF
-    
+      
+      theta_s = VG_params_zone(0)
+      
+      IF (nzones_VG_params > 0) THEN
+        DO l = 1,nzones_VG_params
+          DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+            DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+              DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                theta_s(jx,jy,jz) = VG_params_zone(l)
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
+      
     ! if theta_s does not match porosity, make a warning
-      DO jx = 0, nx+1
+      DO jx = 1, nx
         DO jy = 1, ny
           DO jz = 1, nz
             IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
@@ -8369,178 +8394,84 @@ ELSE
   !!!!!!!!!!!!!!!!!!!!!!!!!
     parfind = ' '
     parchar = 'vg_theta_r'
-    CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+    CALL read_vanGenuchten_parameters(nout,parchar,nx,ny,nz,nzones_VG_params, VG_error)
+      
     IF (VG_error == 1) THEN
       WRITE(*,*)
       WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
       WRITE(*,*)
-      STOP
-    END IF
-
-    IF (parfind == ' ') THEN
-      ! ************************************
-      ! Edit by Lucien Stolze, June 2023
-      ! Read wcr parameter array from file
-      CALL read_wcrfile(nout,nx,ny,nz,wcrfile,lfile,readwcr,wcrFileFormat)
-      IF (readwcr) then
-        wcrfile(1:lfile) = wcrfile(1:lfile)
-        INQUIRE(FILE=wcrfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' wcr file not found: ',wcrfile(1:lfile)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        
-        OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
-        FileTemp = wcrfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (wcrFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((theta_r(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-        ELSE IF (wcrFileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) theta_r(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-        ELSE IF (wcrFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,zdum,theta_r(jx,jy,jz)
-                END DO
-              END DO
-            END DO
-          ELSE IF (ny > 1 .AND. nz == 1) THEN
-            jz = 1
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,theta_r(jx,jy,jz)
-              END DO
-            END DO
-          ELSE
-          jz = 1
-          jy = 1
-          DO jx= 1,nx
-            READ(23,*,END=1020) xdum,theta_r(jx,jy,jz)
-          END DO
-          END IF
-        ELSE IF (wcrFileFormat == 'Unformatted') THEN
-        READ(23,END=1020) theta_r
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' wcr file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-      ELSE
-      WRITE(*,*)
-      WRITE(*,*) 'Information on residual water content must be provided.'
-      WRITE(*,*)
       READ(*,*)
       STOP
-    ENDIF
-
-    ENDIF
-
-  ! the input value is actually residual saturation, convert it to residual water content
+    END IF
+      
+    theta_r = VG_params_zone(0)
+      
+    IF (nzones_VG_params > 0) THEN
+      DO l = 1,nzones_VG_params
+        DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+          DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+            DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+              theta_r(jx,jy,jz) = VG_params_zone(l)
+            END DO
+          END DO
+        END DO
+      END DO
+    END IF
+    
+    ! fill ghost cells
+    text = 'VG_theta_r'
+    lowX = LBOUND(theta_r,1)
+    lowY = LBOUND(theta_r,2)
+    lowZ = LBOUND(theta_r,3)
+    highX = UBOUND(theta_r,1)
+    highY = UBOUND(theta_r,2)
+    highZ = UBOUND(theta_r,3)
+    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,theta_r,TEXT)
+    
+    ! the input value is actually residual saturation, convert it to residual water content
     IF (theta_r_is_S_r) THEN
       theta_r = theta_r*theta_s
-    END IF
-
+    END IF  
 
   !!!!!!!!!!!!!!!!!!!!!!!!!
   ! alpha parameter in the van Genuchten model
   !!!!!!!!!!!!!!!!!!!!!!!!!
     parfind = ' '
     parchar = 'vg_alpha'
-    CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+    CALL read_vanGenuchten_parameters(nout,parchar,nx,ny,nz,nzones_VG_params, VG_error)
+      
     IF (VG_error == 1) THEN
       WRITE(*,*)
       WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
       WRITE(*,*)
+      READ(*,*)
       STOP
     END IF
-
-    IF (parfind == ' ') THEN
-    ! ************************************
-    ! Edit by Lucien Stolze, June 2023
-    ! Read alpha parameter array from file
-    CALL read_vgafile(nout,nx,ny,nz,vgafile,lfile,readvga,vgaFileFormat)
-    IF (readvga) then
-      vgafile(1:lfile) = vgafile(1:lfile)
-      INQUIRE(FILE=vgafile,EXIST=ext)
-      IF (.NOT. ext) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' vga file not found: ',vgafile(1:lfile)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
       
-      OPEN(UNIT=23,FILE=vgafile,STATUS='old')
-      FileTemp = vgafile
-      CALL stringlen(FileTemp,FileNameLength)
-      IF (vgaFileFormat == 'ContinuousRead') THEN
-        READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-      ELSE IF (vgaFileFormat == 'SingleColumn') THEN
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx= 1,nx
-              READ(23,*,END=1020) VG_alpha(jx,jy,jz)
+    VG_alpha = VG_params_zone(0)
+      
+    IF (nzones_VG_params > 0) THEN
+      DO l = 1,nzones_VG_params
+        DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+          DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+            DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+              VG_alpha(jx,jy,jz) = VG_params_zone(l)
             END DO
           END DO
         END DO
-      ELSE IF (vgaFileFormat == 'FullForm') THEN
-        IF (ny > 1 .AND. nz > 1) THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,zdum,VG_alpha(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-        ELSE IF (ny > 1 .AND. nz == 1) THEN
-          jz = 1
-          DO jy = 1,ny
-            DO jx= 1,nx
-              READ(23,*,END=1020) xdum,ydum,VG_alpha(jx,jy,jz)
-            END DO
-          END DO
-        ELSE
-        jz = 1
-        jy = 1
-        DO jx= 1,nx
-          READ(23,*,END=1020) xdum,VG_alpha(jx,jy,jz)
-        END DO
-        END IF
-      ELSE IF (vgaFileFormat == 'Unformatted') THEN
-      READ(23,END=1020) VG_alpha
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' VGalpha file format not recognized'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-    ELSE
-    WRITE(*,*)
-    WRITE(*,*) 'Information on VG alpha must be provided.'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  ENDIF
-
-  ENDIF
-    ! ************************************
-    ! End edit by Lucien Stolze, June 2023
-
-
+      END DO
+    END IF
+    
+    ! fill ghost cells
+    text = 'VG_alpha'
+    lowX = LBOUND(VG_alpha,1)
+    lowY = LBOUND(VG_alpha,2)
+    lowZ = LBOUND(VG_alpha,3)
+    highX = UBOUND(VG_alpha,1)
+    highY = UBOUND(VG_alpha,2)
+    highZ = UBOUND(VG_alpha,3)
+    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VG_alpha,TEXT)
+    
   ! convert unit
     VG_alpha = VG_alpha*dist_scale
     
@@ -8552,87 +8483,40 @@ ELSE
   ! n parameter in the van Genuchten model
   !!!!!!!!!!!!!!!!!!!!!!!!!
     parchar = 'vg_n'
-    CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+    CALL read_vanGenuchten_parameters(nout,parchar,nx,ny,nz,nzones_VG_params, VG_error)
+      
     IF (VG_error == 1) THEN
       WRITE(*,*)
       WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
       WRITE(*,*)
-      STOP
-    END IF
-
-    IF (parfind == ' ') THEN
-      ! ************************************
-      ! Edit by Lucien Stolze, June 2023
-      ! Read alpha parameter array from file
-      CALL read_vgnfile(nout,nx,ny,nz,vgnfile,lfile,readvgn,vgnFileFormat)
-      IF (readvgn) then
-        vgnfile(1:lfile) = vgnfile(1:lfile)
-        INQUIRE(FILE=vgnfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' vgn file not found: ',vgnfile(1:lfile)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        
-        OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
-        FileTemp = vgnfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (vgnFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((VG_n(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-        ELSE IF (vgnFileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) VG_n(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-        ELSE IF (vgnFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,zdum,VG_n(jx,jy,jz)
-                END DO
-              END DO
-            END DO
-          ELSE IF (ny > 1 .AND. nz == 1) THEN
-            jz = 1
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,VG_n(jx,jy,jz)
-              END DO
-            END DO
-          ELSE
-          jz = 1
-          jy = 1
-          DO jx= 1,nx
-            READ(23,*,END=1020) xdum,VG_n(jx,jy,jz)
-          END DO
-          END IF
-        ELSE IF (vgnFileFormat == 'Unformatted') THEN
-        READ(23,END=1020) VG_n
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' VGn file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-      ELSE
-      WRITE(*,*)
-      WRITE(*,*) 'Information on VG n must be provided.'
-      WRITE(*,*)
       READ(*,*)
       STOP
-    ENDIF
-
-    ENDIF
-      ! ************************************
-      ! End edit by Lucien Stolze, June 2023
+    END IF
+      
+    VG_n = VG_params_zone(0)
+      
+    IF (nzones_VG_params > 0) THEN
+      DO l = 1,nzones_VG_params
+        DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+          DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+            DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+              VG_n(jx,jy,jz) = VG_params_zone(l)
+            END DO
+          END DO
+        END DO
+      END DO
+    END IF
     
+    ! fill ghost cells
+    text = 'VG_n'
+    lowX = LBOUND(VG_n,1)
+    lowY = LBOUND(VG_n,2)
+    lowZ = LBOUND(VG_n,3)
+    highX = UBOUND(VG_n,1)
+    highY = UBOUND(VG_n,2)
+    highZ = UBOUND(VG_n,3)
+    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VG_n,TEXT)
+        
     IF (.NOT. vg_is_n) THEN
       ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
       VG_n = 1.0d0/(1.0d0 - VG_n)
@@ -8640,7 +8524,7 @@ ELSE
         
   END IF Richards_allocate
   ! ***************************************************
-  ! End of Edit by Toshiyuki Bandai 2023 May
+  ! End of Edit by Toshiyuki Bandai 2024 Oct
      
 
 !  Look for information on permeability, pressure, and pumping or injection wells
@@ -9384,18 +9268,18 @@ ELSE
     ! Edit by Toshiyuki Bandai, 2023 May
     Richards_permeability: IF (Richards) THEN
 
-      K_faces_x(0, 1, 1) = permx(1, 1, 1)
-      K_faces_x(nx, 1, 1) = permx(nx, 1, 1)
+      K_faces(0) = permx(1, 1, 1)
+      K_faces(nx) = permx(nx, 1, 1)
 
       ! compute face permeability
       DO i = 1, nx - 1
         IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
-          K_faces_x(i, 1, 1) = permx(i, 1, 1)
+          K_faces(i, 1, 1) = permx(i, 1, 1)
         ELSE
           ! distance weighted harmonic mean
           numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
           denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
-          K_faces_x(i, 1, 1) = numerator / denominator
+          K_faces(i) = numerator / denominator
         END IF
       END DO
     END IF Richards_permeability

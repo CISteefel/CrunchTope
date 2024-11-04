@@ -178,11 +178,19 @@ MODULE flow
     REAL(DP)                                        :: psi_0 ! minimum water potential allowed when selecting 'atomosphere' boundary condition
     REAL(DP)                                        :: dpsi_max ! maximum update for water potential during the Newton iteration
     ! soil hydraulic parameters for van Genuchten model
+    REAL(DP), DIMENSION(:),     ALLOCATABLE         :: VG_params_zone ! array to store VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jxx_VG_params_lo ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jxx_VG_params_hi ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jyy_VG_params_lo ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jyy_VG_params_hi ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jzz_VG_params_lo ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jzz_VG_params_hi ! array to store the location of VG parameters when reading input file
+        
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_alpha ! van Genuchten alpha parameter [L-1]
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_n ! van Genuchten n parameter [-]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
+    REAL(DP), DIMENSION(:), ALLOCATABLE             :: K_faces ! permeability at cell faces [L2]
     
     ! boundary conditions
     CHARACTER (LEN=264)                             :: x_begin_BC_type ! the type of the x_begin boundary condition

@@ -54,8 +54,10 @@ Richards_print FALSE ! Newton and line search results are not printed
 Richards_steady FALSE ! steady-state Richards solver is not used to the initial condition for time-dependent Richards solver
 read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
 !! van Genuchten parameters
+theta_s_is_porosity False
 vg_theta_r 0.0 default
 vg_theta_s 0.33 default
+!vg_theta_s 0.23 zone 1-1 1-3 1-1
 vg_alpha   1.43 default
 vg_n       1.506 default
 !! boundary conditions for time-dependent Richards solver
