@@ -641,8 +641,6 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                           :: realmult_dum
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
 LOGICAL(LGT)                                                  :: boolreg
 integer :: IERR = 0
-CHARACTER (LEN=mls)                                           :: watertablefile
-CHARACTER (LEN=mls)                                           :: WatertableFileFormat
 LOGICAL(LGT)                                                  :: readmineral
 INTEGER(I4B)                                                  :: mineral_index
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
@@ -9857,16 +9855,6 @@ ELSE
     DEALLOCATE(jyyPressure_hi)
     DEALLOCATE(jzzPressure_lo)
     DEALLOCATE(jzzPressure_hi)
-
-
-
-    !watertabletimeseries = .FALSE.
-    !CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
-    !IF (watertabletimeseries) THEN
-    !CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
-    !!!else
-    !!!  CALL read_pump(nout,nx,ny,nz,nchem)
-    !ENDIF
 
     parchar = 'initialize_hydrostatic'
     parfind = ' '

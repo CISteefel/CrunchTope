@@ -217,10 +217,6 @@ MODULE flow
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
     LOGICAL(LGT)                                   :: pumptimeseries
     
-    !!! Dynamic water table Lucien Stolze 20211201
-    !REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
-    !REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
-    !LOGICAL(LGT)                                   :: watertabletimeseries
     !!!Evapotranspiration timeseries
     !REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
     !REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
