@@ -320,8 +320,6 @@ SOURCEF = \
           velocalcNS.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
-          read_watertablefile.F90\
-          read_watertable_timeseries.F90\
           interp.F90\
           interp3.F90\
           read_transpiration.F90\
