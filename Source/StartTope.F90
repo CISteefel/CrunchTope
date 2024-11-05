@@ -681,6 +681,7 @@ INTEGER(I4B)                                 :: BC_location ! ingeger to define 
 CHARACTER (LEN=mls)                          :: x_begin_BC_file ! file name for the x_begin boundary condition for the Richards equation
 CHARACTER (LEN=mls)                          :: x_end_BC_file ! file name for the x_end boundary condition for the Richards equation
 CHARACTER (LEN=mls)                          :: infiltration_file ! file with infiltration data for "enviornmental_forcing" upper boundary condition
+INTEGER(I4B)                                 :: nBoundaryConditionZone_Richards ! number of boundary condition zones for 2D richards solver
 ! End of edit by Toshiyuki Bandai, 2023 May
 ! ************************************
 
@@ -9751,7 +9752,7 @@ ELSE
           WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
           WRITE(*,*)
           READ(*,*)
-          STOP
+          STOP 
         ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
           WRITE(*,*)
           WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
@@ -9918,11 +9919,60 @@ ELSE
         
       ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
         
-        WRITE(*,*)
-        WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
+        CALL read_boundary_condition_Richards(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
+        
+        IF (domain_shape_flow == 'regular') THEN
+          
+          IF (ALLOCATED(BC_type_Richards)) THEN
+            DEALLOCATE(BC_type_Richards)
+          END IF
+          ALLOCATE(BC_type_Richards(2*nx+2*ny))
+          
+          IF (ALLOCATED(BC_value_Richards)) THEN
+            DEALLOCATE(BC_value_Richards)
+          END IF
+          ALLOCATE(BC_value_Richards(2*nx+2*ny))
+          
+          
+          DO l = 1, nBoundaryConditionZone_Richards
+            DO jy = jyyBC_Richards_lo(l), jyyBC_Richards_hi(l)
+              DO jx = jxxBC_Richards_lo(l), jxxBC_Richards_hi(l)
+                
+                IF (jx == 0) THEN ! left boundary
+                  i = 2*nx+2*ny-jy+1
+                ELSE IF (jx == nx+1) THEN ! right boundary
+                  i = nx+jy
+                ELSE IF (jy == 0) THEN ! bottom boundary
+                  i = jx
+                ELSE IF (jy == ny+1) THEN ! top boundary
+                  i = 2*nx+ny - jx + 1
+                END IF
+                
+                BC_type_Richards(i) = BoundaryZone_Richards(l)
+                BC_value_Richards(i) = BoundaryValue_Richards(l)
+                
+              END DO
+            END DO
+          
+          END DO
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', domain_shape_flow
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        
+        DEALLOCATE(BoundaryZone_Richards)
+        DEALLOCATE(BoundaryValue_Richards)
+        DEALLOCATE(jxxBC_Richards_lo)
+        DEALLOCATE(jyyBC_Richards_lo)
+        DEALLOCATE(jzzBC_Richards_lo)
+        DEALLOCATE(jxxBC_Richards_hi)
+        DEALLOCATE(jyyBC_Richards_hi)
+        DEALLOCATE(jzzBC_Richards_hi)
+
       ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'

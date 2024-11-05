@@ -219,7 +219,19 @@ MODULE flow
     REAL(DP)                                        :: value_x_end_BC_steady ! value of x_end boundary condition for the steady state problem. the content depends on the type of boundary condition.
     LOGICAL(LGT)                                    :: x_begin_constant_BC_steady ! logical variable to determine whether the x_begin boundary condition is constant or not (time-dependent); this must be TRUE
     LOGICAL(LGT)                                    :: x_end_constant_BC_steady ! logical variable to determine whether the x_end boundary condition is constant or not (time-dependent); this must be TRUE
-    ! End of edits by Toshiyuki Bandai May, 2023
+    !! boundary conditions for 2D problem
+    INTEGER(I4b), DIMENSION(:), ALLOCATABLE                       :: BoundaryZone_Richards ! boundary condition type for each zone
+    REAL(DP), DIMENSION(:), ALLOCATABLE                           :: BoundaryValue_Richards ! boundary condition value for each zone
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: jxxBC_Richards_lo
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: jyyBC_Richards_lo
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: jzzBC_Richards_lo
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: jxxBC_Richards_hi
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: jyyBC_Richards_hi
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: jzzBC_Richards_hi
+    INTEGER(I4b), DIMENSION(:), ALLOCATABLE                       :: BC_type_Richards ! boundary condition type for each boundary face
+    REAL(I4b), DIMENSION(:), ALLOCATABLE                       :: BC_value_Richards ! boundary condition type for each boundary face
+ 
+    ! End of edits by Toshiyuki Bandai Oct, 2024
     ! *************************************************
     
     !!  PETSc arrays for solver

@@ -182,3 +182,372 @@ END IF
 
 1000 RETURN
 END SUBROUTINE read_boundary_condition_Richards_1D
+  
+  
+  
+SUBROUTINE read_boundary_condition_Richards(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
+USE crunchtype
+USE CrunchFunctions
+USE params
+USE strings
+USE flow
+
+IMPLICIT NONE
+
+!  External variables and arrays
+
+INTEGER(I4B), INTENT(IN)                                    :: nout
+INTEGER(I4B), INTENT(IN)                                    :: nx
+INTEGER(I4B), INTENT(IN)                                    :: ny
+INTEGER(I4B), INTENT(IN)                                    :: nz
+INTEGER(I4B), INTENT(OUT)                                   :: nBoundaryConditionZone_Richards
+
+!  Internal variables and arrays
+
+INTEGER(I4B)                                                :: id
+INTEGER(I4B)                                                :: iff
+INTEGER(I4B)                                                :: ids
+INTEGER(I4B)                                                :: ls
+INTEGER(I4B)                                                :: lzs
+INTEGER(I4B)                                                :: nxyz
+INTEGER(I4B)                                                :: nlen1
+INTEGER(I4B)                                                :: ls_a
+INTEGER(I4B)                                                :: ls_b
+INTEGER(I4B)                                                :: l
+INTEGER(I4B)                                                :: ncond
+
+CHARACTER (LEN=mls)                                         :: BC_ConditionName
+
+INTEGER(I4B), PARAMETER                                     :: mBoundaryConditionZone=500
+
+IF (ALLOCATED(BoundaryZone_Richards)) THEN
+  DEALLOCATE(BoundaryZone_Richards)
+END IF
+ALLOCATE(BoundaryZone_Richards(1000))
+
+IF (ALLOCATED(BoundaryValue_Richards)) THEN
+  DEALLOCATE(BoundaryValue_Richards)
+END IF
+ALLOCATE(BoundaryValue_Richards(mBoundaryConditionZone))
+
+
+IF (ALLOCATED(jxxBC_Richards_lo)) THEN
+  DEALLOCATE(jxxBC_Richards_lo)
+END IF
+ALLOCATE(jxxBC_Richards_lo(mBoundaryConditionZone))
+
+IF (ALLOCATED(jyyBC_Richards_lo)) THEN
+  DEALLOCATE(jyyBC_Richards_lo)
+END IF
+ALLOCATE(jyyBC_Richards_lo(mBoundaryConditionZone))
+
+IF (ALLOCATED(jzzBC_Richards_lo)) THEN
+  DEALLOCATE(jzzBC_Richards_lo)
+END IF
+ALLOCATE(jzzBC_Richards_lo(mBoundaryConditionZone))
+
+IF (ALLOCATED(jxxBC_Richards_hi)) THEN
+  DEALLOCATE(jxxBC_Richards_hi)
+END IF
+ALLOCATE(jxxBC_Richards_hi(mBoundaryConditionZone))
+
+IF (ALLOCATED(jyyBC_Richards_hi)) THEN
+  DEALLOCATE(jyyBC_Richards_hi)
+END IF
+ALLOCATE(jyyBC_Richards_hi(mBoundaryConditionZone))
+
+IF (ALLOCATED(jzzBC_Richards_hi)) THEN
+  DEALLOCATE(jzzBC_Richards_hi)
+END IF
+ALLOCATE(jzzBC_Richards_hi(mBoundaryConditionZone))
+
+nxyz = nx*ny*nz
+
+REWIND nout
+
+nBoundaryConditionZone_Richards = 0
+
+DO nCond = 1,mBoundaryConditionZone
+
+  READ(nout,'(a)',END=500) zone
+
+  nlen1 = LEN(zone)
+  CALL majuscules(zone,nlen1)
+  id = 1
+  iff = mls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+
+  lzs=ls
+  CALL convan(ssch,lzs,res)
+
+  IF (ssch == 'boundarycondition' .OR. ssch == 'BoundaryCondition' .OR. ssch == 'BOUNDARYCONDITION') THEN
+    
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (res == 'a') THEN
+        IF (ssch == 'zone') THEN
+            
+!  "Zone" specified, so look for locations
+            
+          nBoundaryConditionZone_Richards = nBoundaryConditionZone_Richards + 1
+
+          IF (nBoundaryConditionZone_Richards > mBoundaryConditionZone) THEN
+
+            WRITE(*,*)
+            WRITE(*,*)  ' Number of BoundaryCondition zones dimensioned too small'
+            WRITE(*,*)  ' Number of BoundaryCondition zones = ', nBoundaryConditionZone_Richards
+            WRITE(*,*)  ' Dimension of BoundaryCondition zones = ', mBoundaryConditionZone
+            WRITE(*,*)  ' Contact C.I. Steefel at Berkeley Lab: "CISteefel@lbl.gov"'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+
+          END IF
+                        
+          id = ids + ls
+          CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
+          IF(ls /= 0) THEN
+            lzs=ls_a
+            CALL convan(ssch_a,lzs,res)
+            IF (res == 'n') THEN
+              jxxBC_Richards_lo(nBoundaryConditionZone_Richards) = JNUM(ssch_a)
+            ELSE                !  An ascii string--so bag it.
+              WRITE(*,*)
+              WRITE(*,*) ' A grid location should follow zone specification'
+              WRITE(*,*) ' Dont know what to do with this string'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            IF (ls_b /= 0) THEN
+              lzs=ls_b
+              CALL convan(ssch_b,lzs,res)
+              IF (res == 'n') THEN
+                jxxBC_Richards_hi(nBoundaryConditionZone_Richards) = JNUM(ssch_b)
+              ELSE                !  An ascii string--so bag it.
+                WRITE(*,*)
+                WRITE(*,*) ' A grid location should follow zone specification'
+                WRITE(*,*) ' Dont know what to do with this string after "boundarycondition"'
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE
+              jxxBC_Richards_hi(nBoundaryConditionZone_Richards) = jxxBC_Richards_lo(nBoundaryConditionZone_Richards) 
+            END IF
+          ELSE                  ! Zero length trailing string
+            WRITE(*,*)
+            WRITE(*,*) ' No X or Y grid location given for BoundaryCondition'
+            WRITE(*,*) ' BoundaryCondition zone ',nBoundaryConditionZone_Richards
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+            
+          id = ids + ls
+          CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
+          IF(ls /= 0) THEN
+            lzs=ls_a
+            CALL convan(ssch_a,lzs,res)
+            IF (res == 'n') THEN
+              jyyBC_Richards_lo(nBoundaryConditionZone_Richards) = JNUM(ssch_a)
+            ELSE                !  An ascii string--so bag it.
+              WRITE(*,*)
+              WRITE(*,*) ' No Y location for BoundaryCondition '
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            IF (ls_b /= 0) THEN
+              lzs=ls_b
+              CALL convan(ssch_b,lzs,res)
+              IF (res == 'n') THEN
+                jyyBC_Richards_hi(nBoundaryConditionZone_Richards) = JNUM(ssch_b)
+              ELSE                !  An ascii string--so bag it.
+                WRITE(*,*)
+                WRITE(*,*) ' A grid location should follow zone specification'
+                WRITE(*,*) ' Dont know what to do with this string after "BoundaryCondition"'
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE
+              jyyBC_Richards_hi(nBoundaryConditionZone_Richards) = jyyBC_Richards_lo(nBoundaryConditionZone_Richards)  
+            END IF
+          ELSE                  ! Zero length trailing string
+            WRITE(*,*)
+            WRITE(*,*) ' No Y location given for BoundaryCondition zone'
+            WRITE(*,*) ' BoundaryCondition zone number ',nBoundaryConditionZone_Richards
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF    
+            
+          id = ids + ls
+          CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
+          IF(ls /= 0) THEN
+            lzs=ls_a
+            CALL convan(ssch_a,lzs,res)
+            IF (res == 'n') THEN
+              jzzBC_Richards_lo(nBoundaryConditionZone_Richards) = JNUM(ssch_a)
+            ELSE                !  An ascii string--so bag it.
+              WRITE(*,*)
+              WRITE(*,*) ' No Z location for BoundaryCondition '
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            IF (ls_b /= 0) THEN
+              lzs=ls_b
+              CALL convan(ssch_b,lzs,res)
+              IF (res == 'n') THEN
+                jzzBC_Richards_hi(nBoundaryConditionZone_Richards) = JNUM(ssch_b)
+              ELSE                !  An ascii string--so bag it.
+                WRITE(*,*)
+                WRITE(*,*) ' A grid location should follow zone specification'
+                WRITE(*,*) ' Dont know what to do with this string after "BoundaryCondition"'
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE
+              jzzBC_Richards_hi(nBoundaryConditionZone_Richards) = jzzBC_Richards_lo(nBoundaryConditionZone_Richards)   !  Assume jxxpermx_hi=jxxpermx_lo
+            END IF
+          ELSE                  ! Zero length trailing string
+            WRITE(*,*)
+            WRITE(*,*) ' No Z location given for BoundaryCondition zone'
+            WRITE(*,*) ' BoundaryCondition zone number ',nBoundaryConditionZone_Richards
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF    
+
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Dont understand string following BoundaryCondition specification'
+            WRITE(*,*)   ssch(1:ls)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          
+        ELSE                !  A number--so bag it.
+          WRITE(*,*)
+          WRITE(*,*) ' Cant interpret string following BoundaryCondition value'
+          WRITE(*,*) ' Looking for an ASCII string'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+
+      ELSE
+
+        WRITE(*,*)
+        WRITE(*,*) ' Boundary condition is not provided for the 2D Richards solver '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+
+      END IF
+      
+      !   Look for the type of boundary condition (Dirichlet, flux, etc.)
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF (ls /= 0) THEN
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (ssch == 'dirichlet') THEN
+        BoundaryZone_Richards(nBoundaryConditionZone_Richards) = 1
+      ELSE IF (ssch == 'neumann') THEN
+        BoundaryZone_Richards(nBoundaryConditionZone_Richards) = 2
+      ELSE IF (ssch == 'flux') THEN
+        BoundaryZone_Richards(nBoundaryConditionZone_Richards) = 3
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' Dont recognize this type of boundary condition'
+        WRITE(*,*) ' Trying to read ByGrid', nBoundaryConditionZone_Richards
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' No boundary condtiion type is provided for the Richards solver '
+      READ(*,*)
+      STOP
+    END IF
+    
+    ! look for numerical value for the boundary condition
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls /= 0) THEN
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (res == 'n') THEN
+        BoundaryValue_Richards(nBoundaryConditionZone_Richards) = DNUM(ssch)
+      ELSE                !  An ascii string--so bag it.
+        WRITE(*,*)
+        WRITE(*,*) ' Cant interpret string following the zone boundary condition'
+        WRITE(*,*) ' Looking for numerical value'
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' No value given for a boundary condition for the Richards solver '
+      READ(*,*)
+      STOP
+    END IF
+    
+
+  END IF
+    
+
+  
+
+END DO
+
+500 DO l = 1,nBoundaryConditionZone_Richards
+  IF (jxxBC_Richards_hi(l) > nx+1) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a BoundaryCondition at JX > NX+1'
+    WRITE(*,*)
+    STOP
+  END IF
+  IF (jyyBC_Richards_hi(l) > ny+1) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a BoundaryCondition at JY > NY'
+    WRITE(*,*)
+    STOP
+  END IF
+  IF (jzzBC_Richards_hi(l) > nz+1) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a BoundaryCondition at JZ > NZ'
+    WRITE(*,*)
+    STOP
+  END IF
+  IF (jxxBC_Richards_lo(l) < 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a BoundaryCondition at JX < 0'
+    WRITE(*,*)
+    STOP
+  END IF
+  IF (jyyBC_Richards_lo(l) < 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a BoundaryCondition at JY < 1'
+    WRITE(*,*)
+    STOP
+  END IF
+  IF (jzzBC_Richards_lo(l) < 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) 'You have specified a BoundaryCondition at JZ < 1'
+    STOP
+  END IF
+END DO
+
+RETURN
+END SUBROUTINE read_boundary_condition_Richards
