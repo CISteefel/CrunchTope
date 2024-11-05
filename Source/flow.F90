@@ -177,6 +177,12 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2_faces ! physical constant in the Richards equation at faces
     REAL(DP)                                        :: psi_0 ! minimum water potential allowed when selecting 'atomosphere' boundary condition
     REAL(DP)                                        :: dpsi_max ! maximum update for water potential during the Newton iteration
+    ! 2D problem
+    CHARACTER (LEN=264)                             :: domain_shape_flow ! shape of the spatial domain for flow (only used in 2D Richards)
+    INTEGER(I4B), DIMENSION(:, :), ALLOCATABLE      :: cell_to_face ! link function from global cell number to global face number
+    INTEGER(I4B), DIMENSION(:, :), ALLOCATABLE      :: face_to_cell ! link function from global face number to global cell number
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: bface_to_face ! link function from global boundary cell number to global face number
+    
     ! soil hydraulic parameters for van Genuchten model
     REAL(DP), DIMENSION(:),     ALLOCATABLE         :: VG_params_zone ! array to store VG parameters when reading input file
     INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jxx_VG_params_lo ! array to store the location of VG parameters when reading input file

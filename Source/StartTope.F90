@@ -8205,6 +8205,19 @@ ELSE
         evaporation_boundary = dumstring
       END IF
       
+      ! set the shape of the spatial domain for 2D flow problem (only used in 2D Richards)
+      parchar = 'domain_shape_flow'
+      parfind = ' '
+      domain_shape_flow = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind == ' ') THEN
+        domain_shape_flow = 'regular'             ! Use default
+      ELSE
+        domain_shape_flow = dumstring
+      END IF
+      
+      
+      
       ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
     
@@ -8337,29 +8350,87 @@ ELSE
         theta_s(jx,jy,jz) = por(jx,jy,jz)
       END FORALL
     ELSE
-      parchar = 'vg_theta_s'
-      CALL read_vanGenuchten_parameters(nout,parchar,nx,ny,nz,nzones_VG_params, VG_error)
       
-      IF (VG_error == 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
+      parchar = 'read_vg_theta_s_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
       
-      theta_s = VG_params_zone(0)
-      
-      IF (nzones_VG_params > 0) THEN
-        DO l = 1,nzones_VG_params
-          DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
-            DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
-              DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
-                theta_s(jx,jy,jz) = VG_params_zone(l)
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_theta_s parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_theta_s parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) theta_s(jx,jy,jz)
+                END DO
               END DO
             END DO
-          END DO
-        END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' vg_theta_s file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_theta_s'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+        
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+          theta_s = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    theta_s(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_theta_s is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
       END IF
       
     ! if theta_s does not match porosity, make a warning
@@ -9443,6 +9514,100 @@ ELSE
       END IF
 
       !!!  End of section where choosing between perm file read and zone specification      END IF
+    
+      
+    ! ********************************************
+    ! Edit by Toshiyuki Bandai, 2024 Oct
+    ! create link functions for 2D Richards solver
+    IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+      IF (domain_shape_flow == 'regular') THEN
+        ! cell to face function
+        nxyz = nx*ny*nz
+        ALLOCATE(cell_to_face(nxyz, 4)) ! because the cell is limited to rectangular mesh, the column number is 4
+        
+        DO jx = 1, nxyz
+          cell_to_face(jx, 1) = jx
+          cell_to_face(jx, 2) = jx + nx
+          cell_to_face(jx, 3) = nx+(ny+1) + (nx+1)*(jx/nx) + MOD(jx, nx) - 1
+          cell_to_face(jx, 4) = nx+(ny+1) + (nx+1)*(jx/nx) + MOD(jx, nx)
+        END DO 
+        
+        ! boundary face to face function
+        nxyz = 2*nx + 2*ny
+        ALLOCATE(bface_to_face(nxyz))
+        
+        !! bottom boundary
+        DO jx = 1, nx
+          bface_to_face(jx) = jx
+        END DO
+        
+        !! right boundary
+        DO jx = 1, ny
+          bface_to_face(nx+jx) = nx * (ny + 1) + (nx + 1) * jx
+        END DO
+        
+        !! top boundary
+        DO jx = 1, nx
+          bface_to_face(nx+ny+jx) = nx*ny + (nx + 1 - jx)
+        END DO
+        
+        !! left boundary
+        DO jx = 1, ny
+          bface_to_face(2*nx+ny+jx) = nx * (ny + 1) + nx * (ny - jx) + 1
+        END DO
+        
+        ! face to cell function
+        nxyz = nx*(ny+1) + (nx+1)*ny
+        ALLOCATE(face_to_cell(nxyz, 2))
+        
+        DO jx = 1, nxyz
+          ! loop over internal cells
+          DO jy = 1, nx*ny
+            IF (cell_to_face(jy, 1) == jx) THEN
+              ! south face
+              face_to_cell(jx, 2) = jy
+            ELSE IF (cell_to_face(jy, 2) == jx) THEN
+              ! north face
+              face_to_cell(jx, 1) = jy
+            ELSE IF (cell_to_face(jy, 3) == jx) THEN
+              ! west face
+              face_to_cell(jx, 2) = jy
+            ELSE IF (cell_to_face(jy, 4) == jx) THEN
+              ! east face
+              face_to_cell(jx, 1) = jy
+            END IF
+          END DO
+          ! loop over ghost cells
+          DO jy = 1, 2*nx + 2*ny
+            IF (bface_to_face(jy) == jx) THEN
+              IF (face_to_cell(jx, 1) == 0) THEN
+                face_to_cell(jx, 1) = jy + nx*ny
+              ELSE
+                face_to_cell(jx, 2) = jy + nx*ny
+              END IF
+            END IF
+          END DO
+        END DO
+        
+        
+        
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' Currently, only regular spatial domain is supported.'
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+    
+    ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    ! ********************************************
+      
       
     ! ********************************************
     ! Edit by Toshiyuki Bandai, 2024 Oct
