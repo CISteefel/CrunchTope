@@ -333,12 +333,12 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
   END IF
   
   ! allocate permeability at faces
-  !IF (ALLOCATED(K_faces)) THEN
-  !  DEALLOCATE(K_faces)
-  !  ALLOCATE(K_faces(0:nx, 0:ny+1, nz))
-  !ELSE
-  !  ALLOCATE(K_faces(0:nx, 0:ny+1, nz))
-  !END IF
+  IF (ALLOCATED(K_faces)) THEN
+    DEALLOCATE(K_faces)
+    ALLOCATE(K_faces(nx*(ny+1) + (nx+1)*ny))
+  ELSE
+    ALLOCATE(K_faces(nx*(ny+1) + (nx+1)*ny))
+  END IF
 ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
   WRITE(*,*)
   WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'

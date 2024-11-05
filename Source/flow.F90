@@ -182,6 +182,7 @@ MODULE flow
     INTEGER(I4B), DIMENSION(:, :), ALLOCATABLE      :: cell_to_face ! link function from global cell number to global face number
     INTEGER(I4B), DIMENSION(:, :), ALLOCATABLE      :: face_to_cell ! link function from global face number to global cell number
     INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: bface_to_face ! link function from global boundary cell number to global face number
+    INTEGER(I4B), DIMENSION(:, :), ALLOCATABLE      :: cell_to_coordinate ! link function from global face number to global cell number
     
     ! soil hydraulic parameters for van Genuchten model
     REAL(DP), DIMENSION(:),     ALLOCATABLE         :: VG_params_zone ! array to store VG parameters when reading input file

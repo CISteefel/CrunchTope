@@ -673,6 +673,8 @@ INTEGER(I4B)                                 :: VG_error ! error flag for readin
 INTEGER(I4B)                                 :: nzones_VG_params ! number of zones when reading VG parameter from input file
 REAL(DP)                                     :: numerator ! used to compute permeability at faces
 REAL(DP)                                     :: denominator ! used to compute permeability at faces
+INTEGER(I4B), DIMENSION(2)                   :: coordinate_cell_1 ! coordinate of cell 1 for 2D problem
+INTEGER(I4B), DIMENSION(2)                   :: coordinate_cell_2 ! coordinate of cell 2 for 2D problem
 CHARACTER (LEN=mls)                          :: Richards_File ! file name for Richards solver
 CHARACTER (LEN=mls)                          :: Richards_FileFormat ! file name for Richards solver (only single column is supported)
 INTEGER(I4B)                                 :: BC_location ! ingeger to define the location of the boundary condition (0: lower boundary condition; 1: upper boundary condition)
@@ -9528,8 +9530,8 @@ ELSE
         DO jx = 1, nxyz
           cell_to_face(jx, 1) = jx
           cell_to_face(jx, 2) = jx + nx
-          cell_to_face(jx, 3) = nx+(ny+1) + (nx+1)*(jx/nx) + MOD(jx, nx) - 1
-          cell_to_face(jx, 4) = nx+(ny+1) + (nx+1)*(jx/nx) + MOD(jx, nx)
+          cell_to_face(jx, 3) = nx*(ny+1) + (nx+1)*((jx-1)/nx) + MOD(jx-1, nx) + 1
+          cell_to_face(jx, 4) = nx*(ny+1) + (nx+1)*((jx-1)/nx) + MOD(jx-1, nx) + 2
         END DO 
         
         ! boundary face to face function
@@ -9553,7 +9555,7 @@ ELSE
         
         !! left boundary
         DO jx = 1, ny
-          bface_to_face(2*nx+ny+jx) = nx * (ny + 1) + nx * (ny - jx) + 1
+          bface_to_face(2*nx+ny+jx) = nx * (ny + 1) + (nx+1) * (ny - jx) + 1
         END DO
         
         ! face to cell function
@@ -9589,6 +9591,38 @@ ELSE
           END DO
         END DO
         
+        ! from cell number to coordinate numbers
+        nxyz = nx*ny
+        ALLOCATE(cell_to_coordinate(nxyz + 2*nx + 2*ny, 2))
+        DO jx = 1, nxyz
+          cell_to_coordinate(jx, 1) = MOD(jx-1, nx)+1
+          cell_to_coordinate(jx, 2) = (jx-1)/nx + 1
+        END DO
+        
+        ! loop over boundary faces
+        !! bottom boundary
+        DO jx = 1, nx
+          cell_to_coordinate(nxyz + jx, 1) = jx
+          cell_to_coordinate(nxyz + jx, 2) = 0
+        END DO
+        
+        !! right boundary
+        DO jx = 1, ny
+          cell_to_coordinate(nxyz + nx + jx, 1) = nx+1
+          cell_to_coordinate(nxyz + nx + jx, 2) = jx
+        END DO
+        
+        !! top boundary
+        DO jx = 1, nx
+          cell_to_coordinate(nxyz + nx + ny + jx, 1) = nx - jx + 1
+          cell_to_coordinate(nxyz + nx + ny + jx, 2) = ny + 1
+        END DO
+        
+        !! left boundary
+        DO jx = 1, ny
+          cell_to_coordinate(nxyz + 2 * nx + ny + jx, 1) = 0
+          cell_to_coordinate(nxyz + 2 * nx + ny + jx, 2) = ny - jx + 1
+        END DO
         
         
       ELSE
@@ -9612,21 +9646,45 @@ ELSE
     ! ********************************************
     ! Edit by Toshiyuki Bandai, 2024 Oct
     Richards_permeability: IF (Richards) THEN
+      
+      IF (ny == 1 .AND. ny == 1) THEN ! one-dimensional problem
+        K_faces(0) = permx(1, 1, 1)
+        K_faces(nx) = permx(nx, 1, 1)
 
-      K_faces(0) = permx(1, 1, 1)
-      K_faces(nx) = permx(nx, 1, 1)
-
-      ! compute face permeability
-      DO i = 1, nx - 1
-        IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
-          K_faces(i) = permx(i, 1, 1)
-        ELSE
+        ! compute face permeability
+        DO i = 1, nx - 1
+          IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
+            K_faces(i) = permx(i, 1, 1)
+          ELSE
+            ! distance weighted harmonic mean
+            numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
+            denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
+            K_faces(i) = numerator / denominator
+          END IF
+        END DO
+      ELSE IF (nx > 1 .AND. ny > 1) THEN ! two-dimensional problem
+        ! loop over faces parallel to x-axis, thus we need permeability_y
+        DO i = 1, nx*(ny+1)
+          coordinate_cell_1 = cell_to_coordinate(face_to_cell(i, 1), :)
+          coordinate_cell_2 = cell_to_coordinate(face_to_cell(i, 2), :)
+          
           ! distance weighted harmonic mean
-          numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
-          denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
+          numerator = permy(coordinate_cell_1(1), coordinate_cell_1(2), 1) * permy(coordinate_cell_2(1), coordinate_cell_2(2), 1) * (dyy(coordinate_cell_1(2)) +  dyy(coordinate_cell_2(2)))
+          denominator = permy(coordinate_cell_1(1), coordinate_cell_1(2), 1) * dyy(coordinate_cell_2(2)) + permy(coordinate_cell_2(1), coordinate_cell_2(2), 1) * dyy(coordinate_cell_1(2))
           K_faces(i) = numerator / denominator
-        END IF
-      END DO
+        END DO
+        
+        ! loop over faces parallel to y-axis, thus we need permeability_x
+        DO i = nx*(ny+1) + 1, nx*(ny+1) + ny*(nx+1)
+          coordinate_cell_1 = cell_to_coordinate(face_to_cell(i, 1), :)
+          coordinate_cell_2 = cell_to_coordinate(face_to_cell(i, 2), :)
+          
+          ! distance weighted harmonic mean
+          numerator = permx(coordinate_cell_1(1), coordinate_cell_1(2), 1) * permx(coordinate_cell_2(1), coordinate_cell_2(2), 1) * (dxx(coordinate_cell_1(2)) +  dxx(coordinate_cell_2(2)))
+          denominator = permx(coordinate_cell_1(1), coordinate_cell_1(2), 1) * dxx(coordinate_cell_2(2)) + permx(coordinate_cell_2(1), coordinate_cell_2(2), 1) * dxx(coordinate_cell_1(2))
+          K_faces(i) = numerator / denominator
+        END DO
+      END IF
     END IF Richards_permeability
     
     ! Read x_begin and x_end boundary conditions for steady-state problem
@@ -9859,6 +9917,7 @@ ELSE
         END SELECT
         
       ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+        
         WRITE(*,*)
         WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
         WRITE(*,*)
