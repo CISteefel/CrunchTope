@@ -425,10 +425,10 @@ REAL(DP)                                                    :: sionPrint
 
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2023 July
-INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
-INTEGER(I4B)                                               :: n_count_evaporation = 2 ! count the number for interpolating evaporation data
-INTEGER(I4B)                                               :: n_count_transpiration = 2 ! count the number for interpolating transpiration data
-INTEGER(I4B)                                               :: n_count_temperature = 2 ! count the number for interpolating temperature data
+!INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
+!INTEGER(I4B)                                               :: n_count_evaporation = 2 ! count the number for interpolating evaporation data
+!INTEGER(I4B)                                               :: n_count_transpiration = 2 ! count the number for interpolating transpiration data
+!INTEGER(I4B)                                               :: n_count_temperature = 2 ! count the number for interpolating temperature data
 ! End of Edit by Toshiyuki Bandai, 2023 July 
 !*************************************************************************
 
@@ -710,11 +710,9 @@ IF (CalculateFlow) THEN
        CALL flux_Richards(nx, ny, nz)
        
      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-       WRITE(*,*)
-       WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-       WRITE(*,*)
-       READ(*,*)
-       STOP
+       
+       CALL flux_Richards(nx, ny, nz)
+       
      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
        WRITE(*,*)
        WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
@@ -829,24 +827,24 @@ IF (CalculateFlow) THEN
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
-    jy = 1
-    jz = 1
-    DO jx = 0, nx+1
-        satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+    DO jz = 1, nz
+      DO jy = 1, ny
+        DO jx = 1, nz
+            satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+        END DO
+      END DO
     END DO
     
+       
     ! fill ghost points by zero-order extrapolation
-    satliq(-1,jy,jz) = satliq(0,jy,jz)
-    satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
-    satliq(:,-1,:) =  satliq(:,1,:)
-    satliq(:,0,:) =  satliq(:,1,:)
-    satliq(:,2,:) =  satliq(:,1,:)
-    satliq(:,3,:) =  satliq(:,1,:)
-    
-    satliq(:,:,-1) = satliq(:,:,1)
-    satliq(:,:,0) = satliq(:,:,1)
-    satliq(:,:,2) = satliq(:,:,1)
-    satliq(:,:,3) = satliq(:,:,1)
+    text = 'Liquid_Saturation'
+    lowX = LBOUND(satliq,1)
+    lowY = LBOUND(satliq,2)
+    lowZ = LBOUND(satliq,3)
+    highX = UBOUND(satliq,1)
+    highY = UBOUND(satliq,2)
+    highZ = UBOUND(satliq,3)
+    call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,por,TEXT)
     
     satliqold = satliq
   

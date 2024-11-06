@@ -822,7 +822,7 @@ END IF
 WRITE(iunit2,*)
 WRITE(iunit2,*) ' ************************** CrunchFlow ******************************'
 WRITE(iunit2,*) '   '
-WRITE(iunit2,*) '                  Authors:  C.I. STEEFEL, S. MOLINS '
+WRITE(iunit2,*) '                  Authors:  C.I. STEEFEL, S. MOLINS, & T. BANDAI'
 
 WRITE(iunit2,*) '                      *** Copyright Notice ***          '
 WRITE(iunit2,*) ' �CrunchFlow�, Copyright (c) 2016, The Regents of the University of California, &
