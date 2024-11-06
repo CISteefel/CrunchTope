@@ -424,12 +424,15 @@ CHARACTER (LEN=3)                                           :: ulabPrint
 REAL(DP)                                                    :: sionPrint
 
 !*************************************************************************
-! Edit by Toshiyuki Bandai, 2023 July
-!INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
-!INTEGER(I4B)                                               :: n_count_evaporation = 2 ! count the number for interpolating evaporation data
-!INTEGER(I4B)                                               :: n_count_transpiration = 2 ! count the number for interpolating transpiration data
-!INTEGER(I4B)                                               :: n_count_temperature = 2 ! count the number for interpolating temperature data
-! End of Edit by Toshiyuki Bandai, 2023 July 
+! Edit by Toshiyuki Bandai, 2024 Oct.
+INTEGER(I4B)                                                  :: lowX
+INTEGER(I4B)                                                  :: lowY
+INTEGER(I4B)                                                  :: lowZ
+INTEGER(I4B)                                                  :: highX
+INTEGER(I4B)                                                  :: highY
+INTEGER(I4B)                                                  :: highZ
+CHARACTER (LEN=15)                                            :: text
+! End of Edit by Toshiyuki Bandai, 2024 Oct. 
 !*************************************************************************
 
 !*************************************************************************
@@ -681,46 +684,22 @@ IF (CalculateFlow) THEN
  ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  initial_flow_solver_if: IF (Richards) THEN
+   Richards_steady = .FALSE.
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
    steady_Richards: IF (Richards_steady) THEN
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-     CALL solve_Richards(nx, ny, nz, dtflow)
-     Richards_steady = .FALSE.
+     WRITE(*,*) ' Currently, steady-state Ricahrds solver is turned off '
+     READ(*,*)
+     STOP
+     !CALL solve_Richards(nx, ny, nz, dtflow)
+     !Richards_steady = .FALSE.
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
-     ! compute water flux from the initial condition and the boundary conditions at t = 0
-     
-     IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-       SELECT CASE (x_begin_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-         value_x_begin_BC = values_x_begin_BC(1)
-       CASE DEFAULT
-         CONTINUE ! do nothing for constant boundary conditions
-       END SELECT
-     
-       SELECT CASE (x_end_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-         value_x_end_BC = values_x_end_BC(1)
-       CASE DEFAULT
-         CONTINUE ! do nothing for constant boundary conditions
-       END SELECT
-       CALL flux_Richards(nx, ny, nz)
-       
-     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-       
-       CALL flux_Richards(nx, ny, nz)
-       
-     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-       WRITE(*,*)
-       WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-       WRITE(*,*)
-       READ(*,*)
-       STOP
-     END IF
-      
+     ! compute water flux from the initial condition and the boundary conditions at t = 0     
+     CALL flux_Richards(nx, ny, nz)
         
    END IF steady_Richards
 
@@ -826,6 +805,9 @@ IF (CalculateFlow) THEN
   ! Edit by Toshiyuki Bandai, 2024 Oct.
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
+    
+    ! get the initial water content
+    
     
     DO jz = 1, nz
       DO jy = 1, ny
@@ -1152,95 +1134,17 @@ DO WHILE (nn <= nend)
   IF (nexchange > 0) THEN
     CALL UpdateExchanger(nx,ny,nz,nexchange)
   END IF
-
-  !*************************************************************
-! Edit by Lucien Stolze, June 2023
-! Temperature time series (not used in Richard calculations)
-  IF (RunTempts) THEN
-    IF (ALLOCATED(temp_dum)) THEN
-      DEALLOCATE(temp_dum)
-    END IF
-    ALLOCATE(temp_dum(nb_temp_ts))
-
-    IF (TS_1year) THEN
-      time_norm = time - floor(time)
-      IF (time_norm + delt > t_temp_ts(n_count_temperature) .AND. ABS(t_temp_ts(n_count_temperature) - time_norm) > 1.0d-10) THEN
-        IF (time_norm + delt > 1.0d0) THEN
-          n_count_temperature = 2
-          IF (time_norm + delt -1.0d0 > t_temp_ts(n_count_temperature) .AND. ABS(t_temp_ts(n_count_temperature) - time_norm) > 1.0d-10) THEN
-            delt = 1.0d0 + t_temp_ts(n_count_temperature) - time_norm
-            n_count_temperature = n_count_temperature + 1
-            !WRITE(*,*) ' Adjusting time step to match the temperature data '
-            !WRITE(*,5085) delt*OutputTimeScale
-            !WRITE(*,*)
-          END IF
-        ELSE IF (n_count_temperature > size(t_temp_ts)) THEN
-          CONTINUE
-        ELSE
-          delt = t_temp_ts(n_count_temperature) - time_norm
-          n_count_temperature = n_count_temperature + 1
-                  
-          !WRITE(*,*) ' Adjusting time step to match the temperature data '
-          !WRITE(*,5085) delt*OutputTimeScale
-          !WRITE(*,*)
-          
-        END IF
-      END IF
-                
-      IF (ABS(t_temp_ts(n_count_temperature) - time_norm - delt) < 1.0d-10) THEN
-        n_count_temperature = n_count_temperature + 1
-      END IF
-      
-      DO i = 1,nb_temp_ts
-      CALL  interp3(time_norm,delt,t_temp_ts,temp_ts(i,:),temp_dum(i),size(temp_ts(i,:)))
-      END DO
-    END IF
-
-        DO jz = 1,nz
-        DO jy = 1,ny
-        DO jx = 1,nx
-        DO i = 1,nb_temp_ts
-            IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
-              t(jx,jy,jz) = temp_dum(i)
-              ! IF (jx == 1) THEN
-              ! t(0,jy,jz) = t(jx,jy,jz)
-              ! ENDIF
-              ! IF (jx == nx) THEN
-              ! t(nx+1,jy,jz) = t(jx,jy,jz)
-              ! ENDIF
-              ! IF (jy == 1) THEN
-              ! t(jx,0,jz) = t(jx,jy,jz)
-              ! ENDIF
-              ! IF (jy == ny) THEN
-              ! t(jx,ny+1,jz) = t(jx,jy,jz)
-              ! ENDIF
-              ! IF (jz == 1) THEN
-              ! t(jx,jy,0) = t(jx,jy,jz)
-              ! ENDIF
-              ! IF (jz == nz) THEN
-              ! t(jx,jy,nz+1) = t(jx,jy,jz)
-              ! ENDIF
-            ENDIF
-        END DO
-        END DO
-        END DO
-        END DO
-  ENDIF
-
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 0,nx+1
-        !mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-        rho_water_2 = 0.99823d0 * 1.0E3
-        !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
-      END DO
-    END DO
-  END DO
   
-  mu_water = 0.0010005d0*secyr
-! End of Edit by Lucien Stolze, June 2023
-!*************************************************************
+  !*************************************************************
+  ! Edit by Toshiyuki Bandai, Oct. 2024
+  ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
+  ! mu_water is defined in Flow module
+  mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+  rho_water_2 = 0.99823d0 * 1.0E3
+  mu_water = 0.0010005*secyr ! dynamic viscosity of water     
 
+  ! End of Edit by Toshiyuki Bandai, Oct. 2024
+  !*************************************************************
 
   IF (CalculateFlow) THEN
 
@@ -1266,209 +1170,91 @@ DO WHILE (nn <= nend)
           END IF
           
         ! store the previous time step water content
-          jy = 1
-          jz = 1
-          DO jx = 0,nx+1
-            theta_prev(jx,jy,jz) = theta(jx,jy,jz)
-          END DO
-                  
-          ! update the value used for the x_begin boundary condition by interpolating time series
-          SELECT CASE (x_begin_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-            CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
-          CASE DEFAULT
-            CONTINUE ! for constant boundary condition, do nothing
-          END SELECT
+          theta_prev = theta
+                 
           
-          SELECT CASE (x_end_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
+          ! update transient boundary condition for one-dimensional problem
+          !*********************************************************************
+          IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+  
+            ! update the value used for the x_begin boundary condition by interpolating time series
+            SELECT CASE (x_begin_BC_type)
+            CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
+              CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
+            CASE DEFAULT
+              CONTINUE ! for constant boundary condition, do nothing
+            END SELECT
+          
+            SELECT CASE (x_end_BC_type)
+            CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+              CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
+             
+          
+            CASE DEFAULT
+              CONTINUE ! for constant boundary condition, do nothing
+            END SELECT
             
-          !CASE ('environmental_forcing')
-          !  
-          !  ! infiltration
-          !  IF (infiltration_timeseries) THEN
-          !    IF (TS_1year) THEN
-          !      time_norm=time-floor(time)
-          !      IF (time_norm + delt > t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
-          !        IF (time_norm + delt > 1.0d0) THEN
-          !          n_count_infiltration = 2
-          !          IF (time_norm + delt -1.0d0> t_infiltration(n_count_infiltration) .AND. ABS(t_infiltration(n_count_infiltration) - time_norm) > 1.0d-10) THEN
-          !            delt = 1.0d0 + t_infiltration(n_count_infiltration) - time_norm
-          !            n_count_infiltration = n_count_infiltration + 1
-          !            !WRITE(*,*) ' Adjusting time step to match the infiltration data '
-          !            !WRITE(*,5085) delt*OutputTimeScale
-          !            !WRITE(*,*)
-          !          END IF
-          !          
-          !        ELSE IF (n_count_infiltration > size(t_infiltration)) THEN
-          !          CONTINUE
-          !        ELSE 
-          !          delt = t_infiltration(n_count_infiltration) - time_norm
-          !          n_count_infiltration = n_count_infiltration + 1
-          !        
-          !          !WRITE(*,*) ' Adjusting time step to match the infiltration data '
-          !          !WRITE(*,5085) delt*OutputTimeScale
-          !          !WRITE(*,*)
-          !          
-          !        END IF
-          !      END IF
-          !      
-          !      IF (ABS(t_infiltration(n_count_infiltration) - time_norm - delt) < 1.0d-10) THEN
-          !        n_count_infiltration = n_count_infiltration + 1
-          !      END IF
-          !      
-          !      CALL interp3(time_norm,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-          !    ELSE
-          !      CALL interp3(time,delt,t_infiltration,qt_infiltration(:),infiltration_rate,size(qt_infiltration(:)))
-          !    END IF
-          !  END IF
-          !  
-          !  write(77,*) time, ' Infiltration rate = ',infiltration_rate
-          !  
-          !  
-          !  ! transpiration            
-          !  IF (transpitimeseries) THEN
-          !    IF (TS_1year) THEN
-          !      time_norm=time-floor(time)
-          !      IF (time_norm + delt -1.0d0> t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
-          !        IF (time_norm + delt > 1.0d0) THEN
-          !          n_count_transpiration = 2
-          !          IF (time_norm + delt > t_transpi(n_count_transpiration) .AND. ABS(t_transpi(n_count_transpiration) - time_norm) > 1.0d-10) THEN
-          !            delt = 1.0d0 + t_transpi(n_count_transpiration) - time_norm
-          !            n_count_transpiration = n_count_transpiration + 1
-          !            !WRITE(*,*) ' Adjusting time step to match the transpiration data '
-          !            !WRITE(*,5085) delt*OutputTimeScale
-          !            !WRITE(*,*)
-          !          END IF
-          !          
-          !        ELSE IF (n_count_transpiration > size(t_transpi)) THEN
-          !          CONTINUE
-          !        ELSE 
-          !          delt = t_transpi(n_count_transpiration) - time_norm
-          !          n_count_transpiration = n_count_transpiration + 1
-          !        
-          !         !WRITE(*,*) ' Adjusting time step to match the transpiration data '
-          !         !WRITE(*,5085) delt*OutputTimeScale
-          !         !WRITE(*,*)
-          !        END IF
-          !      END IF
-          !      
-          !      IF (ABS(t_transpi(n_count_transpiration) - time_norm - delt) < 1.0d-10) THEN
-          !        n_count_transpiration = n_count_transpiration + 1
-          !      END IF
-          !      CALL interp3(time_norm,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-          !    ELSE
-          !      CALL interp3(time,delt,t_transpi,qt_transpi(:),transpirate,size(qt_transpi(:)))
-          !    END IF
-          !  END IF
-          !  
-          !  ! evaporation
-          !  IF (evapotimeseries) THEN
-          !    IF (TS_1year) THEN
-          !      time_norm=time-floor(time)
-          !      IF (time_norm + delt > t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
-          !        IF (time_norm + delt > 1.0d0) THEN
-          !          n_count_evaporation = 2
-          !          IF (time_norm + delt -1.0d0> t_evapo(n_count_evaporation) .AND. ABS(t_evapo(n_count_evaporation) - time_norm) > 1.0d-10) THEN
-          !            delt = 1.0d0 + t_infiltration(n_count_evaporation) - time_norm
-          !            n_count_evaporation = n_count_evaporation + 1
-          !            !WRITE(*,*) ' Adjusting time step to match the evaporation data '
-          !            !WRITE(*,5085) delt*OutputTimeScale
-          !            !WRITE(*,*)
-          !          END IF
-          !        ELSE IF (n_count_evaporation > size(t_evapo)) THEN
-          !          CONTINUE
-          !        ELSE
-          !          delt = t_evapo(n_count_evaporation) - time_norm
-          !          n_count_evaporation = n_count_evaporation + 1
-          !        
-          !         !WRITE(*,*) ' Adjusting time step to match the evaporation data '
-          !         !WRITE(*,5085) delt*OutputTimeScale
-          !         !WRITE(*,*)
-          !          
-          !          
-          !        END IF
-          !      END IF
-          !      
-          !      IF (ABS(t_evapo(n_count_evaporation) - time_norm - delt) < 1.0d-10) THEN
-          !        n_count_evaporation = n_count_evaporation + 1
-          !      END IF
-          !      
-          !      CALL interp3(time_norm,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-          !    ELSE
-          !      CALL interp3(time,delt,t_evapo,qt_evapo(:),evaporate,size(qt_evapo(:)))
-          !    END IF
-          !  END IF
-          
-          
-          CASE DEFAULT
-            CONTINUE ! for constant boundary condition, do nothing
-          END SELECT
-          
-          
-          
+          END IF
+             
           ! solve the 1D time-dependenet Richards equation
           CALL solve_Richards(nx, ny, nz, delt)
           
-          
           ! update saturation
-          jy = 1
-          jz = 1
           satliqold = satliq
-          DO jx = 0, nx+1
-              satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
-          END DO
-
-          ! fill ghost points by zero-order extrapolation
-          satliq(0,jy,jz) = satliq(1,jy,jz)
-          satliq(-1,jy,jz) = satliq(0,jy,jz)
-          satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
-          satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
-    
-          satliq(:,-1,:) =  satliq(:,1,:)
-          satliq(:,0,:) =  satliq(:,1,:)
-          satliq(:,2,:) =  satliq(:,1,:)
-          satliq(:,3,:) =  satliq(:,1,:)
-    
-          satliq(:,:,-1) = satliq(:,:,1)
-          satliq(:,:,0) = satliq(:,:,1)
-          satliq(:,:,2) = satliq(:,:,1)
-          satliq(:,:,3) = satliq(:,:,1)
           
-          ! the velocity at the boundary is forced to zero when the vector goes outward
-          ! not to consider chemcial transport via evaporation
-          IF (evaporation_boundary /= ' ') THEN
-            SELECT CASE (evaporation_boundary)
-              CASE ('x_begin')
-                DO jz = 1,nz
-                  DO jy = 1,ny
-                    jx = 0
-                    IF (qx(jx, jy, jz) < 0.0d0) THEN
-                      qx(jx, jy, jz) = 0.0d0
-                    END IF
+          DO jz = 1, nz
+            DO jy = 1, ny
+              DO jx = 1, nz
+                  satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+    
+       
+          ! fill ghost points by zero-order extrapolation
+          text = 'Liquid_Saturation'
+          lowX = LBOUND(satliq,1)
+          lowY = LBOUND(satliq,2)
+          lowZ = LBOUND(satliq,3)
+          highX = UBOUND(satliq,1)
+          highY = UBOUND(satliq,2)
+          highZ = UBOUND(satliq,3)
+          call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,por,TEXT)
+    
+          IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+            ! the velocity at the boundary is forced to zero when the vector goes outward
+            ! not to consider chemcial transport via evaporation
+            IF (evaporation_boundary /= ' ') THEN
+              SELECT CASE (evaporation_boundary)
+                CASE ('x_begin')
+                  DO jz = 1,nz
+                    DO jy = 1,ny
+                      jx = 0
+                      IF (qx(jx, jy, jz) < 0.0d0) THEN
+                        qx(jx, jy, jz) = 0.0d0
+                      END IF
+                    END DO
                   END DO
-                END DO
                 
-              CASE ('x_end')
-                DO jz = 1,nz
-                  DO jy = 1,ny
-                    jx = nx
-                    IF (qx(jx, jy, jz) > 0.0d0) THEN
-                      qx(jx, jy, jz) = 0.0d0
-                    END IF
+                CASE ('x_end')
+                  DO jz = 1,nz
+                    DO jy = 1,ny
+                      jx = nx
+                      IF (qx(jx, jy, jz) > 0.0d0) THEN
+                        qx(jx, jy, jz) = 0.0d0
+                      END IF
+                    END DO
                   END DO
-                END DO
   
-              CASE DEFAULT
-              WRITE(*,*)
-              WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
-              WRITE(*,*)
-              READ(*,*)
-              STOP
+                CASE DEFAULT
+                WRITE(*,*)
+                WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
+                WRITE(*,*)
+                READ(*,*)
+                STOP
   
-            END SELECT
-
+                END SELECT
+            END IF
           END IF       
         ! End of edit by Toshiyuki Bandai, 2024 Oct
         ! ******************************************************************

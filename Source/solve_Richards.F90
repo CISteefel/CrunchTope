@@ -19,6 +19,11 @@ INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
+INTEGER(I4B)                                               :: n_inner_cells
+INTEGER(I4B)                                               :: n_total_cells
+INTEGER(I4B)                                               :: n_bfaces
+INTEGER(I4B)                                               :: n_xfaces
+INTEGER(I4B)                                               :: n_yfaces
 
 REAL(DP), INTENT(IN)                                       :: dtflow ! time step for flow
 
@@ -41,36 +46,90 @@ INTEGER(I4B)                                               :: no_backtrack, desc
 INTEGER(I4B)                                               :: iteration
 INTEGER(I4B)                                               :: total_line
 
-! variables for checking water mass balance
-!REAL(DP)                                                   :: water_mass
-!REAL(DP)                                                   :: water_mass_error
-
+!*********************************************************************
 ! allocate arrays
-IF (ALLOCATED(F_residual)) THEN
-  DEALLOCATE(F_residual)
-  ALLOCATE(F_residual(0:nx+1))
-ELSE
-  ALLOCATE(F_residual(0:nx+1))
-END IF
+IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+  IF (ALLOCATED(F_residual)) THEN
+    DEALLOCATE(F_residual)
+    ALLOCATE(F_residual(0:nx+1))
+  ELSE
+    ALLOCATE(F_residual(0:nx+1))
+  END IF
 
-IF (ALLOCATED(J)) THEN
-  DEALLOCATE(J)
-  ALLOCATE(J(0:nx+1, 0:nx+1))
-ELSE
-  ALLOCATE(J(0:nx+1, 0:nx+1))
-END IF
+  IF (ALLOCATED(J)) THEN
+    DEALLOCATE(J)
+    ALLOCATE(J(0:nx+1, 0:nx+1))
+  ELSE
+    ALLOCATE(J(0:nx+1, 0:nx+1))
+  END IF
 
-IF (ALLOCATED(dpsi_Newton)) THEN
-  DEALLOCATE(dpsi_Newton)
-  ALLOCATE(dpsi_Newton(0:nx+1))
-ELSE
-  ALLOCATE(dpsi_Newton(0:nx+1))
-END IF
+  IF (ALLOCATED(dpsi_Newton)) THEN
+    DEALLOCATE(dpsi_Newton)
+    ALLOCATE(dpsi_Newton(0:nx+1))
+  ELSE
+    ALLOCATE(dpsi_Newton(0:nx+1))
+  END IF
+  
+  
+  ! initialize parameters for linear solver
+  nrhs = 1
+  lda = nx + 2
+  ldb = nx + 2
 
-! initialize parameters for linear solver
-nrhs = 1
-lda = nx + 2
-ldb = nx + 2
+
+!*********************************************************************
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+  IF (domain_shape_flow == 'regular') THEN
+    n_inner_cells = nx * ny
+    n_xfaces = nx*(ny+1) ! number of faces
+    n_yfaces =  (nx+1)*ny
+    n_bfaces = 2*nx + 2*ny
+    n_total_cells = n_inner_cells + n_bfaces
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' Currently, only regular spatial domain is supported.'
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+        
+  END IF
+  
+  
+  
+  IF (ALLOCATED(F_residual)) THEN
+    DEALLOCATE(F_residual)
+    ALLOCATE(F_residual(n_total_cells))
+  ELSE
+    ALLOCATE(F_residual(n_total_cells))
+  END IF
+
+  IF (ALLOCATED(J)) THEN
+    DEALLOCATE(J)
+    ALLOCATE(J(n_total_cells, n_total_cells))
+  ELSE
+    ALLOCATE(J(n_total_cells, n_total_cells))
+  END IF
+
+  IF (ALLOCATED(dpsi_Newton)) THEN
+    DEALLOCATE(dpsi_Newton)
+    ALLOCATE(dpsi_Newton(n_total_cells))
+  ELSE
+    ALLOCATE(dpsi_Newton(n_total_cells))
+  END IF
+  
+  nrhs = 1
+  lda = n_total_cells
+  ldb = n_total_cells
+
+
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+  
+END IF
 
 ! initialize parameters for Newton's method
 iteration = 0
@@ -88,18 +147,19 @@ newton_loop: DO
   CALL flux_Richards(nx, ny, nz)
   
   IF (Richards_steady) THEN
-    CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
+    CONTINUE
+    !CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
     ! Evaluate the Jacobian matrix
-    CALL Jacobian_Richards_steady(nx, ny, nz, dtflow, J)
+    !CALL Jacobian_Richards_steady(nx, ny, nz, dtflow, J)
   ELSE
-    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+    CALL residual_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), F_residual)
     ! Evaluate the Jacobian matrix
     CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
   END IF
   
   dpsi_Newton = -F_residual
   ! Solve the linear system
-  CALL dgesv(nx+2, nrhs, j, lda, ipiv, dpsi_Newton, ldb, info)
+  CALL dgesv(lda, nrhs, J, lda, ipiv, dpsi_Newton, ldb, info)
   
   ! Armijo line search
   alpha_line = 1.0d-4
@@ -123,9 +183,10 @@ newton_loop: DO
     ! evaluate the flux and the residual
     CALL flux_Richards(nx, ny, nz)
     IF (Richards_steady) THEN
-      CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
+      CONTINUE
+      !CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
     ELSE
-      CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
+      CALL residual_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), F_residual)
     END IF
   
     ! update tolerance
@@ -168,42 +229,5 @@ IF (Richards_print) THEN
   WRITE(*,100) iteration, total_line
   100 FORMAT(1X, 'The Newton method needed ', I5, ' iterations with ', I3, ' line searches in the Richards solver. ')
 END IF
-
-!***********************************************************************************************************************************************
-! evaluate water mass balance (this is not compatible with evaporaiton and transpiration for the "enviornmental_forcing" boundary condition.)
-!IF (Richards_print) THEN
-!  jy = 1
-!  jz = 1
-!  water_mass = 0.0d0
-!  DO jx = 1, nx
-!    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
-!  END DO
-!  
-!  SELECT CASE (upper_BC_type)
-!  CASE ('environmental_forcing')
-!    water_mass_error = water_mass - dtflow*(qx(0, jy, jz) - (infiltration_rate + evaporate))
-!    DO i = 1, transpicells
-!      water_mass_error = water_mass_error + dtflow*transpirate_cell(nx - i + 1)
-!    END DO
-!    water_mass_error = 100.0d0*water_mass_error/water_mass ! in percent
-!  CASE DEFAULT
-!    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(0, jy, jz) - qx(nx, jy, jz)))/water_mass ! in percent
-!  END SELECT
-!  
-!  WRITE(*,110) water_mass, water_mass_error
-!110 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '%.')
-    
-! check water mass balance in each cell
-!  DO jx = 1, nx - transpicells
-!    water_mass = 0.0d0
-!    water_mass = water_mass + dxx(jx)*(theta(jx, jy, jz) - theta_prev(jx, jy, jz)) ! how much water content is increased in this time step
-!    water_mass_error = 100.0d0*(water_mass - dtflow*(qx(jx-1, jy, jz) - qx(jx, jy, jz)))/water_mass ! in percent
-!    WRITE(*,130) water_mass, water_mass_error, jx
-!130 FORMAT(1X, 'The water mass increase is ', ES14.4, ' m, and the water mass balance error is ', ES14.4, '% at the cell ', I4)
-!  END DO
-!  
-  !READ(*,*)
-!END IF
-!***********************************************************************************************************************************************
 
 END SUBROUTINE solve_Richards

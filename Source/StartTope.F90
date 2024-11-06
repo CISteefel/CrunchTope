@@ -9681,8 +9681,8 @@ ELSE
           coordinate_cell_2 = cell_to_coordinate(face_to_cell(i, 2), :)
           
           ! distance weighted harmonic mean
-          numerator = permx(coordinate_cell_1(1), coordinate_cell_1(2), 1) * permx(coordinate_cell_2(1), coordinate_cell_2(2), 1) * (dxx(coordinate_cell_1(2)) +  dxx(coordinate_cell_2(2)))
-          denominator = permx(coordinate_cell_1(1), coordinate_cell_1(2), 1) * dxx(coordinate_cell_2(2)) + permx(coordinate_cell_2(1), coordinate_cell_2(2), 1) * dxx(coordinate_cell_1(2))
+          numerator = permx(coordinate_cell_1(1), coordinate_cell_1(2), 1) * permx(coordinate_cell_2(1), coordinate_cell_2(2), 1) * (dxx(coordinate_cell_1(1)) +  dxx(coordinate_cell_2(1)))
+          denominator = permx(coordinate_cell_1(1), coordinate_cell_1(2), 1) * dxx(coordinate_cell_2(2)) + permx(coordinate_cell_2(1), coordinate_cell_2(2), 1) * dxx(coordinate_cell_1(1))
           K_faces(i) = numerator / denominator
         END DO
       END IF

@@ -6,7 +6,7 @@ USE medium
 IMPLICIT NONE
 
 INTEGER(I4B), INTENT(IN)   :: nx, ny, nz
-INTEGER(I4B)               :: jx, jy, jz
+INTEGER(I4B)               :: jx, jy, jz, nxyz
 
 ! get the discretization for the Ricahrds for one-dimension
 IF (ALLOCATED(x_2)) THEN
@@ -149,9 +149,9 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   ! relative permeability at cell faces
   IF (ALLOCATED(kr_faces)) THEN
     DEALLOCATE(kr_faces)
-    ALLOCATE(kr_faces(0:nx, ny, nz))
+    ALLOCATE(kr_faces(0:nx))
   ELSE
-    ALLOCATE(kr_faces(0:nx, ny, nz))
+    ALLOCATE(kr_faces(0:nx))
   END IF
      
   ! physical constant used in the Richards equation
@@ -165,9 +165,9 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   ! physical constant used in the Richards equation at cell faces
   IF (ALLOCATED(xi_2_faces)) THEN
     DEALLOCATE(xi_2_faces)
-    ALLOCATE(xi_2_faces(0:nx, ny, nz))
+    ALLOCATE(xi_2_faces(0:nx))
   ELSE
-    ALLOCATE(xi_2_faces(0:nx, ny, nz))
+    ALLOCATE(xi_2_faces(0:nx))
   END IF
     
   ! allocate van Genuchten parameters
@@ -278,29 +278,13 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
   ELSE
     ALLOCATE(dkr(0:nx+1, 0:ny+1, nz))
   END IF
-     
-  ! relative permeability at cell faces
-  IF (ALLOCATED(kr_faces)) THEN
-    DEALLOCATE(kr_faces)
-    ALLOCATE(kr_faces(0:nx, 0:ny+1, nz))
-  ELSE
-    ALLOCATE(kr_faces(0:nx, 0:ny+1, nz))
-  END IF
-     
+      
   ! physical constant used in the Richards equation
   IF (ALLOCATED(xi_2)) THEN
     DEALLOCATE(xi_2)
     ALLOCATE(xi_2(0:nx+1, 0:ny+1, nz))
   ELSE
     ALLOCATE(xi_2(0:nx+1, 0:ny+1, nz))
-  END IF
-    
-  ! physical constant used in the Richards equation at cell faces
-  IF (ALLOCATED(xi_2_faces)) THEN
-    DEALLOCATE(xi_2_faces)
-    ALLOCATE(xi_2_faces(0:nx, 0:ny+1, nz))
-  ELSE
-    ALLOCATE(xi_2_faces(0:nx, 0:ny+1, nz))
   END IF
     
   ! allocate van Genuchten parameters
@@ -332,13 +316,52 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     ALLOCATE(VG_n(0:nx+1, 0:ny+1, nz))
   END IF
   
+  ! face values
+  IF (domain_shape_flow == 'regular') THEN
+    nxyz = nx*(ny+1) + (nx+1)*ny ! number of faces
+    
+  
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' Currently, only regular spatial domain is supported.'
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+        
+  END IF
+  
+  ! relative permeability at cell faces
+  IF (ALLOCATED(kr_faces)) THEN
+    DEALLOCATE(kr_faces)
+    ALLOCATE(kr_faces(nxyz))
+  ELSE
+    ALLOCATE(kr_faces(nxyz))
+  END IF
+  
+  ! physical constant used in the Richards equation at cell faces
+  IF (ALLOCATED(xi_2_faces)) THEN
+    DEALLOCATE(xi_2_faces)
+    ALLOCATE(xi_2_faces(nxyz))
+  ELSE
+    ALLOCATE(xi_2_faces(nxyz))
+  END IF
+  
   ! allocate permeability at faces
   IF (ALLOCATED(K_faces)) THEN
     DEALLOCATE(K_faces)
-    ALLOCATE(K_faces(nx*(ny+1) + (nx+1)*ny))
+    ALLOCATE(K_faces(nxyz))
   ELSE
-    ALLOCATE(K_faces(nx*(ny+1) + (nx+1)*ny))
+    ALLOCATE(K_faces(nxyz))
   END IF
+  
+  ! allocate water fluxes at faces
+  IF (ALLOCATED(q_Richards)) THEN
+    DEALLOCATE(q_Richards)
+    ALLOCATE(q_Richards(nxyz))
+  ELSE
+    ALLOCATE(q_Richards(nxyz))
+  END IF
+    
 ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
   WRITE(*,*)
   WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'

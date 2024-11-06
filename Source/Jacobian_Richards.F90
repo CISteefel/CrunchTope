@@ -33,8 +33,8 @@ END DO
 
 ! compute xi and kr at faces
 DO jx = 0, nx
-  xi_2_faces(jx, jy, jz) = (xi_2(jx, jy, jz)*dxx_2(jx+1) + xi_2(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
-  kr_faces(jx, jy, jz) = (kr(jx, jy, jz)*dxx_2(jx+1) + kr(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
+  xi_2_faces(jx) = (xi_2(jx, jy, jz)*dxx_2(jx+1) + xi_2(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
+  kr_faces(jx) = (kr(jx, jy, jz)*dxx_2(jx+1) + kr(jx+1, jy, jz)*dxx_2(jx))/(dxx_2(jx+1) + dxx_2(jx))
 END DO
 
 
@@ -45,20 +45,20 @@ J = 0.0 ! initialize Jacobian matrix
 inner: DO jx = 1, nx  
   ! add diffusive flux part
   !! q at jx-1 part
-  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx_2(jx) * K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  J(jx, jx - 1) = J(jx, jx - 1) + dtflow/dxx_2(jx) * K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1))
   
   !! q at jx-1 part
-  J(jx, jx) = J(jx, jx) + dtflow/dxx_2(jx) * K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  J(jx, jx) = J(jx, jx) + dtflow/dxx_2(jx) * K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1))
   
   !! q at jx part
-  J(jx, jx) = J(jx, jx) - dtflow/dxx_2(jx) * K_faces(jx) * xi_2_faces(jx, jy, jz) / (x_2(jx+1) - x_2(jx)) * &
-                (dkr(jx, jy, jz)*dxx_2(jx+1)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) - kr_faces(jx, jy, jz))
+  J(jx, jx) = J(jx, jx) - dtflow/dxx_2(jx) * K_faces(jx) * xi_2_faces(jx) / (x_2(jx+1) - x_2(jx)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx+1)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) - kr_faces(jx))
   
   !! q at jx part
-  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx_2(jx) * K_faces(jx) * xi_2_faces(jx, jy, jz) / (x_2(jx+1) - x_2(jx)) * &
-                (dkr(jx+1, jy, jz)*dxx_2(jx)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) + kr_faces(jx, jy, jz))
+  J(jx, jx + 1) = J(jx, jx + 1) - dtflow/dxx_2(jx) * K_faces(jx) * xi_2_faces(jx) / (x_2(jx+1) - x_2(jx)) * &
+                (dkr(jx+1, jy, jz)*dxx_2(jx)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) + kr_faces(jx))
   
   ! add gravitational flux part
   !! q at jx-1 part
@@ -90,11 +90,11 @@ CASE ('constant_neumann', 'variable_neumann')
 CASE ('constant_flux', 'variable_flux')
   ! add diffusive flux part
   jx = 1
-  J(0, 0) = J(0, 0) -  K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  J(0, 0) = J(0, 0) -  K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1))
   
-  J(0, 1) = J(0, 1) - K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  J(0, 1) = J(0, 1) - K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1))
   
   ! add gravitational flux part
   jx = 1
@@ -111,11 +111,11 @@ CASE ('constant_atomosphere', 'variable_atomosphere')
   ELSE
     ! add diffusive flux part
     jx = 1
-    J(0, 0) = J(0, 0) -  K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                  (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+    J(0, 0) = J(0, 0) -  K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                  (dkr(jx-1, jy, jz)*dxx_2(jx)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1))
   
-    J(0, 1) = J(0, 1) - K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                  (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+    J(0, 1) = J(0, 1) - K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                  (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1))
   
     ! add gravitational flux part
     jx = 1
@@ -149,11 +149,11 @@ CASE ('constant_neumann', 'variable_neumann')
 CASE ('constant_flux', 'variable_flux')
   ! add diffusive flux part
   jx = nx + 1
-  J(nx+1, nx) = J(nx+1, nx) - K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                (dkr(jx-1, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1, jy, jz))
+  J(nx+1, nx) = J(nx+1, nx) - K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx-1, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) - kr_faces(jx-1))
   
-  J(nx+1, nx+1) = J(nx+1, nx+1) - K_faces(jx-1) * xi_2_faces(jx-1, jy, jz) / (x_2(jx) - x_2(jx-1)) * &
-                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1, jy, jz))
+  J(nx+1, nx+1) = J(nx+1, nx+1) - K_faces(jx-1) * xi_2_faces(jx-1) / (x_2(jx) - x_2(jx-1)) * &
+                (dkr(jx, jy, jz)*dxx_2(jx-1)/(dxx_2(jx) + dxx_2(jx-1))*(psi(jx, jy, jz) - psi(jx-1, jy, jz)) + kr_faces(jx-1))
   
   ! add gravitational flux part
   J(nx+1, nx) = J(nx+1, nx) - SignGravity*COSD(x_angle)*K_faces(jx-1)*MERGE(0.0d0, dkr(jx-1, jy, jz) * xi_2(jx-1, jy, jz), head(jx, jy, jz) - head(jx-1, jy, jz) >= 0.0d0)

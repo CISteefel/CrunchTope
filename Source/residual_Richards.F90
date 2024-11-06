@@ -1,4 +1,4 @@
-SUBROUTINE residual_Richards(nx, ny, nz, dtflow, F_residual)
+SUBROUTINE residual_Richards(nx, ny, nz, dtflow, low_bound_F, high_bound_F, F_residual)
 ! This subroutine calculates the residual of the Richards equation
 ! F = d theta / dt + div q - S (dimensionless)
 ! S is the source/sink term (positive for source)
@@ -16,14 +16,38 @@ IMPLICIT NONE
 INTEGER(I4B), INTENT(IN)                                   :: nx
 INTEGER(I4B), INTENT(IN)                                   :: ny
 INTEGER(I4B), INTENT(IN)                                   :: nz
+INTEGER(I4B), INTENT(IN)                                   :: low_bound_F
+INTEGER(I4B), INTENT(IN)                                   :: high_bound_F
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
+INTEGER(I4B)                                               :: n_inner_cells
+INTEGER(I4B)                                               :: n_xfaces
+INTEGER(I4B)                                               :: n_yfaces
+INTEGER(I4B)                                               :: n_bfaces
 
 REAL(DP), INTENT(IN)                                       :: dtflow
-REAL(DP), DIMENSION(0:nx + 1), INTENT(OUT)                 :: F_residual
+REAL(DP), DIMENSION(low_bound_F:high_bound_F), INTENT(OUT)                 :: F_residual
+
+REAL(DP)                                                   :: divergence
+REAL(DP)                                                   :: q_x_1
+REAL(DP)                                                   :: q_x_2
+REAL(DP)                                                   :: q_y_1 
+REAL(DP)                                                   :: q_y_2
+REAL(DP)                                                   :: dx_1
+REAL(DP)                                                   :: dx_2
+INTEGER(I4B)                                 :: face_ID
+INTEGER(I4B), DIMENSION(4)                                 :: face_IDs
+INTEGER(I4B), DIMENSION(2)                                 :: coordinate_cell ! coordinate of cell 1 for 2D problem
+INTEGER(I4B), DIMENSION(2)                                 :: coordinate_cell_1 ! coordinate of cell 1 for 2D problem
+INTEGER(I4B), DIMENSION(2)                                 :: coordinate_cell_2 ! coordinate of cell 1 for 2D problem
+
+INTEGER(I4B)                                               :: jx_1
+INTEGER(I4B)                                               :: jx_2
+INTEGER(I4B)                                               :: jy_1
+INTEGER(I4B)                                               :: jy_2
 
 REAL(DP)                                                   :: psi_b ! water potential at a boundary
 REAL(DP)                                                   :: psi_grad_b ! water potential gradient at a boundary
@@ -34,125 +58,166 @@ REAL(DP)                                                   :: psi_grad_b ! water
 
 F_residual= 0.0
 
-jy = 1
-jz = 1
-
-! internal cells
-DO jx = 1, nx
-  F_residual(jx) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + (qx(jx, jy, jz) - qx(jx-1, jy, jz))*dtflow/dxx_2(jx)
-END DO
-
-! boundary condition at the inlet (begin boundary condition)
-
-SELECT CASE (x_begin_BC_type)
-CASE ('constant_dirichlet', 'variable_dirichlet')
-  psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
-  F_residual(0) = psi_b - value_x_begin_BC
+!*********************************************************************
+IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   
-  CONTINUE
-  
-CASE ('constant_neumann', 'variable_neumann')
-  psi_grad_b = (psi(1, jy, jz) - psi(0, jy, jz))/(x_2(1) - x_2(0))
-  F_residual(0) = psi_grad_b - value_x_begin_BC
-  
-CASE ('constant_flux', 'variable_flux')
-  F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
+  jy = 1
+  jz = 1
 
-CASE ('constant_atomosphere', 'variable_atomosphere')
-  psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
-  IF (psi_b < psi_0) THEN
-    ! the boundary water potential is below psi_0, so switch to Dirichlet BC
-    F_residual(0) = psi_b - psi_0
-  ELSE
+  ! internal cells
+  DO jx = 1, nx
+    F_residual(jx) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + (qx(jx, jy, jz) - qx(jx-1, jy, jz))*dtflow/dxx_2(jx)
+  END DO
+
+  ! boundary condition at the inlet (begin boundary condition)
+
+  SELECT CASE (x_begin_BC_type)
+  CASE ('constant_dirichlet', 'variable_dirichlet')
+    psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
+    F_residual(0) = psi_b - value_x_begin_BC
+  
+    CONTINUE
+  
+  CASE ('constant_neumann', 'variable_neumann')
+    psi_grad_b = (psi(1, jy, jz) - psi(0, jy, jz))/(x_2(1) - x_2(0))
+    F_residual(0) = psi_grad_b - value_x_begin_BC
+  
+  CASE ('constant_flux', 'variable_flux')
     F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
+
+  CASE ('constant_atomosphere', 'variable_atomosphere')
+    psi_b = (psi(0, jy, jz)*dxx_2(1) + psi(1, jy, jz)*dxx_2(0))/(dxx_2(0) + dxx_2(1))
+    IF (psi_b < psi_0) THEN
+      ! the boundary water potential is below psi_0, so switch to Dirichlet BC
+      F_residual(0) = psi_b - psi_0
+    ELSE
+      F_residual(0) = qx(0, jy, jz) - value_x_begin_BC
+    END IF
+  !CASE ('environmental_forcing')
+  !  CONTINUE
+  
+  CASE DEFAULT
+    WRITE(*,*)
+    WRITE(*,*) ' The boundary condition type ', x_begin_BC_type, ' is not supported. '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  
+  END SELECT
+
+
+  ! boundary condition at the inlet (end boundary condition)
+  SELECT CASE (x_end_BC_type)
+  CASE ('constant_dirichlet', 'variable_dirichlet')
+    psi_b = (psi(nx, jy, jz)*dxx_2(nx+1) + psi(nx+1, jy, jz)*dxx_2(nx))/(dxx_2(nx) + dxx_2(nx+1))
+    F_residual(nx+1) = psi_b - value_x_end_BC
+  
+  CASE ('constant_neumann', 'variable_neumann')
+    psi_grad_b = (psi(nx+1, jy, jz) - psi(nx, jy, jz))/(x_2(nx+1) - x_2(nx))
+    F_residual(nx+1) = psi_grad_b - value_x_end_BC
+  
+  CASE ('constant_flux', 'variable_flux')
+    F_residual(nx+1) = qx(nx, jy, jz) - value_x_end_BC
+  
+  CASE DEFAULT
+    WRITE(*,*)
+    WRITE(*,*) ' The boundary condition type ', x_end_BC_type, ' is not supported. '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  
+  END SELECT
+
+!*********************************************************************
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+  
+  IF (domain_shape_flow == 'regular') THEN
+    n_inner_cells = nx * ny
+    n_xfaces = nx*(ny+1) ! number of faces
+    n_yfaces =  (nx+1)*ny
+    n_bfaces = 2*nx + 2*ny
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' Currently, only regular spatial domain is supported.'
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+        
   END IF
-!CASE ('environmental_forcing')
-!  CONTINUE
   
-CASE DEFAULT
-  WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', x_begin_BC_type, ' is not supported. '
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-  
-END SELECT
-
-
-! boundary condition at the inlet (end boundary condition)
-SELECT CASE (x_end_BC_type)
-CASE ('constant_dirichlet', 'variable_dirichlet')
-  psi_b = (psi(nx, jy, jz)*dxx_2(nx+1) + psi(nx+1, jy, jz)*dxx_2(nx))/(dxx_2(nx) + dxx_2(nx+1))
-  F_residual(nx+1) = psi_b - value_x_end_BC
-  
-CASE ('constant_neumann', 'variable_neumann')
-  psi_grad_b = (psi(nx+1, jy, jz) - psi(nx, jy, jz))/(x_2(nx+1) - x_2(nx))
-  F_residual(nx+1) = psi_grad_b - value_x_end_BC
-  
-CASE ('constant_flux', 'variable_flux')
-  F_residual(nx+1) = qx(nx, jy, jz) - value_x_end_BC
-  
-CASE DEFAULT
-  WRITE(*,*)
-  WRITE(*,*) ' The boundary condition type ', x_end_BC_type, ' is not supported. '
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-  
-END SELECT
-
-! upper boundary
-!SELECT CASE (upper_BC_type)
-!CASE ('constant_flux', 'variable_flux')
-  ! check if the prescribed flux (evaporation) is smaller than the remaining water in the top cell
-  ! note that the flux is positive for evaporation
-  !water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - qx(nx, jy, jz)*dtflow/dxx(nx)  ! the unit is dimensionless
-  !IF (water_balance <= 0.001d0) THEN
-  !  ! the top cell is extremely dry, update the flux into the top cell to prevent the cell from drying out
-  !  qx(nx, jy, jz) = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz) - 0.001d0)*dxx(nx)/dtflow
-  !END IF
-  !F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
-   
-!CASE ('environmental_forcing')
-!  ! check if the total water extraction (infiltration + evaporation + transpiration) is smaller than the remaining water in the top cell
-!  ! note that the flux is positive upward
-!
-!  water_balance = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz)) - (infiltration_rate + evaporate + transpirate_cell(nx))*dtflow/dxx(nx)  ! the unit is dimensionless
-!  qx(nx, jy, jz) = infiltration_rate ! only infiltration is used for reaction transport model
-!  
-!  IF (water_balance <= 0.001d0) THEN
-!    ! the top cell is extremely dry, update the flux into the top cell to prevent the cell from drying out
-!    adjusted_extraction = (theta_prev(nx, jy, jz) - theta_r(nx, jy, jz) - 0.001d0)*dxx(nx)/dtflow - infiltration_rate
-!    IF (adjusted_extraction >= evaporate) THEN
-!      transpirate_cell(nx) = adjusted_extraction - evaporate
-!    ELSE
-!      ! prioritize evaporation over transpiration
-!      evaporate = adjusted_extraction
-!      transpirate_cell(nx) = 0.0d0
-!    END IF
-!  ELSE
-!    ! there is enough water for the total water extraction
-!    transpirate_cell(nx) = transpirate
-!  END IF
-!  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (infiltration_rate + evaporate + transpirate_cell(nx) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
-!  
-!  ! apply transpiration to other cells
-!  IF (transpicells > 1) THEN
-!    DO i = 2, transpicells
-!      ! check if the total water extraction (transpiration) is smaller than the remaining water in the cell
-!      water_balance = (theta_prev(nx+1-i, jy, jz) - theta_r(nx+1-i, jy, jz)) - (transpirate_cell(nx+1-i))*dtflow/dxx(nx+1-i)  ! the unit is dimensionless
-!      IF (water_balance <= 0.001d0) THEN
-!        adjusted_extraction = (theta_prev(nx+1-i, jy, jz) - theta_r(nx+1-i, jy, jz) - 0.001d0)*dxx(nx+1-i)/dtflow
-!        transpirate_cell(nx+1-i) = adjusted_extraction
-!      ELSE
-!        transpirate_cell(nx+1-i) = transpirate
-!      END IF
-!      F_residual(nx+1-i) = F_residual(nx+1-i) + transpirate_cell(nx+1-i)*dtflow/dxx(nx+1-i)
-!    END DO
-!  END IF
+  ! internal cells
+  DO i = 1, n_inner_cells
+    face_IDs = cell_to_face(i, :)
+    jx = cell_to_coordinate(i, 1)
+    jy = cell_to_coordinate(i, 2)
+    jz = 1
     
-!CASE DEFAULT
-!  F_residual(nx) = theta(nx, jy, jz) - theta_prev(nx, jy, jz) + (qx(nx, jy, jz) - qx(nx-1, jy, jz))*dtflow/dxx(nx)
-!END SELECT
+    q_y_1 = q_Richards(face_IDs(1))
+    q_y_2 = q_Richards(face_IDs(2))
+    q_x_1 = q_Richards(face_IDs(3))
+    q_x_2 = q_Richards(face_IDs(4))
+    divergence = (q_y_2 - q_y_1) / dyy_2(jy) + (q_x_1 - q_x_1) / dxx_2(jx)
+    F_residual(i) = theta(jx, jy, jz) - theta_prev(jx, jy, jz) + divergence*dtflow
+  END DO
+  
+  
+  ! evaluate residual for boundary conditions
+  DO i = 1, n_bfaces
+    face_ID = bface_to_face(i)
 
+    coordinate_cell_1 = cell_to_coordinate(face_to_cell(face_ID, 1), :)
+    coordinate_cell_2 = cell_to_coordinate(face_to_cell(face_ID, 2), :)
+    
+    jx_1 = coordinate_cell_1(1)
+    jx_2 = coordinate_cell_2(1)
+    jy_1 = coordinate_cell_1(2)
+    jy_2 = coordinate_cell_2(2)
+    
+    jz = 1
+    
+    SELECT CASE (BC_type_Richards(i))
+    CASE (1) ! Dirichlet
+      IF (jx_1 == jx_2) THEN
+        ! faces paralell to x-axis
+        dx_1 = dyy_2(jy_1)
+        dx_2 = dyy_2(jy_2)
+      ELSE
+        ! faces paralell to y-axis
+        dx_1 = dxx_2(jx_1)
+        dx_2 = dxx_2(jx_2)
+      END IF
+      psi_b = (psi(jx_1, jy_1, jz)*dx_2 + psi(jx_2, jy_2, jz)*dx_1)/(dx_1 + dx_2)
+      F_residual(n_inner_cells + i) = psi_b - BC_value_Richards(i)
+  
+    CASE (2) ! Neumann
+      IF (jx_1 == jx_2) THEN
+        ! faces paralell to x-axis
+        dx_1 = y_2(jy_2) - y_2(jy_1) 
+      ELSE
+        ! faces paralell to y-axis
+        dx_1 = x_2(jx_2) - x_2(jx_1)
+      END IF
+      psi_grad_b = (psi(jx_2, jy_2, jz) - psi(jx_1, jy_1, jz))/dx_1
+      F_residual(n_inner_cells + i) = psi_grad_b - BC_value_Richards(i)
+  
+    CASE (3) ! flux
+      F_residual(n_inner_cells + i) = q_Richards(face_ID) - BC_value_Richards(i)
+  
+    CASE DEFAULT
+      WRITE(*,*)
+      WRITE(*,*) ' The boundary condition type ', x_end_BC_type, ' is not supported. '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+  
+    END SELECT
+  END DO
+!*********************************************************************
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+END IF
 END SUBROUTINE residual_Richards
