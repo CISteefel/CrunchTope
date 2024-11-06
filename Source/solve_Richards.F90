@@ -154,7 +154,7 @@ newton_loop: DO
   ELSE
     CALL residual_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), F_residual)
     ! Evaluate the Jacobian matrix
-    CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
+    CALL Jacobian_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), J)
   END IF
   
   dpsi_Newton = -F_residual
