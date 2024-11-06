@@ -71,12 +71,14 @@ porosity_update false
 END
 
 BOUNDARY_CONDITIONS
-x_begin     initial      Dirichlet
-x_end       initial      Dirichlet
-y_begin     initial      Dirichlet
-y_end       injection    Dirichlet
-!!!boundarycondition   ambient    zone 0-0     1-1  1-1  flux 
-!!!boundarycondition   injection  zone 101-101 1-1  1-1  flux 
+!!!x_begin     initial      Dirichlet
+!!!x_end       initial      Dirichlet
+!!!y_begin     initial      Dirichlet
+!!!y_end       injection    Dirichlet
+boundarycondition   initial   zone 0-0  1-120    1-1  Dirichlet 
+boundarycondition   initial   zone 4-4  1-120    1-1  Dirichlet 
+boundarycondition   initial   zone 1-3  0-0      1-1  Dirichlet 
+boundarycondition   injection zone 1-3  121-121  1-1  Dirichlet 
 
 END
 
@@ -86,14 +88,16 @@ END
 
 DISCRETIZATION
 distance_units  meters
-xzones 3 0.5
+xzones 3   0.5
 yzones 120 0.05
-zzones 1 1
+zzones 1   1
 END
 
 PRIMARY_SPECIES
 Tracer
 H+
+Na+
+Cl-
 END
 
 SECONDARY_SPECIES
@@ -105,6 +109,8 @@ units            mol/kg
 temperature      30.0
 Tracer         1.0E-8
 H+             1.0E-8
+Na+            0.01
+Cl-            0.01
 END
 
 Condition injection
@@ -112,6 +118,8 @@ units            mol/kg
 temperature      30.0
 Tracer         1.0E-3
 H+             1.0E-3
+Na+            0.01
+Cl-            0.01
 END
 
 TEMPERATURE
