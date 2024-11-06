@@ -185,6 +185,8 @@ REAL(DP)                                                     :: WritePorosity
 REAL(DP)                                                     :: MineralMolality
 REAL(DP)                                                     :: TotalVolumeMinerals
 
+REAL(DP),PARAMETER                                           :: GuessFactor=1.0D-03  
+
 CHARACTER (LEN=mls)                                          :: dumstring
 CHARACTER (LEN=mls)                                          :: labeltemp
 
@@ -196,7 +198,6 @@ INTEGER(I4B)                                                  :: lchar
 REWIND nin
 
 nchem = 0
-
 
 endoffile = .false.
 200 nchem = nchem + 1
@@ -395,7 +396,7 @@ IF (found) THEN
     ELSE                ! For other concentrations
       
       IF (ulab(i) /= 'H2O' .and. ulab(i) /= 'HHO') THEN
-        guess(i,nchem) = 1.E-06
+        guess(i,nchem) = 55.50843506
       ENDIF
     
       
@@ -409,7 +410,7 @@ IF (found) THEN
       IF (unitsflag(nchem) == 2) THEN                   !  Units in PPM
         IF (wtaq(i) /= 0.0) THEN
           ctot(i,nchem) = ctot(i,nchem)*0.001/wtaq(i)
-          guess(i,nchem) = guess(i,nchem)*0.001/wtaq(i)
+          guess(i,nchem) = GuessFactor*guess(i,nchem)*0.001/wtaq(i)
         ELSE
           dumstring = ulab(i)
           CALL stringlen(dumstring,ls)
@@ -425,11 +426,11 @@ IF (found) THEN
         
       ELSE IF (unitsflag(nchem) == 3) THEN              !  Units in mmol/kg
         ctot(i,nchem) = ctot(i,nchem)*0.001
-        guess(i,nchem) = guess(i,nchem)*0.001
+        guess(i,nchem) = GuessFactor*guess(i,nchem)*0.001
         
       ELSE IF (unitsflag(nchem) == 4) THEN              !  Units in umol/kg
         ctot(i,nchem) = ctot(i,nchem)*1.E-06
-        guess(i,nchem) = guess(i,nchem)*1.E-06
+        guess(i,nchem) = GuessFactor*guess(i,nchem)*1.E-06
 
       ELSE                                              !  Units already in mol/kg
         CONTINUE
@@ -443,21 +444,21 @@ IF (found) THEN
       IF (guess(i,nchem) == 0.0) THEN
         
         IF (itype(i,nchem) == 1) THEN
-          guess(i,nchem) = ctot(i,nchem)
+          guess(i,nchem) = GuessFactor*ctot(i,nchem)
         END IF
         
         IF (itype(i,nchem) == 7) THEN
           
           IF (ulab(i)  == 'H2O' .OR. ulab(i) == 'HHO') THEN
-            guess(i,nchem) = ctot(i,nchem)
+            guess(i,nchem) = GuessFactor*ctot(i,nchem)
           ELSE
-            guess(i,nchem) = ctot(i,nchem)
+            guess(i,nchem) = GuessFactor*ctot(i,nchem)
           ENDIF
           
         END IF
         
         IF (itype(i,nchem) == 8) THEN
-          guess(i,nchem) = ctot(i,nchem)
+          guess(i,nchem) = GuessFactor*ctot(i,nchem)
         END IF
         
         IF (itype(i,nchem) == 4) THEN           !!! Gas constraint
