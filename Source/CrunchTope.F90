@@ -2235,6 +2235,13 @@ DO WHILE (nn <= nend)
                 ELSE
                   CONTINUE
                 END IF
+                
+                IF ( sion(jx,jy,jz) == 0.d0 .AND. xn(ind) == 0.0d0) THEN
+                  write(*,*)
+                  write(*,*) ' Ionic strength cannot be zero '
+                  write(*,*)
+                  stop
+                END IF
                   
                 sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
                 

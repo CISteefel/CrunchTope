@@ -101,7 +101,10 @@ Wateq_Extended_DH = .FALSE.
 
 ChargeSum = 0.0d0
 DO ik = 1,ncomp+nspec
-  ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
+  ulabPrint = ulab(ik)
+  IF (ulabPrint(1:3) /= 'H2O' .AND. ulabPrint(1:3) /= 'HHO') THEN
+    ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
+  END IF
 END DO
 sion_tmp = 0.50D0*ChargeSum
 sqrt_IonS = SQRT(sion_tmp)
@@ -181,6 +184,7 @@ ELSE
     IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
 
       gamtmp(ik) = LOG(gammawaterTMP)
+      CONTINUE
 
   
     ELSE IF (chg(ik) == 0D0) THEN ! neutral species

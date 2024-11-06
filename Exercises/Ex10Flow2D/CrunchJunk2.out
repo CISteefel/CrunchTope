@@ -1,0 +1,7 @@
+distance_units        centimeters                                                                                                                                                                                                                                       
+time_units            second                                                                                                                                                                                                                                            
+cementation_exponent  1.0                                                                                                                                                                                                                                               
+fix_diffusion         1.0E-05                                                                                                                                                                                                                                           
+dispersivity          0.0  0.0                                                                                                                                                                                                                                          
+ 
+ 

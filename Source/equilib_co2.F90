@@ -588,6 +588,7 @@ DO  ktrial = 1,ntrial
       
       IF (ctot(i,nco) /= 0.0) THEN
         check = stmp(i)/ctot(i,nco)  !! Ratio of calculated total concentration to imposed
+        continue
       END IF
       feq(i) = stmp(i) - ctot(i,nco)
        
@@ -595,6 +596,7 @@ DO  ktrial = 1,ntrial
         
         sptmp(i) = sptmp(i) - clg    !! If calculated total concentration too high, reduce primary species
         sptmp10(i) = DEXP(sptmp(i))
+        
         if (ihalf < 2000) then
           ihalf = ihalf + 1
           bagit = .TRUE.

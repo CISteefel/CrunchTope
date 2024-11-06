@@ -1,0 +1,11 @@
+# ignore visual studio files
+CrunchTope.*
+CrunchTopeInputs
+
+
+# but selectively track the project file
+!CrunchTope.vfproj
+
+# ignore visual studio output files
+x64
+.vs
