@@ -4,3 +4,4 @@ Then download the Intel Fortran (ifx) redistributable libraries for Intel oneAPI
 
 https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_ifort_runtime_p_2024.1.0.968.exe
 
+NOTE: Current version of Intel oneAPI is 2024.1 on Carl Steefel's computer (and he built it).  Later versions of the redistributable libraries may work, but no guarantee.  He will upgrade his Intel oneAPI soon, but don't wait for that.
