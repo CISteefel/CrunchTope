@@ -8,7 +8,7 @@ timestep_max       0.005
 timestep_init      0.005
 time_tolerance     0.001
 hindmarsh          true
-master         Tracer
+master             Tracer
 correction_max     2.0
 debye-huckel       true
 database_sweep     no
@@ -51,12 +51,16 @@ Condition junk1
 units            mol/kg
 temperature      25.0
 Tracer           0.1
+Na+              0.001
+Cl-              0.001
 END
 
 Condition junk2
 units            mol/kg
 temperature      25.0
 Tracer           0.0001
+Na+              0.001
+Cl-              0.001
 END
 
 DISCRETIZATION
@@ -75,6 +79,8 @@ END
  
 PRIMARY_SPECIES
 Tracer
+Na+
+Cl-
 END
  
 
