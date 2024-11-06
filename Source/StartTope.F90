@@ -9964,6 +9964,18 @@ ELSE
           STOP
         END IF
         
+        ! unit conversion for boundary condition
+
+        DO jx = LBOUND(BC_type_Richards,1), UBOUND(BC_type_Richards,1)
+          IF (BC_type_Richards(jx) == 1) THEN ! Dirichelt
+            BC_value_Richards(jx) = BC_value_Richards(jx)/dist_scale
+          ELSE IF (BC_type_Richards(jx) == 2) THEN ! neumann
+            CONTINUE
+          ELSE IF (BC_type_Richards(jx) == 3) THEN ! flux
+            BC_value_Richards(jx) = BC_value_Richards(jx)/(dist_scale * time_scale)
+          END IF
+        END DO
+                
         DEALLOCATE(BoundaryZone_Richards)
         DEALLOCATE(BoundaryValue_Richards)
         DEALLOCATE(jxxBC_Richards_lo)
