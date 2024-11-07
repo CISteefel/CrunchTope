@@ -172,14 +172,28 @@ newton_loop: DO
   line: DO
     IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
     ! update water potential
-    DO jx = 0, nx+1
-      IF (ABS(lam * dpsi_Newton(jx)) > dpsi_max) THEN
-        psi(jx, ny, nz) = psi(jx, ny, nz) + SIGN(dpsi_max, dpsi_Newton(jx))
-      ELSE
-        psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
-      END IF
+    IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
       
-    END DO
+      DO jx = 0, nx+1
+        IF (ABS(lam * dpsi_Newton(jx)) > dpsi_max) THEN
+          psi(jx, ny, nz) = psi(jx, ny, nz) + SIGN(dpsi_max, dpsi_Newton(jx))
+        ELSE
+          psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
+        END IF
+      
+      END DO
+    ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+      DO i = 1, n_total_cells
+        jx = cell_to_coordinate(i, 1)
+        jy = cell_to_coordinate(i, 2)
+        IF (ABS(lam * dpsi_Newton(i)) > dpsi_max) THEN
+          psi(jx, jy, nz) = psi(jx, jy, nz) + SIGN(dpsi_max, dpsi_Newton(i))
+        ELSE
+          psi(jx, jy, nz) = psi(jx, jy, nz) + lam * dpsi_Newton(i)
+        END IF
+      END DO
+    END IF
+    
     ! evaluate the flux and the residual
     CALL flux_Richards(nx, ny, nz)
     IF (Richards_steady) THEN

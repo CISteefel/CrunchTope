@@ -1220,7 +1220,12 @@ DO WHILE (nn <= nend)
           highY = UBOUND(satliq,2)
           highZ = UBOUND(satliq,3)
           call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,por,TEXT)
-    
+          
+          ! map flux from Richards solver the velocity vector for RTM
+          IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+            CONTINUE
+          END IF
+          
           IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
             ! the velocity at the boundary is forced to zero when the vector goes outward
             ! not to consider chemcial transport via evaporation
