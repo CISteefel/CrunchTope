@@ -43,7 +43,7 @@ SUBROUTINE flux_Richards(nx, ny, nz)
   xi_2 = rho_water_2*g/mu_water
 
 !*********************************************************************
-  IF (nx > 1 .and. ny == 1 .and. nz == 1) THEN ! one-dimensional problem
+  IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
     ! apply van Genuchten model to all grid cells
     jy = 1
     jz = 1
@@ -65,13 +65,13 @@ SUBROUTINE flux_Richards(nx, ny, nz)
       psi_grad = (psi(jx + 1, jy, jz) - psi(jx, jy, jz))/(x_2(jx + 1) - x_2(jx))
       q_diff = -xi_2_faces(jx)*K_faces(jx)*kr_faces(jx)*psi_grad
       q_grav = -SignGravity*COSD(x_angle)*K_faces(jx)* &
-               merge(kr(jx + 1, jy, jz)*xi_2(jx + 1, jy, jz), kr(jx, jy, jz)*xi_2(jx, jy, jz), &
-                     head(jx + 1, jy, jz) - head(jx, jy, jz) >= 0.0d0)
+               MERGE(kr(jx + 1, jy, jz)*xi_2(jx + 1, jy, jz), kr(jx, jy, jz)*xi_2(jx, jy, jz), &
+                     head(jx + 1, jy, jz) - head(jx, jy, jz) >= 0.0D0)
       qx(jx, jy, jz) = q_diff + q_grav
     END DO
 
 !*********************************************************************
-  ELSE IF (nx > 1 .and. ny > 1 .and. nz == 1) THEN ! two-dimensional problem
+  ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
 
     ! apply van Genuchten model to all grid cells
     jz = 1
@@ -141,14 +141,14 @@ SUBROUTINE flux_Richards(nx, ny, nz)
       psi_grad = (psi(jx_2, jy_2, jz) - psi(jx_1, jy_1, jz))/dx_1
       q_diff = -xi_2_faces(i)*K_faces(i)*kr_faces(i)*psi_grad
       q_grav = -gravity_effect*K_faces(i)* &
-               merge(kr(jx_2, jy_2, jz)*xi_2(jx_2, jy_2, jz), kr(jx_1, jy_1, jz)*xi_2(jx_1, jy_1, jz), &
-                     head(jx_2, jy_2, jz) - head(jx_1, jy_1, jz) >= 0.0d0)
+               MERGE(kr(jx_2, jy_2, jz)*xi_2(jx_2, jy_2, jz), kr(jx_1, jy_1, jz)*xi_2(jx_1, jy_1, jz), &
+                     head(jx_2, jy_2, jz) - head(jx_1, jy_1, jz) >= 0.0D0)
       q_Richards(i) = q_diff + q_grav
 
     END DO
 
 !*********************************************************************
-  ELSE IF (nx > 1 .and. ny > 1 .and. nz > 1) THEN
+  ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
     WRITE (*, *)
     WRITE (*, *) ' Currently, three-dimensional Richards solver is supported.'
     WRITE (*, *)
