@@ -10,7 +10,7 @@ RUNTIME
 time_units      years
 timestep_max    0.001
 timestep_init   0.0000001
-time_tolerance  0.001
+time_tolerance  0.005
 correction_max  2.0
 hindmarsh       false
 debye-huckel    true
@@ -29,9 +29,9 @@ END
 
 OUTPUT
 time_units               years
-spatial_profile          1.0 
-!!1.0
-!!10 20 30 40 50 60 70 80 90 100 110 120 130 140 150  
+spatial_profile          0.01 
+!!!10 
+!!!20 30 40 50 60 70 80 90 100 110 120 130 140 150  
 !!!300  
 time_series_at_node      MingliangEffluent5a.out  2 21  1
 time_series_at_node      MingliangEffluent5b.out  6 21  1
@@ -40,20 +40,27 @@ time_series_interval     1
 !!!MakeMovie       true
 END
 
+TEMPERATURE
+set_temperature  25.0
+END
+
 Condition mingliang_boundary
 temperature      25.0
 pH               3.0  
 Ca++             0.0001 
-CO3--            0.01 
+CO2(aq)            0.001 
 SO4--            0.1
 Fe++             0.000223
-!!Fe++             8.0e-3
-Fe+++            0.0143
-Al+++            0.0143
+!!!Fe++             8.0e-3
+!!!Fe+++            0.0143
+Al+++            0.00143
 K+               7.67e-5
 O2(aq)           O2(g)   0.1005
-Na+              9.092e-2
+Na+              0.1
+Cl-              0.1
 Tracer           0.01
+H2O              55.50843506
+
 Calcite          0.30      1.00
 Gypsum           0.00      1.00
 Ferrihydrite     0.00      1.00
@@ -66,17 +73,17 @@ END
 Condition initial
 temperature      25.0
 pH               7.0  
-Ca++             charge
-!!Ca++             1.69512E-04 
-CO3--            CO2(g)   0.01 
+Ca++             1.69512E-04 
+CO2(aq)          CO2(g)   0.01 
 SO4--            1.69512E-04
-Fe++             1.0e-5
-Fe+++            1.0e-10
-Al+++            1.0e-5
+Fe++             1.0e-8
+Al+++            1.0e-7
 K+               1.0e-5
-O2(aq)           O2(g)    1.E-15
-Na+              1.0e-15
+O2(aq)           O2(g)    1.E-45
+Na+              0.01
+Cl-              0.01
 Tracer           0.00001
+H2O              55.50843506
 Calcite          0.22      1.00
 Gypsum           0.00      1.00
 Ferrihydrite     0.00      1.00
@@ -123,6 +130,9 @@ DISCRETIZATION
 distance_units  meters
 xzones  1  0.050  29  0.10  1  0.050
 yzones  1  0.025  39  0.05  1  0.025
+!!xzones  1  0.1  29  0.10  1  0.1
+!!yzones  1  0.05  39  0.05  1  0.05
+!!zzones  1       1.0
 END
 
 FLOW
@@ -131,14 +141,15 @@ time_units          second
 calculate_flow      true
 read_PermeabilityFile  perm5_2D.hyc  SingleFile3D
 !!IF homogeneous flow:
-!!permeability_x      1.18602E-11   default
-!!permeability_x      2.61491E-10  zone  0-0    1-40      1-1
-!!permeability_x      2.61491E-10  zone  31-31  1-40      1-1
+permeability_x      1.18602E-11   default
+permeability_y      1.18602E-11   default
+permeability_x      2.61491E-10  zone  0-0    1-40      1-1
+permeability_x      2.61491E-10  zone  31-31  1-40      1-1
 permeability_y      0.00  zone  1-31    42-42      1-1
 permeability_y      0.00  zone  1-31    0-0        1-1
 pressure            30    default
 pressure            104.4365949  zone 0-0   1-41    1-1 fix
-pressure            0.0         zone 32-32 1-41    1-1 fix
+pressure            0.0          zone 32-32 1-41    1-1 fix
 gravity             90.0  90.0  90.0
 END
 
@@ -149,13 +160,13 @@ FLOW
 !!END
 
 POROSITY
-!!fix_porosity     0.35
+!!!fix_porosity     0.35
 porosity_update    true
 END
 
 PRIMARY_SPECIES
 H+
-CO3--
+CO2(aq) 
 Ca++
 SO4--
 Fe++
@@ -163,7 +174,9 @@ Al+++
 K+
 O2(aq)
 Na+
+Cl-
 Tracer
+H2O
 END
 
 SECONDARY_SPECIES
@@ -176,8 +189,6 @@ Fe(OH)3(aq)
 Fe(OH)4-
 Fe(SO4)2-
 FeCO3+
-Fe2(OH)2++++
-Fe3(OH)4(5+)
 KHSO4(aq)
 H2SO4(aq)
 H2(aq)
@@ -206,7 +217,7 @@ AlHSO4++
 Al(SO4)2-
 HAlO2(aq)
 HCO3-
-CO2(aq)
+CO3--
 HSO4-
 END
 
@@ -215,11 +226,5 @@ CO2(g)
 O2(g)
 H2(g)
 END
-
-TEMPERATURE
-set_temperature  25.0
-END
-
-
 
 

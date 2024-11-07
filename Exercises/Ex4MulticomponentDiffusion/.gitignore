@@ -1,0 +1,18 @@
+# ignore visual studio files
+CrunchTope.*
+
+# ignore input files
+
+
+# but selectively track input files (shortcourse input files)
+
+
+# ignore output files
+*.tec
+*.out
+
+# ignore .rst file
+*.rst
+
+# ignore fort.123 files
+fort.123

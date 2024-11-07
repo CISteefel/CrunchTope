@@ -396,7 +396,7 @@ IF (found) THEN
     ELSE                ! For other concentrations
       
       IF (ulab(i) /= 'H2O' .and. ulab(i) /= 'HHO') THEN
-        guess(i,nchem) = 55.50843506
+        guess(i,nchem) = 1.0D-08
       ENDIF
     
       
