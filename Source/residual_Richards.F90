@@ -1,4 +1,4 @@
-SUBROUTINE residual_Richards(nx, ny, nz, dtflow, low_bound_F, high_bound_F, F_residual)
+SUBROUTINE residual_Richards(nx, ny, nz, dtflow, F_residual)
 ! This subroutine calculates the residual of the Richards equation
 ! F = d theta / dt + div q - S (dimensionless)
 ! S is the source/sink term (positive for source)
@@ -16,20 +16,21 @@ IMPLICIT NONE
 INTEGER(I4B), INTENT(IN)                                   :: nx
 INTEGER(I4B), INTENT(IN)                                   :: ny
 INTEGER(I4B), INTENT(IN)                                   :: nz
-INTEGER(I4B), INTENT(IN)                                   :: low_bound_F
-INTEGER(I4B), INTENT(IN)                                   :: high_bound_F
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
 INTEGER(I4B)                                               :: n_inner_cells
+INTEGER(I4B)                                               :: n_total_cells
+
 INTEGER(I4B)                                               :: n_xfaces
 INTEGER(I4B)                                               :: n_yfaces
 INTEGER(I4B)                                               :: n_bfaces
 
 REAL(DP), INTENT(IN)                                       :: dtflow
-REAL(DP), DIMENSION(low_bound_F:high_bound_F), INTENT(OUT)                 :: F_residual
+REAL(DP), ALLOCATABLE, INTENT(INOUT)                                         :: F_residual(:) ! residual
+
 
 REAL(DP)                                                   :: divergence
 REAL(DP)                                                   :: q_x_1
@@ -56,7 +57,6 @@ REAL(DP)                                                   :: psi_grad_b ! water
 !REAL(DP)                                                   :: adjusted_extraction ! total water extraction (=evaporation + transpiration) adjusted to prevent the cell from drying out
 
 
-F_residual= 0.0
 
 !*********************************************************************
 IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
@@ -136,6 +136,7 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     n_xfaces = nx*(ny+1) ! number of faces
     n_yfaces =  (nx+1)*ny
     n_bfaces = 2*nx + 2*ny
+    n_total_cells = n_inner_cells + n_bfaces
   ELSE
     WRITE(*,*)
     WRITE(*,*) ' Currently, only regular spatial domain is supported.'
@@ -144,6 +145,16 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     STOP
         
   END IF
+  
+
+  IF (ALLOCATED(F_residual)) THEN
+    DEALLOCATE(F_residual)
+    ALLOCATE(F_residual(n_total_cells))
+  ELSE
+    ALLOCATE(F_residual(n_total_cells))
+  END IF
+  
+  F_residual= 0.0
   
   ! internal cells
   DO i = 1, n_inner_cells

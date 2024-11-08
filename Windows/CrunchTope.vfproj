@@ -78,23 +78,20 @@
 			<File RelativePath="..\Source\CourantStepAlt.F90"/>
 			<File RelativePath="..\Source\CPUdefinition.F90"/>
 			<File RelativePath="..\Source\crunch_interface.F90"/>
-			<File RelativePath="..\Source\CrunchFunctions.F90">
-			</File>
+			<File RelativePath="..\Source\CrunchFunctions.F90"/>
 			<File RelativePath="..\Source\CrunchPETScFinalizeSolver.F90"/>
 			<File RelativePath="..\Source\CrunchPETScInitializeChemistry.F90"/>
 			<File RelativePath="..\Source\CrunchPETScInitializeDiffusion.F90"/>
 			<File RelativePath="..\Source\CrunchPETScInitializePressure.F90"/>
 			<File RelativePath="..\Source\CrunchPETScTolerances.F90"/>
-			<File RelativePath="..\Source\CrunchTope.F90">
-			</File>
+			<File RelativePath="..\Source\CrunchTope.F90"/>
 			<File RelativePath="..\Source\CrunchTopeDriver.F90"/>
 			<File RelativePath="..\Source\crunchtype.F90"/>
 			<File RelativePath="..\Source\database.F90"/>
 			<File RelativePath="..\Source\decay.F90"/>
 			<File RelativePath="..\Source\decbt90.F90"/>
 			<File RelativePath="..\Source\density.F90"/>
-			<File RelativePath="..\Source\dispersivity.F90">
-			</File>
+			<File RelativePath="..\Source\dispersivity.F90"/>
 			<File RelativePath="..\Source\duan.F90"/>
 			<File RelativePath="..\Source\equilib_co2.F90"/>
 			<File RelativePath="..\Source\erosion.F90"/>
@@ -112,8 +109,7 @@
 			<File RelativePath="..\Source\fitgamma.F90"/>
 			<File RelativePath="..\Source\Flash.F90"/>
 			<File RelativePath="..\Source\flow.F90"/>
-			<File RelativePath="..\Source\flux_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\flux_Richards.F90"/>
 			<File RelativePath="..\Source\FluxWeightedConcentrationInitialize.F90"/>
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>
@@ -206,12 +202,9 @@
 			<File RelativePath="..\Source\PestExchange.F90"/>
 			<File RelativePath="..\Source\PestScaleOutput.F90"/>
 			<File RelativePath="..\Source\PestSurface.F90"/>
-			<File RelativePath="..\Source\porcalc.F90">
-			</File>
-			<File RelativePath="..\Source\porperm.F90">
-			</File>
-			<File RelativePath="..\Source\Pressure.F90">
-			</File>
+			<File RelativePath="..\Source\porcalc.F90"/>
+			<File RelativePath="..\Source\porperm.F90"/>
+			<File RelativePath="..\Source\Pressure.F90"/>
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
@@ -334,8 +327,7 @@
 			<File RelativePath="..\Source\RunTime.F90"/>
 			<File RelativePath="..\Source\satcalc.F90"/>
 			<File RelativePath="..\Source\solbt90.F90"/>
-			<File RelativePath="..\Source\solve_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\solve_Richards.F90"/>
 			<File RelativePath="..\Source\SolveDiffuse.F90"/>
 			<File RelativePath="..\Source\SolveDiffuseSpherical.F90"/>
 			<File RelativePath="..\Source\SolveGasDiffuse.F90"/>
@@ -381,8 +373,7 @@
 			<File RelativePath="..\Source\units_time.F90"/>
 			<File RelativePath="..\Source\units_timeOutput.F90"/>
 			<File RelativePath="..\Source\UpdateExchanger.F90"/>
-			<File RelativePath="..\Source\vanGenuchten_model.F90">
-			</File>
+			<File RelativePath="..\Source\vanGenuchten_model.F90"/>
 			<File RelativePath="..\Source\vanGenuchten_model_kr.F90"/>
 			<File RelativePath="..\Source\velocalc.F90"/>
 			<File RelativePath="..\Source\velocalcNS.F90"/>

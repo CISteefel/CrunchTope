@@ -1,4 +1,4 @@
-SUBROUTINE Jacobian_Richards(nx, ny, nz, dtflow, low_bound_F, high_bound_F, J)
+SUBROUTINE Jacobian_Richards(nx, ny, nz, dtflow, J)
 USE crunchtype
 USE io
 USE params
@@ -15,13 +15,12 @@ INTEGER(I4B), INTENT(IN)                                   :: ny
 INTEGER(I4B), INTENT(IN)                                   :: nz
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: n_inner_cells
+INTEGER(I4B)                                               :: n_total_cells
 INTEGER(I4B)                                               :: n_xfaces
 INTEGER(I4B)                                               :: n_yfaces
 INTEGER(I4B)                                               :: n_bfaces
-INTEGER(I4B), INTENT(IN)                                   :: low_bound_F
-INTEGER(I4B), INTENT(IN)                                   :: high_bound_F
 
-REAL(DP), INTENT(OUT), DIMENSION(low_bound_F:high_bound_F, low_bound_F:high_bound_F)                   :: J ! Jacobian matrix
+REAL(DP), ALLOCATABLE, INTENT(INOUT)                                         :: J(:, :) ! residual
 INTEGER(I4B)                                               :: jx
 INTEGER(I4B)                                               :: jy
 INTEGER(I4B)                                               :: jz
@@ -57,7 +56,7 @@ REAL(DP), INTENT(IN)                                       :: dtflow
 REAL(DP)                                                   :: psi_b ! water potential at a boundary
 
 xi_2 = rho_water_2*g/mu_water
-J = 0.0 ! initialize Jacobian matrix
+
 
 !*********************************************************************
 IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
@@ -201,6 +200,7 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     n_xfaces = nx*(ny+1) ! number of faces
     n_yfaces =  (nx+1)*ny
     n_bfaces = 2*nx + 2*ny
+    n_total_cells = n_inner_cells + n_bfaces
   ELSE
     WRITE(*,*)
     WRITE(*,*) ' Currently, only regular spatial domain is supported.'
@@ -210,6 +210,14 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
         
   END IF
   
+  IF (ALLOCATED(J)) THEN
+    DEALLOCATE(J)
+    ALLOCATE(J(n_total_cells, n_total_cells))
+  ELSE
+    ALLOCATE(J(n_total_cells, n_total_cells))
+  END IF
+  
+  J = 0.0 ! initialize Jacobian matrix
   
   ! internal cells
   DO i = 1, n_inner_cells

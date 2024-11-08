@@ -11,6 +11,28 @@ USE transport
 
 IMPLICIT NONE
 
+interface
+    subroutine residual_Richards(nx, ny, nz, dtflow, F_residual)
+        USE crunchtype
+        INTEGER(I4B), INTENT(IN)                                   :: nx
+        INTEGER(I4B), INTENT(IN)                                   :: ny
+        INTEGER(I4B), INTENT(IN)                                   :: nz
+        REAL(DP), INTENT(IN)                                       :: dtflow
+        REAL(DP), ALLOCATABLE, INTENT(INOUT)                                         :: F_residual(:) ! residual
+    end subroutine residual_Richards
+end interface
+
+interface
+    subroutine Jacobian_Richards(nx, ny, nz, dtflow, J)
+        USE crunchtype
+        INTEGER(I4B), INTENT(IN)                                   :: nx
+        INTEGER(I4B), INTENT(IN)                                   :: ny
+        INTEGER(I4B), INTENT(IN)                                   :: nz
+        REAL(DP), INTENT(IN)                                       :: dtflow
+        REAL(DP), ALLOCATABLE, INTENT(INOUT)                                         :: J(:, :) ! residual
+    end subroutine Jacobian_Richards
+end interface
+
 INTEGER(I4B), INTENT(IN)                                   :: nx
 INTEGER(I4B), INTENT(IN)                                   :: ny
 INTEGER(I4B), INTENT(IN)                                   :: nz
@@ -33,7 +55,7 @@ REAL(DP), ALLOCATABLE                                      :: dpsi_Newton(:) ! N
 
 ! parameters for the linear solver
 INTEGER(I4B)                                               :: info, lda, ldb, nrhs
-INTEGER(I4B), DIMENSION(0:nx+1)                            :: ipiv
+INTEGER(I4B), ALLOCATABLE                         :: ipiv(:)
 
 ! parameters for Newtons' method for forward problem
 REAL(DP), PARAMETER                                        :: tau_a = 1.0d-8
@@ -117,6 +139,13 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     ALLOCATE(dpsi_Newton(n_total_cells))
   END IF
   
+  IF (ALLOCATED(ipiv)) THEN
+    DEALLOCATE(ipiv)
+    ALLOCATE(ipiv(n_total_cells))
+  ELSE
+    ALLOCATE(ipiv(n_total_cells))
+  END IF
+  
   nrhs = 1
   lda = n_total_cells
   ldb = n_total_cells
@@ -152,14 +181,14 @@ newton_loop: DO
     ! Evaluate the Jacobian matrix
     !CALL Jacobian_Richards_steady(nx, ny, nz, dtflow, J)
   ELSE
-    CALL residual_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), F_residual)
+    CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
     ! Evaluate the Jacobian matrix
-    CALL Jacobian_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), J)
+    CALL Jacobian_Richards(nx, ny, nz, dtflow, J)
   END IF
   
   dpsi_Newton = -F_residual
   ! Solve the linear system
-  CALL dgesv(lda, nrhs, J, lda, ipiv, dpsi_Newton, ldb, info)
+  CALL dgesv(n_total_cells, nrhs, J, lda, ipiv, dpsi_Newton, ldb, info)
   
   ! Armijo line search
   alpha_line = 1.0d-4
@@ -172,17 +201,17 @@ newton_loop: DO
   line: DO
     IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
     ! update water potential
-    IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-      
-      DO jx = 0, nx+1
-        IF (ABS(lam * dpsi_Newton(jx)) > dpsi_max) THEN
-          psi(jx, ny, nz) = psi(jx, ny, nz) + SIGN(dpsi_max, dpsi_Newton(jx))
-        ELSE
-          psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
-        END IF
-      
-      END DO
-    ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+    !IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+    !  
+    !  DO jx = 0, nx+1
+    !    IF (ABS(lam * dpsi_Newton(jx)) > dpsi_max) THEN
+    !      psi(jx, ny, nz) = psi(jx, ny, nz) + SIGN(dpsi_max, dpsi_Newton(jx))
+    !    ELSE
+    !      psi(jx, ny, nz) = psi(jx, ny, nz) + lam * dpsi_Newton(jx)
+    !    END IF
+    !  
+    !  END DO
+    IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
       DO i = 1, n_total_cells
         jx = cell_to_coordinate(i, 1)
         jy = cell_to_coordinate(i, 2)
@@ -200,7 +229,7 @@ newton_loop: DO
       CONTINUE
       !CALL residual_Richards_steady(nx, ny, nz, dtflow, F_residual)
     ELSE
-      CALL residual_Richards(nx, ny, nz, dtflow, LBOUND(F_residual), UBOUND(F_residual), F_residual)
+      CALL residual_Richards(nx, ny, nz, dtflow, F_residual)
     END IF
   
     ! update tolerance
