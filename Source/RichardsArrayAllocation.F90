@@ -58,10 +58,10 @@ IF (nx > 1 .AND. ny > 1) THEN ! two-dimensional problem
     
   ! fill the ghost cells
   dyy_2(0) = dyy_2(1)
-  dyy_2(nx+1) = dyy_2(ny)
+  dyy_2(ny+1) = dyy_2(ny)
   
   y_2(0) = -0.5d0*dyy_2(0)
-  y_2(nx+1) = y_2(ny)+0.5d0*(dyy_2(ny) + dyy_2(ny+1))
+  y_2(ny+1) = y_2(ny)+0.5d0*(dyy_2(ny) + dyy_2(ny+1))
 
 END IF
 

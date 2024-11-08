@@ -259,12 +259,12 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
                   (dkr(jx+1, jy, jz)*dxx_2(jx)/(dxx_2(jx+1) + dxx_2(jx))*(psi(jx+1, jy, jz) - psi(jx, jy, jz)) + kr_faces(face_ID_east))
     
     !! south cell due to q at south face
-    J(i, cell_ID_south) = J(i, face_ID_south) + dtflow/dyy_2(jy) * K_faces(face_ID_west) * xi_2_faces(face_ID_south) / (y_2(jy) - y_2(jy-1)) * &
+    J(i, cell_ID_south) = J(i, cell_ID_south) + dtflow/dyy_2(jy) * K_faces(face_ID_south) * xi_2_faces(face_ID_south) / (y_2(jy) - y_2(jy-1)) * &
                   (dkr(jx, jy-1, jz)*dyy_2(jy)/(dyy_2(jy) + dyy_2(jy-1))*(psi(jx, jy, jz) - psi(jx, jy-1, jz)) - kr_faces(face_ID_south))
     
     !! north cell due to q at north face
-    J(i, cell_ID_north) = J(i, cell_ID_north) - dtflow/dyy_2(jy) * K_faces(cell_ID_north) * xi_2_faces(cell_ID_north) / (y_2(jy+1) - y_2(jy)) * &
-                  (dkr(jx, jy+1, jz)*dyy_2(jy)/(dyy_2(jy+1) + dyy_2(jy))*(psi(jx, jy+1, jz) - psi(jx, jy, jz)) + kr_faces(cell_ID_north))
+    J(i, cell_ID_north) = J(i, cell_ID_north) - dtflow/dyy_2(jy) * K_faces(face_ID_north) * xi_2_faces(face_ID_north) / (y_2(jy+1) - y_2(jy)) * &
+                  (dkr(jx, jy+1, jz)*dyy_2(jy)/(dyy_2(jy+1) + dyy_2(jy))*(psi(jx, jy+1, jz) - psi(jx, jy, jz)) + kr_faces(face_ID_north))
   
     ! add gravitational flux part
     
@@ -362,9 +362,9 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
                     (dkr(jx_1, jy_1, jz)*0.5d0*dx_2/dx_2*(psi(jx_2, jy_2, jz) - psi(jx_1, jy_1, jz)) - kr_faces(face_ID))
   
       ! add gravitational flux part
-      J(cell_ID_outer, cell_ID_inner) = J(cell_ID_outer, cell_ID_inner) - SignGravity*COSD(x_angle)*K_faces(face_ID)*MERGE(0.0d0, dkr(jx_1, jy_1, jz) * xi_2(jx_1, jy_1, jz), head(jx_2, jy_2, jz) - head(jx_1, jy_1, jz) >= 0.0d0)
+      J(cell_ID_outer, cell_ID_inner) = J(cell_ID_outer, cell_ID_inner) - gravity_effect*K_faces(face_ID)*MERGE(0.0d0, dkr(jx_1, jy_1, jz) * xi_2(jx_1, jy_1, jz), head(jx_2, jy_2, jz) - head(jx_1, jy_1, jz) >= 0.0d0)
   
-      J(cell_ID_outer, cell_ID_outer) = J(cell_ID_outer, cell_ID_outer) - SignGravity*COSD(x_angle)*K_faces(face_ID)*MERGE(dkr(jx_2, jy_2, jz) * xi_2(jx_2, jy_2, jz), 0.0d0, head(jx_2, jy_2, jz) - head(jx_1, jy_1, jz) >= 0.0d0)
+      J(cell_ID_outer, cell_ID_outer) = J(cell_ID_outer, cell_ID_outer) - gravity_effect*K_faces(face_ID)*MERGE(dkr(jx_2, jy_2, jz) * xi_2(jx_2, jy_2, jz), 0.0d0, head(jx_2, jy_2, jz) - head(jx_1, jy_1, jz) >= 0.0d0)
   
     
     
