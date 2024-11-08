@@ -66,6 +66,7 @@ USE modflowModule
 !!!USE isotope, ONLY: IsotopeMineralRare, IsotopeMineralCommon,IsotopePrimaryCommon,IsotopePrimaryRare
 USE NanoCrystal
 USE isotope
+USE Richards_module
 
 IMPLICIT NONE
 

@@ -3575,7 +3575,8 @@ END DO
            CLOSE(intfile)
          END DO
        END IF
-
+       
+       READ(*,*)
        RETURN
 !!    ********  NORMAL STOP HERE  **************
     END IF
