@@ -58,6 +58,7 @@ USE io
 USE ReadFlow
 USE modflowModule
 USE CrunchFunctions
+USE Richards_module
 !!USE fparser
 
 #include "petsc/finclude/petscmat.h"
@@ -684,10 +685,9 @@ IF (CalculateFlow) THEN
  ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  initial_flow_solver_if: IF (Richards) THEN
-   Richards_steady = .FALSE.
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
-   steady_Richards: IF (Richards_steady) THEN
+   steady_Richards: IF (Richards_Options%is_steady) THEN
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
      WRITE(*,*) ' Currently, steady-state Ricahrds solver is turned off '
@@ -700,7 +700,7 @@ IF (CalculateFlow) THEN
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0     
      CALL flux_Richards(nx, ny, nz)
-        
+     Richards_Options%is_steady = .FALSE.
    END IF steady_Richards
 
  ! End of edit by Toshiyuki Bandai, 2024 Oct

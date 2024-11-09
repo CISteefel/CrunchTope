@@ -8127,45 +8127,39 @@ ELSE
       ENDIF
 
       ! True if you want print statement on the screen from the Richards solver
-      Richards_print = .FALSE.
       parchar = 'Richards_print'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,Richards_print)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%is_print)
       
       ! True if steady-state Richards solver is used to obtain the initial condition
-      Richards_steady = .FALSE.
       parchar = 'Richards_steady'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,Richards_steady)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%is_steady)
       
       ! True if the n parameter in the van Genuchten model is used as the input data
-      vg_is_n = .TRUE.
       parchar = 'vg_is_n'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,vg_is_n)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%vg_is_n)
       
       ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
-      psi_is_head = .TRUE.
       parchar = 'psi_is_head'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,psi_is_head)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%psi_is_head)
       
-      IF (.NOT. psi_is_head .AND. ABS(dist_scale - 1.0d0) > 1.0d-5) THEN
-        WRITE(*,*) 'dist_scale must be set to 1.0 when psi_is_head = .FALSE.'
+      IF (.NOT. Richards_Options%psi_is_head .AND. ABS(dist_scale - 1.0d0) > 1.0d-5) THEN
+        WRITE(*,*) 'The unit for space must be m when psi_is_head = .FALSE.'
         STOP
       END IF
       
       ! True if the theta_s is the same as the porosity value
-      theta_s_is_porosity = .TRUE.
       parchar = 'theta_s_is_porosity'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,theta_s_is_porosity)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%theta_s_is_porosity)
       
       ! True if the input to the theta_r is the residual saturation value
-      theta_r_is_S_r = .FALSE.
       parchar = 'theta_r_is_S_r'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,theta_r_is_S_r)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%theta_r_is_S_r)
       
       ! set the minimum water potential allowed at the boundary when selecting atomosphere boundary condition
       
@@ -8174,14 +8168,10 @@ ELSE
       realjunk = 0.0
       CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
       IF (parfind == ' ') THEN
-        psi_0 = -1.0d4  ! Use default
+        Richards_Base%psi_0 = -1.0d4 / dist_scale  ! Use default
       ELSE
-        psi_0 = realjunk
+        Richards_Base%psi_0 = realjunk / dist_scale
       END IF
-
-      ! convert unit
-      psi_0 = psi_0 / dist_scale
-      
       
       ! set the maximum water potential updated during Newton iterations
       parchar = 'set_dpsi_max'
@@ -8189,15 +8179,11 @@ ELSE
       realjunk = 0.0
       CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
       IF (parfind == ' ') THEN
-        dpsi_max = 1.0d3  ! Use default
+        Richards_Solver%dpsi_max = 1.0d3 / dist_scale  ! Use default
       ELSE
-        dpsi_max = realjunk
+        Richards_Solver%dpsi_max = realjunk / dist_scale
       END IF
-
-      ! convert unit
-      dpsi_max = dpsi_max / dist_scale
-      
-      
+            
       ! flag to prevent chemical transport due to evaporation at a boundary
       parchar = 'set_evaporation_boundary'
       parfind = ' '
@@ -8210,18 +8196,15 @@ ELSE
       END IF
       
       ! set the shape of the spatial domain for 2D flow problem (only used in 2D Richards)
-      parchar = 'domain_shape_flow'
+      parchar = 'spatial_domain'
       parfind = ' '
-      domain_shape_flow = ' '
       CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
       IF (parfind == ' ') THEN
-        domain_shape_flow = 'regular'             ! Use default
+        Richards_Base%spatial_domain = 'regular'
       ELSE
-        domain_shape_flow = dumstring
+        Richards_Base%spatial_domain = dumstring
       END IF
-      
-      
-      
+
       ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
     
@@ -8320,20 +8303,10 @@ ELSE
   ! Edit by Toshiyuki Bandai 2023 May
   Richards_allocate: IF (Richards) THEN
     
-    CALL RichardsArrayAllocation(nx,ny,nz)
+    CALL RichardsDiscretize(nx, ny, nz)
+    CALL RichardsAllocate(nx, ny, nz)
+    CALL RichardsUpdateFluid(t)
     
-    !*************************************************************
-    ! Edit by Toshiyuki Bandai, Oct. 2024
-    ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
-    ! mu_water is defined in Flow module
-    mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-    rho_water_2 = 0.99823d0 * 1.0E3
-    mu_water = 0.0010005*secyr ! dynamic viscosity of water     
-
-    ! End of Edit by Toshiyuki Bandai, Oct. 2024
-    !*************************************************************
-
-
     ! allocate and read van-Genuchten parameters
     VG_error = 0
     nzones_VG_params = 0

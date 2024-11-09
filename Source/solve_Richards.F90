@@ -70,37 +70,37 @@ INTEGER(I4B)                                               :: total_line
 
 !*********************************************************************
 ! allocate arrays
-IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-  IF (ALLOCATED(F_residual)) THEN
-    DEALLOCATE(F_residual)
-    ALLOCATE(F_residual(0:nx+1))
-  ELSE
-    ALLOCATE(F_residual(0:nx+1))
-  END IF
-
-  IF (ALLOCATED(J)) THEN
-    DEALLOCATE(J)
-    ALLOCATE(J(0:nx+1, 0:nx+1))
-  ELSE
-    ALLOCATE(J(0:nx+1, 0:nx+1))
-  END IF
-
-  IF (ALLOCATED(dpsi_Newton)) THEN
-    DEALLOCATE(dpsi_Newton)
-    ALLOCATE(dpsi_Newton(0:nx+1))
-  ELSE
-    ALLOCATE(dpsi_Newton(0:nx+1))
-  END IF
-  
-  
-  ! initialize parameters for linear solver
-  nrhs = 1
-  lda = nx + 2
-  ldb = nx + 2
+!IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+!  IF (ALLOCATED(F_residual)) THEN
+!    DEALLOCATE(F_residual)
+!    ALLOCATE(F_residual(0:nx+1))
+!  ELSE
+!    ALLOCATE(F_residual(0:nx+1))
+!  END IF
+!
+!  IF (ALLOCATED(J)) THEN
+!    DEALLOCATE(J)
+!    ALLOCATE(J(0:nx+1, 0:nx+1))
+!  ELSE
+!    ALLOCATE(J(0:nx+1, 0:nx+1))
+!  END IF
+!
+!  IF (ALLOCATED(dpsi_Newton)) THEN
+!    DEALLOCATE(dpsi_Newton)
+!    ALLOCATE(dpsi_Newton(0:nx+1))
+!  ELSE
+!    ALLOCATE(dpsi_Newton(0:nx+1))
+!  END IF
+!  
+!  
+!  ! initialize parameters for linear solver
+!  nrhs = 1
+!  lda = nx + 2
+!  ldb = nx + 2
 
 
 !*********************************************************************
-ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
   IF (domain_shape_flow == 'regular') THEN
     n_inner_cells = nx * ny
     n_xfaces = nx*(ny+1) ! number of faces
