@@ -108,10 +108,8 @@
 			<File RelativePath="..\Source\fit.F90"/>
 			<File RelativePath="..\Source\fitgamma.F90"/>
 			<File RelativePath="..\Source\Flash.F90"/>
-			<File RelativePath="..\Source\flow.F90">
-			</File>
-			<File RelativePath="..\Source\flux_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\flow.F90"/>
+			<File RelativePath="..\Source\flux_Richards.F90"/>
 			<File RelativePath="..\Source\FluxWeightedConcentrationInitialize.F90"/>
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>
@@ -142,6 +140,8 @@
 			<File RelativePath="..\Source\GraphicsTecplot.F90"/>
 			<File RelativePath="..\Source\GraphicsVisit.F90"/>
 			<File RelativePath="..\Source\harmonic.F90"/>
+			<File RelativePath="..\Source\hydraulic_function.F90">
+			</File>
 			<File RelativePath="..\Source\InitializeCalciteStoichiometry.F90"/>
 			<File RelativePath="..\Source\interp.F90"/>
 			<File RelativePath="..\Source\interp3.F90"/>
@@ -158,12 +158,10 @@
 			<File RelativePath="..\Source\jacgas.F90"/>
 			<File RelativePath="..\Source\jacgas_local.F90"/>
 			<File RelativePath="..\Source\jacminTope.F90"/>
-			<File RelativePath="..\Source\jacobian.F90">
-			</File>
+			<File RelativePath="..\Source\jacobian.F90"/>
 			<File RelativePath="..\Source\jacobian_init.F90"/>
 			<File RelativePath="..\Source\jacobian_plus.F90"/>
-			<File RelativePath="..\Source\Jacobian_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\Jacobian_Richards.F90"/>
 			<File RelativePath="..\Source\Jacobian_Richards_steady.F90"/>
 			<File RelativePath="..\Source\jacpotential.F90"/>
 			<File RelativePath="..\Source\JacPotentialLocal.F90"/>
@@ -201,7 +199,8 @@
 			<File RelativePath="..\Source\oldsurface.F90"/>
 			<File RelativePath="..\Source\os3d_newton.F90"/>
 			<File RelativePath="..\Source\parameters.F90"/>
-			<File RelativePath="..\Source\params.F90"/>
+			<File RelativePath="..\Source\params.F90">
+			</File>
 			<File RelativePath="..\Source\PauseFor.F90"/>
 			<File RelativePath="..\Source\PestExchange.F90"/>
 			<File RelativePath="..\Source\PestScaleOutput.F90"/>
@@ -217,7 +216,8 @@
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
 			<File RelativePath="..\Source\read_bound.F90"/>
-			<File RelativePath="..\Source\read_boundary_condition_Richards.F90"/>
+			<File RelativePath="..\Source\read_boundary_condition_Richards.F90">
+			</File>
 			<File RelativePath="..\Source\read_BoundaryConditionsByZone.F90"/>
 			<File RelativePath="..\Source\read_burialfile.F90"/>
 			<File RelativePath="..\Source\read_CatabolicPath.F90"/>
@@ -323,8 +323,7 @@
 			<File RelativePath="..\Source\readtype3.F90"/>
 			<File RelativePath="..\Source\readtypescan1.F90"/>
 			<File RelativePath="..\Source\reallocate.F90"/>
-			<File RelativePath="..\Source\residual_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\residual_Richards.F90"/>
 			<File RelativePath="..\Source\residual_Richards_steady.F90"/>
 			<File RelativePath="..\Source\restart.F90"/>
 			<File RelativePath="..\Source\richards.F90">
@@ -334,8 +333,7 @@
 			<File RelativePath="..\Source\RunTime.F90"/>
 			<File RelativePath="..\Source\satcalc.F90"/>
 			<File RelativePath="..\Source\solbt90.F90"/>
-			<File RelativePath="..\Source\solve_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\solve_Richards.F90"/>
 			<File RelativePath="..\Source\SolveDiffuse.F90"/>
 			<File RelativePath="..\Source\SolveDiffuseSpherical.F90"/>
 			<File RelativePath="..\Source\SolveGasDiffuse.F90"/>
@@ -383,10 +381,8 @@
 			<File RelativePath="..\Source\UpdateExchanger.F90"/>
 			<File RelativePath="..\Source\vanGenuchten_model.F90"/>
 			<File RelativePath="..\Source\vanGenuchten_model_kr.F90"/>
-			<File RelativePath="..\Source\velocalc.F90">
-			</File>
-			<File RelativePath="..\Source\velocalcNS.F90">
-			</File>
+			<File RelativePath="..\Source\velocalc.F90"/>
+			<File RelativePath="..\Source\velocalcNS.F90"/>
 			<File RelativePath="..\Source\WaterReacted.F90"/>
 			<File RelativePath="..\Source\WaterReactedNodeByNode.F90"/>
 			<File RelativePath="..\Source\xmass.F90"/>

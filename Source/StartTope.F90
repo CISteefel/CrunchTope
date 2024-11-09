@@ -67,6 +67,7 @@ USE modflowModule
 USE NanoCrystal
 USE isotope
 USE Richards_module
+USE hydraulic_function_module
 
 IMPLICIT NONE
 
@@ -8136,6 +8137,16 @@ ELSE
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%is_steady)
       
+      ! select hydraulic function
+      parchar = 'hydraulic_function'
+      parfind = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind == ' ') THEN
+        Richards_Options%hydraulic_function = 'VGM' ! van Genuchten-Mualem model as default
+      ELSE
+        Richards_Options%hydraulic_function = dumstring
+      END IF
+      
       ! True if the n parameter in the van Genuchten model is used as the input data
       parchar = 'vg_is_n'
       parfind = ' '
@@ -8299,460 +8310,7 @@ ELSE
     WRITE(*,*) ' Flow will be calculated'
     WRITE(*,*)
    
-  ! ********************************************
-  ! Edit by Toshiyuki Bandai 2023 May
-  Richards_allocate: IF (Richards) THEN
-    
-    CALL RichardsDiscretize(nx, ny, nz)
-    CALL RichardsAllocate(nx, ny, nz)
-    CALL RichardsUpdateFluid(t)
-    
-    ! allocate and read van-Genuchten parameters
-    VG_error = 0
-    nzones_VG_params = 0
-    ALLOCATE(VG_params_zone(0:mperm))
-    ALLOCATE(jxx_VG_params_lo(mperm))
-    ALLOCATE(jxx_VG_params_hi(mperm))
-    ALLOCATE(jyy_VG_params_lo(mperm))
-    ALLOCATE(jyy_VG_params_hi(mperm))
-    ALLOCATE(jzz_VG_params_lo(mperm))
-    ALLOCATE(jzz_VG_params_hi(mperm))
-    
-  ! saturated water content theta_s (=porosity)
-    
-    IF (theta_s_is_porosity) THEN
-      ! theta_s is the same as the porosity, so no need to read vg_theta_s
-    
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        theta_s(jx,jy,jz) = por(jx,jy,jz)
-      END FORALL
-    ELSE
-      
-      parchar = 'read_vg_theta_s_file'
-      parfind = ' '
-      Richards_File = ' '
-      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
-      
-      IF (parfind /= ' ') THEN
-        Richards_File = dumstring
-        CALL stringlen(Richards_File,ls)
-        WRITE(*,*) ' Reading vg_theta_s parameter for the Richards equation from file: ',Richards_File(1:ls)
-        
-        INQUIRE(FILE=Richards_File,EXIST=ext)
-        IF (.NOT. ext) THEN
-          CALL stringlen(Richards_File,ls)
-          WRITE(*,*)
-          WRITE(*,*) ' The file for vg_theta_s parameter is not found: ', Richards_File(1:ls)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        ELSE
-          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
-          FileTemp = Richards_File
-          CALL stringlen(FileTemp,FileNameLength)
-          IF (Richards_FileFormat == 'SingleColumn') THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(52,*,END=1020) theta_s(jx,jy,jz)
-                END DO
-              END DO
-            END DO
-              
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) ' vg_theta_s file format not recognized'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-          CLOSE(UNIT=52)
-        
-        END IF
-      ELSE  
-        parfind = ' '
-        parchar = 'vg_theta_s'
-        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
-        IF (parfind /= ' ') THEN
-        
-          IF (VG_error == 1) THEN
-            WRITE(*,*)
-            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-      
-          theta_s = VG_params_zone(0)
-      
-          IF (nzones_VG_params > 0) THEN
-            DO l = 1,nzones_VG_params
-              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
-                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
-                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
-                    theta_s(jx,jy,jz) = VG_params_zone(l)
-                  END DO
-                END DO
-              END DO
-            END DO
-          END IF
-        
-          ! reset
-          nzones_VG_params = 0
-          VG_params_zone = 0.0
-        
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' information on vg_theta_s is not provided'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-      END IF
-      
-    ! if theta_s does not match porosity, make a warning
-      DO jx = 1, nx
-        DO jy = 1, ny
-          DO jz = 1, nz
-            IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
-              WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
-              WRITE(*,*) ' porosity = ',por(jx,jy,jz)
-              WRITE(*,*)
-            END IF
-          END DO
-        END DO
-      END DO
-    END IF
-    
-    ! fill ghost cells
-    text = 'VG_theta_s'
-    lowX = LBOUND(theta_s,1)
-    lowY = LBOUND(theta_s,2)
-    lowZ = LBOUND(theta_s,3)
-    highX = UBOUND(theta_s,1)
-    highY = UBOUND(theta_s,2)
-    highZ = UBOUND(theta_s,3)
-    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,theta_s,TEXT)
-
-    
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-  ! residual water content (theta_r)
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-    
-    parchar = 'read_vg_theta_r_file'
-    parfind = ' '
-    Richards_File = ' '
-    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
-      
-    IF (parfind /= ' ') THEN
-      Richards_File = dumstring
-      CALL stringlen(Richards_File,ls)
-      WRITE(*,*) ' Reading vg_theta_r parameter for the Richards equation from file: ',Richards_File(1:ls)
-        
-      INQUIRE(FILE=Richards_File,EXIST=ext)
-      IF (.NOT. ext) THEN
-        CALL stringlen(Richards_File,ls)
-        WRITE(*,*)
-        WRITE(*,*) ' The file for vg_theta_r parameter is not found: ', Richards_File(1:ls)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      ELSE
-        OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
-        FileTemp = Richards_File
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (Richards_FileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(52,*,END=1020) theta_r(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-              
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' vg_theta_r file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        CLOSE(UNIT=52)
-        
-      END IF
-    ELSE  
-      parfind = ' '
-      parchar = 'vg_theta_r'
-      CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
-      IF (parfind /= ' ') THEN
-        
-        IF (VG_error == 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-      
-        theta_r = VG_params_zone(0)
-      
-        IF (nzones_VG_params > 0) THEN
-          DO l = 1,nzones_VG_params
-            DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
-              DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
-                DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
-                  theta_r(jx,jy,jz) = VG_params_zone(l)
-                END DO
-              END DO
-            END DO
-          END DO
-        END IF
-        
-        ! reset
-        nzones_VG_params = 0
-        VG_params_zone = 0.0
-        
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' information on vg_theta_r is not provided'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-    END IF
-      
-    ! fill ghost cells
-    text = 'VG_theta_r'
-    lowX = LBOUND(theta_r,1)
-    lowY = LBOUND(theta_r,2)
-    lowZ = LBOUND(theta_r,3)
-    highX = UBOUND(theta_r,1)
-    highY = UBOUND(theta_r,2)
-    highZ = UBOUND(theta_r,3)
-    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,theta_r,TEXT)
-    
-    ! the input value is actually residual saturation, convert it to residual water content
-    IF (theta_r_is_S_r) THEN
-      theta_r = theta_r*theta_s
-    END IF  
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-  ! alpha parameter in the van Genuchten model
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-    parchar = 'read_vg_alpha_file'
-    parfind = ' '
-    Richards_File = ' '
-    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
-      
-    IF (parfind /= ' ') THEN
-      Richards_File = dumstring
-      CALL stringlen(Richards_File,ls)
-      WRITE(*,*) ' Reading vg_alpha parameter for the Richards equation from file: ',Richards_File(1:ls)
-        
-      INQUIRE(FILE=Richards_File,EXIST=ext)
-      IF (.NOT. ext) THEN
-        CALL stringlen(Richards_File,ls)
-        WRITE(*,*)
-        WRITE(*,*) ' The file for vg_alpha parameter is not found: ', Richards_File(1:ls)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      ELSE
-        OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
-        FileTemp = Richards_File
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (Richards_FileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(52,*,END=1020) vg_alpha(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-              
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' vg_alpha file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        CLOSE(UNIT=52)
-        
-      END IF
-    ELSE  
-      parfind = ' '
-      parchar = 'vg_alpha'
-      CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
-      IF (parfind /= ' ') THEN
-        
-        IF (VG_error == 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-      
-        VG_alpha = VG_params_zone(0)
-      
-        IF (nzones_VG_params > 0) THEN
-          DO l = 1,nzones_VG_params
-            DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
-              DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
-                DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
-                  VG_alpha(jx,jy,jz) = VG_params_zone(l)
-                END DO
-              END DO
-            END DO
-          END DO
-        END IF
-        
-        ! reset
-        nzones_VG_params = 0
-        VG_params_zone = 0.0
-        
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' information on vg_alpha is not provided'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-    END IF
-    
-    ! fill ghost cells
-    text = 'VG_alpha'
-    lowX = LBOUND(VG_alpha,1)
-    lowY = LBOUND(VG_alpha,2)
-    lowZ = LBOUND(VG_alpha,3)
-    highX = UBOUND(VG_alpha,1)
-    highY = UBOUND(VG_alpha,2)
-    highZ = UBOUND(VG_alpha,3)
-    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VG_alpha,TEXT)
-    
-  ! convert unit
-    VG_alpha = VG_alpha*dist_scale
-    
-    IF (.NOT. psi_is_head) THEN
-      VG_alpha = VG_alpha*rho_water*9.80665d0
-    END IF
-    
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-  ! n parameter in the van Genuchten model
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-    
-    parchar = 'read_vg_n_file'
-    parfind = ' '
-    Richards_File = ' '
-    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
-      
-    IF (parfind /= ' ') THEN
-      Richards_File = dumstring
-      CALL stringlen(Richards_File,ls)
-      WRITE(*,*) ' Reading vg_n parameter for the Richards equation from file: ',Richards_File(1:ls)
-        
-      INQUIRE(FILE=Richards_File,EXIST=ext)
-      IF (.NOT. ext) THEN
-        CALL stringlen(Richards_File,ls)
-        WRITE(*,*)
-        WRITE(*,*) ' The file for vg_n parameter is not found: ', Richards_File(1:ls)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      ELSE
-        OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
-        FileTemp = Richards_File
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (Richards_FileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(52,*,END=1020) VG_n(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-              
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' VG_n file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        CLOSE(UNIT=52)
-        
-      END IF
-    ELSE  
-      parfind = ' '
-      parchar = 'vg_n'
-      CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
-      IF (parfind /= ' ') THEN
-      
-        IF (VG_error == 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-      
-        VG_n = VG_params_zone(0)
-      
-        IF (nzones_VG_params > 0) THEN
-          DO l = 1,nzones_VG_params
-            DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
-              DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
-                DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
-                  VG_n(jx,jy,jz) = VG_params_zone(l)
-                END DO
-              END DO
-            END DO
-          END DO
-        END IF
-        
-        ! reset
-        nzones_VG_params = 0
-        VG_params_zone = 0.0
-        
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' information on vg_n is not provided'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-    END IF
-    
-    ! fill ghost cells
-    text = 'VG_n'
-    lowX = LBOUND(VG_n,1)
-    lowY = LBOUND(VG_n,2)
-    lowZ = LBOUND(VG_n,3)
-    highX = UBOUND(VG_n,1)
-    highY = UBOUND(VG_n,2)
-    highZ = UBOUND(VG_n,3)
-    call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VG_n,TEXT)
-        
-    IF (.NOT. vg_is_n) THEN
-      ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
-      VG_n = 1.0d0/(1.0d0 - VG_n)
-    END IF
-    
-    
-    DEALLOCATE(VG_params_zone)
-    DEALLOCATE(jxx_VG_params_lo)
-    DEALLOCATE(jxx_VG_params_hi)
-    DEALLOCATE(jyy_VG_params_lo)
-    DEALLOCATE(jyy_VG_params_hi)
-    DEALLOCATE(jzz_VG_params_lo)
-    DEALLOCATE(jzz_VG_params_hi)
-    
-  END IF Richards_allocate
-  ! ***************************************************
-  ! End of Edit by Toshiyuki Bandai 2024 Oct
+  
      
 
 !  Look for information on permeability, pressure, and pumping or injection wells
@@ -9494,130 +9052,460 @@ ELSE
     
       
     ! ********************************************
-    ! Edit by Toshiyuki Bandai, 2024 Oct
-    ! create link functions for 2D Richards solver
-    IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-      IF (domain_shape_flow == 'regular') THEN
-        ! cell to face function
-        nxyz = nx*ny*nz
-        ALLOCATE(cell_to_face(nxyz, 4)) ! because the cell is limited to rectangular mesh, the column number is 4
-        
-        DO jx = 1, nxyz
-          cell_to_face(jx, 1) = jx
-          cell_to_face(jx, 2) = jx + nx
-          cell_to_face(jx, 3) = nx*(ny+1) + (nx+1)*((jx-1)/nx) + MOD(jx-1, nx) + 1
-          cell_to_face(jx, 4) = nx*(ny+1) + (nx+1)*((jx-1)/nx) + MOD(jx-1, nx) + 2
-        END DO 
-        
-        ! boundary face to face function
-        nxyz = 2*nx + 2*ny
-        ALLOCATE(bface_to_face(nxyz))
-        
-        !! bottom boundary
-        DO jx = 1, nx
-          bface_to_face(jx) = jx
-        END DO
-        
-        !! right boundary
-        DO jx = 1, ny
-          bface_to_face(nx+jx) = nx * (ny + 1) + (nx + 1) * jx
-        END DO
-        
-        !! top boundary
-        DO jx = 1, nx
-          bface_to_face(nx+ny+jx) = nx*ny + (nx + 1 - jx)
-        END DO
-        
-        !! left boundary
-        DO jx = 1, ny
-          bface_to_face(2*nx+ny+jx) = nx * (ny + 1) + (nx+1) * (ny - jx) + 1
-        END DO
-        
-        ! face to cell function
-        nxyz = nx*(ny+1) + (nx+1)*ny
-        ALLOCATE(face_to_cell(nxyz, 2))
-        
-        DO jx = 1, nxyz
-          ! loop over internal cells
-          DO jy = 1, nx*ny
-            IF (cell_to_face(jy, 1) == jx) THEN
-              ! south face
-              face_to_cell(jx, 2) = jy
-            ELSE IF (cell_to_face(jy, 2) == jx) THEN
-              ! north face
-              face_to_cell(jx, 1) = jy
-            ELSE IF (cell_to_face(jy, 3) == jx) THEN
-              ! west face
-              face_to_cell(jx, 2) = jy
-            ELSE IF (cell_to_face(jy, 4) == jx) THEN
-              ! east face
-              face_to_cell(jx, 1) = jy
-            END IF
-          END DO
-          ! loop over ghost cells
-          DO jy = 1, 2*nx + 2*ny
-            IF (bface_to_face(jy) == jx) THEN
-              IF (face_to_cell(jx, 1) == 0) THEN
-                face_to_cell(jx, 1) = jy + nx*ny
-              ELSE
-                face_to_cell(jx, 2) = jy + nx*ny
-              END IF
-            END IF
-          END DO
-        END DO
-        
-        ! from cell number to coordinate numbers
-        nxyz = nx*ny
-        ALLOCATE(cell_to_coordinate(nxyz + 2*nx + 2*ny, 2))
-        DO jx = 1, nxyz
-          cell_to_coordinate(jx, 1) = MOD(jx-1, nx)+1
-          cell_to_coordinate(jx, 2) = (jx-1)/nx + 1
-        END DO
-        
-        ! loop over boundary faces
-        !! bottom boundary
-        DO jx = 1, nx
-          cell_to_coordinate(nxyz + jx, 1) = jx
-          cell_to_coordinate(nxyz + jx, 2) = 0
-        END DO
-        
-        !! right boundary
-        DO jx = 1, ny
-          cell_to_coordinate(nxyz + nx + jx, 1) = nx+1
-          cell_to_coordinate(nxyz + nx + jx, 2) = jx
-        END DO
-        
-        !! top boundary
-        DO jx = 1, nx
-          cell_to_coordinate(nxyz + nx + ny + jx, 1) = nx - jx + 1
-          cell_to_coordinate(nxyz + nx + ny + jx, 2) = ny + 1
-        END DO
-        
-        !! left boundary
-        DO jx = 1, ny
-          cell_to_coordinate(nxyz + 2 * nx + ny + jx, 1) = 0
-          cell_to_coordinate(nxyz + 2 * nx + ny + jx, 2) = ny - jx + 1
-        END DO
-        
-        
+    ! Edit by Toshiyuki Bandai 2023 May
+    Richards_allocate: IF (Richards) THEN
+    
+      CALL RichardsDiscretize(nx, ny, nz)
+      CALL RichardsAllocate(nx, ny, nz)
+      CALL RichardsUpdateFluid(t)
+    
+      ! allocate and read van-Genuchten parameters
+      VG_error = 0
+      nzones_VG_params = 0
+      ALLOCATE(VG_params_zone(0:mperm))
+      ALLOCATE(jxx_VG_params_lo(mperm))
+      ALLOCATE(jxx_VG_params_hi(mperm))
+      ALLOCATE(jyy_VG_params_lo(mperm))
+      ALLOCATE(jyy_VG_params_hi(mperm))
+      ALLOCATE(jzz_VG_params_lo(mperm))
+      ALLOCATE(jzz_VG_params_hi(mperm))
+    
+    ! saturated water content theta_s (=porosity)
+    
+      IF (theta_s_is_porosity) THEN
+        ! theta_s is the same as the porosity, so no need to read vg_theta_s
+    
+        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+          VGM_parameters%theta_s(jx,jy,jz) = por(jx,jy,jz)
+        END FORALL
       ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' Currently, only regular spatial domain is supported.'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
+      
+        parchar = 'read_vg_theta_s_file'
+        parfind = ' '
+        Richards_File = ' '
+        CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+        IF (parfind /= ' ') THEN
+          Richards_File = dumstring
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*) ' Reading vg_theta_s parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+          INQUIRE(FILE=Richards_File,EXIST=ext)
+          IF (.NOT. ext) THEN
+            CALL stringlen(Richards_File,ls)
+            WRITE(*,*)
+            WRITE(*,*) ' The file for vg_theta_s parameter is not found: ', Richards_File(1:ls)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          ELSE
+            OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+            FileTemp = Richards_File
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (Richards_FileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(52,*,END=1020) VGM_parameters%theta_s(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+              
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' vg_theta_s file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            CLOSE(UNIT=52)
+        
+          END IF
+        ELSE  
+          parfind = ' '
+          parchar = 'vg_theta_s'
+          CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+          IF (parfind /= ' ') THEN
+        
+            IF (VG_error == 1) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+      
+            VGM_parameters%theta_s = VG_params_zone(0)
+      
+            IF (nzones_VG_params > 0) THEN
+              DO l = 1,nzones_VG_params
+                DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                  DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                    DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                      VGM_parameters%theta_s(jx,jy,jz) = VG_params_zone(l)
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END IF
+        
+            ! reset
+            nzones_VG_params = 0
+            VG_params_zone = 0.0
+        
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' information on vg_theta_s is not provided'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        END IF
+      
+      ! if theta_s does not match porosity, make a warning
+        DO jx = 1, nx
+          DO jy = 1, ny
+            DO jz = 1, nz
+              IF (VGM_parameters%theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
+                WRITE(*,*)
+                WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
+                WRITE(*,*) ' theta_s = ',VGM_parameters%theta_s(jx,jy,jz)
+                WRITE(*,*) ' porosity = ',por(jx,jy,jz)
+                WRITE(*,*)
+              END IF
+            END DO
+          END DO
+        END DO
       END IF
     
-    ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    END IF
-    ! ********************************************
+      ! fill ghost cells
+      text = 'VG_theta_s'
+      lowX = LBOUND(VGM_parameters%theta_s,1)
+      lowY = LBOUND(VGM_parameters%theta_s,2)
+      lowZ = LBOUND(VGM_parameters%theta_s,3)
+      highX = UBOUND(VGM_parameters%theta_s,1)
+      highY = UBOUND(VGM_parameters%theta_s,2)
+      highZ = UBOUND(VGM_parameters%theta_s,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%theta_s,TEXT)
+
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! residual water content (theta_r)
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    
+      parchar = 'read_vg_theta_r_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
       
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_theta_r parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_theta_r parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) VGM_parameters%theta_r(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' vg_theta_r file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_theta_r'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+        
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
       
+          VGM_parameters%theta_r = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    VGM_parameters%theta_r(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_theta_r is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+      
+      ! fill ghost cells
+      text = 'VG_theta_r'
+      lowX = LBOUND(VGM_parameters%theta_r,1)
+      lowY = LBOUND(VGM_parameters%theta_r,2)
+      lowZ = LBOUND(VGM_parameters%theta_r,3)
+      highX = UBOUND(VGM_parameters%theta_r,1)
+      highY = UBOUND(VGM_parameters%theta_r,2)
+      highZ = UBOUND(VGM_parameters%theta_r,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%theta_r,TEXT)
+    
+      ! the input value is actually residual saturation, convert it to residual water content
+      IF (theta_r_is_S_r) THEN
+        VGM_parameters%theta_r = VGM_parameters%theta_r*VGM_parameters%theta_s
+      END IF  
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! alpha parameter in the van Genuchten model
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+      parchar = 'read_vg_alpha_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_alpha parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_alpha parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) VGM_parameters%alpha(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' vg_alpha file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_alpha'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+        
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+          VGM_parameters%alpha = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    VGM_parameters%alpha(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_alpha is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+    
+      ! fill ghost cells
+      text = 'VG_alpha'
+      lowX = LBOUND(VGM_parameters%alpha,1)
+      lowY = LBOUND(VGM_parameters%alpha,2)
+      lowZ = LBOUND(VGM_parameters%alpha,3)
+      highX = UBOUND(VGM_parameters%alpha,1)
+      highY = UBOUND(VGM_parameters%alpha,2)
+      highZ = UBOUND(VGM_parameters%alpha,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%alpha,TEXT)
+    
+    ! convert unit
+      VGM_parameters%alpha = VGM_parameters%alpha*dist_scale
+    
+      IF (.NOT. Richards_Options%psi_is_head) THEN
+        VGM_parameters%alpha = VGM_parameters%alpha*rho_water*9.80665d0
+      END IF
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! n parameter in the van Genuchten model
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    
+      parchar = 'read_vg_n_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_n parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_n parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) VGM_parameters%n(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' VG_n file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_n'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+      
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+          VGM_parameters%n = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    VGM_parameters%n(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_n is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+    
+      ! fill ghost cells
+      text = 'VG_n'
+      lowX = LBOUND(VGM_parameters%n,1)
+      lowY = LBOUND(VGM_parameters%n,2)
+      lowZ = LBOUND(VGM_parameters%n,3)
+      highX = UBOUND(VGM_parameters%n,1)
+      highY = UBOUND(VGM_parameters%n,2)
+      highZ = UBOUND(VGM_parameters%n,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%n,TEXT)
+        
+      IF (.NOT. Richards_Options%vg_is_n) THEN
+        ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
+        VGM_parameters%n = 1.0d0/(1.0d0 - VGM_parameters%n)
+      END IF
+    
+    
+      DEALLOCATE(VG_params_zone)
+      DEALLOCATE(jxx_VG_params_lo)
+      DEALLOCATE(jxx_VG_params_hi)
+      DEALLOCATE(jyy_VG_params_lo)
+      DEALLOCATE(jyy_VG_params_hi)
+      DEALLOCATE(jzz_VG_params_lo)
+      DEALLOCATE(jzz_VG_params_hi)
+    
+    END IF Richards_allocate
+    ! ***************************************************
+    ! End of Edit by Toshiyuki Bandai 2024 Oct
+   
     ! ********************************************
     ! Edit by Toshiyuki Bandai, 2024 Oct
     Richards_permeability: IF (Richards) THEN
