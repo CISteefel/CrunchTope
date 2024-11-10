@@ -23,8 +23,15 @@ TYPE :: RichardsBase ! store information used in the Richards solver, including 
   INTEGER(I4B), ALLOCATABLE :: bface_to_face(:) ! link function from global boundary cell number to global face number
   INTEGER(I4B), ALLOCATABLE :: cell_to_coordinate(:,:) ! link function from cell number to spatial coordinate
   REAL(DP) :: psi_0 ! minimum water potential allowed when selecting 'atomosphere' boundary condition
+  REAL(DP) :: gravity_vector(3)
 END TYPE RichardsBase
   
+TYPE :: RichardsBC ! store information on the boundary condition for each face
+  REAL(DP) :: BC_value
+  REAL(DP), ALLOCATABLE :: BC_values(:,:) ! transient boundary condition data
+  INTEGER(I4B) :: BC_type
+  LOGICAL(LGT) :: is_atmosphere = .FALSE.
+END TYPE RichardsBC
 
 TYPE :: RichardsOptions ! store options for Richards solver
   LOGICAL(LGT) :: is_steady = .FALSE. ! True when solving the steady-state Richards equation to get the initial condition
@@ -56,12 +63,15 @@ TYPE :: RichardsState ! store information on the nonlinear solver used in Richar
 END TYPE RichardsState
 
 TYPE(RichardsBase), PUBLIC :: Richards_Base
+TYPE(RichardsBC), ALLOCATABLE, PUBLIC :: Richards_BCs(:)
+TYPE(RichardsBC), ALLOCATABLE, PUBLIC :: Richards_BCs_steady(:)
 TYPE(RichardsOptions), PUBLIC :: Richards_Options
 TYPE(RichardsSolver), PUBLIC :: Richards_Solver
 TYPE(RichardsState), PUBLIC :: Richards_State
   
 PUBLIC RichardsAllocate, &
        RichardsDiscretize, &
+       RichardsFlux, &
        RichardsUpdateFluid
        
   
@@ -356,8 +366,105 @@ CONTAINS
 END SUBROUTINE RichardsDiscretize
 
 ! ************************************************************************** !
+SUBROUTINE RichardsFlux(nx, ny, nz)
+USE crunchtype
+
+IMPLICIT NONE
+
+INTEGER(I4B), INTENT(IN) :: nx, ny, nz
+INTEGER(I4B) :: jx, jy, jz
+INTEGER(I4B) :: cell_ID_west, cell_ID_east
+REAL(DP) :: dx_west, dx_east, delta_x
+REAL(DP) :: gravity
+REAL(DP) :: psi_grad ! gradient of water potential
+REAL(DP) :: q_diff ! diffusion flow
+REAL(DP) :: q_grav ! gravitational flow
+REAL(DP) :: K_face ! permeability at face
+
+IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+! apply van Genuchten model to all grid cells
+  jz = 1
+  DO jy = 0, ny + 1
+    DO jx = 0, nx + 1
+      CALL VGM_Model(Richards_State%psi(jx, jy, jz), VGM_parameters%theta_r(jx, jy, jz), VGM_parameters%theta_s(jx, jy, jz), VGM_parameters%VG_alpha(jx, jy, jz), VGM_parameters%VG_n(jx, jy, jz), &
+                     Richards_State%theta(jx, jy, jz), Richards_State%kr(jx, jy, jz), Richards_State%dtheta(jx, jy, jz), Richards_State%dkr(jx, jy, jz))
+      Richards_State%head(jx, jy, jz) = Richards_State%psi(jx, jy, jz) + & 
+                                        Richards_Base%gravity_vector(1)*Richards_Base%x(jx) + &
+                                        Richards_Base%gravity_vector(2)*Richards_Base%y(jy)
+    END DO
+  END DO
+  
+  !compute flux by looping over faces
+  DO i = 1, Richards_Base%n_faces
+    cell_ID_west = Richards_Base%face_to_cell(i, 1) ! south or west cell
+    cell_ID_east = Richards_Base%face_to_cell(i, 2) ! south or west cell
+    
+    jx_west = Richards_Base%cell_to_coordinate(cell_ID_west, 1) ! x-coordinate of the west (or south) cell
+    jy_west = Richards_Base%cell_to_coordinate(cell_ID_west, 2) ! y-coordinate of the west (or south) cell
+    jx_east = Richards_Base%cell_to_coordinate(cell_ID_east, 1) ! x-coordinate of the east (or north) cell
+    jy_east = Richards_Base%cell_to_coordinate(cell_ID_east, 1) ! y-coordinate of the east (or north) cell
+
+    IF (jx_west == jx_east) THEN
+      ! faces paralell to x-axis
+      dx_west = Richards_Base%dy(jy_west)
+      dx_east = Richards_Base%dy(jy_east)
+      delta_x = Richards_Base%y(jy_east) - Richards_Base%y(jy_west)
+      K_face = hary(jx_west, jy_west)
+      gravity = Richards_Base%gravity_vector(2)
+    ELSE
+      ! faces paralell to y-axis
+      dx_west = Richards_Base%dx(jx_west)
+      dx_east = Richards_Base%dx(jx_east)
+      delta_x = Richards_Base%x(jx_east) - Richards_Base%x(jx_west)
+      K_face = harx(jx_west, jy_west)
+      gravity = Richards_Base%gravity_vector(1)
+    END IF
+
+    ! distance weighted arithmatic mean for face values
+    Richards_State%xi_faces(i) = ArithmaticMean(Richards_State%xi(jx_west, jy_west, jz),&
+                                                Richards_State%xi(jx_east, jy_east, jz),&
+                                                dx_west, dx_east)
+    
+    Richards_State%kr_faces(i) = ArithmaticMean(Richards_State%kr(jx_west, jy_west, jz),&
+                                                Richards_State%kr(jx_east, jy_east, jz),&
+                                                dx_west, dx_east)
+    
+    ! compute fluxes
+    
+    psi_grad = (psi(jx_east, jy_east, jz) - psi(jx_east, jy_east, jz))/delta_x
+    q_diff = -Richards_State%xi_faces(i)*K_face*Richards_State%kr_faces(i)*psi_grad
+    q_grav = -gravity*K_face* &
+              MERGE(Richards_State%kr(jx_east, jy_east, jz)*Richards_State%xi(jx_east, jy_east, jz), &
+                    Richards_State%kr(jx_west, jy_west, jz)*Richards_State%xi(jx_west, jy_west, jz), &
+                    Richards_State%head(jx_east, jy_east, jz) - Richards_State%head(jx_west, jy_west, jz) >= 0.0D0)
+    
+    ! store flux in the flux variable
+    IF (jx_west == jx_east) THEN
+      ! faces paralell to x-axis
+      qy(jx_west, jy_west, jz) = q_diff + q_grav
+    ELSE
+      ! faces paralell to y-axis
+      qx(jx_west, jy_west, jz) = q_diff + q_grav
+    END IF
+        
+  END DO
+  
+CONTAINS
+  REAL(DP) FUNCTION ArithmaticMean(S_1, S_2, dx_1, dx_2)
+  
+  REAL(DP), INTENT(IN) :: S_1, S_2, dx_1, dx_2
+  
+  ArithmaticMean = (S_1*dx_2 + S_2*dx_1)/(dx_1 + dx_2)
+   
+  END FUNCTION ArithmaticMean
+END IF
+
+END SUBROUTINE RichardsFlux
+! ************************************************************************** !
 SUBROUTINE RichardsUpdateFluid(temp)
 USE crunchtype
+USE params, ONLY: g
+
 IMPLICIT NONE
 
 REAL(DP), ALLOCATABLE, INTENT(IN) :: temp(:,:,:) ! temperature in C
@@ -365,7 +472,9 @@ REAL(DP), ALLOCATABLE, INTENT(IN) :: temp(:,:,:) ! temperature in C
 Richards_State%rho_water = 0.99823d0 * 1.0E3
 Richards_State%mu_water = 0.0010005* 86400.0d0 * 365.0d0 ! dynamic viscosity of water
 !Richards_State%mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - temp - 273.15d0)) * 86400.0d0 * 365.0d0 ! dynamic viscosity of water
-      
+
+Richards_State%xi = Richards_State%rho_water*g/Richards_State%mu_water
+
 END SUBROUTINE RichardsUpdateFluid
 ! ************************************************************************** !
   

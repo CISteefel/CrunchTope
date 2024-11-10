@@ -452,8 +452,6 @@ PC                   pc
 KSP                  ksp
 !!Scalar               zeroPetsc
 ! ************************end PETSc declarations of PETSc variables ******
-
-  !!! Added July 17 by Carl (hopefully not stomped on)
   
 Switcheroo = .false.
 
@@ -618,25 +616,12 @@ WRITE(*,*)
 IF (CalculateFlow) THEN
 
 !*************************************************************
-! Edit by Lucien Stolze, June 2023
-! Pump time series (Richard)
-  !IF (pumptimeseries) THEN
-  !  IF (TS_1year) THEN
-  !    time_norm=time-floor(time)
-  !  CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-  !    ELSE
-  !  CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-  !    END IF
-  !END IF
   
   SteadyFlow = .FALSE.
 
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
-
-    !ZhiLi
   
   dtflow = delt
-  !dtflow = 1.0D-10
 
   harx = 0.0
   hary = 0.0
@@ -667,8 +652,6 @@ IF (CalculateFlow) THEN
   WRITE(*,*) ' Minimum Y permeability: ',MinPermeabilityY
   WRITE(*,*)
 
-!!!!  InitializeHydrostatic = .false.
-
   IF (InitializeHydrostatic) THEN
     WRITE(*,*) ' Initializing to hydrostatic'
     DO jz = 1,nz
@@ -694,21 +677,18 @@ IF (CalculateFlow) THEN
      READ(*,*)
      STOP
      !CALL solve_Richards(nx, ny, nz, dtflow)
-     !Richards_steady = .FALSE.
+     Richards_Options%is_steady = .FALSE.
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0     
      CALL flux_Richards(nx, ny, nz)
-     Richards_Options%is_steady = .FALSE.
+     
    END IF steady_Richards
 
  ! End of edit by Toshiyuki Bandai, 2024 Oct
  ! ******************************************************************
  ELSE initial_flow_solver_if
-!!  atolksp = 1.D-50
-!!  rtolksp = 1.D-25
-!!  dtolksp = 1.D+05
 
   atolksp = 1.D-50
   rtolksp = GimrtRTOLKSP
@@ -732,17 +712,8 @@ IF (CalculateFlow) THEN
 
   CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
-!!!!  To invoke direct solve
-!!!!    call KSPGetPC(ksp,pc,ierr)
-!!!!    call PCSetType(pc,PCLU,ierr)
-
-   ! CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
-   ! CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
   CALL KSPSolve(ksp,BvecP,XvecP,ierr)
   CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
-
-!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
 
   WRITE(*,*)
   WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
