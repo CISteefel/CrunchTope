@@ -28,12 +28,14 @@ IMPLICIT NONE
 
 REAL(DP), INTENT(IN) :: psi, theta_r, theta_s, alpha, n
 REAL(DP), INTENT(OUT) :: theta, kr, dtheta, dkr
-REAL(DP), INTENT(OUT) :: dtheta = 0.0d0
-REAL(DP), INTENT(OUT) :: dkr = 0.0d0
 REAL(DP) :: m, l, S_e, S_e_epsilon, kr_epsilon, slope
 REAL(DP) :: term_1, term_2, term_3, term_4, term_5, term_6, outer, inner
 REAL(DP) :: dkr_dS_e, dS_e_dtheta
 LOGICAL(LGT) , INTENT(IN) :: is_derivative
+
+! initialize the derivative
+dtheta = 0.0d0
+dkr = 0.0d0
 
 IF (psi >= 0.0) THEN
   theta = theta_s

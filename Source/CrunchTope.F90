@@ -682,7 +682,7 @@ IF (CalculateFlow) THEN
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0     
-     CALL flux_Richards(nx, ny, nz)
+     CALL RichardsFlux(nx, ny, nz)
      
    END IF steady_Richards
 
@@ -783,7 +783,7 @@ IF (CalculateFlow) THEN
     DO jz = 1, nz
       DO jy = 1, ny
         DO jx = 1, nz
-            satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+            satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
         END DO
       END DO
     END DO
@@ -797,7 +797,7 @@ IF (CalculateFlow) THEN
     highX = UBOUND(satliq,1)
     highY = UBOUND(satliq,2)
     highZ = UBOUND(satliq,3)
-    call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,por,TEXT)
+    call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
     
     satliqold = satliq
   
@@ -1061,7 +1061,7 @@ IF (Richards) THEN
     DO jy = 1,ny
       DO jx = 1,nx
         WRITE(10, '(6(1X,1PE16.7))') x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-              z(jz)*OutputDistanceScale,theta(jx,jy,jz), psi(jx,jy,jz), satliq(jx,jy,jz)
+              z(jz)*OutputDistanceScale,Richards_State%theta(jx,jy,jz), Richards_State%psi(jx,jy,jz), satliq(jx,jy,jz)
       END DO
     END DO
   END DO
@@ -1070,7 +1070,6 @@ END IF
 
 i_substep = 0
 DO WHILE (nn <= nend)
-    ! Zhi Li 20200715
     IF (nn == 0 .AND. dtflow > 1.0E-15 ) THEN
         delt = dtflow
     END IF
@@ -1106,17 +1105,6 @@ DO WHILE (nn <= nend)
     CALL UpdateExchanger(nx,ny,nz,nexchange)
   END IF
   
-  !*************************************************************
-  ! Edit by Toshiyuki Bandai, Oct. 2024
-  ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
-  ! mu_water is defined in Flow module
-  mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-  rho_water_2 = 0.99823d0 * 1.0E3
-  mu_water = 0.0010005*secyr ! dynamic viscosity of water     
-
-  ! End of Edit by Toshiyuki Bandai, Oct. 2024
-  !*************************************************************
-
   IF (CalculateFlow) THEN
 
         ro(0,:,:) = ro(1,:,:)
@@ -1140,35 +1128,40 @@ DO WHILE (nn <= nend)
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
           END IF
           
-        ! store the previous time step water content
-          theta_prev = theta
-                 
+          ! update fluid property
+          CALL RichardsUpdateFluid(t)
+          
+          ! update permeability at faces
+          CALL harmonic(nx,ny,nz)
+          
+          ! store the previous time step water content
+          Richards_State%theta_prev = Richards_State%theta         
           
           ! update transient boundary condition for one-dimensional problem
           !*********************************************************************
-          IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-  
-            ! update the value used for the x_begin boundary condition by interpolating time series
-            SELECT CASE (x_begin_BC_type)
-            CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-              CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
-            CASE DEFAULT
-              CONTINUE ! for constant boundary condition, do nothing
-            END SELECT
-          
-            SELECT CASE (x_end_BC_type)
-            CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-              CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
+          !IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+          !
+          !  ! update the value used for the x_begin boundary condition by interpolating time series
+          !  SELECT CASE (x_begin_BC_type)
+          !  CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
+          !    CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
+          !  CASE DEFAULT
+          !    CONTINUE ! for constant boundary condition, do nothing
+          !  END SELECT
+          !
+          !  SELECT CASE (x_end_BC_type)
+          !  CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
+          !    CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
+          !   
+          !
+          !  CASE DEFAULT
+          !    CONTINUE ! for constant boundary condition, do nothing
+          !  END SELECT
+          !  
+          !END IF
              
-          
-            CASE DEFAULT
-              CONTINUE ! for constant boundary condition, do nothing
-            END SELECT
-            
-          END IF
-             
-          ! solve the 1D time-dependenet Richards equation
-          CALL solve_Richards(nx, ny, nz, delt)
+          ! solve the Richards equation
+          CALL RichardsSolve(nx, ny, nz, delt)
           
           ! update saturation
           satliqold = satliq
@@ -1176,7 +1169,7 @@ DO WHILE (nn <= nend)
           DO jz = 1, nz
             DO jy = 1, ny
               DO jx = 1, nz
-                  satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+                  satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
               END DO
             END DO
           END DO
@@ -1190,48 +1183,44 @@ DO WHILE (nn <= nend)
           highX = UBOUND(satliq,1)
           highY = UBOUND(satliq,2)
           highZ = UBOUND(satliq,3)
-          call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,por,TEXT)
+          call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
           
-          ! map flux from Richards solver the velocity vector for RTM
-          IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-            CONTINUE
-          END IF
-          
-          IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-            ! the velocity at the boundary is forced to zero when the vector goes outward
-            ! not to consider chemcial transport via evaporation
-            IF (evaporation_boundary /= ' ') THEN
-              SELECT CASE (evaporation_boundary)
-                CASE ('x_begin')
-                  DO jz = 1,nz
-                    DO jy = 1,ny
-                      jx = 0
-                      IF (qx(jx, jy, jz) < 0.0d0) THEN
-                        qx(jx, jy, jz) = 0.0d0
-                      END IF
-                    END DO
-                  END DO
-                
-                CASE ('x_end')
-                  DO jz = 1,nz
-                    DO jy = 1,ny
-                      jx = nx
-                      IF (qx(jx, jy, jz) > 0.0d0) THEN
-                        qx(jx, jy, jz) = 0.0d0
-                      END IF
-                    END DO
-                  END DO
-  
-                CASE DEFAULT
-                WRITE(*,*)
-                WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
-                WRITE(*,*)
-                READ(*,*)
-                STOP
-  
-                END SELECT
-            END IF
-          END IF       
+        
+          !IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+          !  ! the velocity at the boundary is forced to zero when the vector goes outward
+          !  ! not to consider chemcial transport via evaporation
+          !  IF (evaporation_boundary /= ' ') THEN
+          !    SELECT CASE (evaporation_boundary)
+          !      CASE ('x_begin')
+          !        DO jz = 1,nz
+          !          DO jy = 1,ny
+          !            jx = 0
+          !            IF (qx(jx, jy, jz) < 0.0d0) THEN
+          !              qx(jx, jy, jz) = 0.0d0
+          !            END IF
+          !          END DO
+          !        END DO
+          !      
+          !      CASE ('x_end')
+          !        DO jz = 1,nz
+          !          DO jy = 1,ny
+          !            jx = nx
+          !            IF (qx(jx, jy, jz) > 0.0d0) THEN
+          !              qx(jx, jy, jz) = 0.0d0
+          !            END IF
+          !          END DO
+          !        END DO
+          !
+          !      CASE DEFAULT
+          !      WRITE(*,*)
+          !      WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
+          !      WRITE(*,*)
+          !      READ(*,*)
+          !      STOP
+          !
+          !      END SELECT
+          !  END IF
+          !END IF       
         ! End of edit by Toshiyuki Bandai, 2024 Oct
         ! ******************************************************************
         ELSE flow_solver_if_time
@@ -1861,7 +1850,7 @@ DO WHILE (nn <= nend)
 
         5000     NE = 0
         icvg = 1
-        iterat = 0
+        iterat = 0 ! number of Newton iterations
 
     newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           NE = NE + 1

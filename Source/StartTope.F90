@@ -8183,18 +8183,7 @@ ELSE
       ELSE
         Richards_Base%psi_0 = realjunk / dist_scale
       END IF
-      
-      ! set the maximum water potential updated during Newton iterations
-      parchar = 'set_dpsi_max'
-      parfind = ' '
-      realjunk = 0.0
-      CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-      IF (parfind == ' ') THEN
-        Richards_Solver%dpsi_max = 1.0d3 / dist_scale  ! Use default
-      ELSE
-        Richards_Solver%dpsi_max = realjunk / dist_scale
-      END IF
-            
+     
       ! flag to prevent chemical transport due to evaporation at a boundary
       parchar = 'set_evaporation_boundary'
       parfind = ' '
@@ -8215,7 +8204,47 @@ ELSE
       ELSE
         Richards_Base%spatial_domain = dumstring
       END IF
-
+      
+      ! nonlinear solver setting
+      ! set the maximum water potential updated during Newton iterations
+      parchar = 'set_dpsi_max'
+      parfind = ' '
+      realjunk = 0.0
+      CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+      IF (parfind == ' ') THEN
+        Richards_Solver%dpsi_max = 1.0d3 / dist_scale  ! Use default
+      ELSE
+        Richards_Solver%dpsi_max = realjunk / dist_scale
+      END IF
+      
+      ! set the abolute tolerance of the nonlinear solver for the Richards solver
+      parchar = 'set_tol_a'
+      parfind = ' '
+      realjunk = 0.0
+      CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+      IF (parfind /= ' ') THEN
+        Richards_Solver%tau_a = realjunk
+      END IF
+      
+      ! set the maximum number of Newton iterations
+      parchar = 'set_max_Newton'
+      parfind = ' '
+      intjunk = 0
+      CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
+      IF (parfind /= ' ') THEN
+        Richards_Solver%max_Newton = intjunk
+      END IF
+      
+      ! set the maximum number of line searches
+      parchar = 'set_max_Newton'
+      parfind = ' '
+      intjunk = 0
+      CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
+      IF (parfind /= ' ') THEN
+        Richards_Solver%max_line_search = intjunk
+      END IF
+      
+      
       ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
     
