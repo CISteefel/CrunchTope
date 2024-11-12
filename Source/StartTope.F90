@@ -9139,7 +9139,7 @@ ELSE
   
       CALL RichardsDiscretize(nx, ny, nz)
       CALL RichardsAllocate(nx, ny, nz)
-      CALL RichardsUpdateFluid(t)
+      CALL RichardsUpdateFluid(t, Richards_State%xi)
       
       ! set gravity vector for gravitational flow      
       Richards_Base%gravity_vector(1) = SignGravity*COSD(x_angle)

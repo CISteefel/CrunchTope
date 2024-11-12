@@ -735,8 +735,6 @@ IF (CalculateFlow) THEN
     WRITE(*,*) ' Steady state flow failed to converge '
   END IF
 
- END If initial_flow_solver_if
- ! End of If construct for solvers needing PETSc or not
  
 !     ***** PETSc closeout*******
 
@@ -771,7 +769,9 @@ IF (CalculateFlow) THEN
       CALL velocalc(nx,ny,nz)
   END IF
   
-    
+  END If initial_flow_solver_if
+ ! End of If construct for solvers needing PETSc or not
+   
   ! **********************************************
   ! Edit by Toshiyuki Bandai, 2024 Oct.
   ! calculate saturation from volumetric water content
@@ -782,7 +782,7 @@ IF (CalculateFlow) THEN
     
     DO jz = 1, nz
       DO jy = 1, ny
-        DO jx = 1, nz
+        DO jx = 1, nx
             satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
         END DO
       END DO
@@ -791,6 +791,7 @@ IF (CalculateFlow) THEN
        
     ! fill ghost points by zero-order extrapolation
     text = 'Liquid_Saturation'
+    satliq(0,:,:) = satliq(1,:,:)
     lowX = LBOUND(satliq,1)
     lowY = LBOUND(satliq,2)
     lowZ = LBOUND(satliq,3)
@@ -1124,12 +1125,12 @@ DO WHILE (nn <= nend)
         ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
         flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
-          IF (Richards_print) THEN
+          IF (Richards_Options%is_print) THEN
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
           END IF
-          
+               
           ! update fluid property
-          CALL RichardsUpdateFluid(t)
+          CALL RichardsUpdateFluid(t, Richards_State%xi)
           
           ! update permeability at faces
           CALL harmonic(nx,ny,nz)
@@ -1168,7 +1169,7 @@ DO WHILE (nn <= nend)
           
           DO jz = 1, nz
             DO jy = 1, ny
-              DO jx = 1, nz
+              DO jx = 1, nx
                   satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
               END DO
             END DO

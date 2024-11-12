@@ -60,8 +60,6 @@ TYPE :: RichardsState ! store information on the nonlinear solver used in Richar
   REAL(DP), ALLOCATABLE :: kr(:,:,:) ! relative permeability [-]
   REAL(DP), ALLOCATABLE :: dtheta(:,:,:) ! the derivative of the water content wirh respect to the water potential [-]
   REAL(DP), ALLOCATABLE :: dkr(:,:,:) ! the derivative of the relative permeability  wirh respect to the water potential [-]
-  REAL(DP), ALLOCATABLE :: rho_water(:,:,:) ! the density of water [kg m-3]; this is temperature dependent
-  REAL(DP), ALLOCATABLE :: mu_water(:,:,:) ! dynamics viscosity of water [Pa year]; this is temperature dependent
   REAL(DP), ALLOCATABLE :: xi(:,:,:) ! physical constant used in the Richards equation
   REAL(DP), ALLOCATABLE :: kr_faces(:) ! relative permeability at cell faces [-]
   REAL(DP), ALLOCATABLE :: xi_faces(:) ! physical constant in the Richards equation at faces    
@@ -306,8 +304,6 @@ CALL AllocateArray(Richards_State%head, lbound_x, ubound_x, lbound_y, ubound_y, 
 CALL AllocateArray(Richards_State%kr, lbound_x, ubound_x, lbound_y, ubound_y, lbound_z, ubound_z)
 CALL AllocateArray(Richards_State%dtheta, lbound_x, ubound_x, lbound_y, ubound_y, lbound_z, ubound_z)
 CALL AllocateArray(Richards_State%dkr, lbound_x, ubound_x, lbound_y, ubound_y, lbound_z, ubound_z)
-CALL AllocateArray(Richards_State%rho_water, lbound_x, ubound_x, lbound_y, ubound_y, lbound_z, ubound_z)
-CALL AllocateArray(Richards_State%mu_water, lbound_x, ubound_x, lbound_y, ubound_y, lbound_z, ubound_z)
 CALL AllocateArray(Richards_State%xi, lbound_x, ubound_x, lbound_y, ubound_y, lbound_z, ubound_z)
 
 ! allocate state variables at faces
@@ -480,7 +476,7 @@ IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     
     ! compute fluxes
     
-    psi_grad = (Richards_State%psi(jx_east, jy_east, jz) - Richards_State%psi(jx_east, jy_east, jz))/delta_x
+    psi_grad = (Richards_State%psi(jx_east, jy_east, jz) - Richards_State%psi(jx_west, jy_west, jz))/delta_x
     q_diff = -Richards_State%xi_faces(i)*K_face*Richards_State%kr_faces(i)*psi_grad
     q_grav = -gravity*K_face* &
               MERGE(Richards_State%kr(jx_east, jy_east, jz)*Richards_State%xi(jx_east, jy_east, jz), &
@@ -959,19 +955,22 @@ END DO newton_loop
 
 END SUBROUTINE RichardsSolve
 ! ************************************************************************** !
-SUBROUTINE RichardsUpdateFluid(temp)
+ELEMENTAL SUBROUTINE RichardsUpdateFluid(temp, xi)
 USE crunchtype
 USE params, ONLY: g
 
 IMPLICIT NONE
 
-REAL(DP), ALLOCATABLE, INTENT(IN) :: temp(:,:,:) ! temperature in C
+REAL(DP), INTENT(IN) :: temp ! temperature in C
+REAL(DP), INTENT(INOUT) :: xi ! temperature in C
+REAL(DP) :: rho_water
+REAL(DP) :: mu_water
 
-Richards_State%rho_water = 0.99823d0 * 1.0E3
-Richards_State%mu_water = 0.0010005* 86400.0d0 * 365.0d0 ! dynamic viscosity of water
-!Richards_State%mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - temp - 273.15d0)) * 86400.0d0 * 365.0d0 ! dynamic viscosity of water
+rho_water = 0.99823d0 * 1.0E3
+mu_water = 0.0010005* 86400.0d0 * 365.0d0 ! dynamic viscosity of water
+!mu_water = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - temp - 273.15d0)) * 86400.0d0 * 365.0d0 ! dynamic viscosity of water
 
-Richards_State%xi = Richards_State%rho_water*g/Richards_State%mu_water
+xi = rho_water*g/mu_water
 
 END SUBROUTINE RichardsUpdateFluid
 ! ************************************************************************** !

@@ -58,6 +58,7 @@ USE flow
 USE temperature
 USE strings
 USE isotope
+USE Richards_module, ONLY: Richards_State
 
 IMPLICIT NONE
 !  *********************  INTERFACE BLOCKS  *****************************
@@ -930,7 +931,7 @@ ENDIF
             DO jy = 1,ny
               DO jx = 1,nx
                 WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,theta(jx,jy,jz)
+                      z(jz)*OutputDistanceScale,Richards_State%theta(jx,jy,jz)
             END DO
           END DO
         END DO
@@ -948,7 +949,7 @@ ENDIF
             DO jy = 1,ny
               DO jx = 1,nx
                 WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,head(jx,jy,jz)
+                      z(jz)*OutputDistanceScale,Richards_State%head(jx,jy,jz)
             END DO
           END DO
         END DO
@@ -965,63 +966,12 @@ ENDIF
             DO jy = 1,ny
               DO jx = 1,nx
                 WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,psi(jx,jy,jz)
+                      z(jz)*OutputDistanceScale,Richards_State%psi(jx,jy,jz)
             END DO
           END DO
         END DO
         CLOSE(UNIT=8,STATUS='keep')
 
-        fn = 'VG_alpha'
-        ilength = 12
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Van Genuchten alpha (m-1)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_a"'
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-            VG_alpha(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-        
-        fn = 'VG_n'
-        ilength = 12
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Van Genuchten n (-)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_n"'
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-            VG_n(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-        
-        fn = 'VG_theta_r'
-        ilength = 12
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Van Genuchten residual water content (-)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "residual water content" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-            theta_r(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-      
       ELSE
         fn='pressure'
         ilength = 8
