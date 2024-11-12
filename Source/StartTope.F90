@@ -9130,7 +9130,7 @@ ELSE
     END IF
     
     ! ********************************************
-    ! Edit by Toshiyuki Bandai 2023 May
+    ! Edit by Toshiyuki Bandai 2024 Oct.
     Richards_allocate: IF (Richards) THEN
     
       WRITE(*,*)
@@ -9820,14 +9820,34 @@ ELSE
       !    STOP
       !  END SELECT
         
-      IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+      
         
-        CALL read_boundary_condition_Richards(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
+      CALL read_boundary_condition_Richards(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
         
-        IF (ALLOCATED(Richards_BCs)) THEN
-            DEALLOCATE(Richards_BCs)
+      IF (ALLOCATED(Richards_BCs)) THEN
+          DEALLOCATE(Richards_BCs)
+        END IF
+        ALLOCATE(Richards_BCs(Richards_Base%n_bfaces))
+        
+      IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+        DO l = 1, nBoundaryConditionZone_Richards
+          jx = jxxBC_Richards_lo(l)
+          IF (jx == 0) THEN ! left boundary
+            Richards_BCs(1)%BC_type = BoundaryZone_Richards(l)
+            Richards_BCs(1)%BC_value = BoundaryValue_Richards(l)
+          ELSE IF (jx == nx + 1) ! right boundary
+            Richards_BCs(2)%BC_type = BoundaryZone_Richards(l)
+            Richards_BCs(2)%BC_value = BoundaryValue_Richards(l)
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Invlid boundary condition location for 1D Richards solver '
+            WRITE(*,*)
+            READ(*,*)
+            STOP
           END IF
-          ALLOCATE(Richards_BCs(Richards_Base%n_bfaces))
+        END DO
+        
+      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
           
         IF (Richards_Base%spatial_domain == 'regular') THEN
           
@@ -9843,6 +9863,12 @@ ELSE
                   i = jx
                 ELSE IF (jy == ny+1) THEN ! top boundary
                   i = 2*nx+ny - jx + 1
+                ELSE
+                  WRITE(*,*)
+                  WRITE(*,*) ' Invlid boundary condition location for 2D Richards solver for regular spatial domain '
+                  WRITE(*,*)
+                  READ(*,*)
+                  STOP
                 END IF
                 
                 Richards_BCs(i)%BC_type = BoundaryZone_Richards(l)
@@ -9861,27 +9887,6 @@ ELSE
           !STOP
         END IF
         
-        ! unit conversion for boundary condition
-
-        DO i = 1, Richards_Base%n_bfaces
-          IF (Richards_BCs(i)%BC_type == 1) THEN ! Dirichelt
-            Richards_BCs(i)%BC_value = Richards_BCs(i)%BC_value/dist_scale
-          ELSE IF (Richards_BCs(i)%BC_type == 2) THEN ! neumann
-            CONTINUE
-          ELSE IF (Richards_BCs(i)%BC_type == 3) THEN ! flux
-            Richards_BCs(i)%BC_value = Richards_BCs(i)%BC_value/(dist_scale * time_scale)
-          END IF
-        END DO
-                
-        DEALLOCATE(BoundaryZone_Richards)
-        DEALLOCATE(BoundaryValue_Richards)
-        DEALLOCATE(jxxBC_Richards_lo)
-        DEALLOCATE(jyyBC_Richards_lo)
-        DEALLOCATE(jzzBC_Richards_lo)
-        DEALLOCATE(jxxBC_Richards_hi)
-        DEALLOCATE(jyyBC_Richards_hi)
-        DEALLOCATE(jzzBC_Richards_hi)
-
       ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
         WRITE(*,*)
         WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
@@ -9889,7 +9894,28 @@ ELSE
         READ(*,*)
         STOP
       END IF
-        
+      
+      ! unit conversion for boundary condition
+
+      DO i = 1, Richards_Base%n_bfaces
+        IF (Richards_BCs(i)%BC_type == 1) THEN ! Dirichelt
+          Richards_BCs(i)%BC_value = Richards_BCs(i)%BC_value/dist_scale
+        ELSE IF (Richards_BCs(i)%BC_type == 2) THEN ! neumann
+          CONTINUE
+        ELSE IF (Richards_BCs(i)%BC_type == 3) THEN ! flux
+          Richards_BCs(i)%BC_value = Richards_BCs(i)%BC_value/(dist_scale * time_scale)
+        END IF
+      END DO
+                
+      DEALLOCATE(BoundaryZone_Richards)
+      DEALLOCATE(BoundaryValue_Richards)
+      DEALLOCATE(jxxBC_Richards_lo)
+      DEALLOCATE(jyyBC_Richards_lo)
+      DEALLOCATE(jzzBC_Richards_lo)
+      DEALLOCATE(jxxBC_Richards_hi)
+      DEALLOCATE(jyyBC_Richards_hi)
+      DEALLOCATE(jzzBC_Richards_hi)
+      
     END IF Richards_boundary_conditions
     
     

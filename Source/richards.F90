@@ -416,7 +416,60 @@ REAL(DP) :: q_diff ! diffusion flow
 REAL(DP) :: q_grav ! gravitational flow
 REAL(DP) :: K_face ! permeability at face
 
-IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+  jy = 1
+  jz = 1
+  DO jx = 0, nx + 1
+    CALL VGM_Model(Richards_State%psi(jx, jy, jz), &
+                    VGM_parameters%theta_r(jx, jy, jz), &
+                    VGM_parameters%theta_s(jx, jy, jz), &
+                    VGM_parameters%alpha(jx, jy, jz), &
+                    VGM_parameters%n(jx, jy, jz), &
+                    temp_theta, temp_kr, temp_dtheta, temp_dkr, &
+                    .FALSE.)
+      
+    ! Assign temporary results back to derived type
+    Richards_State%theta(jx, jy, jz) = temp_theta
+    Richards_State%kr(jx, jy, jz) = temp_kr
+    
+    Richards_State%head(jx, jy, jz) = Richards_State%psi(jx, jy, jz) + & 
+                                      Richards_Base%gravity_vector(1)*Richards_Base%x(jx) + &
+                                      Richards_Base%gravity_vector(2)*Richards_Base%y(jy)
+  END DO
+  
+  
+  !compute flux by looping over faces
+  DO i = 1, Richards_Base%n_faces
+    ! faces paralell to y-axis
+    dx_west = Richards_Base%dx(i-1)
+    dx_east = Richards_Base%dx(i)
+    delta_x = Richards_Base%x(i) - Richards_Base%x(i-1)
+    K_face = harx(i-1, jy, jz)
+    gravity = Richards_Base%gravity_vector(1)
+      
+  END DO
+  
+  ! distance weighted arithmatic mean for face values
+  Richards_State%xi_faces(i) = ArithmaticMean(Richards_State%xi(i-1, jy, jz),&
+                                              Richards_State%xi(i, jy, jz),&
+                                              dx_west, dx_east)
+    
+  Richards_State%kr_faces(i) = ArithmaticMean(Richards_State%kr(i-1, jy, jz),&
+                                              Richards_State%kr(i, jy, jz),&
+                                              dx_west, dx_east)
+    
+  ! compute fluxes
+    
+  psi_grad = (Richards_State%psi(i, jy, jz) - Richards_State%psi(i-1, jy, jz))/delta_x
+  q_diff = -Richards_State%xi_faces(i)*K_face*Richards_State%kr_faces(i)*psi_grad
+  q_grav = -gravity*K_face* &
+            MERGE(Richards_State%kr(i, jy, jz)*Richards_State%xi(i, jy, jz), &
+                  Richards_State%kr(i-1, jy, jz)*Richards_State%xi(i-1, jy, jz), &
+                  Richards_State%head(i, jy, jz) - Richards_State%head(i-1, jy, jz) >= 0.0D0)
+  
+  qx(i-1, jy, jz) = q_diff + q_grav
+  
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
 ! apply van Genuchten model to all grid cells
   jz = 1
   DO jy = 0, ny + 1
@@ -493,7 +546,8 @@ IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     END IF
         
   END DO
-  
+
+!ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN ! three-dimensional problem
 END IF
 
 END SUBROUTINE RichardsFlux
@@ -528,17 +582,138 @@ REAL(DP) :: delta_x
 REAL(DP) :: gravity
 REAL(DP) :: K_face ! permeability at face    
     
-! allocate Jacobian
-CALL AllocateArray_2D(J, 1, Richards_Base%n_total_cells, 1, Richards_Base%n_total_cells)
 
-! initialize
-J= 0.0d0
+IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+  ! allocate Jacobian
+  CALL AllocateArray_2D(J, 0, nx+1, 0, nx+1)
 
-IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+  ! initialize
+  J= 0.0d0
   
-  ! allocate arrays for derivative
+  ! apply van Genuchten model to all grid cells
+  jy = 1
+  jz = 1
+  DO jx = 0, nx + 1
+    CALL VGM_Model(Richards_State%psi(jx, jy, jz), &
+                    VGM_parameters%theta_r(jx, jy, jz), &
+                    VGM_parameters%theta_s(jx, jy, jz), &
+                    VGM_parameters%alpha(jx, jy, jz), &
+                    VGM_parameters%n(jx, jy, jz), &
+                    temp_theta, temp_kr, temp_dtheta, temp_dkr, &
+                    .TRUE.)
+      
+    ! Assign temporary results back to derived type
+    Richards_State%dtheta(jx, jy, jz) = temp_dtheta
+    Richards_State%dkr(jx, jy, jz) = temp_dkr
+  END DO
   
   
+  ! evaluate Jacobian matrix
+  ! interior cells
+  inner: DO jx = 1, nx  
+    ! add diffusive flux part
+    !! q at jx-1 part
+    J(jx, jx - 1) = J(jx, jx - 1) + dt/Richards_Base%dx(jx) * harx(jx-1, jy, jz) * Richards_State%xi_faces(jx) / (Richards_Base%x(jx) - Richards_Base%x(jx-1)) * &
+                  (Richards_State%dkr(jx-1, jy, jz)*Richards_Base%dx(jx)/(Richards_Base%dx(jx) + Richards_Base%dx(jx-1))*(Richards_State%psi(jx, jy, jz) - Richards_State%psi(jx-1, jy, jz)) - Richards_State%kr_faces(jx))
+  
+    !! q at jx-1 part
+    J(jx, jx) = J(jx, jx) + dt/Richards_Base%dx(jx) * harx(jx-1, jy, jz) * Richards_State%xi_faces(jx) / (Richards_Base%x(jx) - Richards_Base%x(jx-1)) * &
+                  (Richards_State%dkr(jx, jy, jz)*Richards_Base%dx(jx-1)/(Richards_Base%dx(jx) + Richards_Base%dx(jx-1))*(Richards_State%psi(jx, jy, jz) - Richards_State%psi(jx-1, jy, jz)) + Richards_State%kr_faces(jx))
+  
+    !! q at jx part
+    J(jx, jx) = J(jx, jx) - dt/Richards_Base%dx(jx) * harx(jx, jy, jz) * Richards_State%xi_faces(jx+1) / (Richards_Base%x(jx+1) - Richards_Base%x(jx)) * &
+                  (Richards_State%dkr(jx, jy, jz)*Richards_Base%dx(jx+1)/(Richards_Base%dx(jx+1) + Richards_Base%dx(jx))*(Richards_State%psi(jx+1, jy, jz) - Richards_State%psi(jx, jy, jz)) - Richards_State%kr_faces(jx+1))
+  
+    !! q at jx part
+    J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * harx(jx, jy, jz) * Richards_State%xi_faces(jx+1) / (Richards_Base%x(jx+1) - Richards_Base%x(jx)) * &
+                  (Richards_State%dkr(jx+1, jy, jz)*Richards_Base%dx(jx)/(Richards_Base%dx(jx+1) + Richards_Base%dx(jx))*(Richards_State%psi(jx+1, jy, jz) - Richards_State%psi(jx, jy, jz)) + Richards_State%kr_faces(jx+1))
+  
+    ! add gravitational flux part
+    !! q at jx-1 part
+    J(jx, jx - 1) = J(jx, jx - 1) + dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx-1, jy, jz)*MERGE(0.0d0, Richards_State%dkr(jx-1, jy, jz) * Richards_State%xi(jx-1, jy, jz), Richards_State%head(jx, jy, jz) - Richards_State%head(jx-1, jy, jz) >= 0.0d0)
+  
+    !! q at jx-1 part
+    J(jx, jx) = J(jx, jx) + dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx-1, jy, jz)*MERGE(Richards_State%dkr(jx, jy, jz) * Richards_State%xi(jx, jy, jz), 0.0d0, Richards_State%head(jx, jy, jz) - Richards_State%head(jx-1, jy, jz) >= 0.0d0)
+  
+    !! q at jx part
+    J(jx, jx) = J(jx, jx) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(0.0d0, Richards_State%dkr(jx, jy, jz) * Richards_State%xi(jx, jy, jz), Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
+  
+    !! q at jx part
+    J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(Richards_State%dkr(jx+1, jy, jz) * Richards_State%xi(jx+1, jy, jz), 0.0d0, Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
+  
+    ! add temporal derivative part
+    J(jx, jx) = J(jx, jx) + dtheta(jx, jy, jz)
+  
+  END DO inner
+  
+  ! evaluate residual for boundary conditions
+  DO i = 1, 2
+    IF (i == 1) THEN
+      jx_inner = 1
+      jx_outer = 0
+      j = 0
+    ELSE
+      jx_inner = nx
+      jx_outer = nx + 1
+      j = nx + 1
+    END IF
+    
+    SELECT CASE (Richards_BCs(i)%BC_type)
+    CASE (1) ! Dirichlet
+      ! water potential at the boundary
+      J(jx_outer, jx_outer) = 0.5d0
+      J(jx_outer, jx_inner) = 0.5d0
+       
+    CASE (2) ! Neumann
+      ! faces paralell to y-axis
+      delta_x = Richards_Base%x(jx_outer) - Richards_Base%x(jx_inner)
+      
+      J(jx_outer, jx_outer) = 1.0d0/delta_x
+      J(jx_outer, jx_inner) = -1.0d0/delta_x
+  
+    CASE (3) ! flux
+      IF (i == 1) THEN
+        face_ID = 1
+        K_face = hary(0, jy, jz)
+      ELSE
+        face_ID = nx + 1
+        K_face = hary(nx, jy, jz)
+      END IF
+      
+      delta_x = Richards_Base%x(jx_outer) - Richards_Base%x(jx_inner)
+      
+      ! add diffusive flux part
+  
+      J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - K_face * Richards_State%xi_faces(face_ID) / delta_x * &
+                    (Richards_State%dkr(jx_outer, jy_outer, jz)*0.5d0*(Richards_State%psi(jx_outer, jy_outer, jz) - Richards_State%psi(jx_inner, jy_inner, jz)) + Richards_State%kr_faces(face_ID))
+      
+      J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - K_face * Richards_State%xi_faces(face_ID) / delta_x * &
+                    (Richards_State%dkr(jx_inner, jy_inner, jz)*0.5d0*(Richards_State%psi(jx_outer, jy_outer, jz) - Richards_State%psi(jx_inner, jy_inner, jz)) - Richards_State%kr_faces(face_ID))
+  
+      ! add gravitational flux part
+      J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - Richards_Base%gravity_vector(1)*K_face*MERGE(Richards_State%dkr(jx_outer, jy_outer, jz) * Richards_State%xi(jx_outer, jy_outer, jz), 0.0d0, Richards_State%head(jx_outer, jy_outer, jz) - Richards_State%head(jx_inner, jy_inner, jz) >= 0.0d0)
+  
+      J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - Richards_Base%gravity_vector(1)*K_face*MERGE(0.0d0, Richards_State%dkr(jx_inner, jy_inner, jz) * Richards_State%xi(jx_inner, jy_inner, jz), Richards_State%head(jx_outer, jy_outer, jz) - Richards_State%head(jx_inner, jy_inner, jz) >= 0.0d0)
+           
+    CASE DEFAULT
+      WRITE(*,*)
+      WRITE(*,*) ' The boundary condition type ', Richards_BCs(i)%BC_type, ' is not recognized. '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+  
+    END SELECT
+  END DO
+  
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+  
+  ! allocate Jacobian
+  CALL AllocateArray_2D(J, 1, Richards_Base%n_total_cells, 1, Richards_Base%n_total_cells)
+
+  ! initialize
+  J= 0.0d0
+
+
   ! apply van Genuchten model to all grid cells
   jz = 1
   DO jy = 0, ny + 1
@@ -554,8 +729,6 @@ IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
       ! Assign temporary results back to derived type
       Richards_State%dtheta(jx, jy, jz) = temp_dtheta
       Richards_State%dkr(jx, jy, jz) = temp_dkr
-    
-
     END DO
   END DO
   
@@ -714,6 +887,7 @@ IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
   
     END SELECT
   END DO
+!ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN ! three-dimensional problem
   
 END IF
 
@@ -737,13 +911,75 @@ INTEGER(I4B) :: face_ID
 INTEGER(I4B) :: cell_ID_inner, cell_ID_outer
 INTEGER(I4B) :: jx_inner, jy_inner, jx_outer, jy_outer
 
-! allocate residual
-CALL AllocateArray_1D(F_residual, 1, Richards_Base%n_total_cells)
 
-! initialize
-F_residual= 0.0d0
 
-IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+  ! allocate residual
+  CALL AllocateArray_1D(F_residual, 0, nx+1)
+
+  ! initialize
+  F_residual= 0.0d0
+
+  jy = 1
+  jz = 1
+  
+  ! internal cells
+  DO i = 1, nx
+    jx = 1
+        
+    divergence = (qx(jx, jy, jz) - qx(jx-1, jy, jz)) / Richards_Base%dx(jx)
+    
+    F_residual(i) = Richards_State%theta(jx, jy, jz) - Richards_State%theta_prev(jx, jy, jz) + divergence*dt
+    
+  END DO
+  
+  ! evaluate residual for boundary conditions
+  DO i = 1, 2
+    IF (i == 1) THEN
+      jx_inner = 1
+      jx_outer = 0
+    ELSE
+      jx_inner = nx
+      jx_outer = nx + 1
+    END IF
+    
+    SELECT CASE (Richards_BCs(i)%BC_type)
+    CASE (1) ! Dirichlet
+      ! water potential at the boundary
+      psi_b = (Richards_State%psi(jx_inner, jy, jz) + Richards_State%psi(jx_outer, jy, jz))/2.0d0
+      
+      F_residual(jx_outer) = psi_b - Richards_BCs(i)%BC_value
+  
+    CASE (2) ! Neumann
+      ! faces paralell to y-axis
+      delta_x = Richards_Base%x(jx_outer) - Richards_Base%x(jx_inner)
+      ! water potential gradient at the boundary
+      psi_b = (Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz))/delta_x
+      F_residual(jx_outer) = psi_b - Richards_BCs(i)%BC_value
+  
+    CASE (3) ! flux
+      IF (i == 1) THEN
+        F_residual(jx_outer) = qx(0, jy, jz) - Richards_BCs(i)%BC_value
+      ELSE
+        F_residual(jx_outer) = qx(nx, jy, jz) - Richards_BCs(i)%BC_value
+      END IF
+          
+    CASE DEFAULT
+      WRITE(*,*)
+      WRITE(*,*) ' The boundary condition type ', Richards_BCs(i)%BC_type, ' is not recognized. '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+  
+    END SELECT
+  END DO
+ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+  
+  ! allocate residual
+  CALL AllocateArray_1D(F_residual, 1, Richards_Base%n_total_cells)
+
+  ! initialize
+  F_residual= 0.0d0
   
   jz = 1
   
@@ -819,6 +1055,7 @@ IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
     END SELECT
   END DO
   
+!ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN ! three-dimensional problem
   
 END IF
 
@@ -904,8 +1141,17 @@ newton_loop: DO
   line: DO
     IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
     ! update water potential
-    
-    IF (nx > 1 .AND. ny > 1) THEN ! two-dimensional problem or three-dimensional problem
+    IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+      jy = 1
+      jz = 1
+      DO i = 0, nx+1
+        IF (ABS(lam * dpsi_Newton(i)) > Richards_Solver%dpsi_max) THEN
+          Richards_State%psi(i, jy, jz) = Richards_State%psi(i, jy, jz) + SIGN(Richards_Solver%dpsi_max, dpsi_Newton(i))
+        ELSE
+          Richards_State%psi(i, jy, jz) = Richards_State%psi(i, jy, jz) + lam * dpsi_Newton(i)
+        END IF
+      END DO
+    ELSE IF (nx > 1 .AND. ny > 1) THEN ! two-dimensional problem or three-dimensional problem
       DO i = 1, Richards_Base%n_total_cells
         jx = Richards_Base%cell_to_coordinate(i, 1)
         jy = Richards_Base%cell_to_coordinate(i, 2)
