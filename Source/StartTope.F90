@@ -9835,7 +9835,7 @@ ELSE
           IF (jx == 0) THEN ! left boundary
             Richards_BCs(1)%BC_type = BoundaryZone_Richards(l)
             Richards_BCs(1)%BC_value = BoundaryValue_Richards(l)
-          ELSE IF (jx == nx + 1) ! right boundary
+          ELSE IF (jx == nx + 1) THEN ! right boundary
             Richards_BCs(2)%BC_type = BoundaryZone_Richards(l)
             Richards_BCs(2)%BC_value = BoundaryValue_Richards(l)
           ELSE
