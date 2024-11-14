@@ -68,6 +68,7 @@ USE NanoCrystal
 USE isotope
 USE Richards_module
 USE hydraulic_function_module
+USE read_richards_module
 
 IMPLICIT NONE
 
@@ -671,6 +672,7 @@ REAL(DP)                                                      :: ChargeSum
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
+INTEGER(I4B)                                 :: BC_error ! error flag for reading boundary condition
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
 INTEGER(I4B)                                 :: nzones_VG_params ! number of zones when reading VG parameter from input file
 REAL(DP)                                     :: numerator ! used to compute permeability at faces
@@ -8121,8 +8123,7 @@ ELSE
       parchar = 'Richards'
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,Richards)
-      !
-
+      
       IF (Richards) THEN
         isaturate = 1
       ENDIF
@@ -8236,7 +8237,7 @@ ELSE
       END IF
       
       ! set the maximum number of line searches
-      parchar = 'set_max_Newton'
+      parchar = 'set_max_line_search'
       parfind = ' '
       intjunk = 0
       CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
@@ -9820,102 +9821,57 @@ ELSE
       !    STOP
       !  END SELECT
         
+    
+      IF (Richards_Options%is_steady) THEN
+        ! allocate derived type for boundary condition for each boundary face
+        IF (ALLOCATED(Richards_BCs_steady)) THEN
+          DEALLOCATE(Richards_BCs_steady)
+        END IF
+        ALLOCATE(Richards_BCs_steady(Richards_Base%n_bfaces))
       
+        Richards_BCs_pointer => Richards_BCs_steady
+      
+        CALL RichardsReadBoundaryCondition(nout,nx,ny,nz,dist_scale,time_scale,Richards_BCs_pointer, .TRUE., BC_error)
         
-      CALL read_boundary_condition_Richards(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
-        
+        IF (BC_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Pointer is not allocated when reading boundary condition input data for steady state Richards solver '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE IF (BC_error == 2) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error when reading boundary condition input data by zone for steady state Richards solver '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+      
+      ! allocate derived type for boundary condition for each boundary face
       IF (ALLOCATED(Richards_BCs)) THEN
-          DEALLOCATE(Richards_BCs)
-        END IF
-        ALLOCATE(Richards_BCs(Richards_Base%n_bfaces))
-        
-      IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-        DO l = 1, nBoundaryConditionZone_Richards
-          jx = jxxBC_Richards_lo(l)
-          IF (jx == 0) THEN ! left boundary
-            Richards_BCs(1)%BC_type = BoundaryZone_Richards(l)
-            Richards_BCs(1)%BC_value = BoundaryValue_Richards(l)
-          ELSE IF (jx == nx + 1) THEN ! right boundary
-            Richards_BCs(2)%BC_type = BoundaryZone_Richards(l)
-            Richards_BCs(2)%BC_value = BoundaryValue_Richards(l)
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) ' Invlid boundary condition location for 1D Richards solver '
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-        END DO
-        
-      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-          
-        IF (Richards_Base%spatial_domain == 'regular') THEN
-          
-          DO l = 1, nBoundaryConditionZone_Richards
-            DO jy = jyyBC_Richards_lo(l), jyyBC_Richards_hi(l)
-              DO jx = jxxBC_Richards_lo(l), jxxBC_Richards_hi(l)
-                
-                IF (jx == 0) THEN ! left boundary
-                  i = 2*nx+2*ny-jy+1
-                ELSE IF (jx == nx+1) THEN ! right boundary
-                  i = nx+jy
-                ELSE IF (jy == 0) THEN ! bottom boundary
-                  i = jx
-                ELSE IF (jy == ny+1) THEN ! top boundary
-                  i = 2*nx+ny - jx + 1
-                ELSE
-                  WRITE(*,*)
-                  WRITE(*,*) ' Invlid boundary condition location for 2D Richards solver for regular spatial domain '
-                  WRITE(*,*)
-                  READ(*,*)
-                  STOP
-                END IF
-                
-                Richards_BCs(i)%BC_type = BoundaryZone_Richards(l)
-                Richards_BCs(i)%BC_value = BoundaryValue_Richards(l)
-                
-              END DO
-            END DO
-          
-          END DO
-        
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
-          WRITE(*,*)
-          !READ(*,*)
-          !STOP
-        END IF
-        
-      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+        DEALLOCATE(Richards_BCs)
+      END IF
+      ALLOCATE(Richards_BCs(Richards_Base%n_bfaces))
+      
+      Richards_BCs_pointer => Richards_BCs
+      
+      CALL RichardsReadBoundaryCondition(nout,nx,ny,nz,dist_scale,time_scale,Richards_BCs_pointer, .FALSE., BC_error)
+      
+      IF (BC_error == 1) THEN
         WRITE(*,*)
-        WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+        WRITE(*,*) ' Pointer is not allocated when reading boundary condition input data for transient Richards solver '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      ELSE IF (BC_error == 2) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error when reading boundary condition input data by zone for transient Richards solver '
         WRITE(*,*)
         READ(*,*)
         STOP
       END IF
-      
-      ! unit conversion for boundary condition
-
-      DO i = 1, Richards_Base%n_bfaces
-        IF (Richards_BCs(i)%BC_type == 1) THEN ! Dirichelt
-          Richards_BCs(i)%BC_value = Richards_BCs(i)%BC_value/dist_scale
-        ELSE IF (Richards_BCs(i)%BC_type == 2) THEN ! neumann
-          CONTINUE
-        ELSE IF (Richards_BCs(i)%BC_type == 3) THEN ! flux
-          Richards_BCs(i)%BC_value = Richards_BCs(i)%BC_value/(dist_scale * time_scale)
-        END IF
-      END DO
-                
-      DEALLOCATE(BoundaryZone_Richards)
-      DEALLOCATE(BoundaryValue_Richards)
-      DEALLOCATE(jxxBC_Richards_lo)
-      DEALLOCATE(jyyBC_Richards_lo)
-      DEALLOCATE(jzzBC_Richards_lo)
-      DEALLOCATE(jxxBC_Richards_hi)
-      DEALLOCATE(jyyBC_Richards_hi)
-      DEALLOCATE(jzzBC_Richards_hi)
-      
+          
     END IF Richards_boundary_conditions
     
     

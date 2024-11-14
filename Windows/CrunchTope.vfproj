@@ -140,8 +140,7 @@
 			<File RelativePath="..\Source\GraphicsTecplot.F90"/>
 			<File RelativePath="..\Source\GraphicsVisit.F90"/>
 			<File RelativePath="..\Source\harmonic.F90"/>
-			<File RelativePath="..\Source\hydraulic_function.F90">
-			</File>
+			<File RelativePath="..\Source\hydraulic_function.F90"/>
 			<File RelativePath="..\Source\InitializeCalciteStoichiometry.F90"/>
 			<File RelativePath="..\Source\interp.F90"/>
 			<File RelativePath="..\Source\interp3.F90"/>
@@ -199,8 +198,7 @@
 			<File RelativePath="..\Source\oldsurface.F90"/>
 			<File RelativePath="..\Source\os3d_newton.F90"/>
 			<File RelativePath="..\Source\parameters.F90"/>
-			<File RelativePath="..\Source\params.F90">
-			</File>
+			<File RelativePath="..\Source\params.F90"/>
 			<File RelativePath="..\Source\PauseFor.F90"/>
 			<File RelativePath="..\Source\PestExchange.F90"/>
 			<File RelativePath="..\Source\PestScaleOutput.F90"/>
@@ -216,8 +214,7 @@
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
 			<File RelativePath="..\Source\read_bound.F90"/>
-			<File RelativePath="..\Source\read_boundary_condition_Richards.F90">
-			</File>
+			<File RelativePath="..\Source\read_boundary_condition_Richards.F90"/>
 			<File RelativePath="..\Source\read_BoundaryConditionsByZone.F90"/>
 			<File RelativePath="..\Source\read_burialfile.F90"/>
 			<File RelativePath="..\Source\read_CatabolicPath.F90"/>
@@ -279,6 +276,7 @@
 			<File RelativePath="..\Source\read_pumptimeseries.F90"/>
 			<File RelativePath="..\Source\read_pumptimeseriesfile.F90"/>
 			<File RelativePath="..\Source\read_restart.F90"/>
+			<File RelativePath="..\Source\read_richards.F90"/>
 			<File RelativePath="..\Source\read_series.F90"/>
 			<File RelativePath="..\Source\read_snapshot.F90"/>
 			<File RelativePath="..\Source\read_SolidDensity.F90"/>
@@ -292,9 +290,10 @@
 			<File RelativePath="..\Source\read_tempreg.F90"/>
 			<File RelativePath="..\Source\read_tempregion.F90"/>
 			<File RelativePath="..\Source\read_tempts.F90"/>
-			<File RelativePath="..\Source\read_timeseries.F90"/>
-			<File RelativePath="..\Source\read_timeseries2.F90"/>
-			<File RelativePath="..\Source\read_title.F90"/>
+			<File RelativePath="..\Source\read_timeseries.F90">
+			</File>
+			<File RelativePath="..\Source\read_title.F90">
+			</File>
 			<File RelativePath="..\Source\read_toperatio.F90"/>
 			<File RelativePath="..\Source\read_TortuosityByZone.F90"/>
 			<File RelativePath="..\Source\read_tortuosityfile.F90"/>
@@ -326,8 +325,7 @@
 			<File RelativePath="..\Source\residual_Richards.F90"/>
 			<File RelativePath="..\Source\residual_Richards_steady.F90"/>
 			<File RelativePath="..\Source\restart.F90"/>
-			<File RelativePath="..\Source\richards.F90">
-			</File>
+			<File RelativePath="..\Source\richards.F90"/>
 			<File RelativePath="..\Source\RichardsArrayAllocation.F90"/>
 			<File RelativePath="..\Source\rocalc.F90"/>
 			<File RelativePath="..\Source\RunTime.F90"/>

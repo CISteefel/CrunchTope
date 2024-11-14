@@ -42,7 +42,11 @@
 
 !!!      ****************************************
 
-    
+
+! This SUBROUTINE extracts a substring from the zone string, starting from a specified position (id) and continuing until another specified position (iff).
+! This substring is stored in the output parameter ssch, with ls representing the length of the extracted substring and ids indicating the starting index of the substring.
+! The subroutine also considers quoted strings as delimiters.
+
 SUBROUTINE sschaine(zone,id,iff,ssch,ids,ls)
 USE crunchtype
 USE params

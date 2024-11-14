@@ -183,9 +183,151 @@ END IF
 1000 RETURN
 END SUBROUTINE read_boundary_condition_Richards_1D
   
+SUBROUTINE read_boundary_condition_Richards(nout,nx,ny,nz)
+USE crunchtype
+USE params
+USE strings
+USE Richards_module, ONLY: Richards_BCs
+IMPLICIT NONE
+
+!  External variables and arrays
+
+INTEGER(I4B), INTENT(IN)                                    :: nout
+INTEGER(I4B), INTENT(IN)                                    :: nx
+INTEGER(I4B), INTENT(IN)                                    :: ny
+INTEGER(I4B), INTENT(IN)                                    :: nz
+
+
+!  Internal variables and arrays
+
+INTEGER(I4B)                                                :: id
+INTEGER(I4B)                                                :: iff
+INTEGER(I4B)                                                :: ids
+INTEGER(I4B)                                                :: ls
+INTEGER(I4B)                                                :: lzs
+INTEGER(I4B)                                                :: nlen1
+INTEGER(I4B)                                                :: nco
+INTEGER(I4B)                                                :: ik
+INTEGER(I4B)                                                :: kk
+INTEGER(I4B)                                                :: k
+INTEGER(I4B)                                                :: nex
+INTEGER(I4B)                                                :: ns
+REAL(DP)                                      :: value ! value used in the boundary condition
+
+
+REWIND nout
+
+10  READ(nout,'(a)',END=800) zone
+nlen1 = LEN(zone)
+CALL majuscules(zone,nlen1)
+id = 1
+iff = mls
+CALL sschaine(zone,id,iff,ssch_a,ids,ls)
+IF(ls /= 0) THEN
+  lzs=ls
+  CALL convan(ssch_a,lzs,res)
+  
+  SELECT CASE (ssch_a)
+    CASE ('x_begin', 'x_end', 'y_begin', 'y_end', 'z_begin', 'z_end')
+      !   Look for condition label following the boundary
+      id = ids + ls
+      CALL sschaine(zone,id,iff,ssch,ids,ls)
+      IF(ls /= 0) THEN
+        lzs=ls
+        CALL convan(ssch,lzs,res)
+        IF (res == 'n') THEN
+          WRITE(*,*) ' Must provide a character to specify the type of the boudnary condition. '
+        ELSE
+          ! read further information on the boundary condition
+          bc_case: SELECT CASE (ssch)
+          
+          CASE ('dirichlet', 'neumann', 'flux', 'atomosphere') bc_case
+            CALL sschaine(zone,id,iff,ssch,ids,ls)
+            ! obtain the value of the constant boundary condition
+            IF(ls /= 0) THEN
+              lzs=ls
+              CALL convan(ssch,lzs,res)
+              IF (res == 'n') THEN
+                value = REAL(DNUM(ssch), DP)
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Must provide a numerical value for the constant boundary condition for ', ssch_a
+                WRITE(*,*)
+                READ(*,*)
+                STOP  
+              END IF
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' No information provided on the constant boundary condition for ', ssch_a
+              WRITE(*,*)
+              READ(*,*)
+              STOP  
+            END IF
+                  
+          CASE DEFAULT bc_case
+            WRITE(*,*)
+            WRITE(*,*) ' The boundary condition type ', ssch, ' is not supported for ', ssch_a
+            WRITE(*,*)
+          END SELECT bc_case  
+        END IF
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' Blank string following boundary condition for Richards solver'
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+    
+    CASE DEFAULT
+      GO TO 10
+  END SELECT
+  
+ELSE
+  GO TO 10
+END IF
+
+800 CONTINUE
+!IF (nx > 1 .AND. jc(1) == -1) THEN
+!  WRITE(*,*)
+!  WRITE(*,*) ' No boundary conditions found for JX = 1 '
+!  WRITE(*,*) 
+!  STOP
+!END IF
+!IF (nx > 1 .AND. jc(2) == -1) THEN
+!  WRITE(*,*)
+!  WRITE(*,*) ' No boundary conditions found for JX = NX '
+!  WRITE(*,*) 
+!  STOP
+!END IF
+!IF (ny > 1 .AND. jc(3) == -1) THEN
+!  WRITE(*,*)
+!  WRITE(*,*) ' No boundary conditions found for JY = 1 '
+!  WRITE(*,*) 
+!  STOP
+!END IF
+!IF (ny > 1 .AND. jc(4) == -1) THEN
+!  WRITE(*,*)
+!  WRITE(*,*) ' No boundary conditions found for JY = NY '
+!  WRITE(*,*) 
+!  STOP
+!END IF
+!IF (nz > 1 .AND. jc(5) == -1) THEN
+!  WRITE(*,*)
+!  WRITE(*,*) ' No boundary conditions found for JZ = 1 '
+!  WRITE(*,*) 
+!  STOP
+!END IF
+!IF (nz > 1 .AND. jc(6) == -1) THEN
+!  WRITE(*,*)
+!  WRITE(*,*) ' No boundary conditions found for JZ = NZ '
+!  WRITE(*,*) 
+!  STOP
+!END IF
+       
+END SUBROUTINE read_boundary_condition_Richards
   
   
-SUBROUTINE read_boundary_condition_Richards(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
+SUBROUTINE read_boundary_condition_RichardsByZone(nout,nx,ny,nz,nBoundaryConditionZone_Richards)
 USE crunchtype
 USE CrunchFunctions
 USE params
@@ -550,4 +692,4 @@ END DO
 END DO
 
 RETURN
-END SUBROUTINE read_boundary_condition_Richards
+END SUBROUTINE read_boundary_condition_RichardsByZone
