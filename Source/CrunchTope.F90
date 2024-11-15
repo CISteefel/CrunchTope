@@ -681,7 +681,7 @@ IF (CalculateFlow) THEN
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
-     ! compute water flux from the initial condition and the boundary conditions at t = 0     
+     ! compute water flux from the initial condition and the boundary conditions at t = 0
      CALL RichardsFlux(nx, ny, nz)
      
    END IF steady_Richards

@@ -39,7 +39,7 @@ VG_params_zone(0) = 0.0
 REWIND nout
 
 nzones_VG_params = 0
-10 READ(nout,'(a)',END=500) zone
+10   READ(nout,'(a)',END=500) zone
 nlen1 = LEN(zone)
 CALL majuscules(zone,nlen1)
 id = 1
@@ -65,9 +65,9 @@ IF(ls /= 0) THEN
         VG_error = 1
         RETURN
       END IF
-      
+
 ! Now look for ASCII string indicating location of a VG parameter
-      
+
       id = ids + ls
       CALL sschaine(zone,id,iff,ssch,ids,ls)
       IF(ls /= 0) THEN
@@ -77,9 +77,9 @@ IF(ls /= 0) THEN
           IF (ssch == 'default' .OR. ssch == 'all') THEN
             VG_params_zone(0) = VG_params_tmp
           ELSE IF (ssch == 'zone') THEN
-            
+
 !  "Zone" specified, so look for locations
-            
+
             nzones_VG_params = nzones_VG_params + 1
             IF (nzones_VG_params > mperm) THEN
               WRITE(*,*)
@@ -91,9 +91,9 @@ IF(ls /= 0) THEN
               VG_error = 1
               RETURN
             END IF
-            
+
             VG_params_zone(nzones_VG_params) = VG_params_tmp
-            
+
             id = ids + ls
             CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
             IF(ls /= 0) THEN
@@ -134,13 +134,13 @@ IF(ls /= 0) THEN
               VG_error = 1
               RETURN
             END IF
-            
+
             WRITE(*,*)
             WRITE(*,*) ' VG parameter zone number ',nzones_VG_params
             WRITE(*,*) ' jxx_VG_params_lo = ', jxx_VG_params_lo(nzones_VG_params)
             WRITE(*,*) ' jxx_VG_params_hi = ',jxx_VG_params_hi(nzones_VG_params)
             WRITE(*,*)
-            
+
             id = ids + ls
             CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
             IF(ls /= 0) THEN
@@ -179,12 +179,12 @@ IF(ls /= 0) THEN
               VG_error = 1
               RETURN
             END IF
-              
+
             WRITE(*,*)
             WRITE(*,*) ' jyy_VG_params_lo = ',jyy_VG_params_lo(nzones_VG_params)
             WRITE(*,*) ' jyy_VG_params_hi = ',jyy_VG_params_hi(nzones_VG_params)
             WRITE(*,*)    
-            
+
             id = ids + ls
             CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
             IF(ls /= 0) THEN
@@ -223,7 +223,7 @@ IF(ls /= 0) THEN
               VG_error = 1
               RETURN
             END IF
-              
+
             WRITE(*,*)
             WRITE(*,*) ' jzz_VG_params_lo = ',jzz_VG_params_lo(nzones_VG_params)
             WRITE(*,*) ' jzz_VG_params_hi = ',jzz_VG_params_hi(nzones_VG_params)
@@ -237,7 +237,7 @@ IF(ls /= 0) THEN
             VG_error = 1
             RETURN
           END IF
-          
+
         ELSE                !  A number--so bag it.
           WRITE(*,*)
           WRITE(*,*) ' Cant interpret string following a VG parameter value'
@@ -258,7 +258,7 @@ IF(ls /= 0) THEN
   ELSE
     GO TO 10
   END IF
-  
+
 END IF
 
 GO TO 10

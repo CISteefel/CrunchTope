@@ -439,8 +439,7 @@ CONTAINS
         Richards_State%kr(jx, jy, jz) = temp_kr
 
         Richards_State%head(jx, jy, jz) = Richards_State%psi(jx, jy, jz) + &
-                                          Richards_Base%gravity_vector(1)*Richards_Base%x(jx) + &
-                                          Richards_Base%gravity_vector(2)*Richards_Base%y(jy)
+                                          Richards_Base%gravity_vector(1)*Richards_Base%x(jx)
       END DO
 
 !compute flux by looping over faces
@@ -451,8 +450,6 @@ CONTAINS
         delta_x = Richards_Base%x(i) - Richards_Base%x(i - 1)
         K_face = harx(i - 1, jy, jz)
         gravity = Richards_Base%gravity_vector(1)
-
-      END DO
 
 ! distance weighted arithmatic mean for face values
       Richards_State%xi_faces(i) = ArithmaticMean(Richards_State%xi(i - 1, jy, jz), &
@@ -473,6 +470,8 @@ CONTAINS
                      Richards_State%head(i, jy, jz) - Richards_State%head(i - 1, jy, jz) >= 0.0D0)
 
       qx(i - 1, jy, jz) = q_diff + q_grav
+
+      END DO
 
     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
 ! apply van Genuchten model to all grid cells
@@ -616,36 +615,36 @@ CONTAINS
       inner: DO jx = 1, nx
 ! add diffusive flux part
 !! q at jx-1 part
-    J(jx, jx - 1) = J(jx, jx - 1) + dt/Richards_Base%dx(jx) * harx(jx-1, jy, jz) * Richards_State%xi_faces(jx) / (Richards_Base%x(jx) - Richards_Base%x(jx-1)) * &
-                  (Richards_State%dkr(jx-1, jy, jz)*Richards_Base%dx(jx)/(Richards_Base%dx(jx) + Richards_Base%dx(jx-1))*(Richards_State%psi(jx, jy, jz) - Richards_State%psi(jx-1, jy, jz)) - Richards_State%kr_faces(jx))
+          J(jx, jx - 1) = J(jx, jx - 1) + dt/Richards_Base%dx(jx) * harx(jx-1, jy, jz) * Richards_State%xi_faces(jx) / (Richards_Base%x(jx) - Richards_Base%x(jx-1)) * &
+                        (Richards_State%dkr(jx-1, jy, jz)*Richards_Base%dx(jx)/(Richards_Base%dx(jx) + Richards_Base%dx(jx-1))*(Richards_State%psi(jx, jy, jz) - Richards_State%psi(jx-1, jy, jz)) - Richards_State%kr_faces(jx))
 
 !! q at jx-1 part
-    J(jx, jx) = J(jx, jx) + dt/Richards_Base%dx(jx) * harx(jx-1, jy, jz) * Richards_State%xi_faces(jx) / (Richards_Base%x(jx) - Richards_Base%x(jx-1)) * &
-                  (Richards_State%dkr(jx, jy, jz)*Richards_Base%dx(jx-1)/(Richards_Base%dx(jx) + Richards_Base%dx(jx-1))*(Richards_State%psi(jx, jy, jz) - Richards_State%psi(jx-1, jy, jz)) + Richards_State%kr_faces(jx))
+          J(jx, jx) = J(jx, jx) + dt/Richards_Base%dx(jx) * harx(jx-1, jy, jz) * Richards_State%xi_faces(jx) / (Richards_Base%x(jx) - Richards_Base%x(jx-1)) * &
+                        (Richards_State%dkr(jx, jy, jz)*Richards_Base%dx(jx-1)/(Richards_Base%dx(jx) + Richards_Base%dx(jx-1))*(Richards_State%psi(jx, jy, jz) - Richards_State%psi(jx-1, jy, jz)) + Richards_State%kr_faces(jx))
 
 !! q at jx part
-    J(jx, jx) = J(jx, jx) - dt/Richards_Base%dx(jx) * harx(jx, jy, jz) * Richards_State%xi_faces(jx+1) / (Richards_Base%x(jx+1) - Richards_Base%x(jx)) * &
-                  (Richards_State%dkr(jx, jy, jz)*Richards_Base%dx(jx+1)/(Richards_Base%dx(jx+1) + Richards_Base%dx(jx))*(Richards_State%psi(jx+1, jy, jz) - Richards_State%psi(jx, jy, jz)) - Richards_State%kr_faces(jx+1))
+          J(jx, jx) = J(jx, jx) - dt/Richards_Base%dx(jx) * harx(jx, jy, jz) * Richards_State%xi_faces(jx+1) / (Richards_Base%x(jx+1) - Richards_Base%x(jx)) * &
+                        (Richards_State%dkr(jx, jy, jz)*Richards_Base%dx(jx+1)/(Richards_Base%dx(jx+1) + Richards_Base%dx(jx))*(Richards_State%psi(jx+1, jy, jz) - Richards_State%psi(jx, jy, jz)) - Richards_State%kr_faces(jx+1))
 
 !! q at jx part
-    J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * harx(jx, jy, jz) * Richards_State%xi_faces(jx+1) / (Richards_Base%x(jx+1) - Richards_Base%x(jx)) * &
-                  (Richards_State%dkr(jx+1, jy, jz)*Richards_Base%dx(jx)/(Richards_Base%dx(jx+1) + Richards_Base%dx(jx))*(Richards_State%psi(jx+1, jy, jz) - Richards_State%psi(jx, jy, jz)) + Richards_State%kr_faces(jx+1))
+          J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * harx(jx, jy, jz) * Richards_State%xi_faces(jx+1) / (Richards_Base%x(jx+1) - Richards_Base%x(jx)) * &
+                        (Richards_State%dkr(jx+1, jy, jz)*Richards_Base%dx(jx)/(Richards_Base%dx(jx+1) + Richards_Base%dx(jx))*(Richards_State%psi(jx+1, jy, jz) - Richards_State%psi(jx, jy, jz)) + Richards_State%kr_faces(jx+1))
 
 ! add gravitational flux part
 !! q at jx-1 part
-    J(jx, jx - 1) = J(jx, jx - 1) + dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx-1, jy, jz)*MERGE(0.0d0, Richards_State%dkr(jx-1, jy, jz) * Richards_State%xi(jx-1, jy, jz), Richards_State%head(jx, jy, jz) - Richards_State%head(jx-1, jy, jz) >= 0.0d0)
+          J(jx, jx - 1) = J(jx, jx - 1) + dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx-1, jy, jz)*MERGE(0.0d0, Richards_State%dkr(jx-1, jy, jz) * Richards_State%xi(jx-1, jy, jz), Richards_State%head(jx, jy, jz) - Richards_State%head(jx-1, jy, jz) >= 0.0d0)
 
 !! q at jx-1 part
-    J(jx, jx) = J(jx, jx) + dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx-1, jy, jz)*MERGE(Richards_State%dkr(jx, jy, jz) * Richards_State%xi(jx, jy, jz), 0.0d0, Richards_State%head(jx, jy, jz) - Richards_State%head(jx-1, jy, jz) >= 0.0d0)
+          J(jx, jx) = J(jx, jx) + dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx-1, jy, jz)*MERGE(Richards_State%dkr(jx, jy, jz) * Richards_State%xi(jx, jy, jz), 0.0d0, Richards_State%head(jx, jy, jz) - Richards_State%head(jx-1, jy, jz) >= 0.0d0)
 
 !! q at jx part
-    J(jx, jx) = J(jx, jx) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(0.0d0, Richards_State%dkr(jx, jy, jz) * Richards_State%xi(jx, jy, jz), Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
+          J(jx, jx) = J(jx, jx) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(0.0d0, Richards_State%dkr(jx, jy, jz) * Richards_State%xi(jx, jy, jz), Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
 
 !! q at jx part
-    J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(Richards_State%dkr(jx+1, jy, jz) * Richards_State%xi(jx+1, jy, jz), 0.0d0, Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
+          J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(Richards_State%dkr(jx+1, jy, jz) * Richards_State%xi(jx+1, jy, jz), 0.0d0, Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
 
 ! add temporal derivative part
-        J(jx, jx) = J(jx, jx) + Richards_State%dtheta(jx, jy, jz)
+          J(jx, jx) = J(jx, jx) + Richards_State%dtheta(jx, jy, jz)
 
       END DO inner
 
@@ -654,11 +653,9 @@ CONTAINS
         IF (i == 1) THEN
           jx_inner = 1
           jx_outer = 0
-          j = 0
         ELSE
           jx_inner = nx
           jx_outer = nx + 1
-          j = nx + 1
         END IF
 
         SELECT CASE (Richards_BCs(i)%BC_type)
@@ -677,10 +674,10 @@ CONTAINS
         CASE (3) ! flux
           IF (i == 1) THEN
             face_ID = 1
-            K_face = hary(0, jy, jz)
+            K_face = harx(0, jy, jz)
           ELSE
             face_ID = nx + 1
-            K_face = hary(nx, jy, jz)
+            K_face = harx(nx, jy, jz)
           END IF
 
           delta_x = Richards_Base%x(jx_outer) - Richards_Base%x(jx_inner)
@@ -688,15 +685,15 @@ CONTAINS
 ! add diffusive flux part
 
           J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - K_face*Richards_State%xi_faces(face_ID)/delta_x* &
-                    (Richards_State%dkr(jx_outer, jy_outer, jz)*0.5d0*(Richards_State%psi(jx_outer, jy_outer, jz) - Richards_State%psi(jx_inner, jy_inner, jz)) + Richards_State%kr_faces(face_ID))
+                    (Richards_State%dkr(jx_outer, jy, jz)*0.5d0*(Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz)) + Richards_State%kr_faces(face_ID))
 
           J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - K_face*Richards_State%xi_faces(face_ID)/delta_x* &
-                    (Richards_State%dkr(jx_inner, jy_inner, jz)*0.5d0*(Richards_State%psi(jx_outer, jy_outer, jz) - Richards_State%psi(jx_inner, jy_inner, jz)) - Richards_State%kr_faces(face_ID))
+                    (Richards_State%dkr(jx_inner, jy, jz)*0.5d0*(Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz)) - Richards_State%kr_faces(face_ID))
 
 ! add gravitational flux part
-      J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - Richards_Base%gravity_vector(1)*K_face*MERGE(Richards_State%dkr(jx_outer, jy_outer, jz) * Richards_State%xi(jx_outer, jy_outer, jz), 0.0d0, Richards_State%head(jx_outer, jy_outer, jz) - Richards_State%head(jx_inner, jy_inner, jz) >= 0.0d0)
+      J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - Richards_Base%gravity_vector(1)*K_face*MERGE(Richards_State%dkr(jx_outer, jy, jz) * Richards_State%xi(jx_outer, jy, jz), 0.0d0, Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
 
-      J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - Richards_Base%gravity_vector(1)*K_face*MERGE(0.0d0, Richards_State%dkr(jx_inner, jy_inner, jz) * Richards_State%xi(jx_inner, jy_inner, jz), Richards_State%head(jx_outer, jy_outer, jz) - Richards_State%head(jx_inner, jy_inner, jz) >= 0.0d0)
+      J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - Richards_Base%gravity_vector(1)*K_face*MERGE(0.0d0, Richards_State%dkr(jx_inner, jy, jz) * Richards_State%xi(jx_inner, jy, jz), Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
 
         CASE DEFAULT
           WRITE (*, *)
@@ -925,7 +922,7 @@ CONTAINS
 
 ! internal cells
       DO i = 1, nx
-        jx = 1
+        jx = i
 
         divergence = (qx(jx, jy, jz) - qx(jx - 1, jy, jz))/Richards_Base%dx(jx)
 
@@ -1093,14 +1090,22 @@ CONTAINS
 
 ! allocate arrays
 
-    CALL AllocateArray_2D(J, 1, Richards_Base%n_total_cells, 1, Richards_Base%n_total_cells)
-    CALL AllocateArray_1D(dpsi_Newton, 1, Richards_Base%n_total_cells)
-
-    IF (ALLOCATED(ipiv)) THEN
-      DEALLOCATE (ipiv)
-      ALLOCATE (ipiv(Richards_Base%n_total_cells))
+    IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+      CALL AllocateArray_1D(dpsi_Newton, 0, Richards_Base%n_total_cells-1)
+      IF (ALLOCATED(ipiv)) THEN
+        DEALLOCATE (ipiv)
+        ALLOCATE (ipiv(0:Richards_Base%n_total_cells-1))
+      ELSE
+        ALLOCATE (ipiv(0:Richards_Base%n_total_cells-1))
+      END IF
     ELSE
-      ALLOCATE (ipiv(Richards_Base%n_total_cells))
+      CALL AllocateArray_1D(dpsi_Newton, 1, Richards_Base%n_total_cells)
+      IF (ALLOCATED(ipiv)) THEN
+        DEALLOCATE (ipiv)
+        ALLOCATE (ipiv(Richards_Base%n_total_cells))
+      ELSE
+        ALLOCATE (ipiv(Richards_Base%n_total_cells))
+      END IF
     END IF
 
 ! set parameters for linear solver
@@ -1194,7 +1199,7 @@ CONTAINS
 
       IF (Richards_Options%is_print) THEN
         WRITE (*, 120) iteration, tol, error_old
-        FORMAT(1X, 'At the', I3, ' th Newton iteration, the tolerance is  ', ES14.4, ' , and the error is ', ES20.8)
+120     FORMAT(1X, 'At the', I3, ' th Newton iteration, the tolerance is  ', ES14.4, ' , and the error is ', ES20.8)
       END IF
 
     END DO newton_loop

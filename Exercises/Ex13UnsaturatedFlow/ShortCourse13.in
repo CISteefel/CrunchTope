@@ -49,21 +49,29 @@ permeability_z 0 default
 
 !RICHARD
 gravity 0.0 90.0 90.0 up ! gravity is from x_begin to x_end
+!gravity 0.0 90.0 90.0 down ! gravity is from x_end to x_begin
 Richards  TRUE ! Richards solver is used to compute velocity
-Richards_print FALSE ! Newton and line search results are not printed
+Richards_print TRUE ! Newton and line search results are not printed
 Richards_steady FALSE ! steady-state Richards solver is not used to the initial condition for time-dependent Richards solver
-read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
+hydraulic_function VGM ! select hydraulic function (default is van Genuchten Mualem model "VGM")
+richards_ic -7.2613900 ! constant initial condition for Richards
+!read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
 !! van Genuchten parameters
-vg_theta_r 120 0.0
-vg_theta_s 120 0.33
-vg_alpha   120 1.43
-vg_n       120 1.506
+vg_theta_r 0.0 default
+vg_theta_s 0.33 default
+vg_alpha   1.43 default
+vg_n       1.506 default
 !! boundary conditions for time-dependent Richards solver
 !!! flux boundary condition at x_begin
-!!! Because the gravity is from x_begin to x_end, the positive value means infiltration
-x_begin_bc_type constant_flux 0.2
+!!! Because the gravity is from x_begin to x_end (for "up" in gravity), the positive value means infiltration
+boundary_condition zone 0-0 1-1 1-1  flux 0.2 ! for up
+!boundary_condition zone 121-121 1-1 1-1  flux -0.2 ! for down
 !!! Neumann boundary condition (gradient of water potential is set to 0 here) at x_end
-x_end_bc_type constant_neumann 0.0 
+boundary_condition zone 121-121 1-1 1-1  neumann 0.0 ! for up
+!boundary_condition zone 0-0 1-1 1-1  neumann 0.0! for down
+set_tol_a 1.0e-8
+set_max_Newton 30
+set_max_line_search 30
 END
 
 POROSITY

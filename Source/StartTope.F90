@@ -801,7 +801,7 @@ inquire(file='CrunchJunk2.out',opened=lopen)
 IF (lopen) THEN
 CLOSE (unit=nout)
 END IF
-OPEN(UNIT=nout,FILE='CrunchJunk2.out',STATUS='unknown')
+OPEN(UNIT=nout,STATUS='SCRATCH')
 #else
 call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
 write(fn,"(a10,i0,a4)")'CrunchJunk',rank,'.out'
