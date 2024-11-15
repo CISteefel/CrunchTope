@@ -556,7 +556,7 @@ CONTAINS
 
   END SUBROUTINE RichardsFlux
 ! ************************************************************************** !
-  SUBROUTINE RichardsJacobian(nx, ny, nz, dt, J)
+  SUBROUTINE RichardsJacobian(nx, ny, nz, BCs, dt, J)
     USE crunchtype
     USE flow, ONLY: harx, hary, harz
 
@@ -585,7 +585,8 @@ CONTAINS
     REAL(DP) :: delta_x
     REAL(DP) :: gravity
     REAL(DP) :: K_face ! permeability at face
-
+    TYPE(RichardsBC), POINTER :: BCs(:)
+    
     IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
 ! allocate Jacobian
       CALL AllocateArray_2D(J, 0, nx + 1, 0, nx + 1)
@@ -643,8 +644,10 @@ CONTAINS
 !! q at jx part
           J(jx, jx + 1) = J(jx, jx + 1) - dt/Richards_Base%dx(jx) * Richards_Base%gravity_vector(1)*harx(jx, jy, jz)*MERGE(Richards_State%dkr(jx+1, jy, jz) * Richards_State%xi(jx+1, jy, jz), 0.0d0, Richards_State%head(jx+1, jy, jz) - Richards_State%head(jx, jy, jz) >= 0.0d0)
 
-! add temporal derivative part
-          J(jx, jx) = J(jx, jx) + Richards_State%dtheta(jx, jy, jz)
+! add temporal derivative part for transient problem
+          IF (.NOT. Richards_Options%is_steady) THEN
+            J(jx, jx) = J(jx, jx) + Richards_State%dtheta(jx, jy, jz)
+          END IF
 
       END DO inner
 
@@ -658,7 +661,7 @@ CONTAINS
           jx_outer = nx + 1
         END IF
 
-        SELECT CASE (Richards_BCs(i)%BC_type)
+        SELECT CASE (BCs(i)%BC_type)
         CASE (1) ! Dirichlet
 ! water potential at the boundary
           J(jx_outer, jx_outer) = 0.5D0
@@ -697,7 +700,7 @@ CONTAINS
 
         CASE DEFAULT
           WRITE (*, *)
-          WRITE (*, *) ' The boundary condition type ', Richards_BCs(i)%BC_type, ' is not recognized. '
+          WRITE (*, *) ' The boundary condition type ', BCs(i)%BC_type, ' is not recognized. '
           WRITE (*, *)
           READ (*, *)
           STOP
@@ -748,9 +751,11 @@ CONTAINS
         jx = Richards_Base%cell_to_coordinate(i, 1)
         jy = Richards_Base%cell_to_coordinate(i, 2)
 
-! add temporal derivative part
-        J(i, i) = J(i, i) + Richards_State%dtheta(jx, jy, jz)
-
+      ! add temporal derivative part for transient problem
+        IF (.NOT. Richards_Options%is_steady) THEN
+          J(i, i) = J(i, i) + Richards_State%dtheta(jx, jy, jz)
+        END IF
+          
 ! add diffusive flux part
 
 !! center cell
@@ -827,7 +832,7 @@ CONTAINS
         jx_outer = Richards_Base%cell_to_coordinate(cell_ID_outer, 1) ! x-coordinate of the ghost cell
         jy_outer = Richards_Base%cell_to_coordinate(cell_ID_outer, 2) ! y-coordinate of the ghost cell
 
-        SELECT CASE (Richards_BCs(i)%BC_type)
+        SELECT CASE (BCs(i)%BC_type)
         CASE (1) ! Dirichlet
           J(cell_ID_outer, cell_ID_outer) = 0.5D0
           J(cell_ID_outer, cell_ID_inner) = 0.5D0
@@ -879,7 +884,7 @@ CONTAINS
 
         CASE DEFAULT
           WRITE (*, *)
-          WRITE (*, *) ' The boundary condition type ', Richards_BCs(i)%BC_type, ' is not recognized. '
+          WRITE (*, *) ' The boundary condition type ', BCs(i)%BC_type, ' is not recognized. '
           WRITE (*, *)
           READ (*, *)
           STOP
@@ -892,7 +897,7 @@ CONTAINS
 
   END SUBROUTINE RichardsJacobian
 ! ************************************************************************** !
-  SUBROUTINE RichardsResidual(nx, ny, nz, dt, F_residual)
+  SUBROUTINE RichardsResidual(nx, ny, nz, BCs, dt, F_residual)
     USE crunchtype
     USE transport, ONLY: qx, qy, qz
 
@@ -909,6 +914,7 @@ CONTAINS
     INTEGER(I4B) :: face_ID
     INTEGER(I4B) :: cell_ID_inner, cell_ID_outer
     INTEGER(I4B) :: jx_inner, jy_inner, jx_outer, jy_outer
+    TYPE(RichardsBC), POINTER :: BCs(:)
 
     IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
 ! allocate residual
@@ -925,9 +931,13 @@ CONTAINS
         jx = i
 
         divergence = (qx(jx, jy, jz) - qx(jx - 1, jy, jz))/Richards_Base%dx(jx)
-
-        F_residual(i) = Richards_State%theta(jx, jy, jz) - Richards_State%theta_prev(jx, jy, jz) + divergence*dt
-
+        
+        IF (Richards_Options%is_steady) THEN
+          F_residual(i) = divergence*dt
+        ELSE
+          F_residual(i) = Richards_State%theta(jx, jy, jz) - Richards_State%theta_prev(jx, jy, jz) + divergence*dt
+        END IF
+        
       END DO
 
 ! evaluate residual for boundary conditions
@@ -940,30 +950,30 @@ CONTAINS
           jx_outer = nx + 1
         END IF
 
-        SELECT CASE (Richards_BCs(i)%BC_type)
+        SELECT CASE (BCs(i)%BC_type)
         CASE (1) ! Dirichlet
 ! water potential at the boundary
           psi_b = (Richards_State%psi(jx_inner, jy, jz) + Richards_State%psi(jx_outer, jy, jz))/2.0D0
 
-          F_residual(jx_outer) = psi_b - Richards_BCs(i)%BC_value
+          F_residual(jx_outer) = psi_b - BCs(i)%BC_value
 
         CASE (2) ! Neumann
 ! faces paralell to y-axis
           delta_x = Richards_Base%x(jx_outer) - Richards_Base%x(jx_inner)
 ! water potential gradient at the boundary
           psi_b = (Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz))/delta_x
-          F_residual(jx_outer) = psi_b - Richards_BCs(i)%BC_value
+          F_residual(jx_outer) = psi_b - BCs(i)%BC_value
 
         CASE (3) ! flux
           IF (i == 1) THEN
-            F_residual(jx_outer) = qx(0, jy, jz) - Richards_BCs(i)%BC_value
+            F_residual(jx_outer) = qx(0, jy, jz) - BCs(i)%BC_value
           ELSE
-            F_residual(jx_outer) = qx(nx, jy, jz) - Richards_BCs(i)%BC_value
+            F_residual(jx_outer) = qx(nx, jy, jz) - BCs(i)%BC_value
           END IF
 
         CASE DEFAULT
           WRITE (*, *)
-          WRITE (*, *) ' The boundary condition type ', Richards_BCs(i)%BC_type, ' is not recognized. '
+          WRITE (*, *) ' The boundary condition type ', BCs(i)%BC_type, ' is not recognized. '
           WRITE (*, *)
           READ (*, *)
           STOP
@@ -987,9 +997,13 @@ CONTAINS
 
         divergence = (qy(jx, jy, jz) - qy(jx, jy - 1, jz))/Richards_Base%dy(jy) + &
                      (qx(jx, jy, jz) - qx(jx - 1, jy, jz))/Richards_Base%dx(jx)
-
-        F_residual(i) = Richards_State%theta(jx, jy, jz) - Richards_State%theta_prev(jx, jy, jz) + divergence*dt
-
+        
+        IF (Richards_Options%is_steady) THEN
+          F_residual(i) = divergence*dt
+        ELSE
+          F_residual(i) = Richards_State%theta(jx, jy, jz) - Richards_State%theta_prev(jx, jy, jz) + divergence*dt
+        END IF
+        
       END DO
 
 ! evaluate residual for boundary conditions
@@ -1004,12 +1018,12 @@ CONTAINS
         jx_outer = Richards_Base%cell_to_coordinate(cell_ID_outer, 1) ! x-coordinate of the ghost cell
         jy_outer = Richards_Base%cell_to_coordinate(cell_ID_outer, 2) ! y-coordinate of the ghost cell
 
-        SELECT CASE (Richards_BCs(i)%BC_type)
+        SELECT CASE (BCs(i)%BC_type)
         CASE (1) ! Dirichlet
 ! water potential at the boundary
           psi_b = (Richards_State%psi(jx_inner, jy_inner, jz) + Richards_State%psi(jx_outer, jy_outer, jz))/2.0D0
 
-          F_residual(Richards_Base%n_inner_cells + i) = psi_b - Richards_BCs(i)%BC_value
+          F_residual(Richards_Base%n_inner_cells + i) = psi_b - BCs(i)%BC_value
 
         CASE (2) ! Neumann
           IF (jx_inner == jx_outer) THEN
@@ -1021,30 +1035,30 @@ CONTAINS
           END IF
 ! water potential gradient at the boundary
           psi_b = (Richards_State%psi(jx_outer, jy_outer, jz) - Richards_State%psi(jx_inner, jy_inner, jz))/delta_x
-          F_residual(Richards_Base%n_inner_cells + i) = psi_b - Richards_BCs(i)%BC_value
+          F_residual(Richards_Base%n_inner_cells + i) = psi_b - BCs(i)%BC_value
 
         CASE (3) ! flux
           IF (jx_inner == jx_outer) THEN
 ! faces paralell to x-axis
             IF (jy_inner < jy_outer) THEN
-              F_residual(Richards_Base%n_inner_cells + i) = qy(jx_inner, jy_inner, jz) - Richards_BCs(i)%BC_value
+              F_residual(Richards_Base%n_inner_cells + i) = qy(jx_inner, jy_inner, jz) - BCs(i)%BC_value
             ELSE
-              F_residual(Richards_Base%n_inner_cells + i) = qy(jx_outer, jy_outer, jz) - Richards_BCs(i)%BC_value
+              F_residual(Richards_Base%n_inner_cells + i) = qy(jx_outer, jy_outer, jz) - BCs(i)%BC_value
             END IF
 
           ELSE
 ! faces paralell to y-axis
             IF (jx_inner < jx_outer) THEN
-              F_residual(Richards_Base%n_inner_cells + i) = qx(jx_inner, jy_inner, jz) - Richards_BCs(i)%BC_value
+              F_residual(Richards_Base%n_inner_cells + i) = qx(jx_inner, jy_inner, jz) - BCs(i)%BC_value
             ELSE
-              F_residual(Richards_Base%n_inner_cells + i) = qx(jx_outer, jy_outer, jz) - Richards_BCs(i)%BC_value
+              F_residual(Richards_Base%n_inner_cells + i) = qx(jx_outer, jy_outer, jz) - BCs(i)%BC_value
             END IF
 
           END IF
 
         CASE DEFAULT
           WRITE (*, *)
-          WRITE (*, *) ' The boundary condition type ', Richards_BCs(i)%BC_type, ' is not recognized. '
+          WRITE (*, *) ' The boundary condition type ', BCs(i)%BC_type, ' is not recognized. '
           WRITE (*, *)
           READ (*, *)
           STOP
@@ -1125,10 +1139,10 @@ CONTAINS
       IF (error_old < tol) EXIT
 ! Evaluate the flux and the residual
       CALL RichardsFlux(nx, ny, nz)
-      CALL RichardsResidual(nx, ny, nz, dt, F_residual)
+      CALL RichardsResidual(nx, ny, nz, Richards_BCs_pointer, dt, F_residual)
 
 ! Evaluate the Jacobian matrix
-      CALL RichardsJacobian(nx, ny, nz, dt, J)
+      CALL RichardsJacobian(nx, ny, nz, Richards_BCs_pointer, dt, J)
 
       dpsi_Newton = -F_residual
 
@@ -1171,7 +1185,7 @@ CONTAINS
 
 ! evaluate the flux and the residual
         CALL RichardsFlux(nx, ny, nz)
-        CALL RichardsResidual(nx, ny, nz, dt, F_residual)
+        CALL RichardsResidual(nx, ny, nz, Richards_BCs_pointer, dt, F_residual)
 
 ! update tolerance
         error_new = MAXVAL(ABS(F_residual))

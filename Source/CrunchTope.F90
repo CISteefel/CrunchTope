@@ -673,11 +673,10 @@ IF (CalculateFlow) THEN
    steady_Richards: IF (Richards_Options%is_steady) THEN
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-     WRITE(*,*) ' Currently, steady-state Ricahrds solver is turned off '
-     READ(*,*)
-     STOP
-     !CALL solve_Richards(nx, ny, nz, dtflow)
+     Richards_BCs_pointer => Richards_BCs_steady
+     CALL RichardsSolve(nx, ny, nz, delt)
      Richards_Options%is_steady = .FALSE.
+     Richards_BCs_pointer => Richards_BCs
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
