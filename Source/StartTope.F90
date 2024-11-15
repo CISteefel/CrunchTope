@@ -8186,15 +8186,15 @@ ELSE
       END IF
      
       ! flag to prevent chemical transport due to evaporation at a boundary
-      parchar = 'set_evaporation_boundary'
-      parfind = ' '
-      evaporation_boundary = ' '
-      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-      IF (parfind == ' ') THEN
-        evaporation_boundary = ' '
-      ELSE
-        evaporation_boundary = dumstring
-      END IF
+      !parchar = 'set_evaporation_boundary'
+      !parfind = ' '
+      !evaporation_boundary = ' '
+      !CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      !IF (parfind == ' ') THEN
+      !  evaporation_boundary = ' '
+      !ELSE
+      !  evaporation_boundary = dumstring
+      !END IF
       
       ! set the shape of the spatial domain for 2D flow problem (only used in 2D Richards)
       parchar = 'spatial_domain'
@@ -8774,7 +8774,7 @@ ELSE
         CALL stringlen(FileTemp,FileNameLength)
 
         IF (permxFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+          READ(23,*,END=1020) (((permx(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
         ELSE IF (permxFileFormat == 'SingleColumn') THEN
           DO jz = 1,nz
             DO jy = 1,ny
@@ -9160,7 +9160,7 @@ ELSE
     
     ! saturated water content theta_s (=porosity)
     
-      IF (theta_s_is_porosity) THEN
+      IF (Richards_Options%theta_s_is_porosity) THEN
         ! theta_s is the same as the porosity, so no need to read vg_theta_s
     
         FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
@@ -9374,7 +9374,7 @@ ELSE
       call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%theta_r,TEXT)
     
       ! the input value is actually residual saturation, convert it to residual water content
-      IF (theta_r_is_S_r) THEN
+      IF (Richards_Options%theta_r_is_S_r) THEN
         VGM_parameters%theta_r = VGM_parameters%theta_r*VGM_parameters%theta_s
       END IF  
 
@@ -9926,7 +9926,7 @@ ELSE
         realjunk = 0.0
         CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
         IF (parfind == ' ') THEN
-          IF (Richards_steady) THEN
+          IF (Richards_Options%is_steady) THEN
             WRITE(*,*) ' The initial condition was not found for the steady-state Richards solver in the input file. Set to zero water potential at all cells. '
             Richards_State%psi = 0.0d0
           

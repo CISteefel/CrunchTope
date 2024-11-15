@@ -3185,8 +3185,8 @@ END DO
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-        WRITE(iures) psi
-        WRITE(iures) theta
+        WRITE(iures) Richards_State%psi
+        WRITE(iures) Richards_State%theta
     END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
@@ -3476,10 +3476,10 @@ END DO
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
     IF (Richards) THEN
-        WRITE(iures) psi
-        WRITE(iures) head
-        WRITE(iures) theta
-        WRITE(iures) theta_prev
+        WRITE(iures) Richards_State%psi
+        WRITE(iures) Richards_State%head
+        WRITE(iures) Richards_State%theta
+        WRITE(iures) Richards_State%theta_prev
     END IF
     ! End of Edit by Toshiyuki Bandai 2023 May
     !*********************************************
