@@ -1185,42 +1185,84 @@ DO WHILE (nn <= nend)
           highZ = UBOUND(satliq,3)
           call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
           
-        
-          !IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-          !  ! the velocity at the boundary is forced to zero when the vector goes outward
-          !  ! not to consider chemcial transport via evaporation
-          !  IF (evaporation_boundary /= ' ') THEN
-          !    SELECT CASE (evaporation_boundary)
-          !      CASE ('x_begin')
-          !        DO jz = 1,nz
-          !          DO jy = 1,ny
-          !            jx = 0
-          !            IF (qx(jx, jy, jz) < 0.0d0) THEN
-          !              qx(jx, jy, jz) = 0.0d0
-          !            END IF
-          !          END DO
-          !        END DO
-          !      
-          !      CASE ('x_end')
-          !        DO jz = 1,nz
-          !          DO jy = 1,ny
-          !            jx = nx
-          !            IF (qx(jx, jy, jz) > 0.0d0) THEN
-          !              qx(jx, jy, jz) = 0.0d0
-          !            END IF
-          !          END DO
-          !        END DO
-          !
-          !      CASE DEFAULT
-          !      WRITE(*,*)
-          !      WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
-          !      WRITE(*,*)
-          !      READ(*,*)
-          !      STOP
-          !
-          !      END SELECT
-          !  END IF
-          !END IF       
+          ! the velocity at the boundary is forced to zero when the vector goes outward
+          ! not to consider chemcial transport via evaporation
+          IF (Richards_Options%evaporation_boundary) THEN
+            IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+              jy = 1
+              jz = 1
+              
+              DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i == 1) THEN
+                  ! left boundary
+                    jx = 0
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE
+                  ! right boundary
+                    jx = nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END IF
+                END IF
+                
+              END DO
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+              jz = 1
+              IF (Richards_Base%spatial_domain == 'regular') THEN  
+                DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i <= nx) THEN
+                  ! bottom boundary
+                    jx = i
+                    jy = 0
+                    IF (qy(jx, jy, jz) < 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx .AND. i <= nx+ny) THEN
+                    ! right boundary
+                    jx = nx
+                    jy = i - nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx + ny .AND. i <= 2*nx+ny) THEN  
+                    ! top boundary
+                    jx = 2*nx + ny - i + 1
+                    jy = ny
+                    IF (qy(jx, jy, jz) > 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE
+                  ! left boundary
+                    jx = 0
+                    jy = 2*nx + 2*ny - i + 1
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END IF
+                END IF
+                
+              END DO
+                
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+          END IF
         ! End of edit by Toshiyuki Bandai, 2024 Oct
         ! ******************************************************************
         ELSE flow_solver_if_time

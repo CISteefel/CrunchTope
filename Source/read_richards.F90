@@ -7,7 +7,8 @@ IMPLICIT NONE
 
 PRIVATE
 
-PUBLIC RichardsReadBoundaryCondition!, &
+PUBLIC RichardsReadBoundaryCondition, &
+       RichardsSetEvaporationBoundary
 
 ! Interface block for the external subroutine
 INTERFACE
@@ -649,5 +650,159 @@ END IF
 id = ids + ls
 
 END SUBROUTINE ReadHyphenBlcok
+
+! ************************************************************************** !
+SUBROUTINE RichardsSetEvaporationBoundary(nout,nx,ny,nz,BCs,error)
+USE crunchtype
+USE params, ONLY: mls
+
+IMPLICIT NONE
+
+!  External variables and arrays
+
+INTEGER(I4B), INTENT(IN) :: nout, nx, ny, nz
+TYPE(RichardsBC), POINTER :: BCs(:)
+INTEGER(I4B), INTENT(OUT) :: error
+
+!  Internal variables and arrays
+
+INTEGER(I4B) :: i, j, id, iff, ids, ls, lzs, nlen1,ls_a,ls_b
+INTEGER(I4B) :: jx_low, jx_high, jy_low, jy_high, jz_low, jz_high
+INTEGER(I4B) :: jx, jy
+CHARACTER (LEN=1) :: res
+CHARACTER (LEN=mls) :: zone
+CHARACTER (LEN=mls) :: ssch,ssch_a,ssch_b
+CHARACTER (LEN=mls) :: keyword
+INTEGER(I4B) :: mBoundaryConditionZone = 100
+INTEGER(I4B) :: nBoundaryConditionZone_Richards = 0
+INTEGER(I4B) :: lfile
+
+REWIND nout
+
+! change the keyword name for steady state Richards solver
+keyword = 'set_evaporation_boundary'
+error = 0
+
+!search keyword
+DO i = 1,mBoundaryConditionZone
+
+  READ(nout,'(a)',END=500) zone
+
+  nlen1 = LEN(zone)
+  CALL majuscules(zone,nlen1)
+  id = 1
+  iff = mls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  lzs=ls
+  CALL convan(ssch,lzs,res)
+
+  IF (ssch == keyword) THEN
+    id = ids + ls
+    CALL sschaine(zone,id,iff,ssch,ids,ls)
+    IF(ls == 0) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' No boundary condtiion information is provided after ', keyword
+      error = 1
+      RETURN
+    ELSE
+      lzs=ls
+      CALL convan(ssch,lzs,res)
+      IF (ssch /= 'zone') THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Dont understand string following BoundaryCondition specification'
+        WRITE(*,*)   ssch(1:ls)
+        WRITE(*,*)
+        error = 1
+        RETURN
+      ELSE
+! "Zone" specified, so look for locations
+        nBoundaryConditionZone_Richards = nBoundaryConditionZone_Richards + 1
+
+        IF (nBoundaryConditionZone_Richards > mBoundaryConditionZone) THEN
+
+          WRITE(*,*)
+          WRITE(*,*)  ' Number of set_evaporation_boundary zones dimensioned too small'
+          WRITE(*,*)  ' Number of evaporation_boundary zones = ', nBoundaryConditionZone_Richards
+          WRITE(*,*)  ' Dimension of evaporation_boundary zones = ', mBoundaryConditionZone
+          WRITE(*,*)  ' Contact C.I. Steefel at Berkeley Lab: "CISteefel@lbl.gov"'
+          WRITE(*,*)
+          error = 1
+          RETURN
+
+        END IF
+
+        id = ids + ls
+
+        CALL ReadHyphenBlcok(zone, id, jx_low, jx_high, jy_low, jy_high, jz_low, jz_high, error)
+
+      END IF
+    END IF
+
+! store the extracted values to boundary condition container for each face
+    IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+      IF (jx_low == 0) THEN ! left boundary
+        j = 1 
+      ELSE IF (jx_low == nx + 1) THEN ! right boundary
+        j = 2
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' Invlid set_evaporation_boundary location for 1D Richards solver '
+        WRITE(*,*)
+        error = 1
+        RETURN
+      END IF
+
+      BCs(j)%is_atmosphere = .TRUE.      
+
+    ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+
+      IF (Richards_Base%spatial_domain == 'regular') THEN  
+        DO jy = jy_low, jy_high
+          DO jx = jx_low, jx_high
+
+            IF (jx == 0) THEN ! left boundary
+              j = 2*nx+2*ny-jy+1
+            ELSE IF (jx == nx+1) THEN ! right boundary
+              j = nx+jy
+            ELSE IF (jy == 0) THEN ! bottom boundary
+              j = jx
+            ELSE IF (jy == ny+1) THEN ! top boundary
+              j = 2*nx+ny - jx + 1
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' Invlid set_evaporation_boundary location for 2D Richards solver for regular spatial domain '
+              WRITE(*,*)
+              error = 1
+              RETURN
+            END IF
+
+            BCs(j)%is_atmosphere = .TRUE.      
+
+          END DO
+        END DO
+
+      ELSE
+        WRITE(*,*)
+        WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
+        WRITE(*,*)
+        error = 1
+        RETURN
+      END IF
+
+    ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+      WRITE(*,*)
+      error = 1
+      RETURN
+    END IF
+
+  END IF
+END DO    
+
+500 Continue
+
+END SUBROUTINE RichardsSetEvaporationBoundary
+
 
 END MODULE read_richards_module

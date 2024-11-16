@@ -42,6 +42,7 @@ MODULE Richards_module
   TYPE :: RichardsOptions ! store options for Richards solver
     LOGICAL(LGT) :: is_steady = .FALSE. ! True when solving the steady-state Richards equation to get the initial condition
     LOGICAL(LGT) :: is_print = .FALSE. ! True if you want print statements from the Richards solver
+    LOGICAL(LGT) :: evaporation_boundary = .FALSE.
     CHARACTER(LEN=60) :: hydraulic_function ! type of hydraulic function
     LOGICAL(LGT) :: vg_is_n = .TRUE. ! True if the input to vg_n is the n parameter in the van Genuchten model, otherwise, the input value is interpreted as the m parameter
     LOGICAL(LGT) :: psi_is_head = .TRUE. ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].
@@ -583,6 +584,7 @@ CONTAINS
     INTEGER(I4B) :: cell_ID_outer
 
     REAL(DP) :: delta_x
+    REAL(DP) :: psi_b
     REAL(DP) :: gravity
     REAL(DP) :: K_face ! permeability at face
     TYPE(RichardsBC), POINTER :: BCs(:)
@@ -694,10 +696,41 @@ CONTAINS
                     (Richards_State%dkr(jx_inner, jy, jz)*0.5d0*(Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz)) - Richards_State%kr_faces(face_ID))
 
 ! add gravitational flux part
-      J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - Richards_Base%gravity_vector(1)*K_face*MERGE(Richards_State%dkr(jx_outer, jy, jz) * Richards_State%xi(jx_outer, jy, jz), 0.0d0, Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
+          J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - Richards_Base%gravity_vector(1)*K_face*MERGE(Richards_State%dkr(jx_outer, jy, jz) * Richards_State%xi(jx_outer, jy, jz), 0.0d0, Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
 
-      J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - Richards_Base%gravity_vector(1)*K_face*MERGE(0.0d0, Richards_State%dkr(jx_inner, jy, jz) * Richards_State%xi(jx_inner, jy, jz), Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
+          J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - Richards_Base%gravity_vector(1)*K_face*MERGE(0.0d0, Richards_State%dkr(jx_inner, jy, jz) * Richards_State%xi(jx_inner, jy, jz), Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
+        
+        CASE (4) ! atomosheric boundary condition
+          psi_b = (Richards_State%psi(jx_inner, jy, jz) + Richards_State%psi(jx_outer, jy, jz))/2.0D0
+          IF (psi_b < Richards_Base%psi_0) THEN
+            J(jx_outer, jx_outer) = 0.5D0
+            J(jx_outer, jx_inner) = 0.5D0
+          ELSE
+            IF (i == 1) THEN
+              face_ID = 1
+              K_face = harx(0, jy, jz)
+            ELSE
+              face_ID = nx + 1
+              K_face = harx(nx, jy, jz)
+            END IF
 
+            delta_x = Richards_Base%x(jx_outer) - Richards_Base%x(jx_inner)
+
+  ! add diffusive flux part
+
+            J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - K_face*Richards_State%xi_faces(face_ID)/delta_x* &
+                      (Richards_State%dkr(jx_outer, jy, jz)*0.5d0*(Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz)) + Richards_State%kr_faces(face_ID))
+
+            J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - K_face*Richards_State%xi_faces(face_ID)/delta_x* &
+                      (Richards_State%dkr(jx_inner, jy, jz)*0.5d0*(Richards_State%psi(jx_outer, jy, jz) - Richards_State%psi(jx_inner, jy, jz)) - Richards_State%kr_faces(face_ID))
+
+  ! add gravitational flux part
+            J(jx_outer, jx_outer) = J(jx_outer, jx_outer) - Richards_Base%gravity_vector(1)*K_face*MERGE(Richards_State%dkr(jx_outer, jy, jz) * Richards_State%xi(jx_outer, jy, jz), 0.0d0, Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
+
+            J(jx_outer, jx_inner) = J(jx_outer, jx_inner) - Richards_Base%gravity_vector(1)*K_face*MERGE(0.0d0, Richards_State%dkr(jx_inner, jy, jz) * Richards_State%xi(jx_inner, jy, jz), Richards_State%head(jx_outer, jy, jz) - Richards_State%head(jx_inner, jy, jz) >= 0.0d0)
+
+          END IF
+          
         CASE DEFAULT
           WRITE (*, *)
           WRITE (*, *) ' The boundary condition type ', BCs(i)%BC_type, ' is not recognized. '
@@ -970,7 +1003,21 @@ CONTAINS
           ELSE
             F_residual(jx_outer) = qx(nx, jy, jz) - BCs(i)%BC_value
           END IF
-
+        
+        CASE (4) ! atomospheric boundary condition
+          psi_b = (Richards_State%psi(jx_inner, jy, jz) + Richards_State%psi(jx_outer, jy, jz))/2.0D0
+          IF (psi_b < Richards_Base%psi_0) THEN
+            ! the boundary water potential is below psi_0, so switch to Dirichlet BC
+            F_residual(jx_outer) = psi_b - Richards_Base%psi_0
+            
+          ELSE
+            IF (i == 1) THEN
+              F_residual(jx_outer) = qx(0, jy, jz) - BCs(i)%BC_value
+            ELSE
+              F_residual(jx_outer) = qx(nx, jy, jz) - BCs(i)%BC_value
+            END IF
+          END IF
+          
         CASE DEFAULT
           WRITE (*, *)
           WRITE (*, *) ' The boundary condition type ', BCs(i)%BC_type, ' is not recognized. '

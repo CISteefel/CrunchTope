@@ -8184,17 +8184,6 @@ ELSE
       ELSE
         Richards_Base%psi_0 = realjunk / dist_scale
       END IF
-     
-      ! flag to prevent chemical transport due to evaporation at a boundary
-      !parchar = 'set_evaporation_boundary'
-      !parfind = ' '
-      !evaporation_boundary = ' '
-      !CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-      !IF (parfind == ' ') THEN
-      !  evaporation_boundary = ' '
-      !ELSE
-      !  evaporation_boundary = dumstring
-      !END IF
       
       ! set the shape of the spatial domain for 2D flow problem (only used in 2D Richards)
       parchar = 'spatial_domain'
@@ -9592,81 +9581,8 @@ ELSE
     
     END IF Richards_allocate
     
-    ! Read x_begin and x_end boundary conditions for steady-state problem
+    ! set boundary conditions for Richards solver
     Richards_boundary_conditions: IF (Richards) THEN
-      !IF (Richards_steady) THEN
-      !  IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-      !    ! x_begin boundary condition
-      !    BC_location = 0
-      !    ! the arguments x_begin_BC_file, lfile, tslength are not used for the steady-state problem
-      !    CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_begin_BC_type_steady, x_begin_BC_file, value_x_begin_BC_steady, lfile, x_begin_constant_BC_steady, tslength)
-      !
-      !    ! unit conversion
-      !    SELECT CASE (x_begin_BC_type_steady)
-      !    CASE ('constant_dirichlet')
-      !      value_x_begin_BC_steady = value_x_begin_BC_steady/dist_scale
-      !    
-      !      IF (.NOT. psi_is_head) THEN
-      !        value_x_begin_BC_steady = (value_x_begin_BC_steady - pressure_air)/(rho_water*9.80665d0)
-      !      END IF
-      !    
-      !    CASE ('constant_neumann')
-      !      WRITE(*,*)
-      !      WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the x_begin boundary condition for the steady-state Richards equation. '
-      !      WRITE(*,*)
-      !      READ(*,*)
-      !      STOP
-      !      !CONTINUE ! no unit conversion
-      !    CASE ('constant_flux')
-      !      value_x_begin_BC_steady = value_x_begin_BC_steady/(dist_scale * time_scale)
-      !    CASE DEFAULT
-      !      WRITE(*,*)
-      !      WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the steady-state Richards equation. '
-      !      WRITE(*,*)
-      !      READ(*,*)
-      !      STOP
-      !    END SELECT
-      !
-      !    ! x_end boundary condition
-      !    BC_location = 1
-      !    ! the arguments x_end_BC_file, lfile, x_end_constant_BC, tslength are not used for the steady-state problem
-      !    CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_end_BC_type_steady, x_end_BC_file, value_x_end_BC_steady, lfile, x_end_constant_BC_steady, tslength)
-      !
-      !    ! unit conversion
-      !    SELECT CASE (x_end_BC_type_steady)
-      !    CASE ('constant_dirichlet')
-      !      value_x_end_BC_steady = value_x_end_BC_steady/dist_scale
-      !      IF (.NOT. psi_is_head) THEN
-      !        value_x_end_BC_steady = (value_x_end_BC_steady - pressure_air)/(rho_water*9.80665d0)
-      !      END IF
-      !    
-      !    CASE ('constant_neumann')
-      !      CONTINUE ! no unit conversion
-      !    CASE ('constant_flux')
-      !      value_x_end_BC_steady = value_x_end_BC_steady/(dist_scale * time_scale)
-      !    CASE DEFAULT
-      !      WRITE(*,*)
-      !      WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type_steady, ' is not supported for the steady-state Richards equation. '
-      !      WRITE(*,*)
-      !      READ(*,*)
-      !      STOP
-      !    END SELECT
-      !  ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-      !    WRITE(*,*)
-      !    WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-      !    WRITE(*,*)
-      !    READ(*,*)
-      !    STOP 
-      !  ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-      !    WRITE(*,*)
-      !    WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-      !    WRITE(*,*)
-      !    READ(*,*)
-      !    STOP
-      !  END IF
-      !
-      !END IF
-    
       ! read boundary conditions for transient problem
       !IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
       !  
@@ -9871,7 +9787,23 @@ ELSE
         READ(*,*)
         STOP
       END IF
-          
+      
+      ! set boundary faces where no chemical transport due to evaporation
+      parchar = 'set_evaporation_boundary'
+      parfind = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind /= ' ') THEN
+        Richards_Options%evaporation_boundary = .TRUE.
+        CALL RichardsSetEvaporationBoundary(nout,nx,ny,nz,Richards_BCs_pointer, BC_error)
+        IF (BC_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error when reading set_evaporation_boundary locations '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+      
     END IF Richards_boundary_conditions
     
     

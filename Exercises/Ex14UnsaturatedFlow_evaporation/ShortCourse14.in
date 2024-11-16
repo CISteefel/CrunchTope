@@ -52,21 +52,21 @@ gravity 0.0 90.0 90.0 up ! gravity is from x_begin to x_end
 Richards  TRUE ! Richards solver is used to compute velocity
 Richards_print TRUE ! Newton and line search results are not printed
 Richards_steady FALSE ! steady-state Richards solver is not used to the initial condition for time-dependent Richards solver
-read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
+richards_ic -0.01 ! initial condition for time-dependent Richards solver
 !! van Genuchten parameters
-vg_theta_r 25 0.1
-vg_theta_s 25 0.45
-vg_alpha   25 5.0
-vg_n       25 2.0
+vg_theta_r 0.1 default 
+vg_theta_s 0.45 default 
+vg_alpha   5.0 default 
+vg_n       2.0 default 
 !! boundary conditions for time-dependent Richards solver
 !!! atmospheric boundary condition at x_begin
 !!! Because the gravity is from x_begin to x_end, the negative value means evaporation
-x_begin_bc_type constant_atomosphere -0.005
+boundary_condition zone 0-0 1-1 1-1 atomosphere -0.005
 !set_psi_0 -1.0d4 ! minimum water potentail allowed at the atomospheric boundary
 !set_dpsi_max 1.0d3 ! maximum change in water potentail during Newton iterations
 !!! flux boundary condition at x_end
-x_end_bc_type constant_flux 0.0
-set_evaporation_boundary x_begin ! evaporation boundary is set to x_begin, so no chemical transport due to evaporation at the boundary
+boundary_condition zone 26-26 1-1 1-1 flux 0.0
+set_evaporation_boundary zone 0-0 1-1 1-1 ! evaporation boundary is set to x_begin, so no chemical transport due to evaporation at the boundary
 END
 
 POROSITY
