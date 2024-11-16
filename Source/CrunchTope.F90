@@ -1137,28 +1137,18 @@ DO WHILE (nn <= nend)
           ! store the previous time step water content
           Richards_State%theta_prev = Richards_State%theta         
           
-          ! update transient boundary condition for one-dimensional problem
-          !*********************************************************************
-          !IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-          !
-          !  ! update the value used for the x_begin boundary condition by interpolating time series
-          !  SELECT CASE (x_begin_BC_type)
-          !  CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-          !    CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
-          !  CASE DEFAULT
-          !    CONTINUE ! for constant boundary condition, do nothing
-          !  END SELECT
-          !
-          !  SELECT CASE (x_end_BC_type)
-          !  CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-          !    CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
-          !   
-          !
-          !  CASE DEFAULT
-          !    CONTINUE ! for constant boundary condition, do nothing
-          !  END SELECT
-          !  
-          !END IF
+          ! update transient boundary condition
+          DO i = 1, Richards_Base%n_bfaces
+            IF (Richards_BCs_pointer(i)%is_variable) THEN
+              Richards_Variable_BC_ptr => Richards_Variable_BC
+              
+              DO j = 1, Richards_BCs_pointer(i)%variable_BC_index - 1
+                Richards_Variable_BC_ptr => Richards_Variable_BC%p
+              END DO
+              
+              CALL interp(time + delt, Richards_Variable_BC_ptr%BC_time, Richards_Variable_BC_ptr%BC_values, Richards_BCs_pointer(i)%BC_value, size(Richards_Variable_BC_ptr%BC_time))
+            END IF
+          END DO
              
           ! solve the Richards equation
           CALL RichardsSolve(nx, ny, nz, delt)

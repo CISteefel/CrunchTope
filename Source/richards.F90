@@ -75,10 +75,12 @@ MODULE Richards_module
   TYPE(RichardsBC), ALLOCATABLE, PUBLIC, TARGET :: Richards_BCs_steady(:)
   TYPE(RichardsBC), POINTER, PUBLIC :: Richards_BCs_pointer(:)
   TYPE(RichardsVariableBC), POINTER, PUBLIC :: Richards_Variable_BC
+  TYPE(RichardsVariableBC), POINTER, PUBLIC :: Richards_Variable_BC_ptr ! temporary pointer
   TYPE(RichardsOptions), PUBLIC :: Richards_Options
   TYPE(RichardsSolver), PUBLIC :: Richards_Solver
   TYPE(RichardsState), PUBLIC :: Richards_State
-
+  
+  
   PUBLIC RichardsAllocate, &
     RichardsBC, &
     RichardsDiscretize, &

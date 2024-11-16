@@ -51,15 +51,16 @@ permeability_z 0 default
 ns_solve FALSE
 gravity 0.0 90.0 90.0 up
 Richards  TRUE
-!Richards_print True
+Richards_print True
 Richards_steady FALSE
-read_richards_ic_file initial_condition.csv SingleColumn
-vg_theta_r 150 0.0
-vg_theta_s 150 0.33
-vg_alpha   150 1.43
-vg_n       150 1.506
-x_begin_bc_type variable_flux water_upper_BC.dat 12
-x_end_bc_type constant_neumann 0.0
+!read_richards_ic_file initial_condition.csv SingleColumn
+richards_ic -7.2613900
+vg_theta_r 0.0 default
+vg_theta_s 0.33 default
+vg_alpha   1.43 default
+vg_n       1.506 default
+boundary_condition zone 0-0 1-1 1-1  variable_flux water_upper_BC.dat 12
+boundary_condition zone 151-151 1-1 1-1  neumann 0.0
 END
 
 POROSITY

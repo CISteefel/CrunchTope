@@ -375,7 +375,7 @@ DO i = 1,mBoundaryConditionZone
 
           CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere') bc_case
             is_variable = .TRUE.
-
+            id = ids + ls
 ! variable boundary condition
             CALL sschaine(zone,id,iff,ssch,ids,ls)
 ! obtain the file name for the variable boundary condition
@@ -441,22 +441,23 @@ DO i = 1,mBoundaryConditionZone
 
             CALL read_timeseries(nout, nx, ny, nz, BC_time, BC_values, lfile, BC_file, time_length)
 
-            IF (BC_name == 'dirichlet') THEN
+            IF (BC_name == 'variable_dirichlet') THEN
               BC_type = 1
               BC_values = BC_values/dist_scale
               IF (.NOT. Richards_Options%psi_is_head) THEN
                   BC_values = (BC_values - pressure_air)/(rho_water*9.80665d0)
               END IF
-            ELSE IF (BC_name == 'neumann') THEN
+            ELSE IF (BC_name == 'variable_neumann') THEN
               BC_type = 2
-            ELSE IF (BC_name == 'flux') THEN
+            ELSE IF (BC_name == 'variable_flux') THEN
               BC_type = 3
               BC_values = BC_values/(dist_scale * time_scale)
-            ELSE IF (BC_name == 'atomosphere') THEN
+            ELSE IF (BC_name == 'variable_atomosphere') THEN
               BC_type = 4
               BC_values = BC_values/(dist_scale * time_scale)
             END IF
-
+            
+            BC_time = BC_time * time_scale
 ! store the data
             IF (.NOT. ASSOCIATED(Richards_Variable_BC)) THEN
               ALLOCATE(Richards_Variable_BC)

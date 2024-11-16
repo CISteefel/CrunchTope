@@ -47,7 +47,7 @@ REAL(DP)                                                      :: t_dum
 REAL(DP)                                                      :: q_dum
 REAL(DP), ALLOCATABLE, DIMENSION(:)           :: tout_dum
 REAL(DP) , ALLOCATABLE, DIMENSION(:)           :: qtout_dum
-REWIND nout
+!REWIND nout
 
 
 WRITE(iunit2,*)
