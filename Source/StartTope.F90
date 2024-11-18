@@ -695,9 +695,6 @@ ALLOCATE(realmult_dum(2000))
 ALLOCATE(realmult(2000))
 
 pi = DACOS(-1.0d0)
-
-!fp! routine_name="start98";
-
 vxfile = ' '
 vyfile = ' '
 vzfile = ' '
@@ -10688,7 +10685,7 @@ anisotropyY = 1.0d0
 !!!anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
-  MillingtonQuirk = .TRUE.
+MillingtonQuirk = .TRUE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
@@ -10783,10 +10780,6 @@ IF (MontTerri) THEN
       tortuosity(jx,jy,jz) =  0.0
     END DO
   END DO
-
-  
-  
-
   
 !!! 1: Chamber
 !!! 2: Not in Chamber
@@ -10815,6 +10808,9 @@ CALL units_time(nout,section,time_scale)
 CALL units_distance(nout,section,dist_scale)
 
 CALL read_diffusion(nout,nx,ny,nz)
+IF (uli /= 1.0d0) THEN
+  MillingtonQuirk = .FALSE.
+END IF
 
 DO ik = 1,ncomp+nspec
   IF (idiffus == 0) THEN
@@ -10919,7 +10915,7 @@ ELSE
 !!        STOP
 
     ELSE
-  MillingtonQuirk = .TRUE.
+      MillingtonQuirk = .TRUE.
       WRITE(*,*)
       WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
       WRITE(*,*)
@@ -10957,7 +10953,7 @@ ELSE
       END IF
 
     ELSE
-  MillingtonQuirk = .TRUE.
+      MillingtonQuirk = .FALSE.
     END IF
 
     DEALLOCATE(TortuosityZone)
@@ -10980,7 +10976,7 @@ ELSE
         READ(*,*)
         STOP
       END IF
-  MillingtonQuirk = .TRUE.
+      MillingtonQuirk = .TRUE.
       OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
       FileTemp = TortuosityFile
       CALL stringlen(FileTemp,FileNameLength)
@@ -11246,123 +11242,6 @@ WRITE(iunit2,*)
 dspx = 0.0
 dspy = 0.0
 dspz = 0.0
-
-IF (ReadGeochemicalConditions) THEN
-
-!!     do jy = 1,ny
-!!       do jx = 1,nx
-
-!!         IF (qx(jx,jy,1) == 0.0d0 .AND. qy(jx,jy-1,1) == 0.0d0 .and. qx(jx-1,jy,1) /= 0.0d0 .and. qy(jx,jy,1) /= 0.0d0) THEN  ! NW face
-!!               jinit(jx,jy,1) = 1
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qx(jx,jy,1) == 0.0d0 .AND. qy(jx,jy,1) == 0.0d0 .and. qx(jx-1,jy,1) /= 0.0d0 .and. qy(jx,jy-1,1) /= 0.0d0) THEN  ! SW face
-!!               jinit(jx,jy,1) = 2
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qx(jx-1,jy,1) == 0.0d0 .AND. qy(jx,jy-1,1) == 0.0d0 .and. qx(jx,jy,1) /= 0.0d0 .and. qy(jx,jy,1) /= 0.0d0) THEN  ! NE face
-!!               jinit(jx,jy,1) = 1
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qx(jx-1,jy,1) == 0.0d0 .AND. qy(jx,jy,1) == 0.0d0 .and. qx(jx,jy,1) /= 0.0d0 .and. qy(jx,jy-1,1) /= 0.0d0) THEN  ! SE face
-!!               jinit(jx,jy,1) = 2
-!!               volfx(1,jx,jy,1) = 0.20
-
-!!         IF (qx(jx,jy,1) == 0.0d0 .and. qx(jx-1,jy,1) /= 0.0d0) THEN  ! W face
-!!               jinit(jx,jy,1) = 1
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qy(jx,jy,1) == 0.0d0 .and. qy(jx,jy-1,1) /= 0.0d0 .AND. jy /=1 .AND. jy /= ny) THEN  ! S face
-!!               jinit(jx,jy,1) = 2
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qy(jx,jy-1,1) == 0.0d0 .and. qy(jx,jy,1) /= 0.0d0 .AND. jy /=1 .AND. jy /= ny) THEN  ! N face
-!!               jinit(jx,jy,1) = 1
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qx(jx-1,jy,1) == 0.0d0 .AND. qx(jx,jy,1) /= 0.0d0) THEN  ! E face
-!!               jinit(jx,jy,1) = 2
-!!               volfx(1,jx,jy,1) = 0.20
-!!         ELSE IF (qx(jx-1,jy,1) == 0.0d0 .AND. qy(jx,jy,1) == 0.0d0 .and. qx(jx,jy,1) == 0.0d0 .and. qy(jx,jy-1,1) == 0.0d0) THEN  ! Crystal interior
-!!             volfx(1,jx,jy,1) = 0.0d0
-!!             jinit(jx,jy,1) = 4
-!!             activecell(jx,jy,1) = 0
-!!             tortuosity(jx,jy,1) = 0.0d0
-!!         ELSE
-!!             continue
-!!         END IF
-
-!!           if (qy(jx,jy,1) /= 0.0d0 .OR. qy(jx,jy-1,1) /= 0.0d0 .OR. qx(jx+1,jy,1) /= 0.0d0 .OR. qx(jx-1,jy,1) /= 0.0d0) then
-!!             volfx(1,jx,jy,1) = 0.20
-!!             if (jy>(ny/2)) then
-!!               jinit(jx,jy,1) = 1
-!!             activecell(jx,jy,1) = 0
-!!             else
-!!               jinit(jx,jy,1) = 2
-!!             activecell(jx,jy,1) = 0
-!!             end if
-!!           else
-!!             volfx(1,jx,jy,1) = 0.0d0
-!!             jinit(jx,jy,1) = 4
-!!             activecell(jx,jy,1) = 0
-!!             tortuosity(jx,jy,1) = 0.0d0
-!!           end if
-!!         end if
-
-
-!!       end do
-!!     end do
-END IF
-
-
-!      write(*,*)
-!      do jx = 0,nx
-!        write(*,1009) (dspx(jx,jy,1),jy=1,ny)
-!      end do
-!      write(*,*)
-!      pause
-!      write(*,*)
-!      do jx = 1,nx
-!        write(*,1009) (dspy(jx,jy,1),jy=0,ny)
-!      end do
-!      write(*,*)
-!      pause
-
-!! Evapotranspiration
-
-!evapofix = .FALSE.
-!evapotimeseries = .FALSE.
-!transpifix = .FALSE.
-!transpitimeseries = .FALSE.
-!CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
-!IF (evapotimeseries) THEN
-!  IF (ALLOCATED(t_evapo)) THEN
-!    DEALLOCATE(t_evapo)
-!  END IF
-!  IF (ALLOCATED(qt_evapo)) THEN
-!    DEALLOCATE(qt_evapo)
-!  END IF
-!  ALLOCATE(t_evapo(tslength))
-!  ALLOCATE(qt_evapo(tslength))
-!  CALL read_timeseries(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
-!  evaporate = qt_evapo(1)
-!  !STOP
-!ENDIF
-!CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
-!IF (transpitimeseries) THEN
-!  IF (ALLOCATED(t_transpi)) THEN
-!    DEALLOCATE(t_transpi)
-!  END IF
-!  IF (ALLOCATED(qt_transpi)) THEN
-!    DEALLOCATE(qt_transpi)
-!  END IF
-!  ALLOCATE(t_transpi(tslength))
-!  ALLOCATE(qt_transpi(tslength))
-!  CALL read_timeseries(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
-!  qt_transpi=qt_transpi/transpicells 
-!  transpirate = qt_transpi(1)
-!  !WRITE(*,*) transpirate
-! ! STOP
-!ENDIF
-
-
-
-
-!!!   ******************  NMM Coupling  ****************************************************
 
 
 !!!   ******************  NMM Coupling  ****************************************************!!!
