@@ -241,7 +241,9 @@ CONTAINS
 
 ! face to cell function
       ALLOCATE (Richards_Base%face_to_cell(Richards_Base%n_faces, 2))
-
+      
+      ! initialize
+      Richards_Base%face_to_cell = 0
       DO i = 1, Richards_Base%n_faces
 ! loop over internal cells
         DO j = 1, Richards_Base%n_inner_cells
@@ -264,7 +266,7 @@ CONTAINS
           IF (Richards_Base%bface_to_face(j) == i) THEN
             IF (Richards_Base%face_to_cell(i, 1) == 0) THEN
               Richards_Base%face_to_cell(i, 1) = j + Richards_Base%n_inner_cells
-            ELSE
+            ELSE IF (Richards_Base%face_to_cell(i, 2) == 0) THEN
               Richards_Base%face_to_cell(i, 2) = j + Richards_Base%n_inner_cells
             END IF
           END IF
@@ -502,7 +504,7 @@ CONTAINS
 !compute flux by looping over faces
       DO i = 1, Richards_Base%n_faces
         cell_ID_west = Richards_Base%face_to_cell(i, 1) ! south or west cell
-        cell_ID_east = Richards_Base%face_to_cell(i, 2) ! south or west cell
+        cell_ID_east = Richards_Base%face_to_cell(i, 2) ! north or east cell
 
         jx_west = Richards_Base%cell_to_coordinate(cell_ID_west, 1) ! x-coordinate of the west (or south) cell
         jy_west = Richards_Base%cell_to_coordinate(cell_ID_west, 2) ! y-coordinate of the west (or south) cell
