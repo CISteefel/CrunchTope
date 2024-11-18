@@ -32,7 +32,26 @@
 			<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-			<File RelativePath="..\Source\AffinityNumerical.F90"/>
+			<Filter Name="EQ36-Read">
+				<File RelativePath="..\Source\EQ36-Read\ifnobl.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\ilnobl.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\ldbar2.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\ldbar3.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\lejust.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\locase.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\rdgrid.f">
+				</File>
+				<File RelativePath="..\Source\EQ36-Read\rdpar.f">
+				</File>
+			</Filter>
+			<File RelativePath="..\Source\AffinityNumerical.F90">
+			</File>
 			<File RelativePath="..\Source\AllocateALL.F90"/>
 			<File RelativePath="..\Source\AllocateGasesGimrt.F90"/>
 			<File RelativePath="..\Source\AllocateGasesOS3D.F90"/>
@@ -84,7 +103,8 @@
 			<File RelativePath="..\Source\CrunchPETScInitializeDiffusion.F90"/>
 			<File RelativePath="..\Source\CrunchPETScInitializePressure.F90"/>
 			<File RelativePath="..\Source\CrunchPETScTolerances.F90"/>
-			<File RelativePath="..\Source\CrunchTope.F90"/>
+			<File RelativePath="..\Source\CrunchTope.F90">
+			</File>
 			<File RelativePath="..\Source\CrunchTopeDriver.F90"/>
 			<File RelativePath="..\Source\crunchtype.F90"/>
 			<File RelativePath="..\Source\database.F90"/>
@@ -100,8 +120,7 @@
 			<File RelativePath="..\Source\exchange.F90"/>
 			<File RelativePath="..\Source\exchange_init.F90"/>
 			<File RelativePath="..\Source\ExchangeConcentration.F90"/>
-			<File RelativePath="..\Source\find_condition.F90">
-			</File>
+			<File RelativePath="..\Source\find_condition.F90"/>
 			<File RelativePath="..\Source\find_firststring.F90"/>
 			<File RelativePath="..\Source\find_string.F90"/>
 			<File RelativePath="..\Source\FindMaxFlow.F90"/>
@@ -141,7 +160,8 @@
 			<File RelativePath="..\Source\GraphicsTecplot.F90"/>
 			<File RelativePath="..\Source\GraphicsVisit.F90"/>
 			<File RelativePath="..\Source\harmonic.F90"/>
-			<File RelativePath="..\Source\InitializeCalciteStoichiometry.F90"/>
+			<File RelativePath="..\Source\InitializeCalciteStoichiometry.F90">
+			</File>
 			<File RelativePath="..\Source\interp.F90"/>
 			<File RelativePath="..\Source\interp3.F90"/>
 			<File RelativePath="..\Source\io.F90"/>
@@ -172,7 +192,8 @@
 			<File RelativePath="..\Source\keqcalc2_init.F90"/>
 			<File RelativePath="..\Source\keqcalc2_init_co2.F90"/>
 			<File RelativePath="..\Source\keqcalcGasOnly.F90"/>
-			<File RelativePath="..\Source\lubksb90.F90"/>
+			<File RelativePath="..\Source\lubksb90.F90">
+			</File>
 			<File RelativePath="..\Source\ludcmp90.F90"/>
 			<File RelativePath="..\Source\majuscules.F90"/>
 			<File RelativePath="..\Source\medium.F90"/>
@@ -209,7 +230,8 @@
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
-			<File RelativePath="..\Source\reactionTope.F90"/>
+			<File RelativePath="..\Source\reactionTope.F90">
+			</File>
 			<File RelativePath="..\Source\reactkin.F90"/>
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
@@ -376,7 +398,8 @@
 			<File RelativePath="..\Source\units_time.F90"/>
 			<File RelativePath="..\Source\units_timeOutput.F90"/>
 			<File RelativePath="..\Source\UpdateExchanger.F90"/>
-			<File RelativePath="..\Source\vanGenuchten_model.F90"/>
+			<File RelativePath="..\Source\vanGenuchten_model.F90">
+			</File>
 			<File RelativePath="..\Source\vanGenuchten_model_kr.F90"/>
 			<File RelativePath="..\Source\velocalc.F90"/>
 			<File RelativePath="..\Source\velocalcNS.F90"/>
