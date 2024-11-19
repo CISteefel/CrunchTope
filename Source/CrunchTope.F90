@@ -453,7 +453,7 @@ END IF
 WRITE(*,*)
 WRITE(*,*) '   ************************** CrunchFlow ******************************'
 WRITE(*,*)
-WRITE(*,*) '                 Authors:  C.I. STEEFEL, S. MOLINS, & T. BANDAI'
+WRITE(*,*) '                 Authors:  C.I. STEEFEL, T. BANDAI, S. MOLINS'
 
 WRITE(*,*) '                      *** Copyright Notice ***          '
 WRITE(*,*) '     Copyright (c) 2016, The Regents of the University of California, '
