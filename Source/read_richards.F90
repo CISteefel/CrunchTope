@@ -26,6 +26,16 @@ INTERFACE
     INTEGER(I4B), INTENT(IN) :: nbc
     CHARACTER (LEN=mls), INTENT(IN OUT) :: zone
   END SUBROUTINE majuscules
+  
+  SUBROUTINE read_timeseries(tout,qtout,lfile,tsfile,tslength)
+    USE crunchtype
+    USE params
+    INTEGER(I4B), INTENT(IN) :: lfile
+    INTEGER(I4B), INTENT(IN) :: tslength
+    CHARACTER (LEN=mls), INTENT(IN) :: tsfile
+    REAL(DP),  INTENT(IN OUT) :: tout(tslength)
+    REAL(DP) ,  INTENT(IN OUT) :: qtout(tslength)
+  END SUBROUTINE read_timeseries
 
   SUBROUTINE sschaine(zone,id,iff,ssch,ids,ls)
     USE crunchtype
@@ -65,7 +75,7 @@ END INTERFACE
   CONTAINS
 
 ! ************************************************************************** !
-SUBROUTINE InsertBoundaryCondition(nout,nx,ny,nz,BCs, jx_low, jx_high, jy_low, jy_high, jz_low, jz_high, &
+SUBROUTINE InsertBoundaryCondition(nx,ny,nz,BCs, jx_low, jx_high, jy_low, jy_high, jz_low, jz_high, &
                                    BC_type, value, is_variable, variable_BC_index, error)
 USE crunchtype
 USE params, ONLY: mls, pressure_air, rho_water
@@ -73,7 +83,7 @@ USE params, ONLY: mls, pressure_air, rho_water
 IMPLICIT NONE
 
 !  External variables and arrays
-INTEGER(I4B), INTENT(IN) :: nout, nx, ny, nz
+INTEGER(I4B), INTENT(IN) :: nx, ny, nz
 INTEGER(I4B), INTENT(IN) :: jx_low, jx_high, jy_low, jy_high, jz_low, jz_high
 INTEGER(I4B), INTENT(IN) :: BC_type
 INTEGER(I4B), INTENT(IN) :: variable_BC_index
@@ -243,11 +253,11 @@ INTEGER(I4B), INTENT(OUT) :: error
 
 !  Internal variables and arrays
 
-INTEGER(I4B) :: i, id, iff, ids, ls, lzs, nlen1,ls_a,ls_b
+INTEGER(I4B) :: i, id, iff, ids, ls, lzs, nlen1
 INTEGER(I4B) :: jx_low, jx_high, jy_low, jy_high, jz_low, jz_high
 CHARACTER (LEN=1) :: res
 CHARACTER (LEN=mls) :: zone
-CHARACTER (LEN=mls) :: ssch,ssch_a,ssch_b
+CHARACTER (LEN=mls) :: ssch
 CHARACTER (LEN=mls) :: BC_name
 CHARACTER (LEN=mls) :: keyword
 INTEGER(I4B) :: mBoundaryConditionZone = 1000
@@ -258,7 +268,6 @@ INTEGER(I4B) :: lfile
 INTEGER(I4B) :: variable_BC_index = 0
 INTEGER(I4B) :: time_length ! length of the time series to define the size of the array for the time-series
 CHARACTER (LEN=mls) :: BC_file ! filename for time-dependent boundary condition
-TYPE(RichardsVariableBC), POINTER :: ptr ! temporary pointer
 TYPE(RichardsVariableBC), POINTER :: tail ! pointer to tail of the list
 REAL(DP), ALLOCATABLE :: BC_time(:)
 REAL(DP), ALLOCATABLE :: BC_values(:)
@@ -439,7 +448,7 @@ DO i = 1,mBoundaryConditionZone
             ALLOCATE(BC_time(time_length))
             ALLOCATE(BC_values(time_length))
 
-            CALL read_timeseries(nout, nx, ny, nz, BC_time, BC_values, lfile, BC_file, time_length)
+            CALL read_timeseries(BC_time, BC_values, lfile, BC_file, time_length)
 
             IF (BC_name == 'variable_dirichlet') THEN
               BC_type = 1
@@ -491,7 +500,7 @@ DO i = 1,mBoundaryConditionZone
     END IF
 
 ! store the extracted values to boundary condition container for each face
-    CALL InsertBoundaryCondition(nout,nx,ny,nz,BCs, jx_low, jx_high, jy_low, jy_high, jz_low, jz_high, &
+    CALL InsertBoundaryCondition(nx,ny,nz,BCs, jx_low, jx_high, jy_low, jy_high, jz_low, jz_high, &
                                      BC_type, value, is_variable, variable_BC_index, error2)
 
     IF (error2 /= 0) THEN
@@ -667,16 +676,15 @@ INTEGER(I4B), INTENT(OUT) :: error
 
 !  Internal variables and arrays
 
-INTEGER(I4B) :: i, j, id, iff, ids, ls, lzs, nlen1,ls_a,ls_b
+INTEGER(I4B) :: i, j, id, iff, ids, ls, lzs, nlen1
 INTEGER(I4B) :: jx_low, jx_high, jy_low, jy_high, jz_low, jz_high
 INTEGER(I4B) :: jx, jy
 CHARACTER (LEN=1) :: res
 CHARACTER (LEN=mls) :: zone
-CHARACTER (LEN=mls) :: ssch,ssch_a,ssch_b
+CHARACTER (LEN=mls) :: ssch
 CHARACTER (LEN=mls) :: keyword
 INTEGER(I4B) :: mBoundaryConditionZone = 100
 INTEGER(I4B) :: nBoundaryConditionZone_Richards = 0
-INTEGER(I4B) :: lfile
 
 REWIND nout
 

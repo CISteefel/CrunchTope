@@ -1145,8 +1145,6 @@ CONTAINS
 ! parameters for Newtons' method for forward problem
     REAL(DP), PARAMETER                                        :: tau_a = 1.0D-8
 
-    INTEGER(I4B) :: maxitr_Newton = 100
-    INTEGER(I4B) :: maxitr_line_search = 30
 ! variables for line search
     REAL(DP) :: error_old, tol, alpha_line, lam, error_new
     INTEGER(I4B) :: no_backtrack, descent
@@ -1209,7 +1207,7 @@ CONTAINS
 
 ! line search
       line: DO
-        IF (descent /= 0 .OR. no_backtrack > maxitr_line_search) EXIT line
+        IF (descent /= 0 .OR. no_backtrack > Richards_Solver%max_line_search) EXIT line
 ! update water potential
         IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
           jy = 1
