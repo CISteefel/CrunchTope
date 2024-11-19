@@ -191,15 +191,15 @@ DO jy = 1,ny
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*sate*porp*tort
         dumw = dumpx
+        
       ELSE IF (MillingtonQuirk) THEN
-
         dume  = ro(jx+1,jy,jz)*(sate)**(SatPow) * (pore)**(PorPow)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
-
         dumw = dumpx
+        
       ELSE
-        dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dume = ro(jx+1,jy,jz)*sate*pore**(uli)*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
         dumw = dumpx
 
       END IF
@@ -233,8 +233,8 @@ DO jy = 1,ny
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dume = dumpx
       ELSE
-        dumw = ro(jx-1,jy,jz)*satw*porw*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dumw = ro(jx-1,jy,jz)*satw*porw**(uli)*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
+        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
         dume = dumpx
       END IF
       
@@ -272,9 +272,9 @@ DO jy = 1,ny
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dumw = ro(jx-1,jy,jz)*(satw)**(SatPow) * (porw)**(PorPow)*dstar(jx-1,jy,jz)
       ELSE
-        dume = ro(jx+1,jy,jz)*sate*pore*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
-        dumw = ro(jx-1,jy,jz)*satw*porw*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
+        dume = ro(jx+1,jy,jz)*sate*pore**(uli)*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dumw = ro(jx-1,jy,jz)*satw*porw**(uli)*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
       END IF
     END IF
     
@@ -310,8 +310,8 @@ DO jy = 1,ny
         dumpy = ro(jx,jy,jz)*(satp)**(SatPow) * (por(jx,jy,jz))**(PorPow)*dstar(jx,jy,jz)*anisotropyY
         dums = dumpy
       ELSE
-        dumn = ro(jx,jy+1,jz)*satn*porn*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
-        dumpy = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
+        dumn = ro(jx,jy+1,jz)*satn*porn**(uli)*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
+        dumpy = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
         dums = dumpy
       END IF
       
@@ -344,8 +344,8 @@ DO jy = 1,ny
         dumpy = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)*anisotropyY
         dumn = dumpy
       ELSE
-        dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
-        dumpy = ro(jx,jy,jz)*satp*porP*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
+        dums = ro(jx,jy-1,jz)*sats*pors**(uli)*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
+        dumpy = ro(jx,jy,jz)*satp*porP**(uli)*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
         dumn = dumpy
       END IF
       
@@ -384,9 +384,9 @@ DO jy = 1,ny
         dums = ro(jx,jy-1,jz)*(sats)**(SatPow) * (pors)**(PorPow) *dstar(jx,jy-1,jz)*anisotropyY
         dumpy = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow) *dstar(jx,jy,jz)  *anisotropyY
       ELSE
-        dumn = ro(jx,jy+1,jz)*satn*porn*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
-        dums = ro(jx,jy-1,jz)*sats*pors*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
-        dumpy = ro(jx,jy,jz)*satp*porp*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
+        dumn = ro(jx,jy+1,jz)*satn*porn**(uli)*dstar(jx,jy+1,jz)*anisotropyY*tortuosity(jx,jy+1,jz)
+        dums = ro(jx,jy-1,jz)*sats*pors**(uli)*dstar(jx,jy-1,jz)*anisotropyY*tortuosity(jx,jy-1,jz)
+        dumpy = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*anisotropyY*tortuosity(jx,jy,jz)
       END IF
     END IF
     

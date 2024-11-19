@@ -138,10 +138,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tdata
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: break
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: c0
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: csave
-
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: aaaTemp
-
-
 REAL(DP), PARAMETER                                        :: atol=1.e-09
 REAL(DP), PARAMETER                                        :: rtol=1.e-06
 REAL(DP), PARAMETER                                        :: correx=1.0
@@ -204,9 +201,11 @@ REAL(DP)                                                   :: MaxDivergence
 REAL(DP)                                                   :: MaximumCorrection
 REAL(DP)                                                   :: TotalMass
 REAL(DP)                                                   :: InitialTotalMass
-
-REAL(DP)                                                   :: dt_gimrt
+REAL(DP)                                                   :: dt_GIMRT
 REAL(DP)                                                   :: t_rich
+REAL(DP)                                                   :: PrintSeconds
+REAL(DP)                                                   :: ExtraSeconds
+REAL(DP)                                                   :: StartSimulation
 
 INTEGER(I4B)                                               :: reason
 INTEGER(I4B)                                               :: nflow
@@ -246,9 +245,7 @@ INTEGER(I4B)                                               :: intfile
 INTEGER(I4B)                                               :: isimu_hr
 INTEGER(I4B)                                               :: isimu_min
 INTEGER(I4B)                                               :: isimu_sec
-REAL(DP)                                                   :: PrintSeconds
-REAL(DP)                                                   :: ExtraSeconds
-REAL(DP)                                                   :: StartSimulation
+
 INTEGER(I4B)                                               :: ndata
 INTEGER(I4B)                                               :: nchar
 INTEGER(I4B)                                               :: n3
@@ -259,7 +256,6 @@ INTEGER(I4B)                                               :: ncount
 INTEGER(I4B)                                               :: idummy
 INTEGER(I4B)                                               :: jxmax
 INTEGER(I4B)                                               :: jymax
-
 INTEGER(I4B)                                               :: jydum2
 INTEGER(I4B)                                               :: jyCheck
 
@@ -308,17 +304,18 @@ REAL(DP)                                                   :: porsatro
 REAL(DP)                                                   :: dt
 REAL(DP)                                                   :: RoAveLeft
 REAL(DP)                                                   :: RoAveRight
-
 REAL(DP)                                                   :: qxSum
+
 INTEGER(I4B)                                               :: jyy
 
 CHARACTER (LEN=1)                                           :: Coordinate
 
 INTEGER(I4B)                                               :: phloc(3)
 INTEGER(I4B)                                               :: DummyInteger
+INTEGER(I4B)                                               :: nplotsurface
+INTEGER(I4B)                                               :: nplotexchange
 
 LOGICAL(LGT)                                               :: SteadyFlow
-
 LOGICAL(LGT)                                               :: ActiveFlow
 LOGICAL(LGT)                                               :: TrueFalse
 LOGICAL(LGT)                                               :: steady
@@ -327,11 +324,7 @@ LOGICAL(LGT)                                               :: FlowConverged
 LOGICAL(LGT)                                               :: FirstCall
 
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tempreal
-
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: InitialMass
-
-INTEGER(I4B)                                               :: nplotsurface
-INTEGER(I4B)                                               :: nplotexchange
 
 REAL(DP)                                                   :: satchange
 REAL(DP)                                                   :: sumvertical
@@ -348,14 +341,11 @@ REAL(DP)                                                   :: MaxPermeabilityX
 REAL(DP)                                                   :: MaxPermeabilityY
 REAL(DP)                                                   :: MinPermeabilityX
 REAL(DP)                                                   :: MinPermeabilityY
-
 REAL(DP)                                                   :: ConcentrationNormalized
 REAL(DP)                                                   :: Nr
 REAL(DP)                                                   :: ScaledNr
-
 REAL(DP)                                                   :: CPU_unit
 REAL(DP)                                                   :: TimeHours
-
 REAL(DP)                                                   :: DelCaAqueous
 REAL(DP)                                                   :: delCaMineralInstant
 REAL(DP)                                                   :: delCaMineralBulk
@@ -364,7 +354,6 @@ REAL(DP)                                                   :: del34S_sulfide
 REAL(DP)                                                   :: del34S_SulfideMineral
 REAL(DP)                                                   :: rateFeS
 REAL(DP)                                                   :: rateS
-
 REAL(DP)                                                   :: CumulativeSulfate
 REAL(DP)                                                   :: CumulativeFe
 REAL(DP)                                                   :: CumulativeO2
@@ -374,15 +363,13 @@ CHARACTER (LEN=1)                                          :: trans
 
 INTEGER(I4B)                                               :: info
 INTEGER(I4B)                                               :: npz
-
-INTEGER(I4B), PARAMETER                                    :: ione=1
-
 INTEGER(I4B)                                               :: PetscLogPrintSummary
 INTEGER(I4B)                                               :: jxslice
 INTEGER(I4B)                                               :: nbnd
 
-REAL(DP)                                                   :: Tk
+INTEGER(I4B), PARAMETER                                    :: ione=1
 
+REAL(DP)                                                   :: Tk
 REAL(DP)                                                   :: MassBalanceError
 REAL(DP)                                                   :: AqueousMassBalanceError
 REAL(DP)                                                   :: RateMassBalanceError
@@ -392,22 +379,17 @@ REAL(DP)                                                   :: sumCalcite
 REAL(DP)                                                   :: sumCO2
 REAL(DP)                                                   :: sumPlagioclaseArea
 REAL(DP)                                                   :: denominator
-
 REAL(DP)                                                   :: totPor
 REAL(DP)                                                   :: totVol
 REAL(DP)                                                   :: totCheck
 REAL(DP)                                                   :: totChange
 REAL(DP)                                                   :: totCheckInitial
-
-REAL(DP)      :: CheckMass1
-REAL(DP)      :: CheckMass2
-
-
+REAL(DP)                                                   :: CheckMass1
+REAL(DP)                                                   :: CheckMass2
 REAL(DP)                                                   :: pumpterm
 
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
-
 INTEGER(I4B)                                               :: i_substep
 
 ! transient pump time series (Lucien Stolze)
@@ -453,13 +435,11 @@ KSP                  ksp
 !!Scalar               zeroPetsc
 ! ************************end PETSc declarations of PETSc variables ******
   
-Switcheroo = .false.
+Switcheroo = .FALSE.
 
 MassBalanceError = 0.0d0
 AqueousMassBalanceError = 0.0d0
 RateMassBalanceError = 0.0d0
-!!ResidualTolerance = 1.0D-10
-
 CumulativeSulfate = 0.0d0
 CumulativeFe = 0.0d0
 CumulativeO2 = 0.0d0
@@ -486,14 +466,13 @@ WRITE(*,*) '   *****************************************************************
 
 IF (.NOT. RunningPest) THEN
 
-
 !!  Go here when running subsequent input files
 
-9999 CONTINUE
+  9999 CONTINUE
 
-call CPU_TIME(PrintSeconds)
-StartSimulation = PrintSeconds
-StartSimulation = 0.0d0
+  call CPU_TIME(PrintSeconds)
+  StartSimulation = PrintSeconds
+  StartSimulation = 0.0d0
 
 END IF    !  Above is not used when running PEST
 
@@ -501,9 +480,9 @@ FirstCall = .TRUE.
 
 !!  Initialize
 trans = 'N'
-solve_flag = .false.
-steady = .false.
-os3dpetsc = .FALSE.
+solve_flag = .FALSE.
+steady = .FALSE.
+OS3Dpetsc = .FALSE.
 pi = DACOS(-1.0D0)
 ncomp = 0
 ngas = 0
@@ -522,11 +501,11 @@ dtmaxcour = 0.0
 iprnt = 0
 ncounter = 0
 
-!!call def_time(CPU_unit)
-CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,  &
-    ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,       &
-    corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,    &
+CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,               &
+    ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,                      &
+    corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,         &
     str_day,str_hr,str_min,str_sec,NumInputFiles,InputFileCounter,nBoundaryConditionZone)
+
 str_mon = 0
 str_day = 0
 str_hr  = 0
@@ -535,27 +514,28 @@ str_sec = 0
 str_millisec = 0
 
 ! ************ Initialize PETSc stuff ***************************************
-if( InputFileCounter == 1) then
+IF ( InputFileCounter == 1) THEN
+  
   call PetscInitialize(PETSC_NULL_CHARACTER,ierr)
   call MPI_COMM_SIZE(PETSC_COMM_WORLD,numprocs,ierr)
-  if (numprocs /= 1) then
+  IF (numprocs /= 1) THEN
     call MPI_COMM_RANK(PETSC_COMM_WORLD,irank,ierr)
-    if (irank == 0) then
+    if (irank == 0) THEN
       write(*,*) ' This is the 1-processor case'
     endif
     call PetscFinalize(ierr)
     READ(*,*)
-    stop
-  endif
-endif
+    STOP
+    
+  END IF
+END IF
 !  ************** End PETSc initialize ***************************************
-
-dtmax = tstep
 
 !!! Last two unknowns are ionic strength (sion[jx,jy,jz] and activity of water (gammawater[jx,jy,jz] )
 neqn = ncomp + nexchange + nsurf + npot + 1 + 1
 
 IF (nstop == 0) THEN
+  
   WRITE(*,*)
   WRITE(*,*) '       DISTRIBUTION OF SPECIES COMPLETED'
   WRITE(*,*) '          NO TIME STEPPING SPECIFIED'
@@ -565,8 +545,10 @@ IF (nstop == 0) THEN
 !******************end petsc addition for cleanup on error ******************************
   READ(*,*)
   STOP
+  
 END IF
 
+dtmax = tstep
 nint = 1
 OutputTimeCounter = 1
 nxyz = nx*ny*nz
@@ -576,16 +558,17 @@ time = 0.0
 
 WRITE(*,*)
 WRITE(*,*) '        INITIALIZATION COMPLETED '
-WRITE(*,*) '         STARTING TIMESTEPPING '
+WRITE(*,*) '        --> STARTING TIMESTEPPING '
 WRITE(*,*)
 WRITE(iunit2,*)
 WRITE(iunit2,*) '        INITIALIZATION COMPLETED '
-WRITE(iunit2,*) '         STARTING TIMESTEPPING '
+WRITE(iunit2,*) '        --> STARTING TIMESTEPPING '
 WRITE(iunit2,*)
 
 CLOSE(iunit2,STATUS='keep')
 
-IF (gimrt) THEN
+IF (GIMRT) THEN
+  
   WRITE(*,*)
   WRITE(*,*) ' ---> RUNNING IN:  GLOBAL IMPLICIT REACTION AND TRANSPORT (GIMRT) MODE'
   WRITE(*,*)
@@ -598,11 +581,18 @@ IF (gimrt) THEN
 !******************end petsc addition for cleanup on error ******************************
     READ(*,*)
     STOP
+	
   END IF
+  
 ELSE
+  
   WRITE(*,*)
   WRITE(*,*) ' ---> RUNNING IN:  TIME SPLITTING REACTION AND TRANSPORT (OS3D) MODE'
+  WRITE(*,*) ' Except this needs fixing, so check back after ionic strength and'      
+  WRITE(*,*) '   activity of water are updated there'
   WRITE(*,*)
+  STOP
+  
 END IF
 
 WRITE(*,*)
@@ -611,14 +601,14 @@ WRITE(*,*) ' Grid cells in Y direction (NY): ', ny
 WRITE(*,*) ' Grid cells in Z direction (NZ): ', nz
 WRITE(*,*)
 
-!  *********************FLOW CALCULATION******************************
+!!!  *******************************************************
+!!!  ***************  FLOW CALCULATION  ********************
 
 IF (CalculateFlow) THEN
 
-!*************************************************************
   
   SteadyFlow = .FALSE.
-
+  
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
   
   dtflow = delt
@@ -667,9 +657,11 @@ IF (CalculateFlow) THEN
 
  ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
+ 
  initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
+
    steady_Richards: IF (Richards_Options%is_steady) THEN
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
@@ -677,6 +669,7 @@ IF (CalculateFlow) THEN
      CALL RichardsSolve(nx, ny, nz, delt)
      Richards_Options%is_steady = .FALSE.
      Richards_BCs_pointer => Richards_BCs
+
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
@@ -690,7 +683,7 @@ IF (CalculateFlow) THEN
  ELSE initial_flow_solver_if
 
   atolksp = 1.D-50
-  rtolksp = GimrtRTOLKSP
+  rtolksp = GIMRTRTOLKSP
   rtolksp = 1.0D-25
   dtolksp = 1.0D-30
 
@@ -728,7 +721,6 @@ IF (CalculateFlow) THEN
   IF (reason == 4) THEN
     WRITE(*,*) ' Converged based on iterations in linear solver'
   END IF
-
   IF (reason < 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' Steady state flow failed to converge '
@@ -748,7 +740,7 @@ IF (CalculateFlow) THEN
     IF (CalculateFlow) then
       call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
     END IF
-    IF (os3dpetsc) then
+    IF (OS3Dpetsc) then
       call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
     END IF
     call PetscFinalize(ierr)
@@ -786,8 +778,7 @@ IF (CalculateFlow) THEN
         END DO
       END DO
     END DO
-    
-       
+           
     ! fill ghost points by zero-order extrapolation
     text = 'Liquid_Saturation'
     satliq(0,:,:) = satliq(1,:,:)
@@ -803,7 +794,6 @@ IF (CalculateFlow) THEN
   
   END IF
   ! End of Edit by Toshiyuki Bandai, 2024 Oct.
-  ! **********************************************
 
 !!  Check divergence of flow field
 
@@ -863,24 +853,28 @@ IF (CalculateFlow) THEN
 
 END IF   !!  End of steady state flow block
 
+!!!  **********  END OF FLOW BLOCK  ************************
+!!!  *******************************************************
+
+
 !!  Initial mass in system
 IF (ALLOCATED(InitialMass)) THEN
   DEALLOCATE(InitialMass)
 END IF
 ALLOCATE(InitialMass(nx,ny,nz))
-
-
-      
+    
 InitialTotalMass = 0.0d0
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+      
       DO ik = 1,ncomp+nspec
         ulabPrint = ulab(ik)
         IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
          InitialTotalMass = InitialTotalMass + sp10(ik,jx,jy,jz)*dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
         ENDIF
       END DO
+      
     END DO
   END DO
 END DO
@@ -889,19 +883,14 @@ WRITE(*,*)
 WRITE(*,*) ' Initial aqueous mass in system = ', InitialTotalMass
 WRITE(*,*)
 
-IF (KateMaher) THEN
-  CALL InitializeCalciteStoichiometry(nx,ny,nz)
-END IF
 
-!!  Initialization for OS3D and GIMRT modes
+!!  Initial allocation for OS3D and GIMRT modes
 
-IF (os3d) then
-
+IF (OS3D) then
   call AllocateOS3D(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny,nz)
-
 END IF
 
-IF (gimrt) THEN
+IF (GIMRT) THEN
   call AllocateGIMRT(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny,nz)
 END IF
 
@@ -910,22 +899,17 @@ call AllocateALL(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
+      
       DO npt = 1,npot
         LogPotential(npt,jx,jy,jz) = LogPotentialInit(npt,jinit(jx,jy,jz))
       END DO
+      
+      IF (Duan .OR. Duan2006) GasPressureTotal(jx,jy,jz) = GasPressureTotalInit(jinit(jx,jy,jz))
+      
     END DO
   END DO
 END DO
 
-IF (Duan .OR. Duan2006) THEN
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-        GasPressureTotal(jx,jy,jz) = GasPressureTotalInit(jinit(jx,jy,jz))
-      END DO
-    END DO
-  END DO
-END IF
 
 !!  Plotting for exchange and surface complexation
 nplotexchange = 0
@@ -938,7 +922,7 @@ IF (nsurf > 0) THEN
 END IF
 
 !***************** Initialize PETSc solver, vectors, matrix ************************
-IF (gimrt .AND. (nxyz > 1) .AND. petscon) THEN  ! set up PETSc vectors, matrix, and solver
+IF (GIMRT .AND. (nxyz > 1) .AND. petscon) THEN  ! set up PETSc vectors, matrix, and solver
 
   CALL CrunchPETScInitializeChemistry(nx,ny,nz,neqn,xvec,bvec,amatpetsc,userC,ierr)
 
@@ -947,9 +931,9 @@ endif   !  PETSc setup
 
 IF (irestart == 1) THEN
 
-  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave, &
-     delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
-     amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
+  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave,          &
+               delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
+               amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
 
 END IF
 
@@ -961,27 +945,19 @@ IF (isaturate == 1) THEN            !!  Already treated as a unsaturated problem
   AlreadyUnsaturated = .TRUE.
 END IF
 
-
-IF (gimrt .AND. isaturate == 1 .AND. .NOT. AlreadyUnsaturated) THEN
-
-  CALL AllocateGasesGimrt(nx,ny,nz,ncomp)
-
+IF (GIMRT .AND. isaturate == 1 .AND. .NOT. AlreadyUnsaturated) THEN
+  CALL AllocateGasesGIMRT(nx,ny,nz,ncomp)
 END IF
 
-IF (os3d .AND. isaturate == 1) THEN         !!  NOTE:  No previous allocation of gases for OS3D
-
+IF (OS3D .AND. isaturate == 1) THEN         !!  NOTE:  No previous allocation of gases for OS3D
   CALL AllocateGasesOS3D(nx,ny,nz,ncomp)
-
-!!  NOTE:  Where is gas transport with OS3D option??
-
 END IF
 
 !  **********************  START OS3D BLOCK  *********************************
 
-IF (os3d) THEN
+IF (OS3D) THEN
 
     call FindMaxFlow(nx,ny,nz)
-
     IF (xflow .OR. yflow .OR. zflow) THEN
       call CourantStepAlt(nx,ny,nz,dtmaxcour)
     END IF
@@ -991,11 +967,15 @@ END IF
 !  **********************  END OS3D BLOCK  *********************************
 
 
-!  ************  OS3D diffusion (os3dpetsc flag)  ****************************
+!  ************  OS3D diffusion (OS3Dpetsc flag)  ****************************
 
-IF (os3d .AND. nxyz > 1) THEN
+IF (OS3D .AND. nxyz > 1) THEN
+  
+  !!! If dispersion or diffusion /= 0.0, then allocate gas transport coefficients
+  !!! QUESTION: Why is this using parameters for aqueous diffusion or dispersion??
   IF (alfL > 0.0 .OR. alfT > 0.0 .OR. dcoeff > 0.0 .OR. dzero > 0.0) THEN
-    os3dpetsc = .TRUE.
+    
+    OS3Dpetsc = .TRUE.
     IF (isaturate == 1) THEN
       IF (ALLOCATED(ag)) THEN
         DEALLOCATE(ag)
@@ -1020,7 +1000,7 @@ IF (os3d .AND. nxyz > 1) THEN
       IF (ALLOCATED(fg)) THEN
         DEALLOCATE(fg)
       END IF
-ALLOCATE(fg(0:nx+1,0:ny+1,nz))
+      ALLOCATE(fg(0:nx+1,0:ny+1,nz))
 
       ag = 0.0
       bg = 0.0
@@ -1029,26 +1009,17 @@ ALLOCATE(fg(0:nx+1,0:ny+1,nz))
       eg = 0.0
       fg = 0.0
     END IF
+    
   END IF
 END IF
 
-IF ( os3dpetsc) THEN
+IF ( OS3Dpetsc) THEN
 
   call CrunchPETScInitializeDiffusion(nx,ny,nz,xvecD,bvecD,amatD,userD,ierr)
 
 END IF
 
-!!!  Call timestep-dependent re-speciation routine to check whether initial state should be updated  FLASH
-
-!*************************START OF TIME LOOP**************************
-
-!!! measure wall time
-!call date_and_time(TIME=time_WallTime1)
-!WRITE(iunit2,*) "Time for the beginning of time stepping: ", time_WallTime1
-!!!
-
 iteration_tot = 0
-
 nn = 0
 !**********************************************
 ! record initial state by Toshiyuki Bandai 2024, Oct.
@@ -1070,11 +1041,12 @@ END IF
 
 i_substep = 0
 DO WHILE (nn <= nend)
-    IF (nn == 0 .AND. dtflow > 1.0E-15 ) THEN
-        delt = dtflow
-    END IF
 
-    i_substep = i_substep + 1
+  IF (nn == 0 .AND. dtflow > 1.0E-15 ) THEN
+    delt = dtflow
+  END IF
+
+  i_substep = i_substep + 1
 
   nn = nn + 1
 
@@ -1083,46 +1055,41 @@ DO WHILE (nn <= nend)
   jx = 0
   jy = 1
   jz = 1
-
-!!!  nco = jinit(jx,jy,jz)
-
-!!!  call Flash(ncomp,nspec,nrct,ngas,nsurf,igamma,ikph,nco,nexchange,nexch_sec,nsurf_sec,npot,neqn,DensityModule,jx,jy,jz)
-
-  IF (.NOT. ReadNuft) THEN
     
-    roOld = ro
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          CALL density(jx,jy,jz)
-        END DO
+  roOld = ro
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        CALL density(jx,jy,jz)
       END DO
     END DO
-    
-  END IF
+  END DO
 
   IF (nexchange > 0) THEN
     CALL UpdateExchanger(nx,ny,nz,nexchange)
   END IF
-  
+
+!!! Deleted code from Lucien (Lucien-Delete1.txt)
+
   IF (CalculateFlow) THEN
 
-        ro(0,:,:) = ro(1,:,:)
-        ro(nx+1,:,:) = ro(nx,:,:)
-        ro(:,0,:) = ro(:,1,:)
-        ro(:,ny+1,:) = ro(:,ny,:)
-        ro(:,:,0) = ro(:,:,1)
-        ro(:,:,nz+1) = ro(:,:,nz)
+    !!! Initialize ghost cells for flow
+    ro(0,:,:) = ro(1,:,:)
+    ro(nx+1,:,:) = ro(nx,:,:)
+    ro(:,0,:) = ro(:,1,:)
+    ro(:,ny+1,:) = ro(:,ny,:)
+    ro(:,:,0) = ro(:,:,1)
+    ro(:,:,nz+1) = ro(:,:,nz)
 
-        IF (jpor == 1 .OR. jpor == 3) THEN
-          IF (.not. CubicLaw) THEN
-            CALL porperm(nx,ny,nz)
-          END IF
-        END IF
+    IF (jpor == 1 .OR. jpor == 3) THEN
+      IF (.not. CubicLaw) THEN
+        CALL porperm(nx,ny,nz)
+      END IF
+    END IF
         
-        ! Edit by Toshiyuki Bandai 2023 May
-        ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
-        flow_solver_if_time: IF (Richards) THEN
+    ! Edit by Toshiyuki Bandai 2023 May
+    ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
+    flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
           IF (Richards_Options%is_print) THEN
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
@@ -1177,6 +1144,7 @@ DO WHILE (nn <= nend)
           
           ! the velocity at the boundary is forced to zero when the vector goes outward
           ! not to consider chemcial transport via evaporation
+
           IF (Richards_Options%evaporation_boundary) THEN
             IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
               jy = 1
@@ -1254,30 +1222,30 @@ DO WHILE (nn <= nend)
             END IF
           END IF
         ! End of edit by Toshiyuki Bandai, 2024 Oct
+          
         ! ******************************************************************
+        !!! Original version using PETSc solve for fully saturated flow
         ELSE flow_solver_if_time
    
-        atolksp = 1.D-50
-        rtolksp = GimrtRTOLKSP
-        rtolksp = 1.0D-25
-        dtolksp = 1.0D-30
+          atolksp = 1.D-50
+          rtolksp = GIMRTRTOLKSP
+          rtolksp = 1.0D-25
+          dtolksp = 1.0D-30
 
-        pc%v = userP(5)
-        ksp%v = userP(6)
+          pc%v = userP(5)
+          ksp%v = userP(6)
 
-        SteadyFlow = .FALSE.
-        CALL KSPSetOperators(ksp,amatP,amatP,ierr)
-        CALL harmonic(nx,ny,nz)
+          SteadyFlow = .FALSE.
+          CALL KSPSetOperators(ksp,amatP,amatP,ierr)
+          CALL harmonic(nx,ny,nz)
 
-
-        IF (NavierStokes) THEN
+          IF (NavierStokes) THEN
             CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
-        ELSE
+          ELSE
             CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
-        END IF
+          END IF
 
-        CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
-
+          CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
 !!!!  To invoke direct solve
 !!!!    call KSPGetPC(ksp,pc,ierr)
@@ -1287,19 +1255,13 @@ DO WHILE (nn <= nend)
           CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
         END IF
 
-    !    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
-    !    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
+    !!!    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
+    !!!    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
         CALL KSPSolve(ksp,BvecP,XvecP,ierr)
     !!!    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
-    !    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
-
-    !!!    IF (MOD(nn,ScreenInterval) == 0) THEN
-    !!!      WRITE(*,*) ' Number of iterations for transient flow calculation = ', itsiterate
-    !!!    END IF
-        
-        
+    !!!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
+  
         IF (ierr /= 0) then
           WRITE(*,*)
           WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
@@ -1311,7 +1273,7 @@ DO WHILE (nn <= nend)
           IF (CalculateFlow) then
             call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
           END IF
-          IF (os3dpetsc) then
+          IF (OS3Dpetsc) then
             call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
           END IF
           call PetscFinalize(ierr)
@@ -1331,8 +1293,7 @@ DO WHILE (nn <= nend)
         END IF
         
         END If flow_solver_if_time
-         
-         
+          
   END IF
 
 !! Return here to restart time step after failure
@@ -1341,41 +1302,37 @@ DO WHILE (nn <= nend)
 
 !  *********  End NUFT block within time stepping  ****************
 
-  IF (gimrt) THEN         !  Update dispersivity
+  IF (GIMRT) THEN         !  Update dispersivity
     CALL dispersivity(nx,ny,nz)
   END IF
 
 !  **************  OS3D BLOCK    **********************
-  IF (os3d) THEN
+  IF (OS3D) THEN
 
-    IF (.NOT. modflow) THEN
+    maxQx = MAXVAL(DABS(qx(0:nx,1:ny,1:nz)))
+    IF (maxQx > 0.0) THEN
+      xflow = .TRUE.
+    ELSE
+      xflow = .FALSE.
+    END IF
 
-      maxQx = MAXVAL(DABS(qx(0:nx,1:ny,1:nz)))
-      IF (maxQx > 0.0) THEN
-        xflow = .TRUE.
-      ELSE
-        xflow = .FALSE.
-      END IF
+    maxQy = MAXVAL(DABS(qy(1:nx,0:ny,1:nz)))
+    IF (maxQy > 0.0) THEN
+      yflow = .TRUE.
+    ELSE
+      yflow = .FALSE.
+    END IF
 
-      maxQy = MAXVAL(DABS(qy(1:nx,0:ny,1:nz)))
-      IF (maxQy > 0.0) THEN
-        yflow = .TRUE.
-      ELSE
-        yflow = .FALSE.
-      END IF
+    maxQz = MAXVAL(DABS(qz(1:nx,1:ny,0:nz)))
+    IF (maxQz > 0.0) THEN
+      zflow = .TRUE.
+    ELSE
+      zflow = .FALSE.
+    END IF
 
-      maxQz = MAXVAL(DABS(qz(1:nx,1:ny,0:nz)))
-      IF (maxQz > 0.0) THEN
-        zflow = .TRUE.
-      ELSE
-        zflow = .FALSE.
-      END IF
-
-      IF (xflow .OR. yflow .OR. zflow) THEN
-        call CourantStepAlt(nx,ny,nz,dtmaxcour)
-        CALL dispersivity(nx,ny,nz)
-      END IF
-
+    IF (xflow .OR. yflow .OR. zflow) THEN
+      call CourantStepAlt(nx,ny,nz,dtmaxcour)
+      CALL dispersivity(nx,ny,nz)
     END IF
 
     IF (.NOT. CalculateFlow) THEN
@@ -1388,7 +1345,8 @@ DO WHILE (nn <= nend)
       END DO
     END IF
 
-    IF (os3dpetsc) THEN
+    IF (OS3Dpetsc) THEN
+      
       IF (spherical) THEN
         CALL coeffSphericalNew(nx,ny,nz)
       ELSE if (cylindrical) THEN
@@ -1399,6 +1357,7 @@ DO WHILE (nn <= nend)
           CALL gasdiff(nx,ny,nz)
         END IF
       END IF
+      
     END IF
 
     IF (delt > dtmaxcour .AND. dtmaxcour /= 0.0) THEN
@@ -1408,22 +1367,22 @@ DO WHILE (nn <= nend)
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
+          
           CALL oldcon(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
           CALL oldkd(ncomp,jx,jy,jz)
           IF (isaturate == 1) THEN
             CALL oldcongas(ncomp,ngas,jx,jy,jz)
           END IF
           CALL oldsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
+          
         END DO
       END DO
     END DO
 
     CALL xmass(nx,ny,nz,ncomp,nspec)
     xgramOld = xgram
-    IF (H2Opresent) THEN
-!!     CALL WaterReacted(nx,ny,nz)
-    END IF
 
+!!! Now do the boundaries for the TVD used by OS3D
     DO i = 1,ncomp
 
       DO jz = 1,nz
@@ -1477,14 +1436,8 @@ DO WHILE (nn <= nend)
         END DO
       END DO
 
-      IF (ReadNuft) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Nuft Read option no longer supported'
-        READ(*,*)
-        STOP
-        !!!CALL tvdNuft(nx,ny,nz,delt,i)
-      ELSE
-        CALL tvd(nx,ny,nz,delt,i)
+
+      CALL tvd(nx,ny,nz,delt,i)
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1497,48 +1450,45 @@ DO WHILE (nn <= nend)
         END DO
       END DO
 
-        IF (os3dpetsc) THEN
+      IF (OS3Dpetsc) THEN
 
-          atolksp = 1.D-50
-          rtolksp = 1.D-09
-          dtolksp = 1.D+05
+        atolksp = 1.D-50
+        rtolksp = 1.D-09
+        dtolksp = 1.D+05
 
-          CALL CrunchPETScTolerances(userD,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
+        CALL CrunchPETScTolerances(userD,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
-!!          sles = userD(4)
-          pc%v = userD(5)
-          ksp%v = userD(6)
+        pc%v = userD(5)
+        ksp%v = userD(6)
 
-          IF (spherical) THEN
-            CALL SolveDiffuseSpherical(nx,ny,nz,nn,i,delt,userD,amatD)
-          ELSE
-            CALL SolveDiffuse(nx,ny,nz,nn,i,delt,userD,amatD)
-          END IF
+        IF (spherical) THEN
+          CALL SolveDiffuseSpherical(nx,ny,nz,nn,i,delt,userD,amatD)
+        ELSE
+          CALL SolveDiffuse(nx,ny,nz,nn,i,delt,userD,amatD)
+        END IF
 
-          IF (nn == 1) then
-!!            call MatSetOption(amatD,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
-          END IF
-
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-                j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
-                IF (activecell(jx,jy,jz) == 0) THEN
-                  CONTINUE
-                ELSE
-                  XvecCrunchD(j) = sn(i,jx,jy,jz)
-                END IF
-              END DO
+        DO jz = 1,nz
+          DO jy = 1,ny
+            DO jx = 1,nx
+              
+              j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
+              IF (activecell(jx,jy,jz) == 0) THEN
+                CONTINUE
+              ELSE
+                XvecCrunchD(j) = sn(i,jx,jy,jz)
+              END IF
+                
             END DO
           END DO
+        END DO
 
-          CALL KSPSetOperators(ksp,amatD,amatD,ierr)
-          CALL KSPSolve(ksp,BvecD,XvecD,ierr)
-          CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+        CALL KSPSetOperators(ksp,amatD,amatD,ierr)
+        CALL KSPSolve(ksp,BvecD,XvecD,ierr)
+        CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
-          IF (ierr /= 0) then
-            WRITE(*,*)
-            WRITE(*,*) ' Error solving diffusion equation in KSPSolve', ierr
+        IF (ierr /= 0) then
+          WRITE(*,*)
+          WRITE(*,*) ' Error solving diffusion equation in KSPSolve', ierr
 
 !         ***** PETSc closeout**************
           IF (petscon) then
@@ -1547,56 +1497,51 @@ DO WHILE (nn <= nend)
           IF (CalculateFlow) then
             call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
           END IF
-          IF (os3dpetsc) then
+          IF (OS3Dpetsc) then
             call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
           END IF
           call PetscFinalize(ierr)
 !       ****** PETSc closeout finished *********
-            READ(*,*)
-            STOP
-          END IF
+          READ(*,*)
+          STOP
+        END IF
 
 !         Now, update the SN array
 
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-                j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
-                IF (activecell(jx,jy,jz) == 0) THEN
-                  CONTINUE
-                ELSE
-                  sn(i,jx,jy,jz) = XvecCrunchD(j)
-                END IF
-              END DO
+        DO jz = 1,nz
+          DO jy = 1,ny
+            DO jx = 1,nx
+                
+              j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
+              IF (activecell(jx,jy,jz) == 0) THEN
+                CONTINUE
+              ELSE
+                sn(i,jx,jy,jz) = XvecCrunchD(j)
+              END IF
+                
             END DO
           END DO
+        END DO
 
-        END IF
       END IF
-
-
+      
     END DO   ! End of species
 
 !!  Start of gas diffusion
 
-    IF (os3dpetsc .AND. isaturate==1) THEN
+    IF (OS3Dpetsc .AND. isaturate==1) THEN
       atolksp = 1.D-50
       rtolksp = 1.D-09
       dtolksp = 1.D+05
 
       CALL CrunchPETScTolerances(userD,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
-!!      sles = userD(4)
       pc%v = userD(5)
       ksp%v = userD(6)
 
       DO i = 1,ncomp
 
         CALL SolveGasDiffuse(nx,ny,nz,nn,i,delt,userD,amatD)
-
-        IF (nn == 1) then
-!!          call MatSetOption(amatD,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
-        END IF
 
         DO jz = 1,nz
           DO jy = 1,ny
@@ -1626,7 +1571,7 @@ DO WHILE (nn <= nend)
           IF (CalculateFlow) then
             CALL CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
           END IF
-          IF (os3dpetsc) then
+          IF (OS3Dpetsc) then
             CALL CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
           END IF
           CALL PetscFinalize(ierr)
@@ -1640,12 +1585,14 @@ DO WHILE (nn <= nend)
         DO jz = 1,nz
           DO jy = 1,ny
             DO jx = 1,nx
+              
               j = (jz-1)*nx*ny + (jy-1)*nx + jx - 1
               IF (activecell(jx,jy,jz) == 0) THEN
                 CONTINUE
               ELSE
                 sgasn(i,jx,jy,jz) = XvecCrunchD(j)
               END IF
+              
             END DO
           END DO
         END DO
@@ -1664,6 +1611,7 @@ DO WHILE (nn <= nend)
     loop4001: DO jz = 1,nz
       DO jy = 1,ny
         DO jx = 1,nx
+          
           CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
           IF (igamma == 3) THEN
 
@@ -1683,9 +1631,9 @@ DO WHILE (nn <= nend)
              sp10(1,jx,jy,jz) = sn(1,jx,jy,jz)
           END IF
 
-          CALL os3d_newton(ncomp,nspec,nkin,nrct,ngas,ikin,           &
-            nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,neqn,igamma,   &
-            delt,corrmax,jx,jy,jz,iterat,icvg,nx,ny,nz,time,AqueousToBulk)
+          CALL OS3D_newton(ncomp,nspec,nkin,nrct,ngas,ikin,                  &
+              nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,neqn,igamma,   &
+              delt,corrmax,jx,jy,jz,iterat,icvg,nx,ny,nz,time,AqueousToBulk)
 
           CALL SpeciesLocal(ncomp,nspec,jx,jy,jz)
           CALL totconc(ncomp,nspec,jx,jy,jz)
@@ -1693,10 +1641,6 @@ DO WHILE (nn <= nend)
           IF (iterat > newtmax) THEN
             newtmax = iterat
           END IF
-
-          if (iterat > 10) then
-            continue
-          end if
 
           IF (icvg == 1) THEN
             EXIT loop4001
@@ -1708,6 +1652,7 @@ DO WHILE (nn <= nend)
 
 
     IF (icvg == 1) THEN
+      
       ddtold = delt
       delt = delt/10.0
       itskip = 1
@@ -1715,6 +1660,7 @@ DO WHILE (nn <= nend)
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
+            
             DO i = 1,ncomp+nspec
               sp(i,jx,jy,jz) = spold(i,jx,jy,jz)
               sp10(i,jx,jy,jz) = EXP(sp(i,jx,jy,jz))
@@ -1727,17 +1673,16 @@ DO WHILE (nn <= nend)
               spsurf10(is,jx,jy,jz) = EXP(spsurfold(is,jx,jy,jz))
             END DO
             CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
+            
           END DO
         END DO
       END DO
-
-!!      CALL species(ncomp,nspec,nx,ny,nz)
-!!      CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
       IF (igamma == 2) THEN
         DO jz = 1,nz
           DO jy = 1,ny
             DO jx = 1,nx
+              
 !!!            IF (Duan .OR. Duan2006) THEN
 !!!              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
 !!!            ELSE
@@ -1745,6 +1690,7 @@ DO WHILE (nn <= nend)
 !!!            END IF
               
             CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+            
             END DO
           END DO
         END DO
@@ -1765,17 +1711,20 @@ DO WHILE (nn <= nend)
 
   END IF    ! End of OS3D block
 
-!  *************   END OF OS3D BLOCK  **********************
+!!!  *************   END OF OS3D BLOCK  **********************
+!!!  ********************************************************
 
-!  ***********  START GIMRT BLOCK  *********************
+!!!  ********************************************************
+!!!  *************   START GIMRT BLOCK  *********************
 
-6000   IF (gimrt) THEN
+6000   IF (GIMRT) THEN
   
     i_substep = 1
     n_substep = 1
-    dt_gimrt = delt
+    dt_GIMRT = delt
 
     IF (i_substep == n_substep) THEN
+      
         ! Invoke GIMRT calculation
         jz = 1
     !           Calculate finite difference coefficients
@@ -1786,7 +1735,8 @@ DO WHILE (nn <= nend)
         END IF
 
         !!  Diffusion block for GIMRT
-        IF (species_diffusion) THEN
+        IF (species_diffusion) THEN 
+          
           IF (spherical) THEN
             IF (xflow .OR. yflow .OR. zflow) THEN
               WRITE(*,*)
@@ -1797,33 +1747,23 @@ DO WHILE (nn <= nend)
               STOP
             ELSE
               CALL coeffSphericalNew_d(nx,ny,nz,ncomp,nspec)
-            END IF
+            END IF     
           ELSE IF (cylindrical) THEN
-            CALL coeffCylinder_d(nx,ny,nz,ncomp,nspec)
+            CALL coeffCylinder_d(nx,ny,nz,ncomp,nspec) 
           ELSE
-            CALL coeff_d(nx,ny,nz,ncomp,nspec)
+            CALL coeff_d(nx,ny,nz,ncomp,nspec)    
           END IF
+          
         ELSE
-          IF (ReadNuft) THEN
-            IF (cylindrical) THEN
-!!!              CALL coeffCylinderNUFT(nx,ny,nz)
-            ELSE
-!!!              CALL coeffNuft(nx,ny,nz)
-            END IF
-            write(*,*) ' !!!!!!!!!!!!!!!!!!!!!!!! '
-            write(*,*) ' NUFT option disabled '
-            write(*,*) ' !!!!!!!!!!!!!!!!!!!!!!!! '
-            write(*,*)
-            stop
+          
+          IF (cylindrical) THEN
+            CALL coeffCylinder(nx,ny,nz)
+          ELSE IF (spherical) THEN
+            CALL coeffSphericalNew(nx,ny,nz)
           ELSE
-            IF (cylindrical) THEN
-              CALL coeffCylinder(nx,ny,nz)
-            ELSE IF (spherical) THEN
-              CALL coeffSphericalNew(nx,ny,nz)
-            ELSE
-              CALL coeff(nx,ny,nz)
-            END IF
+            CALL coeff(nx,ny,nz)
           END IF
+          
         END IF
 
         IF (isaturate == 1) THEN
@@ -1846,13 +1786,12 @@ DO WHILE (nn <= nend)
           END DO
         END DO
 
-
         IF (igamma == 3 .or. igamma == 2 .or. igamma == 0) THEN
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
-                IF (Duan .OR. Duan2006) THEN
-                  
+              
+                IF (Duan .OR. Duan2006) THEN                 
 !!!                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
                  ELSE
 !!!                   CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
@@ -1861,6 +1800,7 @@ DO WHILE (nn <= nend)
                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             END DO
           END DO
+          
         END IF
         
         jz = 1
@@ -1874,10 +1814,6 @@ DO WHILE (nn <= nend)
           END DO
         END DO
 
-        IF (KateMaher) THEN
-          CALL CalciteStoichiometry(nx,ny,nz)
-        END IF
-
     ! **************  START NEWTON LOOP  *******************
 
         5000     NE = 0
@@ -1890,7 +1826,6 @@ DO WHILE (nn <= nend)
 
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
 		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
-
             
           jz = 1
           DO jy = 1,ny
@@ -1907,13 +1842,10 @@ DO WHILE (nn <= nend)
               end if
  
               CALL totconc(ncomp,nspec,jx,jy,jz)
-                 
-
-                 
-               END DO
-             END DO 
+                  
+            END DO
+          END DO 
                           
-          
           IF (ierode == 1) THEN
             CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
             CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
@@ -1931,22 +1863,21 @@ DO WHILE (nn <= nend)
               END IF
               IF (species_diffusion) THEN
                 CALL jacobian_plus(ncomp,nspec,jx,jy,jz)
-              ELSE
-
               END IF
               IF (isaturate == 1) THEN
                 CALL jacgas(ncomp,ngas,jx,jy,jz)
               END IF
-
               IF (ierode == 1) THEN
                 CALL jac_exchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,neqn,jx,jy,jz)
               END IF
+              
             END DO
           END DO
 
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
+              
               IF (species_diffusion) THEN
                 CALL totconc_plus(ncomp,nspec,jx,jy,jz)
               ELSE
@@ -1959,6 +1890,7 @@ DO WHILE (nn <= nend)
                 CALL totexchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
                 CALL totsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
               END IF
+              
             END DO  ! end of J loop
           END DO
 
@@ -1970,7 +1902,7 @@ DO WHILE (nn <= nend)
           endif
 
           CALL AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,                   &
-             nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_gimrt,time, &
+             nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_GIMRT,time, &
              userC,amatpetsc,nBoundaryConditionZone)
 
           if ((nn.eq.1) .and. (ne.eq.1) .and. petscon) then
@@ -2021,7 +1953,7 @@ DO WHILE (nn <= nend)
               IF (CalculateFlow) then
                 call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
               END IF
-              IF (os3dpetsc) then
+              IF (OS3Dpetsc) then
                 call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
               END IF
               call PetscFinalize(ierr)
@@ -2038,7 +1970,7 @@ DO WHILE (nn <= nend)
 
                 atolksp = 1.D-50
     !!            rtolksp = 1.D-09
-                rtolksp = GimrtRTOLKSP
+                rtolksp = GIMRTRTOLKSP
                 dtolksp = 1.D+05
 
                 pc%v = userC(5)
@@ -2072,6 +2004,7 @@ DO WHILE (nn <= nend)
             DO jy = 1,ny
               DO jx = 1,nx
                 j = (jy-1)*nx+jx
+                
                 DO i = 1,ncomp
                   IF (ulab(i) == "O2(aq)") THEN
                     MaximumCorrection = corrmax
@@ -2160,9 +2093,9 @@ DO WHILE (nn <= nend)
             jz = 1
             errmax = 0.0D0
             DO jy = 1,ny
-              DO jx = 1,nx
-                
+              DO jx = 1,nx      
                 j = (jy-1)*nx+jx
+                
                 DO i = 1,ncomp
                   IF (ulab(i) == "O2(aq)") THEN
                     MaximumCorrection = corrmax
@@ -2215,12 +2148,6 @@ DO WHILE (nn <= nend)
                  IF (DABS(xn(ind)) > errmax) THEN
                     errmax = DABS(xn(ind))
                  END IF
-    !!!             IF (DABS(xn(ind)) > 0.9d0) THEN
-    !!!               xn(ind) = SIGN(0.9d0,xn(ind))
-    !!!               CONTINUE
-    !!!              ELSE
-    !!!                CONTINUE
-    !!!              END IF
                   LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) + xn(ind)
                 END DO
                 
@@ -2263,6 +2190,7 @@ DO WHILE (nn <= nend)
           DO jy = 1,ny
             DO jx = 1,nx
               j = (jy-1)*nx+jx
+              
               DO i = 1,ncomp
                 ind = (j-1)*(neqn) + i
                 IF (ResidualTolerance /= 0.0d0) THEN
@@ -2276,7 +2204,7 @@ DO WHILE (nn <= nend)
                     icvg = 1
                   END IF
                 ELSE
-                  IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
+                  IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
 !!!                IF (DABS(fxx(ind)) > tolmax) THEN
                     icvg = 1
                   END IF
@@ -2287,7 +2215,7 @@ DO WHILE (nn <= nend)
               DO ix = 1,nexchange
                 tolmax = 1.e-10
                 ind = (j-1)*(neqn) + ix+ncomp
-                IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
+                IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
                     icvg = 1
                 END IF
               END DO
@@ -2295,7 +2223,7 @@ DO WHILE (nn <= nend)
               DO is = 1,nsurf
                 tolmax = atol
                 ind = (j-1)*(neqn) + is+ncomp+nexchange
-                IF (DABS(dt_gimrt*fxx(ind)) > tolmax) THEN
+                IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
                     icvg = 1
                 END IF
               END DO
@@ -2323,10 +2251,8 @@ DO WHILE (nn <= nend)
           ELSE
             continue
           END IF
-    !!      if (iterat<=1) icvg=1
 
-
-        END DO  newtonloop    ! end of Newton iteration loop
+    END DO  newtonloop    ! end of Newton iteration loop
 
     !  Halve the timestep if convergence not achieved
 
@@ -2335,13 +2261,14 @@ DO WHILE (nn <= nend)
           MaxFx = MaxLoc(fxx)
     !!      MaxValFx = MaxVal(fxx)
 
-          ddtold = dt_gimrt
-          dt_gimrt = dt_gimrt/10.0
+          ddtold = dt_GIMRT
+          dt_GIMRT = dt_GIMRT/10.0
           itskip = 1
 
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
+              
               DO i = 1,ncomp+nspec
                 sp(i,jx,jy,jz) = spold(i,jx,jy,jz)
                 sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
@@ -2359,17 +2286,13 @@ DO WHILE (nn <= nend)
               IF (ierode == 1) THEN
                 CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
               END IF
-              CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,dt_gimrt,time)
+              CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,dt_GIMRT,time)
               IF (isaturate == 1) THEN
                 CALL gases(ncomp,ngas,jx,jy,jz)
               END IF
+              
             END DO
           END DO
-
-    !!      CALL species(ncomp,nspec,nx,ny,nz)
-    !!      IF (ierode == 1) THEN
-    !!        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-    !!      END IF
 
           jz = 1
           DO jy = 1,ny
@@ -2378,25 +2301,11 @@ DO WHILE (nn <= nend)
             END DO
           END DO
 
-  !!!        IF (igamma == 2) THEN
-   !!!           DO jz = 1,nz
-   !!!             DO jy = 1,ny
-   !!!               DO jx = 1,nx
-    !!!              IF (Duan .OR. Duan2006) THEN
-   !!!                 CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-   !!!               ELSE
-   !!!                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-   !!!               END IF
-   !!!               END DO
-    !!!            END DO
-   !!!           END DO
-    !!!        END IF
-
           WRITE(*,*)
           WRITE(*,*) '***** NO CONVERGENCE OF NEWTON ITERATIONS IN GIMRT *****'
           WRITE(*,*) '                REDUCING TIME STEP'
           WRITE(*,5086) ddtold*OutputTimeScale
-          WRITE(*,5085) dt_gimrt*OutputTimeScale
+          WRITE(*,5085) dt_GIMRT*OutputTimeScale
           WRITE(*,*)
           GO TO 5000   ! Loop back to start the time step over
 
@@ -2409,25 +2318,6 @@ DO WHILE (nn <= nend)
           IF (ALLOCATED(levptr)) DEALLOCATE(levptr)
         END IF
 
-    !    IF (ikh2o /= 0) THEN
-    !      jz = 1
-    !      DO jy = 1,ny
-    !        DO jx = 1,nx
-    !          j = (jy-1)*nx + jx
-    !          waterold = EXP(spold(ikh2o,jx,jy,jz))*wtaq(ikh2o)/1000.0
-    !          waternew = sp10(ikh2o,jx,jy,jz)*wtaq(ikh2o)/1000.0
-    !          ratio = waterold/waternew
-    !                write(*,*) ratio
-    !          DO ik = 1,ncomp
-    !            IF (ikh2o /= ik) THEN
-    !              sp10(ik,jx,jy,jz) = sp10(ik,jx,jy,jz)*ratio
-    !              sp(ik,jx,jy,jz) = LOG(sp10(ik,jx,jy,jz))
-    !            END IF
-    !          END DO
-    !        END DO
-    !      END DO
-    !    END IF
-
         CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
         CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
@@ -2439,15 +2329,15 @@ DO WHILE (nn <= nend)
           END DO
         END DO
 
-
-        dt_gimrt = 0.0d0
+        dt_GIMRT = 0.0d0
         i_substep = 0
     END IF ! end i_substep == n_substep
 
-  END IF    !  END OF GIMRT NEWTON LOOP
+END IF    !  END OF GIMRT NEWTON LOOP
 
-!  *************  END OF GIMRT NEWTON LOOP  ********************
-
+!!!  *********  End of NEWTON LOOP  ********************
+!!!  ***************************************************
+       
 !! For greater accuracy, update reaction rate
 DO jz = 1,nz
   DO jy = 1,ny
@@ -2458,38 +2348,24 @@ DO jz = 1,nz
   END DO
 END DO
 
+time = time + delt
 
-  time = time + delt
-
-  !*************************************************************
-  ! Edit by Lucien Stolze, June 2023
-  ! Addition of a wall time
-  if (time > 1e-3) then
-    IF (walltime) then
-      call CPU_TIME(PrintSeconds)
-      
-    IF ((PrintSeconds/60.0d0)>wall_t) then
+!*************************************************************
+! Edit by Lucien Stolze, June 2023
+! Addition of a wall time
+IF (time > 1e-3) THEN
+  IF (walltime) THEN
+    call CPU_TIME(PrintSeconds)  
+    IF ((PrintSeconds/60.0d0)>wall_t) THEN
       write(*,*)
       write(*,*) 'WALLTIME REACHED'
       write(*,*)
-      stop
-    ENDIF
-    endif
-  endif
+      STOP
+    END IF
+  END IF
+END IF
   !*************************************************************
-  ! end of Edit by Lucien Stolze, June 2023
-
-  !  Check charge balance
-
-!  Check charge balance
-
-!    totcharge = 0.0
-!    DO i = 1,ncomp
-!      totcharge = totcharge + chg(i)*s(i,20,1,1)
-!    END DO
-!    write(*,*)
-!    write(*,*) ' Total charge at grid point 20 = ',totcharge
-!    write(*,*)
+! end of Edit by Lucien Stolze, June 2023
 
   DO jz = 1,nz
     DO jy = 1,ny
@@ -2499,87 +2375,58 @@ END DO
     END DO
   END DO
 
-!! Crystal Size Distribution
-
-!!  jy = 1
-!!  jz = 1
-!!  DO jx = 1,nx
-!!    CALL CalculateCSD(jx,jy,jz,nrct,ncomp,delt)
-!!  END DO
-
-
 !  Do not update mineral volume fractions in reaction path
 !  mode (ipath = 1 and nxyz = 1)
-
-  !IF (spinup) THEN
-  !  CONTINUE
-  !ELSE
+  
   IF (ipath == 1 .AND. nxyz == 1) THEN
     CONTINUE
   ELSE
     CALL mineral_update(nx,ny,nz,nrct,delt,dtnewest,ineg,jpor,deltmin)
-    ! write(*,*) area(1,nx,1,1)
-    ! write(*,*) area(2,nx,1,1)
-    ! stop
     IF (FractureNetwork .and. CubicLaw) THEN
       call rmesh51(nx,ny)
     END IF
-    IF (KateMaher) THEN
-      CALL CalciteBulkStoichiometry(nx,ny,nz,delt)
-    END IF
   END IF
-  !ENDIF
- !!  MassBalanceError = MassBalanceError + fxx(7)*delt
- !!  RateMassBalanceError = RateMassBalanceError + 0.1*dppt(6,1,1,1)*delt
- !!  aq_accum = 0.1*por(1,1,1)*ro(1,1,1)*(s(7,1,1,1)-sn(7,1,1,1))
- !!  AqueousMassBalanceError = AqueousMassBalanceError + aq_accum
- !!  DynamicMassBalanceError = AqueousMassBalanceError + RateMassBalanceError
 
 !  NOTE:  Will have to change some routines below for OS3D
 
   IF (ineg == 1) THEN
-!!    WRITE(*,*)
-!!    WRITE(*,*) ' Mineral volume fractions negative'
-!!    WRITE(*,*) ' Reducing time step'
-!!    WRITE(*,*)
+    
     itskip = 1
     time = time - delt
 
     delt = dtnewest
 
     DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-        DO ik = 1,ncomp
-          sp(ik,jx,jy,jz) = spold(ik,jx,jy,jz)
-          sp10(ik,jx,jy,jz) = EXP(sp(ik,jx,jy,jz))
+      DO jy = 1,ny
+        DO jx = 1,nx
+          DO ik = 1,ncomp
+            sp(ik,jx,jy,jz) = spold(ik,jx,jy,jz)
+            sp10(ik,jx,jy,jz) = EXP(sp(ik,jx,jy,jz))
+          END DO
+          DO ix = 1,nexchange
+            spex(ix,jx,jy,jz) = spexold(ix,jx,jy,jz)
+          END DO
+          DO is = 1,nsurf
+            spsurf(is,jx,jy,jz) = spsurfold(is,jx,jy,jz)
+          END DO
+          CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
+          IF (isaturate == 1) THEN
+            CALL gases(ncomp,ngas,jx,jy,jz)
+          END IF
         END DO
-        DO ix = 1,nexchange
-          spex(ix,jx,jy,jz) = spexold(ix,jx,jy,jz)
-        END DO
-        DO is = 1,nsurf
-          spsurf(is,jx,jy,jz) = spsurfold(is,jx,jy,jz)
-        END DO
-        CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
-        IF (isaturate == 1) THEN
-          CALL gases(ncomp,ngas,jx,jy,jz)
-        END IF
       END DO
-    END DO
     END DO
 
     CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
     CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
     GO TO 6000
+    
   END IF
-
-
-  !!!CALL ratecheck(nx,ny,nz,nrct,dtmax,delt)
 
 !  **********************  START GIMRT BLOCK  *********************************
 
-  IF (gimrt .AND. ierode == 1) THEN
+  IF (GIMRT .AND. ierode == 1) THEN
 
 !         Advect the minerals via burial or erosion
 !           (positive for burial, negative for erosion)
@@ -2804,7 +2651,6 @@ END DO
           uubur(jx) = ctvd(jx,1,1)
           rrbur(jx) = ctvd(jx,1,1)*rinv*dxx(jx)
 
-
         ELSE                         ! Erosion case
 
           aabur(jx) = 0.0
@@ -2818,8 +2664,7 @@ END DO
 
 
       IF (SolidBuryX(1) > 0.0) THEN
-!!!         rrbur(1) = rrbur(1) - aabur(1)*volinByGrid(k,0,1,1)
-                rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
+        rrbur(1) = rrbur(1) - aabur(1)*volb(k,1)
       END IF
 
       IF (SolidBuryX(nx) < 0.0) THEN
@@ -2834,22 +2679,12 @@ END DO
 
 !!   ********************************************
 
-
-
     END DO !  Loop through minerals
 
     CALL porcalc(nx,ny,nz,nkin,jpor)     ! Updates porosity and surface area
 
 
   END IF   !  End of erosion/burial block (for GIMRT only)
-
-  IF (KateMaher) THEN
-      write(*,*)
-      write(*,*) ' KateMaher option no longer supported'
-      write(*,*)
-      stop
-  END IF
-
 
 !  **********   END OF EROSION/BURIAL BLOCK FOR MINERALS  *****************
 
@@ -2879,7 +2714,8 @@ END DO
 
 !**********************************
   IF (iprint3 == 1) THEN
-    IF (os3d) THEN
+    
+    IF (OS3D) THEN
       IF (MOD(nn,ScreenInterval) == 0) THEN
         IF (dtmaxcour == 0.00) THEN       !  Diffusion only problem
           WRITE(*,*) 'Time step # ',nn
@@ -2929,6 +2765,7 @@ END DO
           WRITE(*,*)
         END IF
       END IF
+      
     ELSE
     
         
@@ -2995,25 +2832,6 @@ END DO
     CALL SteadyState(ncomp,nx,ny,nz,delt,steady)
   END IF
 
-  IF (Benchmark) THEN
-
-!!!    nbnd = 1
-!!!    CALL bdgas(ncomp,nspec,nrct,ngas,nbnd,sgw)
-!!!    CumulativeSulfate = CumulativeSulfate + s(9,100,1,1)*ro(100,1,1)*qx(100,1,1)*delt*1.0d0
-!!!    CumulativeFe = CumulativeFe + s(10,100,1,1)*ro(100,1,1)*qx(100,1,1)*delt*1.0d0
-!!!    CumulativeO2 = CumulativeO2 + ag(1,1,1)*( sgas(8,1,1,1) - sgw(8) )*delt*1.0d0
-!!!    CumulativeCO2 = CumulativeCO2 + ag(1,1,1)*( sgas(4,1,1,1) - sgw(4) )*delt*1.0d0
-
-!!!    IF (time == 10.0d0) THEN
-!!!      write(*,*) ' CumulativeSulfate = ', CumulativeSulfate
-!!!      write(*,*) ' CumulativeFe      = ', CumulativeFe
-!!!      write(*,*) ' CumulativeO2      = ', CumulativeO2
-!!!      write(*,*) ' CumulativeCO2      = ', CumulativeCO2
-!!!      write(*,*)
-!!!      read(*,*)
-!!!    end if
-
-   END IF
 
 !  Calculate time step to be used based on various criteria
     IF (nn > 4) THEN
@@ -3044,16 +2862,6 @@ END DO
           CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
           dtold = delt
       END IF
-
-
-
-!!  OPEN(unit=98,file='vxSonnenthal.dat',status='unknown')
-!!  WRITE(98,*)(((qx(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
-!!  close(unit=98)
-
-!!  OPEN(unit=98,file='vySonnenthal.dat',status='unknown')
-!!  WRITE(98,*)(((qy(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
-!!  close(unit=98)
 
 
   !IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
@@ -3132,12 +2940,11 @@ END DO
     WRITE(*,*) '  File number  = ', nint
     WRITE(*,*)
 
-
   END IF
 
-    IF (FractureNetwork .and. CubicLaw) THEN
-      call rmesh51(nx,ny)
-    END IF
+  IF (FractureNetwork .and. CubicLaw) THEN
+    call rmesh51(nx,ny)
+  END IF
 
   IF (iprnt == 1) THEN
     !!Stolze Lucien: to create and overwrite the restart file at each printout
@@ -3222,9 +3029,6 @@ END DO
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
 
-
-!    CLOSE(UNIT=intfile,STATUS='keep')
-
     CLOSE(UNIT=iures,STATUS='keep')
 
     IF (ny == 1 .AND. nz == 1) THEN
@@ -3255,15 +3059,11 @@ END DO
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
-!!!        CALL GraphicsTecplot(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-!!!          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+        
       END IF
 
     ELSE
-!!      IF (nint >= nstop .OR. steady) THEN
-!!        CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-!!          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
-!!      END IF
+
       IF (nz == 1 .OR. ny == 1) THEN
         CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
            ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
@@ -3282,8 +3082,7 @@ END DO
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
           ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
-!!!        CALL GraphicsTecplot(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-!!!          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+
       END IF
 
       TotalMass = 0.0d0
@@ -3377,17 +3176,6 @@ END DO
         WRITE(*,*) '  *** RUN SUCCESSFULLY COMPLETED *** '
         WRITE(*,*)
         
-        
-        !!************************************
-        !!OPEN(iunit2,access='append', status='old')
-        !call date_and_time(TIME=time_WallTime2)
-        !WRITE(iunit2,*) "Time for the End of Time Stepping: ", time_WallTime2
-        !CLOSE(iunit2,STATUS='keep')
-        !write(*,*) "Time for the Beginning of Time Stepping: ", time_WallTime1
-        !write(*,*) "Time for the End of Time Stepping: ", time_WallTime2
-        !read(*,*)
-        !!************************************
-        
       END IF
 
       CALL date_and_time(dumm1,dumm2,dumm3,curr_time)
@@ -3409,7 +3197,6 @@ END DO
       IF (end_mon /= str_mon) THEN
         end_day = str_day + 1
       END IF
-
 
       call CPU_TIME(PrintSeconds)
       isimu_hr = DINT(PrintSeconds/3600.0d0)
@@ -3529,7 +3316,7 @@ END DO
            IF (CalculateFlow) THEN
              call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
            END IF
-           IF (os3dpetsc) THEN
+           IF (OS3Dpetsc) THEN
              call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
            END IF
            call PetscFinalize(ierr)
@@ -3540,7 +3327,7 @@ END DO
            IF (CalculateFlow) THEN
              call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
            END IF
-           IF (os3dpetsc) THEN
+           IF (OS3Dpetsc) THEN
              call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
            END IF
          END IF
@@ -3600,7 +3387,7 @@ END DO    ! End of time loop
            IF (CalculateFlow) THEN
              call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
            END IF
-           IF (os3dpetsc) THEN
+           IF (OS3Dpetsc) THEN
              call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
            END IF
            call PetscFinalize(ierr)
@@ -3684,7 +3471,7 @@ STOP
         call KSPDestroy(ksp,ierr)
         call PetscFinalize(ierr)
        endif
-       if( os3dpetsc) then
+       if( OS3Dpetsc) then
         call VecDestroy(bvec,ierr)
         call VecDestroy(xvec,ierr)
         call MatDestroy(amatD,ierr)
