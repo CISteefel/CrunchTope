@@ -1,0 +1,44 @@
+    IF (vv_fileformat == 'ContinuousRead') THEN
+      READ(23,*,END=1020) (((volfx(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+    ELSE IF (vv_fileformat == 'SingleColumn') THEN
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx= 1,nx
+            READ(23,*,END=1020) volfx(min_id,jx,jy,jz)
+          END DO
+        END DO
+      END DO
+    ELSE IF (vv_fileformat == 'FullForm') THEN
+      
+        IF (ny > 1 .AND. nz > 1) THEN
+          DO jz = 1,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(23,*,END=1020) xdum,ydum,zdum,volfx(min_id,jx,jy,jz)
+              END DO
+            END DO
+          END DO
+        ELSE IF (ny > 1 .AND. nz == 1) THEN
+          jz = 1
+          DO jy = 1,ny
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,volfx(min_id,jx,jy,jz)
+            END DO
+          END DO
+        ELSE
+          jz = 1
+          jy = 1
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,volfx(min_id,jx,jy,jz)
+          END DO
+        END IF
+        
+          ELSE IF (vv_fileformat == 'Unformatted') THEN
+          READ(23,END=1020) volfx
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Mineral volume fraction file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
