@@ -483,24 +483,7 @@ IF (ntemp > 1) THEN
     vec(5,i) = 1.d0/((tempc(i) + tk)*(tempc(i) + tk))
   END DO
   
-!  ALLOCATE(w(nbasis,nbasis))
-!  ALLOCATE(indx(nbasis))
-
-!  DO j = 1, nbasis
-!    DO k = j, nbasis
-!      w(j,k) = 0.d0
-!      DO i = 1, ntemp
-!        w(j,k) = w(j,k) + vec(j,i)*vec(k,i)
-!      END DO
-!      IF (j /= k) w(k,j) = w(j,k)
-!    END DO
-!  END DO
-  
-!  CALL ludcmp90(w,indx,dd,nbasis)
-!  CALL ludcmp(w,nbasis,n0,indx,dd)
- 
-  
-!  ***********  Calculate coefficients for Debye-Huckel parameters  *****************
+ !  ***********  Calculate coefficients for Debye-Huckel parameters  *****************
   
   DO i = 1, ntemp
     vecgam(1,i) = 1.0
@@ -509,18 +492,6 @@ IF (ntemp > 1) THEN
     vecgam(4,i) = (tempc(i))**3
     vecgam(5,i) = (tempc(i))**4
   END DO
-  
-  !DO j = 1, nbasis
-  !  DO k = j, nbasis
-  !    wgam(j,k) = 0.d0
-  !    DO i = 1, ntemp
-  !      wgam(j,k) = wgam(j,k) + vecgam(j,i)*vecgam(k,i)
-  !    END DO
-  !    IF (j /= k) wgam(k,j) = wgam(j,k)
-  !  END DO
-  !END DO
-  
-  !CALL ludcmp(wgam,nbasis,n0,indx,dd)
   
   CALL fitgamma(nbasis,ntemp,adh,bvec,vecgam)
   DO i = 1, nbasis

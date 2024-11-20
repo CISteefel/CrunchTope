@@ -1,8 +1,7 @@
-
     
-SUBROUTINE databaseNEW(ncomp,ncmplx,mnrl,nrct,ngas,nsurf,nsurf_sec,ntemp,   &
-  iprint,icomplete,jtemp,ThermoDatabase,namc,namcx,namrl,vbar,wtminfull,wtbas,coef,  &
-  temp,z,bdotPrimary,zx,bdotSecondary,a0,ax0)
+SUBROUTINE databaseNEW(ncomp,ncmplx,mnrl,nrct,ngas,nsurf,nsurf_sec,ntemp,        &
+      iprint,icomplete,jtemp,ThermoDatabase,namc,namcx,namrl,vbar,wtminfull,     &
+      wtbas,coef,temp,z,bdotPrimary,zx,bdotSecondary,a0,ax0)
 USE crunchtype
 USE params
 USE concentration
@@ -322,22 +321,124 @@ indxmin = 0
 indxgas = 0
 ndxkin = 0
 icantfind = 0
-
 iunit5 = 8
 isweep = 0
+
+ntprmx =
+ndbmax =
+narxmx =
+ipchmx =
+ipcmx =
+
+!!!     Principal input:
+!!!
+!!!   ipch   = enthalpy functions data grid flag:
+!!!              -1 = no enthalpy grids
+!!!               0 = enthalpy grids present
+!!!               1 = grids present for the enthalpy and its first
+!!!                     pressure derivative
+!!!               2 = grids present for the enthalpy and its first
+!!!                     and second pressure derivatives
+!!!   ipcv   = volume functions data flag:
+!!!              -1 = no volume grids
+!!!               0 = volume grids present
+!!!               1 = grids present for the volume and its first
+!!!                     pressure derivative
+!!!               2 = grids present for the volume and its first
+!!!                     and second pressure derivatives
+!!!   ndat0s = unit number of the stripped DATA0 file
+!!!   narxt  = array of numbers of coefficients in the temperature
+!!!              ranges
+!!!   ntprt  = the number of temperature ranges on the standard
+!!!              temperature grid
+!!!   uakey  = string specifying the type of data file ("SEDH" or
+!!!              "Pitzer") being processed
+!!!
+!!! Principal output:
+!!!
+!!!   adh    = array of A(gamma,10) values on the standard
+!!!              temperature grid
+!!!   adhh   = array of A(H) values on the standard temperature
+!!!              grid; A(H) contains but is not equal to
+!!!              dA(gamma,10)/dT
+!!!   adhv   = array of A(V) values on the standard temperature
+!!!              grid; A(V) contains but is not equal to
+!!!              dA(gamma,10)/dP
+!!!   aphi   = array of A(phi) values on the standard temperature
+!!!              grid; A(phi) = A(gamma,e)/3 = 2.303A(gamma,10)/3,
+!!!              so the pressure derivatives of A(phi) are obtained
+!!!              from A(V) and dnA(V)/dPn.
+!!!   bdh    = array of B(gamma) values on the standard temperature
+!!!              grid
+!!!   bdhh   = array of B(H) values on the standard temperature grid
+!!!   bdhv   = array of B(V) values on the standard temperature grid
+!!!   bdot   = array of B-dot values on the standard temperature
+!!!              grid
+!!!   bdoth  = array of B-dot(H)values on the standard temperature
+!!!              grid
+!!!   bdotv  = array of B-dot(V) values on the standard temperature
+!!!              grid
+!!!   cco2   = array of coefficients for the Drummond (1981)
+!!!              equation
+!!!   dadhh  = array of dnA(H)/dPn values on the standard temperature
+!!!              grid
+!!!   dadhv  = array of dnA(V)/dPn values on the standard temperature
+!!!              grid
+!!!   dbdhh  = array of dnB(H)/dPn values on the standard temperature
+!!!              grid
+!!!   dbdhv  = array of dnA(V)/dPn values on the standard temperature
+!!!              grid
+!!!   dbdth  = array of dnB-dot(H)/dPn values on the standard
+!!!              temperature grid
+!!!   dbdtv  = array of dnB-dot(V)/dPn values on the standard
+!!!              temperature grid
+!!!   dhfe   = array of pressure derivatives of the enthalpy of
+!!!              reaction for the "Eh" reaction on the standard
+!!!              temperature grid
+!!!   dvfe   = array of pressure derivatives of the volume of
+!!!              reaction for the "Eh" reaction on the standard
+!!!              temperature grid
+!!!   ndbptg = the number of distinct points on the standard
+!!!              temperature grid.
+!!!   nerr   = cumulative error counter
+!!!   nwarn  = cumulative warning counter
+!!!   presg  = array of standard pressures on the standard
+!!!              temperature grid
+!!!   prehw  = array of half-width values for the standard pressure
+!!!              envelope on the standard temperature grid
+!!!   tdamax = the nominal maximum temperature (C) for which the
+!!!              data file is valid
+!!!   tdamin = the nominal minimum temperature (C) for which the
+!!!              data file is valid
+!!!   tempc  = array of temperatures defining the standard
+!!!              temperature grid
+!!!   udbfmt = the format used when reading a line of data on the
+!!!              standard temperature grid
+!!!   xlke   = array of log K values for the "Eh" reaction
+!!!              on the standard temperature grid
+!!!   xhfe   = array of enthalpy of reaction values for the "Eh"
+!!!              reaction hon the standard temperature grid
+!!!   xvfe   = array of volume of reaction values for the "Eh"
+!!!              reaction on the standard temperature grid
+
+CALL rdpar(adh,adhh,adhv,aphi,bdh,bdhh,bdhv,bdot,bdoth,        &
+   bdotv,cco2,dadhh,dadhv,dbdhh,dbdhv,dbdth,dbdtv,dhfe,dvfe,   &
+   ipch,ipchmx,ipcv,ipcvmx,itgenf,nacdpr,narxmx,narxt,ndat0s,  &
+   ndbmax,ndbptg,ndbptl,nerr,noutpt,ntprmx,ntprt,nttyo,nwarn,  &
+   prehw,presg,q500fl,tdamax,tdamin,tempc,uakey,udbfmt,udbval, &
+   xdbval,xhfe,xlke,xvfe)
 
 !!!     open appropriate database file
 
 WRITE(iunit2,*)
 IF (ThermoDatabase /= ' ') THEN
-  CALL stringlen(ThermoDatabase,ls)
-  WRITE(iunit2,*) ' Using database file: ', ThermoDatabase(1:ls)
   
+  WRITE(iunit2,*) ' Using database file: ', ThermoDatabase( 1:LEN(ThermoDatabase )
   OPEN(UNIT=iunit5,FILE=ThermoDatabase,STATUS='old',ERR=334)
   
 ELSE
   WRITE(*,*)
-  WRITE(*,*) ' No default database:  must be specified in input file'
+  WRITE(*,*) ' No default database exists:  Name of database must be specified in input file'
   WRITE(*,*)
   READ(*,*)
   STOP
@@ -371,7 +472,6 @@ nreacsurf  = 0
 nreacmin   = 0
 nreacgas   = 0
 nreacaq    = 0
-
 
 !     initialize matrices for log K fit (coef) and
 !     for stoichiometric coefficients (a)
@@ -471,7 +571,6 @@ IF (ntemp > 1) THEN
   DO i = 1, nbasis
     bdtcoeff(i) = bvec(i)
   END DO
-
   
 !  ********   End of Debye-Huckel coefficient calculation  ************
   
@@ -484,6 +583,7 @@ END IF
 
 !-----read and store aqueous species properties
 5001 nprimary = 0
+     
 500 CONTINUE
 
 IF (IncludeBdot) THEN
@@ -493,15 +593,19 @@ ELSE
 END IF
 
 IF (NAME == 'End of primary') GO TO 501   !  End of primary species block
+
 DO jj = 1, ncomp   ! Search through list of primary species in input file
   j = jj
   IF (NAME == namc(jj)) GO TO 530
 END DO
-DO ii = 1, ncmplx   ! Search through list of secondary species in input file
+
+DO ii = 1, nspec   ! Search through list of secondary species in input file
   i = ii
   IF (NAME == namcx(i)) GO TO 532
 END DO
 GO TO 500
+
+!!! Case where primary species in database is a primary species in the input file
 530 CONTINUE
 nprimary = nprimary + 1
 aq_found(nprimary) = NAME
@@ -512,6 +616,8 @@ IF (IncludeBdot) THEN
   bdotPrimary(j) = bdotDummy
 END IF
 GO TO 500
+
+!!! Case where primary species in database is a secondary species in the input file
 532 CONTINUE
 nprimary = nprimary + 1
 aq_found(nprimary) = NAME
@@ -530,7 +636,6 @@ GO TO 500
 
 !-----read and store aqueous reactions
 
-
 30 CONTINUE
 
 imiss = 0
@@ -542,7 +647,7 @@ ELSE
     (alogk0(l),l=1,ntemp),aa0,zz,wtt
 END IF
 
-IF (nam(1) == 'End of secondary' ) GO TO 29
+IF (nam(1) == 'End of secondary' ) GO TO 29      !!! Exit if end of secondary species block in database is found
 
 sto(1) = -1    ! Secondary species in EQ3 list has stoichiometric coefficient of -1
 
@@ -556,7 +661,7 @@ DO  k = n+1,1,-1
 
   speciesfound = .FALSE.
   
-  IF (nam(k) == 'h2o' .OR. nam(k) == 'H2O') THEN
+  IF ( nam(k) == 'h2o' .OR. nam(k) == 'H2O' .OR. nam(k) == 'HHO' ) THEN
     nct = nct + 1
     speciesfound = .TRUE.
   END IF
@@ -626,6 +731,7 @@ END DO
 !  list in the input file
 
 IF (icomplete == 1) THEN
+  
   IF (isweep == 3) THEN
     IF (imiss == 0) THEN
       CONTINUE
@@ -636,30 +742,17 @@ IF (icomplete == 1) THEN
     
     IF (imiss == 1 .AND. namsave /= 'O2(g)' .AND. namsave /= 'o2(g)') THEN
       
-!            if (ntemp.gt.1) then
-!              do k = 1,ntemp
-!                if (alogk0(k).eq.500.0) then
-!                  goto 30
-!                endif
-!              end do
-!            endif
-      
       ncmplx_new = ncmplx_new + 1
       IF (ncmplx_new > mcmplx) THEN
         WRITE(*,*)
-        WRITE(*,*) ' MCMPLX not dimensioned large enough'
-        WRITE(*,*) ' In params.inc'
+        WRITE(*,*) ' MCMPLX not dimensioned large enough in params.F90'
         WRITE(*,*) ' Number of secondary species = ',ncmplx_new
         WRITE(*,*)
         READ(*,*)
         STOP
       END IF
-!!      WRITE(*,*)
-!!      WRITE(*,*) ' Adding a secondary species from the EQ3 database'
-!!      WRITE(*,*) nam(1)
-!!      WRITE(*,*) ' Number of secondary species = ',ncmplx_new
+
       namcx(ncmplx_new) = namsave
-!!      WRITE(*,*)
       GO TO 30
     ELSE IF (imiss >= 2) THEN
       GO TO 30
@@ -677,8 +770,7 @@ END IF
 
 29  IF (icomplete == 1 .AND. isweep < 3) GO TO 41
 
-IF (nam(1) == 'End of secondary') GO TO 39
-
+IF (nam(1) == 'End of secondary') GO TO 39    !!! Exit to 39 if the End of secondary is found in the database
 
 IF (nsecond == 1) THEN
   
@@ -687,16 +779,6 @@ IF (nsecond == 1) THEN
   DO kk = 1,ncmplx
     IF (namcx(kk) == namsec_tmp) THEN
       IF (iload(kk) == 1) THEN    ! Species already loaded--skip reaction
-!!        WRITE(*,*) ' Secondary species already loaded'
-!!        WRITE(*,*) ' Reaction involves the species ',namsec_tmp
-!!        WRITE(*,*) ' Skipping reaction'
-!!        WRITE(*,*)
-        GO TO 30
-      ELSE
-!!        WRITE(*,*) ' Secondary species found for first time'
-!!        WRITE(*,*) ' Reaction involves the species ',namsec_tmp
-!!        WRITE(*,*) ' Loading reaction'
-!!        WRITE(*,*)
         iload(kk) = 1
         GO TO 3333
       END IF
@@ -707,10 +789,6 @@ END IF
 3333   IF (isecondary == 1) THEN
   nreac = nreac + 1
 ELSE
-!!  WRITE(*,*)
-!!  WRITE(*,*) ' Reaction made up only of primary species'
-!!  WRITE(*,*) ' Reaction involves the species ',nam(1)
-!!  WRITE(*,*)
   z(jj) = zz
   a0(jj) = aa0
   wtbas(jj) = wtt
@@ -743,27 +821,6 @@ END IF
 
 IF (ntemp > 1) THEN
   
-!  Check to see if there are any logK = 500 in advance of call to subroutine fit
-  
-!        do i = 1,ntemp
-!          if (ntemp.gt.1 .and. alogk0(i).eq.500.0) then
-!            iflgint = 1
-!            write(iunit2,*)
-!            write(*,*)
-!     write(iunit2,*) ' LogK = 500 encountered for species '
-!     &    ,   namsec(nreac)
-!     write(*,*) ' LogK = 500 encountered for species '
-!     &    ,   namsec(nreac)
-!            write(*,*) ' Non-isothermal problem--logKs missing'
-!            write(iunit2,*) ' Non-isothermal problem--logKs missing'
-!            write(*,*) ' Aborting run'
-!            write(iunit2,*) ' Aborting run'
-!            write(iunit2,*)
-!            write(*,*)
-!            stop
-!          endif
-!        end do
-  
   IF (RunIsothermal) THEN
       
 !!  Find the right logK value in the database for the specified temperature
@@ -790,13 +847,6 @@ IF (ntemp > 1) THEN
     IF (iflgint == 1) THEN
       dumstring = namsec(nreac)
       CALL stringlen(dumstring,nlength)
-!    WRITE(iunit2,*)
-!    WRITE(iunit2,*) '            WARNING  '
-!    WRITE(iunit2,*) ' Some logKs missing for: ',dumstring(1:nlength)
-!    WRITE(iunit2,*)
-!    WRITE(*,*)
-!    WRITE(*,*) '              WARNING:  '
-!    WRITE(*,*) ' Some logKs missing for: ',dumstring(1:nlength)
       nncnt = 0
       nncnt = 0
       DO i = 1,ntemp
@@ -874,9 +924,7 @@ ELSE IF (ntemp == 1) THEN
   
 END IF
   
-
-IF (iflg == 1) THEN   ! First species in reaction designated as primary species in
-!                               input file
+IF (iflg == 1) THEN   ! First species in reaction designated as primary species in input file
   z(jj) = zz
   a0(jj) = aa0
   wtbas(jj) = wtt
@@ -946,6 +994,7 @@ GO TO 30
 IF (nreac /= ncmplx) iflgck = 1
 IF (iflgck == 1) THEN
   nmiss = ncmplx - nreac
+  
   WRITE(*,*) ' Finished read of secondary species block'
   WRITE(*,*)
   WRITE(*,*) ' Number of reactions =            ',nreac
@@ -955,6 +1004,7 @@ IF (iflgck == 1) THEN
   WRITE(*,*) ' Could not find one or more secondary species reactions'
   WRITE(*,*) ' Number of reactions missing =    ',nmiss
   WRITE(*,*)
+  
   DO k = 1,ncmplx
     DO kk = 1,nreacaq+nprimary
       IF (aq_found(kk) == namcx(k) ) THEN
@@ -967,6 +1017,7 @@ IF (iflgck == 1) THEN
     5113     CONTINUE
   END DO
   WRITE(*,*)
+  
   DO k = 1,ncomp
     DO kk = 1,nreacaq+nprimary
       IF (aq_found(kk) == namc(k) ) THEN
@@ -979,6 +1030,7 @@ IF (iflgck == 1) THEN
     5114     CONTINUE
   END DO
   WRITE(*,*)
+  
   READ(*,*)
   STOP
 END IF
@@ -989,8 +1041,7 @@ END IF
 
 41 CONTINUE
 
-READ(iunit5,*,ERR=6005) nam(1),vbargas,n,(sto(i+1),nam(i+1),i=1,n),  &
-    (alogk0(l),l=1,ntemp),wtt
+READ(iunit5,*,ERR=6005) nam(1),vbargas,n,(sto(i+1),nam(i+1),i=1,n), (alogk0(l),l=1,ntemp),wtt
 
 IF (nam(1) == 'End of gases') GO TO 52
 
@@ -1075,14 +1126,6 @@ IF (icomplete == 1) THEN
     
     IF (imiss == 1) THEN
       
-!            if (ntemp.gt.1) then
-!              do k = 1,ntemp
-!                if (alogk0(k).eq.500.0) then
-!                  goto 41
-!                endif
-!              end do
-!            endif
-      
       ngas_new = ngas_new + 1
       IF (ngas_new > ng) THEN
         WRITE(*,*)
@@ -1128,6 +1171,7 @@ END IF
     REWIND(iunit5)
     READ(iunit5,*) dummy
     GO TO 5001
+    
   ELSE IF (isweep == 1) THEN
     WRITE(*,*)
     WRITE(*,*) ' Finished second sweep of EQ3 database'
@@ -1141,6 +1185,7 @@ END IF
     REWIND(iunit5)
     READ(iunit5,*) dummy
     GO TO 5001
+    
   ELSE
     WRITE(*,*)
     WRITE(*,*) ' Finished second sweep of EQ3 database'
@@ -1154,6 +1199,7 @@ END IF
     REWIND(iunit5)
     READ(iunit5,*) dummy
     GO TO 5001
+    
   END IF
 END IF
 
@@ -1191,14 +1237,6 @@ IF (ntemp > 1) THEN
     
     NameTransfer = namsec(nreac)
     CALL fit(nbasis,ntemp,alogk0,bvec,vec,iflgint,INT,ntt,NameTransfer)
-
-    IF (iflgint == 1) THEN
-!    WRITE(iunit2,*)
-!    WRITE(*,*)
-!    WRITE(iunit2,*) 'WARNING! LogK = 500 encountered for species '  &
-!        ,namsec(nreac)
-!    WRITE(*,*) 'WARNING! LogK = 500 encountered for species ' ,namsec(nreac)
-    END IF
   
     DO  j = 1, nbasis
       coef0(nreac,j) = bvec(j)
@@ -1246,7 +1284,6 @@ DO  i = 1, n+1
   
   DO  ngs = 1, ngas
     IF (nam(i) == namg(ngs)) THEN
-!       a(nreac,ncmplx+mnrl+ngs) = -sto(i)
       a(nreac,ncmplx+ngs) = -sto(i)
       speciesfound = .TRUE.
       EXIT
@@ -1315,8 +1352,8 @@ IF (icomplete == 1) THEN
 
     speciesfound = .FALSE.
 
-!       check for water
-    IF (nam(i) == 'h2o' .OR. nam(i) == 'H2O') THEN
+    !   Check for water
+    IF ( nam(i) == 'h2o' .OR. nam(i) == 'H2O' .OR. nam(i) == 'HHO' ) THEN
       nct = nct + 1
      speciesfound = .TRUE.
     END IF
@@ -1401,7 +1438,6 @@ IF (icomplete == 1) THEN
     
     GO TO 31
     
-
   END DO
   
 !  Mineral found, add to reaction list
@@ -1423,36 +1459,17 @@ IF (icomplete == 1) THEN
   END IF
   
   IF (icomplete /= 1) THEN
+    
     if (mintype(mm) == 0) then
-      vbar(mm) = vbar0*1.d-6  ! Convert to m**3/mole (Changed by Steefel)
+      vbar(mm) = vbar0*1.d-6          ! Convert to m**3/mole (Changed by Steefel)
     else if (mintype(mm) == 1) then
-      vbar(mm) = 1.0d0 ! mole biomass/mole biomass  ! obsolete: vbar0 cells/mole
+      vbar(mm) = 1.0d0                ! mole biomass/mole biomass  ! obsolete: vbar0 cells/mole
     end if
+    
   ELSE
-    vbar(mm) = vbar0*1.d-6  ! Convert to m**3/mole (Changed by Steefel)
+    vbar(mm) = vbar0*1.d-6            ! Convert to m**3/mole (Changed by Steefel)
   END IF
   wtminfull(mm) = wtt
-  
-!  Check to see if there are any logK = 500 in advance of call to subroutine fit
-  
-!        do i = 1,ntemp
-!          if (ntemp.gt.1 .and. alogk0(i).eq.500.0) then
-!            iflgint = 1
-!            write(iunit2,*)
-!            write(*,*)
-!     write(iunit2,*) ' LogK = 500 encountered for species '
-!     &    ,   namsec(nreac)
-!     write(*,*) ' LogK = 500 encountered for species '
-!     &    ,   namsec(nreac)
-!            write(*,*) ' Non-isothermal problem--logKs missing'
-!            write(iunit2,*) ' Non-isothermal problem--logKs missing'
-!            write(*,*) ' Aborting run'
-!            write(iunit2,*) ' Aborting run'
-!            write(iunit2,*)
-!            write(*,*)
-!            stop
-!          endif
-!        end do
   
   IF (ntemp > 1) THEN
       
@@ -1478,14 +1495,6 @@ IF (icomplete == 1) THEN
 
     NameTransfer = namsec(nmat)
     CALL fit(nbasis,ntemp,alogk0,bvec,vec,iflgint,INT,ntt,NameTransfer)
-    
-!    IF (iflgint == 1) THEN
-!      WRITE(iunit2,*)
-!      WRITE(*,*)
-!      WRITE(iunit2,*) 'WARNING! LogK = 500 encountered for species '  &
-!          ,namsec(nmat)
-!      WRITE(*,*) 'WARNING! LogK = 500 encountered for species ' ,namsec(nmat)
-!    END IF
     
     DO  j = 1, nbasis
       coef0(nmat,j) = bvec(j)
@@ -1552,6 +1561,7 @@ DO  i = 1, n
   32 CONTINUE
   
   IF (mnrl_new /= mnrl) THEN
+    
     WRITE(*,*)
     WRITE(*,*) ' Minerals added from the EQ3 database'
     WRITE(*,*)
@@ -1562,7 +1572,8 @@ DO  i = 1, n
       GO TO 5006
     END IF
     GO TO 5005
-    5006   icheck = mnrl_new - mnrl
+5006 icheck = mnrl_new - mnrl
+     
     WRITE(*,*)
     WRITE(*,*) ' Number of new minerals added = ',icheck
     WRITE(*,*)
@@ -1575,6 +1586,7 @@ DO  i = 1, n
     WRITE(*,*) ' ngas = ',ngas
     WRITE(*,*) ' *************************************'
     WRITE(*,*)
+    
     mnrl = mnrl_new
     nsec = ncmplx + ngas + mnrl
     nreac = ncmplx + ngas
@@ -1623,7 +1635,7 @@ ELSE    ! Case where icomplete .ne. 1 (NO DATABASE SWEEP)
     CALL mineralfind(iunit5)
     namtemp = namrl(k)
     CALL stringlen(namtemp,lengthmin)
-    1111     READ(iunit5,*) namdummy                               !! Loop back to here to read another database entry
+    1111     READ(iunit5,*) namdummy                    !! Loop back to here to read another database entry
     IF (namdummy == 'End of minerals') THEN
       WRITE(*,*)
       WRITE(*,*) ' Mineral not found in database'
@@ -1650,7 +1662,7 @@ ELSE    ! Case where icomplete .ne. 1 (NO DATABASE SWEEP)
         
 !       check for water
         
-        IF (nam(i) == 'h2o' .OR. nam(i) == 'H2O') THEN
+        IF ( nam(i) == 'h2o' .OR. nam(i) == 'H2O' .OR. nam(i) == 'HHO' ) THEN
           nct = nct + 1
           speciesfound = .TRUE.
         END IF
@@ -1736,11 +1748,11 @@ ELSE    ! Case where icomplete .ne. 1 (NO DATABASE SWEEP)
 !          nmat = nmat0 + mm
     nmat = nmat0 + k
     namsec(nmat) = nam(1)
-    if (mintype(nmat-nmat0) == 0) then
+    IF (mintype(nmat-nmat0) == 0) THEN
       vbar(nmat-nmat0) = vbar0*1.d-6  ! Convert to m**3/mole
-    else if (mintype(nmat-nmat0) == 1) then
+    ELSE IF (mintype(nmat-nmat0) == 1) THEN
       vbar(nmat-nmat0) = 1.0d0 ! mole biomass/mole biomass  ! obsolete: vbar0 cells/mole
-    end if
+    END IF
     wtminfull(nmat-nmat0) = wtt
     
     
@@ -2004,13 +2016,6 @@ END DO
 
 IF (imiss == 1) THEN
   
-!        if (ntemp.gt.1) then
-!          do k = 1,ntemp
-!            if (alogk0(k).eq.500.0) then
-!              goto 61
-!            endif
-!          end do
-!        endif
   
   nsurf_sec = nsurf_sec + 1
   IF (nsurf_sec > msurf_sec) THEN
@@ -2161,10 +2166,7 @@ END IF
 
 !!  **********  END OF SURFACE COMPLEXATION READ  ********************************
 
-
-
 100 FORMAT(' ',a20,2(1PE12.4))
-
 
 IF (nreac /= nsec) THEN
   WRITE(iunit2,101) nreac,nsec
@@ -2240,11 +2242,6 @@ IF (nsec > 0) THEN
       ainv(l,i) = y(l)
     END DO
   END DO
-
-!     write(iunit2,106)
-!     do 210 i = 1, nsec
-!       write(iunit2,105) i,(ainv(i,l), l = 1, nsec)
-!210  continue
 
   105  FORMAT(' ',i3,10(1PE13.6))
   106  FORMAT(/,' transformation matrix')

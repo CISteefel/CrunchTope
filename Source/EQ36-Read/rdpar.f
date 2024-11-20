@@ -146,6 +146,8 @@ c
       real(8) tdamax,tdamin
 c
       real(8) cco2(5)
+      
+      
 c
       real(8) adh(narxmx,ntprmx),adhh(narxmx,ntprmx),
      $ adhv(narxmx,ntprmx),aphi(narxmx,ntprmx),bdh(narxmx,ntprmx),
