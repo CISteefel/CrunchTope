@@ -5006,7 +5006,9 @@ CALL read_mineralfile(nout,nx,ny,nz,readmineral,mineral_index,mineral_id,mineral
             volfracfile,bsafile,lfile_volfrac,lfile_bsa,FileFormatType_volfrac,FileFormatType_bsa,readmin_ssa)
 
 IF (readmineral) THEN
+  
   DO i = 1,mineral_index
+    
     min_id = mineral_id(i)
     min_name = mineral_name(i)
     min_name_l = mineral_name_length(i)
@@ -5060,86 +5062,60 @@ IF (readmineral) THEN
         READ(23,*,END=1020) (((volfx(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
         
     END SELECT
-      
-      
 
-  
+    INQUIRE(FILE=bsa_file,EXIST=ext)
+    
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Bulk surface area file ', bsa_file(1:bsa_file_l) ,' for ', min_name(1:min_name_l) ,' not found.'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
 
-          INQUIRE(FILE=bsa_file,EXIST=ext)
-          IF (.NOT. ext) THEN
-            WRITE(*,*)
-            WRITE(*,*) ' Bulk surface area file ', bsa_file(1:bsa_file_l) ,' for ', min_name(1:min_name_l) ,' not found.'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-          ! IF (ALLOCATED(VG_n)) THEN
-          !   DEALLOCATE(VG_n)
-          !   ALLOCATE(VG_n(nx, ny, nz))
-          ! ELSE
-          !   ALLOCATE(VG_n(nx, ny, nz))
-          ! END IF
-          OPEN(UNIT=23,FILE=bsa_file,STATUS='old',ERR=8001)
-          FileTemp = bsa_file
-          CALL stringlen(FileTemp,FileNameLength)
-          IF (bsa_fileformat == 'ContinuousRead') THEN
-            READ(23,*,END=1020) (((area(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
-          ELSE IF (bsa_fileformat == 'SingleColumn') THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) area(min_id,jx,jy,jz)
-                  IF (ssa_or_bsa == 1) THEN
-                  area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
-                  ENDIF
-                END DO
-              END DO
-            END DO
-          ELSE IF (bsa_fileformat == 'FullForm') THEN
-            IF (ny > 1 .AND. nz > 1) THEN
-              DO jz = 1,nz
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) xdum,ydum,zdum,area(min_id,jx,jy,jz)
-                    IF (ssa_or_bsa == 1) THEN
-                    area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
-                    ENDIF
-                  END DO
-                END DO
-              END DO
-            ELSE IF (ny > 1 .AND. nz == 1) THEN
-              jz = 1
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,area(min_id,jx,jy,jz)
-                  IF (ssa_or_bsa == 1) THEN
-                  area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
-                  ENDIF
-                END DO
-              END DO
-            ELSE
-            jz = 1
-            jy = 1
+    OPEN(UNIT=23,FILE=bsa_file,STATUS='old',ERR=8001)
+    FileTemp = bsa_file
+    CALL stringlen(FileTemp,FileNameLength)
+    
+    SELECT CASE(vv_fileformat) 
+      CASE ('ContinuousRead')
+        READ(23,*,END=1020) (((area(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+      
+      CASE ('SingleColumn') 
+        DO jz = 1,nz
+          DO jy = 1,ny
             DO jx= 1,nx
-              READ(23,*,END=1020) xdum,area(min_id,jx,jy,jz)
+              READ(23,*,END=1020) area(min_id,jx,jy,jz)
               IF (ssa_or_bsa == 1) THEN
-              area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+                area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
               ENDIF
             END DO
-            END IF
-          ELSE IF (bsa_fileformat == 'Unformatted') THEN
-          READ(23,END=1020) area
-          IF (ssa_or_bsa == 1) THEN
-          area = volfx*area*wtmin(min_id)/volmol(min_id)
-          ENDIF
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) ' Bulk surface area file format not recognized'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-    !stop
+          END DO
+        END DO
+      
+      CASE ('FullForm') 
+        DO jz = 1,nz
+          DO jy = 1,ny
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,zdum,area(min_id,jx,jy,jz)
+              IF (ssa_or_bsa == 1) THEN
+                area(min_id,jx,jy,jz) = volfx(min_id,jx,jy,jz)*area(min_id,jx,jy,jz)*wtmin(min_id)/volmol(min_id)
+              ENDIF
+            END DO
+          END DO
+        END DO
+      
+      CASE ('Unformatted') 
+        READ(23,END=1020) area
+        IF (ssa_or_bsa == 1) THEN
+         area = volfx*area*wtmin(min_id)/volmol(min_id)
+        ENDIF
+        
+      CASE DEFAULT
+        READ(23,*,END=1020) (((area(min_id,jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+        
+    END SELECT
+          
   ENDDO
 
 ENDIF
@@ -5147,72 +5123,8 @@ ENDIF
 !Stolze Lucien, June 2023
 !END: read mineral volume fraction and bulk surface area from file
 
-!! Or overwrite with read of geochemical conditions
-IF (ReadGeochemicalConditions) THEN
-
-!!    INQUIRE(FILE='calcite.dat',EXIST=ext)
-
-!!    IF (ext) THEN
-
-!! Hard wired here for calcite as Mineral 1
-
-!!      OPEN(unit=99,file='calcite.dat',status='old')
-
-!!      read(99,*) GridCoordinateX,GridCoordinateY
-!!      do jy = 1,ny
-!!        do jx = 1,nx
-!!          if (jx == GridCoordinateX .AND. jy == GridCoordinateY) then
-!!            volfx(1,jx,jy,1) = 0.05
-!!            read(99,*,END=981) GridCoordinateX,GridCoordinateY
-!!          else
-!!            volfx(1,jx,jy,1) = 0.000
-!!          endif
-!!        end do
-!!      end do
-!!      close(unit=99,status='keep')
-!!981   write(*,*) ' End of calcite.dat file'
-
-!!    ELSE
-!!      continue
-!!    END IF
-
-!! Plagioclase read (mineral 6)
-
-  INQUIRE(FILE='plagioclase.dat',EXIST=ext)
-
-  IF (ext) THEN
-
-!! Hard wired here for plagioclase as Mineral 6
-
-    OPEN(unit=97,file='plagioclase.dat',status='old')
-
-    read(97,*) GridCoordinateX,GridCoordinateY
-    do jy = 1,ny
-      do jx = 1,nx
-        if (jx == GridCoordinateX .AND. jy == GridCoordinateY) then
-          if (jinit(jx,jy,1) == 2) then
-            volfx(6,jx,jy,1) = 0.00
-          else
-            volfx(6,jx,jy,1) = 0.20
-          end if
-          read(97,*,END=979) GridCoordinateX,GridCoordinateY
-        else
-          volfx(6,jx,jy,1) = 0.000
-        endif
-      end do
-    end do
-    close(unit=97,status='keep')
-979   write(*,*) ' End of plagiclase.dat file'
-
-  ELSE
-    continue
-  END IF
-
-
-END IF    !! End of ReadGeochemicalConditions = .TRUE.
-
 IF (ALLOCATED(work3)) then
-DEALLOCATE(work3)
+  DEALLOCATE(work3)
 END IF
 
 ! Fill in ghost cells
@@ -5292,15 +5204,15 @@ section = 'boundary_conditions'
 CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
-WRITE(*,*) ' Boundary condition block found'
+  WRITE(*,*) ' Boundary condition block found'
 ELSE
-WRITE(*,*)
-WRITE(*,*) ' No boundary conditions found'
-WRITE(*,*)
+  WRITE(*,*)
+  WRITE(*,*) ' No boundary conditions found'
+  WRITE(*,*)
 END IF
 
 IF (ALLOCATED(JcByGrid)) THEN
-DEALLOCATE(JcByGrid)
+  DEALLOCATE(JcByGrid)
 END IF
 ALLOCATE(JcByGrid(0:nx+1,0:ny+1,0:nz+1))
 JcByGrid = 0
@@ -5309,167 +5221,58 @@ CALL read_BoundaryConditionByZone(nout,nx,ny,nz,nBoundaryConditionZone)
 
 IF (nBoundaryConditionZone > 0) THEN
 
-!!  Initialize concentration at boundaries from various zones
+  !!  Initialize concentration at boundaries from various zones
 
-DO l = 1,nBoundaryConditionZone
+  DO l = 1,nBoundaryConditionZone
 
-  DO jz = jzzBC_lo(l),jzzBC_hi(l)
-    DO jy = jyyBC_lo(l),jyyBC_hi(l)
-      DO jx = jxxBC_lo(l),jxxBC_hi(l)
+    DO jz = jzzBC_lo(l),jzzBC_hi(l)
+      DO jy = jyyBC_lo(l),jyyBC_hi(l)
+        DO jx = jxxBC_lo(l),jxxBC_hi(l)
 
-        ConditionName = BoundaryConditionName(l)
-        ConditionNameFound = .FALSE.
-        ConditionNumber = 0
+          ConditionName = BoundaryConditionName(l)
+          ConditionNameFound = .FALSE.
+          ConditionNumber = 0
 
-        DO nco = 1,nchem
-          IF (ConditionName == CondLabel(nco)) THEN
-            ConditionNameFound = .TRUE.
-            ConditionNumber = nco
+          DO nco = 1,nchem
+            IF (ConditionName == CondLabel(nco)) THEN
+              ConditionNameFound = .TRUE.
+              ConditionNumber = nco
+            END IF
+            IF (ConditionNameFound) THEN
+              EXIT
+            END IF
+          END DO
+
+          IF (.NOT. ConditionNameFound) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Condition block not found for boundary input read'
+            WRITE(*,*) ' Looking for:  ', ConditionName
+            WRITE(*,*)
+            READ(*,*)
+            STOP
           END IF
-          IF (ConditionNameFound) THEN
-            EXIT
-          END IF
+
+          jinit(jx,jy,jz) = ConditionNumber
+          JcByGrid(jx,jy,jz) = JcByBoundaryZone(l)
+
         END DO
-
-        IF (.NOT. ConditionNameFound) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Condition block not found for boundary input read'
-          WRITE(*,*) ' Looking for:  ', ConditionName
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-
-        jinit(jx,jy,jz) = ConditionNumber
-
-        JcByGrid(jx,jy,jz) = JcByBoundaryZone(l)
-
       END DO
     END DO
-  END DO
-
-END DO
-
-DEALLOCATE (JcByBoundaryZone)
-
-jx = 0
-DO jz = 1,nz
-  DO jy = 1,ny
-
-    ConditionNumber = jinit(jx,jy,jz)
-
-    IF (ConditionNumber == 0) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Portion of JX = 0 boundary is not initialized'
-      WRITE(*,*) ' Missing initialization at jy = ',jy
-      WRITE(*,*) ' Missing initialization at jz = ',jz
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    END IF
-
-    DO ik = 1,ncomp+nspec
-      sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
-      sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
-    END DO
-
-    DO i = 1,ncomp
-      s(i,jx,jy,jz)        = scond(i,ConditionNumber)
-    END DO
-
-    DO kk = 1,ngas
-      spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
-      spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
-    END DO
-
-    do ix = 1,nexchange
-      spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
-    end do
-    DO ix = 1,nexchange+nexch_sec
-      spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
-    END DO
-
-    DO is = 1,nsurf
-      spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
-      IF (iedl(is) == 0) THEN
-        LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
-      END IF
-    END DO
-    DO is = 1,nsurf+nsurf_sec
-      spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
-    END DO
-
-    t(jx,jy,jz) = tempcond(ConditionNumber)
-    por(jx,jy,jz) = porcond(ConditionNumber)
 
   END DO
-END DO
 
-jx = nx+1
-DO jz = 1,nz
-  DO jy = 1,ny
+  DEALLOCATE (JcByBoundaryZone)
 
-    ConditionNumber = jinit(jx,jy,jz)
-
-    IF (ConditionNumber == 0) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Portion of JX = nx+1 boundary is not initialized'
-      WRITE(*,*) ' Missing initialization at jy = ',jy
-      WRITE(*,*) ' Missing initialization at jz = ',jz
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    END IF
-
-    DO ik = 1,ncomp+nspec
-      sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
-      sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
-    END DO
-
-    DO i = 1,ncomp
-      s(i,jx,jy,jz)        = scond(i,ConditionNumber)
-    END DO
-
-    DO kk = 1,ngas
-      spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
-      spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
-    END DO
-
-    do ix = 1,nexchange
-      spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
-    end do
-    DO ix = 1,nexchange+nexch_sec
-      spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
-    END DO
-
-    DO is = 1,nsurf
-      spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
-      IF (iedl(is) == 0) THEN
-        LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
-      END IF
-    END DO
-    DO is = 1,nsurf+nsurf_sec
-      spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
-    END DO
-
-    t(jx,jy,jz) = tempcond(ConditionNumber)
-    por(jx,jy,jz) = porcond(ConditionNumber)
-
-  END DO
-END DO
-
-IF (ny > 1) THEN
-
-  jy = 0
+  jx = 0                               !! JX = 0 ghost cell
   DO jz = 1,nz
-    DO jx = 1,nx
+    DO jy = 1,ny
 
       ConditionNumber = jinit(jx,jy,jz)
 
       IF (ConditionNumber == 0) THEN
         WRITE(*,*)
-        WRITE(*,*) ' Portion of JY = 0 boundary is not initialized'
-        WRITE(*,*) ' Missing initialization at jx = ',jx
+        WRITE(*,*) ' Portion of JX = 0 boundary is not initialized'
+        WRITE(*,*) ' Missing initialization at jy = ',jy
         WRITE(*,*) ' Missing initialization at jz = ',jz
         WRITE(*,*)
         READ(*,*)
@@ -5480,23 +5283,19 @@ IF (ny > 1) THEN
         sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
         sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
       END DO
-
       DO i = 1,ncomp
         s(i,jx,jy,jz)        = scond(i,ConditionNumber)
       END DO
-
       DO kk = 1,ngas
         spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
         spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
       END DO
-
       do ix = 1,nexchange
         spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
       end do
       DO ix = 1,nexchange+nexch_sec
         spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
       END DO
-
       DO is = 1,nsurf
         spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
         IF (iedl(is) == 0) THEN
@@ -5506,287 +5305,364 @@ IF (ny > 1) THEN
       DO is = 1,nsurf+nsurf_sec
         spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
       END DO
-
       t(jx,jy,jz) = tempcond(ConditionNumber)
       por(jx,jy,jz) = porcond(ConditionNumber)
 
+    END DO
+  END DO
+
+  jx = nx+1                   !! JX = nx+1 ghost cell
+  DO jz = 1,nz
+    DO jy = 1,ny
+
+      ConditionNumber = jinit(jx,jy,jz)
+
+      IF (ConditionNumber == 0) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Portion of JX = nx+1 boundary is not initialized'
+        WRITE(*,*) ' Missing initialization at jy = ',jy
+        WRITE(*,*) ' Missing initialization at jz = ',jz
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+
+      DO ik = 1,ncomp+nspec
+        sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
+        sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
+      END DO
+      DO i = 1,ncomp
+        s(i,jx,jy,jz)        = scond(i,ConditionNumber)
+      END DO
+      DO kk = 1,ngas
+        spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
+        spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
+      END DO
+      do ix = 1,nexchange
+        spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
+      end do
+      DO ix = 1,nexchange+nexch_sec
+        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+      END DO
+      DO is = 1,nsurf
+        spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
+        IF (iedl(is) == 0) THEN
+          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
+        END IF
+      END DO
+      DO is = 1,nsurf+nsurf_sec
+        spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
+      END DO
+      t(jx,jy,jz) = tempcond(ConditionNumber)
+      por(jx,jy,jz) = porcond(ConditionNumber)
+
+    END DO
+  END DO
+
+  IF (ny > 1) THEN
+
+    jy = 0                            !! JY = 0 ghost cell
+    DO jz = 1,nz
+      DO jx = 1,nx
+
+        ConditionNumber = jinit(jx,jy,jz)
+
+        IF (ConditionNumber == 0) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Portion of JY = 0 boundary is not initialized'
+          WRITE(*,*) ' Missing initialization at jx = ',jx
+          WRITE(*,*) ' Missing initialization at jz = ',jz
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+
+        DO ik = 1,ncomp+nspec
+          sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
+          sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
+        END DO
+        DO i = 1,ncomp
+          s(i,jx,jy,jz)        = scond(i,ConditionNumber)
+        END DO
+        DO kk = 1,ngas
+          spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
+          spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
+        END DO
+        do ix = 1,nexchange
+          spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
+        end do
+        DO ix = 1,nexchange+nexch_sec
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+        END DO
+        DO is = 1,nsurf
+          spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
+          IF (iedl(is) == 0) THEN
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
+          END IF
+        END DO
+        DO is = 1,nsurf+nsurf_sec
+          spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
+        END DO
+        t(jx,jy,jz) = tempcond(ConditionNumber)
+        por(jx,jy,jz) = porcond(ConditionNumber)
+
+      END DO
+    END DO
+
+    jy = ny+1                            !! JY = ny+1 ghost cell
+    DO jz = 1,nz
+      DO jx = 1,nx
+
+        ConditionNumber = jinit(jx,jy,jz)
+
+        IF (ConditionNumber == 0) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Portion of JY = ny+1 boundary is not initialized'
+          WRITE(*,*) ' Missing initialization at jx = ',jx
+          WRITE(*,*) ' Missing initialization at jz = ',jz
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+
+        DO ik = 1,ncomp+nspec
+          sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
+          sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
+        END DO
+        DO i = 1,ncomp
+          s(i,jx,jy,jz)        = scond(i,ConditionNumber)
+        END DO
+        DO kk = 1,ngas
+          spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
+          spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
+        END DO
+        do ix = 1,nexchange
+          spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
+        end do
+        DO ix = 1,nexchange+nexch_sec
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+        END DO
+        DO is = 1,nsurf
+          spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
+          IF (iedl(is) == 0) THEN
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
+          END IF
+        END DO
+        DO is = 1,nsurf+nsurf_sec
+          spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
+        END DO
+        t(jx,jy,jz) = tempcond(ConditionNumber)
+        por(jx,jy,jz) = porcond(ConditionNumber)
+
+      END DO
+    END DO
+
+  END IF   !!  End of NY block
+
+  IF (nz > 1) THEN
+
+    jz = 0                                 !! JX = 0 ghost cell
+    DO jy = 1,ny
+      DO jx = 1,nx
+
+        ConditionNumber = jinit(jx,jy,jz)
+
+        IF (ConditionNumber == 0) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Portion of JZ = 0 boundary is not initialized'
+          WRITE(*,*) ' Missing initialization at jx = ',jx
+          WRITE(*,*) ' Missing initialization at jy = ',jy
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+
+        DO ik = 1,ncomp+nspec
+          sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
+          sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
+        END DO
+        DO i = 1,ncomp
+          s(i,jx,jy,jz)        = scond(i,ConditionNumber)
+        END DO
+        DO kk = 1,ngas
+          spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
+          spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
+        END DO
+        do ix = 1,nexchange
+          spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
+        end do
+        DO ix = 1,nexchange+nexch_sec
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+        END DO
+        DO is = 1,nsurf
+          spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
+          IF (iedl(is) == 0) THEN
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
+          END IF
+        END DO
+        DO is = 1,nsurf+nsurf_sec
+          spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
+        END DO
+        t(jx,jy,jz) = tempcond(ConditionNumber)
+        por(jx,jy,jz) = porcond(ConditionNumber)
+
+      END DO
+    END DO
+
+    jz = nz+1                          !! JZ = nz+1 ghost cell
+    DO jy = 1,ny
+      DO jx = 1,nx
+
+        ConditionNumber = jinit(jx,jy,jz)
+
+        IF (ConditionNumber == 0) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Portion of JZ = nz+1 boundary is not initialized'
+          WRITE(*,*) ' Missing initialization at jx = ',jx
+          WRITE(*,*) ' Missing initialization at jy = ',jy
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+
+        DO ik = 1,ncomp+nspec
+          sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
+          sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
+        END DO
+        DO i = 1,ncomp
+          s(i,jx,jy,jz)        = scond(i,ConditionNumber)
+        END DO
+        DO kk = 1,ngas
+          spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
+          spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
+        END DO
+        do ix = 1,nexchange
+          spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
+        end do
+        DO ix = 1,nexchange+nexch_sec
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+        END DO
+        DO is = 1,nsurf
+          spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
+          IF (iedl(is) == 0) THEN
+            LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
+          END IF
+        END DO
+        DO is = 1,nsurf+nsurf_sec
+          spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
+        END DO
+        t(jx,jy,jz) = tempcond(ConditionNumber)
+        por(jx,jy,jz) = porcond(ConditionNumber)
+
+      END DO
+    END DO
+
+  END IF    !! End of NZ block
+
+ELSE   !! Conventional treatment of boundaries as corresponding to an entire boundary face
+
+  DO i = 1,6
+    jc(i) = 2   ! Initialize (and make default) a flux boundary
+  END DO
+
+  IF (ALLOCATED(spb)) THEN
+    DEALLOCATE(spb)
+    ALLOCATE(spb(ncomp+nspec,6))
+  ELSE
+    ALLOCATE(spb(ncomp+nspec,6))
+  END IF
+  IF (ALLOCATED(spbgas)) THEN
+    DEALLOCATE(spbgas)
+    ALLOCATE(spbgas(ngas,6))
+  ELSE
+    ALLOCATE(spbgas(ngas,6))
+  END IF
+  IF (ALLOCATED(spexb)) THEN
+    DEALLOCATE(spexb)
+    ALLOCATE(spexb(nexchange+nexch_sec,6))
+  ELSE
+    ALLOCATE(spexb(nexchange+nexch_sec,6))
+  END IF
+  IF (ALLOCATED(spsurfb)) THEN
+    DEALLOCATE(spsurfb)
+    ALLOCATE(spsurfb(nsurf+nsurf_sec,6))
+  ELSE
+    ALLOCATE(spsurfb(nsurf+nsurf_sec,6))
+  END IF
+
+  spb = 0.0
+  spbgas = 0.0
+  spexb = 0.0
+  spsurfb = 0.0
+
+  CALL read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
+     nsurf,nsurf_sec)
+  !ENDIF
+
+  IF (ALLOCATED(AqueousToBulkCond)) THEN
+    DEALLOCATE(AqueousToBulkCond)
+  END IF
+
+  IF (ALLOCATED(sbnd)) THEN
+    DEALLOCATE(sbnd)
+    ALLOCATE(sbnd(ncomp,6))
+  ELSE
+    ALLOCATE(sbnd(ncomp,6))
+  END IF
+  IF (ALLOCATED(s_local)) THEN
+    DEALLOCATE(s_local)
+    ALLOCATE(s_local(ncomp))
+  ELSE
+    ALLOCATE(s_local(ncomp))
+  END IF
+
+  sbnd = 0.0
+  s_local = 0.0
+
+  DO nbnd = 1,6
+    CALL bdcalc(ncomp,nspec,nbnd)
+    DO i = 1,ncomp
+      sbnd(i,nbnd) = s_local(i)
+    END DO
+  END DO
+
+  !!!  Set the boundaries
+
+  jx = 0
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO i = 1,ncomp
+        s(i,jx,jy,jz) = sbnd(i,1)
+      END DO
+    END DO
+  END DO
+
+  jx = nx+1
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO i = 1,ncomp
+        s(i,jx,jy,jz) = sbnd(i,2)
+      END DO
+    END DO
+  END DO
+
+  jy = 0
+  DO jz = 1,nz
+    DO jx = 1,nx
+      DO i = 1,ncomp
+        s(i,jx,jy,jz) = sbnd(i,3)
+      END DO
     END DO
   END DO
 
   jy = ny+1
   DO jz = 1,nz
     DO jx = 1,nx
-
-      ConditionNumber = jinit(jx,jy,jz)
-
-      IF (ConditionNumber == 0) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Portion of JY = ny+1 boundary is not initialized'
-        WRITE(*,*) ' Missing initialization at jx = ',jx
-        WRITE(*,*) ' Missing initialization at jz = ',jz
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-
-      DO ik = 1,ncomp+nspec
-        sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
-        sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
-      END DO
-
       DO i = 1,ncomp
-        s(i,jx,jy,jz)        = scond(i,ConditionNumber)
+        s(i,jx,jy,jz) = sbnd(i,4)
       END DO
-
-      DO kk = 1,ngas
-        spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
-        spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
-      END DO
-
-      do ix = 1,nexchange
-        spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
-      end do
-      DO ix = 1,nexchange+nexch_sec
-        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
-      END DO
-
-      DO is = 1,nsurf
-        spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
-        IF (iedl(is) == 0) THEN
-          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
-        END IF
-      END DO
-      DO is = 1,nsurf+nsurf_sec
-        spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
-      END DO
-
-      t(jx,jy,jz) = tempcond(ConditionNumber)
-      por(jx,jy,jz) = porcond(ConditionNumber)
-
-
     END DO
   END DO
-
-END IF   !!  End of NY block
-
-IF (nz > 1) THEN
-
-  jz = 0
-  DO jy = 1,ny
-    DO jx = 1,nx
-
-      ConditionNumber = jinit(jx,jy,jz)
-
-      IF (ConditionNumber == 0) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Portion of JZ = 0 boundary is not initialized'
-        WRITE(*,*) ' Missing initialization at jx = ',jx
-        WRITE(*,*) ' Missing initialization at jy = ',jy
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-
-      DO ik = 1,ncomp+nspec
-        sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
-        sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
-      END DO
-
-      DO i = 1,ncomp
-        s(i,jx,jy,jz)        = scond(i,ConditionNumber)
-      END DO
-
-      DO kk = 1,ngas
-        spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
-        spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
-      END DO
-
-      do ix = 1,nexchange
-        spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
-      end do
-      DO ix = 1,nexchange+nexch_sec
-        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
-      END DO
-
-      DO is = 1,nsurf
-        spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
-        IF (iedl(is) == 0) THEN
-          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
-        END IF
-      END DO
-      DO is = 1,nsurf+nsurf_sec
-        spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
-      END DO
-
-      t(jx,jy,jz) = tempcond(ConditionNumber)
-      por(jx,jy,jz) = porcond(ConditionNumber)
-
-
-    END DO
-  END DO
-
-  jz = nz+1
-  DO jy = 1,ny
-    DO jx = 1,nx
-
-      ConditionNumber = jinit(jx,jy,jz)
-
-      IF (ConditionNumber == 0) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Portion of JZ = nz+1 boundary is not initialized'
-        WRITE(*,*) ' Missing initialization at jx = ',jx
-        WRITE(*,*) ' Missing initialization at jy = ',jy
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-
-      DO ik = 1,ncomp+nspec
-        sp10(ik,jx,jy,jz)    = spcond10(ik,ConditionNumber)
-        sp(ik,jx,jy,jz)      = spcond(ik,ConditionNumber)
-      END DO
-
-      DO i = 1,ncomp
-        s(i,jx,jy,jz)        = scond(i,ConditionNumber)
-      END DO
-
-      DO kk = 1,ngas
-        spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
-        spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
-      END DO
-
-      do ix = 1,nexchange
-        spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
-      end do
-      DO ix = 1,nexchange+nexch_sec
-        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
-      END DO
-
-      DO is = 1,nsurf
-        spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
-        IF (iedl(is) == 0) THEN
-          LogPotential(is,jx,jy,jz) = LogPotentialInit(is,ConditionNumber)
-        END IF
-      END DO
-      DO is = 1,nsurf+nsurf_sec
-        spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,ConditionNumber)
-      END DO
-
-      t(jx,jy,jz) = tempcond(ConditionNumber)
-      por(jx,jy,jz) = porcond(ConditionNumber)
-
-
-    END DO
-  END DO
-
-END IF    !! End of NZ block
-
-
-
-ELSE   !! Conventional treatment of boundaries as corresponding to an entire boundary face
-
-DO i = 1,6
-  jc(i) = 2   ! Initialize (and make default) a flux boundary
-END DO
-
-IF (ALLOCATED(spb)) THEN
-  DEALLOCATE(spb)
-  ALLOCATE(spb(ncomp+nspec,6))
-ELSE
-  ALLOCATE(spb(ncomp+nspec,6))
-END IF
-IF (ALLOCATED(spbgas)) THEN
-  DEALLOCATE(spbgas)
-  ALLOCATE(spbgas(ngas,6))
-ELSE
-  ALLOCATE(spbgas(ngas,6))
-END IF
-IF (ALLOCATED(spexb)) THEN
-  DEALLOCATE(spexb)
-  ALLOCATE(spexb(nexchange+nexch_sec,6))
-ELSE
-  ALLOCATE(spexb(nexchange+nexch_sec,6))
-END IF
-IF (ALLOCATED(spsurfb)) THEN
-  DEALLOCATE(spsurfb)
-  ALLOCATE(spsurfb(nsurf+nsurf_sec,6))
-ELSE
-  ALLOCATE(spsurfb(nsurf+nsurf_sec,6))
-END IF
-
-spb = 0.0
-spbgas = 0.0
-spexb = 0.0
-spsurfb = 0.0
-
-CALL read_bound(nout,nchem,nx,ny,nz,ncomp,nspec,ngas,nkin,nexchange,nexch_sec,  &
-   nsurf,nsurf_sec)
-!ENDIF
-
-IF (ALLOCATED(AqueousToBulkCond)) THEN
-  DEALLOCATE(AqueousToBulkCond)
-END IF
-
-IF (ALLOCATED(sbnd)) THEN
-  DEALLOCATE(sbnd)
-  ALLOCATE(sbnd(ncomp,6))
-ELSE
-  ALLOCATE(sbnd(ncomp,6))
-END IF
-IF (ALLOCATED(s_local)) THEN
-  DEALLOCATE(s_local)
-  ALLOCATE(s_local(ncomp))
-ELSE
-  ALLOCATE(s_local(ncomp))
-END IF
-
-sbnd = 0.0
-s_local = 0.0
-
-DO nbnd = 1,6
-  CALL bdcalc(ncomp,nspec,nbnd)
-  DO i = 1,ncomp
-    sbnd(i,nbnd) = s_local(i)
-  END DO
-END DO
-
-!!!  Set the boundaries
-
-jx = 0
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO i = 1,ncomp
-      s(i,jx,jy,jz) = sbnd(i,1)
-    END DO
-  END DO
-END DO
-
-jx = nx+1
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO i = 1,ncomp
-      s(i,jx,jy,jz) = sbnd(i,2)
-    END DO
-  END DO
-END DO
-
-jy = 0
-DO jz = 1,nz
-  DO jx = 1,nx
-    DO i = 1,ncomp
-      s(i,jx,jy,jz) = sbnd(i,3)
-    END DO
-  END DO
-END DO
-
-jy = ny+1
-DO jz = 1,nz
-  DO jx = 1,nx
-    DO i = 1,ncomp
-      s(i,jx,jy,jz) = sbnd(i,4)
-    END DO
-  END DO
-END DO
 
 END IF
 
@@ -5799,331 +5675,332 @@ CALL readblock(nin,nout,section,found,ncount)
 OutputTimeUnits = 'years'
 
 IF (found) THEN
-WRITE(*,*) ' Output block found'
-WRITE(*,*)
+  
+  WRITE(*,*) ' Output block found'
+  WRITE(*,*)
 
-CALL units_timeOutput(nout,section,time_scale)
+  CALL units_timeOutput(nout,section,time_scale)
 
-nstop = 0
-parchar = 'spatial_profile'
-parchar2 = 'spatial_profile_at_time'
-parfind = ' '
-realmult= 0.0
-CALL read_snapshot(nout,lchar,parchar,parchar2,parfind,realmult,lenarray,section)
-
-IF (parfind == 'spatial_profile' .OR. parfind == 'spatial_profile_at_time') THEN
-  CONTINUE
-ELSE
-  parchar = 'read_snapshotfile'
-  parfind = ' '
-  CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
-  IF (parfind == 'read_snapshotfile') THEN
-  lenarray=0
-  OPEN(UNIT=23,FILE=dumstring,STATUS='old')
-  FileTemp = dumstring
-  CALL stringlen(FileTemp,FileNameLength)
-  do while (ierr == 0)
-    lenarray = lenarray + 1
-    READ(23,*,iostat=IERR) realmult_dum(lenarray) 
-  enddo
-  realmult=realmult_dum(1:lenarray-1)
-  ENDIF
-ENDIF
-
-IF (parfind == ' ') THEN
-  WRITE(*,*) ' Timestepping off--initialization only'
   nstop = 0
-ELSE
-  IF (realmult(1) <= 0.0) THEN
-    WRITE(*,*) ' Timestepping turned on, but no time provided'
-    WRITE(*,*) ' Doing initialization only'
+  parchar = 'spatial_profile'
+  parchar2 = 'spatial_profile_at_time'
+  parfind = ' '
+  realmult= 0.0
+  CALL read_snapshot(nout,lchar,parchar,parchar2,parfind,realmult,lenarray,section)
+
+  IF (parfind == 'spatial_profile' .OR. parfind == 'spatial_profile_at_time') THEN
+    CONTINUE
+  ELSE
+    parchar = 'read_snapshotfile'
+    parfind = ' '
+    CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
+    IF (parfind == 'read_snapshotfile') THEN
+    lenarray=0
+    OPEN(UNIT=23,FILE=dumstring,STATUS='old')
+    FileTemp = dumstring
+    CALL stringlen(FileTemp,FileNameLength)
+    do while (ierr == 0)
+      lenarray = lenarray + 1
+      READ(23,*,iostat=IERR) realmult_dum(lenarray) 
+    enddo
+    realmult=realmult_dum(1:lenarray-1)
+    ENDIF
+  ENDIF
+
+  IF (parfind == ' ') THEN
+    WRITE(*,*) ' Timestepping off--initialization only'
     nstop = 0
   ELSE
-    IF (parfind == 'read_snapshotfile') THEN
-    nstop = (lenarray-1)
+    IF (realmult(1) <= 0.0) THEN
+      WRITE(*,*) ' Timestepping turned on, but no time provided'
+      WRITE(*,*) ' Doing initialization only'
+      nstop = 0
     ELSE
-    nstop = lenarray
-    ENDIF
-
-    IF (ALLOCATED(prtint)) THEN
-      DEALLOCATE(prtint)
-      ALLOCATE(prtint(nstop))
-    ELSE
-      ALLOCATE(prtint(nstop))
-    END IF
-
-    WRITE(*,*) ' Timestepping on--output files written'
-    DO i = 1,nstop
-      prtint(i) = realmult(i)
-      WRITE(*,*) realmult(i)
-    END DO
-    WRITE(*,*)
-  END IF
-END IF
-
-parchar2 = ''
-
-OutputTimeScale = 1.0d0/time_scale
-
-!  Convert units if necessary
-
-DO i = 1,nstop
-  prtint(i) = prtint(i)*time_scale
-END DO
-
-!!  Beginning of minseries definition ********************
-
-!! This reads the file names and the location of the mineral time series curves
-minseries = 0
-CALL read_minseries(nout,minseries,nx,ny,nz)
-
-DO ll = 1,minseries
-
-  IF (jxminseries(ll) > nx) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified a mineral series plot location > NX'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  IF (jyminseries(ll) > ny) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified a plot location > NY'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  IF (jzminseries(ll) > nz) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified a plot location > NZ'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-END DO
-
-
-!!  End of minseries definition ********************
-
-!! This reads the file names and the location of the breakthrough curves
-nseries = 0
-CALL read_series(nout,nseries,nx,ny,nz)
-
-iplotall = 0
-
-!! This reads the species to be written to the breakthrough files
-
-parchar = 'time_series_print'
-parfind = ' '
-lenarray = 0
-nplot = 0
-
-CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
-IF (parfind == ' ') THEN    ! Assume default
-  WRITE(*,*) ' Parfind is blank'
-  WRITE(*,*)
-  WRITE(*,*) ' Tracking all species at time series locations'
-  WRITE(*,*)
-  iplotall = 1
-  nplot = ncomp
-  DO ll = 1,nplot
-    iplot(ll) = ll
-  END DO
-ELSE
-  IF (stringarray(1) == ' ') THEN
-    WRITE(*,*) ' First string is blank'
-    WRITE(*,*)
-    WRITE(*,*) ' Tracking all species at time series locations'
-    WRITE(*,*)
-    iplotall = 1
-    nplot = ncomp
-    DO ll = 1,nplot
-      iplot(ll) = ll
-    END DO
-  ELSE IF (stringarray(1) == 'all') THEN
-    iplotall = 1
-    WRITE(*,*)
-    WRITE(*,*) ' Tracking all species at time series locations'
-    WRITE(*,*)
-    nplot = ncomp
-    DO ll = 1,nplot
-      iplot(ll) = ll
-    END DO
-  ELSE
-
-!  Check to see that strings match species names
-
-    iplotph = 0
-    nplot = lenarray
-    DO ll = 1,nplot
-      iplot(ll) = 0
-      IF (stringarray(ll) == 'pH' .OR. stringarray(ll) == 'ph') THEN
-        IF (ikph /= 0) THEN
-          iplot(ll) = ikph
-          iplotph = ll
-        ELSE
-          WRITE(*,*) '       ERROR '
-          WRITE(*,*) ' pH not included in problem, but you are asking to write pH in'
-          WRITE(*,*) '   time series file'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-!!!        ELSE IF (stringarray(ll) == 'minerals' .OR. stringarray(ll) == 'Minerals' .OR. stringarray(ll) == 'MINERALS') THEN
-!!!          iplotMinerals = .TRUE.
+      IF (parfind == 'read_snapshotfile') THEN
+      nstop = (lenarray-1)
       ELSE
-        DO ik = 1,ncomp
-          IF (ulab(ik) == stringarray(ll)) THEN
-            iplot(ll) = ik
-          END IF
-        END DO
-        IF (iplot(ll) == 0) THEN
-          dumstring = stringarray(ll)
-          CALL stringlen(dumstring,nlength)
-          WRITE(*,*)
-          WRITE(*,*) ' Plotting species not found in list: ',dumstring(1:nlength)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
+      nstop = lenarray
+      ENDIF
+
+      IF (ALLOCATED(prtint)) THEN
+        DEALLOCATE(prtint)
+        ALLOCATE(prtint(nstop))
+      ELSE
+        ALLOCATE(prtint(nstop))
       END IF
-    END DO
-  END IF
-END IF
 
-IF (ALLOCATED(TimeSeriesSpecies)) THEN
-  DEALLOCATE(TimeSeriesSpecies)
-END IF
-ALLOCATE(TimeSeriesSpecies(nplot))
-TimeSeriesSpecies = stringarray(1:nplot)
-
-parchar = 'time_series_units'
-parfind = ' '
-lenarray = 0
-
-CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
-IF (parfind == ' ') THEN    ! No units provided
-  DO ll = 1,nplot
-    stringarray(ll) = ' '
-  END DO
-  IF (ALLOCATED(TimeSeriesUnits)) THEN
-    DEALLOCATE(TimeSeriesUnits)
-  END IF
-  ALLOCATE(TimeSeriesUnits(nplot))
-  DO ll = 1,nplot
-    TimeSeriesUnits(ll) = stringarray(ll)
-  END DO
-ELSE
-  IF (ALLOCATED(TimeSeriesUnits)) THEN
-    DEALLOCATE(TimeSeriesUnits)
-  END IF
-  ALLOCATE(TimeSeriesUnits(nplot))
-  DO ll = 1,nplot
-    TimeSeriesUnits(ll) = stringarray(ll)
-  END DO
-END IF
-
-parchar = 'time_series_output'
-parfind = ' '
-CALL read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
-IF (parfind == ' ') THEN    !  If specific output not found, then look for an interval
-
-  parchar = 'time_series_interval'
-  parfind = ' '
-  intjunk = 0
-  CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
-  IF (parfind == ' ') THEN  ! Parameter to set time series interval not found
-    interval = 1            ! Use default
-  ELSE
-    IF (intjunk == 0) THEN
-      interval = 1         ! Use default
-    ELSE
-      interval = intjunk
+      WRITE(*,*) ' Timestepping on--output files written'
+      DO i = 1,nstop
+        prtint(i) = realmult(i)
+        WRITE(*,*) realmult(i)
+      END DO
+      WRITE(*,*)
     END IF
   END IF
 
+  parchar2 = ''
+
+  OutputTimeScale = 1.0d0/time_scale
+
+  !  Convert units if necessary
+
+  DO i = 1,nstop
+    prtint(i) = prtint(i)*time_scale
+  END DO
+
+  !!  Beginning of minseries definition ********************
+
+  !! This reads the file names and the location of the mineral time series curves
+  minseries = 0
+  CALL read_minseries(nout,minseries,nx,ny,nz)
+
+  DO ll = 1,minseries
+
+    IF (jxminseries(ll) > nx) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified a mineral series plot location > NX'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    IF (jyminseries(ll) > ny) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified a plot location > NY'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    IF (jzminseries(ll) > nz) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified a plot location > NZ'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+  END DO
+
+  !!  End of minseries definition ********************
+
+  !! This reads the file names and the location of the breakthrough curves
+  nseries = 0
+  CALL read_series(nout,nseries,nx,ny,nz)
+
+  iplotall = 0
+
+  !! This reads the species to be written to the breakthrough files
+
+  parchar = 'time_series_print'
+  parfind = ' '
+  lenarray = 0
+  nplot = 0
+
+  CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
+  IF (parfind == ' ') THEN    ! Assume default
+    WRITE(*,*) ' Parfind is blank'
+    WRITE(*,*)
+    WRITE(*,*) ' Tracking all species at time series locations'
+    WRITE(*,*)
+    iplotall = 1
+    nplot = ncomp
+    DO ll = 1,nplot
+      iplot(ll) = ll
+    END DO
+  ELSE
+    IF (stringarray(1) == ' ') THEN
+      WRITE(*,*) ' First string is blank'
+      WRITE(*,*)
+      WRITE(*,*) ' Tracking all species at time series locations'
+      WRITE(*,*)
+      iplotall = 1
+      nplot = ncomp
+      DO ll = 1,nplot
+        iplot(ll) = ll
+      END DO
+    ELSE IF (stringarray(1) == 'all') THEN
+      iplotall = 1
+      WRITE(*,*)
+      WRITE(*,*) ' Tracking all species at time series locations'
+      WRITE(*,*)
+      nplot = ncomp
+      DO ll = 1,nplot
+        iplot(ll) = ll
+      END DO
+    ELSE
+
+  !  Check to see that strings match species names
+
+      iplotph = 0
+      nplot = lenarray
+      DO ll = 1,nplot
+        iplot(ll) = 0
+        IF (stringarray(ll) == 'pH' .OR. stringarray(ll) == 'ph') THEN
+          IF (ikph /= 0) THEN
+            iplot(ll) = ikph
+            iplotph = ll
+          ELSE
+            WRITE(*,*) '       ERROR '
+            WRITE(*,*) ' pH not included in problem, but you are asking to write pH in'
+            WRITE(*,*) '   time series file'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+  !!!        ELSE IF (stringarray(ll) == 'minerals' .OR. stringarray(ll) == 'Minerals' .OR. stringarray(ll) == 'MINERALS') THEN
+  !!!          iplotMinerals = .TRUE.
+        ELSE
+          DO ik = 1,ncomp
+            IF (ulab(ik) == stringarray(ll)) THEN
+              iplot(ll) = ik
+            END IF
+          END DO
+          IF (iplot(ll) == 0) THEN
+            dumstring = stringarray(ll)
+            CALL stringlen(dumstring,nlength)
+            WRITE(*,*)
+            WRITE(*,*) ' Plotting species not found in list: ',dumstring(1:nlength)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        END IF
+      END DO
+    END IF
+  END IF
+
+  IF (ALLOCATED(TimeSeriesSpecies)) THEN
+    DEALLOCATE(TimeSeriesSpecies)
+  END IF
+  ALLOCATE(TimeSeriesSpecies(nplot))
+  TimeSeriesSpecies = stringarray(1:nplot)
+
+  parchar = 'time_series_units'
+  parfind = ' '
+  lenarray = 0
+
+  CALL read_multstring(nout,lchar,parchar,parfind,stringarray,lenarray,section)
+  IF (parfind == ' ') THEN    ! No units provided
+    DO ll = 1,nplot
+      stringarray(ll) = ' '
+    END DO
+    IF (ALLOCATED(TimeSeriesUnits)) THEN
+      DEALLOCATE(TimeSeriesUnits)
+    END IF
+    ALLOCATE(TimeSeriesUnits(nplot))
+    DO ll = 1,nplot
+      TimeSeriesUnits(ll) = stringarray(ll)
+    END DO
+  ELSE
+    IF (ALLOCATED(TimeSeriesUnits)) THEN
+      DEALLOCATE(TimeSeriesUnits)
+    END IF
+    ALLOCATE(TimeSeriesUnits(nplot))
+    DO ll = 1,nplot
+      TimeSeriesUnits(ll) = stringarray(ll)
+    END DO
+  END IF
+
+  parchar = 'time_series_output'
+  parfind = ' '
+  CALL read_multpar(nout,lchar,parchar,parfind,realmult,lenarray,section)
+  IF (parfind == ' ') THEN    !  If specific output not found, then look for an interval
+
+    parchar = 'time_series_interval'
+    parfind = ' '
+    intjunk = 0
+    CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
+    IF (parfind == ' ') THEN  ! Parameter to set time series interval not found
+      interval = 1            ! Use default
+    ELSE
+      IF (intjunk == 0) THEN
+        interval = 1         ! Use default
+      ELSE
+        interval = intjunk
+      END IF
+    END IF
+
+    IF (ALLOCATED(OutputTime)) THEN
+      DEALLOCATE(OutputTime)
+    END IF
+    ALLOCATE(OutputTime(1))
+
+    OutputTime(1) = 0.0
+  ELSE
+    NumOutputTimes = lenarray
+
+    IF (ALLOCATED(OutputTime)) THEN
+      DEALLOCATE(OutputTime)
+    END IF
+    ALLOCATE(OutputTime(NumOutputTimes+1))
+
+    DO i = 1,NumOutputTimes
+      OutputTime(i) = realmult(i)*time_scale
+    END DO
+    interval = 0
+  END IF
+
+  time_scale = 1.0d0
+
+  DO ll = 1,nseries
+    IF (jxseries(ll) > nx) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified a plot location > NX'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    IF (jyseries(ll) > ny) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified a plot location > NY'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    IF (jzseries(ll) > nz) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified a plot location > NZ'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+  END DO
+
+  DO ll = 1,nisotopeseries
+    IF (jxisotopeseries(ll) > nx) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified an isotope plot location > NX'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    IF (jyisotopeseries(ll) > ny) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified an isotope plot location > NY'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    IF (jzisotopeseries(ll) > nz) THEN
+      WRITE(*,*)
+      WRITE(*,*) '  You have specified an isotope plot location > NZ'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+  END DO
+
+ELSE
+
+  WRITE(*,*)
+  WRITE(*,*) '        NO OUTPUT TIMES SPECIFIED'
+  WRITE(*,*) '   TIMESTEPPING OFF--INITIALIZATION ONLY'
+  WRITE(*,*)
+  nstop = 0
   IF (ALLOCATED(OutputTime)) THEN
     DEALLOCATE(OutputTime)
   END IF
   ALLOCATE(OutputTime(1))
-
   OutputTime(1) = 0.0
-ELSE
-  NumOutputTimes = lenarray
-
-  IF (ALLOCATED(OutputTime)) THEN
-    DEALLOCATE(OutputTime)
-  END IF
-  ALLOCATE(OutputTime(NumOutputTimes+1))
-
-  DO i = 1,NumOutputTimes
-    OutputTime(i) = realmult(i)*time_scale
-  END DO
-  interval = 0
-END IF
-
-time_scale = 1.0d0
-
-DO ll = 1,nseries
-  IF (jxseries(ll) > nx) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified a plot location > NX'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  IF (jyseries(ll) > ny) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified a plot location > NY'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  IF (jzseries(ll) > nz) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified a plot location > NZ'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-END DO
-
-DO ll = 1,nisotopeseries
-  IF (jxisotopeseries(ll) > nx) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified an isotope plot location > NX'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  IF (jyisotopeseries(ll) > ny) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified an isotope plot location > NY'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  IF (jzisotopeseries(ll) > nz) THEN
-    WRITE(*,*)
-    WRITE(*,*) '  You have specified an isotope plot location > NZ'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-END DO
-
-ELSE
-
-WRITE(*,*)
-WRITE(*,*) '        NO OUTPUT TIMES SPECIFIED'
-WRITE(*,*) '   TIMESTEPPING OFF--INITIALIZATION ONLY'
-WRITE(*,*)
-nstop = 0
-IF (ALLOCATED(OutputTime)) THEN
-  DEALLOCATE(OutputTime)
-END IF
-ALLOCATE(OutputTime(1))
-OutputTime(1) = 0.0
+  
 END IF
 
 MakeMovie = .FALSE.
@@ -6131,6 +6008,7 @@ parchar = 'MakeMovie'
 parfind = ' '
 CALL read_logical(nout,lchar,parchar,parfind,MakeMovie)
 
+!!! ***************  Aqueous Flux Series   *********************************
 call read_AqueousFluxSeries(nout,ncomp,nx,ny,nz)
 
 call read_FluxWeightedConcentration(nout,ncomp,nx,ny,nz)
@@ -6236,7 +6114,6 @@ IF(nAqueousFluxSeriesFile /= 0) jzAqueousFluxSeries_hi(1:nAqueousFluxSeriesFile)
               workint1(1:nAqueousFluxSeriesFile)
 DEALLOCATE(workint1)
 
-
 i = size(jxFluxWeightedConcentration_lo,1)
 ALLOCATE(workint1(i))
 workint1 = jxFluxWeightedConcentration_lo
@@ -6291,7 +6168,8 @@ IF(nFluxWeightedConcentrationFile /= 0) jzFluxWeightedConcentration_hi(1:nFluxWe
               workint1(1:nFluxWeightedConcentrationFile)
 DEALLOCATE(workint1)
 
-!  ***************END OF OUTPUT********************************
+!!! ****************END OF OUTPUT********************************
+!!! ***********************************************************
 
 !  *****************PEST BLOCK***********************
 
