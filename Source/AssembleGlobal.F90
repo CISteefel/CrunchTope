@@ -44,8 +44,8 @@
 !!!      ****************************************
     
 SUBROUTINE AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,  &
-    nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time,&
-    user,amatpetsc,nBoundaryConditionZone)
+        nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time,&
+        user,amatpetsc,nBoundaryConditionZone)
 USE crunchtype
 USE params
 USE runtime
@@ -196,7 +196,7 @@ REAL(DP)        :: check2
 REAL(DP)        :: check3
 REAL(DP)        :: check4
 REAL(DP)        :: qgdum
-REAL(DP)                                                  :: A_transpi
+REAL(DP)                                       :: A_transpi
 
 INTEGER(I4B)                                   :: pos_IonS
 INTEGER(I4B)                                   :: pos_GammaWater
@@ -216,8 +216,8 @@ REAL(DP), DIMENSION(ncomp + nsurf + nexchange + npot + 1 + 1,ncomp + nsurf + nex
 CHARACTER (LEN=3)                              :: ulabprint
 
 !! Time normalized used if time series only defined for 1 representative year:
-REAL(DP)        :: time_norm
-REAL(DP), DIMENSION(:), ALLOCATABLE                   :: temp_dum
+REAL(DP)                                       :: time_norm
+REAL(DP), DIMENSION(:), ALLOCATABLE            :: temp_dum
 
 !********************* PETSc declarations ********************************
 PetscFortranAddr                                                    user(6)
@@ -238,7 +238,7 @@ faraday = 96485.0
 
 !***************insert PETSc index initialization ******************
 
-  ipetsc = 0
+ipetsc = 0
 
 !*******************end PETSc index initialization ***************
 
