@@ -6174,10 +6174,10 @@ DEALLOCATE(workint1)
 !  *****************PEST BLOCK***********************
 
 IF (ALLOCATED(PestScale)) THEN
-DEALLOCATE(PestScale)
-ALLOCATE(PestScale(ncomp))
+  DEALLOCATE(PestScale)
+  ALLOCATE(PestScale(ncomp))
 ELSE
-ALLOCATE(PestScale(ncomp))
+  ALLOCATE(PestScale(ncomp))
 END IF
 PestScale = 1.0d0
 
@@ -6186,7 +6186,7 @@ CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
 
-CALL PestScaleOutput(nout)
+  CALL PestScaleOutput(nout)
 
 END IF
 
@@ -6199,68 +6199,68 @@ WRITE(*,*)
 WRITE(iunit2,1011) tstep,delt
 WRITE(iunit2,*)
 IF (jpor == 1) THEN
-WRITE(iunit2,*) '--> Porosity calculated from mineral volume fractions'
-WRITE(iunit2,*) '----> Porosity is updated due to mineral dissolution and precipitation reactions'
-WRITE(*,*)      '--> Porosity calculated from mineral volume fractions'
-WRITE(*,*)      '----> Porosity is updated due to mineral dissolution and precipitation reactions'
+  WRITE(iunit2,*) '--> Porosity calculated from mineral volume fractions'
+  WRITE(iunit2,*) '----> Porosity is updated due to mineral dissolution and precipitation reactions'
+  WRITE(*,*)      '--> Porosity calculated from mineral volume fractions'
+  WRITE(*,*)      '----> Porosity is updated due to mineral dissolution and precipitation reactions'
 ELSE IF (jpor == 2) THEN
-WRITE(iunit2,*) '--> Porosity is read from file'
-WRITE(iunit2,*) '----> No update of porosity'
-WRITE(*,*)      '--> Porosity is read from file'
-WRITE(*,*)      '----> No update of porosity'
+  WRITE(iunit2,*) '--> Porosity is read from file'
+  WRITE(iunit2,*) '----> No update of porosity'
+  WRITE(*,*)      '--> Porosity is read from file'
+  WRITE(*,*)      '----> No update of porosity'
 ELSE IF (jpor == 3) THEN
-WRITE(iunit2,*) '--> Porosity is read from file'
-WRITE(iunit2,*) '----> With update of porosity after renormalization of mineral volume fractions'
-WRITE(*,*)      '--> Porosity is read from file'
-WRITE(*,*)      '--> With update of porosity after renormalization of mineral volume fractions'
+  WRITE(iunit2,*) '--> Porosity is read from file'
+  WRITE(iunit2,*) '----> With update of porosity after renormalization of mineral volume fractions'
+  WRITE(*,*)      '--> Porosity is read from file'
+  WRITE(*,*)      '--> With update of porosity after renormalization of mineral volume fractions'
 ELSE IF (jpor == 0) THEN
-WRITE(iunit2,*) '--> Porosity calculated from mineral volume fractions'
-WRITE(iunit2,*) '----> No update of porosity'
-WRITE(*,*)      '--> Porosity calculated from mineral volume fractions'
-WRITE(*,*)      '----> No update of porosity'
+  WRITE(iunit2,*) '--> Porosity calculated from mineral volume fractions'
+  WRITE(iunit2,*) '----> No update of porosity'
+  WRITE(*,*)      '--> Porosity calculated from mineral volume fractions'
+  WRITE(*,*)      '----> No update of porosity'
 ELSE
-WRITE(iunit2,*) '--> Porosity set by "fix_porosity" or "set_porosity" keywords'
-WRITE(iunit2,*) '----> No update of porosity'
-WRITE(*,*)      '--> Porosity set by "fix_porosity" or "set_porosity" keywords'
-WRITE(*,*)      '----> No update of porosity'
+  WRITE(iunit2,*) '--> Porosity set by "fix_porosity" or "set_porosity" keywords'
+  WRITE(iunit2,*) '----> No update of porosity'
+  WRITE(*,*)      '--> Porosity set by "fix_porosity" or "set_porosity" keywords'
+  WRITE(*,*)      '----> No update of porosity'
 END IF
 
 IF (igamma == 0) THEN
-WRITE(iunit2,*) '--> Unit activity coefficients'
-WRITE(*,*) '--> Unit activity coefficients'
+  WRITE(iunit2,*) '--> Unit activity coefficients'
+  WRITE(*,*) '--> Unit activity coefficients'
 ELSE IF (igamma == 2) THEN
-WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
-WRITE(iunit2,*) '--> Dependence on activity coefficients'
-WRITE(iunit2,*) '    NEGLECTED in Jacobian calculation'
-WRITE(*,*) '--> Extended Debye-Huckel activity model used'
-WRITE(*,*) '--> Dependence on activity coefficients'
-WRITE(*,*) '    NEGLECTED in Jacobian calculation'
+  WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
+  WRITE(iunit2,*) '--> Dependence on activity coefficients'
+  WRITE(iunit2,*) '    NEGLECTED in Jacobian calculation'
+  WRITE(*,*) '--> Extended Debye-Huckel activity model used'
+  WRITE(*,*) '--> Dependence on activity coefficients'
+  WRITE(*,*) '    NEGLECTED in Jacobian calculation'
 
 ELSE IF (igamma == 3) THEN
-WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
-WRITE(iunit2,*) '--> Activity coefficients only computed'
-WRITE(iunit2,*) '    at beginning of time step '
-WRITE(*,*) '--> Extended Debye-Huckel activity model used'
-WRITE(*,*) '--> Activity coefficients only computed'
-WRITE(*,*) '    at beginning of time step '
+  WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
+  WRITE(iunit2,*) '--> Activity coefficients only computed'
+  WRITE(iunit2,*) '    at beginning of time step '
+  WRITE(*,*) '--> Extended Debye-Huckel activity model used'
+  WRITE(*,*) '--> Activity coefficients only computed'
+  WRITE(*,*) '    at beginning of time step '
 
 ELSE
-WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
-WRITE(iunit2,*) '--> Dependence on activity coefficients'
-WRITE(iunit2,*) '    INCLUDED in Jacobian calculation'
-WRITE(*,*) '--> Extended Debye-Huckel activity model used'
-WRITE(*,*) '--> Dependence on activity coefficients'
-WRITE(*,*) '    INCLUDED in Jacobian calculation'
+  WRITE(iunit2,*) '--> Extended Debye-Huckel activity model used'
+  WRITE(iunit2,*) '--> Dependence on activity coefficients'
+  WRITE(iunit2,*) '    INCLUDED in Jacobian calculation'
+  WRITE(*,*) '--> Extended Debye-Huckel activity model used'
+  WRITE(*,*) '--> Dependence on activity coefficients'
+  WRITE(*,*) '    INCLUDED in Jacobian calculation'
 END IF
 WRITE(iunit2,*)
 IF (jtemp == 0) THEN
-tgradprt = 0.0
-WRITE(iunit2,2002) tinit
-WRITE(iunit2,2012) tgradprt
+  tgradprt = 0.0
+  WRITE(iunit2,2002) tinit
+  WRITE(iunit2,2012) tgradprt
 ELSE
-tgradprt = tgrad
-WRITE(iunit2,2002) tinit
-WRITE(iunit2,2012) tgradprt
+  tgradprt = tgrad
+  WRITE(iunit2,2002) tinit
+  WRITE(iunit2,2012) tgradprt
 END IF
 WRITE(iunit2,*)
 WRITE(iunit2,1013)
@@ -6294,616 +6294,6 @@ ELSE
 END IF
 END IF
 
-!  *****************MODFLOW BLOCK***********************
-
-nwells = 0
-ncnh = 0
-nrivers = 0
-ndrains = 0
-
-MODFLOWfile = ' '
-
-WRITE(*,*) ' Reading MODFLOW block'
-
-section = 'modflow'
-CALL readblock(nin,nout,section,found,ncount)
-
-IF (found) THEN
-WRITE(*,*) ' MODFLOW block found'
-
-CALL read_MODFLOWfile(nout,lfile,mxwell,mxrivr,mxdrn)
-
-IF (.NOT. modflow .OR. MODFLOWfile == ' ') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Modflow file not specified '
-  WRITE(*,*) ' MODFLOW keyword block should not be included without a Modflow *.hff file'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-
-IF (ALLOCATED(qcnh)) THEN
-  DEALLOCATE(qcnh)
-  ALLOCATE(qcnh(ndimdummy))  !  Read this one from the *.hff file
-ELSE
-  ALLOCATE(qcnh(ndimdummy))  !  Read this one from the *.hff file
-END IF
-IF (ALLOCATED(q)) THEN
-  DEALLOCATE(q)
-  ALLOCATE(q(mxwell))
-ELSE
-  ALLOCATE(q(mxwell))
-END IF
-IF (ALLOCATED(qriver)) THEN
-  DEALLOCATE(qriver)
-  ALLOCATE(qriver(mxrivr))
-ELSE
-  ALLOCATE(qriver(mxrivr))
-END IF
-IF (ALLOCATED(qdrain)) THEN
-  DEALLOCATE(qdrain)
-  ALLOCATE(qdrain(mxdrn))
-ELSE
-  ALLOCATE(qdrain(mxdrn))
-END IF
-IF (ALLOCATED(cnhIn)) THEN
-  DEALLOCATE(cnhIn)
-  ALLOCATE(cnhIn(ndimdummy))
-ELSE
-  ALLOCATE(cnhIn(ndimdummy))
-END IF
-IF (ALLOCATED(wellIn)) THEN
-  DEALLOCATE(wellIn)
-  ALLOCATE(wellIn(mxwell))
-ELSE
-  ALLOCATE(wellIn(mxwell))
-END IF
-IF (ALLOCATED(riverIn)) THEN
-  DEALLOCATE(riverIn)
-  ALLOCATE(riverIn(mxrivr))
-ELSE
-  ALLOCATE(riverIn(mxrivr))
-END IF
-IF (ALLOCATED(jxWellLoc)) THEN
-  DEALLOCATE(jxWellLoc)
-  ALLOCATE(jxWellLoc(mxwell))
-ELSE
-  ALLOCATE(jxWellLoc(mxwell))
-END IF
-IF (ALLOCATED(jyWellLoc)) THEN
-  DEALLOCATE(jyWellLoc)
-  ALLOCATE(jyWellLoc(mxwell))
-ELSE
-  ALLOCATE(jyWellLoc(mxwell))
-END IF
-IF (ALLOCATED(jzWellLoc)) THEN
-  DEALLOCATE(jzWellLoc)
-  ALLOCATE(jzWellLoc(mxwell))
-ELSE
-  ALLOCATE(jzWellLoc(mxwell))
-END IF
-IF (ALLOCATED(jxRiverLoc)) THEN
-  DEALLOCATE(jxRiverLoc)
-  ALLOCATE(jxRiverLoc(mxrivr))
-ELSE
-  ALLOCATE(jxRiverLoc(mxrivr))
-END IF
-IF (ALLOCATED(jyRiverLoc)) THEN
-  DEALLOCATE(jyRiverLoc)
-  ALLOCATE(jyRiverLoc(mxrivr))
-ELSE
-  ALLOCATE(jyRiverLoc(mxrivr))
-END IF
-IF (ALLOCATED(jzRiverLoc)) THEN
-  DEALLOCATE(jzRiverLoc)
-  ALLOCATE(jzRiverLoc(mxrivr))
-ELSE
-  ALLOCATE(jzRiverLoc(mxrivr))
-END IF
-IF (ALLOCATED(jxDrainLoc)) THEN
-  DEALLOCATE(jxDrainLoc)
-  ALLOCATE(jxDrainLoc(mxdrn))
-ELSE
-  ALLOCATE(jxDrainLoc(mxdrn))
-END IF
-IF (ALLOCATED(jyDrainLoc)) THEN
-  DEALLOCATE(jyDrainLoc)
-  ALLOCATE(jyDrainLoc(mxdrn))
-ELSE
-  ALLOCATE(jyDrainLoc(mxdrn))
-END IF
-IF (ALLOCATED(jzDrainLoc)) THEN
-  DEALLOCATE(jzDrainLoc)
-  ALLOCATE(jzDrainLoc(mxdrn))
-ELSE
-  ALLOCATE(jzDrainLoc(mxdrn))
-END IF
-IF (ALLOCATED(jxHeadLoc)) THEN
-  DEALLOCATE(jxHeadLoc)
-  ALLOCATE(jxHeadLoc(ndimdummy))
-ELSE
-  ALLOCATE(jxHeadLoc(ndimdummy))
-END IF
-IF (ALLOCATED(jyHeadLoc)) THEN
-  DEALLOCATE(jyHeadLoc)
-  ALLOCATE(jyHeadLoc(ndimdummy))
-ELSE
-  ALLOCATE(jyHeadLoc(ndimdummy))
-END IF
-IF (ALLOCATED(jzHeadLoc)) THEN
-  DEALLOCATE(jzHeadLoc)
-  ALLOCATE(jzHeadLoc(ndimdummy))
-ELSE
-  ALLOCATE(jzHeadLoc(ndimdummy))
-END IF
-
-call ModScan(nx,ny,nz,cnhIn,wellIn,riverIn,ndimdummy,mxwell,mxrivr,mxdrn)
-
-REWIND 1
-
-IF (nwells /= mxwell) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' "Nwells" read from "hff" file should match MXWELL from MODFLOW "wel" file'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-IF (ndrains /= mxdrn) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' "Ndrains" read from "hff" file should match MXDRN from MODFLOW "drn" file'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-IF (nrivers/= mxrivr) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' "Nrivers" read from "hff" file should match MXRIVR from MODFLOW "riv" file'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-! Check to see how many geochemical conditions are needed
-
-NeedWellCondition = 0
-DO i = 1,nwells
-  IF (wellIn(I)) THEN
-    NeedWellCondition = NeedWellCondition + 1
-  END IF
-END DO
-
-NeedRiverCondition = 0
-DO i = 1,nrivers
-  IF (riverIn(I)) THEN
-    NeedRiverCondition = NeedRiverCondition + 1
-  END IF
-END DO
-
-NeedHeadCondition = 0
-DO i = 1,ncnh
-  IF (cnhIn(I)) THEN
-    NeedHeadCondition = NeedHeadCondition + 1
-  END IF
-END DO
-
-IF (ALLOCATED(qcnh)) THEN
-  DEALLOCATE(qcnh)
-END IF
-ALLOCATE(qcnh(ncnh))
-
-
-! read in dimensions
-READ(52,*)
-READ(52,*)
-READ(52,*) nztemp,nytemp,nxtemp,nstress,modflowTimeUnits
-READ(52,*)
-READ(52,*)
-READ(52,*)
-IF (nztemp /= nz) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' NZ does not match in MODFLOW and CRUNCH'
-  WRITE(*,*) ' NZ in MODFLOW:  ', nztemp
-  WRITE(*,*) ' NZ in CRUNCH:   ', nz
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-IF (nytemp /= ny) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' NY does not match in MODFLOW and CRUNCH'
-  WRITE(*,*) ' NY in MODFLOW:  ', nytemp
-  WRITE(*,*) ' NY in CRUNCH:   ', ny
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-IF (nxtemp /= nx) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' NX does not match in MODFLOW and CRUNCH'
-  WRITE(*,*) ' NX in MODFLOW:  ', nxtemp
-  WRITE(*,*) ' NX in CRUNCH:   ', nx
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-! Calculate conversion from MODFLOW time units to years
-
-IF (ModFlowTimeUnits == 1) THEN        !  MODFLOW time units in seconds
-  ModFlowCnv = 365.0*24.0*60.0*60.0
-ELSE IF (ModFlowTimeUnits == 2) THEN   !  MODFLOW time units in minutes
-  ModFlowCnv = 365.0*24.0*60.0
-ELSE IF (ModFlowTimeUnits == 3) THEN   !  MODFLOW time units in hours
-  ModFlowCnv = 365.0*24.0
-ELSE IF (ModFlowTimeUnits == 4) THEN   !  MODFLOW time units in days
-  ModFlowCnv = 365.0
-ELSE IF (ModFlowTimeUnits == 5) THEN   !  MODFLOW time units in years
-  ModFlowCnv = 1.0
-ELSE
-  WRITE(*,*)
-  WRITE(*,*) ' MODFLOW time units read from *.bas file not recognized'
-  WRITE(*,*) ' MODFLOW time units flag: ',ModFlowTimeUnits
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-! Read in cell types from MODFLOW .bas file
-
-!fp! auto_par_loops=0;
-DO jz=1,nz
-  DO jy=1,ny
-    READ (52,*) ActiveCell(1:nx,jy,jz)
-  END DO
-END DO
-!fp! auto_par_loops=1;
-
-READ(52,*) realjunk
-READ(52,*)
-
-ALLOCATE(work3(nx,ny,nz))
-
-!fp! auto_par_loops=0;
-DO jz=1,nz
-  DO jy=1,ny
-    READ (52,*) work3(1:nx,jy,jz)
-  END DO
-END DO
-!fp! auto_par_loops=1;
-
-DEALLOCATE(work3)
-
-ALLOCATE(perlen(nstress))
-ALLOCATE(tsmult(nstress))
-ALLOCATE(nstp(nstress))
-
-DO i = 1,nstress
-  READ(52,*,err=3000) perlen(i),nstp(i),tsmult(i)
-END DO
-
-CLOSE(52)
-
-ALLOCATE(jxTemp(ndimdummy))
-ALLOCATE(jyTemp(ndimdummy))
-ALLOCATE(jzTemp(ndimdummy))
-ALLOCATE(conditionNum(ndimdummy))
-
-!  Read wells
-
-nparams = 0
-jxTemp = 0
-jyTemp = 0
-jzTemp = 0
-modflowstring = 'well'
-CALL stringlen(modflowstring,lenstring)
-
-CALL readModFlowParameters(nout,nchem,nparams,jxTemp,jyTemp,jzTemp,  &
-            conditionNum,modflowstring,lenstring)
-
-IF (NeedWellCondition > nparams) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Number of wells needing geochemical conditions does not match CRUNCH input file'
-  WRITE(*,*) ' Number of conditions needed:   ', NeedWellCondition
-  WRITE(*,*) ' Number of conditions provided: ', nparams
-  WRITE(*,*) ' Need well conditions at the following locations: '
-  WRITE(*,*)
-  DO i = 1,nwells
-    IF (wellIn(i)) THEN
-      WRITE(*,1501) jxWellLoc(i), jyWellLoc(i), jzWellLoc(i)
-    END IF
-  END DO
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-1501 FORMAT('well  ', i4,1x,i4,1x,i4)
-1502 FORMAT('river  ', i4,1x,i4,1x,i4)
-1503 FORMAT('constant_head  ', i4,1x,i4,1x,i4)
-
-IF (ALLOCATED(WellCondition)) THEN
-  DEALLOCATE(WellCondition)
-END IF
-ALLOCATE(WellCondition(nwells))
-
-! Spin through to check again
-
-DO i = 1,nwells                !  Read from MODFLOW *.wel file
-  DO j = 1,nparams             !  Read from CRUNCH input file
-     IF (jxWellLoc(i)==jxTemp(j) .AND.                  &
-         jyWellLoc(i)==jyTemp(j) .AND.                  &
-         jzWellLoc(i)==jzTemp(j)       )  THEN
-        WellCondition(i) = conditionNum(j)
-       GO TO 501
-     END IF
-  END DO
-  IF (wellIn(i)) THEN          !  Based on info in *.hff file, source requires a geochemical condition
-    WRITE(*,*)
-    WRITE(*,*) ' Well needs a geochemical condition--not found in CRUNCH input file'
-    WRITE(*,*) ' Well number: ',i
-    WRITE(*,*) ' Well location: ',jxWellLoc(i),jyWellLoc(i),jzWellLoc(i)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  ELSE
-    CONTINUE
-  END IF
-  501 CONTINUE
-END DO
-
-
-!  Read drains
-
-nparams = 0
-jxTemp = 0
-jyTemp = 0
-jzTemp = 0
-modflowstring = 'drain'
-CALL stringlen(modflowstring,lenstring)
-
-CALL readModFlowParameters(nout,nchem,nparams,jxTemp,jyTemp,jzTemp,  &
-            conditionNum,modflowstring,lenstring)
-
-!  Read rivers
-
-nparams = 0
-jxTemp = 0
-jyTemp = 0
-jzTemp = 0
-modflowstring = 'river'
-CALL stringlen(modflowstring,lenstring)
-
-CALL readModFlowParameters(nout,nchem,nparams,jxTemp,jyTemp,jzTemp,  &
-            conditionNum,modflowstring,lenstring)
-
-
-IF (NeedRiverCondition > nparams) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Number of rivers needing geochemical conditions does not match CRUNCH input file'
-  WRITE(*,*) ' Number of conditions needed:   ', NeedRiverCondition
-  WRITE(*,*) ' Number of conditions provided: ', nparams
-  WRITE(*,*) ' Need river conditions at the following locations: '
-  WRITE(*,*)
-  DO i = 1,nrivers
-    IF (riverIn(i)) THEN
-      WRITE(*,1502) jxRiverLoc(i), jyRiverLoc(i), jzRiverLoc(i)
-    END IF
-  END DO
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-IF (ALLOCATED(RiverCondition)) THEN
-  DEALLOCATE(RiverCondition)
-END IF
-ALLOCATE(RiverCondition(nrivers))
-
-DO i = 1,nrivers                !  Read from MODFLOW *.wel file
-  DO j = 1,nparams             !  Read from CRUNCH input file
-     IF (jxRiverLoc(i)==jxTemp(j) .AND.                  &
-         jyRiverLoc(i)==jyTemp(j) .AND.                  &
-         jzRiverLoc(i)==jzTemp(j)       )  THEN
-        RiverCondition(i) = conditionNum(j)
-       GO TO 502
-     END IF
-  END DO
-  IF (riverIn(i)) THEN          !  Based on info in *.hff file, source requires a geochemical condition
-    WRITE(*,*)
-    WRITE(*,*) ' River needs a geochemical condition--not found in CRUNCH input file'
-    WRITE(*,*) ' River number: ',i
-    WRITE(*,*) ' River location: ',jxRiverLoc(i),jyRiverLoc(i),jzRiverLoc(i)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  ELSE
-    CONTINUE
-  END IF
-  502 CONTINUE
-END DO
-
-!  Read constant head
-
-nparams = 0
-jxTemp = 0
-jyTemp = 0
-jzTemp = 0
-modflowstring = 'constant_head'
-CALL stringlen(modflowstring,lenstring)
-
-CALL readModFlowParameters(nout,nchem,nparams,jxTemp,jyTemp,jzTemp,  &
-            conditionNum,modflowstring,lenstring)
-
-IF (NeedHeadCondition > nparams) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Number of constant heads needing geochemical conditions does not match CRUNCH input file'
-  WRITE(*,*) ' Number of conditions needed:   ', NeedHeadCondition
-  WRITE(*,*) ' Number of conditions provided: ', nparams
-  WRITE(*,*) ' Need constant head conditions at the following locations: '
-  WRITE(*,*)
-  DO i = 1,ncnh
-    IF (cnhIn(i)) THEN
-      WRITE(*,1503) jxHeadLoc(i), jyHeadLoc(i), jzHeadLoc(i)
-    END IF
-  END DO
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-IF (ALLOCATED(HeadCondition)) THEN
-  DEALLOCATE(HeadCondition)
-END IF
-ALLOCATE(HeadCondition(ncnh))
-
-DO i = 1,ncnh                  !  Read from MODFLOW *.wel file
-  DO j = 1,nparams             !  Read from CRUNCH input file
-     IF (jxHeadLoc(i)==jxTemp(j) .AND.                  &
-         jyHeadLoc(i)==jyTemp(j) .AND.                  &
-         jzHeadLoc(i)==jzTemp(j)       )  THEN
-        HeadCondition(i) = conditionNum(j)
-       GO TO 503
-     END IF
-  END DO
-  IF (cnhIn(i)) THEN          !  Based on info in *.hff file, source requires a geochemical condition
-    WRITE(*,*)
-    WRITE(*,*) ' Head needs a geochemical condition--not found in CRUNCH input file'
-    WRITE(*,*) ' Head number: ',i
-    WRITE(*,*) ' Head location: ',jxHeadLoc(i),jyHeadLoc(i),jzHeadLoc(i)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  ELSE
-    CONTINUE
-  END IF
-  503 CONTINUE
-END DO
-
-DEALLOCATE(jxTemp)
-DEALLOCATE(jyTemp)
-DEALLOCATE(jzTemp)
-DEALLOCATE(conditionNum)
-
-! **** Now read the geochemical condition for MODFLOW recharge
-
-CALL readRecharge(nout,RechargeCondition)
-
-! *****************************************
-
-!  IF (RechargeCondition == 0) THEN
-!    WRITE(*,*)
-!    WRITE(*,*) ' Geochemical condtion for recharge not found in MODFLOW block'
-!    WRITE(*,*)
-!    STOP
-!  END IF
-
-!  Allocate the various arrays needed for the MODFLOW option
-
-IF (ALLOCATED(qevt)) THEN
-  DEALLOCATE(qevt)
-END IF
-ALLOCATE(qevt(nx,ny))
-IF (ALLOCATED(wtype)) THEN
-  DEALLOCATE(wtype)
-END IF
-ALLOCATE(wtype(nwells))
-IF (ALLOCATED(htype)) THEN
-  DEALLOCATE(htype)
-END IF
-ALLOCATE(htype(ncnh))
-IF (ALLOCATED(rtype)) THEN
-  DEALLOCATE(rtype)
-END IF
-ALLOCATE(rtype(nrivers))
-IF (ALLOCATED(lrecharge)) THEN
-  DEALLOCATE(lrecharge)
-END IF
-ALLOCATE(lrecharge(nx,ny))
-IF (ALLOCATED(levt)) THEN
-  DEALLOCATE(levt)
-END IF
-ALLOCATE(levt(nx,ny))
-
-!  Now, initialize the suckers...
-
-!!  qrecharge = 0.0
-q = 0.0
-qcnh = 0.0
-qevt = 0.0
-qriver = 0.0
-qdrain = 0.0
-
-wtype = ' '
-htype = ' '
-rtype = ' '
-
-
-ALLOCATE(dtTemp(1000))
-
-CALL readModFlowStress(nout,perlen,nstp,tsmult,ndimdummy)
-
-ntt = 0
-DO i = 1,nstress
-  IF (nstp(i) == 1) THEN
-    ntt = ntt + 1
-    dtTemp(ntt) = perlen(i)
-  ELSE IF (nstp(i) > 1) THEN
-    geometricSum = 0.0
-    DO k = 1,nstp(i)
-      geometricSum = geometricSum + (tsmult(i)**(k-1))
-    END DO
-    dtBase = perlen(i)/geometricSum
-    DO k = 1,nstp(i)
-      ntt = ntt + 1
-      dtTemp(ntt) = dtBase*(tsmult(i)**(k-1))
-    END DO
-    checkSum = 0.0
-    DO k = 1,nstp(i)
-      checkSum = checkSum + dtTemp(i)
-    END DO
-    IF (checkSum < (perlen(i)-eps) .OR. checksum > (perlen(i)+eps) ) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Modflow time steps calculated incorrectly'
-      WRITE(*,*) ' Length of stress period:                  ',perlen(i)
-      WRITE(*,*) ' Calculated length from sum of time steps: ',checkSum
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    END IF
-
-  ELSE
-    WRITE(*,*)
-    WRITE(*,*) ' Number of time steps within a stress period cannot be less than 1'
-    WRITE(*,*) ' Stress period number: ',i
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-END DO
-
-IF (ALLOCATED(dtModFlow)) THEN
-  DEALLOCATE(dtModFlow)
-END IF
-ALLOCATE(dtModFlow(ntt))
-
-dtModFlow(1:ntt) = dtTemp(1:ntt)
-DEALLOCATE(dtTemp)
-
-ntModFlow = ntt
-
-DEALLOCATE(nstp)
-DEALLOCATE(perlen)
-DEALLOCATE(tsmult)
-
-END IF
-
-
-!  *****************END OF MODFLOW BLOCK***********************
-
-
 !  *****************FLOW BLOCK***********************
 
 !  Initialize flow variables
@@ -6916,126 +6306,105 @@ section = 'flow'
 CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
-WRITE(*,*) ' Flow block found'
+  WRITE(*,*) ' Flow block found'
 END IF
 
 velocityfile = ' '
 gasvelocityfile = ' '
 
-
-
 IF (ALLOCATED(qrecharge)) THEN
-DEALLOCATE(qrecharge)
+  DEALLOCATE(qrecharge)
 END IF
 ALLOCATE(qrecharge(nx,ny))
 qrecharge = 0
 
 IF (found) THEN
 
-!  Initialize pressure and pumping rate first
+  !  Initialize pressure and pumping rate first
 
+  IF (ALLOCATED(intbndgas)) THEN
+    DEALLOCATE(intbndgas)
+  END IF
+  ALLOCATE(intbndgas(5,nx,ny,nz))
+  intbndgas = 0
 
-IF (ALLOCATED(intbndgas)) THEN
-  DEALLOCATE(intbndgas)
-END IF
-ALLOCATE(intbndgas(5,nx,ny,nz))
-intbndgas = 0
+  IF (ALLOCATED(gaspump)) THEN
+    DEALLOCATE(gaspump)
+    ALLOCATE(gaspump(5,nx,ny,nz))
+  ELSE
+    ALLOCATE(gaspump(5,nx,ny,nz))
 
-IF (ALLOCATED(gaspump)) THEN
-  DEALLOCATE(gaspump)
-  ALLOCATE(gaspump(5,nx,ny,nz))
-ELSE
-  ALLOCATE(gaspump(5,nx,ny,nz))
+  END IF
 
-END IF
+  IF (isaturate == 1) THEN
+    gaspump = 0.0d0
+  END IF
 
-IF (isaturate == 1) THEN
-  gaspump = 0.0d0
-END IF
+  CALL units_time(nout,section,time_scale)
+  CALL units_distance(nout,section,dist_scale)
 
-CALL units_time(nout,section,time_scale)
-CALL units_distance(nout,section,dist_scale)
+  CALL read_constantflow(nout,nx,ny,nz,constant_flow,qxinit,qyinit,qzinit)
+  CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
+    qxgasinit,qygasinit,qzgasinit)
 
-CALL read_constantflow(nout,nx,ny,nz,constant_flow,qxinit,qyinit,qzinit)
-CALL read_constantgasflow(nout,nx,ny,nz,constant_gasflow,  &
-  qxgasinit,qygasinit,qzgasinit)
-
-
-  pumptimeseries = .FALSE.
-
-  !CALL read_pumptimeseriesfile(nout,nx,ny,nz,pumptimeseriesfile,lfile,pumptimeseries,PumptimeseriesFileFormat)
-  !CALL read_pumplocationsfile(nout,nx,ny,nz,pumplocationsfile,lfile2,PumplocationsFileFormat)
-  !IF (pumptimeseries) THEN
-  !
-  !CALL  read_pump_timeseries2(nout,nx,ny,nz,nchem,lfile,pumptimeseriesfile,PumptimeseriesFileFormat,lfile2,pumplocationsfile,PumplocationsFileFormat)
-  !
-  !ELSE
-  !  CALL read_pump(nout,nx,ny,nz,nchem)
-  !ENDIF
-  
+  pumptimeseries = .FALSE.  
   CALL read_pumptimeseries(nout,nx,ny,nz)
 
   IF (pumptimeseries) THEN
-
-  CALL read_pumplocations(nout,nx,ny,nz,nchem)
+    CALL read_pumplocations(nout,nx,ny,nz,nchem)
   ELSE
     CALL read_pump(nout,nx,ny,nz,nchem)
   ENDIF
 
-!!!  IF (isaturate == 1) THEN
   CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
-!!!  END IF
 
-irecharge = 0
+  irecharge = 0
 
-IF (.NOT. modflow) THEN
-  CALL read_infiltration(nout,nx,ny,nz)
-END IF
-
-!!  Convert pumping rate from liters/sec to m**3/yr
-!!  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
-
-!!!  IF (isaturate == 1) THEN
+  IF (.NOT. modflow) THEN
+    CALL read_infiltration(nout,nx,ny,nz)
+  END IF
+  
   gaspump = gaspump*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
-!!!  END IF
 
-!  NOTE: Specification of constant flow field overrides all other
-!        instructions (e.g., file read or flow calculation)
+  !  NOTE: Specification of constant flow field overrides all other
+  !        instructions (e.g., file read or flow calculation)
 
-IF (constant_flow) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Constant flow specified'
-  WRITE(*,*)
-ELSE
-
-!  No constant flow field specified, so look for file read or
-!     flow calculation
-
-  readvelocity = .false.
-  CALL read_flowfile(nout,nx,ny,nz,constant_flow,  &
-      qxinit,qyinit,qzinit,velocityfile,lfile,VelocityFileFormat)
-
-  IF (velocityfile /= ' ') THEN
-    readvelocity = .TRUE.
+  IF (constant_flow) THEN
+    
     WRITE(*,*)
-    WRITE(*,*) ' Velocities to be read from file: ',velocityfile(1:lfile)
+    WRITE(*,*) ' Constant flow specified'
     WRITE(*,*)
+    
+  ELSE
 
-  END IF
+  !  No constant flow field specified, so look for file read or
+  !     flow calculation
 
-!  *******************FLOW CALCULATION****************************
+    readvelocity = .false.
+    CALL read_flowfile(nout,nx,ny,nz,constant_flow,  &
+        qxinit,qyinit,qzinit,velocityfile,lfile,VelocityFileFormat)
 
-!  Check to see if flow should be calculated--only do so if either constant_flow = .FALSE., or if
-!  readvelocity = .FALSE.
+    IF (velocityfile /= ' ') THEN
+      readvelocity = .TRUE.
+      WRITE(*,*)
+      WRITE(*,*) ' Velocities to be read from file: ',velocityfile( 1:LEN(velocityfile) )
+      WRITE(*,*)
 
-  CalculateFlow = .FALSE.
-  IF (.NOT. ReadVelocity) THEN
-    parchar = 'calculate_flow'
-    parfind = ' '
-    CALL read_logical(nout,lchar,parchar,parfind,CalculateFlow)
-  END IF
+    END IF
 
-  flow_if: IF (CalculateFlow .AND. nxyz > 1) THEN
+  !  *******************FLOW CALCULATION****************************
+
+  !  Check to see if flow should be calculated--only do so if either constant_flow = .FALSE., or if
+  !  readvelocity = .FALSE.
+
+    CalculateFlow = .FALSE.
+    IF (.NOT. ReadVelocity) THEN
+      parchar = 'calculate_flow'
+      parfind = ' '
+      CALL read_logical(nout,lchar,parchar,parfind,CalculateFlow)
+    END IF
+
+    flow_if: IF (CalculateFlow .AND. nxyz > 1) THEN
 
       ! Select NS solver or Darcy solver, added by Zhi Li
       NavierStokes = .FALSE.
@@ -7049,7 +6418,6 @@ ELSE
       parchar = 'Richards'
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,Richards)
-      !
 
       IF (Richards) THEN
         isaturate = 1
@@ -7111,7 +6479,6 @@ ELSE
       ! convert unit
       psi_0 = psi_0 / dist_scale
       
-      
       ! set the maximum water potential updated during Newton iterations
       parchar = 'set_dpsi_max'
       parfind = ' '
@@ -7125,7 +6492,6 @@ ELSE
 
       ! convert unit
       dpsi_max = dpsi_max / dist_scale
-      
       
       ! flag to prevent chemical transport due to evaporation at a boundary
       parchar = 'set_evaporation_boundary'
@@ -7141,836 +6507,748 @@ ELSE
       ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
     
-    IF (ALLOCATED(harx)) THEN
-      DEALLOCATE(harx)
-      ALLOCATE(harx(0:nx,1:ny,1:nz))
-    ELSE
-      ALLOCATE(harx(0:nx,1:ny,1:nz))
-    END IF
-    IF (ALLOCATED(hary)) THEN
-      DEALLOCATE(hary)
-      ALLOCATE(hary(1:nx,0:ny,1:nz))
-    ELSE
-      ALLOCATE(hary(1:nx,0:ny,1:nz))
-    END IF
-    IF (ALLOCATED(harz)) THEN
-      DEALLOCATE(harz)
-      ALLOCATE(harz(1:nx,1:ny,0:nz))
-    ELSE
-      ALLOCATE(harz(1:nx,1:ny,0:nz))
-    END IF
-
-    IF (ALLOCATED(perminx)) THEN
-      DEALLOCATE(perminx)
-      ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
-    ELSE
-      ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
-    END IF
-
-    IF (ALLOCATED(perminy)) THEN
-      DEALLOCATE(perminy)
-      ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
-    ELSE
-      ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
-    END IF
-
-    IF (ALLOCATED(perminz)) THEN
-      DEALLOCATE(perminz)
-      ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
-    ELSE
-      ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
-    END IF
-
-    IF (ALLOCATED(permx)) THEN
-      DEALLOCATE(permx)
-      ALLOCATE(permx(0:nx+1,1:ny,1:nz))
-    ELSE
-      ALLOCATE(permx(0:nx+1,1:ny,1:nz))
-    END IF
-
-    IF (ALLOCATED(permxOld)) THEN
-      DEALLOCATE(permxOld)
-      ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
-    ELSE
-      ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
-    END IF
-
-    IF (ALLOCATED(permy)) THEN
-      DEALLOCATE(permy)
-      ALLOCATE(permy(1:nx,0:ny+1,1:nz))
-    ELSE
-      ALLOCATE(permy(1:nx,0:ny+1,1:nz))
-    END IF
-
-    IF (ALLOCATED(permyOld)) THEN
-      DEALLOCATE(permyOld)
-      ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
-    ELSE
-      ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
-    END IF
-
-    IF (ALLOCATED(permz)) THEN
-      DEALLOCATE(permz)
-      ALLOCATE(permz(1:nx,1:ny,0:nz+1))
-    ELSE
-      ALLOCATE(permz(1:nx,1:ny,0:nz+1))
-    END IF
-
-    IF (ALLOCATED(permzOld)) THEN
-      DEALLOCATE(permzOld)
-      ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
-    ELSE
-      ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
-    END IF
-
-    pres = 0.0
-    perminx = 0.0
-    perminy = 0.0
-    perminz = 0.0
-
-    WRITE(*,*)
-    WRITE(*,*) ' Flow will be calculated'
-    WRITE(*,*)
-   
-  ! ********************************************
-  ! Edit by Toshiyuki Bandai 2023 May
-  Richards_allocate: IF (Richards) THEN
-    
-    CALL RichardsArrayAllocation(nx,ny,nz)
-    
-    !*************************************************************
-    ! Edit by Toshiyuki Bandai, Oct. 2024
-    ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
-    ! mu_water is defined in Flow module
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 0,nx+1
-          mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-          rho_water_2 = 0.99823d0 * 1.0E3
-          !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
-        END DO
-      END DO
-    END DO
-    !     END DO
-    !   END DO
-    ! END DO
-
-    mu_water = 0.0010005*secyr ! dynamic viscosity of water
-
-    ! End of Edit by Toshiyuki Bandai, Oct. 2024
-    !*************************************************************
-
-
-    ! allocate and read van-Genuchten parameters
-    VG_error = 0
-    
-  ! saturated water content theta_s (=porosity)
-    
-    IF (theta_s_is_porosity) THEN
-      ! theta_s is the same as the porosity, so no need to read vg_theta_s
-    
-      FORALL (jx=0:nx+1, jy=1:ny, jz=1:nz)
-        theta_s(jx,jy,jz) = por(jx,jy,jz)
-      END FORALL
-    ELSE
-      parchar = 'vg_theta_s'
-      CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-      IF (VG_error == 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-        WRITE(*,*)
-        STOP
-      END IF
-    
-    ! if theta_s does not match porosity, make a warning
-      DO jx = 0, nx+1
-        DO jy = 1, ny
-          DO jz = 1, nz
-            IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
-              WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
-              WRITE(*,*) ' porosity = ',por(jx,jy,jz)
-              WRITE(*,*)
-            END IF
-          END DO
-        END DO
-      END DO
-    END IF
-  
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-  ! residual water content (theta_r)
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-    parfind = ' '
-    parchar = 'vg_theta_r'
-    CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-    IF (VG_error == 1) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-      WRITE(*,*)
-      STOP
-    END IF
-
-    IF (parfind == ' ') THEN
-      ! ************************************
-      ! Edit by Lucien Stolze, June 2023
-      ! Read wcr parameter array from file
-      CALL read_wcrfile(nout,nx,ny,nz,wcrfile,lfile,readwcr,wcrFileFormat)
-      IF (readwcr) then
-        wcrfile(1:lfile) = wcrfile(1:lfile)
-        INQUIRE(FILE=wcrfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' wcr file not found: ',wcrfile(1:lfile)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        
-        OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
-        FileTemp = wcrfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (wcrFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((theta_r(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-        ELSE IF (wcrFileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) theta_r(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-        ELSE IF (wcrFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,zdum,theta_r(jx,jy,jz)
-                END DO
-              END DO
-            END DO
-          ELSE IF (ny > 1 .AND. nz == 1) THEN
-            jz = 1
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,theta_r(jx,jy,jz)
-              END DO
-            END DO
-          ELSE
-          jz = 1
-          jy = 1
-          DO jx= 1,nx
-            READ(23,*,END=1020) xdum,theta_r(jx,jy,jz)
-          END DO
-          END IF
-        ELSE IF (wcrFileFormat == 'Unformatted') THEN
-        READ(23,END=1020) theta_r
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' wcr file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
+      IF (ALLOCATED(harx)) THEN
+        DEALLOCATE(harx)
+        ALLOCATE(harx(0:nx,1:ny,1:nz))
       ELSE
-      WRITE(*,*)
-      WRITE(*,*) 'Information on residual water content must be provided.'
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    ENDIF
-
-    ENDIF
-
-  ! the input value is actually residual saturation, convert it to residual water content
-    IF (theta_r_is_S_r) THEN
-      theta_r = theta_r*theta_s
-    END IF
-
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-  ! alpha parameter in the van Genuchten model
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-    parfind = ' '
-    parchar = 'vg_alpha'
-    CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-    IF (VG_error == 1) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-      WRITE(*,*)
-      STOP
-    END IF
-
-    IF (parfind == ' ') THEN
-    ! ************************************
-    ! Edit by Lucien Stolze, June 2023
-    ! Read alpha parameter array from file
-    CALL read_vgafile(nout,nx,ny,nz,vgafile,lfile,readvga,vgaFileFormat)
-    IF (readvga) then
-      vgafile(1:lfile) = vgafile(1:lfile)
-      INQUIRE(FILE=vgafile,EXIST=ext)
-      IF (.NOT. ext) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' vga file not found: ',vgafile(1:lfile)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
+        ALLOCATE(harx(0:nx,1:ny,1:nz))
       END IF
-      
-      OPEN(UNIT=23,FILE=vgafile,STATUS='old')
-      FileTemp = vgafile
-      CALL stringlen(FileTemp,FileNameLength)
-      IF (vgaFileFormat == 'ContinuousRead') THEN
-        READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-      ELSE IF (vgaFileFormat == 'SingleColumn') THEN
+      IF (ALLOCATED(hary)) THEN
+        DEALLOCATE(hary)
+        ALLOCATE(hary(1:nx,0:ny,1:nz))
+      ELSE
+        ALLOCATE(hary(1:nx,0:ny,1:nz))
+      END IF
+      IF (ALLOCATED(harz)) THEN
+        DEALLOCATE(harz)
+        ALLOCATE(harz(1:nx,1:ny,0:nz))
+      ELSE
+        ALLOCATE(harz(1:nx,1:ny,0:nz))
+      END IF
+
+      IF (ALLOCATED(perminx)) THEN
+        DEALLOCATE(perminx)
+        ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
+      ELSE
+        ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
+      END IF
+      IF (ALLOCATED(perminy)) THEN
+        DEALLOCATE(perminy)
+        ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
+      ELSE
+        ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
+      END IF
+      IF (ALLOCATED(perminz)) THEN
+        DEALLOCATE(perminz)
+        ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
+      ELSE
+        ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
+      END IF
+
+      IF (ALLOCATED(permx)) THEN
+        DEALLOCATE(permx)
+        ALLOCATE(permx(0:nx+1,1:ny,1:nz))
+      ELSE
+        ALLOCATE(permx(0:nx+1,1:ny,1:nz))
+      END IF
+      IF (ALLOCATED(permxOld)) THEN
+        DEALLOCATE(permxOld)
+        ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
+      ELSE
+        ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
+      END IF
+      IF (ALLOCATED(permy)) THEN
+        DEALLOCATE(permy)
+        ALLOCATE(permy(1:nx,0:ny+1,1:nz))
+      ELSE
+        ALLOCATE(permy(1:nx,0:ny+1,1:nz))
+      END IF
+      IF (ALLOCATED(permyOld)) THEN
+        DEALLOCATE(permyOld)
+        ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
+      ELSE
+        ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
+      END IF
+      IF (ALLOCATED(permz)) THEN
+        DEALLOCATE(permz)
+        ALLOCATE(permz(1:nx,1:ny,0:nz+1))
+      ELSE
+        ALLOCATE(permz(1:nx,1:ny,0:nz+1))
+      END IF
+      IF (ALLOCATED(permzOld)) THEN
+        DEALLOCATE(permzOld)
+        ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
+      ELSE
+        ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
+      END IF
+
+      pres = 0.0
+      perminx = 0.0
+      perminy = 0.0
+      perminz = 0.0
+
+      WRITE(*,*)
+      WRITE(*,*) ' Flow will be calculated'
+      WRITE(*,*)
+   
+      ! ********************************************
+      ! Edit by Toshiyuki Bandai 2023 May
+      Richards_allocate: IF (Richards) THEN
+    
+        CALL RichardsArrayAllocation(nx,ny,nz)
+    
+        !*************************************************************
+        ! Edit by Toshiyuki Bandai, Oct. 2024
+        ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
+        ! mu_water is defined in Flow module
         DO jz = 1,nz
           DO jy = 1,ny
-            DO jx= 1,nx
-              READ(23,*,END=1020) VG_alpha(jx,jy,jz)
+            DO jx = 0,nx+1
+              mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
+              rho_water_2 = 0.99823d0 * 1.0E3
+              !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
             END DO
           END DO
         END DO
-      ELSE IF (vgaFileFormat == 'FullForm') THEN
-        IF (ny > 1 .AND. nz > 1) THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,zdum,VG_alpha(jx,jy,jz)
+
+        mu_water = 0.0010005*secyr ! dynamic viscosity of water
+
+        ! End of Edit by Toshiyuki Bandai, Oct. 2024
+        !*************************************************************
+
+        ! allocate and read van-Genuchten parameters
+        VG_error = 0
+    
+        ! saturated water content theta_s (=porosity)
+    
+        IF (theta_s_is_porosity) THEN
+          ! theta_s is the same as the porosity, so no need to read vg_theta_s
+          FORALL (jx=0:nx+1, jy=1:ny, jz=1:nz)
+            theta_s(jx,jy,jz) = por(jx,jy,jz)
+          END FORALL
+        ELSE
+          
+          parchar = 'vg_theta_s'
+          CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            STOP
+          END IF
+    
+          ! if theta_s does not match porosity, make a warning
+          DO jx = 0, nx+1
+            DO jy = 1, ny
+              DO jz = 1, nz
+              
+                IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
+                  WRITE(*,*)
+                  WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
+                  WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
+                  WRITE(*,*) ' porosity = ',por(jx,jy,jz)
+                  WRITE(*,*)
+                END IF
               END DO
             END DO
           END DO
-        ELSE IF (ny > 1 .AND. nz == 1) THEN
-          jz = 1
-          DO jy = 1,ny
-            DO jx= 1,nx
-              READ(23,*,END=1020) xdum,ydum,VG_alpha(jx,jy,jz)
-            END DO
-          END DO
-        ELSE
-        jz = 1
-        jy = 1
-        DO jx= 1,nx
-          READ(23,*,END=1020) xdum,VG_alpha(jx,jy,jz)
-        END DO
+        
         END IF
-      ELSE IF (vgaFileFormat == 'Unformatted') THEN
-      READ(23,END=1020) VG_alpha
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' VGalpha file format not recognized'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-    ELSE
-    WRITE(*,*)
-    WRITE(*,*) 'Information on VG alpha must be provided.'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  ENDIF
-
-  ENDIF
-    ! ************************************
-    ! End edit by Lucien Stolze, June 2023
-
-
-  ! convert unit
-    VG_alpha = VG_alpha*dist_scale
-    
-    IF (.NOT. psi_is_head) THEN
-      VG_alpha = VG_alpha*rho_water*9.80665d0
-    END IF
-    
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-  ! n parameter in the van Genuchten model
-  !!!!!!!!!!!!!!!!!!!!!!!!!
-    parchar = 'vg_n'
-    CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-    IF (VG_error == 1) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-      WRITE(*,*)
-      STOP
-    END IF
-
-    IF (parfind == ' ') THEN
-      ! ************************************
-      ! Edit by Lucien Stolze, June 2023
-      ! Read alpha parameter array from file
-      CALL read_vgnfile(nout,nx,ny,nz,vgnfile,lfile,readvgn,vgnFileFormat)
-      IF (readvgn) then
-        vgnfile(1:lfile) = vgnfile(1:lfile)
-        INQUIRE(FILE=vgnfile,EXIST=ext)
-        IF (.NOT. ext) THEN
+  
+        !!!!!!!!!!!!!!!!!!!!!!!!!
+        ! residual water content (theta_r)
+        !!!!!!!!!!!!!!!!!!!!!!!!!
+        parfind = ' '
+        parchar = 'vg_theta_r'
+        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+        IF (VG_error == 1) THEN
           WRITE(*,*)
-          WRITE(*,*) ' vgn file not found: ',vgnfile(1:lfile)
+          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
           WRITE(*,*)
-          READ(*,*)
           STOP
         END IF
+
+        IF (parfind == ' ') THEN
+          ! ************************************
+          ! Edit by Lucien Stolze, June 2023
+          ! Read wcr parameter array from file
+          CALL read_wcrfile(nout,nx,ny,nz,wcrfile,lfile,readwcr,wcrFileFormat)
+          IF (readwcr) then
+            wcrfile(1:lfile) = wcrfile(1:lfile)
+            INQUIRE(FILE=wcrfile,EXIST=ext)
+            IF (.NOT. ext) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' wcr file not found: ',wcrfile(1:lfile)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
         
-        OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
-        FileTemp = vgnfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (vgnFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((VG_n(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-        ELSE IF (vgnFileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) VG_n(jx,jy,jz)
-              END DO
-            END DO
-          END DO
-        ELSE IF (vgnFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,zdum,VG_n(jx,jy,jz)
+            OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
+            FileTemp = wcrfile
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (wcrFileFormat == 'ContinuousRead') THEN
+              READ(23,*,END=1020) (((theta_r(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+            ELSE IF (wcrFileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) theta_r(jx,jy,jz)
+                  END DO
                 END DO
               END DO
-            END DO
-          ELSE IF (ny > 1 .AND. nz == 1) THEN
-            jz = 1
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,VG_n(jx,jy,jz)
-              END DO
-            END DO
+            ELSE IF (wcrFileFormat == 'FullForm') THEN
+              IF (ny > 1 .AND. nz > 1) THEN
+                DO jz = 1,nz
+                  DO jy = 1,ny
+                    DO jx= 1,nx
+                      READ(23,*,END=1020) xdum,ydum,zdum,theta_r(jx,jy,jz)
+                    END DO
+                  END DO
+                END DO
+              ELSE IF (ny > 1 .AND. nz == 1) THEN
+                jz = 1
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,theta_r(jx,jy,jz)
+                  END DO
+                END DO
+              ELSE
+                jz = 1
+                jy = 1
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,theta_r(jx,jy,jz)
+                END DO
+              END IF
+            ELSE IF (wcrFileFormat == 'Unformatted') THEN
+              READ(23,END=1020) theta_r
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' wcr file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            
           ELSE
-          jz = 1
-          jy = 1
-          DO jx= 1,nx
-            READ(23,*,END=1020) xdum,VG_n(jx,jy,jz)
-          END DO
-          END IF
-        ELSE IF (vgnFileFormat == 'Unformatted') THEN
-        READ(23,END=1020) VG_n
-        ELSE
+            WRITE(*,*)
+            WRITE(*,*) 'Information on residual water content must be provided.'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          ENDIF
+
+        ENDIF
+
+      ! the input value is actually residual saturation, convert it to residual water content
+        IF (theta_r_is_S_r) THEN
+          theta_r = theta_r*theta_s
+        END IF
+
+      !!!!!!!!!!!!!!!!!!!!!!!!!
+      ! alpha parameter in the van Genuchten model
+      !!!!!!!!!!!!!!!!!!!!!!!!!
+        parfind = ' '
+        parchar = 'vg_alpha'
+        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+        IF (VG_error == 1) THEN
           WRITE(*,*)
-          WRITE(*,*) ' VGn file format not recognized'
+          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
           WRITE(*,*)
-          READ(*,*)
           STOP
         END IF
-      ELSE
-      WRITE(*,*)
-      WRITE(*,*) 'Information on VG n must be provided.'
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    ENDIF
 
-    ENDIF
-      ! ************************************
-      ! End edit by Lucien Stolze, June 2023
+        IF (parfind == ' ') THEN
+          ! ************************************
+          ! Edit by Lucien Stolze, June 2023
+          ! Read alpha parameter array from file
+          CALL read_vgafile(nout,nx,ny,nz,vgafile,lfile,readvga,vgaFileFormat)
+          IF (readvga) then
+            vgafile(1:lfile) = vgafile(1:lfile)
+            INQUIRE(FILE=vgafile,EXIST=ext)
+            IF (.NOT. ext) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' vga file not found: ',vgafile(1:lfile)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+      
+            OPEN(UNIT=23,FILE=vgafile,STATUS='old')
+            FileTemp = vgafile
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (vgaFileFormat == 'ContinuousRead') THEN
+              READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+            ELSE IF (vgaFileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) VG_alpha(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (vgaFileFormat == 'FullForm') THEN
+              IF (ny > 1 .AND. nz > 1) THEN
+                DO jz = 1,nz
+                  DO jy = 1,ny
+                    DO jx= 1,nx
+                      READ(23,*,END=1020) xdum,ydum,zdum,VG_alpha(jx,jy,jz)
+                    END DO
+                  END DO
+                END DO
+              ELSE IF (ny > 1 .AND. nz == 1) THEN
+                jz = 1
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,VG_alpha(jx,jy,jz)
+                  END DO
+                END DO
+              ELSE
+                jz = 1
+                jy = 1
+                DO jx= 1,nx
+                  READ(23,*,END=1020) xdum,VG_alpha(jx,jy,jz)
+                END DO
+              END IF
+            ELSE IF (vgaFileFormat == 'Unformatted') THEN
+              READ(23,END=1020) VG_alpha
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' VGalpha file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+          
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) 'Information on VG alpha must be provided.'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          
+          ENDIF     !! End of read vga
+
+        ENDIF       !! End if parfind == ' '
+        ! ************************************
+        ! End edit by Lucien Stolze, June 2023
+
+        ! convert unit
+        VG_alpha = VG_alpha*dist_scale
     
-    IF (.NOT. vg_is_n) THEN
-        ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
-        VG_n = 1.0d0/(1.0d0 - VG_n)
-    END IF
+        IF (.NOT. psi_is_head) THEN
+          VG_alpha = VG_alpha*rho_water*9.80665d0
+        END IF
     
-  ! psi_s parameter in the modified van Genuchten model
-    !parchar = 'vg_psi_s'
-    !CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-    !IF (VG_error == 1) THEN
-    !  WRITE(*,*)
-    !  WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-    !  WRITE(*,*)
-    !  STOP
-    !END IF
-    !! convert unit
-    !psi_s = psi_s/dist_scale
+        !!!!!!!!!!!!!!!!!!!!!!!!!
+        ! n parameter in the van Genuchten model
+        !!!!!!!!!!!!!!!!!!!!!!!!!
+        parchar = 'vg_n'
+        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
+        IF (VG_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+          WRITE(*,*)
+          STOP
+        END IF
+
+        IF (parfind == ' ') THEN
+          ! ************************************
+          ! Edit by Lucien Stolze, June 2023
+          ! Read alpha parameter array from file
+          CALL read_vgnfile(nout,nx,ny,nz,vgnfile,lfile,readvgn,vgnFileFormat)
+          IF (readvgn) THEN
+            vgnfile(1:lfile) = vgnfile(1:lfile)
+            INQUIRE(FILE=vgnfile,EXIST=ext)
+            IF (.NOT. ext) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' vgn file not found: ',vgnfile(1:lfile)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+        
+            OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
+            FileTemp = vgnfile
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (vgnFileFormat == 'ContinuousRead') THEN
+              READ(23,*,END=1020) (((VG_n(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+            ELSE IF (vgnFileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) VG_n(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+            ELSE IF (vgnFileFormat == 'FullForm') THEN
+              IF (ny > 1 .AND. nz > 1) THEN
+                DO jz = 1,nz
+                  DO jy = 1,ny
+                    DO jx= 1,nx
+                      READ(23,*,END=1020) xdum,ydum,zdum,VG_n(jx,jy,jz)
+                    END DO
+                  END DO
+                END DO
+              ELSE IF (ny > 1 .AND. nz == 1) THEN
+                jz = 1
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,VG_n(jx,jy,jz)
+                  END DO
+                END DO
+              ELSE
+              jz = 1
+              jy = 1
+              DO jx= 1,nx
+                READ(23,*,END=1020) xdum,VG_n(jx,jy,jz)
+              END DO
+              END IF
+            ELSE IF (vgnFileFormat == 'Unformatted') THEN
+              READ(23,END=1020) VG_n
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' VGn file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) 'Information on VG n must be provided.'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          ENDIF
+
+        ENDIF
+        ! ************************************
+        ! End edit by Lucien Stolze, June 2023
     
-  END IF Richards_allocate
-  ! ***************************************************
-  ! End of Edit by Toshiyuki Bandai 2023 May
+        IF (.NOT. vg_is_n) THEN
+          ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
+          VG_n = 1.0d0/(1.0d0 - VG_n)
+        END IF
+    
+      END IF Richards_allocate
+      ! ***************************************************
+      ! End of Edit by Toshiyuki Bandai 2023 May
      
 
-!  Look for information on permeability, pressure, and pumping or injection wells
-!  First, check to see whether permeability distribution is to be read from file
+      !  Look for information on permeability, pressure, and pumping or injection wells
+      !  First, check to see whether permeability distribution is to be read from file
 
-    readperm = .false.
-    npermx = 0
-    npermy = 0
-    npermz = 0
-    CALL read_permfile(nout,nx,ny,nz,permfile,lfile,readperm,PermFileFormat)
+      readperm = .false.
+      npermx = 0
+      npermy = 0
+      npermz = 0
+      CALL read_permfile(nout,nx,ny,nz,permfile,lfile,readperm,PermFileFormat)
 
-    IF (readperm) THEN
+      IF (readperm) THEN
 
-      permxfile = ' '
-      permyfile = ' '
-      permzfile = ' '
+        permxfile = ' '
+        permyfile = ' '
+        permzfile = ' '
 
-      WRITE(iunit2,*)
-      WRITE(iunit2,*) '  Reading permeabilities from file: ',permfile(1:lfile)
-      WRITE(iunit2,*)
+        WRITE(iunit2,*)
+        WRITE(iunit2,*) '  Reading permeabilities from file: ',permfile(1:lfile)
+        WRITE(iunit2,*)
 
-!!!!!!!!!!
-      IF (PermFileFormat == 'SingleFile3D') THEN
+        IF (PermFileFormat == 'SingleFile3D') THEN
 
-        INQUIRE(FILE=permfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' 3D permeability file not found: ',permfile(1:lfile)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
+          INQUIRE(FILE=permfile,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' 3D permeability file not found: ',permfile(1:lfile)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
 
-        OPEN(UNIT=23,FILE=permfile,STATUS='old',ERR=8005)
-        FileTemp = permfile
-        CALL stringlen(FileTemp,FileNameLength)
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-              READ(23,*,END=1020) xdum,ydum,zdum,permx(jx,jy,jz),permdum,permy(jx,jy,jz)
-              permx(jx,jy,jz) = 0.001*permx(jx,jy,jz)/(9.81*997.075)
-              permy(jx,jy,jz) = 0.001*permy(jx,jy,jz)/(9.81*997.075)
-!!               permz(jx,jy,jz) = permz(jx,jy,jz)/(9.81*997.075)
-            END DO
-          END DO
-        END DO
-
-        jz = 1
-        do jy = 1,ny
-          permx(0,jy,jz) = permx(1,jy,jz)
-          permx(nx+1,jy,jz) = permx(nx,jy,jz)
-        end do
-
-        perminx = permx
-        perminy = permy
-        perminx = permx
-
-        CLOSE(UNIT=23,STATUS='keep')
-!!!!!!!
-    ELSE
-
-        permxfile(1:lfile) = permfile(1:lfile)
-        permxfile(lfile+1:lfile+2) = '.x'
-        INQUIRE(FILE=permxfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' X permeability file not found: ',permxfile(1:lfile+2)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
-        FileTemp = permxfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (PermFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((permx(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-        ELSE IF (PermFileFormat == 'SingleColumn') THEN
+          OPEN(UNIT=23,FILE=permfile,STATUS='old',ERR=8005)
+          FileTemp = permfile
+          CALL stringlen(FileTemp,FileNameLength)
           DO jz = 1,nz
             DO jy = 1,ny
-              DO jx= 0,nx+1
-                READ(23,*,END=1020) permx(jx,jy,jz)
+              DO jx = 1,nx
+                READ(23,*,END=1020) xdum,ydum,zdum,permx(jx,jy,jz),permdum,permy(jx,jy,jz)
+                permx(jx,jy,jz) = 0.001*permx(jx,jy,jz)/(9.81*997.075)
+                permy(jx,jy,jz) = 0.001*permy(jx,jy,jz)/(9.81*997.075)
+  !!               permz(jx,jy,jz) = permz(jx,jy,jz)/(9.81*997.075)
               END DO
             END DO
           END DO
-        ELSE IF (PermFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
+
+          jz = 1
+          do jy = 1,ny
+            permx(0,jy,jz) = permx(1,jy,jz)
+            permx(nx+1,jy,jz) = permx(nx,jy,jz)
+          end do
+
+          perminx = permx
+          perminy = permy
+          perminx = permx
+
+          CLOSE(UNIT=23,STATUS='keep')
+
+        ELSE            !! Else block
+
+          permxfile(1:lfile) = permfile(1:lfile)
+          permxfile(lfile+1:lfile+2) = '.x'
+          INQUIRE(FILE=permxfile,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' X permeability file not found: ',permxfile(1:lfile+2)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
+          FileTemp = permxfile
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (PermFileFormat == 'ContinuousRead') THEN
+            READ(23,*,END=1020) (((permx(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+          ELSE IF (PermFileFormat == 'SingleColumn') THEN
             DO jz = 1,nz
               DO jy = 1,ny
                 DO jx= 0,nx+1
-                  READ(23,*,END=1020) xdum,ydum,zdum,permx(jx,jy,jz)
+                  READ(23,*,END=1020) permx(jx,jy,jz)
                 END DO
               END DO
             END DO
-          ELSE IF (ny > 1 .AND. nz == 1) THEN
-            jz = 1
-            DO jy = 1,ny
-              DO jx= 0,nx+1
-                READ(23,*,END=1020) xdum,ydum,permx(jx,jy,jz)
+          ELSE IF (PermFileFormat == 'FullForm') THEN
+            
+            IF (ny > 1 .AND. nz > 1) THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 0,nx+1
+                    READ(23,*,END=1020) xdum,ydum,zdum,permx(jx,jy,jz)
+                  END DO
+                END DO
               END DO
-            END DO
+            ELSE IF (ny > 1 .AND. nz == 1) THEN
+              jz = 1
+              DO jy = 1,ny
+                DO jx= 0,nx+1
+                  READ(23,*,END=1020) xdum,ydum,permx(jx,jy,jz)
+                END DO
+              END DO
+            ELSE
+              jz = 1
+              jy = 1
+              DO jx= 0,nx+1
+                READ(23,*,END=1020) xdum,permx(jx,jy,jz)
+              END DO
+            END IF
+          ELSE IF (PermFileFormat == 'Unformatted') THEN
+            READ(23,END=1020) permx
           ELSE
-          jz = 1
-          jy = 1
-          DO jx= 0,nx+1
-            READ(23,*,END=1020) xdum,permx(jx,jy,jz)
-          END DO
-        END IF
-      ELSE IF (PermFileFormat == 'Unformatted') THEN
-        READ(23,END=1020) permx
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' X Permeability file format not recognized'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
+            WRITE(*,*)
+            WRITE(*,*) ' X Permeability file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
 
-      CLOSE(UNIT=23,STATUS='keep')
+          CLOSE(UNIT=23,STATUS='keep')
 
-      termA = 2.14074E-05
+          termA = 2.14074E-05
 
-      do jy = 1,ny
-          do jx = 1,nx
-                     porTemp = 0.15
-                     portemp1 = 0.15
+          DO jy = 1,ny
+            DO jx = 1,nx
+              porTemp = 0.15
+              portemp1 = 0.15
 
               termB=permx(jx,jy,1)/termA
               term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
               term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
               portemp1 = portemp1 - term1/term2
 
-
-                              term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
+              term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
               term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
               portemp1 = portemp1 - term1/term2
-
-
-
-                            term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
-              term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
-              portemp1 = portemp1 - term1/term2
-
-
-
-                          term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
-              term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
-              portemp1 = portemp1 - term1/term2
-
-
 
               term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
               term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
               portemp1 = portemp1 - term1/term2
 
-
+              term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
+              term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
+              portemp1 = portemp1 - term1/term2
 
               term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
               term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
               portemp1 = portemp1 - term1/term2
 
-
+              term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
+              term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
+              portemp1 = portemp1 - term1/term2
 
               term1 = portemp1**03 - termB*portemp1*portemp1 + 2.0*termB*portemp1 - termB
               term2 = 3.0*portemp1**02 - 2.0*termB*portemp1 + 2.0*termB
               portemp1 = portemp1 - term1/term2
 
-             por(jx,jy,1) = portemp1
-             volfx(2,jx,jy,1) = 1.0 - portemp1 - 0.05
+              por(jx,jy,1) = portemp1
+              volfx(2,jx,jy,1) = 1.0 - portemp1 - 0.05
 
-          end do
-      end do
-
-      IF (ny /= 1) THEN
-        permyfile(1:lfile) = permfile(1:lfile)
-        permyfile(lfile+1:lfile+2) = '.y'
-        INQUIRE(FILE=permyfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Y permeability file not found: ',permyfile(1:lfile+2)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        OPEN(UNIT=23,FILE=permyfile,STATUS='old',ERR=8002)
-        FileTemp = permyfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (PermFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((permy(jx,jy,jz),jx=1,nx),jy=0,ny+1),jz=1,nz)
-        ELSE IF (PermFileFormat == 'SingleColumn') THEN
-          DO jz = 1,nz
-            DO jy = 0,ny+1
-              DO jx= 1,nx
-                READ(23,*,END=1020) permy(jx,jy,jz)
-              END DO
             END DO
           END DO
-        ELSE IF (PermFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
-            DO jz = 1,nz
-              DO jy = 0,ny+1
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,zdum,permy(jx,jy,jz)
+
+          IF (ny /= 1) THEN
+            permyfile(1:lfile) = permfile(1:lfile)
+            permyfile(lfile+1:lfile+2) = '.y'
+            INQUIRE(FILE=permyfile,EXIST=ext)
+            IF (.NOT. ext) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Y permeability file not found: ',permyfile(1:lfile+2)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            OPEN(UNIT=23,FILE=permyfile,STATUS='old',ERR=8002)
+            FileTemp = permyfile
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (PermFileFormat == 'ContinuousRead') THEN
+              READ(23,*,END=1020) (((permy(jx,jy,jz),jx=1,nx),jy=0,ny+1),jz=1,nz)
+            ELSE IF (PermFileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 0,ny+1
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) permy(jx,jy,jz)
+                  END DO
                 END DO
               END DO
-            END DO
-          ELSE IF (ny > 1 .AND. nz == 1) THEN
-            jz = 1
-            DO jy = 0,ny+1
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,ydum,permy(jx,jy,jz)
-              END DO
-            END DO
-          ELSE
-            CONTINUE
+            ELSE IF (PermFileFormat == 'FullForm') THEN
+              IF (ny > 1 .AND. nz > 1) THEN
+                DO jz = 1,nz
+                  DO jy = 0,ny+1
+                    DO jx= 1,nx
+                      READ(23,*,END=1020) xdum,ydum,zdum,permy(jx,jy,jz)
+                    END DO
+                  END DO
+                END DO
+              ELSE IF (ny > 1 .AND. nz == 1) THEN
+                jz = 1
+                DO jy = 0,ny+1
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) xdum,ydum,permy(jx,jy,jz)
+                  END DO
+                END DO
+              ELSE
+                CONTINUE
+              END IF
+            ELSE IF (PermFileFormat == 'Unformatted') THEN
+              READ(23,END=1020) permy
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' Y Permeability file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            CLOSE(UNIT=23,STATUS='keep')
           END IF
-        ELSE IF (PermFileFormat == 'Unformatted') THEN
-          READ(23,END=1020) permy
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Y Permeability file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        CLOSE(UNIT=23,STATUS='keep')
-      END IF
 
-      IF (nz /= 1) THEN
-        permzfile(1:lfile) = permfile(1:lfile)
-        permzfile(lfile+1:lfile+2) = '.z'
-        INQUIRE(FILE=permzfile,EXIST=ext)
-        IF (.NOT. ext) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Z permeability file not found: ',permzfile(1:lfile+2)
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        OPEN(UNIT=23,FILE=permzfile,STATUS='old',ERR=8003)
-        FileTemp = permzfile
-        CALL stringlen(FileTemp,FileNameLength)
-        IF (PermFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((permz(jx,jy,jz),jx=1,nx),jy=1,ny),jz=0,nz+1)
-        ELSE IF (PermFileFormat == 'SingleColumn') THEN
-          DO jz = 0,nz+1
-            DO jy = 1,ny
-              DO jx= 1,nx
-                READ(23,*,END=1020) permz(jx,jy,jz)
+          IF (nz /= 1) THEN
+            permzfile(1:lfile) = permfile(1:lfile)
+            permzfile(lfile+1:lfile+2) = '.z'
+            INQUIRE(FILE=permzfile,EXIST=ext)
+            IF (.NOT. ext) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Z permeability file not found: ',permzfile(1:lfile+2)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            OPEN(UNIT=23,FILE=permzfile,STATUS='old',ERR=8003)
+            FileTemp = permzfile
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (PermFileFormat == 'ContinuousRead') THEN
+              READ(23,*,END=1020) (((permz(jx,jy,jz),jx=1,nx),jy=1,ny),jz=0,nz+1)
+            ELSE IF (PermFileFormat == 'SingleColumn') THEN
+              DO jz = 0,nz+1
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(23,*,END=1020) permz(jx,jy,jz)
+                  END DO
+                END DO
               END DO
+            ELSE IF (PermFileFormat == 'FullForm') THEN
+              IF (ny > 1 .AND. nz > 1) THEN
+                DO jz = 0,nz+1
+                  DO jy = 1,ny
+                    DO jx= 1,nx
+                      READ(23,*,END=1020) xdum,ydum,zdum,permz(jx,jy,jz)
+                    END DO
+                  END DO
+                END DO
+              ELSE
+                CONTINUE
+              END IF
+            ELSE IF (PermFileFormat == 'Unformatted') THEN
+              READ(23,END=1020) permz
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' Z Permeability file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            CLOSE(UNIT=23,STATUS='keep')
+          END IF
+
+        END IF
+
+        permmaxX = 0.0d0
+        permmaxy = 0.0d0
+        permminX = 1.0d0
+        permminY = 1.0d0
+
+        DO jz = 1,nz
+          DO jy = 1,ny
+            DO jx = 1,nx
+
+              if (permx(jx,jy,jz) > permmaxX) then
+                permmaxX = permx(jx,jy,jz)
+              end if
+              if (permY(jx,jy,jz) > permmaxY) then
+                permmaxY = permY(jx,jy,jz)
+              end if
+              if (permx(jx,jy,jz) < permminX) then
+                permminX = permx(jx,jy,jz)
+              end if
+              if (permy(jx,jy,jz) < permminy) then
+                permminY = permy(jx,jy,jz)
+              end if
+
             END DO
           END DO
-        ELSE IF (PermFileFormat == 'FullForm') THEN
-          IF (ny > 1 .AND. nz > 1) THEN
-            DO jz = 0,nz+1
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,ydum,zdum,permz(jx,jy,jz)
-                END DO
-              END DO
-            END DO
-          ELSE
-            CONTINUE
-          END IF
-        ELSE IF (PermFileFormat == 'Unformatted') THEN
-          READ(23,END=1020) permz
-        ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Z Permeability file format not recognized'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        CLOSE(UNIT=23,STATUS='keep')
-      END IF
+        END DO
+
+        write(*,*) ' Internal MinMax in X: ', permminX,permmaxX
+        write(*,*) ' Internal MinMax in Y: ', permminY,permmaxY
+        write(*,*)
+
+        perminx = permx
+        perminy = permy
+        perminz = permz
+
+        GO TO 8004
+
+        8001   WRITE(*,*) ' Error opening X permeability file: STOP'
+        READ(*,*)
+        STOP
+        8002   WRITE(*,*) ' Error opening Y permeability file: STOP'
+        READ(*,*)
+        STOP
+        8003   WRITE(*,*) ' Error opening Z permeability file: STOP'
+        READ(*,*)
+        8005   WRITE(*,*) ' Error opening 3D permeability file: STOP'
+        READ(*,*)
+
+        8004    CONTINUE
 
       END IF
-!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-      permmaxX = 0.0d0
-      permmaxy = 0.0d0
-      permminX = 1.0d0
-      permminY = 1.0d0
-
-      do jz = 1,nz
-        do jy = 1,ny
-          do jx = 1,nx
-
-            if (permx(jx,jy,jz) > permmaxX) then
-              permmaxX = permx(jx,jy,jz)
-            end if
-            if (permY(jx,jy,jz) > permmaxY) then
-              permmaxY = permY(jx,jy,jz)
-            end if
-            if (permx(jx,jy,jz) < permminX) then
-              permminX = permx(jx,jy,jz)
-            end if
-            if (permy(jx,jy,jz) < permminy) then
-              permminY = permy(jx,jy,jz)
-            end if
-
-          end do
-        end do
-      end do
-
-      write(*,*) ' Internal MinMax in X: ', permminX,permmaxX
-      write(*,*) ' Internal MinMax in Y: ', permminY,permmaxY
-      write(*,*)
-
-
-!!!        do jz = 1,nz
-!!!          do jy = 1,ny
-!!!            do jx = 1,nx
-!!!
-!!!                LogPermX = DLOG10(permx(jx,jy,jz))
-!!!                NewLogPermX = (LogPermX - MidPointX)/2.0d0 + MidPointX
-!!!                permx(jx,jy,jz) = 10**(NewLogPermX)
-!!!
-!!!                LogPermY = DLOG10(permY(jx,jy,jz))
-!!!                NewLogPermY = (LogPermY - MidPointY)/2.0d0 + MidPointY
-!!!                permy(jx,jy,jz) = 10**(NewLogPermY)
-!!!
-!!!           end do
-!!!         end do
-!!!        end do
-!!!
-!!!        permmaxX = 0.0d0
-!!!        permmaxy = 0.0d0
-!!!        permminX = 1.0d0
-!!!        permminY = 1.0d0
-
-!!!        do jz = 1,nz
-!!!          do jy = 1,ny
-!!!            do jx = 1,nx
-!!!
-!!!              if (permx(jx,jy,jz) > permmaxX) then
-!!!                permmaxX = permx(jx,jy,jz)
-!!!              end if
-!!!              if (permY(jx,jy,jz) > permmaxY) then
-!!!                permmaxY = permy(jx,jy,jz)
-!!!              end if
-!!!              if (permx(jx,jy,jz) < permminX) then
-!!!                permminX = permx(jx,jy,jz)
-!!!              end if
-!!!              if (permy(jx,jy,jz) < permminY) then
-!!!                permminY = permy(jx,jy,jz)
-!!!                if (permminY == 0.0d0) then
-!!!                   write(*,*) jx,jy
-!!!                   read(*,*)
-!!!                end if
-!!!              end if
-!!!
-!!!            end do
-!!!          end do
-!!!        end do
-!!!
-!!!
-!!!        write(*,*) ' MinMax in X: ', permminX,permmaxX
-!!!        write(*,*) ' MinMax in Y: ', permminY,permmaxY
-!!!        write(*,*)
-
-      perminx = permx
-      perminy = permy
-      perminz = permz
-
-      GO TO 8004
-
-      8001   WRITE(*,*) ' Error opening X permeability file: STOP'
-      READ(*,*)
-      STOP
-      8002   WRITE(*,*) ' Error opening Y permeability file: STOP'
-      READ(*,*)
-      STOP
-      8003   WRITE(*,*) ' Error opening Z permeability file: STOP'
-      READ(*,*)
-      8005   WRITE(*,*) ' Error opening 3D permeability file: STOP'
-      READ(*,*)
-
-8004    CONTINUE
-
-      CONTINUE
-
-    END IF
-
-!!!!      ELSE
 
       ALLOCATE(permzonex(0:mperm))
       ALLOCATE(permzoney(0:mperm))
@@ -7997,15 +7275,14 @@ ELSE
       ALLOCATE(jzzpermz_lo(mperm))
       ALLOCATE(jzzpermz_hi(mperm))
 
-!  Reading permeability distribution directly from input file
-
+      ! Reading permeability distribution directly from input file
 
       CALL read_permx(nout,nx,ny,nz,npermx)
       readpermx = .false.
-       CALL read_permxfile(nout,nx,ny,nz,permxfile,lfile,readpermx,permxFileFormat)
+      CALL read_permxfile(nout,nx,ny,nz,permxfile,lfile,readpermx,permxFileFormat)
 
-       IF (readpermx) then
-
+      IF (readpermx) then
+        
         permxfile(1:lfile) = permxfile(1:lfile)
         INQUIRE(FILE=permxfile,EXIST=ext)
         IF (.NOT. ext) THEN
@@ -8021,6 +7298,7 @@ ELSE
 
         IF (permxFileFormat == 'ContinuousRead') THEN
           READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
+          
         ELSE IF (permxFileFormat == 'SingleColumn') THEN
           DO jz = 1,nz
             DO jy = 1,ny
@@ -8029,7 +7307,9 @@ ELSE
               END DO
             END DO
           END DO
+          
         ELSE IF (permxFileFormat == 'FullForm') THEN
+          
           IF (ny > 1 .AND. nz > 1) THEN
             DO jz = 1,nz
               DO jy = 1,ny
@@ -8046,14 +7326,14 @@ ELSE
               END DO
             END DO
           ELSE
-          jz = 1
-          jy = 1
-          DO jx= 1,nx
-            READ(23,*,END=1020) xdum,permx(jx,jy,jz)
-          END DO
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,permx(jx,jy,jz)
+            END DO
           END IF
         ELSE IF (permxFileFormat == 'Unformatted') THEN
-        READ(23,END=1020) permx
+          READ(23,END=1020) permx
         ELSE
           WRITE(*,*)
           WRITE(*,*) ' VGalpha file format not recognized'
@@ -8061,53 +7341,54 @@ ELSE
           READ(*,*)
           STOP
         END IF
-      else
-      IF (permzonex(0) == 0.0 .and. .NOT. ReadPerm) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' No default X permeability given'
-        WRITE(*,*) ' X permeability should be followed by "default" or blank string'
-        WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
-        WRITE(*,*)
-        STOP
+        
       ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' Background X permeability = ',permzonex(0)
-        WRITE(*,*)
-      END IF
+        IF (permzonex(0) == 0.0 .and. .NOT. ReadPerm) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' No default X permeability given'
+          WRITE(*,*) ' X permeability should be followed by "default" or blank string'
+          WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
+          WRITE(*,*)
+          STOP
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Background X permeability = ',permzonex(0)
+          WRITE(*,*)
+        END IF
 
-! First, initialize X permeability to default permeability (permzonex(0))
+  ! First, initialize X permeability to default permeability (permzonex(0))
 
-      IF (.NOT. ReadPerm) THEN
-        perminx = permzonex(0)
-      END IF
+        IF (.NOT. ReadPerm) THEN
+          perminx = permzonex(0)
+        END IF
 
-!  Next, initialize permeability from various zones
+  !  Next, initialize permeability from various zones
 
-      IF (npermx > 0) THEN
-        DO l = 1,npermx
-          DO jz = jzzpermx_lo(l),jzzpermx_hi(l)
-            DO jy = jyypermx_lo(l),jyypermx_hi(l)
-              DO jx = jxxpermx_lo(l),jxxpermx_hi(l)
-                perminx(jx,jy,jz) = permzonex(l)
+        IF (npermx > 0) THEN
+          DO l = 1,npermx
+            DO jz = jzzpermx_lo(l),jzzpermx_hi(l)
+              DO jy = jyypermx_lo(l),jyypermx_hi(l)
+                DO jx = jxxpermx_lo(l),jxxpermx_hi(l)
+                  perminx(jx,jy,jz) = permzonex(l)
+                END DO
               END DO
             END DO
           END DO
-        END DO
+        END IF
+
+        permmaxX= 0.0
+        permx = perminx
+        permmaxX = MAXVAL(DABS(permx))
+
+        DEALLOCATE(permzonex)
+        DEALLOCATE(jxxpermx_lo)
+        DEALLOCATE(jxxpermx_hi)
+        DEALLOCATE(jyypermx_lo)
+        DEALLOCATE(jyypermx_hi)
+        DEALLOCATE(jzzpermx_lo)
+        DEALLOCATE(jzzpermx_hi)
+
       END IF
-
-      permmaxX= 0.0
-      permx = perminx
-      permmaxX = MAXVAL(DABS(permx))
-
-      DEALLOCATE(permzonex)
-      DEALLOCATE(jxxpermx_lo)
-      DEALLOCATE(jxxpermx_hi)
-      DEALLOCATE(jyypermx_lo)
-      DEALLOCATE(jyypermx_hi)
-      DEALLOCATE(jzzpermx_lo)
-      DEALLOCATE(jzzpermx_hi)
-
-    endif
 
       IF (ny == 1) THEN
         permy = 0.0
@@ -8124,86 +7405,79 @@ ELSE
         readpermy = .false.
         CALL read_permyfile(nout,nx,ny,nz,permyfile,lfile,readpermy,permyFileFormat)
 
-        IF (readpermy) then
+        IF (readpermy) THEN
 
-         permyfile(1:lfile) = permyfile(1:lfile)
-         INQUIRE(FILE=permyfile,EXIST=ext)
-         IF (.NOT. ext) THEN
-           WRITE(*,*)
-           WRITE(*,*) ' permy file not found: ',permyfile(1:lfile)
-           WRITE(*,*)
-           READ(*,*)
-           STOP
-         END IF
-         OPEN(UNIT=23,FILE=permyfile,STATUS='old')
-         FileTemp = permyfile
-         CALL stringlen(FileTemp,FileNameLength)
-             jz = 1
-             DO jy = 0,ny+1
-               DO jx= 1,nx
-                 READ(23,*,END=1020) xdum,ydum,dum1
-                 if (dum1<-20) then
+          permyfile(1:lfile) = permyfile(1:lfile)
+          INQUIRE(FILE=permyfile,EXIST=ext)
+          IF (.NOT. ext) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' permy file not found: ',permyfile(1:lfile)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          OPEN(UNIT=23,FILE=permyfile,STATUS='old')
+          FileTemp = permyfile
+          CALL stringlen(FileTemp,FileNameLength)
+          jz = 1
+          DO jy = 0,ny+1
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,dum1
+              IF (dum1<-20) THEN
                 permy(jx,jy,1:nz)=0
-                 else
-                 permy(jx,jy,1:nz)=10**dum1
-                 endif
-               END DO
-             END DO
-       else
-
-
-        CALL read_permy(nout,nx,ny,nz,npermy)
-        IF (permzoney(0) == 0.0 .and. .NOT.ReadPerm) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' No default Y permeability given'
-          WRITE(*,*) ' Y permeability should be followed by "default" or blank string'
-          WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
-          WRITE(*,*)
-          STOP
+              ELSE
+                permy(jx,jy,1:nz)=10**dum1
+              END IF
+            END DO
+          END DO
+          
         ELSE
-          WRITE(*,*)
-          WRITE(*,*) ' Background Y permeability = ',permzoney(0)
-          WRITE(*,*)
-        END IF
+          CALL read_permy(nout,nx,ny,nz,npermy)
+          IF (permzoney(0) == 0.0 .and. .NOT.ReadPerm) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' No default Y permeability given'
+            WRITE(*,*) ' Y permeability should be followed by "default" or blank string'
+            WRITE(*,*) ' Or, turn off flow calculation (calculate_flow = false)'
+            WRITE(*,*)
+            STOP
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Background Y permeability = ',permzoney(0)
+            WRITE(*,*)
+          END IF
 
-! Initialize Y permeability to default permeability (permzoney(0))
-
-!!        DO jy = 1,ny
-!!          perminy(:,jy,:) = permzoney(0)
-!!        END DO
-
-      IF (.NOT. ReadPerm) THEN
-        perminy = permzoney(0)
-      END IF
+          IF (.NOT. ReadPerm) THEN
+            perminy = permzoney(0)
+          END IF
 
 
-!  Next, initialize permeability from various zones
+          !  Next, initialize permeability from various zones
 
-        IF (npermy > 0) THEN
-          DO l = 1,npermy
-            DO jz = jzzpermy_lo(l),jzzpermy_hi(l)
-              DO jy = jyypermy_lo(l),jyypermy_hi(l)
-                DO jx = jxxpermy_lo(l),jxxpermy_hi(l)
-                  perminy(jx,jy,jz) = permzoney(l)
+          IF (npermy > 0) THEN
+            DO l = 1,npermy
+              DO jz = jzzpermy_lo(l),jzzpermy_hi(l)
+                DO jy = jyypermy_lo(l),jyypermy_hi(l)
+                  DO jx = jxxpermy_lo(l),jxxpermy_hi(l)
+                    perminy(jx,jy,jz) = permzoney(l)
+                  END DO
                 END DO
               END DO
             END DO
-          END DO
+          END IF
+
+          permmaxy = 0.0
+          permy = perminy
+          permmaxy = MAXVAL(DABS(permy))
+
+          DEALLOCATE(permzoney)
+          DEALLOCATE(jxxpermy_lo)
+          DEALLOCATE(jxxpermy_hi)
+          DEALLOCATE(jyypermy_lo)
+          DEALLOCATE(jyypermy_hi)
+          DEALLOCATE(jzzpermy_lo)
+          DEALLOCATE(jzzpermy_hi)
+
         END IF
-
-        permmaxy = 0.0
-        permy = perminy
-        permmaxy = MAXVAL(DABS(permy))
-
-        DEALLOCATE(permzoney)
-        DEALLOCATE(jxxpermy_lo)
-        DEALLOCATE(jxxpermy_hi)
-        DEALLOCATE(jyypermy_lo)
-        DEALLOCATE(jyypermy_hi)
-        DEALLOCATE(jzzpermy_lo)
-        DEALLOCATE(jzzpermy_hi)
-
-      END IF
       END IF
 
       IF (nz == 1) THEN
@@ -8268,8 +7542,6 @@ ELSE
         DEALLOCATE(jzzpermz_hi)
 
       ELSE
-
-
         CALL read_permz(nout,nx,ny,nz,npermz)
         IF (permzonez(0) == 0.0 .and. .NOT.ReadPerm) THEN
           WRITE(*,*)
@@ -8286,15 +7558,10 @@ ELSE
 
 ! Initialize Y permeability to default permeability (permzonez(0))
 
-!!        DO jz = 1,nz
-!!          perminz(:,:,jz) = permzonez(0)
-!!        END DO
-
       IF (.NOT. ReadPerm) THEN
         perminz = permzonez(0)
         permz = permzonez(0)
       END IF
-
 
 !  Next, initialize permeability from various zones
 
@@ -8326,85 +7593,255 @@ ELSE
 
       !!!  End of section where choosing between perm file read and zone specification      END IF
       
-    ! ********************************************
-    ! Edit by Toshiyuki Bandai, 2023 May
-    Richards_permeability: IF (Richards) THEN
+      ! ********************************************
+      ! Edit by Toshiyuki Bandai, 2023 May
+      Richards_permeability: IF (Richards) THEN
 
-      K_faces_x(0, 1, 1) = permx(1, 1, 1)
-      K_faces_x(nx, 1, 1) = permx(nx, 1, 1)
+        K_faces_x(0, 1, 1) = permx(1, 1, 1)
+        K_faces_x(nx, 1, 1) = permx(nx, 1, 1)
 
-      ! compute face permeability
-      DO i = 1, nx - 1
-        IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
-          K_faces_x(i, 1, 1) = permx(i, 1, 1)
-        ELSE
-          ! distance weighted harmonic mean
-          numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
-          denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
-          K_faces_x(i, 1, 1) = numerator / denominator
-        END IF
-      END DO
-    END IF Richards_permeability
+        ! compute face permeability
+        DO i = 1, nx - 1
+          IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
+            K_faces_x(i, 1, 1) = permx(i, 1, 1)
+          ELSE
+            ! distance weighted harmonic mean
+            numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
+            denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
+            K_faces_x(i, 1, 1) = numerator / denominator
+          END IF
+        END DO
+      END IF Richards_permeability
     
-    ! Read x_begin and x_end boundary conditions for steady-state problem
-    Richards_boundary_conditions: IF (Richards) THEN
-      IF (Richards_steady) THEN
-        IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-          ! x_begin boundary condition
-          BC_location = 0
-          ! the arguments x_begin_BC_file, lfile, tslength are not used for the steady-state problem
-          CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_begin_BC_type_steady, x_begin_BC_file, value_x_begin_BC_steady, lfile, x_begin_constant_BC_steady, tslength)
+      ! Read x_begin and x_end boundary conditions for steady-state problem
+      Richards_boundary_conditions: IF (Richards) THEN
+        IF (Richards_steady) THEN
+          IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+            ! x_begin boundary condition
+            BC_location = 0
+            ! the arguments x_begin_BC_file, lfile, tslength are not used for the steady-state problem
+            CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_begin_BC_type_steady, x_begin_BC_file, value_x_begin_BC_steady, lfile, x_begin_constant_BC_steady, tslength)
       
-          ! unit conversion
-          SELECT CASE (x_begin_BC_type_steady)
-          CASE ('constant_dirichlet')
-            value_x_begin_BC_steady = value_x_begin_BC_steady/dist_scale
+            ! unit conversion
+            SELECT CASE (x_begin_BC_type_steady)
+            CASE ('constant_dirichlet')
+              value_x_begin_BC_steady = value_x_begin_BC_steady/dist_scale
           
-            IF (.NOT. psi_is_head) THEN
-              value_x_begin_BC_steady = (value_x_begin_BC_steady - pressure_air)/(rho_water*9.80665d0)
-            END IF
+              IF (.NOT. psi_is_head) THEN
+                value_x_begin_BC_steady = (value_x_begin_BC_steady - pressure_air)/(rho_water*9.80665d0)
+              END IF
           
-          CASE ('constant_neumann')
+            CASE ('constant_neumann')
+              WRITE(*,*)
+              WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the x_begin boundary condition for the steady-state Richards equation. '
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+              !CONTINUE ! no unit conversion
+            CASE ('constant_flux')
+              value_x_begin_BC_steady = value_x_begin_BC_steady/(dist_scale * time_scale)
+            CASE DEFAULT
+              WRITE(*,*)
+              WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the steady-state Richards equation. '
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END SELECT
+      
+            ! x_end boundary condition
+            BC_location = 1
+            ! the arguments x_end_BC_file, lfile, x_end_constant_BC, tslength are not used for the steady-state problem
+            CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_end_BC_type_steady, x_end_BC_file, value_x_end_BC_steady, lfile, x_end_constant_BC_steady, tslength)
+      
+            ! unit conversion
+            SELECT CASE (x_end_BC_type_steady)
+            CASE ('constant_dirichlet')
+              value_x_end_BC_steady = value_x_end_BC_steady/dist_scale
+              IF (.NOT. psi_is_head) THEN
+                value_x_end_BC_steady = (value_x_end_BC_steady - pressure_air)/(rho_water*9.80665d0)
+              END IF
+          
+            CASE ('constant_neumann')
+              CONTINUE ! no unit conversion
+            CASE ('constant_flux')
+              value_x_end_BC_steady = value_x_end_BC_steady/(dist_scale * time_scale)
+            CASE DEFAULT
+              WRITE(*,*)
+              WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type_steady, ' is not supported for the steady-state Richards equation. '
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END SELECT
+          ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
             WRITE(*,*)
-            WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the x_begin boundary condition for the steady-state Richards equation. '
+            WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
             WRITE(*,*)
             READ(*,*)
             STOP
-            !CONTINUE ! no unit conversion
-          CASE ('constant_flux')
-            value_x_begin_BC_steady = value_x_begin_BC_steady/(dist_scale * time_scale)
+          ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+        END IF
+    
+        ! read boundary conditions for transient problem
+        IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+        
+          ! read x_begin boundary condition
+          BC_location = 0
+          x_begin_constant_BC = .TRUE.
+    
+          CALL read_boundary_condition_Richards_1D(nout, .FALSE., BC_location, x_begin_BC_type, x_begin_BC_file, value_x_begin_BC, lfile, x_begin_constant_BC, tslength)
+        
+          ! unit conversion and import time series data if the boundary condition is variable
+          SELECT CASE (x_begin_BC_type)
+          CASE ('constant_dirichlet')
+            value_x_begin_BC = value_x_begin_BC/dist_scale
+            IF (.NOT. psi_is_head) THEN
+                value_x_begin_BC = (value_x_begin_BC - pressure_air)/(rho_water*9.80665d0)
+            END IF
+          CASE ('constant_neumann')
+            CONTINUE ! no unit conversion
+          CASE ('constant_flux', 'constant_atomosphere')
+            value_x_begin_BC = value_x_begin_BC/(dist_scale * time_scale)
+          CASE ('variable_dirichlet')
+        
+            IF (ALLOCATED(t_x_begin_BC)) THEN
+              DEALLOCATE(t_x_begin_BC)
+            END IF
+            IF (ALLOCATED(values_x_begin_BC)) THEN
+              DEALLOCATE(values_x_begin_BC)
+            END IF
+            ALLOCATE(t_x_begin_BC(tslength))
+            ALLOCATE(values_x_begin_BC(tslength))
+            CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
+          
+            IF (.NOT. psi_is_head) THEN
+                values_x_begin_BC = (values_x_begin_BC - pressure_air)/(rho_water*9.80665d0)
+            END IF
+          
+            values_x_begin_BC = values_x_begin_BC/dist_scale
+          
+            ! unit conversion for the time for the variable boundary condition
+            t_x_begin_BC = t_x_begin_BC*time_scale
+          
+          CASE ('variable_neumann')
+        
+            IF (ALLOCATED(t_x_begin_BC)) THEN
+              DEALLOCATE(t_x_begin_BC)
+            END IF
+            IF (ALLOCATED(values_x_begin_BC)) THEN
+              DEALLOCATE(values_x_begin_BC)
+            END IF
+            ALLOCATE(t_x_begin_BC(tslength))
+            ALLOCATE(values_x_begin_BC(tslength))
+            CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
+        
+            ! unit conversion for the time for the variable boundary condition
+            t_x_begin_BC = t_x_begin_BC*time_scale
+            CONTINUE ! no unit conversion
+          CASE ('variable_flux', 'variable_atomosphere')
+        
+            IF (ALLOCATED(t_x_begin_BC)) THEN
+              DEALLOCATE(t_x_begin_BC)
+            END IF
+            IF (ALLOCATED(values_x_begin_BC)) THEN
+              DEALLOCATE(values_x_begin_BC)
+            END IF
+            ALLOCATE(t_x_begin_BC(tslength))
+            ALLOCATE(values_x_begin_BC(tslength))
+            CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
+        
+            values_x_begin_BC = values_x_begin_BC/(dist_scale * time_scale)
+            ! unit conversion for the time for the variable boundary condition
+            t_x_begin_BC = t_x_begin_BC*time_scale          
+          
           CASE DEFAULT
             WRITE(*,*)
-            WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the steady-state Richards equation. '
+            WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type, ' is not supported. '
             WRITE(*,*)
             READ(*,*)
             STOP
           END SELECT
-      
-          ! x_end boundary condition
+    
+          ! read x_end boundary condition
+          x_end_constant_BC = .TRUE.
           BC_location = 1
-          ! the arguments x_end_BC_file, lfile, x_end_constant_BC, tslength are not used for the steady-state problem
-          CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_end_BC_type_steady, x_end_BC_file, value_x_end_BC_steady, lfile, x_end_constant_BC_steady, tslength)
+          CALL read_boundary_condition_Richards_1D(nout, .FALSE., BC_location, x_end_BC_type, x_end_BC_file, value_x_end_BC, lfile, x_end_constant_BC, tslength)
       
-          ! unit conversion
-          SELECT CASE (x_end_BC_type_steady)
+          ! unit conversion and import time series for upper boundary condition if the boundary condition is time-dependent (variable)
+          SELECT CASE (x_end_BC_type)
           CASE ('constant_dirichlet')
-            value_x_end_BC_steady = value_x_end_BC_steady/dist_scale
+            value_x_end_BC = value_x_end_BC/dist_scale
             IF (.NOT. psi_is_head) THEN
-              value_x_end_BC_steady = (value_x_end_BC_steady - pressure_air)/(rho_water*9.80665d0)
+                value_x_end_BC = (value_x_end_BC - pressure_air)/(rho_water*9.80665d0)
             END IF
-          
           CASE ('constant_neumann')
             CONTINUE ! no unit conversion
           CASE ('constant_flux')
-            value_x_end_BC_steady = value_x_end_BC_steady/(dist_scale * time_scale)
+            value_x_end_BC = value_x_end_BC/(dist_scale * time_scale)
+          CASE ('variable_dirichlet')
+            ! import time series for upper boundary condition
+            IF (ALLOCATED(t_x_end_BC)) THEN
+              DEALLOCATE(t_x_end_BC)
+            END IF
+            IF (ALLOCATED(values_x_end_BC)) THEN
+              DEALLOCATE(values_x_end_BC)
+            END IF
+            ALLOCATE(t_x_end_BC(tslength))
+            ALLOCATE(values_x_end_BC(tslength))
+            CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
+          
+            IF (.NOT. psi_is_head) THEN
+                values_x_end_BC = (values_x_end_BC - pressure_air)/(rho_water*9.80665d0)
+            END IF
+            values_x_end_BC = values_x_end_BC/dist_scale
+          
+            ! unit conversion for the time for the variable boundary condition
+            t_x_end_BC = t_x_end_BC*time_scale
+          
+          CASE ('variable_neumann')
+            IF (ALLOCATED(t_x_end_BC)) THEN
+              DEALLOCATE(t_x_end_BC)
+            END IF
+            IF (ALLOCATED(values_x_end_BC)) THEN
+              DEALLOCATE(values_x_end_BC)
+            END IF
+            ALLOCATE(t_x_end_BC(tslength))
+            ALLOCATE(values_x_end_BC(tslength))
+            CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
+          
+            ! unit conversion for the time for the variable boundary condition
+            t_x_end_BC = t_x_end_BC*time_scale
+          
+          CASE ('variable_flux')
+            ! import time series for upper boundary condition
+            IF (ALLOCATED(t_x_end_BC)) THEN
+              DEALLOCATE(t_x_end_BC)
+            END IF
+            IF (ALLOCATED(values_x_end_BC)) THEN
+              DEALLOCATE(values_x_end_BC)
+            END IF
+            ALLOCATE(t_x_end_BC(tslength))
+            ALLOCATE(values_x_end_BC(tslength))
+            CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
+        
+            values_x_end_BC = values_x_end_BC/(dist_scale * time_scale)
+            ! unit conversion for the time for the variable boundary condition
+            t_x_end_BC = t_x_end_BC*time_scale
+      
           CASE DEFAULT
             WRITE(*,*)
-            WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type_steady, ' is not supported for the steady-state Richards equation. '
+            WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type, ' is not supported. '
             WRITE(*,*)
             READ(*,*)
             STOP
           END SELECT
+        
         ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
           WRITE(*,*)
           WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
@@ -8418,368 +7855,99 @@ ELSE
           READ(*,*)
           STOP
         END IF
+        
+      END IF Richards_boundary_conditions
+    
+      Richards_initial_conditions: IF (Richards) THEN
       
-      END IF
-    
-      ! read boundary conditions for transient problem
-      IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-        
-        ! read x_begin boundary condition
-        BC_location = 0
-        x_begin_constant_BC = .TRUE.
-    
-        CALL read_boundary_condition_Richards_1D(nout, .FALSE., BC_location, x_begin_BC_type, x_begin_BC_file, value_x_begin_BC, lfile, x_begin_constant_BC, tslength)
-        
-        ! unit conversion and import time series data if the boundary condition is variable
-        SELECT CASE (x_begin_BC_type)
-        CASE ('constant_dirichlet')
-          value_x_begin_BC = value_x_begin_BC/dist_scale
-          IF (.NOT. psi_is_head) THEN
-              value_x_begin_BC = (value_x_begin_BC - pressure_air)/(rho_water*9.80665d0)
-          END IF
-        CASE ('constant_neumann')
-          CONTINUE ! no unit conversion
-        CASE ('constant_flux', 'constant_atomosphere')
-          value_x_begin_BC = value_x_begin_BC/(dist_scale * time_scale)
-        CASE ('variable_dirichlet')
-        
-          IF (ALLOCATED(t_x_begin_BC)) THEN
-            DEALLOCATE(t_x_begin_BC)
-          END IF
-          IF (ALLOCATED(values_x_begin_BC)) THEN
-            DEALLOCATE(values_x_begin_BC)
-          END IF
-          ALLOCATE(t_x_begin_BC(tslength))
-          ALLOCATE(values_x_begin_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
-          
-          IF (.NOT. psi_is_head) THEN
-              values_x_begin_BC = (values_x_begin_BC - pressure_air)/(rho_water*9.80665d0)
-          END IF
-          
-          values_x_begin_BC = values_x_begin_BC/dist_scale
-          
-          ! unit conversion for the time for the variable boundary condition
-          t_x_begin_BC = t_x_begin_BC*time_scale
-          
-        CASE ('variable_neumann')
-        
-          IF (ALLOCATED(t_x_begin_BC)) THEN
-            DEALLOCATE(t_x_begin_BC)
-          END IF
-          IF (ALLOCATED(values_x_begin_BC)) THEN
-            DEALLOCATE(values_x_begin_BC)
-          END IF
-          ALLOCATE(t_x_begin_BC(tslength))
-          ALLOCATE(values_x_begin_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
-        
-          ! unit conversion for the time for the variable boundary condition
-          t_x_begin_BC = t_x_begin_BC*time_scale
-          CONTINUE ! no unit conversion
-        CASE ('variable_flux', 'variable_atomosphere')
-        
-          IF (ALLOCATED(t_x_begin_BC)) THEN
-            DEALLOCATE(t_x_begin_BC)
-          END IF
-          IF (ALLOCATED(values_x_begin_BC)) THEN
-            DEALLOCATE(values_x_begin_BC)
-          END IF
-          ALLOCATE(t_x_begin_BC(tslength))
-          ALLOCATE(values_x_begin_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
-        
-          values_x_begin_BC = values_x_begin_BC/(dist_scale * time_scale)
-          ! unit conversion for the time for the variable boundary condition
-          t_x_begin_BC = t_x_begin_BC*time_scale          
-          
-        CASE DEFAULT
-          WRITE(*,*)
-          WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type, ' is not supported. '
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END SELECT
-    
-        ! read x_end boundary condition
-        x_end_constant_BC = .TRUE.
-        BC_location = 1
-        CALL read_boundary_condition_Richards_1D(nout, .FALSE., BC_location, x_end_BC_type, x_end_BC_file, value_x_end_BC, lfile, x_end_constant_BC, tslength)
-      
-        ! unit conversion and import time series for upper boundary condition if the boundary condition is time-dependent (variable)
-        SELECT CASE (x_end_BC_type)
-        CASE ('constant_dirichlet')
-          value_x_end_BC = value_x_end_BC/dist_scale
-          IF (.NOT. psi_is_head) THEN
-              value_x_end_BC = (value_x_end_BC - pressure_air)/(rho_water*9.80665d0)
-          END IF
-        CASE ('constant_neumann')
-          CONTINUE ! no unit conversion
-        CASE ('constant_flux')
-          value_x_end_BC = value_x_end_BC/(dist_scale * time_scale)
-        CASE ('variable_dirichlet')
-          ! import time series for upper boundary condition
-          IF (ALLOCATED(t_x_end_BC)) THEN
-            DEALLOCATE(t_x_end_BC)
-          END IF
-          IF (ALLOCATED(values_x_end_BC)) THEN
-            DEALLOCATE(values_x_end_BC)
-          END IF
-          ALLOCATE(t_x_end_BC(tslength))
-          ALLOCATE(values_x_end_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
-          
-          IF (.NOT. psi_is_head) THEN
-              values_x_end_BC = (values_x_end_BC - pressure_air)/(rho_water*9.80665d0)
-          END IF
-          values_x_end_BC = values_x_end_BC/dist_scale
-          
-          ! unit conversion for the time for the variable boundary condition
-          t_x_end_BC = t_x_end_BC*time_scale
-          
-        CASE ('variable_neumann')
-          IF (ALLOCATED(t_x_end_BC)) THEN
-            DEALLOCATE(t_x_end_BC)
-          END IF
-          IF (ALLOCATED(values_x_end_BC)) THEN
-            DEALLOCATE(values_x_end_BC)
-          END IF
-          ALLOCATE(t_x_end_BC(tslength))
-          ALLOCATE(values_x_end_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
-          
-          ! unit conversion for the time for the variable boundary condition
-          t_x_end_BC = t_x_end_BC*time_scale
-          
-        CASE ('variable_flux')
-          ! import time series for upper boundary condition
-          IF (ALLOCATED(t_x_end_BC)) THEN
-            DEALLOCATE(t_x_end_BC)
-          END IF
-          IF (ALLOCATED(values_x_end_BC)) THEN
-            DEALLOCATE(values_x_end_BC)
-          END IF
-          ALLOCATE(t_x_end_BC(tslength))
-          ALLOCATE(values_x_end_BC(tslength))
-          CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
-        
-          values_x_end_BC = values_x_end_BC/(dist_scale * time_scale)
-          ! unit conversion for the time for the variable boundary condition
-          t_x_end_BC = t_x_end_BC*time_scale
-        !
-        !CASE ('environmental_forcing')
-        !  ! import infiltration, evaporation, and transpiration data
-        !
-        !  ! bool for whether the time series is provided or not
-        !  infiltration_timeseries = .FALSE.
-        !  evapotimeseries = .FALSE.
-        !  transpitimeseries = .FALSE.
-        !
-        !  ! bool for whether the forcing is constant or not
-        !  infiltration_fix = .FALSE.
-        !  evapofix = .FALSE.
-        !  transpifix = .FALSE.
-        !
-        !  ! infiltration
-        !  CALL read_infiltration_2(nout,nx,ny,nz,infiltration_file,infiltration_rate,lfile,infiltration_fix,infiltration_timeseries,tslength)
-        !  IF (infiltration_timeseries) THEN
-        !    IF (ALLOCATED(t_infiltration)) THEN
-        !      DEALLOCATE(t_infiltration)
-        !    END IF
-        !    IF (ALLOCATED(qt_infiltration)) THEN
-        !      DEALLOCATE(qt_infiltration)
-        !    END IF
-        !    ALLOCATE(t_infiltration(tslength))
-        !    ALLOCATE(qt_infiltration(tslength))
-        !    CALL read_timeseries(nout,nx,ny,nz,t_infiltration,qt_infiltration,lfile,infiltration_file,tslength)
-        !  
-        !    ! unit conversion for the time for the variable boundary condition
-        !    qt_infiltration = qt_infiltration/(dist_scale * time_scale)
-        !    t_infiltration = t_infiltration*time_scale
-        !  ENDIF
-        !
-        !  IF (infiltration_fix) THEN
-        !    infiltration_rate = infiltration_rate/(dist_scale * time_scale)
-        !  END IF
-        !
-        !  ! evaporation
-        !  CALL read_evaporation(nout,nx,ny,nz,evapofile,evaporate,lfile,evapofix,evapotimeseries,tslength)
-        !  IF (evapotimeseries) THEN
-        !    IF (ALLOCATED(t_evapo)) THEN
-        !      DEALLOCATE(t_evapo)
-        !    END IF
-        !    IF (ALLOCATED(qt_evapo)) THEN
-        !      DEALLOCATE(qt_evapo)
-        !    END IF
-        !    ALLOCATE(t_evapo(tslength))
-        !    ALLOCATE(qt_evapo(tslength))
-        !    CALL read_timeseries(nout,nx,ny,nz,t_evapo,qt_evapo,lfile,evapofile,tslength)
-        !  
-        !    ! unit conversion for the time for the variable boundary condition
-        !    qt_evapo = qt_evapo/(dist_scale * time_scale)
-        !    t_evapo = t_evapo*time_scale
-        !  
-        !    ! evaporate = qt_evapo(1)
-        !    ! STOP
-        !  ENDIF
-        !
-        !  IF (evapofix) THEN
-        !    evaporate = evaporate/(dist_scale * time_scale)
-        !  END IF
-        !
-        !
-        !
-        !  ! transpiration
-        !  IF (ALLOCATED(transpirate_cell)) THEN
-        !    DEALLOCATE(transpirate_cell)
-        !  END IF
-        !  ALLOCATE(transpirate_cell(nx))
-        !  transpirate_cell = 0
-        !  
-        !  CALL read_transpiration(nout,nx,ny,nz,transpifile,transpirate,lfile,transpifix,transpitimeseries,transpicells,tslength)
-        !  IF (transpitimeseries) THEN
-        !    IF (ALLOCATED(t_transpi)) THEN
-        !      DEALLOCATE(t_transpi)
-        !    END IF
-        !    IF (ALLOCATED(qt_transpi)) THEN
-        !      DEALLOCATE(qt_transpi)
-        !    END IF
-        !    ALLOCATE(t_transpi(tslength))
-        !    ALLOCATE(qt_transpi(tslength))
-        !    CALL read_timeseries(nout,nx,ny,nz,t_transpi,qt_transpi,lfile,transpifile,tslength)
-        !    qt_transpi = qt_transpi/transpicells
-        !  
-        !    qt_transpi = qt_transpi/(dist_scale * time_scale)
-        !    t_transpi = t_transpi*time_scale
-        !    !transpirate = qt_transpi(1)
-        !    !WRITE(*,*) transpirate
-        !   ! STOP
-        !  ENDIF
-        !
-        !  IF (transpifix) THEN
-        !    transpirate = transpirate / transpicells
-        !    transpirate = transpirate/(dist_scale * time_scale)
-        !    WRITE(*,*) 'stop'
-        !  END IF
-      
-        CASE DEFAULT
-          WRITE(*,*)
-          WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type, ' is not supported. '
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END SELECT
-        
-      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-        WRITE(*,*)
-        WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-        
-    END IF Richards_boundary_conditions
-    
-    
-    
-    Richards_initial_conditions: IF (Richards) THEN
-      
-      !Read initial condition for steady-state or transient problem
-      parchar = 'read_richards_ic_file'
-      parfind = ' '
-      Richards_IC_File = ' '
-      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
-      IF (parfind == ' ') THEN
-        WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
-        psi = 0.0d0
-      ELSE
-        Richards_IC_File = dumstring
-        CALL stringlen(Richards_IC_File,ls)
-        WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
-      END IF
-    
-    
-      read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
-        INQUIRE(FILE=Richards_IC_File,EXIST=ext)
-        IF (.NOT. ext) THEN
-          IF (Richards_steady) THEN
-            WRITE(*,*) ' The initial condition file was not found for steady-state problem. Set to zero water potential at all cells. '
-            psi = 0.0d0
-          
-          ELSE
-            CALL stringlen(Richards_IC_File,ls)
-            WRITE(*,*)
-            WRITE(*,*) ' Initial condition file not found for time-dependent problem: ', Richards_IC_File(1:ls)
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-        
+        !Read initial condition for steady-state or transient problem
+        parchar = 'read_richards_ic_file'
+        parfind = ' '
+        Richards_IC_File = ' '
+        CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
+        IF (parfind == ' ') THEN
+          WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
+          psi = 0.0d0
         ELSE
-          OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
-          FileTemp = Richards_IC_File
-          CALL stringlen(FileTemp,FileNameLength)
-          IF (Richards_IC_FileFormat == 'SingleColumn') THEN
-            DO jz = 1,nz
-              DO jy = 1,ny
-                DO jx= 1,nx
-                  READ(52,*,END=1020) psi(jx,jy,jz)
+          Richards_IC_File = dumstring
+          CALL stringlen(Richards_IC_File,ls)
+          WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
+        END IF
+    
+        read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
+          INQUIRE(FILE=Richards_IC_File,EXIST=ext)
+          IF (.NOT. ext) THEN
+            IF (Richards_steady) THEN
+              WRITE(*,*) ' The initial condition file was not found for steady-state problem. Set to zero water potential at all cells. '
+              psi = 0.0d0
+          
+            ELSE
+              CALL stringlen(Richards_IC_File,ls)
+              WRITE(*,*)
+              WRITE(*,*) ' Initial condition file not found for time-dependent problem: ', Richards_IC_File(1:ls)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+        
+          ELSE
+            OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
+            FileTemp = Richards_IC_File
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (Richards_IC_FileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(52,*,END=1020) psi(jx,jy,jz)
+                  END DO
                 END DO
               END DO
-            END DO
               
-            ! the input value is in pressure [Pa], convert to pressure head [m]
-            IF (.NOT. psi_is_head) THEN
-              psi = (psi - pressure_air)/(rho_water*9.80665d0)
+              ! the input value is in pressure [Pa], convert to pressure head [m]
+              IF (.NOT. psi_is_head) THEN
+                psi = (psi - pressure_air)/(rho_water*9.80665d0)
+              END IF
+          
+              ! convert unit
+              psi = psi / dist_scale
+          
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' Richards Initial condition file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
             END IF
-          
-            ! convert unit
-            psi = psi / dist_scale
-          
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) ' Richards Initial condition file format not recognized'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
+            CLOSE(UNIT=52)
+        
           END IF
-          CLOSE(UNIT=52)
         
-        END IF
-        
-      END IF read_ic_Rihcards
+        END IF read_ic_Rihcards
       
-    ! fill the ghost cell
-      psi(0,1,1) = psi(1,1,1)
-      psi(nx+1,1,1) = psi(nx,1,1)
+      ! fill the ghost cell
+        psi(0,1,1) = psi(1,1,1)
+        psi(nx+1,1,1) = psi(nx,1,1)
       
-    END IF Richards_initial_conditions
-    ! End of edit by Toshiyuki Bandai, 2023 May
-    ! ********************************************
+      END IF Richards_initial_conditions
+      ! End of edit by Toshiyuki Bandai, 2023 May
+      ! ********************************************
       
+      CALL read_gravity(nout)
+
+      IF (ALLOCATED(activecellPressure)) THEN
+        DEALLOCATE(activecellPressure)
+        ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
+      ELSE
+        ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
+      END IF
+
+      activecellPressure = 1
     
-    CALL read_gravity(nout)
+      CALL read_pressureAlternative(nout,nx,ny,nz,npressure)
 
-    IF (ALLOCATED(activecellPressure)) THEN
-      DEALLOCATE(activecellPressure)
-      ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
-    ELSE
-      ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
-    END IF
+      pres = PressureZone(0)
 
-    activecellPressure = 1
-    
-    CALL read_pressureAlternative(nout,nx,ny,nz,npressure)
-
-    pres = PressureZone(0)
-
-!  Next, initialize pressure from various zones
+      !  Next, initialize pressure from various zones
       IF (npressure > 0) THEN
         DO l = 1,npressure
           DO jz = jzzPressure_lo(l),jzzPressure_hi(l)
@@ -8793,146 +7961,148 @@ ELSE
         END DO
       END IF
 
-    DEALLOCATE(PressureZone)
-    DEALLOCATE(PressureFix)
-    DEALLOCATE(jxxPressure_lo)
-    DEALLOCATE(jxxPressure_hi)
-    DEALLOCATE(jyyPressure_lo)
-    DEALLOCATE(jyyPressure_hi)
-    DEALLOCATE(jzzPressure_lo)
-    DEALLOCATE(jzzPressure_hi)
+      DEALLOCATE(PressureZone)
+      DEALLOCATE(PressureFix)
+      DEALLOCATE(jxxPressure_lo)
+      DEALLOCATE(jxxPressure_hi)
+      DEALLOCATE(jyyPressure_lo)
+      DEALLOCATE(jyyPressure_hi)
+      DEALLOCATE(jzzPressure_lo)
+      DEALLOCATE(jzzPressure_hi)
 
+      watertabletimeseries = .FALSE.
+      CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
+      IF (watertabletimeseries) THEN
+      CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
+      !!else
+      !!  CALL read_pump(nout,nx,ny,nz,nchem)
+      ENDIF
 
+      parchar = 'initialize_hydrostatic'
+      parfind = ' '
+      InitializeHydrostatic = .FALSE.
+      CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
+      IF (GIMRT) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
+        WRITE(*,*)
+      ELSE
+        CONTINUE
+      END IF
 
-    watertabletimeseries = .FALSE.
-    CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
-    IF (watertabletimeseries) THEN
-    CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
-    !!else
-    !!  CALL read_pump(nout,nx,ny,nz,nchem)
-    ENDIF
-
-    parchar = 'initialize_hydrostatic'
-    parfind = ' '
-    InitializeHydrostatic = .FALSE.
-    CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
-    IF (GIMRT) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
-      WRITE(*,*)
-    ELSE
-      CONTINUE
-    END IF
-
-  END IF flow_if  ! End of block within which flow calculation parameters are read
-
-END IF
-
-IF (constant_gasflow) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Constant gas flow specified'
-  readgasvelocity = .FALSE.
-  WRITE(*,*)
-ELSE
-
-!  No constant gas flow field specified, so look for file read
-
-  readgasvelocity = .false.
-  CALL read_gasflowfile(nout,nx,ny,nz,constant_gasflow,  &
-      qxgasinit,qygasinit,qzgasinit,gasvelocityfile,lfile,GasVelocityFileFormat)
-
-  IF (gasvelocityfile /= ' ') THEN
-    readgasvelocity = .true.
-!!      WRITE(*,*)
-!!      WRITE(*,*) ' Gas velocities to be read from file ',gasvelocityfile(1:lfile)
-!!      WRITE(*,*)
+    END IF flow_if  ! End of block within which flow calculation parameters are read
+    
+  !!! *********************  END OF FLOW CALCULATION   **********************************
+    !!! *********************************************************************************
 
   END IF
 
-END IF
+  IF (constant_gasflow) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Constant gas flow specified'
+    readgasvelocity = .FALSE.
+    WRITE(*,*)
+  ELSE
 
-IF (CalculateFlow) THEN
-  permxOld = permx
-  permyOld = permy
-  permzOld = permz
-END IF
+  !  No constant gas flow field specified, so look for file read
+
+    readgasvelocity = .false.
+    CALL read_gasflowfile(nout,nx,ny,nz,constant_gasflow,  &
+        qxgasinit,qygasinit,qzgasinit,gasvelocityfile,lfile,GasVelocityFileFormat)
+
+    IF (gasvelocityfile /= ' ') THEN
+      readgasvelocity = .true.
+  !!      WRITE(*,*)
+  !!      WRITE(*,*) ' Gas velocities to be read from file ',gasvelocityfile(1:lfile)
+  !!      WRITE(*,*)
+
+    END IF
+
+  END IF
+
+  IF (CalculateFlow) THEN
+    permxOld = permx
+    permyOld = permy
+    permzOld = permz
+  END IF
 
 ELSE
-WRITE(*,*)
-WRITE(*,*) ' No flow block found'
-readvelocity = .FALSE.
-readgasvelocity = .FALSE.
-WRITE(*,*) ' Assuming Darcy fluxes = 0'
-WRITE(*,*)
-qxinit = 0.0
-qyinit = 0.0
-qzinit = 0.0
-qxgasinit = 0.0
-qygasinit = 0.0
-qzgasinit = 0.0
-constant_flow = .TRUE.
-constant_gasflow = .TRUE.
+  WRITE(*,*)
+  WRITE(*,*) ' No flow block found'
+  readvelocity = .FALSE.
+  readgasvelocity = .FALSE.
+  WRITE(*,*) ' Assuming Darcy fluxes = 0'
+  WRITE(*,*)
+  qxinit = 0.0
+  qyinit = 0.0
+  qzinit = 0.0
+  qxgasinit = 0.0
+  qygasinit = 0.0
+  qzgasinit = 0.0
+  constant_flow = .TRUE.
+  constant_gasflow = .TRUE.
+  
 END IF
 
 !  If constant_flow = true, then use constant velocities and skip file read
 
 IF (constant_flow) THEN
-WRITE(*,*)
-WRITE(*,*) '  Constant velocities have been specified'
-WRITE(*,*)
-WRITE(*,*) '  X Darcy velocity = ',qxinit
-WRITE(*,*) '  Y Darcy velocity = ',qyinit
-WRITE(*,*) '  Z Darcy velocity = ',qzinit
-WRITE(*,*)
-WRITE(iunit2,*)
-WRITE(iunit2,*) ' Constant velocities have been specified'
-WRITE(iunit2,*)
-WRITE(iunit2,*) '  X Darcy velocity = ',qxinit
-WRITE(iunit2,*) '  Y Darcy velocity = ',qyinit
-WRITE(iunit2,*)
+  WRITE(*,*)
+  WRITE(*,*) '  Constant velocities have been specified'
+  WRITE(*,*)
+  WRITE(*,*) '  X Darcy velocity = ',qxinit
+  WRITE(*,*) '  Y Darcy velocity = ',qyinit
+  WRITE(*,*) '  Z Darcy velocity = ',qzinit
+  WRITE(*,*)
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) ' Constant velocities have been specified'
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) '  X Darcy velocity = ',qxinit
+  WRITE(iunit2,*) '  Y Darcy velocity = ',qyinit
+  WRITE(iunit2,*)
 
-!  Convert units if necessary (converting to years)
+  !  Convert units if necessary (converting to years)
 
-qxinit = qxinit/(time_scale*dist_scale)
-qyinit = qyinit/(time_scale*dist_scale)
-qzinit = qzinit/(time_scale*dist_scale)
+  qxinit = qxinit/(time_scale*dist_scale)
+  qyinit = qyinit/(time_scale*dist_scale)
+  qzinit = qzinit/(time_scale*dist_scale)
 
-qxmax = qxinit
-qx = qxinit
+  qxmax = qxinit
+  qx = qxinit
 
-qymax = qyinit
-qy = qyinit
+  qymax = qyinit
+  qy = qyinit
 
-qzmax = qzinit
-qz = qzinit
+  qzmax = qzinit
+  qz = qzinit
 
 END IF
 
 IF (constant_gasflow) THEN
-WRITE(*,*)
-WRITE(*,*) '  Constant gas velocities have been specified'
-WRITE(*,*)
-WRITE(*,*) '  X gas flux  = ',qxgasinit
-WRITE(*,*) '  Y gas flux  = ',qygasinit
-WRITE(*,*) '  Z gas flux  = ',qzgasinit
-WRITE(*,*)
-WRITE(iunit2,*)
-WRITE(iunit2,*) ' Constant gas velocities have been specified'
-WRITE(iunit2,*)
-WRITE(iunit2,*) '  X gas flux  = ',qxgasinit
-WRITE(iunit2,*) '  Y gas flux  = ',qygasinit
-WRITE(iunit2,*) '  Z gas flux  = ',qzgasinit
-WRITE(iunit2,*)
+  WRITE(*,*)
+  WRITE(*,*) '  Constant gas velocities have been specified'
+  WRITE(*,*)
+  WRITE(*,*) '  X gas flux  = ',qxgasinit
+  WRITE(*,*) '  Y gas flux  = ',qygasinit
+  WRITE(*,*) '  Z gas flux  = ',qzgasinit
+  WRITE(*,*)
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) ' Constant gas velocities have been specified'
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) '  X gas flux  = ',qxgasinit
+  WRITE(iunit2,*) '  Y gas flux  = ',qygasinit
+  WRITE(iunit2,*) '  Z gas flux  = ',qzgasinit
+  WRITE(iunit2,*)
 
-!  Convert units if necessary (converting to years)
+  !  Convert units if necessary (converting to years)
 
-qxgasinit = qxgasinit/(time_scale*dist_scale)
-qygasinit = qygasinit/(time_scale*dist_scale)
-qzgasinit = qzgasinit/(time_scale*dist_scale)
+  qxgasinit = qxgasinit/(time_scale*dist_scale)
+  qygasinit = qygasinit/(time_scale*dist_scale)
+  qzgasinit = qzgasinit/(time_scale*dist_scale)
 
-qxgas = qxgasinit
-qygas = qygasinit
-qzgas = qzgasinit
+  qxgas = qxgasinit
+  qygas = qygasinit
+  qzgas = qzgasinit
 
 END IF
 
@@ -8940,199 +8110,185 @@ END IF
 ! Constant_flow = false, so read from file
 
 IF (readvelocity) THEN
-CALL stringlen(velocityfile,lfile)
-WRITE(*,*)
-WRITE(*,*) '  Reading velocities from file: ',velocityfile(1:lfile)
-WRITE(*,*)
-WRITE(iunit2,*)
-WRITE(iunit2,*) '  Reading velocities from file: ',velocityfile(1:lfile)
-WRITE(iunit2,*)
-
-vxfile(1:lfile) = velocityfile(1:lfile)
-vxfile(lfile+1:lfile+3) = '.vx'
-INQUIRE(FILE=vxfile,EXIST=ext)
-IF (.NOT. ext) THEN
+  CALL stringlen(velocityfile,lfile)
   WRITE(*,*)
-  WRITE(*,*) ' X velocity file not found: ',vxfile(1:lfile+3)
+  WRITE(*,*) '  Reading velocities from file: ',velocityfile(1:lfile)
   WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-OPEN(UNIT=23,FILE=vxfile,STATUS='old',ERR=5001)
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) '  Reading velocities from file: ',velocityfile(1:lfile)
+  WRITE(iunit2,*)
 
-FileTemp = vxfile
-CALL stringlen(FileTemp,FileNameLength)
-IF (VelocityFileFormat == 'ContinuousRead') THEN
-  READ(23,*,END=1020) (((qx(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
-ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx= 0,nx
-        READ(23,*,END=1020) qx(jx,jy,jz)
-      END DO
-    END DO
-  END DO
-ELSE IF (VelocityFileFormat == 'FullForm') THEN
-!!    IF (ny > 1 .AND. nz > 1) THEN
+  vxfile(1:lfile) = velocityfile(1:lfile)
+  vxfile(lfile+1:lfile+3) = '.vx'
+  INQUIRE(FILE=vxfile,EXIST=ext)
+  IF (.NOT. ext) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' X velocity file not found: ',vxfile(1:lfile+3)
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+  OPEN(UNIT=23,FILE=vxfile,STATUS='old',ERR=5001)
+
+  FileTemp = vxfile
+  CALL stringlen(FileTemp,FileNameLength)
+  IF (VelocityFileFormat == 'ContinuousRead') THEN
+    READ(23,*,END=1020) (((qx(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
+  ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
     DO jz = 1,nz
       DO jy = 1,ny
         DO jx= 0,nx
-          READ(23,*,END=1020) xdum,ydum,zdum,qx(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-!!    ELSE IF (ny > 1 .AND. nz == 1) THEN
-!!      jz = 1
-!!      DO jy = 1,ny
-!!        DO jx= 0,nx
-!!          READ(23,*,END=1020) xdum,ydum,qx(jx,jy,jz)
-!!        END DO
-!!      END DO
-!!    ELSE
-!!      jz = 1
-!!      jy = 1
-!!      DO jx= 0,nx
-!!        READ(23,*,END=1020) xdum,qx(jx,jy,jz)
-!!      END DO
-!!    END IF
-ELSE IF (VelocityFileFormat == 'Unformatted') THEN
-  READ(23,END=1020) qx
-ELSE
-  WRITE(*,*)
-  WRITE(*,*) ' X Velocity file format not recognized'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-
-CLOSE(UNIT=23,STATUS='keep')
-
-IF (ny /= 1) THEN
-  vyfile(1:lfile) = velocityfile(1:lfile)
-  vyfile(lfile+1:lfile+3) = '.vy'
-  INQUIRE(FILE=vyfile,EXIST=ext)
-  IF (.NOT. ext) THEN
-    WRITE(*,*)
-    WRITE(*,*) ' Y velocity file not found: ',vyfile(1:lfile+3)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  OPEN(UNIT=23,FILE=vyfile,STATUS='old',ERR=5002)
-  FileTemp = vyfile
-  CALL stringlen(FileTemp,FileNameLength)
-  IF (VelocityFileFormat == 'ContinuousRead') THEN
-    READ(23,*,END=1020) (((qy(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
-  ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
-    DO jz = 1,nz
-      DO jy = 0,ny
-        DO jx= 1,nx
-          READ(23,*,END=1020) qy(jx,jy,jz)
+          READ(23,*,END=1020) qx(jx,jy,jz)
         END DO
       END DO
     END DO
   ELSE IF (VelocityFileFormat == 'FullForm') THEN
-    IF (ny > 1 .AND. nz > 1) THEN
+  !!    IF (ny > 1 .AND. nz > 1) THEN
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx= 0,nx
+            READ(23,*,END=1020) xdum,ydum,zdum,qx(jx,jy,jz)
+          END DO
+        END DO
+      END DO
+  ELSE IF (VelocityFileFormat == 'Unformatted') THEN
+    READ(23,END=1020) qx
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' X Velocity file format not recognized'
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+
+  CLOSE(UNIT=23,STATUS='keep')
+
+  IF (ny /= 1) THEN
+    vyfile(1:lfile) = velocityfile(1:lfile)
+    vyfile(lfile+1:lfile+3) = '.vy'
+    INQUIRE(FILE=vyfile,EXIST=ext)
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Y velocity file not found: ',vyfile(1:lfile+3)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    OPEN(UNIT=23,FILE=vyfile,STATUS='old',ERR=5002)
+    FileTemp = vyfile
+    CALL stringlen(FileTemp,FileNameLength)
+    IF (VelocityFileFormat == 'ContinuousRead') THEN
+      READ(23,*,END=1020) (((qy(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
+    ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
       DO jz = 1,nz
         DO jy = 0,ny
           DO jx= 1,nx
-            READ(23,*,END=1020) xdum,ydum,zdum,qy(jx,jy,jz)
+            READ(23,*,END=1020) qy(jx,jy,jz)
           END DO
         END DO
       END DO
-    ELSE IF (ny > 1 .AND. nz == 1) THEN
-      jz = 1
-      DO jy = 0,ny
-        DO jx= 1,nx
-          READ(23,*,END=1020) xdum,ydum,qy(jx,jy,jz)
+    ELSE IF (VelocityFileFormat == 'FullForm') THEN
+      IF (ny > 1 .AND. nz > 1) THEN
+        DO jz = 1,nz
+          DO jy = 0,ny
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,zdum,qy(jx,jy,jz)
+            END DO
+          END DO
         END DO
-      END DO
+      ELSE IF (ny > 1 .AND. nz == 1) THEN
+        jz = 1
+        DO jy = 0,ny
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,ydum,qy(jx,jy,jz)
+          END DO
+        END DO
+      ELSE
+        CONTINUE
+      END IF
+    ELSE IF (VelocityFileFormat == 'Unformatted') THEN
+      READ(23,END=1020) qy
     ELSE
-      CONTINUE
+      WRITE(*,*)
+      WRITE(*,*) ' Y Velocity file format not recognized'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
     END IF
-  ELSE IF (VelocityFileFormat == 'Unformatted') THEN
-    READ(23,END=1020) qy
-  ELSE
-    WRITE(*,*)
-    WRITE(*,*) ' Y Velocity file format not recognized'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  CLOSE(UNIT=23,STATUS='keep')
-END IF     !!  End of IF block for reading Y velocities
+    CLOSE(UNIT=23,STATUS='keep')
+  END IF     !!  End of IF block for reading Y velocities
 
-IF (nz /= 1) THEN
-  vzfile(1:lfile) = velocityfile(1:lfile)
-  vzfile(lfile+1:lfile+3) = '.vz'
-  INQUIRE(FILE=vzfile,EXIST=ext)
-  IF (.NOT. ext) THEN
-    WRITE(*,*)
-    WRITE(*,*) ' Z velocity file not found: ',vzfile(1:lfile+3)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  OPEN(UNIT=23,FILE=vzfile,STATUS='old',ERR=5003)
+  IF (nz /= 1) THEN
+    vzfile(1:lfile) = velocityfile(1:lfile)
+    vzfile(lfile+1:lfile+3) = '.vz'
+    INQUIRE(FILE=vzfile,EXIST=ext)
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Z velocity file not found: ',vzfile(1:lfile+3)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    OPEN(UNIT=23,FILE=vzfile,STATUS='old',ERR=5003)
 
-  FileTemp = vzfile
-  CALL stringlen(FileTemp,FileNameLength)
-  IF (VelocityFileFormat == 'ContinuousRead') THEN
-    READ(23,*,END=1020) (((qz(jx,jy,jz),jx=1,nx),jy=1,ny),jz=0,nz)
-  ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
-    DO jz = 0,nz
-      DO jy = 1,ny
-        DO jx= 1,nx
-          READ(23,*,END=1020) qz(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-  ELSE IF (VelocityFileFormat == 'FullForm') THEN
-    IF (ny > 1 .AND. nz > 1) THEN
+    FileTemp = vzfile
+    CALL stringlen(FileTemp,FileNameLength)
+    IF (VelocityFileFormat == 'ContinuousRead') THEN
+      READ(23,*,END=1020) (((qz(jx,jy,jz),jx=1,nx),jy=1,ny),jz=0,nz)
+    ELSE IF (VelocityFileFormat == 'SingleColumn') THEN
       DO jz = 0,nz
         DO jy = 1,ny
           DO jx= 1,nx
-            READ(23,*,END=1020) xdum,ydum,zdum,qz(jx,jy,jz)
+            READ(23,*,END=1020) qz(jx,jy,jz)
           END DO
         END DO
       END DO
+    ELSE IF (VelocityFileFormat == 'FullForm') THEN
+      IF (ny > 1 .AND. nz > 1) THEN
+        DO jz = 0,nz
+          DO jy = 1,ny
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,zdum,qz(jx,jy,jz)
+            END DO
+          END DO
+        END DO
+      ELSE
+        CONTINUE
+      END IF
+    ELSE IF (VelocityFileFormat == 'Unformatted') THEN
+      READ(23,END=1020) qz
     ELSE
-      CONTINUE
+      WRITE(*,*)
+      WRITE(*,*) ' Z Velocity file format not recognized'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
     END IF
-  ELSE IF (VelocityFileFormat == 'Unformatted') THEN
-    READ(23,END=1020) qz
-  ELSE
-    WRITE(*,*)
-    WRITE(*,*) ' Z Velocity file format not recognized'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  CLOSE(UNIT=23,STATUS='keep')
-END IF   !!  End of IF block for Z velocity
+    CLOSE(UNIT=23,STATUS='keep')
+  END IF   !!  End of IF block for Z velocity
 
-GO TO 5004
+  GO TO 5004
 
-5001   WRITE(*,*) ' Error opening X velocity file: STOP'
-READ(*,*)
-STOP
-5002   WRITE(*,*) ' Error opening Y velocity file: STOP'
-READ(*,*)
-STOP
-5003   WRITE(*,*) ' Error opening Z velocity file: STOP'
-READ(*,*)
-STOP
+  5001   WRITE(*,*) ' Error opening X velocity file: STOP'
+  READ(*,*)
+  STOP
+  5002   WRITE(*,*) ' Error opening Y velocity file: STOP'
+  READ(*,*)
+  STOP
+  5003   WRITE(*,*) ' Error opening Z velocity file: STOP'
+  READ(*,*)
+  STOP
 
-5004   CONTINUE
+  5004   CONTINUE
 
-qx = qx/(time_scale*dist_scale)
-qxmax = MAXVAL(qx)
+  qx = qx/(time_scale*dist_scale)
+  qxmax = MAXVAL(qx)
 
-qy = qy/(time_scale*dist_scale)
-qymax = MAXVAL(qy)
+  qy = qy/(time_scale*dist_scale)
+  qymax = MAXVAL(qy)
 
-qz = qz/(time_scale*dist_scale)
-qzmax = MAXVAL(qz)
+  qz = qz/(time_scale*dist_scale)
+  qzmax = MAXVAL(qz)
 
 
 END IF   ! End of block for file read of velocities
@@ -9153,199 +8309,199 @@ WRITE(iunit2,*)
 ! Constant_gasflow = false, so read from file
 
 IF (readgasvelocity) THEN
-call stringlen(gasvelocityfile,lfile)
-WRITE(*,*)
-WRITE(*,*) '  Reading gas velocities from file: ',gasvelocityfile(1:lfile)
-WRITE(*,*)
-WRITE(iunit2,*)
-WRITE(iunit2,*) '  Reading gas velocities from file: ',gasvelocityfile(1:lfile)
-WRITE(iunit2,*)
-
-vxfile = ' '
-vyfile = ' '
-vzfile = ' '
-
-vxfile(1:lfile) = gasvelocityfile(1:lfile)
-vxfile(lfile+1:lfile+3) = '.vx'
-INQUIRE(FILE=vxfile,EXIST=ext)
-IF (.NOT. ext) THEN
+  call stringlen(gasvelocityfile,lfile)
   WRITE(*,*)
-  WRITE(*,*) ' X gas velocity file not found: ',vxfile(1:lfile+3)
+  WRITE(*,*) '  Reading gas velocities from file: ',gasvelocityfile(1:lfile)
   WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-OPEN(UNIT=23,FILE=vxfile,STATUS='old',ERR=7001)
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) '  Reading gas velocities from file: ',gasvelocityfile(1:lfile)
+  WRITE(iunit2,*)
 
-FileTemp = vxfile
-CALL stringlen(FileTemp,FileNameLength)
-IF (GasVelocityFileFormat == 'ContinuousRead') THEN
-  READ(23,*,END=1020) (((qxgas(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
-ELSE IF (GasVelocityFileFormat == 'SingleColumn') THEN
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx= 0,nx
-        READ(23,*,END=1020) qxgas(jx,jy,jz)
-      END DO
-    END DO
-  END DO
-ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
-  IF (ny > 1 .AND. nz > 1) THEN
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx= 0,nx
-          READ(23,*,END=1020) xdum,ydum,zdum,qxgas(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-  ELSE IF (ny > 1 .AND. nz == 1) THEN
-    jz = 1
-    DO jy = 1,ny
-      DO jx= 0,nx
-        READ(23,*,END=1020) xdum,ydum,qxgas(jx,jy,jz)
-      END DO
-    END DO
-  ELSE
-    jz = 1
-    jy = 1
-    DO jx= 0,nx
-      READ(23,*,END=1020) xdum,qxgas(jx,jy,jz)
-    END DO
-  END IF
-ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
-  READ(23,END=1020) qxgas
-ELSE
-  WRITE(*,*)
-  WRITE(*,*) ' X Gas Velocity file format not recognized'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
+  vxfile = ' '
+  vyfile = ' '
+  vzfile = ' '
 
-CLOSE(UNIT=23,STATUS='keep')
-
-IF (ny /= 1) THEN
-  vyfile(1:lfile) = gasvelocityfile(1:lfile)
-  vyfile(lfile+1:lfile+3) = '.vy'
-  INQUIRE(FILE=vyfile,EXIST=ext)
+  vxfile(1:lfile) = gasvelocityfile(1:lfile)
+  vxfile(lfile+1:lfile+3) = '.vx'
+  INQUIRE(FILE=vxfile,EXIST=ext)
   IF (.NOT. ext) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Y gas velocity file not found: ',vyfile(1:lfile+3)
+    WRITE(*,*) ' X gas velocity file not found: ',vxfile(1:lfile+3)
     WRITE(*,*)
     READ(*,*)
     STOP
   END IF
-  OPEN(UNIT=23,FILE=vyfile,STATUS='old',ERR=7002)
-  FileTemp = vyfile
+  OPEN(UNIT=23,FILE=vxfile,STATUS='old',ERR=7001)
+
+  FileTemp = vxfile
   CALL stringlen(FileTemp,FileNameLength)
   IF (GasVelocityFileFormat == 'ContinuousRead') THEN
-    READ(23,*,END=1020) (((qygas(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
+    READ(23,*,END=1020) (((qxgas(jx,jy,jz),jx=0,nx),jy=1,ny),jz=1,nz)
   ELSE IF (GasVelocityFileFormat == 'SingleColumn') THEN
     DO jz = 1,nz
-      DO jy = 0,ny
-        DO jx= 1,nx
-          READ(23,*,END=1020) qygas(jx,jy,jz)
+      DO jy = 1,ny
+        DO jx= 0,nx
+          READ(23,*,END=1020) qxgas(jx,jy,jz)
         END DO
       END DO
     END DO
   ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
     IF (ny > 1 .AND. nz > 1) THEN
       DO jz = 1,nz
-        DO jy = 0,ny
-          DO jx= 1,nx
-            READ(23,*,END=1020) xdum,ydum,zdum,qygas(jx,jy,jz)
+        DO jy = 1,ny
+          DO jx= 0,nx
+            READ(23,*,END=1020) xdum,ydum,zdum,qxgas(jx,jy,jz)
           END DO
         END DO
       END DO
     ELSE IF (ny > 1 .AND. nz == 1) THEN
       jz = 1
-      DO jy = 0,ny
-        DO jx= 1,nx
-          READ(23,*,END=1020) xdum,ydum,qygas(jx,jy,jz)
+      DO jy = 1,ny
+        DO jx= 0,nx
+          READ(23,*,END=1020) xdum,ydum,qxgas(jx,jy,jz)
         END DO
       END DO
     ELSE
-      CONTINUE
+      jz = 1
+      jy = 1
+      DO jx= 0,nx
+        READ(23,*,END=1020) xdum,qxgas(jx,jy,jz)
+      END DO
     END IF
   ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
-    READ(23,END=1020) qygas
+    READ(23,END=1020) qxgas
   ELSE
     WRITE(*,*)
-    WRITE(*,*) ' Y Velocity file format not recognized'
+    WRITE(*,*) ' X Gas Velocity file format not recognized'
     WRITE(*,*)
     READ(*,*)
     STOP
   END IF
+
   CLOSE(UNIT=23,STATUS='keep')
-END IF     !!  End of IF block for reading Y velocities
 
-IF (nz /= 1) THEN
-  vzfile(1:lfile) = gasvelocityfile(1:lfile)
-  vzfile(lfile+1:lfile+3) = '.vz'
-  INQUIRE(FILE=vzfile,EXIST=ext)
-  IF (.NOT. ext) THEN
-    WRITE(*,*)
-    WRITE(*,*) ' Z velocity file not found: ',vzfile(1:lfile+3)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  OPEN(UNIT=23,FILE=vzfile,STATUS='old',ERR=7003)
-
-  FileTemp = vzfile
-  CALL stringlen(FileTemp,FileNameLength)
-  IF (GasVelocityFileFormat == 'ContinuousRead') THEN
-    READ(23,*,END=1020) (((qzgas(jx,jy,jz),jx=1,nx),jy=1,ny),jz=0,nz)
-  ELSE IF (GasVelocityFileFormat == 'SingleColumn') THEN
-    DO jz = 0,nz
-      DO jy = 1,ny
-        DO jx= 1,nx
-          READ(23,*,END=1020) qzgas(jx,jy,jz)
-        END DO
-      END DO
-    END DO
-  ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
-    IF (ny > 1 .AND. nz > 1) THEN
-      DO jz = 0,nz
-        DO jy = 1,ny
+  IF (ny /= 1) THEN
+    vyfile(1:lfile) = gasvelocityfile(1:lfile)
+    vyfile(lfile+1:lfile+3) = '.vy'
+    INQUIRE(FILE=vyfile,EXIST=ext)
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Y gas velocity file not found: ',vyfile(1:lfile+3)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    OPEN(UNIT=23,FILE=vyfile,STATUS='old',ERR=7002)
+    FileTemp = vyfile
+    CALL stringlen(FileTemp,FileNameLength)
+    IF (GasVelocityFileFormat == 'ContinuousRead') THEN
+      READ(23,*,END=1020) (((qygas(jx,jy,jz),jx=1,nx),jy=0,ny),jz=1,nz)
+    ELSE IF (GasVelocityFileFormat == 'SingleColumn') THEN
+      DO jz = 1,nz
+        DO jy = 0,ny
           DO jx= 1,nx
-            READ(23,*,END=1020) xdum,ydum,zdum,qzgas(jx,jy,jz)
+            READ(23,*,END=1020) qygas(jx,jy,jz)
           END DO
         END DO
       END DO
+    ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
+      IF (ny > 1 .AND. nz > 1) THEN
+        DO jz = 1,nz
+          DO jy = 0,ny
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,zdum,qygas(jx,jy,jz)
+            END DO
+          END DO
+        END DO
+      ELSE IF (ny > 1 .AND. nz == 1) THEN
+        jz = 1
+        DO jy = 0,ny
+          DO jx= 1,nx
+            READ(23,*,END=1020) xdum,ydum,qygas(jx,jy,jz)
+          END DO
+        END DO
+      ELSE
+        CONTINUE
+      END IF
+    ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
+      READ(23,END=1020) qygas
     ELSE
-      CONTINUE
+      WRITE(*,*)
+      WRITE(*,*) ' Y Velocity file format not recognized'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
     END IF
-  ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
-    READ(23,END=1020) qzgas
-  ELSE
-    WRITE(*,*)
-    WRITE(*,*) ' Z gas velocity file format not recognized'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
-  CLOSE(UNIT=23,STATUS='keep')
+    CLOSE(UNIT=23,STATUS='keep')
+  END IF     !!  End of IF block for reading Y velocities
 
-END IF   !!  End of IF block for Z velocity
+  IF (nz /= 1) THEN
+    vzfile(1:lfile) = gasvelocityfile(1:lfile)
+    vzfile(lfile+1:lfile+3) = '.vz'
+    INQUIRE(FILE=vzfile,EXIST=ext)
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Z velocity file not found: ',vzfile(1:lfile+3)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    OPEN(UNIT=23,FILE=vzfile,STATUS='old',ERR=7003)
 
-GO TO 7004
+    FileTemp = vzfile
+    CALL stringlen(FileTemp,FileNameLength)
+    IF (GasVelocityFileFormat == 'ContinuousRead') THEN
+      READ(23,*,END=1020) (((qzgas(jx,jy,jz),jx=1,nx),jy=1,ny),jz=0,nz)
+    ELSE IF (GasVelocityFileFormat == 'SingleColumn') THEN
+      DO jz = 0,nz
+        DO jy = 1,ny
+          DO jx= 1,nx
+            READ(23,*,END=1020) qzgas(jx,jy,jz)
+          END DO
+        END DO
+      END DO
+    ELSE IF (GasVelocityFileFormat == 'FullForm') THEN
+      IF (ny > 1 .AND. nz > 1) THEN
+        DO jz = 0,nz
+          DO jy = 1,ny
+            DO jx= 1,nx
+              READ(23,*,END=1020) xdum,ydum,zdum,qzgas(jx,jy,jz)
+            END DO
+          END DO
+        END DO
+      ELSE
+        CONTINUE
+      END IF
+    ELSE IF (GasVelocityFileFormat == 'Unformatted') THEN
+      READ(23,END=1020) qzgas
+    ELSE
+      WRITE(*,*)
+      WRITE(*,*) ' Z gas velocity file format not recognized'
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    CLOSE(UNIT=23,STATUS='keep')
 
-7001   WRITE(*,*) ' Error opening X gas velocity file: STOP'
-READ(*,*)
-STOP
-7002   WRITE(*,*) ' Error opening Y gas velocity file: STOP'
-READ(*,*)
-STOP
-7003   WRITE(*,*) ' Error opening Z gas velocity file: STOP'
-READ(*,*)
-STOP
+  END IF   !!  End of IF block for Z velocity
 
-7004   CONTINUE
+  GO TO 7004
 
-qxgas = qxgas/(time_scale*dist_scale)
-qygas = qygas/(time_scale*dist_scale)
-qzgas = qzgas/(time_scale*dist_scale)
+  7001   WRITE(*,*) ' Error opening X gas velocity file: STOP'
+  READ(*,*)
+  STOP
+  7002   WRITE(*,*) ' Error opening Y gas velocity file: STOP'
+  READ(*,*)
+  STOP
+  7003   WRITE(*,*) ' Error opening Z gas velocity file: STOP'
+  READ(*,*)
+  STOP
+
+  7004   CONTINUE
+
+  qxgas = qxgas/(time_scale*dist_scale)
+  qygas = qygas/(time_scale*dist_scale)
+  qzgas = qzgas/(time_scale*dist_scale)
 
 END IF   ! End of block for file read of velocities
 
@@ -9359,31 +8515,31 @@ erodex = 0.0d0
 erodey = 0.0d0
 
 IF (ALLOCATED(FluidBuryX)) THEN
-DEALLOCATE(FluidBuryX)
-ALLOCATE(FluidBuryX(0:nx))
+  DEALLOCATE(FluidBuryX)
+  ALLOCATE(FluidBuryX(0:nx))
 ELSE
-ALLOCATE(FluidBuryX(0:nx))
+  ALLOCATE(FluidBuryX(0:nx))
 END IF
 
 IF (ALLOCATED(FluidBuryY)) THEN
-DEALLOCATE(FluidBuryY)
-ALLOCATE(FluidBuryY(0:ny))
+  DEALLOCATE(FluidBuryY)
+  ALLOCATE(FluidBuryY(0:ny))
 ELSE
-ALLOCATE(FluidBuryY(0:ny))
+  ALLOCATE(FluidBuryY(0:ny))
 END IF
 
 IF (ALLOCATED(SolidBuryX)) THEN
-DEALLOCATE(SolidBuryX)
-ALLOCATE(SolidBuryX(0:nx))
+  DEALLOCATE(SolidBuryX)
+  ALLOCATE(SolidBuryX(0:nx))
 ELSE
-ALLOCATE(SolidBuryX(0:nx))
+  ALLOCATE(SolidBuryX(0:nx))
 END IF
 
 IF (ALLOCATED(SolidBuryY)) THEN
-DEALLOCATE(SolidBuryY)
-ALLOCATE(SolidBuryY(0:ny))
+  DEALLOCATE(SolidBuryY)
+  ALLOCATE(SolidBuryY(0:ny))
 ELSE
-ALLOCATE(SolidBuryY(0:ny))
+  ALLOCATE(SolidBuryY(0:ny))
 END IF
 
 FluidBuryX = 0.0
@@ -9395,125 +8551,124 @@ section = 'erosion/burial'
 CALL readblock(nin,nout,section,found,ncount)
 
 IF (found) THEN
-WRITE(*,*)
-WRITE(*,*) ' Erosion/burial block found'
-WRITE(*,*)
+  WRITE(*,*)
+  WRITE(*,*) ' Erosion/burial block found'
+  WRITE(*,*)
 
 
-CALL units_time(nout,section,time_scale)
-CALL units_distance(nout,section,dist_scale)
+  CALL units_time(nout,section,time_scale)
+  CALL units_distance(nout,section,dist_scale)
 
-!  Look for file containing fluid burial rates
+  !  Look for file containing fluid burial rates
 
-BurialFile = ' '
-readburial = .false.
-CALL read_burialfile(nout,nx,ny,nz,BurialFile,lfile,ierode,BurialFileFormat)
+  BurialFile = ' '
+  readburial = .false.
+  CALL read_burialfile(nout,nx,ny,nz,BurialFile,lfile,ierode,BurialFileFormat)
 
-IF (BurialFile /= ' ') THEN
-  readburial = .true.
-END IF
-
-IF (.NOT. readburial) THEN
-
-  CALL read_erosion(nout,erodex,erodey)
-
-  erodex = erodex/(time_scale*dist_scale)
-  erodey = erodey/(time_scale*dist_scale)
-
-
-  SolidBuryX = erodex
-  SolidBuryY = erodey
-
-  NoFluidBury = .TRUE.
-
-  IF (NoFluidBury) THEN
-    FluidBuryX = 0.0D0
-    FluidBuryY = 0.0D0
-  ELSE
-    FluidBuryX = erodex
-    FluidBuryY = erodey
+  IF (BurialFile /= ' ') THEN
+    readburial = .true.
   END IF
 
-  IF (erodex == 0.0 .AND. erodey == 0.0) THEN
-    ierode = 0
+  IF (.NOT. readburial) THEN
+
+    CALL read_erosion(nout,erodex,erodey)
+
+    erodex = erodex/(time_scale*dist_scale)
+    erodey = erodey/(time_scale*dist_scale)
+
+    SolidBuryX = erodex
+    SolidBuryY = erodey
+
+    NoFluidBury = .TRUE.
+
+    IF (NoFluidBury) THEN
+      FluidBuryX = 0.0D0
+      FluidBuryY = 0.0D0
+    ELSE
+      FluidBuryX = erodex
+      FluidBuryY = erodey
+    END IF
+
+    IF (erodex == 0.0 .AND. erodey == 0.0) THEN
+      ierode = 0
+    ELSE
+      ierode = 1
+    END IF
+
   ELSE
+
     ierode = 1
-  END IF
 
-ELSE
-
-  ierode = 1
-
-  WRITE(*,*)
-  WRITE(*,*) '  Reading fluid and solid burial rates from file: ',BurialFile(1:lfile)
-  WRITE(*,*)
-  WRITE(iunit2,*)
-  WRITE(iunit2,*) '  Reading fluid and solid burial rates from file: ',BurialFile(1:lfile)
-  WRITE(iunit2,*)
-
-  INQUIRE(FILE=BurialFile,EXIST=ext)
-  IF (.NOT. ext) THEN
-    CALL stringlen(BurialFile,ls)
     WRITE(*,*)
-    WRITE(*,*) ' Solid/fluid burial file not found: ', BurialFile(1:ls)
+    WRITE(*,*) '  Reading fluid and solid burial rates from file: ',BurialFile(1:lfile)
+    WRITE(*,*)
+    WRITE(iunit2,*)
+    WRITE(iunit2,*) '  Reading fluid and solid burial rates from file: ',BurialFile(1:lfile)
+    WRITE(iunit2,*)
+
+    INQUIRE(FILE=BurialFile,EXIST=ext)
+    IF (.NOT. ext) THEN
+      CALL stringlen(BurialFile,ls)
+      WRITE(*,*)
+      WRITE(*,*) ' Solid/fluid burial file not found: ', BurialFile(1:ls)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    OPEN(UNIT=52,FILE=BurialFile,STATUS='old',ERR=5015)
+    FileTemp = BurialFile
+    CALL stringlen(FileTemp,FileNameLength)
+  !!   ********************************************************
+  IF (BurialFileFormat == 'ContinuousRead') THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Only column format allowed for burial/erosion rate format'
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  ELSE IF (BurialFileFormat == 'SingleColumn') THEN
+    DO jx= 0,nx
+      READ(52,*,END=1020) FluidBuryX(jx),SolidBuryX(jx)
+    END DO
+  ELSE IF (BurialFileFormat == 'FullForm') THEN
+    DO jx= 0,nx
+      READ(52,*,END=1020) xdum,FluidBuryX(jx),SolidBuryX(jx)
+    END DO
+  ELSE IF (BurialFileFormat == 'Unformatted') THEN
+    READ(52,END=1020) FluidBuryX
+    READ(52,END=1020) SolidBuryX
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' Burial file format not recognized'
     WRITE(*,*)
     READ(*,*)
     STOP
   END IF
-  OPEN(UNIT=52,FILE=BurialFile,STATUS='old',ERR=5015)
-  FileTemp = BurialFile
-  CALL stringlen(FileTemp,FileNameLength)
-!!   ********************************************************
-IF (BurialFileFormat == 'ContinuousRead') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Only column format allowed for burial/erosion rate format'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-ELSE IF (BurialFileFormat == 'SingleColumn') THEN
-  DO jx= 0,nx
-    READ(52,*,END=1020) FluidBuryX(jx),SolidBuryX(jx)
-  END DO
-ELSE IF (BurialFileFormat == 'FullForm') THEN
-  DO jx= 0,nx
-    READ(52,*,END=1020) xdum,FluidBuryX(jx),SolidBuryX(jx)
-  END DO
-ELSE IF (BurialFileFormat == 'Unformatted') THEN
-  READ(52,END=1020) FluidBuryX
-  READ(52,END=1020) SolidBuryX
-ELSE
-  WRITE(*,*)
-  WRITE(*,*) ' Burial file format not recognized'
-  WRITE(*,*)
-  READ(*,*)
-  STOP
-END IF
-!!   ********************************************************
+  !!   ********************************************************
 
-  CLOSE(UNIT=52,STATUS='keep')
+    CLOSE(UNIT=52,STATUS='keep')
 
-!!  For now, set burial/erosion rates in Y direction to 0
+  !!  For now, set burial/erosion rates in Y direction to 0
 
-  FluidBuryY = 0.0
-  SolidBuryY = 0.0
+    FluidBuryY = 0.0
+    SolidBuryY = 0.0
 
-  FluidBuryX = FluidBuryX/(time_scale*dist_scale)
-  FluidBuryY = FluidBuryY/(time_scale*dist_scale)
-  SolidBuryX = SolidBuryX/(time_scale*dist_scale)
-  SolidBuryY = SolidBuryY/(time_scale*dist_scale)
+    FluidBuryX = FluidBuryX/(time_scale*dist_scale)
+    FluidBuryY = FluidBuryY/(time_scale*dist_scale)
+    SolidBuryX = SolidBuryX/(time_scale*dist_scale)
+    SolidBuryY = SolidBuryY/(time_scale*dist_scale)
 
-  GOTO 5016
+    GOTO 5016
 
-  5015   WRITE(*,*) ' Error opening burial/erosion file: STOP'
-  READ(*,*)
-  STOP
+    5015   WRITE(*,*) ' Error opening burial/erosion file: STOP'
+    READ(*,*)
+    STOP
 
-  5016 CONTINUE
+    5016 CONTINUE
 
-ENDIF
+  ENDIF
 
-dist_scale = 1.0d0
-time_scale = 1.0d0
+  dist_scale = 1.0d0
+  time_scale = 1.0d0
 
 END IF
 
@@ -9590,9 +8745,6 @@ IF (nx > 1 .AND. jinit(0,1,1) /= 0 .AND. jinit(nx+1,1,1) /=0) THEN
 
 END IF
 
-
-!!!END IF
-
 !  *****************TRANSPORT BLOCK***********************
 
 section = 'transport'
@@ -9624,19 +8776,19 @@ MillingtonQuirk = .TRUE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
-DEALLOCATE(tortuosity)
-ALLOCATE(tortuosity(nx,ny,nz))
+  DEALLOCATE(tortuosity)
+  ALLOCATE(tortuosity(nx,ny,nz))
 ELSE
-ALLOCATE(tortuosity(nx,ny,nz))
+  ALLOCATE(tortuosity(nx,ny,nz))
 END IF
 
 tortuosity = 1.0d0
 
 IF (ALLOCATED(anisotropyZ)) THEN
-DEALLOCATE(anisotropyZ)
-ALLOCATE(anisotropyZ(nx,ny,nz))
+  DEALLOCATE(anisotropyZ)
+  ALLOCATE(anisotropyZ(nx,ny,nz))
 ELSE
-ALLOCATE(anisotropyZ(nx,ny,nz))
+  ALLOCATE(anisotropyZ(nx,ny,nz))
 END IF
 
 anisotropyZ = 1.0d0
@@ -9728,440 +8880,440 @@ END IF
 
 IF (found) THEN
 
-WRITE(*,*)
-WRITE(*,*) ' Transport block found'
-WRITE(*,*)
-
-IF (nx == 1 .OR. nx == 2) THEN
   WRITE(*,*)
-  WRITE(*,*) ' Need at least 3 grid cells for transport'
+  WRITE(*,*) ' Transport block found'
   WRITE(*,*)
-  STOP
-END IF
 
-CALL units_time(nout,section,time_scale)
-CALL units_distance(nout,section,dist_scale)
-
-CALL read_diffusion(nout,nx,ny,nz)
-IF (uli /= 1.0d0) THEN
-  MillingtonQuirk = .FALSE.
-END IF
-
-DO ik = 1,ncomp+nspec
-  IF (idiffus == 0) THEN
-    d_sp(ik) = dzero
-  ELSE
-    d_sp(ik) = dcoeff
-  END IF
-END DO
-
-CALL read_gasdiffusion(nout,nx,ny,nz)
-
-CALL read_speciesdiffusion(nout,ncomp,nspec,ndiff)
-
-IF (ndiff >= 1) THEN
-  species_diffusion = .TRUE.
-ELSE
-  species_diffusion = .FALSE.
-END IF
-
-IF (species_diffusion .AND. nsurf > 0) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' --Combined use of a surface complexation model (not electrically balanced) and '
-  WRITE(*,*) ' --electrochemical migration (species-specific diffusion) not recommended.'
-  WRITE(*,*) ' --Aqueous phase needs to be electrically neutral'
-  WRITE(*,*) ' --ABORTING RUN'
-  WRITE(*,*)
-!!!    READ(*,*)
-!!!    STOP
-END IF
-
-CALL read_dispersion(nout,nx,ny,nz,alfl,alft)
-
-alfl = alfl/dist_scale
-alft = alft/dist_scale
-
-!  Convert units if necessary (converting to years and meters)
-
-dcoeff = dcoeff/(time_scale*dist_scale*dist_scale)
-dzero = dzero/(time_scale*dist_scale*dist_scale)
-dgas = dgas/(time_scale*dist_scale*dist_scale)
-
-DO ik = 1,ncomp+nspec
-  d_sp(ik) = d_sp(ik)/(time_scale*dist_scale*dist_scale)
-END DO
-
-time_scale = 1.0d0
-dist_scale = 1.0d0
-
-!!  Section on tortuosity
-
-constant_tortuosity = .FALSE.                  !!  Treat this as false for default, since setting of this to true will disable other "tortuosity" options
-call read_ConstantTortuosity(nout,nx,ny,nz,constant_tortuosity,TortuosityConstant,TortuosityOption)
-
-IF (constant_tortuosity) THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Constant tortuosity option specified'
-  WRITE(*,*)
-  MillingtonQuirk = .TRUE.
-  IF (TortuosityOption /= 'none') THEN
-    CALL stringlen(TortuosityOption,ls)
+  IF (nx == 1 .OR. nx == 2) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Tortuosity will be calculated using: ', TortuosityOption(1:ls)
+    WRITE(*,*) ' Need at least 3 grid cells for transport'
     WRITE(*,*)
-  END IF
-  tortuosity = TortuosityConstant
-ELSE
-
-!   No constant tortuosity specified, so look for file read or for tortuosity set by zones
-
-  TortuosityFile = ' '
-  ReadTortuosity = .FALSE.
-  CALL read_TortuosityFile(nout,nx,ny,nz,constant_tortuosity,TortuosityFile,lfile,TortuosityFileFormat)
-
-  IF (TortuosityFile == ' ') THEN
-    ReadTortuosity = .FALSE.
-  ELSE
-    ReadTortuosity = .TRUE.
+    STOP
   END IF
 
-!   Reading tortuosity zones directly from input file
-  IF (.NOT. ReadTortuosity) THEN
+  CALL units_time(nout,section,time_scale)
+  CALL units_distance(nout,section,dist_scale)
 
-    ALLOCATE(TortuosityZone(0:mperm))
+  CALL read_diffusion(nout,nx,ny,nz)
+  IF (uli /= 1.0d0) THEN
+    MillingtonQuirk = .FALSE.
+  END IF
 
-    TortuosityZone = 0.0d0
-
-    ALLOCATE(jxxTortuosity_lo(mperm))
-    ALLOCATE(jxxTortuosity_hi(mperm))
-    ALLOCATE(jyyTortuosity_lo(mperm))
-    ALLOCATE(jyyTortuosity_hi(mperm))
-    ALLOCATE(jzzTortuosity_lo(mperm))
-    ALLOCATE(jzzTortuosity_hi(mperm))
-
-    CALL read_TortuosityByZone(nout,nx,ny,nz)
-
-     IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
-
-!!        WRITE(*,*)
-!!        WRITE(*,*) ' No default tortuosity given'
-!!        WRITE(*,*) ' Tortuosity should be followed by "default" or blank string'
-!!        WRITE(*,*)
-!!        STOP
-
+  DO ik = 1,ncomp+nspec
+    IF (idiffus == 0) THEN
+      d_sp(ik) = dzero
     ELSE
-      MillingtonQuirk = .TRUE.
+      d_sp(ik) = dcoeff
+    END IF
+  END DO
+
+  CALL read_gasdiffusion(nout,nx,ny,nz)
+
+  CALL read_speciesdiffusion(nout,ncomp,nspec,ndiff)
+
+  IF (ndiff >= 1) THEN
+    species_diffusion = .TRUE.
+  ELSE
+    species_diffusion = .FALSE.
+  END IF
+
+  IF (species_diffusion .AND. nsurf > 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' --Combined use of a surface complexation model (not electrically balanced) and '
+    WRITE(*,*) ' --electrochemical migration (species-specific diffusion) not recommended.'
+    WRITE(*,*) ' --Aqueous phase needs to be electrically neutral'
+    WRITE(*,*) ' --ABORTING RUN'
+    WRITE(*,*)
+  !!!    READ(*,*)
+  !!!    STOP
+  END IF
+
+  CALL read_dispersion(nout,nx,ny,nz,alfl,alft)
+
+  alfl = alfl/dist_scale
+  alft = alft/dist_scale
+
+  !  Convert units if necessary (converting to years and meters)
+
+  dcoeff = dcoeff/(time_scale*dist_scale*dist_scale)
+  dzero = dzero/(time_scale*dist_scale*dist_scale)
+  dgas = dgas/(time_scale*dist_scale*dist_scale)
+
+  DO ik = 1,ncomp+nspec
+    d_sp(ik) = d_sp(ik)/(time_scale*dist_scale*dist_scale)
+  END DO
+
+  time_scale = 1.0d0
+  dist_scale = 1.0d0
+
+  !!  Section on tortuosity
+
+  constant_tortuosity = .FALSE.                  !!  Treat this as false for default, since setting of this to true will disable other "tortuosity" options
+  call read_ConstantTortuosity(nout,nx,ny,nz,constant_tortuosity,TortuosityConstant,TortuosityOption)
+
+  IF (constant_tortuosity) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Constant tortuosity option specified'
+    WRITE(*,*)
+    MillingtonQuirk = .TRUE.
+    IF (TortuosityOption /= 'none') THEN
+      CALL stringlen(TortuosityOption,ls)
       WRITE(*,*)
-      WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
+      WRITE(*,*) ' Tortuosity will be calculated using: ', TortuosityOption(1:ls)
       WRITE(*,*)
     END IF
+    tortuosity = TortuosityConstant
+  ELSE
 
-! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
+  !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
 
-    IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-      MillingtonQuirk = .TRUE.
-      Tortuosity = TortuosityZone(0)
+    TortuosityFile = ' '
+    ReadTortuosity = .FALSE.
+    CALL read_TortuosityFile(nout,nx,ny,nz,constant_tortuosity,TortuosityFile,lfile,TortuosityFileFormat)
 
-!       Next, initialize tortuosity from various zones
+    IF (TortuosityFile == ' ') THEN
+      ReadTortuosity = .FALSE.
+    ELSE
+      ReadTortuosity = .TRUE.
+    END IF
 
-      IF (nTortuosityZone > 0) THEN
-        DO l = 1,nTortuosityZone
-          DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
-            DO jy = jyyTortuosity_lo(l),jyyTortuosity_hi(l)
-              DO jx = jxxTortuosity_lo(l),jxxTortuosity_hi(l)
-                Tortuosity(jx,jy,jz) = TortuosityZone(l)
+  !   Reading tortuosity zones directly from input file
+    IF (.NOT. ReadTortuosity) THEN
+
+      ALLOCATE(TortuosityZone(0:mperm))
+
+      TortuosityZone = 0.0d0
+
+      ALLOCATE(jxxTortuosity_lo(mperm))
+      ALLOCATE(jxxTortuosity_hi(mperm))
+      ALLOCATE(jyyTortuosity_lo(mperm))
+      ALLOCATE(jyyTortuosity_hi(mperm))
+      ALLOCATE(jzzTortuosity_lo(mperm))
+      ALLOCATE(jzzTortuosity_hi(mperm))
+
+      CALL read_TortuosityByZone(nout,nx,ny,nz)
+
+       IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
+
+  !!        WRITE(*,*)
+  !!        WRITE(*,*) ' No default tortuosity given'
+  !!        WRITE(*,*) ' Tortuosity should be followed by "default" or blank string'
+  !!        WRITE(*,*)
+  !!        STOP
+
+      ELSE
+        MillingtonQuirk = .TRUE.
+        WRITE(*,*)
+        WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
+        WRITE(*,*)
+      END IF
+
+  ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
+
+      IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
+        MillingtonQuirk = .TRUE.
+        Tortuosity = TortuosityZone(0)
+
+  !       Next, initialize tortuosity from various zones
+
+        IF (nTortuosityZone > 0) THEN
+          DO l = 1,nTortuosityZone
+            DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
+              DO jy = jyyTortuosity_lo(l),jyyTortuosity_hi(l)
+                DO jx = jxxTortuosity_lo(l),jxxTortuosity_hi(l)
+                  Tortuosity(jx,jy,jz) = TortuosityZone(l)
+                END DO
               END DO
             END DO
           END DO
-        END DO
+        END IF
+
+  !!      Check to see if any of the nodes are uninitialized with a non-zero value
+
+        CheckSum = MINVAL(Tortuosity)
+
+        IF (checkSum < eps) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Tortuosity is not initialized to a non-zero value everywhere'
+          WRITE(*,*)
+          STOP
+        END IF
+
+      ELSE
+        MillingtonQuirk = .FALSE.
       END IF
 
-!!      Check to see if any of the nodes are uninitialized with a non-zero value
+      DEALLOCATE(TortuosityZone)
+      DEALLOCATE(jxxTortuosity_lo)
+      DEALLOCATE(jxxTortuosity_hi)
+      DEALLOCATE(jyyTortuosity_lo)
+      DEALLOCATE(jyyTortuosity_hi)
+      DEALLOCATE(jzzTortuosity_lo)
+      DEALLOCATE(jzzTortuosity_hi)
 
-      CheckSum = MINVAL(Tortuosity)
+    ELSE                             !!  Otherwise, read from tortuosity file
 
-      IF (checkSum < eps) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' Tortuosity is not initialized to a non-zero value everywhere'
-        WRITE(*,*)
-        STOP
-      END IF
+      IF (TortuosityFile /= ' ') THEN
+        INQUIRE(FILE=TortuosityFile,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(TortuosityFile,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' Tortuosity file not found: ', TortuosityFile(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+        MillingtonQuirk = .TRUE.
+        OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
+        FileTemp = TortuosityFile
+        CALL stringlen(FileTemp,FileNameLength)
+        IF (TortuosityFileFormat == 'ContinuousRead') THEN
+          READ(52,*,END=1020) (((tortuosity(jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
+          OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
 
-    ELSE
-      MillingtonQuirk = .FALSE.
-    END IF
+          jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
+                  WRITE(53,*) 'porespace  ',jx,jy,jz, '  fix'
+                ELSE                                      !! matrix
+                  WRITE(53,*) 'matrix     ',jx,jy,jz, '  fix'
+                END IF
+              END DO
+            END DO
 
-    DEALLOCATE(TortuosityZone)
-    DEALLOCATE(jxxTortuosity_lo)
-    DEALLOCATE(jxxTortuosity_hi)
-    DEALLOCATE(jyyTortuosity_lo)
-    DEALLOCATE(jyyTortuosity_hi)
-    DEALLOCATE(jzzTortuosity_lo)
-    DEALLOCATE(jzzTortuosity_hi)
-
-  ELSE                             !!  Otherwise, read from tortuosity file
-
-    IF (TortuosityFile /= ' ') THEN
-      INQUIRE(FILE=TortuosityFile,EXIST=ext)
-      IF (.NOT. ext) THEN
-        CALL stringlen(TortuosityFile,ls)
-        WRITE(*,*)
-        WRITE(*,*) ' Tortuosity file not found: ', TortuosityFile(1:ls)
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
-      MillingtonQuirk = .TRUE.
-      OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
-      FileTemp = TortuosityFile
-      CALL stringlen(FileTemp,FileNameLength)
-      IF (TortuosityFileFormat == 'ContinuousRead') THEN
-        READ(52,*,END=1020) (((tortuosity(jx,jy,jz),jx=1,nx),jy=1,ny),jz=1,nz)
-        OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
-
-        jz = 1
-          DO jy = 1,ny
-            DO jx= 1,nx
-              IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
-                WRITE(53,*) 'porespace  ',jx,jy,jz, '  fix'
-              ELSE                                      !! matrix
-                WRITE(53,*) 'matrix     ',jx,jy,jz, '  fix'
-              END IF
+          DO jz = 2,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
+                  WRITE(53,*) 'porespace  ',jx,jy,jz
+                ELSE                                      !! matrix
+                  WRITE(53,*) 'matrix     ',jx,jy,jz
+                END IF
+              END DO
             END DO
           END DO
+          CLOSE(UNIT=53,STATUS='keep')
 
-        DO jz = 2,nz
-          DO jy = 1,ny
-            DO jx= 1,nx
-              IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
-                WRITE(53,*) 'porespace  ',jx,jy,jz
-              ELSE                                      !! matrix
-                WRITE(53,*) 'matrix     ',jx,jy,jz
-              END IF
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=53,STATUS='keep')
-
-      ELSE IF (TortuosityFileFormat == 'SingleColumn') THEN
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx= 1,nx
-              READ(52,*,END=1020) tortuosity(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
-        jz = 1
-          DO jy = 1,ny
-            DO jx= 1,nx
-              IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
-                WRITE(53,*) 'porespace  ',jx,jy,jz, '  fix'
-              ELSE                                      !! matrix
-                WRITE(53,*) 'matrix     ',jx,jy,jz, '  fix'
-              END IF
-            END DO
-          END DO
-
-        DO jz = 2,nz
-          DO jy = 1,ny
-            DO jx= 1,nx
-              IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
-                WRITE(53,*) 'porespace  ',jx,jy,jz
-              ELSE                                      !! matrix
-                WRITE(53,*) 'matrix     ',jx,jy,jz
-              END IF
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=53,STATUS='keep')
-
-      ELSE IF (TortuosityFileFormat == 'FullForm') THEN
-        IF (ny > 1 .AND. nz > 1) THEN
+        ELSE IF (TortuosityFileFormat == 'SingleColumn') THEN
           DO jz = 1,nz
             DO jy = 1,ny
               DO jx= 1,nx
-                READ(52,*,END=1020) xdum,ydum,zdum,tortuosity(jx,jy,jz)
+                READ(52,*,END=1020) tortuosity(jx,jy,jz)
               END DO
             END DO
           END DO
-        OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
-         jz = 1
-          DO jy = 1,ny
-            DO jx= 1,nx
-              IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
-                WRITE(53,*) 'porespace  ',jx,jy,jz, '  fix'
-              ELSE                                      !! matrix
-                WRITE(53,*) 'matrix     ',jx,jy,jz, '  fix'
-              END IF
-            END DO
-          END DO
-
-        DO jz = 2,nz
-          DO jy = 1,ny
-            DO jx= 1,nx
-              IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
-                WRITE(53,*) 'porespace  ',jx,jy,jz
-              ELSE                                      !! matrix
-                WRITE(53,*) 'matrix     ',jx,jy,jz
-              END IF
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=53,STATUS='keep')
-
-        ELSE IF (ny > 1 .AND. nz == 1) THEN
+          OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
           jz = 1
-          DO jy = 1,ny
-            DO jx= 1,nx
-              READ(52,*,END=1020) xdum,ydum,tortuosity(jx,jy,jz)
+            DO jy = 1,ny
+              DO jx= 1,nx
+                IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
+                  WRITE(53,*) 'porespace  ',jx,jy,jz, '  fix'
+                ELSE                                      !! matrix
+                  WRITE(53,*) 'matrix     ',jx,jy,jz, '  fix'
+                END IF
+              END DO
+            END DO
+
+          DO jz = 2,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
+                  WRITE(53,*) 'porespace  ',jx,jy,jz
+                ELSE                                      !! matrix
+                  WRITE(53,*) 'matrix     ',jx,jy,jz
+                END IF
+              END DO
             END DO
           END DO
+          CLOSE(UNIT=53,STATUS='keep')
+
+        ELSE IF (TortuosityFileFormat == 'FullForm') THEN
+          IF (ny > 1 .AND. nz > 1) THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) xdum,ydum,zdum,tortuosity(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+          OPEN(UNIT=53,FILE='SynchrotronStructure.dat',STATUS='UNKNOWN')
+           jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
+                  WRITE(53,*) 'porespace  ',jx,jy,jz, '  fix'
+                ELSE                                      !! matrix
+                  WRITE(53,*) 'matrix     ',jx,jy,jz, '  fix'
+                END IF
+              END DO
+            END DO
+
+          DO jz = 2,nz
+            DO jy = 1,ny
+              DO jx= 1,nx
+                IF (tortuosity(jx,jy,jz) == 1.0d0) THEN   !! pore space
+                  WRITE(53,*) 'porespace  ',jx,jy,jz
+                ELSE                                      !! matrix
+                  WRITE(53,*) 'matrix     ',jx,jy,jz
+                END IF
+              END DO
+            END DO
+          END DO
+          CLOSE(UNIT=53,STATUS='keep')
+
+          ELSE IF (ny > 1 .AND. nz == 1) THEN
+            jz = 1
+            DO jy = 1,ny
+              DO jx= 1,nx
+                READ(52,*,END=1020) xdum,ydum,tortuosity(jx,jy,jz)
+              END DO
+            END DO
+          ELSE
+            jz = 1
+            jy = 1
+            DO jx= 1,nx
+              READ(52,*,END=1020) xdum,tortuosity(jx,jy,jz)
+            END DO
+          END IF
+        ELSE IF (TortuosityFileFormat == 'Unformatted') THEN
+          READ(52,END=1020) tortuosity
         ELSE
-          jz = 1
-          jy = 1
-          DO jx= 1,nx
-            READ(52,*,END=1020) xdum,tortuosity(jx,jy,jz)
-          END DO
+          WRITE(*,*)
+          WRITE(*,*) ' Tortuosity file format not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
         END IF
-      ELSE IF (TortuosityFileFormat == 'Unformatted') THEN
-        READ(52,END=1020) tortuosity
-      ELSE
-        WRITE(*,*)
-        WRITE(*,*) ' Tortuosity file format not recognized'
-        WRITE(*,*)
-        READ(*,*)
-        STOP
-      END IF
 
-      CLOSE(UNIT=52,STATUS='KEEP')
+        CLOSE(UNIT=52,STATUS='KEEP')
+      END IF
     END IF
   END IF
-END IF
 
-parchar = 'anisotropy_ratioY'
-parfind = ' '
-realjunk = 0.0
-CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-IF (parfind == ' ') THEN  ! Parameter "anistropy_ratioY" not found
-  anisotropyY = 1.000            ! Use default
-ELSE
-  anisotropyY = realjunk
-END IF
-
-parchar = 'anisotropy_ratioZ'
-parfind = ' '
-realjunk = 0.0
-CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-IF (parfind == ' ') THEN  ! Parameter "anistropy_ratioZ" not found
-  anisotropyZ = 1.000            ! Use default
-ELSE
-  anisotropyZ = realjunk
-END IF
-
-ThresholdPorosity = 0.0d0
-TortuosityBelowThreshold = 1.0d0
-TortuosityAboveThreshold = 1.0d0
-
-parchar = 'threshold_porosity'
-parfind = ' '
-realjunk = 0.0
-CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-IF (parfind == ' ') THEN  ! Parameter "threshold_porosity" not found
-  ThresholdPorosity = 0.0d0            ! Use default
-ELSE
-  ThresholdPorosity = realjunk
-END IF
-
-!!  ThresholdPorosity :: real
-!!  UseThresholdPorosity :: logical
-!!  TortuosityBelowThreshold:  real
-!!  TortuosityAboveThreshold:  real
-
-IF (ThresholdPorosity == 0.0d0) THEN
-  UseThresholdPorosity = .FALSE.
-ELSE
-  UseThresholdPorosity = .TRUE.
-  MillingtonQuirk = .TRUE.
-  parchar = 'tortuosity_below'
+  parchar = 'anisotropy_ratioY'
   parfind = ' '
   realjunk = 0.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-  IF (parfind == ' ') THEN  ! Parameter "tortuosity_below" not found
-!!      TortuosityBelowThreshold = 1.0d0            ! Use default
-    WRITE(*,*)
-    WRITE(*,*) ' Non-zero threshold porosity has been specified'
-    WRITE(*,*) ' Tortuosity below the threshold, "tortuosity_below", must be given'
-    WRITE(*,*)
-    STOP
+  IF (parfind == ' ') THEN  ! Parameter "anistropy_ratioY" not found
+    anisotropyY = 1.000            ! Use default
   ELSE
-    TortuosityBelowThreshold = realjunk
+    anisotropyY = realjunk
   END IF
-  parchar = 'tortuosity_above'
+
+  parchar = 'anisotropy_ratioZ'
   parfind = ' '
   realjunk = 0.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
-  IF (parfind == ' ') THEN  ! Parameter "tortuosity_above" not found
-!!      TortuosityAboveThreshold = 1.0d0            ! Use default
-    WRITE(*,*)
-    WRITE(*,*) ' Non-zero threshold porosity has been specified'
-    WRITE(*,*) ' Tortuosity above the threshold, "tortuosity_above", must be given'
-    WRITE(*,*)
-    STOP
+  IF (parfind == ' ') THEN  ! Parameter "anistropy_ratioZ" not found
+    anisotropyZ = 1.000            ! Use default
   ELSE
-    TortuosityAboveThreshold = realjunk
+    anisotropyZ = realjunk
   END IF
 
-END IF
+  ThresholdPorosity = 0.0d0
+  TortuosityBelowThreshold = 1.0d0
+  TortuosityAboveThreshold = 1.0d0
 
-!!  Check for specification of how to calculate mean diffusivity between grid cells
+  parchar = 'threshold_porosity'
+  parfind = ' '
+  realjunk = 0.0
+  CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+  IF (parfind == ' ') THEN  ! Parameter "threshold_porosity" not found
+    ThresholdPorosity = 0.0d0            ! Use default
+  ELSE
+    ThresholdPorosity = realjunk
+  END IF
 
-MeanDiffusion = 0
-parchar = 'meandiffusion'
-parfind = ' '
-CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-IF (parfind == ' ') THEN
-  MeanDiffusion = 2
-ELSE
-  IF (dumstring == 'GeometricMean' .OR. dumstring == 'geometricmean' .OR. dumstring == 'geometric') THEN
-    MeanDiffusion = 0
-  ELSE IF (dumstring == 'ArithmeticMean' .OR. dumstring == 'arithmeticmean' .OR. dumstring == 'arithmetic') THEN
-    MeanDiffusion = 1
-  ELSE IF (dumstring == 'HarmonicMean' .OR. dumstring == 'harmonicmean' .OR. dumstring == 'harmonic') THEN
+  !!  ThresholdPorosity :: real
+  !!  UseThresholdPorosity :: logical
+  !!  TortuosityBelowThreshold:  real
+  !!  TortuosityAboveThreshold:  real
+
+  IF (ThresholdPorosity == 0.0d0) THEN
+    UseThresholdPorosity = .FALSE.
+  ELSE
+    UseThresholdPorosity = .TRUE.
+    MillingtonQuirk = .TRUE.
+    parchar = 'tortuosity_below'
+    parfind = ' '
+    realjunk = 0.0
+    CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+    IF (parfind == ' ') THEN  ! Parameter "tortuosity_below" not found
+  !!      TortuosityBelowThreshold = 1.0d0            ! Use default
+      WRITE(*,*)
+      WRITE(*,*) ' Non-zero threshold porosity has been specified'
+      WRITE(*,*) ' Tortuosity below the threshold, "tortuosity_below", must be given'
+      WRITE(*,*)
+      STOP
+    ELSE
+      TortuosityBelowThreshold = realjunk
+    END IF
+    parchar = 'tortuosity_above'
+    parfind = ' '
+    realjunk = 0.0
+    CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+    IF (parfind == ' ') THEN  ! Parameter "tortuosity_above" not found
+  !!      TortuosityAboveThreshold = 1.0d0            ! Use default
+      WRITE(*,*)
+      WRITE(*,*) ' Non-zero threshold porosity has been specified'
+      WRITE(*,*) ' Tortuosity above the threshold, "tortuosity_above", must be given'
+      WRITE(*,*)
+      STOP
+    ELSE
+      TortuosityAboveThreshold = realjunk
+    END IF
+
+  END IF
+
+  !!  Check for specification of how to calculate mean diffusivity between grid cells
+
+  MeanDiffusion = 0
+  parchar = 'meandiffusion'
+  parfind = ' '
+  CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+  IF (parfind == ' ') THEN
     MeanDiffusion = 2
   ELSE
-    MeanDiffusion = 2
+    IF (dumstring == 'GeometricMean' .OR. dumstring == 'geometricmean' .OR. dumstring == 'geometric') THEN
+      MeanDiffusion = 0
+    ELSE IF (dumstring == 'ArithmeticMean' .OR. dumstring == 'arithmeticmean' .OR. dumstring == 'arithmetic') THEN
+      MeanDiffusion = 1
+    ELSE IF (dumstring == 'HarmonicMean' .OR. dumstring == 'harmonicmean' .OR. dumstring == 'harmonic') THEN
+      MeanDiffusion = 2
+    ELSE
+      MeanDiffusion = 2
+    END IF
   END IF
-END IF
 
 ELSE
-WRITE(*,*)
-WRITE(*,*) ' No transport block found'
-WRITE(*,*) ' Assuming dispersivity and diffusion = 0'
-WRITE(*,*)
-alfl = 0.0d0
-alft = 0.0d0
-dcoeff = 0.0d0
-dgas = 0.0d0
-dzero = 0.0d0
-idiffus = 1
-anisotropyY = 1.0d0
-anisotropyZ = 1.0d0
+  WRITE(*,*)
+  WRITE(*,*) ' No transport block found'
+  WRITE(*,*) ' Assuming dispersivity and diffusion = 0'
+  WRITE(*,*)
+  alfl = 0.0d0
+  alft = 0.0d0
+  dcoeff = 0.0d0
+  dgas = 0.0d0
+  dzero = 0.0d0
+  idiffus = 1
+  anisotropyY = 1.0d0
+  anisotropyZ = 1.0d0
 END IF
 
 IF (idiffus == 0) THEN
-WRITE(*,*)
-WRITE(*,*) ' Calculating a temperature-dependent diffusion coefficient'
-WRITE(*,*)
+  WRITE(*,*)
+  WRITE(*,*) ' Calculating a temperature-dependent diffusion coefficient'
+  WRITE(*,*)
 ELSE
-WRITE(*,*)
-WRITE(*,*) '  Using constant diffusion coefficient'
-WRITE(*,1110) dcoeff
-WRITE(*,*)
-WRITE(iunit2,*)
-WRITE(iunit2,*) '  Using constant diffusion coefficient'
-WRITE(iunit2,1110) dcoeff
-WRITE(iunit2,*)
+  WRITE(*,*)
+  WRITE(*,*) '  Using constant diffusion coefficient'
+  WRITE(*,1110) dcoeff
+  WRITE(*,*)
+  WRITE(iunit2,*)
+  WRITE(iunit2,*) '  Using constant diffusion coefficient'
+  WRITE(iunit2,1110) dcoeff
+  WRITE(iunit2,*)
 END IF
 
 WRITE(*,*)
@@ -10193,31 +9345,31 @@ call AqueousFluxInitialize(ncomp,nspec,nx,ny,nz )
 call FluxWeightedConcentrationInitialize(ncomp,nspec,nx,ny,nz )
 
 IF (ALLOCATED(CumulativeXflux)) THEN
-DEALLOCATE(CumulativeXflux)
+  DEALLOCATE(CumulativeXflux)
 END IF
 ALLOCATE(CumulativeXflux(nplotAqueousFlux,nAqueousFluxSeriesFile))
 CumulativeXflux = 0.0d0
 
 IF (ALLOCATED(InstantaneousXflux)) THEN
-DEALLOCATE(InstantaneousXflux)
+  DEALLOCATE(InstantaneousXflux)
 END IF
 ALLOCATE(InstantaneousXflux(nplotAqueousFlux))
 InstantaneousXflux = 0.0d0
 
 IF (ALLOCATED(XfluxWeightedConcentration)) THEN
-DEALLOCATE(XfluxWeightedConcentration)
+  DEALLOCATE(XfluxWeightedConcentration)
 END IF
 ALLOCATE(XfluxWeightedConcentration(nplotFluxWeightedConcentration))
 XfluxWeightedConcentration = 0.0d0
 
 IF (ALLOCATED(YfluxWeightedConcentration)) THEN
-DEALLOCATE(YfluxWeightedConcentration)
+  DEALLOCATE(YfluxWeightedConcentration)
 END IF
 ALLOCATE(YfluxWeightedConcentration(nplotFluxWeightedConcentration))
 YfluxWeightedConcentration = 0.0d0
 
 IF (ALLOCATED(ZfluxWeightedConcentration)) THEN
-DEALLOCATE(ZfluxWeightedConcentration)
+  DEALLOCATE(ZfluxWeightedConcentration)
 END IF
 ALLOCATE(ZfluxWeightedConcentration(nplotFluxWeightedConcentration))
 ZfluxWeightedConcentration = 0.0d0
