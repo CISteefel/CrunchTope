@@ -26,6 +26,7 @@ CO2(aq)
 Ca++
 Na+
 Cl-
+H2O
 END
 
 ISOTOPES
@@ -41,6 +42,7 @@ CO2(aq)          CO2(g)    3.12E-04    !!in bars
 Na+              0.01  
 Cl-              0.01
 Ca++             0.00
+H2O              55.50843506
 Calcite          0.01   1.0
 END
 
@@ -53,6 +55,7 @@ CO2(aq)          CO2(g)     3.12E-04 !!in bars
 Na+              0.01
 Cl-              charge
 Ca++             0.01
+H2O              55.50843506
 !!Calcite          0.00   1.0
 END
 
@@ -61,11 +64,11 @@ units            mol/kg
 temperature      25.0
 H+               0.00   
 CO2(aq)          CO2(g)     3.12E-04   !!in bars
-
 13CO2(aq)        13CO2(g)   3.15E-06 
 Na+              0.01
 Cl-              0.01
 Ca++             0.00
+H2O              55.50843506
 !!Calcite          0.00   1.0
 END
 
@@ -74,11 +77,11 @@ units            mol/kg
 temperature      25.0
 pH               charge 
 CO2(aq)          CO2(g)    25.0    !!in bars
-
 13CO2(aq)        13CO2(g)  3.15E-06
 Na+              0.01  
 Cl-              0.01
 Ca++             0.00
+H2O              55.50843506
 !!Calcite          0.00   1.0
 END
 
