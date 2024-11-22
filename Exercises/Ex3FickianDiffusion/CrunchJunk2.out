@@ -1,3 +1,6 @@
-Tracer                                                                                                                                                                                                                                                                  
+distance_units meters                                                                                                                                                                                                                                                   
+time_units  second                                                                                                                                                                                                                                                      
+fix_diffusion  1.E-09                                                                                                                                                                                                                                                   
+dispersivity   0.0                                                                                                                                                                                                                                                      
  
  

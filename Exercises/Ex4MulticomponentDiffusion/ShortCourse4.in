@@ -2,10 +2,6 @@ TITLE
 ShortCourse4.in:  Test of species diffusion against Lichtner (MULTIFLO) example
 END
  
-DATABASE
-datacom.dbs  
-END
- 
 RUNTIME
 time_units      hours
 timestep_max    1.e-03
@@ -14,6 +10,7 @@ time_tolerance  0.001
 correction_max  2.0
 debye-huckel    true
 database_sweep  no
+database        datacom.dbs      
 gimrt           true
 graphics        kaleidagraph
 screen_output   50
@@ -27,7 +24,7 @@ END
 TRANSPORT
 distance_units centimeters
 time_units  seconds
-fix_diffusion  1.000e-05
+fix_diffusion   1.000e-05
 formation_factor  1.0  
 cementation_exponent  1.0
 D_25  H+      9.312e-05
@@ -57,8 +54,7 @@ pH               4.0
 Cl-              7.5e-05
 Na+              1.e-04
 NO3-             1.e-04
-!!CO2(aq)          0.001
-CO2(aq)          CO2(g)   1.0E-16
+CO2(aq)          CO2(g)   1.0E-10
 END
 
 Condition inlet
@@ -67,8 +63,7 @@ pH               6.0
 Cl-              7.5e-05
 Na+              1.e-04
 NO3-             1.e-06
-!!CO2(aq)          0.001
-CO2(aq)          CO2(g)   1.0E-16
+CO2(aq)          CO2(g)   1.0E-10
 END
  
 DISCRETIZATION
@@ -104,7 +99,7 @@ CO2(g)
 END
  
 FLOW
-time_units  years
+time_units   years
 distance_units millimeters
 constant_flow  0.00
 END

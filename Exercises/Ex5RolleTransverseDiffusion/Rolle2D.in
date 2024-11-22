@@ -119,6 +119,7 @@ Na+
 Mg++  
 Cl-   
 Br-   
+H2O
 END
 
 SECONDARY_SPECIES
@@ -149,6 +150,7 @@ Na+              0.00
 Mg++             0.29
 Cl-              charge
 Br-              0.00
+H2O              55.50843506
 END
 
 condition ambient
@@ -159,5 +161,6 @@ Na+              0.00
 Mg++             0.000001
 Cl-              charge
 Br-              0.00
+H2O              55.50843506
 END
 

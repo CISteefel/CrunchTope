@@ -623,6 +623,8 @@ LOGICAL(LGT)                                                  :: lopen
 
 LOGICAL(LGT)                                                  :: ExportGridLocations
 
+LOGICAL(LGT)                                                  :: H2Ofound
+
 namelist /Nucleation/                                          NameMineral,        &
                                                              label,              &
                                                              A_zero25C,          &
@@ -2144,6 +2146,25 @@ END IF          !!!!  End of nucleation read
 
 !!! ****************  End of NUCLEATION READ  ***************
 !!! *********************************************************
+
+
+!!! Check for H2O and make sure it is in the list of Primary Species
+H2Ofound = .FALSE.
+DO i = 1,ncomp
+  IF (ulab(i) == 'H2O' .OR. ulab(i) == 'HHO') THEN
+    H2Ofound = .TRUE.
+  END IF
+END DO
+
+IF (.NOT. H2Ofound) THEN
+  write(*,*)
+  write(*,*) ' H2O must be present in list of PRIMARY SPECIES'
+  write(*,*) ' Add "H2O" to the end of the PRIMARY SPECIES list'
+  write(*,*) ' Add "H2O  55.50843506" to the CONDITION blocks'
+  write(*,*)
+  STOP
+END IF
+
 
 IF (master == ' ') then
   DO ik = 1,ncomp+nspec

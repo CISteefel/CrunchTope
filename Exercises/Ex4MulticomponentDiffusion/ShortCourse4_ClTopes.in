@@ -11,32 +11,29 @@ correction_max  2.0
 debye-huckel    true
 database_sweep  no
 database        datacom.dbs      
-
 gimrt           true
 graphics         kaleidagraph
-
 screen_output   50
 END
  
 OUTPUT
 time_units       hours
-spatial_profile  1.0 
+spatial_profile  1.00
 END
-
+ 
 ISOTOPES
 primary  37Cl-  Cl-  0.333
 END
 
 TRANSPORT
 distance_units centimeters
-time_units  seconds
-fix_diffusion     1.000e-05
-formation_factor  1.0  
+time_units     seconds
+fix_diffusion         1.000e-05
+formation_factor      1.0  
 cementation_exponent  1.0
 D_25  H+      9.312e-05
 D_25  Na+     1.334e-05
 D_25  Cl-     2.032E-05
-!!!D_25  37Cl-       2.032E-05
 D_25  37Cl-       2.028e-05
 D_25  OH-     5.26e-05
 D_25  NO3-    1.00e-05
@@ -65,20 +62,18 @@ Cl-              7.5e-05
 37Cl-            2.5e-05
 Na+              1.e-04
 NO3-             1.e-04
-!!CO2(aq)        0.001
-CO2(aq)          CO2(g)   1.0E-16
+CO2(aq)          CO2(g)   1.0E-10
 END
 
 Condition inlet
 temperature      25.0
 pH               6.0
 Cl-              7.5e-05
-
 37Cl-            2.5e-05
 Na+              1.e-04
 NO3-             1.e-06
 !!CO2(aq)        0.001
-CO2(aq)          CO2(g)   1.0E-16
+CO2(aq)          CO2(g)   1.0E-10
 END
  
 DISCRETIZATION
@@ -120,27 +115,4 @@ time_units     years
 distance_units millimeters
 constant_flow  0.00
 END
-
-
-
-D_25  H+      9.31e-05
-D_25  Na+     1.33e-05
-D_25  K+      1.96e-05
-D_25  NH4+    1.98e-05
-D_25  Mg++    0.705e-05
-D_25  Ca++    0.793e-05
-D_25  Mn++    0.688e-05
-D_25  Fe++    0.719e-05
-!D_25  Al+++   0.559e-05
-D_25  OH-     5.27e-05
-D_25  F-      1.46e-05
-D_25  Cl-     2.03e-05
-D_25  HS-     1.73e-05
-D_25  HSO4-   1.33e-05
-D_25  SO4--   1.07e-05
-D_25  HCO3-   1.18e-05
-D_25  CO3--   0.955e-05
-D_25  H2PO4-  0.846e-05
-D_25  HPO4--  0.734e-05
-D_25  PO4---  0.612e-05
 

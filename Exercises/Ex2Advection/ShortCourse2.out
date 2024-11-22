@@ -1,12 +1,13 @@
  
   ************************** CrunchFlow ******************************
     
-                   Authors:  C.I. STEEFEL, S. MOLINS 
+                   Authors:  C.I. STEEFEL, T. BANDAI, S. MOLINS 
                        *** Copyright Notice ***          
-  ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of Califor
- nia, through Lawrence Berkeley National Laboratory
-  (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï
- ¿½ All rights reserved.
+  CrunchFlow, Copyright (c) 2016, The Regents of the University of California, t
+ hrough  
+  Lawrence Berkeley National Laboratory (subject to receipt of any required appr
+ ovals   
+  from the U.S. Dept. of Energy). All rights reserved.
  
   If you have questions about your rights to use or distribute this software, pl
  ease contact 
@@ -17,9 +18,10 @@
   consequently retains certain rights. As such, the U.S. Government has been gra
  nted for itself and others acting 
   on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the S
- oftware to reproduce, distribute copies to the public, 
-  prepare derivative works, and perform publicly and display publicly, and to pe
- rmit other to do so.
+ oftware to reproduce, 
+  distribute copies to the public, prepare derivative works, and perform publicl
+ y and display
+  publicly, and to permit other to do so.
     
  
  
@@ -175,5 +177,5 @@
  
  
          INITIALIZATION COMPLETED 
-          STARTING TIMESTEPPING 
+         --> STARTING TIMESTEPPING 
  

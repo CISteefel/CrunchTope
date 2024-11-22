@@ -115,8 +115,7 @@
 			<File RelativePath="..\Source\exchange.F90"/>
 			<File RelativePath="..\Source\exchange_init.F90"/>
 			<File RelativePath="..\Source\ExchangeConcentration.F90"/>
-			<File RelativePath="..\Source\find_condition.F90">
-			</File>
+			<File RelativePath="..\Source\find_condition.F90"/>
 			<File RelativePath="..\Source\find_firststring.F90"/>
 			<File RelativePath="..\Source\find_string.F90"/>
 			<File RelativePath="..\Source\FindMaxFlow.F90"/>
@@ -130,7 +129,8 @@
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>
 			<File RelativePath="..\Source\FractureAperture.F90"/>
-			<File RelativePath="..\Source\FxTopeGlobal.F90"/>
+			<File RelativePath="..\Source\FxTopeGlobal.F90">
+			</File>
 			<File RelativePath="..\Source\FxTopeLocal.F90"/>
 			<File RelativePath="..\Source\gamma_co2.F90"/>
 			<File RelativePath="..\Source\gamma_init.F90"/>
@@ -234,8 +234,7 @@
 			<File RelativePath="..\Source\read_burialfile.F90"/>
 			<File RelativePath="..\Source\read_CatabolicPath.F90"/>
 			<File RelativePath="..\Source\read_concentration.F90"/>
-			<File RelativePath="..\Source\read_condition.F90">
-			</File>
+			<File RelativePath="..\Source\read_condition.F90"/>
 			<File RelativePath="..\Source\read_constantflow.F90"/>
 			<File RelativePath="..\Source\read_constantgasflow.F90"/>
 			<File RelativePath="..\Source\read_ConstantTortuosity.F90"/>
