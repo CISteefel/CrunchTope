@@ -3338,8 +3338,6 @@ DO nco = 1,nchem
     sionInit(nco) = 1.0D-06
   ENDIF
 
-  gammawater = 1.0d0
-  lngammawater = 0.0d0
 
   !  Map the species to an array dimensioned to number of geochemical conditions
 
@@ -4236,6 +4234,22 @@ END IF
 #endif
 
 nxyz = nx*ny*nz
+
+  IF (ALLOCATED(gammawater)) THEN
+    DEALLOCATE(gammawater)
+    ALLOCATE(gammawater(nx,ny,nz))
+  ELSE
+    ALLOCATE(gammawater(nx,ny,nz))
+  END IF
+  IF (ALLOCATED(lngammawater)) THEN
+    DEALLOCATE(lngammawater)
+    ALLOCATE(lngammawater(nx,ny,nz))
+  ELSE
+    ALLOCATE(lngammawater(nx,ny,nz))
+  END IF
+
+  gammawater = 1.0d0
+  lngammawater = 0.0d0
 
 !!!  **************  End of DISCRETIZATION  *********************************
 !!!  ************************************************************************
@@ -9626,4 +9640,6 @@ WRITE(*,*) ' Trying to read the file: ', FileTemp(1:FileNameLength)
 READ(*,*)
 STOP
 
-END SUBROUTINE StartTope
+  END SUBROUTINE StartTope
+  
+

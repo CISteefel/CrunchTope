@@ -1825,6 +1825,12 @@ DO WHILE (nn <= nend)
                  END IF
                   
                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+                if (jx==8) then
+                  continue
+                end if
+                if (jx==401) then
+                  continue
+                end if
             END DO
           END DO
           
