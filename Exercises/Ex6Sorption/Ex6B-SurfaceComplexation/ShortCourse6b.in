@@ -42,6 +42,7 @@ Na+
 NO3-
 Fe+++
 O2(aq)
+H2O
 END
 
 SECONDARY_SPECIES
@@ -82,7 +83,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04    
+H2O              55.50843506           
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -99,7 +101,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04  
+H2O              55.50843506             
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -113,7 +116,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04  
+H2O              55.50843506             
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -127,7 +131,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04    
+H2O              55.50843506           
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -141,7 +146,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04     
+H2O              55.50843506          
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -155,7 +161,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04   
+H2O              55.50843506            
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -169,7 +176,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04    
+H2O              55.50843506           
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -183,7 +191,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04     
+H2O              55.50843506          
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -197,7 +206,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04   
+H2O              55.50843506            
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -211,7 +221,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04   
+H2O              55.50843506            
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -225,7 +236,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04   
+H2O              55.50843506            
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -239,7 +251,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04 
+H2O              55.50843506              
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
@@ -253,7 +266,8 @@ Zn++                 1.E-07           equilibrate_surface
 Na+                  charge                            
 NO3-                 1.0000E-01                          
 Fe+++                0.00            
-O2(aq)               2.4647E-04               
+O2(aq)               2.4647E-04  
+H2O              55.50843506             
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 

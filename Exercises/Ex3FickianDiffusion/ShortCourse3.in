@@ -53,6 +53,7 @@ temperature      25.0
 Tracer           0.1
 Na+              0.001
 Cl-              0.001
+H2O              55.50843506
 END
 
 Condition junk2
@@ -61,6 +62,7 @@ temperature      25.0
 Tracer           0.0001
 Na+              0.001
 Cl-              0.001
+H2O              55.50843506
 END
 
 DISCRETIZATION
@@ -81,6 +83,7 @@ PRIMARY_SPECIES
 Tracer
 Na+
 Cl-
+H2O
 END
  
 

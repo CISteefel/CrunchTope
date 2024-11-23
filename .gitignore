@@ -2,9 +2,13 @@
 CrunchTope.*
 CrunchTopeInputs
 
-
 # but selectively track the project file
 !CrunchTope.vfproj
+
+# ignore output files
+*.output
+*.tec
+*.rst
 
 # ignore visual studio output files
 x64

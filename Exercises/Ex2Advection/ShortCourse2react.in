@@ -51,6 +51,7 @@ Tracer           0.1
 SiO2(aq)         9.7e-7
 Na+              0.01
 Cl-              0.01
+H2O              55.50843506
 30SiO2(aq)       2.998e-8
 Quartztope       0.60     bulk_surface_area  100
 END
@@ -64,6 +65,7 @@ SiO2(aq)         0.0001
 30SiO2(aq)       0.00001
 Na+              0.01
 Cl-              0.01
+H2O              55.50843506
 Quartztope       0.60    bulk_surface_area  100
 END
  
@@ -87,6 +89,7 @@ SiO2(aq)
 30SiO2(aq)
 Na+
 Cl-
+H2O
 END
  
 DISCRETIZATION

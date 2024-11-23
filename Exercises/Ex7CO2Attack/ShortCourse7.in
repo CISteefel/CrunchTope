@@ -2,10 +2,6 @@ TITLE
 CO2 attack on OPC related to GCS
 END
 
-DATABASE
-QL-datacom02.dbs
-END
-
 RUNTIME
 time_units      days
 !!timestep_max    0.00005
@@ -23,9 +19,10 @@ screen_output   1000
 !!fix_saturation  0.999
 read_saturationfile QL-saturation.dat
 graphics        kaleidagraph
-Duan            true
+Duan            false
 Benchmark       false
 Qingyun         true
+database     QL-datacom02.dbs
 END
 
 OUTPUT
@@ -98,6 +95,7 @@ SiO2(aq)         0.000001
 SO4--            0.0
 Na+              0.5
 Cl-              0.50064
+H2O              55.50843506
 Calcite              0.0   !!ssa 1  0.0000001
 Calcite_mix          0.0   !!ssa 1  0.0000001
 SiO2(am)             0.0
@@ -121,6 +119,7 @@ SiO2(aq)         0.000001
 SO4--            0.0
 Na+              0.5
 Cl-              0.50064
+H2O              55.50843506
 Calcite_mix      0.0   !!ssa 1  0.0000001
 Calcite          0.0   !!ssa 1  0.0000001
 SiO2(am)         0.0
@@ -144,6 +143,7 @@ SiO2(aq)         0.000001
 SO4--            0.0
 Na+              0.5
 Cl-              0.50064
+H2O              55.50843506
 Calcite              0.0   ssa 1  
 Calcite_mix          0.0   ssa 1
 SiO2(am)             0.0   ssa  1
@@ -165,6 +165,7 @@ Ca++                 0.001
 Na+                  charge
 Cl-                  0.500
 SiO2(aq)             0.0000001
+H2O                  55.50843506
 Calcite_mix          0.00001       ssa 1 
 CSH(1.6)             0.31          ssa 1 
 CSH(0.8)             0.05          ssa 1 
@@ -219,8 +220,6 @@ constant_flow       0.0
 calculate_flow      false
 END
 
-
-
 PRIMARY_SPECIES
 H+
 Ca++
@@ -228,6 +227,7 @@ CO2(aq)
 SiO2(aq)
 Na+
 Cl-
+H2O
 END
 
 SECONDARY_SPECIES

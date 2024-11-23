@@ -44,7 +44,7 @@
 
 
 SUBROUTINE read_minkin(nout,ncomp,nspec,nkin,ngas,data1,namrl,  &
-    ispeciate,igenericrates,nammin_tmp)
+                       ispeciate,igenericrates,nammin_tmp)
 USE crunchtype
 USE CrunchFunctions
 USE params
@@ -104,10 +104,13 @@ INTEGER(I4B)                                                :: kk
 INTEGER(I4B)                                                :: llen
 INTEGER(I4B)                                                :: ls_mineral
 
+INTEGER(I4B)                                                :: iunitDatabase
+
 REAL(DP)                                                    :: depend_tmp
 
 LOGICAL(LGT)                                                :: SpeciesFound
 LOGICAL(LGT)                                                :: MineralFound
+LOGICAL(LGT)                                                ::  itsopen 
 
 CHARACTER (LEN=mls)                                         :: dummy1
 CHARACTER (LEN=mls)                                         :: dumstring
@@ -139,6 +142,7 @@ integer(i4b),dimension(:),allocatable                       :: workint
 
 namelist /BiomassDecay/                                        biomass
 
+CHARACTER (LEN=mls)                                         :: DatabaseString
 
 imonod = 0
 kmonod = 0
@@ -169,17 +173,9 @@ END IF
 ! initialize to 0 (not biomass)
 mintype(:)=0
 
-!ALLOCATE(sto(50))
-!ALLOCATE(ax(mreact*mrct,mreact*mrct))
-!ALLOCATE(ainv(mreact*mrct,mreact*mrct))
-!ALLOCATE(bx(mreact*mrct,mreact*mrct))
-!ALLOCATE(yx(mreact*mrct))
-!ALLOCATE(indx(mreact*mrct))
-
 n0 = mreact*mrct
 
-OPEN(UNIT=18,FILE=data1,STATUS='old',err=334)
-REWIND nout
+!!!REWIND nout
 
 mnrl = 0
 nkin = 0
@@ -187,6 +183,10 @@ npar = 0
 nreac = 0
 
 LocalEquilibrium = .FALSE.
+
+!!! NOTE: "nout" is unit number for input file
+!!! NOTE: "iunitDatabase" is the number for the database
+
 
 100 READ(nout,'(a)',END=300) zone
 
@@ -323,26 +323,6 @@ IF(ls /= 0) THEN
       rate0(npar,nkin) = DNUM(ssch)
       continue
     END IF
-!!  ELSE IF (ssch == '-sigma') THEN
-!!    iuser(8) = 1
-!!    id = ids + ls
-!!    CALL sschaine(zone,id,iff,ssch,ids,ls)
-!!    lzs = ls
-!!    CALL stringtype(ssch,lzs,res)
-!!    IF (res == 'a') THEN
-!!      WRITE(*,*)
-!!      WRITE(*,*) ' "-sigma" should be followed by a number'
-!!      WRITE(*,*) ' Mineral = ',namdum(1:lsave)
-!!      WRITE(*,*) ' String = ',ssch(1:ls)
-!!      WRITE(*,*)
-!!      READ(*,*)
-!!      STOP
-!!    ELSE
-!!      sigma(nkin) = DNUM(ssch)
-!!      IF (sigma(nkin) /= 0.0) THEN
-!!        CrystalSizeDistribution(nkin) = .TRUE.
-!!      END IF
-!!    END IF
 
   ELSE IF (ssch == '-activation') THEN
     iuser(2) = 1
@@ -361,6 +341,7 @@ IF(ls /= 0) THEN
     ELSE
       ea(npar,nkin) = DNUM(ssch)
     END IF
+    
   ELSE IF (ssch == '-dependence') THEN
     iuser(3) = 1
     ndep = ndep + 1
@@ -387,6 +368,7 @@ IF(ls /= 0) THEN
     ELSE
       depend_tmp = DNUM(ssch)
     END IF
+    
 !  First, check to see if we are dealing with a total concentration
     dumstring = nam_depend
     IF (dumstring(1:4) == 'tot_') THEN
@@ -425,35 +407,9 @@ IF(ls /= 0) THEN
       
       namdep_nyf(ndep,npar,nkin) = nam_depend
       depend(ndep,npar,nkin) = depend_tmp
-      
-      
-!            do ksp = 1,nspec
-!              ik = ncomp + ksp
-!              if (ulab(ik).eq.nam_depend) then
-!                idepend(ndep,npar,nkin) = ik
-!                speciesfound = .true.
-!                depend(ndep,npar,nkin) = depend_tmp
-!                if (itot_tmp.eq.0) then
-!                  continue
-!                else
-!                  write(*,*)
-!                  write(*,*) ' Cannot specify total concentration for secondary species'
-!                  write(*,*) ' in rate law: ',dumstring(1:lss)
-!                  write(*,*)
-!                  stop
-!                endif
-!              endif
-!            end do
-!            if (speciesfound) then
-!              continue
-!            else
-!              write(*,*)
-!              write(*,*) ' Cannot find species in rate law: ',dumstring(1:lss)
-!              write(*,*)
-!              stop
-!            endif
    
     END IF
+    
   ELSE IF (ssch == '-type') THEN
     iuser(4) = 1
     id = ids + ls
@@ -473,6 +429,7 @@ IF(ls /= 0) THEN
     ELSE
       imintype(npar,nkin) = 1
     END IF
+    
   ELSE IF (ssch == '-associate') THEN
     iuser(7) = 1
     id = ids + ls
@@ -651,28 +608,39 @@ END IF
 425 np = npar
 
 ndepend(np,nkin) = ndep
-!      nmonod(np,nkin) = ndep
-
 
 555 mnrl = mnrl + 1
 namrl(mnrl) = nammin_tmp(nkin)
 !!WRITE(*,*) nammin_tmp(nkin)
 
 IF (ispeciate == 1 .OR. igenericrates == 1) GO TO 100
+!!!IF (ispeciate /= 1 .AND. igenericrates /= 1) THEN
 
-REWIND 18
+!   First, find end of the minerals section
 
-!          First, find end of the minerals section
+iunitDatabase = 8
 
-200 READ(18,'(a)') dummy1
-IF (dummy1 == 'Begin mineral kinetics') THEN
-  READ(18,'(a)') dummy1
+inquire(unit=iunitDatabase, opened=itsopen) 
+if ( itsopen ) then
+  write(*,*) 'Its open already'
+else
+  OPEN(UNIT=iunitDatabase,FILE=data1,STATUS='old',err=334)
+end if
+
+200 READ(iunitDatabase,'(a)') DatabaseString
+    
+write(*,*) DatabaseString(1:35)
+write(*,*)
+read(*,*)
+    
+IF (DatabaseString == 'Begin mineral kinetics') THEN
+  READ(iunitDatabase,'(a)') dummy1
   GO TO 475
 ELSE
   GO TO 200
 END IF
 
-475 READ(18,'(a)',END=300) dummy1
+475 READ(iunitDatabase,'(a)',END=300) dummy1
 
 IF (dummy1 == 'End of mineral kinetics') THEN
   dumstring = nammin_tmp(nkin)
@@ -699,7 +667,7 @@ CALL stringtype(ssch,lzs,res)
 !      write(*,*) ssch(1:ls)
 !      write(*,*) tempmin(1:ls)
 IF (ssch == tempmin) THEN
-  READ(18,'(a)',END=300) dummy1
+  READ(iunitDatabase,'(a)',END=300) dummy1
   id = 1
   iff = mls
   CALL sschaine(dummy1,id,iff,ssch,ids,ls)
@@ -731,7 +699,7 @@ IF (ssch == tempmin) THEN
     templabel = rlabel(np,nkin)
     CALL stringlen(templabel,lenlabel)
     
-    READ(18,'(a)',END=300) dummy1
+    READ(iunitDatabase,'(a)',END=300) dummy1
     IF (iuser(4) == 0) THEN  ! No user input, so read
       id = 1
       iff = mls
@@ -802,14 +770,15 @@ IF (ssch == tempmin) THEN
       
     END IF                                                      ! If input by user, skip block above
     
-    READ(18,'(a)',END=300) dummy1
+    READ(iunitDatabase,'(a)',END=300) dummy1
+    
     IF (iuser(1) == 0) THEN ! No user input, so read
       id = 1
       iff = mls
       CALL sschaine(dummy1,id,iff,ssch,ids,ls)
       lzs=ls
       CALL convan(ssch,lzs,res)
-      IF (ssch == 'rate(25c)') THEN                              !!  Read RATE
+      IF (ssch == 'rate(85c)') THEN                              !!  Read RATE
         id = ids + ls
         CALL sschaine(dummy1,id,iff,ssch,ids,ls)
         IF (ssch == '=') THEN
@@ -850,8 +819,8 @@ IF (ssch == tempmin) THEN
       
     END IF                                                  ! If input by user, skip block above
     
-    READ(18,'(a)',END=300) dummy1
-    IF (iuser(2) == 0) THEN ! No user input, so read
+    READ(iunitDatabase,'(a)',END=300) dummy1
+    IF (iuser(8) == 0) THEN ! No user input, so read
       id = 1
       iff = mls
       CALL sschaine(dummy1,id,iff,ssch,ids,ls)
@@ -901,7 +870,7 @@ IF (ssch == tempmin) THEN
       
 !!    Look for Monod terms (species specification with half-saturation constants)
       
-      READ(18,'(a)',END=300) dummy1
+      READ(iunitDatabase,'(a)',END=300) dummy1
       IF (iuser(5) == 0) THEN ! No user input, so read
         id = 1
         iff = mls
@@ -1037,7 +1006,7 @@ IF (ssch == tempmin) THEN
       
 !  Look for inhibition terms
       
-      READ(18,'(a)',END=300) dummy1
+      READ(iunitDatabase,'(a)',END=300) dummy1
       IF (iuser(6) == 0) THEN ! No user input, so read
         id = 1
         iff = mls
@@ -1167,7 +1136,7 @@ IF (ssch == tempmin) THEN
       
 !!    Look for Monod terms (species specification with half-saturation constants)
       
-      READ(18,'(a)',END=300) dummy1
+      READ(iunitDatabase,'(a)',END=300) dummy1
       IF (iuser(5) == 0) THEN ! No user input, so read
         id = 1
         iff = mls
@@ -1300,7 +1269,7 @@ IF (ssch == tempmin) THEN
         END IF
 
 !       commented out, now read at read_CatabolicPath        
-!!        READ(18,*) chi(np,nkin),bq(np,nkin),direction(np,nkin)
+!!        READ(iunitDatabase,*) chi(np,nkin),bq(np,nkin),direction(np,nkin)
 
       END IF        ! If input by user, skip block above
 ! biomass end
@@ -1316,7 +1285,7 @@ IF (ssch == tempmin) THEN
       end if 
 
 !     read 'biomass' namelist from file
-      read(18,nml=BiomassDecay,iostat=ios)     
+      READ(iunitDatabase,nml=BiomassDecay,iostat=ios)     
 
 !     result from read (IOS)
       if (ios == 0) then
@@ -1364,16 +1333,13 @@ IF (ssch == tempmin) THEN
         stop
 
       end if
-      
-      
- 
 
 ! end sergi: biomass decay
 
       
     ELSE                      !! If not a Monod rate law, look for species (exponential) dependences
       
-      READ(18,'(a)',END=300) dummy1
+      READ(iunitDatabase,'(a)',END=300) dummy1
       IF (iuser(3) == 0) THEN ! No user input, so read
         id = 1
         iff = mls
@@ -1418,7 +1384,7 @@ IF (ssch == tempmin) THEN
                 HyperbolicInhibitionDepend(np,nkin) = DNUM(ssch)                
                 
 !! Now read first the K-formation term, then the species name, then the exponential dependence
-!!                READ(18,*) Kformation(np,nkin),HyperbolicInhibitionName(np,nkin),HyperbolicInhibitionDepend(np,nkin)
+!!                READ(iunitDatabase,*) Kformation(np,nkin),HyperbolicInhibitionName(np,nkin),HyperbolicInhibitionDepend(np,nkin)
 
                 speciesfound = .false.
                 DO i = 1,ncomp
@@ -1571,7 +1537,7 @@ IF (ssch == tempmin) THEN
         
       END IF                                  !!  User input, so skip block above
       
-      READ(18,'(a)',END=300) dummy1
+      READ(iunitDatabase,'(a)',END=300) dummy1
       IF (dummy1(1:1) == '+') THEN
         CONTINUE
       ELSE
@@ -1657,7 +1623,7 @@ IF (ssch == tempmin) THEN
     
 !  Read stoichiometry here
     
-!          read(18,'(a)',end=300) dummy1
+!          READ(iunitDatabase,'(a)',end=300) dummy1
 !          namsearch = nammin_tmp(nkin)
 !          call stringlen(namsearch,ls_min)
 !          templabel = rlabel(np,nkin)

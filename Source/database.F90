@@ -43,7 +43,7 @@
 !!!      ****************************************
     
 SUBROUTINE database(ncomp,ncmplx,mnrl,nrct,ngas,nsurf,nsurf_sec,ntemp,  &
-  iprint,icomplete,jtemp,data1,namc,namcx,namrl,  &
+  iprint,icomplete,jtemp,data1,namc,namcx,namrl,                        &
   vbar,wtminfull,wtbas,coef,temp,z,bdotPrimary,zx,bdotSecondary,a0,ax0)
 USE crunchtype
 USE params
@@ -381,15 +381,6 @@ IF (data1 /= ' ') THEN
   
   OPEN(UNIT=iunit5,FILE=data1,STATUS='old',ERR=334)
   
-  
-!        open(unit=iunit5,file=data1,status='old',err=334,access='sequential',recl=1024)
-  
-!      else if (temp .eq. 25.d0 .and. jtemp.eq.0) then
-! write(*,*) '        --> using database: master25'
-! write(iunit2,*)'        --> using database: master25'
-!        open(iunit5, file=
-!     .  '/users/steefel/threedata/master25.data',
-!     .  status='old',err=334)
 ELSE
   WRITE(*,*)
   WRITE(*,*) ' No default database:  must be specified in input file'

@@ -25,6 +25,7 @@ solver          bcgs
 pc              ilu
 pclevel         5
 Benchmark       true
+database   datacom_mingliangBdot.dbs
 END
 
 OUTPUT
@@ -116,13 +117,13 @@ END
 
 MINERALS
 !! Standard linear TST calcite
-Calcite                 -label default        -rate  -4.301029996
-Gypsum                  -label default        -rate  -4.301029996
-Ferrihydrite            -label default        -rate  -5.301029996
-Jarosite                -label default        -rate  -5.301029996
-Gibbsite                -label default        -rate  -6.301029996
-Siderite                -label default        -rate  -5.301029996
-TracerMineral           -label default        -rate  -35.00
+Calcite       -label default   -rate  -4.301029996
+Gypsum        -label default   -rate  -4.301029996
+Ferrihydrite  -label default   -rate  -5.301029996
+Jarosite      -label default   -rate  -5.301029996
+Gibbsite      -label default   -rate  -6.301029996
+Siderite      -label default   -rate  -5.301029996
+TracerMineral -label default   -rate  -35.00
 END
 
 

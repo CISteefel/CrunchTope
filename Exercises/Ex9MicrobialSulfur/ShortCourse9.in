@@ -20,6 +20,8 @@ gimrt                   true
 screen_output           100
 JennyDruhan             true
 SetSurfaceAreaConstant  true
+aqueousdatabase         aqueousRifleColumn.dbs
+catabolicdatabase       CatabolicPathways_RifleColumn.dbs         
 END
 
 OUTPUT
@@ -82,6 +84,7 @@ H2S34(aq)        4.44083904E-17
 O2(aq)           15.6E-3
 NH4+             1.5
 Br-              0.00
+H2O              55.50843506 
 C5H7O2NFe        1.0E-12
 C5H7O2NSO4       1.0E-12
 decay_b_so4      1.0E-12
@@ -126,6 +129,7 @@ H2S34(aq)        4.44083904E-17
 O2(aq)           15.6E-3
 NH4+             1.5
 Br-              1.32
+H2O              55.50843506 
 C5H7O2NFe        0.00
 C5H7O2NSO4       0.00
 decay_b_so4      1.0E-12
@@ -191,6 +195,7 @@ Br-
 C5H7O2NFe
 C5H7O2NSO4
 decay_b_so4
+H2O 
 END
 
 SECONDARY_SPECIES

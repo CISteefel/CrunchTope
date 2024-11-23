@@ -48,6 +48,7 @@ H+               0.11544
 Ca++             5.28   
 Ca44++           0.111997921     
 HCO3-            10.0
+H2O              55.50843506 
 ! Mineral name <volume fraction m3/m3>
 CalciteRifle             0.7833831  bulk_surface_area 1.333E-02
 Calcite44Rifle           0.0166170  bulk_surface_area 1.333E-02
@@ -71,6 +72,7 @@ H+
 Ca++
 Ca44++
 HCO3-
+H2O 
 END
 
 SECONDARY_SPECIES

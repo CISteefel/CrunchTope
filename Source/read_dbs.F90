@@ -58,16 +58,20 @@ CHARACTER (LEN=mls), INTENT(OUT)                                :: Filename
 CHARACTER (LEN=mls)                                             :: dumstr
 LOGICAL(LGT)                                                    :: Found
 
+!! Internal varibles and arrays
+INTEGER(I4B)                                                    :: ls
+
 
 READ(nout,'(a)') Filename
 
 Found = .FALSE.
 dumstr = TRIM(ADJUSTL(Filename))
 INQUIRE(FILE=dumstr,EXIST=Found)
+CALL stringlen(filename,ls)
 IF (Found) THEN          
-  OPEN(nout,FILE=TRIM(ADJUSTL(FileName)),STATUS='UNKNOWN',FORM='FORMATTED',ACTION="READ") 
+  OPEN(nout,FILE=FileName(1:ls),STATUS='UNKNOWN') 
 ELSE                   
-  WRITE(*,'(a,a,a)') " The database file ", TRIM(ADJUSTL(Filename)), ", which is given in RUNTIME block of the input file, does not exist."
+  WRITE(*,'(a,a,a)') " Database file ", dumstr, ", not found "
   WRITE(*,'(a)') " STOP "
   READ(*,*)
 END IF

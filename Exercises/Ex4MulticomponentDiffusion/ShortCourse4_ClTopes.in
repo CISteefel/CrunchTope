@@ -63,6 +63,7 @@ Cl-              7.5e-05
 Na+              1.e-04
 NO3-             1.e-04
 CO2(aq)          CO2(g)   1.0E-10
+H2O              55.50843506
 END
 
 Condition inlet
@@ -74,6 +75,7 @@ Na+              1.e-04
 NO3-             1.e-06
 !!CO2(aq)        0.001
 CO2(aq)          CO2(g)   1.0E-10
+H2O              55.50843506
 END
  
 DISCRETIZATION
@@ -93,11 +95,11 @@ END
 PRIMARY_SPECIES
 H+
 Cl-
-
 37Cl-
 Na+
 NO3-
 CO2(aq)
+H2O
 END
  
 SECONDARY_SPECIES
