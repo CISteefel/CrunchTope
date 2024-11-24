@@ -78,7 +78,8 @@
 			<File RelativePath="..\Source\CalculateDHAD.F90"/>
 			<File RelativePath="..\Source\CalculateTortuosity.F90"/>
 			<File RelativePath="..\Source\coeff.F90"/>
-			<File RelativePath="..\Source\coeff_D.F90"/>
+			<File RelativePath="..\Source\coeff_D.F90">
+			</File>
 			<File RelativePath="..\Source\coeffCylinder.F90"/>
 			<File RelativePath="..\Source\coeffCylinder_D.F90"/>
 			<File RelativePath="..\Source\coeffCylinderDiffuse.F90"/>
