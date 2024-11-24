@@ -2,6 +2,9 @@
 
 CrunchFlow is reactive transport software developed by Carl I. Steefel, Toshi Bandai, and Sergi Molins at Lawrence Berkeley National Laboratory.
 
+# News and Updates
+Newly added are capabilities for 1D and 2D fully transient unsaturated flow based on the Richards equation (courtesy Toshi Bandai).  Check out Ex13UnsaturatedFlow, Ex14UnsaturatedFlow_evaporation, and Ex15UnsaturatedFlow_transient...
+
 # Installation
 Do not use petsc-3.22 with CrunchFlow, since the newly developed PETSc Fortran hooks there do not work.  Use instead petsc-3.21 (https://web.cels.anl.gov/projects/petsc/download/release-snapshots/petsc-3.21.tar.gz).
 
