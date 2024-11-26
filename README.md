@@ -10,6 +10,11 @@ Do not use petsc-3.22 with CrunchFlow, since the newly developed PETSc Fortran h
 
 git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
 
+# Compilation
+For fully optimized production code, be sure to configure PETSc with "--with-debugging=0" and make sure the CrunchTope Makefile includes the -O3 flag for maximum optimization.
+
+FFLAGS  = -w -O3 -ffpe-trap=invalid,overflow,zero 
+
 # RunTime
 ---> Add "H2O" to the end of the list of PRIMARY SPECIES.  
 ---> Add also to each of the CONDITION blocks  "H2O  55.50843506"
