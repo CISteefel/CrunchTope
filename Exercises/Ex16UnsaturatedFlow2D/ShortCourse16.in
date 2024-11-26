@@ -99,6 +99,7 @@ END
 PRIMARY_SPECIES
 Tracer
 H+
+H2O
 END
 
 SECONDARY_SPECIES
@@ -110,6 +111,7 @@ units            mol/kg
 temperature      30.0
 Tracer         1.0E-8
 H+             1.0E-8
+H2O            55.50843506
 END
 
 Condition injection
@@ -117,6 +119,7 @@ units            mol/kg
 temperature      30.0
 Tracer         1.0E-3
 H+             1.0E-3
+H2O            55.50843506
 END
 
 TEMPERATURE
