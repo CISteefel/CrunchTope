@@ -39,9 +39,21 @@ jobs:
         echo "Building CrunchTope"
         make
         
-    - name: crunchtope-run
+    - name: crunchtope-run1
       run: |
         cd Exercises/Ex1Speciation
         echo "Running Ex1Speciation"
         ../../Source/CrunchTope ShortCourse1.in
+        
+    - name: crunchtope-run2
+      run: |
+        cd Exercises/Ex2Advection
+        echo "Running Ex2Advection"
+        ../../Source/CrunchTope ShortCourse2.in
+        
+    - name: crunchtope-run3
+      run: |
+        cd Exercises/Ex3FickianDiffusion
+        echo "Running Ex3FickianDiffusion"
+        ../../Source/CrunchTope ShortCourse3.in
 
