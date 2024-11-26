@@ -59,6 +59,7 @@ USE flow
 USE temperature
 USE io
 USE modflowModule
+USE Richards_module
 
 #include "petsc/finclude/petscmat.h"
 USE petscmat
@@ -213,8 +214,8 @@ END IF
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-      READ(iures) psi
-      READ(iures) theta
+      READ(iures) Richards_State%psi
+      READ(iures) Richards_State%theta
     END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************

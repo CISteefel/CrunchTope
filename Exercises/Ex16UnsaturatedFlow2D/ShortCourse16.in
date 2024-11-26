@@ -1,5 +1,5 @@
 TITLE
-1D transport with unsaturated flow (initial condition was computed by steady-state Richards)
+2D transport with unsaturated flow
 END
 
 RUNTIME
@@ -16,6 +16,7 @@ hindmarsh        false
 database_sweep   no
 speciate_only    false
 gimrt            true
+generate_velocity_vector True
 database         datacom.dbs
 screen_output    1000
 END
@@ -23,16 +24,16 @@ END
 OUTPUT
 time_units               days
 spatial_profile          1.0 4.0 6.5
-time_series          Tracer1.out 30 1 1
-time_series_units    Mol/kgw
-time_series_interval 1
+!time_series          Tracer1.out 1 3 1
+!time_series_units    Mol/kgw
+!time_series_interval 1
 END
 
 TRANSPORT
 distance_units meters
 time_units     seconds
 fix_diffusion  1.0e-09
-dispersivity   0.01
+dispersivity   0.01 0.001
 END
 
 
@@ -42,31 +43,32 @@ distance_units   meters
 calculate_flow  TRUE
 
 !PERMEABILITY
-permeability_x 2.95e-13 default
-permeability_y 0 default
+permeability_x 2.95e-14 default
+permeability_y 2.95e-13 default
 permeability_z 0 default
 
 !RICHARD
-gravity 0.0 90.0 90.0 up ! gravity is from x_begin to x_end
+gravity 90.0 0.0 90.0 up ! gravity is from y_begin to y_end
 Richards  TRUE ! Richards solver is used to compute velocity
 Richards_print TRUE ! Newton and line search results are not printed
-Richards_steady TRUE ! steady-state Richards solver is used to the initial condition for time-dependent Richards solver
-read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
+Richards_steady FALSE ! steady-state Richards solver is not used to the initial condition for time-dependent Richards solver
+richards_ic -7.2613900 ! constant initial condition for Richards
+!read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver
 !! van Genuchten parameters
-vg_theta_r 120 0.0
-vg_theta_s 120 0.33
-vg_alpha   120 1.43
-vg_n       120 1.506
+vg_theta_r 0.0 default
+vg_theta_s 0.33 default
+vg_alpha   1.43 default
+vg_n       1.506 default
 !! boundary conditions for time-dependent Richards solver
-!!! flux boundary condition at x_begin
-!!! Because the gravity is from x_begin to x_end, the positive value means infiltration
-x_begin_bc_type constant_flux 0.2
-!!! Neumann boundary condition (gradient of water potential is set to 0 here) at x_end
-x_end_bc_type constant_neumann 0.0
-!! boundary conditions for steady-state Richards solver
-x_begin_bc_type_steady constant_flux 0.0
-!!! the groundwater table is set to the x_end boundary
-x_end_bc_type_steady constant_Dirichlet 0.0
+boundary_condition zone 1-40 0-0 1-1  flux 0.0 ! for up
+boundary_condition zone 17-23 0-0 1-1  flux 0.2 ! for up
+boundary_condition zone 1-40 51-51 1-1  neumann 0.0
+boundary_condition zone 0-0 1-50 1-1  flux 0.0
+boundary_condition zone 41-41 1-50 1-1  flux 0.0
+!boundary_condition zone 1-3 0-0 1-1  flux 0.2 ! for up
+!boundary_condition zone 1-3 6-6 1-1  neumann 0.0
+!boundary_condition zone 0-0 1-5 1-1  flux 0.0
+!boundary_condition zone 4-4 1-5 1-1  flux 0.0
 END
 
 POROSITY
@@ -75,24 +77,29 @@ porosity_update false
 END
 
 BOUNDARY_CONDITIONS
-x_begin     injection     Dirichlet
+x_begin     initial     Dirichlet
 x_end   initial   Dirichlet
+y_begin     injection     Dirichlet
+y_end     initial     Dirichlet
 END
 
 INITIAL_CONDITIONS
-initial   1-120 1-1 1-1
+initial   1-40 1-50 1-1
+!initial   1-3 1-5 1-1
 END
 
 DISCRETIZATION
 distance_units  meters
-xzones 120 0.05
-yzones 1 1
+xzones 40 0.15
+yzones 50 0.12
+!yzones 5 1.2
 zzones 1 1
 END
 
 PRIMARY_SPECIES
 Tracer
 H+
+H2O
 END
 
 SECONDARY_SPECIES
@@ -104,6 +111,7 @@ units            mol/kg
 temperature      30.0
 Tracer         1.0E-8
 H+             1.0E-8
+H2O            55.50843506
 END
 
 Condition injection
@@ -111,6 +119,7 @@ units            mol/kg
 temperature      30.0
 Tracer         1.0E-3
 H+             1.0E-3
+H2O            55.50843506
 END
 
 TEMPERATURE

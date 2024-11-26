@@ -66,6 +66,9 @@ USE modflowModule
 !!!USE isotope, ONLY: IsotopeMineralRare, IsotopeMineralCommon,IsotopePrimaryCommon,IsotopePrimaryRare
 USE NanoCrystal
 USE isotope
+USE Richards_module
+USE hydraulic_function_module
+USE read_richards_module
 
 IMPLICIT NONE
 
@@ -642,8 +645,6 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                           :: realmult_dum
 CHARACTER (LEN=mls)                                           :: SnapshotFileFormat
 LOGICAL(LGT)                                                  :: boolreg
 integer :: IERR = 0
-CHARACTER (LEN=mls)                                           :: watertablefile
-CHARACTER (LEN=mls)                                           :: WatertableFileFormat
 LOGICAL(LGT)                                                  :: readmineral
 INTEGER(I4B)                                                  :: mineral_index
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE                       :: mineral_id
@@ -672,15 +673,20 @@ REAL(DP)                                                      :: ChargeSum
 
 ! ************************************
 ! Edit by Toshiyuki Bandai, 2023 May
+INTEGER(I4B)                                 :: BC_error ! error flag for reading boundary condition
 INTEGER(I4B)                                 :: VG_error ! error flag for reading van Genuchten parameters
+INTEGER(I4B)                                 :: nzones_VG_params ! number of zones when reading VG parameter from input file
 REAL(DP)                                     :: numerator ! used to compute permeability at faces
 REAL(DP)                                     :: denominator ! used to compute permeability at faces
-CHARACTER (LEN=mls)                          :: Richards_IC_File ! file name for Richards initial condition
-CHARACTER (LEN=mls)                          :: Richards_IC_FileFormat ! file name for Richards initial condition (only single column is supported)
+INTEGER(I4B), DIMENSION(2)                   :: coordinate_cell_1 ! coordinate of cell 1 for 2D problem
+INTEGER(I4B), DIMENSION(2)                   :: coordinate_cell_2 ! coordinate of cell 2 for 2D problem
+CHARACTER (LEN=mls)                          :: Richards_File ! file name for Richards solver
+CHARACTER (LEN=mls)                          :: Richards_FileFormat ! file name for Richards solver (only single column is supported)
 INTEGER(I4B)                                 :: BC_location ! ingeger to define the location of the boundary condition (0: lower boundary condition; 1: upper boundary condition)
 CHARACTER (LEN=mls)                          :: x_begin_BC_file ! file name for the x_begin boundary condition for the Richards equation
 CHARACTER (LEN=mls)                          :: x_end_BC_file ! file name for the x_end boundary condition for the Richards equation
 CHARACTER (LEN=mls)                          :: infiltration_file ! file with infiltration data for "enviornmental_forcing" upper boundary condition
+INTEGER(I4B)                                 :: nBoundaryConditionZone_Richards ! number of boundary condition zones for 2D richards solver
 ! End of edit by Toshiyuki Bandai, 2023 May
 ! ************************************
 
@@ -790,7 +796,7 @@ inquire(file='CrunchJunk2.out',opened=lopen)
 IF (lopen) THEN
 CLOSE (unit=nout)
 END IF
-OPEN(UNIT=nout,FILE='CrunchJunk2.out',STATUS='unknown')
+OPEN(UNIT=nout,STATUS='SCRATCH')
 #else
 call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
 write(fn,"(a10,i0,a4)")'CrunchJunk',rank,'.out'
@@ -6453,51 +6459,54 @@ IF (found) THEN
       parchar = 'Richards'
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,Richards)
-
       IF (Richards) THEN
         isaturate = 1
       ENDIF
 
       ! True if you want print statement on the screen from the Richards solver
-      Richards_print = .FALSE.
       parchar = 'Richards_print'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,Richards_print)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%is_print)
       
       ! True if steady-state Richards solver is used to obtain the initial condition
-      Richards_steady = .FALSE.
       parchar = 'Richards_steady'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,Richards_steady)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%is_steady)
+      
+      ! select hydraulic function
+      parchar = 'hydraulic_function'
+      parfind = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind == ' ') THEN
+        Richards_Options%hydraulic_function = 'VGM' ! van Genuchten-Mualem model as default
+      ELSE
+        Richards_Options%hydraulic_function = dumstring
+      END IF
       
       ! True if the n parameter in the van Genuchten model is used as the input data
-      vg_is_n = .TRUE.
       parchar = 'vg_is_n'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,vg_is_n)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%vg_is_n)
       
       ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
-      psi_is_head = .TRUE.
       parchar = 'psi_is_head'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,psi_is_head)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%psi_is_head)
       
-      IF (.NOT. psi_is_head .AND. ABS(dist_scale - 1.0d0) > 1.0d-5) THEN
-        WRITE(*,*) 'dist_scale must be set to 1.0 when psi_is_head = .FALSE.'
+      IF (.NOT. Richards_Options%psi_is_head .AND. ABS(dist_scale - 1.0d0) > 1.0d-5) THEN
+        WRITE(*,*) 'The unit for space must be m when psi_is_head = .FALSE.'
         STOP
       END IF
       
       ! True if the theta_s is the same as the porosity value
-      theta_s_is_porosity = .TRUE.
       parchar = 'theta_s_is_porosity'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,theta_s_is_porosity)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%theta_s_is_porosity)
       
       ! True if the input to the theta_r is the residual saturation value
-      theta_r_is_S_r = .FALSE.
       parchar = 'theta_r_is_S_r'
       parfind = ' '
-      CALL read_logical(nout,lchar,parchar,parfind,theta_r_is_S_r)
+      CALL read_logical(nout,lchar,parchar,parfind,Richards_Options%theta_r_is_S_r)
       
       ! set the minimum water potential allowed at the boundary when selecting atomosphere boundary condition
       
@@ -6506,470 +6515,155 @@ IF (found) THEN
       realjunk = 0.0
       CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
       IF (parfind == ' ') THEN
-        psi_0 = -1.0d4  ! Use default
+        Richards_Base%psi_0 = -1.0d4 / dist_scale  ! Use default
       ELSE
-        psi_0 = realjunk
+        Richards_Base%psi_0 = realjunk / dist_scale
       END IF
-
-      ! convert unit
-      psi_0 = psi_0 / dist_scale
       
+      ! set the shape of the spatial domain for 2D flow problem (only used in 2D Richards)
+      parchar = 'spatial_domain'
+      parfind = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind == ' ') THEN
+        Richards_Base%spatial_domain = 'regular'
+      ELSE
+        Richards_Base%spatial_domain = dumstring
+      END IF
+      
+      ! nonlinear solver setting
       ! set the maximum water potential updated during Newton iterations
       parchar = 'set_dpsi_max'
       parfind = ' '
       realjunk = 0.0
       CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
       IF (parfind == ' ') THEN
-        dpsi_max = 1.0d3  ! Use default
+        Richards_Solver%dpsi_max = 1.0d3 / dist_scale  ! Use default
       ELSE
-        dpsi_max = realjunk
+        Richards_Solver%dpsi_max = realjunk / dist_scale
       END IF
-
-      ! convert unit
-      dpsi_max = dpsi_max / dist_scale
       
-      ! flag to prevent chemical transport due to evaporation at a boundary
-      parchar = 'set_evaporation_boundary'
+      ! set the abolute tolerance of the nonlinear solver for the Richards solver
+      parchar = 'set_tol_a'
       parfind = ' '
-      evaporation_boundary = ' '
-      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-      IF (parfind == ' ') THEN
-        evaporation_boundary = ' '
-      ELSE
-        evaporation_boundary = dumstring
+      realjunk = 0.0
+      CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+      IF (parfind /= ' ') THEN
+        Richards_Solver%tau_a = realjunk
       END IF
+      
+      ! set the maximum number of Newton iterations
+      parchar = 'set_max_Newton'
+      parfind = ' '
+      intjunk = 0
+      CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
+      IF (parfind /= ' ') THEN
+        Richards_Solver%max_Newton = intjunk
+      END IF
+      
+      ! set the maximum number of line searches
+      parchar = 'set_max_line_search'
+      parfind = ' '
+      intjunk = 0
+      CALL read_integer(nout,lchar,parchar,parfind,intjunk,section)
+      IF (parfind /= ' ') THEN
+        Richards_Solver%max_line_search = intjunk
+      END IF
+      
       
       ! End of Edit by Toshiyuki Bandai, 2024 Oct.
       ! ***************************************************
-    
-      IF (ALLOCATED(harx)) THEN
-        DEALLOCATE(harx)
-        ALLOCATE(harx(0:nx,1:ny,1:nz))
-      ELSE
-        ALLOCATE(harx(0:nx,1:ny,1:nz))
-      END IF
-      IF (ALLOCATED(hary)) THEN
-        DEALLOCATE(hary)
-        ALLOCATE(hary(1:nx,0:ny,1:nz))
-      ELSE
-        ALLOCATE(hary(1:nx,0:ny,1:nz))
-      END IF
-      IF (ALLOCATED(harz)) THEN
-        DEALLOCATE(harz)
-        ALLOCATE(harz(1:nx,1:ny,0:nz))
-      ELSE
-        ALLOCATE(harz(1:nx,1:ny,0:nz))
-      END IF
-
-      IF (ALLOCATED(perminx)) THEN
-        DEALLOCATE(perminx)
-        ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
-      ELSE
-        ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
-      END IF
-      IF (ALLOCATED(perminy)) THEN
-        DEALLOCATE(perminy)
-        ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
-      ELSE
-        ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
-      END IF
-      IF (ALLOCATED(perminz)) THEN
-        DEALLOCATE(perminz)
-        ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
-      ELSE
-        ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
-      END IF
-
-      IF (ALLOCATED(permx)) THEN
-        DEALLOCATE(permx)
-        ALLOCATE(permx(0:nx+1,1:ny,1:nz))
-      ELSE
-        ALLOCATE(permx(0:nx+1,1:ny,1:nz))
-      END IF
-      IF (ALLOCATED(permxOld)) THEN
-        DEALLOCATE(permxOld)
-        ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
-      ELSE
-        ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
-      END IF
-      IF (ALLOCATED(permy)) THEN
-        DEALLOCATE(permy)
-        ALLOCATE(permy(1:nx,0:ny+1,1:nz))
-      ELSE
-        ALLOCATE(permy(1:nx,0:ny+1,1:nz))
-      END IF
-      IF (ALLOCATED(permyOld)) THEN
-        DEALLOCATE(permyOld)
-        ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
-      ELSE
-        ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
-      END IF
-      IF (ALLOCATED(permz)) THEN
-        DEALLOCATE(permz)
-        ALLOCATE(permz(1:nx,1:ny,0:nz+1))
-      ELSE
-        ALLOCATE(permz(1:nx,1:ny,0:nz+1))
-      END IF
-      IF (ALLOCATED(permzOld)) THEN
-        DEALLOCATE(permzOld)
-        ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
-      ELSE
-        ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
-      END IF
-
-      pres = 0.0
-      perminx = 0.0
-      perminy = 0.0
-      perminz = 0.0
-
-      WRITE(*,*)
-      WRITE(*,*) ' Flow will be calculated'
-      WRITE(*,*)
-   
-      ! ********************************************
-      ! Edit by Toshiyuki Bandai 2023 May
-      Richards_allocate: IF (Richards) THEN
-    
-        CALL RichardsArrayAllocation(nx,ny,nz)
-    
-        !*************************************************************
-        ! Edit by Toshiyuki Bandai, Oct. 2024
-        ! compute the dynamics viscosity of water [Pa year] based on local temperature for the Ricahrds solver
-        ! mu_water is defined in Flow module
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 0,nx+1
-              mu_water(jx,jy,jz) = 10.0d0**(-4.5318d0 - 220.57d0/(149.39 - t(jx,jy,jz) - 273.15d0)) * 86400.0d0 * 365.0d0 ! 
-              rho_water_2 = 0.99823d0 * 1.0E3
-              !rho_water2 = 1000.0d0*(1.0d0 - (t(jx,jy,jz) + 288.9414d0) / (508929.2d0*(t(jx,jy,jz) + 68.12963d0))*(t(jx,jy,jz)-3.9863d0)**2.0d0)
-            END DO
-          END DO
-        END DO
-
-        mu_water = 0.0010005*secyr ! dynamic viscosity of water
-
-        ! End of Edit by Toshiyuki Bandai, Oct. 2024
-        !*************************************************************
-
-        ! allocate and read van-Genuchten parameters
-        VG_error = 0
-    
-        ! saturated water content theta_s (=porosity)
-    
-        IF (theta_s_is_porosity) THEN
-          ! theta_s is the same as the porosity, so no need to read vg_theta_s
-          FORALL (jx=0:nx+1, jy=1:ny, jz=1:nz)
-            theta_s(jx,jy,jz) = por(jx,jy,jz)
-          END FORALL
-        ELSE
-          
-          parchar = 'vg_theta_s'
-          CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-          IF (VG_error == 1) THEN
-            WRITE(*,*)
-            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-            WRITE(*,*)
-            STOP
-          END IF
-    
-          ! if theta_s does not match porosity, make a warning
-          DO jx = 0, nx+1
-            DO jy = 1, ny
-              DO jz = 1, nz
-              
-                IF (theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
-                  WRITE(*,*)
-                  WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
-                  WRITE(*,*) ' theta_s = ',theta_s(jx,jy,jz)
-                  WRITE(*,*) ' porosity = ',por(jx,jy,jz)
-                  WRITE(*,*)
-                END IF
-              END DO
-            END DO
-          END DO
-        
-        END IF
   
-        !!!!!!!!!!!!!!!!!!!!!!!!!
-        ! residual water content (theta_r)
-        !!!!!!!!!!!!!!!!!!!!!!!!!
-        parfind = ' '
-        parchar = 'vg_theta_r'
-        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-        IF (VG_error == 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-          WRITE(*,*)
-          STOP
-        END IF
+    IF (ALLOCATED(harx)) THEN
+      DEALLOCATE(harx)
+      ALLOCATE(harx(0:nx,1:ny,1:nz))
+    ELSE
+      ALLOCATE(harx(0:nx,1:ny,1:nz))
+    END IF
+    IF (ALLOCATED(hary)) THEN
+      DEALLOCATE(hary)
+      ALLOCATE(hary(1:nx,0:ny,1:nz))
+    ELSE
+      ALLOCATE(hary(1:nx,0:ny,1:nz))
+    END IF
+    IF (ALLOCATED(harz)) THEN
+      DEALLOCATE(harz)
+      ALLOCATE(harz(1:nx,1:ny,0:nz))
+    ELSE
+      ALLOCATE(harz(1:nx,1:ny,0:nz))
+    END IF
 
-        IF (parfind == ' ') THEN
-          ! ************************************
-          ! Edit by Lucien Stolze, June 2023
-          ! Read wcr parameter array from file
-          CALL read_wcrfile(nout,nx,ny,nz,wcrfile,lfile,readwcr,wcrFileFormat)
-          IF (readwcr) then
-            wcrfile(1:lfile) = wcrfile(1:lfile)
-            INQUIRE(FILE=wcrfile,EXIST=ext)
-            IF (.NOT. ext) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' wcr file not found: ',wcrfile(1:lfile)
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-        
-            OPEN(UNIT=23,FILE=wcrfile,STATUS='old')
-            FileTemp = wcrfile
-            CALL stringlen(FileTemp,FileNameLength)
-            IF (wcrFileFormat == 'ContinuousRead') THEN
-              READ(23,*,END=1020) (((theta_r(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-            ELSE IF (wcrFileFormat == 'SingleColumn') THEN
-              DO jz = 1,nz
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) theta_r(jx,jy,jz)
-                  END DO
-                END DO
-              END DO
-            ELSE IF (wcrFileFormat == 'FullForm') THEN
-              IF (ny > 1 .AND. nz > 1) THEN
-                DO jz = 1,nz
-                  DO jy = 1,ny
-                    DO jx= 1,nx
-                      READ(23,*,END=1020) xdum,ydum,zdum,theta_r(jx,jy,jz)
-                    END DO
-                  END DO
-                END DO
-              ELSE IF (ny > 1 .AND. nz == 1) THEN
-                jz = 1
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) xdum,ydum,theta_r(jx,jy,jz)
-                  END DO
-                END DO
-              ELSE
-                jz = 1
-                jy = 1
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,theta_r(jx,jy,jz)
-                END DO
-              END IF
-            ELSE IF (wcrFileFormat == 'Unformatted') THEN
-              READ(23,END=1020) theta_r
-            ELSE
-              WRITE(*,*)
-              WRITE(*,*) ' wcr file format not recognized'
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-            
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) 'Information on residual water content must be provided.'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          ENDIF
+    IF (ALLOCATED(perminx)) THEN
+      DEALLOCATE(perminx)
+      ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
+    ELSE
+      ALLOCATE(perminx(0:nx+1,1:ny,1:nz))
+    END IF
 
-        ENDIF
+    IF (ALLOCATED(perminy)) THEN
+      DEALLOCATE(perminy)
+      ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
+    ELSE
+      ALLOCATE(perminy(1:nx,0:ny+1,1:nz))
+    END IF
 
-      ! the input value is actually residual saturation, convert it to residual water content
-        IF (theta_r_is_S_r) THEN
-          theta_r = theta_r*theta_s
-        END IF
+    IF (ALLOCATED(perminz)) THEN
+      DEALLOCATE(perminz)
+      ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
+    ELSE
+      ALLOCATE(perminz(1:nx,1:ny,0:nz+1))
+    END IF
 
-      !!!!!!!!!!!!!!!!!!!!!!!!!
-      ! alpha parameter in the van Genuchten model
-      !!!!!!!!!!!!!!!!!!!!!!!!!
-        parfind = ' '
-        parchar = 'vg_alpha'
-        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-        IF (VG_error == 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-          WRITE(*,*)
-          STOP
-        END IF
+    IF (ALLOCATED(permx)) THEN
+      DEALLOCATE(permx)
+      ALLOCATE(permx(0:nx+1,1:ny,1:nz))
+    ELSE
+      ALLOCATE(permx(0:nx+1,1:ny,1:nz))
+    END IF
 
-        IF (parfind == ' ') THEN
-          ! ************************************
-          ! Edit by Lucien Stolze, June 2023
-          ! Read alpha parameter array from file
-          CALL read_vgafile(nout,nx,ny,nz,vgafile,lfile,readvga,vgaFileFormat)
-          IF (readvga) then
-            vgafile(1:lfile) = vgafile(1:lfile)
-            INQUIRE(FILE=vgafile,EXIST=ext)
-            IF (.NOT. ext) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' vga file not found: ',vgafile(1:lfile)
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-      
-            OPEN(UNIT=23,FILE=vgafile,STATUS='old')
-            FileTemp = vgafile
-            CALL stringlen(FileTemp,FileNameLength)
-            IF (vgaFileFormat == 'ContinuousRead') THEN
-              READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-            ELSE IF (vgaFileFormat == 'SingleColumn') THEN
-              DO jz = 1,nz
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) VG_alpha(jx,jy,jz)
-                  END DO
-                END DO
-              END DO
-            ELSE IF (vgaFileFormat == 'FullForm') THEN
-              IF (ny > 1 .AND. nz > 1) THEN
-                DO jz = 1,nz
-                  DO jy = 1,ny
-                    DO jx= 1,nx
-                      READ(23,*,END=1020) xdum,ydum,zdum,VG_alpha(jx,jy,jz)
-                    END DO
-                  END DO
-                END DO
-              ELSE IF (ny > 1 .AND. nz == 1) THEN
-                jz = 1
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) xdum,ydum,VG_alpha(jx,jy,jz)
-                  END DO
-                END DO
-              ELSE
-                jz = 1
-                jy = 1
-                DO jx= 1,nx
-                  READ(23,*,END=1020) xdum,VG_alpha(jx,jy,jz)
-                END DO
-              END IF
-            ELSE IF (vgaFileFormat == 'Unformatted') THEN
-              READ(23,END=1020) VG_alpha
-            ELSE
-              WRITE(*,*)
-              WRITE(*,*) ' VGalpha file format not recognized'
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-          
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) 'Information on VG alpha must be provided.'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          
-          ENDIF     !! End of read vga
+    IF (ALLOCATED(permxOld)) THEN
+      DEALLOCATE(permxOld)
+      ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
+    ELSE
+      ALLOCATE(permxOld(0:nx+1,1:ny,1:nz))
+    END IF
 
-        ENDIF       !! End if parfind == ' '
-        ! ************************************
-        ! End edit by Lucien Stolze, June 2023
+    IF (ALLOCATED(permy)) THEN
+      DEALLOCATE(permy)
+      ALLOCATE(permy(1:nx,0:ny+1,1:nz))
+    ELSE
+      ALLOCATE(permy(1:nx,0:ny+1,1:nz))
+    END IF
 
-        ! convert unit
-        VG_alpha = VG_alpha*dist_scale
-    
-        IF (.NOT. psi_is_head) THEN
-          VG_alpha = VG_alpha*rho_water*9.80665d0
-        END IF
-    
-        !!!!!!!!!!!!!!!!!!!!!!!!!
-        ! n parameter in the van Genuchten model
-        !!!!!!!!!!!!!!!!!!!!!!!!!
-        parchar = 'vg_n'
-        CALL read_vanGenuchten_parameters(nout, lchar, parchar, parfind, section, nx, ny, nz, VG_error)
-        IF (VG_error == 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
-          WRITE(*,*)
-          STOP
-        END IF
+    IF (ALLOCATED(permyOld)) THEN
+      DEALLOCATE(permyOld)
+      ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
+    ELSE
+      ALLOCATE(permyOld(1:nx,0:ny+1,1:nz))
+    END IF
 
-        IF (parfind == ' ') THEN
-          ! ************************************
-          ! Edit by Lucien Stolze, June 2023
-          ! Read alpha parameter array from file
-          CALL read_vgnfile(nout,nx,ny,nz,vgnfile,lfile,readvgn,vgnFileFormat)
-          IF (readvgn) THEN
-            vgnfile(1:lfile) = vgnfile(1:lfile)
-            INQUIRE(FILE=vgnfile,EXIST=ext)
-            IF (.NOT. ext) THEN
-              WRITE(*,*)
-              WRITE(*,*) ' vgn file not found: ',vgnfile(1:lfile)
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-        
-            OPEN(UNIT=23,FILE=vgnfile,STATUS='old')
-            FileTemp = vgnfile
-            CALL stringlen(FileTemp,FileNameLength)
-            IF (vgnFileFormat == 'ContinuousRead') THEN
-              READ(23,*,END=1020) (((VG_n(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-            ELSE IF (vgnFileFormat == 'SingleColumn') THEN
-              DO jz = 1,nz
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) VG_n(jx,jy,jz)
-                  END DO
-                END DO
-              END DO
-            ELSE IF (vgnFileFormat == 'FullForm') THEN
-              IF (ny > 1 .AND. nz > 1) THEN
-                DO jz = 1,nz
-                  DO jy = 1,ny
-                    DO jx= 1,nx
-                      READ(23,*,END=1020) xdum,ydum,zdum,VG_n(jx,jy,jz)
-                    END DO
-                  END DO
-                END DO
-              ELSE IF (ny > 1 .AND. nz == 1) THEN
-                jz = 1
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(23,*,END=1020) xdum,ydum,VG_n(jx,jy,jz)
-                  END DO
-                END DO
-              ELSE
-              jz = 1
-              jy = 1
-              DO jx= 1,nx
-                READ(23,*,END=1020) xdum,VG_n(jx,jy,jz)
-              END DO
-              END IF
-            ELSE IF (vgnFileFormat == 'Unformatted') THEN
-              READ(23,END=1020) VG_n
-            ELSE
-              WRITE(*,*)
-              WRITE(*,*) ' VGn file format not recognized'
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) 'Information on VG n must be provided.'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          ENDIF
+    IF (ALLOCATED(permz)) THEN
+      DEALLOCATE(permz)
+      ALLOCATE(permz(1:nx,1:ny,0:nz+1))
+    ELSE
+      ALLOCATE(permz(1:nx,1:ny,0:nz+1))
+    END IF
 
-        ENDIF
-        ! ************************************
-        ! End edit by Lucien Stolze, June 2023
-    
-        IF (.NOT. vg_is_n) THEN
-          ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
-          VG_n = 1.0d0/(1.0d0 - VG_n)
-        END IF
-    
-      END IF Richards_allocate
-      ! ***************************************************
-      ! End of Edit by Toshiyuki Bandai 2023 May
-     
+    IF (ALLOCATED(permzOld)) THEN
+      DEALLOCATE(permzOld)
+      ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
+    ELSE
+      ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
+    END IF
 
+    pres = 0.0
+    perminx = 0.0
+    perminy = 0.0
+    perminz = 0.0
+
+    WRITE(*,*)
+    WRITE(*,*) ' Flow will be calculated'
+    WRITE(*,*)
+   
       !  Look for information on permeability, pressure, and pumping or injection wells
       !  First, check to see whether permeability distribution is to be read from file
 
@@ -7332,8 +7026,7 @@ IF (found) THEN
         CALL stringlen(FileTemp,FileNameLength)
 
         IF (permxFileFormat == 'ContinuousRead') THEN
-          READ(23,*,END=1020) (((VG_alpha(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
-          
+          READ(23,*,END=1020) (((permx(jx,jy,jz),jx=0,nx+1),jy=1,ny),jz=1,nz)
         ELSE IF (permxFileFormat == 'SingleColumn') THEN
           DO jz = 1,nz
             DO jy = 1,ny
@@ -7627,348 +7320,10 @@ IF (found) THEN
       END IF
 
       !!!  End of section where choosing between perm file read and zone specification      END IF
-      
-      ! ********************************************
-      ! Edit by Toshiyuki Bandai, 2023 May
-      Richards_permeability: IF (Richards) THEN
+         
+    CALL read_gravity(nout)
 
-        K_faces_x(0, 1, 1) = permx(1, 1, 1)
-        K_faces_x(nx, 1, 1) = permx(nx, 1, 1)
-
-        ! compute face permeability
-        DO i = 1, nx - 1
-          IF (ABS(permx(i, 1, 1) - permx(i + 1, 1, 1)) < 1.0d-20) THEN
-            K_faces_x(i, 1, 1) = permx(i, 1, 1)
-          ELSE
-            ! distance weighted harmonic mean
-            numerator = permx(i, 1, 1) * permx(i+1, 1, 1) * (dxx(i) +  dxx(i+1))
-            denominator = permx(i, 1, 1) * dxx(i) + permx(i+1, 1, 1) * dxx(i+1)
-            K_faces_x(i, 1, 1) = numerator / denominator
-          END IF
-        END DO
-      END IF Richards_permeability
     
-      ! Read x_begin and x_end boundary conditions for steady-state problem
-      Richards_boundary_conditions: IF (Richards) THEN
-        IF (Richards_steady) THEN
-          IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-            ! x_begin boundary condition
-            BC_location = 0
-            ! the arguments x_begin_BC_file, lfile, tslength are not used for the steady-state problem
-            CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_begin_BC_type_steady, x_begin_BC_file, value_x_begin_BC_steady, lfile, x_begin_constant_BC_steady, tslength)
-      
-            ! unit conversion
-            SELECT CASE (x_begin_BC_type_steady)
-            CASE ('constant_dirichlet')
-              value_x_begin_BC_steady = value_x_begin_BC_steady/dist_scale
-          
-              IF (.NOT. psi_is_head) THEN
-                value_x_begin_BC_steady = (value_x_begin_BC_steady - pressure_air)/(rho_water*9.80665d0)
-              END IF
-          
-            CASE ('constant_neumann')
-              WRITE(*,*)
-              WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the x_begin boundary condition for the steady-state Richards equation. '
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-              !CONTINUE ! no unit conversion
-            CASE ('constant_flux')
-              value_x_begin_BC_steady = value_x_begin_BC_steady/(dist_scale * time_scale)
-            CASE DEFAULT
-              WRITE(*,*)
-              WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type_steady, ' is not supported for the steady-state Richards equation. '
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END SELECT
-      
-            ! x_end boundary condition
-            BC_location = 1
-            ! the arguments x_end_BC_file, lfile, x_end_constant_BC, tslength are not used for the steady-state problem
-            CALL read_boundary_condition_Richards_1D(nout, Richards_steady, BC_location, x_end_BC_type_steady, x_end_BC_file, value_x_end_BC_steady, lfile, x_end_constant_BC_steady, tslength)
-      
-            ! unit conversion
-            SELECT CASE (x_end_BC_type_steady)
-            CASE ('constant_dirichlet')
-              value_x_end_BC_steady = value_x_end_BC_steady/dist_scale
-              IF (.NOT. psi_is_head) THEN
-                value_x_end_BC_steady = (value_x_end_BC_steady - pressure_air)/(rho_water*9.80665d0)
-              END IF
-          
-            CASE ('constant_neumann')
-              CONTINUE ! no unit conversion
-            CASE ('constant_flux')
-              value_x_end_BC_steady = value_x_end_BC_steady/(dist_scale * time_scale)
-            CASE DEFAULT
-              WRITE(*,*)
-              WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type_steady, ' is not supported for the steady-state Richards equation. '
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END SELECT
-          ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-            WRITE(*,*)
-            WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-            WRITE(*,*)
-            WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
-      
-        END IF
-    
-        ! read boundary conditions for transient problem
-        IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-        
-          ! read x_begin boundary condition
-          BC_location = 0
-          x_begin_constant_BC = .TRUE.
-    
-          CALL read_boundary_condition_Richards_1D(nout, .FALSE., BC_location, x_begin_BC_type, x_begin_BC_file, value_x_begin_BC, lfile, x_begin_constant_BC, tslength)
-        
-          ! unit conversion and import time series data if the boundary condition is variable
-          SELECT CASE (x_begin_BC_type)
-          CASE ('constant_dirichlet')
-            value_x_begin_BC = value_x_begin_BC/dist_scale
-            IF (.NOT. psi_is_head) THEN
-                value_x_begin_BC = (value_x_begin_BC - pressure_air)/(rho_water*9.80665d0)
-            END IF
-          CASE ('constant_neumann')
-            CONTINUE ! no unit conversion
-          CASE ('constant_flux', 'constant_atomosphere')
-            value_x_begin_BC = value_x_begin_BC/(dist_scale * time_scale)
-          CASE ('variable_dirichlet')
-        
-            IF (ALLOCATED(t_x_begin_BC)) THEN
-              DEALLOCATE(t_x_begin_BC)
-            END IF
-            IF (ALLOCATED(values_x_begin_BC)) THEN
-              DEALLOCATE(values_x_begin_BC)
-            END IF
-            ALLOCATE(t_x_begin_BC(tslength))
-            ALLOCATE(values_x_begin_BC(tslength))
-            CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
-          
-            IF (.NOT. psi_is_head) THEN
-                values_x_begin_BC = (values_x_begin_BC - pressure_air)/(rho_water*9.80665d0)
-            END IF
-          
-            values_x_begin_BC = values_x_begin_BC/dist_scale
-          
-            ! unit conversion for the time for the variable boundary condition
-            t_x_begin_BC = t_x_begin_BC*time_scale
-          
-          CASE ('variable_neumann')
-        
-            IF (ALLOCATED(t_x_begin_BC)) THEN
-              DEALLOCATE(t_x_begin_BC)
-            END IF
-            IF (ALLOCATED(values_x_begin_BC)) THEN
-              DEALLOCATE(values_x_begin_BC)
-            END IF
-            ALLOCATE(t_x_begin_BC(tslength))
-            ALLOCATE(values_x_begin_BC(tslength))
-            CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
-        
-            ! unit conversion for the time for the variable boundary condition
-            t_x_begin_BC = t_x_begin_BC*time_scale
-            CONTINUE ! no unit conversion
-          CASE ('variable_flux', 'variable_atomosphere')
-        
-            IF (ALLOCATED(t_x_begin_BC)) THEN
-              DEALLOCATE(t_x_begin_BC)
-            END IF
-            IF (ALLOCATED(values_x_begin_BC)) THEN
-              DEALLOCATE(values_x_begin_BC)
-            END IF
-            ALLOCATE(t_x_begin_BC(tslength))
-            ALLOCATE(values_x_begin_BC(tslength))
-            CALL read_timeseries(nout, nx, ny, nz, t_x_begin_BC, values_x_begin_BC, lfile, x_begin_BC_file, tslength)
-        
-            values_x_begin_BC = values_x_begin_BC/(dist_scale * time_scale)
-            ! unit conversion for the time for the variable boundary condition
-            t_x_begin_BC = t_x_begin_BC*time_scale          
-          
-          CASE DEFAULT
-            WRITE(*,*)
-            WRITE(*,*) ' The x_begin boundary condition type ', x_begin_BC_type, ' is not supported. '
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END SELECT
-    
-          ! read x_end boundary condition
-          x_end_constant_BC = .TRUE.
-          BC_location = 1
-          CALL read_boundary_condition_Richards_1D(nout, .FALSE., BC_location, x_end_BC_type, x_end_BC_file, value_x_end_BC, lfile, x_end_constant_BC, tslength)
-      
-          ! unit conversion and import time series for upper boundary condition if the boundary condition is time-dependent (variable)
-          SELECT CASE (x_end_BC_type)
-          CASE ('constant_dirichlet')
-            value_x_end_BC = value_x_end_BC/dist_scale
-            IF (.NOT. psi_is_head) THEN
-                value_x_end_BC = (value_x_end_BC - pressure_air)/(rho_water*9.80665d0)
-            END IF
-          CASE ('constant_neumann')
-            CONTINUE ! no unit conversion
-          CASE ('constant_flux')
-            value_x_end_BC = value_x_end_BC/(dist_scale * time_scale)
-          CASE ('variable_dirichlet')
-            ! import time series for upper boundary condition
-            IF (ALLOCATED(t_x_end_BC)) THEN
-              DEALLOCATE(t_x_end_BC)
-            END IF
-            IF (ALLOCATED(values_x_end_BC)) THEN
-              DEALLOCATE(values_x_end_BC)
-            END IF
-            ALLOCATE(t_x_end_BC(tslength))
-            ALLOCATE(values_x_end_BC(tslength))
-            CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
-          
-            IF (.NOT. psi_is_head) THEN
-                values_x_end_BC = (values_x_end_BC - pressure_air)/(rho_water*9.80665d0)
-            END IF
-            values_x_end_BC = values_x_end_BC/dist_scale
-          
-            ! unit conversion for the time for the variable boundary condition
-            t_x_end_BC = t_x_end_BC*time_scale
-          
-          CASE ('variable_neumann')
-            IF (ALLOCATED(t_x_end_BC)) THEN
-              DEALLOCATE(t_x_end_BC)
-            END IF
-            IF (ALLOCATED(values_x_end_BC)) THEN
-              DEALLOCATE(values_x_end_BC)
-            END IF
-            ALLOCATE(t_x_end_BC(tslength))
-            ALLOCATE(values_x_end_BC(tslength))
-            CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
-          
-            ! unit conversion for the time for the variable boundary condition
-            t_x_end_BC = t_x_end_BC*time_scale
-          
-          CASE ('variable_flux')
-            ! import time series for upper boundary condition
-            IF (ALLOCATED(t_x_end_BC)) THEN
-              DEALLOCATE(t_x_end_BC)
-            END IF
-            IF (ALLOCATED(values_x_end_BC)) THEN
-              DEALLOCATE(values_x_end_BC)
-            END IF
-            ALLOCATE(t_x_end_BC(tslength))
-            ALLOCATE(values_x_end_BC(tslength))
-            CALL read_timeseries(nout, nx, ny, nz, t_x_end_BC, values_x_end_BC, lfile, x_end_BC_file, tslength)
-        
-            values_x_end_BC = values_x_end_BC/(dist_scale * time_scale)
-            ! unit conversion for the time for the variable boundary condition
-            t_x_end_BC = t_x_end_BC*time_scale
-      
-          CASE DEFAULT
-            WRITE(*,*)
-            WRITE(*,*) ' The x_end boundary condition type ', x_end_BC_type, ' is not supported. '
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END SELECT
-        
-        ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-          WRITE(*,*)
-          WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-        END IF
-        
-      END IF Richards_boundary_conditions
-    
-      Richards_initial_conditions: IF (Richards) THEN
-      
-        !Read initial condition for steady-state or transient problem
-        parchar = 'read_richards_ic_file'
-        parfind = ' '
-        Richards_IC_File = ' '
-        CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_IC_FileFormat)
-        IF (parfind == ' ') THEN
-          WRITE(*,*) ' The initial condition file was not found. Set to zero water potential at all cells. '
-          psi = 0.0d0
-        ELSE
-          Richards_IC_File = dumstring
-          CALL stringlen(Richards_IC_File,ls)
-          WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_IC_File(1:ls)
-        END IF
-    
-        read_ic_Rihcards: IF (Richards_IC_File /= ' ') THEN
-          INQUIRE(FILE=Richards_IC_File,EXIST=ext)
-          IF (.NOT. ext) THEN
-            IF (Richards_steady) THEN
-              WRITE(*,*) ' The initial condition file was not found for steady-state problem. Set to zero water potential at all cells. '
-              psi = 0.0d0
-          
-            ELSE
-              CALL stringlen(Richards_IC_File,ls)
-              WRITE(*,*)
-              WRITE(*,*) ' Initial condition file not found for time-dependent problem: ', Richards_IC_File(1:ls)
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-        
-          ELSE
-            OPEN(UNIT=52,FILE=Richards_IC_File,STATUS='OLD',ERR=6001)
-            FileTemp = Richards_IC_File
-            CALL stringlen(FileTemp,FileNameLength)
-            IF (Richards_IC_FileFormat == 'SingleColumn') THEN
-              DO jz = 1,nz
-                DO jy = 1,ny
-                  DO jx= 1,nx
-                    READ(52,*,END=1020) psi(jx,jy,jz)
-                  END DO
-                END DO
-              END DO
-              
-              ! the input value is in pressure [Pa], convert to pressure head [m]
-              IF (.NOT. psi_is_head) THEN
-                psi = (psi - pressure_air)/(rho_water*9.80665d0)
-              END IF
-          
-              ! convert unit
-              psi = psi / dist_scale
-          
-            ELSE
-              WRITE(*,*)
-              WRITE(*,*) ' Richards Initial condition file format not recognized'
-              WRITE(*,*)
-              READ(*,*)
-              STOP
-            END IF
-            CLOSE(UNIT=52)
-        
-          END IF
-        
-        END IF read_ic_Rihcards
-      
-      ! fill the ghost cell
-        psi(0,1,1) = psi(1,1,1)
-        psi(nx+1,1,1) = psi(nx,1,1)
-      
-      END IF Richards_initial_conditions
-      ! End of edit by Toshiyuki Bandai, 2023 May
-      ! ********************************************
-      
-      CALL read_gravity(nout)
-
       IF (ALLOCATED(activecellPressure)) THEN
         DEALLOCATE(activecellPressure)
         ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
@@ -7979,7 +7334,7 @@ IF (found) THEN
       activecellPressure = 1
     
       CALL read_pressureAlternative(nout,nx,ny,nz,npressure)
-
+      
       pres = PressureZone(0)
 
       !  Next, initialize pressure from various zones
@@ -8005,30 +7360,665 @@ IF (found) THEN
       DEALLOCATE(jzzPressure_lo)
       DEALLOCATE(jzzPressure_hi)
 
-      watertabletimeseries = .FALSE.
-      CALL read_watertablefile(nout,nx,ny,nz,watertablefile,lfile,watertabletimeseries,WatertableFileFormat)
-      IF (watertabletimeseries) THEN
-      CALL  read_watertable_timeseries(nout,nx,ny,nz,lfile,watertablefile,WatertableFileFormat)
-      !!else
-      !!  CALL read_pump(nout,nx,ny,nz,nchem)
-      ENDIF
-
-      parchar = 'initialize_hydrostatic'
-      parfind = ' '
-      InitializeHydrostatic = .FALSE.
-      CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
-      IF (GIMRT) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
-        WRITE(*,*)
-      ELSE
-        CONTINUE
-      END IF
-
-    END IF flow_if  ! End of block within which flow calculation parameters are read
+    parchar = 'initialize_hydrostatic'
+    parfind = ' '
+    InitializeHydrostatic = .FALSE.
+    CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
+    IF (gimrt) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
+      WRITE(*,*)
+    ELSE
+      CONTINUE
+    END IF
     
-  !!! *********************  END OF FLOW CALCULATION   **********************************
-    !!! *********************************************************************************
+    ! ********************************************
+    ! Edit by Toshiyuki Bandai 2024 Oct.
+    Richards_allocate: IF (Richards) THEN
+    
+      WRITE(*,*)
+      WRITE(*,*) ' Richards equation is solved to simualte unsaturated flow '
+      WRITE(*,*)
+  
+      CALL RichardsDiscretize(nx, ny, nz)
+      CALL RichardsAllocate(nx, ny, nz)
+      CALL RichardsUpdateFluid(t, Richards_State%xi)
+      
+      ! set gravity vector for gravitational flow      
+      Richards_Base%gravity_vector(1) = SignGravity*COSD(x_angle)
+      Richards_Base%gravity_vector(2) = SignGravity*COSD(y_angle)
+      Richards_Base%gravity_vector(3) = SignGravity*COSD(z_angle)
+      
+      ! allocate and read van-Genuchten parameters
+      VG_error = 0
+      nzones_VG_params = 0
+      ALLOCATE(VG_params_zone(0:mperm))
+      ALLOCATE(jxx_VG_params_lo(mperm))
+      ALLOCATE(jxx_VG_params_hi(mperm))
+      ALLOCATE(jyy_VG_params_lo(mperm))
+      ALLOCATE(jyy_VG_params_hi(mperm))
+      ALLOCATE(jzz_VG_params_lo(mperm))
+      ALLOCATE(jzz_VG_params_hi(mperm))
+    
+    ! saturated water content theta_s (=porosity)
+    
+      IF (Richards_Options%theta_s_is_porosity) THEN
+        ! theta_s is the same as the porosity, so no need to read vg_theta_s
+    
+        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+          VGM_parameters%theta_s(jx,jy,jz) = por(jx,jy,jz)
+        END FORALL
+      ELSE
+      
+        parchar = 'read_vg_theta_s_file'
+        parfind = ' '
+        Richards_File = ' '
+        CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+        IF (parfind /= ' ') THEN
+          Richards_File = dumstring
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*) ' Reading vg_theta_s parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+          INQUIRE(FILE=Richards_File,EXIST=ext)
+          IF (.NOT. ext) THEN
+            CALL stringlen(Richards_File,ls)
+            WRITE(*,*)
+            WRITE(*,*) ' The file for vg_theta_s parameter is not found: ', Richards_File(1:ls)
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          ELSE
+            OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+            FileTemp = Richards_File
+            CALL stringlen(FileTemp,FileNameLength)
+            IF (Richards_FileFormat == 'SingleColumn') THEN
+              DO jz = 1,nz
+                DO jy = 1,ny
+                  DO jx= 1,nx
+                    READ(52,*,END=1020) VGM_parameters%theta_s(jx,jy,jz)
+                  END DO
+                END DO
+              END DO
+              
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' vg_theta_s file format not recognized'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            CLOSE(UNIT=52)
+        
+          END IF
+        ELSE  
+          parfind = ' '
+          parchar = 'vg_theta_s'
+          CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+          IF (parfind /= ' ') THEN
+        
+            IF (VG_error == 1) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+      
+            VGM_parameters%theta_s = VG_params_zone(0)
+      
+            IF (nzones_VG_params > 0) THEN
+              DO l = 1,nzones_VG_params
+                DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                  DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                    DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                      VGM_parameters%theta_s(jx,jy,jz) = VG_params_zone(l)
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END IF
+        
+            ! reset
+            nzones_VG_params = 0
+            VG_params_zone = 0.0
+        
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' information on vg_theta_s is not provided'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        END IF
+      
+      ! if theta_s does not match porosity, make a warning
+        DO jx = 1, nx
+          DO jy = 1, ny
+            DO jz = 1, nz
+              IF (VGM_parameters%theta_s(jx,jy,jz) /= por(jx,jy,jz)) THEN
+                WRITE(*,*)
+                WRITE(*,*) ' Warning: theta_s /= porosity at (',jx,',',jy,',',jz,')'
+                WRITE(*,*) ' theta_s = ',VGM_parameters%theta_s(jx,jy,jz)
+                WRITE(*,*) ' porosity = ',por(jx,jy,jz)
+                WRITE(*,*)
+              END IF
+            END DO
+          END DO
+        END DO
+      END IF
+    
+      ! fill ghost cells
+      text = 'VG_theta_s'
+      lowX = LBOUND(VGM_parameters%theta_s,1)
+      lowY = LBOUND(VGM_parameters%theta_s,2)
+      lowZ = LBOUND(VGM_parameters%theta_s,3)
+      highX = UBOUND(VGM_parameters%theta_s,1)
+      highY = UBOUND(VGM_parameters%theta_s,2)
+      highZ = UBOUND(VGM_parameters%theta_s,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%theta_s,TEXT)
+
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! residual water content (theta_r)
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    
+      parchar = 'read_vg_theta_r_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_theta_r parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_theta_r parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) VGM_parameters%theta_r(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' vg_theta_r file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_theta_r'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+        
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+          VGM_parameters%theta_r = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    VGM_parameters%theta_r(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_theta_r is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+      
+      ! fill ghost cells
+      text = 'VG_theta_r'
+      lowX = LBOUND(VGM_parameters%theta_r,1)
+      lowY = LBOUND(VGM_parameters%theta_r,2)
+      lowZ = LBOUND(VGM_parameters%theta_r,3)
+      highX = UBOUND(VGM_parameters%theta_r,1)
+      highY = UBOUND(VGM_parameters%theta_r,2)
+      highZ = UBOUND(VGM_parameters%theta_r,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%theta_r,TEXT)
+    
+      ! the input value is actually residual saturation, convert it to residual water content
+      IF (Richards_Options%theta_r_is_S_r) THEN
+        VGM_parameters%theta_r = VGM_parameters%theta_r*VGM_parameters%theta_s
+      END IF  
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! alpha parameter in the van Genuchten model
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+      parchar = 'read_vg_alpha_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_alpha parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_alpha parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) VGM_parameters%alpha(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' vg_alpha file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_alpha'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+        
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+          VGM_parameters%alpha = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    VGM_parameters%alpha(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_alpha is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+    
+      ! fill ghost cells
+      text = 'VG_alpha'
+      lowX = LBOUND(VGM_parameters%alpha,1)
+      lowY = LBOUND(VGM_parameters%alpha,2)
+      lowZ = LBOUND(VGM_parameters%alpha,3)
+      highX = UBOUND(VGM_parameters%alpha,1)
+      highY = UBOUND(VGM_parameters%alpha,2)
+      highZ = UBOUND(VGM_parameters%alpha,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%alpha,TEXT)
+    
+    ! convert unit
+      VGM_parameters%alpha = VGM_parameters%alpha*dist_scale
+    
+      IF (.NOT. Richards_Options%psi_is_head) THEN
+        VGM_parameters%alpha = VGM_parameters%alpha*rho_water*9.80665d0
+      END IF
+    
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    ! n parameter in the van Genuchten model
+    !!!!!!!!!!!!!!!!!!!!!!!!!
+    
+      parchar = 'read_vg_n_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading vg_n parameter for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' The file for vg_n parameter is not found: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) VGM_parameters%n(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' VG_n file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE  
+        parfind = ' '
+        parchar = 'vg_n'
+        CALL read_vanGenuchten_parameters(nout,parchar,parfind,nx,ny,nz,nzones_VG_params,VG_error)
+        IF (parfind /= ' ') THEN
+      
+          IF (VG_error == 1) THEN
+            WRITE(*,*)
+            WRITE(*,*) ' Error in reading van Genuchten parameters for ', parchar
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+      
+          VGM_parameters%n = VG_params_zone(0)
+      
+          IF (nzones_VG_params > 0) THEN
+            DO l = 1,nzones_VG_params
+              DO jz = jzz_VG_params_lo(l),jzz_VG_params_hi(l)
+                DO jy = jyy_VG_params_lo(l),jyy_VG_params_hi(l)
+                  DO jx = jxx_VG_params_lo(l),jxx_VG_params_hi(l)
+                    VGM_parameters%n(jx,jy,jz) = VG_params_zone(l)
+                  END DO
+                END DO
+              END DO
+            END DO
+          END IF
+        
+          ! reset
+          nzones_VG_params = 0
+          VG_params_zone = 0.0
+        
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' information on vg_n is not provided'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+    
+      ! fill ghost cells
+      text = 'VG_n'
+      lowX = LBOUND(VGM_parameters%n,1)
+      lowY = LBOUND(VGM_parameters%n,2)
+      lowZ = LBOUND(VGM_parameters%n,3)
+      highX = UBOUND(VGM_parameters%n,1)
+      highY = UBOUND(VGM_parameters%n,2)
+      highZ = UBOUND(VGM_parameters%n,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,VGM_parameters%n,TEXT)
+        
+      IF (.NOT. Richards_Options%vg_is_n) THEN
+        ! the input value is actually the parameter m (m = 1 - 1/n), so convert it to n
+        VGM_parameters%n = 1.0d0/(1.0d0 - VGM_parameters%n)
+      END IF
+    
+    
+      DEALLOCATE(VG_params_zone)
+      DEALLOCATE(jxx_VG_params_lo)
+      DEALLOCATE(jxx_VG_params_hi)
+      DEALLOCATE(jyy_VG_params_lo)
+      DEALLOCATE(jyy_VG_params_hi)
+      DEALLOCATE(jzz_VG_params_lo)
+      DEALLOCATE(jzz_VG_params_hi)
+    
+    END IF Richards_allocate
+    
+    ! set boundary conditions for Richards solver
+    Richards_boundary_conditions: IF (Richards) THEN
+      
+      IF (Richards_Options%is_steady) THEN
+        ! allocate derived type for boundary condition for each boundary face
+        IF (ALLOCATED(Richards_BCs_steady)) THEN
+          DEALLOCATE(Richards_BCs_steady)
+        END IF
+        ALLOCATE(Richards_BCs_steady(Richards_Base%n_bfaces))
+      
+        Richards_BCs_pointer => Richards_BCs_steady
+      
+        CALL RichardsReadBoundaryCondition(nout,nx,ny,nz,dist_scale,time_scale,Richards_BCs_pointer, .TRUE., BC_error)
+        
+        IF (BC_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Pointer is not allocated when reading boundary condition input data for steady state Richards solver '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE IF (BC_error == 2) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error when reading boundary condition input data by zone for steady state Richards solver '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+      
+      ! allocate derived type for boundary condition for each boundary face
+      IF (ALLOCATED(Richards_BCs)) THEN
+        DEALLOCATE(Richards_BCs)
+      END IF
+      ALLOCATE(Richards_BCs(Richards_Base%n_bfaces))
+      
+      Richards_BCs_pointer => Richards_BCs
+      
+      CALL RichardsReadBoundaryCondition(nout,nx,ny,nz,dist_scale,time_scale,Richards_BCs_pointer, .FALSE., BC_error)
+      
+      IF (BC_error == 1) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Pointer is not allocated when reading boundary condition input data for transient Richards solver '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      ELSE IF (BC_error == 2) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error when reading boundary condition input data by zone for transient Richards solver '
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+      
+      ! set boundary faces where no chemical transport due to evaporation
+      parchar = 'set_evaporation_boundary'
+      parfind = ' '
+      CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+      IF (parfind /= ' ') THEN
+        Richards_Options%evaporation_boundary = .TRUE.
+        CALL RichardsSetEvaporationBoundary(nout,nx,ny,nz,Richards_BCs_pointer, BC_error)
+        IF (BC_error == 1) THEN
+          WRITE(*,*)
+          WRITE(*,*) ' Error when reading set_evaporation_boundary locations '
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+      END IF
+      
+    END IF Richards_boundary_conditions
+    
+    
+    ! read initial condition for the Richards solver
+    Richards_initial_conditions: IF (Richards) THEN
+      parchar = 'read_richards_ic_file'
+      parfind = ' '
+      Richards_File = ' '
+      CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,Richards_FileFormat)
+      
+      IF (parfind /= ' ') THEN
+        Richards_File = dumstring
+        CALL stringlen(Richards_File,ls)
+        WRITE(*,*) ' Reading the initial condition for the Richards equation from file: ',Richards_File(1:ls)
+        
+        INQUIRE(FILE=Richards_File,EXIST=ext)
+        IF (.NOT. ext) THEN
+          CALL stringlen(Richards_File,ls)
+          WRITE(*,*)
+          WRITE(*,*) ' Initial condition file not found Ricahrds solver: ', Richards_File(1:ls)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        ELSE
+          OPEN(UNIT=52,FILE=Richards_File,STATUS='OLD',ERR=6001)
+          FileTemp = Richards_File
+          CALL stringlen(FileTemp,FileNameLength)
+          IF (Richards_FileFormat == 'SingleColumn') THEN
+            DO jz = 1,nz
+              DO jy = 1,ny
+                DO jx= 1,nx
+                  READ(52,*,END=1020) Richards_State%psi(jx,jy,jz)
+                END DO
+              END DO
+            END DO
+              
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Richards Initial condition file format not recognized'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+          CLOSE(UNIT=52)
+        
+        END IF
+      ELSE
+        WRITE(*,*) ' Constant initial condition is set for the Ricahrds solver. '
+      
+        parchar = 'richards_ic'
+        parfind = ' '
+        realjunk = 0.0
+        CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
+        IF (parfind == ' ') THEN
+          IF (Richards_Options%is_steady) THEN
+            WRITE(*,*) ' The initial condition was not found for the steady-state Richards solver in the input file. Set to zero water potential at all cells. '
+            Richards_State%psi = 0.0d0
+          
+          ELSE
+            WRITE(*,*)
+            WRITE(*,*) ' Initial condition for the time-dependent Richards solver not found. '
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+          END IF
+        ELSE
+          Richards_State%psi = realjunk
+        END IF
+      END IF
+      
+      ! fill ghost cells
+      text = 'psi'
+      lowX = LBOUND(Richards_State%psi,1)
+      lowY = LBOUND(Richards_State%psi,2)
+      lowZ = LBOUND(Richards_State%psi,3)
+      highX = UBOUND(Richards_State%psi,1)
+      highY = UBOUND(Richards_State%psi,2)
+      highZ = UBOUND(Richards_State%psi,3)
+      call GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,Richards_State%psi,TEXT)
+    
+      ! the input value is in pressure [Pa], convert to pressure head [m]
+      IF (.NOT. Richards_Options%psi_is_head) THEN
+        Richards_State%psi = (Richards_State%psi - pressure_air)/(rho_water*9.80665d0)
+      END IF
+          
+      ! convert unit
+      Richards_State%psi= Richards_State%psi / dist_scale
+            
+      
+    END IF Richards_initial_conditions
+    ! End of edit by Toshiyuki Bandai, 2024 Oct
+    ! ********************************************
+
+  END IF flow_if  ! End of block within which flow calculation parameters are read
+
+END IF
+
+IF (constant_gasflow) THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Constant gas flow specified'
+  readgasvelocity = .FALSE.
+  WRITE(*,*)
+ELSE
+
+!  No constant gas flow field specified, so look for file read
+
+  readgasvelocity = .false.
+  CALL read_gasflowfile(nout,nx,ny,nz,constant_gasflow,  &
+      qxgasinit,qygasinit,qzgasinit,gasvelocityfile,lfile,GasVelocityFileFormat)
+
+  IF (gasvelocityfile /= ' ') THEN
+    readgasvelocity = .true.
+!!      WRITE(*,*)
+!!      WRITE(*,*) ' Gas velocities to be read from file ',gasvelocityfile(1:lfile)
+!!      WRITE(*,*)
+  END IF
 
   END IF
 

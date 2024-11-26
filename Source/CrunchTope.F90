@@ -58,6 +58,7 @@ USE io
 USE ReadFlow
 USE modflowModule
 USE CrunchFunctions
+USE Richards_module
 !!USE fparser
 
 #include "petsc/finclude/petscmat.h"
@@ -406,12 +407,15 @@ CHARACTER (LEN=3)                                           :: ulabPrint
 REAL(DP)                                                    :: sionPrint
 
 !*************************************************************************
-! Edit by Toshiyuki Bandai, 2023 July
-INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
-INTEGER(I4B)                                               :: n_count_evaporation = 2 ! count the number for interpolating evaporation data
-INTEGER(I4B)                                               :: n_count_transpiration = 2 ! count the number for interpolating transpiration data
-INTEGER(I4B)                                               :: n_count_temperature = 2 ! count the number for interpolating temperature data
-! End of Edit by Toshiyuki Bandai, 2023 July 
+! Edit by Toshiyuki Bandai, 2024 Oct.
+INTEGER(I4B)                                                  :: lowX
+INTEGER(I4B)                                                  :: lowY
+INTEGER(I4B)                                                  :: lowZ
+INTEGER(I4B)                                                  :: highX
+INTEGER(I4B)                                                  :: highY
+INTEGER(I4B)                                                  :: highZ
+CHARACTER (LEN=15)                                            :: text
+! End of Edit by Toshiyuki Bandai, 2024 Oct. 
 !*************************************************************************
 
 !*************************************************************************
@@ -430,8 +434,6 @@ PC                   pc
 KSP                  ksp
 !!Scalar               zeroPetsc
 ! ************************end PETSc declarations of PETSc variables ******
-
-  !!! Added July 17 by Carl (hopefully not stomped on)
   
 Switcheroo = .FALSE.
 
@@ -604,47 +606,12 @@ WRITE(*,*)
 
 IF (CalculateFlow) THEN
 
-!*************************************************************
-! Edit by Lucien Stolze, June 2023
-! Water table time series for multidimensional model (Richard)
-  IF (watertabletimeseries) THEN
-    
-    jz=1
-    jx=0
-    DO jy = 1,ny
-      IF (TS_1year) THEN
-        time_norm=time-floor(time)
-        CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      ELSE
-        CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      END IF
-      if (pres(jx,jy,jz)==0) then
-        permx(jx,jy,jz)=0
-      end if
-    END DO
-    
-  END IF
-
-!*************************************************************
-! Edit by Lucien Stolze, June 2023
-! Pump time series (Richard)
-  IF (pumptimeseries) THEN
-    
-    IF (TS_1year) THEN
-      time_norm=time-floor(time)
-    CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-      ELSE
-    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-      END IF
-      
-  END IF
   
   SteadyFlow = .FALSE.
   
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
   
   dtflow = delt
-  !dtflow = 1.0D-10
 
   harx = 0.0
   hary = 0.0
@@ -675,8 +642,6 @@ IF (CalculateFlow) THEN
   WRITE(*,*) ' Minimum Y permeability: ',MinPermeabilityY
   WRITE(*,*)
 
-!!!!  InitializeHydrostatic = .false.
-
   IF (InitializeHydrostatic) THEN
     WRITE(*,*) ' Initializing to hydrostatic'
     DO jz = 1,nz
@@ -696,52 +661,21 @@ IF (CalculateFlow) THEN
  initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
- 
- steady_Richards: IF (Richards_steady) THEN
+
+   steady_Richards: IF (Richards_Options%is_steady) THEN
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-     CALL solve_Richards(nx, ny, nz, dtflow)
-     Richards_steady = .FALSE.
-     
+     Richards_BCs_pointer => Richards_BCs_steady
+     CALL RichardsSolve(nx, ny, nz, delt)
+     Richards_Options%is_steady = .FALSE.
+     Richards_BCs_pointer => Richards_BCs
+
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
+     CALL RichardsFlux(nx, ny, nz)
      
-     IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-       
-       SELECT CASE (x_begin_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-         value_x_begin_BC = values_x_begin_BC(1)
-       CASE DEFAULT
-         CONTINUE ! do nothing for constant boundary conditions
-       END SELECT
-     
-       SELECT CASE (x_end_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-         value_x_end_BC = values_x_end_BC(1)
-       CASE DEFAULT
-         CONTINUE ! do nothing for constant boundary conditions
-       END SELECT
-	   
-       CALL flux_Richards(nx, ny, nz)
-       
-     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-       WRITE(*,*)
-       WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-       WRITE(*,*)
-       READ(*,*)
-       STOP
-       
-     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-       WRITE(*,*)
-       WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-       WRITE(*,*)
-       READ(*,*)
-       STOP
-       
-     END IF
-           
    END IF steady_Richards
 
  ! End of edit by Toshiyuki Bandai, 2024 Oct
@@ -773,8 +707,6 @@ IF (CalculateFlow) THEN
   CALL KSPSolve(ksp,BvecP,XvecP,ierr)
   CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
-!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
   WRITE(*,*)
   WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
   WRITE(*,*)
@@ -794,8 +726,6 @@ IF (CalculateFlow) THEN
     WRITE(*,*) ' Steady state flow failed to converge '
   END IF
 
- END If initial_flow_solver_if
- ! End of If construct for solvers needing PETSc or not
  
 !     ***** PETSc closeout*******
 
@@ -830,29 +760,35 @@ IF (CalculateFlow) THEN
       CALL velocalc(nx,ny,nz)
   END IF
   
+  END If initial_flow_solver_if
+ ! End of If construct for solvers needing PETSc or not
+   
   ! **********************************************
   ! Edit by Toshiyuki Bandai, 2024 Oct.
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
-    jy = 1
-    jz = 1
-    DO jx = 0, nx+1
-        satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+    ! get the initial water content
+    
+    
+    DO jz = 1, nz
+      DO jy = 1, ny
+        DO jx = 1, nx
+            satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
+        END DO
+      END DO
     END DO
-    
-    ! fill ghost points using zero-order extrapolation
-    satliq(-1,jy,jz) = satliq(0,jy,jz)
-    satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
-    satliq(:,-1,:) =  satliq(:,1,:)
-    satliq(:,0,:) =  satliq(:,1,:)
-    satliq(:,2,:) =  satliq(:,1,:)
-    satliq(:,3,:) =  satliq(:,1,:)
-    
-    satliq(:,:,-1) = satliq(:,:,1)
-    satliq(:,:,0) = satliq(:,:,1)
-    satliq(:,:,2) = satliq(:,:,1)
-    satliq(:,:,3) = satliq(:,:,1)
+           
+    ! fill ghost points by zero-order extrapolation
+    text = 'Liquid_Saturation'
+    satliq(0,:,:) = satliq(1,:,:)
+    lowX = LBOUND(satliq,1)
+    lowY = LBOUND(satliq,2)
+    lowZ = LBOUND(satliq,3)
+    highX = UBOUND(satliq,1)
+    highY = UBOUND(satliq,2)
+    highZ = UBOUND(satliq,3)
+    call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
     
     satliqold = satliq
   
@@ -1096,7 +1032,7 @@ IF (Richards) THEN
     DO jy = 1,ny
       DO jx = 1,nx
         WRITE(10, '(6(1X,1PE16.7))') x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-              z(jz)*OutputDistanceScale,theta(jx,jy,jz), psi(jx,jy,jz), satliq(jx,jy,jz)
+              z(jz)*OutputDistanceScale,Richards_State%theta(jx,jy,jz), Richards_State%psi(jx,jy,jz), satliq(jx,jy,jz)
       END DO
     END DO
   END DO
@@ -1155,99 +1091,136 @@ DO WHILE (nn <= nend)
     ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
     flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
-          IF (Richards_print) THEN
+          IF (Richards_Options%is_print) THEN
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
           END IF
+               
+          ! update fluid property
+          CALL RichardsUpdateFluid(t, Richards_State%xi)
           
-        ! store the previous time step water content
-          jy = 1
-          jz = 1
-          DO jx = 0,nx+1
-            theta_prev(jx,jy,jz) = theta(jx,jy,jz)
+          ! update permeability at faces
+          CALL harmonic(nx,ny,nz)
+          
+          ! store the previous time step water content
+          Richards_State%theta_prev = Richards_State%theta         
+          
+          ! update transient boundary condition
+          DO i = 1, Richards_Base%n_bfaces
+            IF (Richards_BCs_pointer(i)%is_variable) THEN
+              Richards_Variable_BC_ptr => Richards_Variable_BC
+              
+              DO j = 1, Richards_BCs_pointer(i)%variable_BC_index - 1
+                Richards_Variable_BC_ptr => Richards_Variable_BC%p
+              END DO
+              
+              CALL interp(time + delt, Richards_Variable_BC_ptr%BC_time, Richards_Variable_BC_ptr%BC_values, Richards_BCs_pointer(i)%BC_value, size(Richards_Variable_BC_ptr%BC_time))
+            END IF
           END DO
-                  
-          ! update the value used for the x_begin boundary condition by interpolating time series
-          SELECT CASE (x_begin_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-            CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
-          CASE DEFAULT
-            CONTINUE ! for constant boundary condition, do nothing
-          END SELECT
+             
+          ! solve the Richards equation
+          CALL RichardsSolve(nx, ny, nz, delt)
           
-          SELECT CASE (x_end_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
-            
-!!! Deleted code on "Case Environmental Forcing" from Who Knows Who (EnvironmentalForcing-Deleted.txt)
-                   
-          CASE DEFAULT
-            CONTINUE ! for constant boundary condition, do nothing
-          END SELECT     
-          
-!!!   **************  1D Richards  *************************
-          ! solve the 1D time-dependent Richards equation
-          CALL solve_Richards(nx, ny, nz, delt)
-                    
           ! update saturation
-          jy = 1
-          jz = 1
           satliqold = satliq
-          DO jx = 0, nx+1
-              satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+          
+          DO jz = 1, nz
+            DO jy = 1, ny
+              DO jx = 1, nx
+                  satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
+              END DO
+            END DO
           END DO
-
+    
+       
           ! fill ghost points by zero-order extrapolation
-          satliq(0,jy,jz) = satliq(1,jy,jz)
-          satliq(-1,jy,jz) = satliq(0,jy,jz)
-          satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
-          satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
-    
-          satliq(:,-1,:) =  satliq(:,1,:)
-          satliq(:,0,:) =  satliq(:,1,:)
-          satliq(:,2,:) =  satliq(:,1,:)
-          satliq(:,3,:) =  satliq(:,1,:)
-    
-          satliq(:,:,-1) = satliq(:,:,1)
-          satliq(:,:,0) = satliq(:,:,1)
-          satliq(:,:,2) = satliq(:,:,1)
-          satliq(:,:,3) = satliq(:,:,1)
+          text = 'Liquid_Saturation'
+          lowX = LBOUND(satliq,1)
+          lowY = LBOUND(satliq,2)
+          lowZ = LBOUND(satliq,3)
+          highX = UBOUND(satliq,1)
+          highY = UBOUND(satliq,2)
+          highZ = UBOUND(satliq,3)
+          call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
           
           ! the velocity at the boundary is forced to zero when the vector goes outward
           ! not to consider chemcial transport via evaporation
-          IF (evaporation_boundary /= ' ') THEN
-            
-            SELECT CASE (evaporation_boundary)
+
+          IF (Richards_Options%evaporation_boundary) THEN
+            IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+              jy = 1
+              jz = 1
               
-              CASE ('x_begin')
-                DO jz = 1,nz
-                  DO jy = 1,ny
+              DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i == 1) THEN
+                  ! left boundary
                     jx = 0
                     IF (qx(jx, jy, jz) < 0.0d0) THEN
                       qx(jx, jy, jz) = 0.0d0
                     END IF
-                  END DO
-                END DO
-                
-              CASE ('x_end')
-                DO jz = 1,nz
-                  DO jy = 1,ny
+                  ELSE
+                  ! right boundary
                     jx = nx
                     IF (qx(jx, jy, jz) > 0.0d0) THEN
                       qx(jx, jy, jz) = 0.0d0
                     END IF
-                  END DO
-                END DO
-  
-              CASE DEFAULT
+                  END IF
+                END IF
+                
+              END DO
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+              jz = 1
+              IF (Richards_Base%spatial_domain == 'regular') THEN  
+                DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i <= nx) THEN
+                  ! bottom boundary
+                    jx = i
+                    jy = 0
+                    IF (qy(jx, jy, jz) < 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx .AND. i <= nx+ny) THEN
+                    ! right boundary
+                    jx = nx
+                    jy = i - nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx + ny .AND. i <= 2*nx+ny) THEN  
+                    ! top boundary
+                    jx = 2*nx + ny - i + 1
+                    jy = ny
+                    IF (qy(jx, jy, jz) > 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE
+                  ! left boundary
+                    jx = 0
+                    jy = 2*nx + 2*ny - i + 1
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END IF
+                END IF
+                
+              END DO
+                
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
               WRITE(*,*)
-              WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
+              WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
               WRITE(*,*)
               READ(*,*)
               STOP
-  
-            END SELECT
-
-          END IF       
+            END IF
+          END IF
         ! End of edit by Toshiyuki Bandai, 2024 Oct
           
         ! ******************************************************************
@@ -1851,7 +1824,7 @@ DO WHILE (nn <= nend)
 
         5000     NE = 0
         icvg = 1
-        iterat = 0
+        iterat = 0 ! number of Newton iterations
 
     newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           NE = NE + 1
@@ -3056,8 +3029,8 @@ END IF
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-        WRITE(iures) psi
-        WRITE(iures) theta
+        WRITE(iures) Richards_State%psi
+        WRITE(iures) Richards_State%theta
     END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
@@ -3327,10 +3300,10 @@ END IF
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
     IF (Richards) THEN
-        WRITE(iures) psi
-        WRITE(iures) head
-        WRITE(iures) theta
-        WRITE(iures) theta_prev
+        WRITE(iures) Richards_State%psi
+        WRITE(iures) Richards_State%head
+        WRITE(iures) Richards_State%theta
+        WRITE(iures) Richards_State%theta_prev
     END IF
     ! End of Edit by Toshiyuki Bandai 2023 May
     !*********************************************
@@ -3387,7 +3360,8 @@ END IF
            CLOSE(intfile)
          END DO
        END IF
-
+       
+       READ(*,*)
        RETURN
 !!    ********  NORMAL STOP HERE  **************
     END IF

@@ -356,18 +356,7 @@ ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
   ELSE
     ALLOCATE(t(0:nx+1,0:ny+1,nz))
   END IF
-  IF (ALLOCATED(mu_water)) THEN
-    DEALLOCATE(mu_water)
-    ALLOCATE(mu_water(nx,ny,nz))
-  ELSE
-    ALLOCATE(mu_water(nx,ny,nz))
-  END IF
-  IF (ALLOCATED(rho_water_2)) THEN
-    DEALLOCATE(rho_water_2)
-    ALLOCATE(rho_water_2(0:nx+1,ny,nz))
-  ELSE
-    ALLOCATE(rho_water_2(0:nx+1,ny,nz))
-  END IF
+  
 !!!  IF (ALLOCATED(por)) THEN
 !!!    DEALLOCATE(por)
 !!!    ALLOCATE(por(0:nx+1,0:ny+1,nz))

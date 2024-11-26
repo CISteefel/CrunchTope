@@ -70,9 +70,6 @@ MODULE flow
     LOGICAL(LGT)                                 :: NavierStokes
     
     INTEGER(I4B)                                 :: n_substep
-    ! Leverett scaling option added by Lucien Stolze 2021
-    
-    LOGICAL(LGT)                                 :: leverettscaling
     
     INTEGER(I4B)                                 :: infiltration
     
@@ -159,56 +156,17 @@ MODULE flow
     ! *************************************************
     ! For Richards solver by Toshiyuki Bandai May, 2023
     LOGICAL(LGT)                                    :: Richards ! When solving the Richards equation with Toshi's code
-    LOGICAL(LGT)                                    :: Richards_steady ! When solving the steady-state Richards equation with Toshi's code
-    LOGICAL(LGT)                                    :: Richards_print ! True if you want print statements from the Richards solver
-    LOGICAL(LGT)                                    :: vg_is_n ! True if the input to vg_n is the n parameter in the van Genuchten model, otherwise, the input value is interpreted as the m parameter
-    LOGICAL(LGT)                                    :: psi_is_head ! True if the primary variable psi in the Richards equation is pressure head [L] or not. If false, the input values for the initial and boundary conditions, and vg_alpha are interpreted as in terms of pressure [Pa].  
-    LOGICAL(LGT)                                    :: theta_s_is_porosity ! True if the input to theta_s is the same as the porosity
-    LOGICAL(LGT)                                    :: theta_r_is_S_r ! True if the input to theta_r is the residual saturation
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: mu_water! dynamics viscosity of water [Pa year]; this is temperature dependent
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta ! volumetric water content [L3 L-3]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_prev ! volumetric water content from previous time step [L3 L-3]
-    REAL(DP), DIMENSION(:,:,:),ALLOCATABLE          :: head ! pressure head [L]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi ! water potential [L]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_prev ! water potential psi from previous line search trial [L]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dtheta ! derivative of volumetric water content with respect to water potential [L3 L-3 L-1]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr ! relative permeability [-]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: kr_faces ! relative permeability at cell faces [-]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: dkr ! derivative of relative permeability with respect to water potential [L-1]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: rho_water_2 ! the density of water [kg m-3]; this is temperature dependent
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2 ! physical constant used in the Richards equation (xi is already used)
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: xi_2_faces ! physical constant in the Richards equation at faces
-    REAL(DP)                                        :: psi_0 ! minimum water potential allowed when selecting 'atomosphere' boundary condition
-    REAL(DP)                                        :: dpsi_max ! maximum update for water potential during the Newton iteration
+    
     ! soil hydraulic parameters for van Genuchten model
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_r ! residual volumetric water content [L3 L-3]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: theta_s ! saturated volumetric water content [L3 L-3] = porosity
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_alpha ! van Genuchten alpha parameter [L-1]
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: VG_n ! van Genuchten n parameter [-]
-    !REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: psi_s ! saturated water potential [L], refer to modified van Genuchten model
-    REAL(DP), DIMENSION(:,:,:), ALLOCATABLE         :: K_faces_x ! permeability in x direction at cell faces [L2]
-    
-    ! boundary conditions
-    CHARACTER (LEN=264)                             :: x_begin_BC_type ! the type of the x_begin boundary condition
-    CHARACTER (LEN=264)                             :: x_end_BC_type ! the type of the x_end boundary condition
-    LOGICAL(LGT)                                    :: x_begin_constant_BC ! logical variable to determine whether the x_begin boundary condition is constant or not (time-dependent)
-    LOGICAL(LGT)                                    :: x_end_constant_BC ! logical variable to determine whether the x_end boundary condition is constant or not (time-dependent)
-    REAL(DP)                                        :: value_x_begin_BC ! value of x_begin boundary condition. the content depends on the type of boundary condition.
-    REAL(DP)                                        :: value_x_end_BC ! value of x_end boundary condition. the content depends on the type of boundary condition.
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_x_begin_BC ! values of x_begin boundary condition for time-dependent problem
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: values_x_end_BC ! values of x_end boundary condition for time-dependent problem
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_x_begin_BC ! time of x_begin boundary condition [T]
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_x_end_BC ! time of x_end boundary condition [T]
-    
-    CHARACTER (LEN=264)                             :: evaporation_boundary ! which boundry prevents chemical transport due to evaporation
-  
-    CHARACTER (LEN=264)                             :: x_begin_BC_type_steady ! the type of the x_begin boundary condition for the steady state problem
-    CHARACTER (LEN=264)                             :: x_end_BC_type_steady ! the type of the x_end boundary condition for the steady state problem
-    REAL(DP)                                        :: value_x_begin_BC_steady ! value of x_begin boundary condition for the steady state problem. the content depends on the type of boundary condition.
-    REAL(DP)                                        :: value_x_end_BC_steady ! value of x_end boundary condition for the steady state problem. the content depends on the type of boundary condition.
-    LOGICAL(LGT)                                    :: x_begin_constant_BC_steady ! logical variable to determine whether the x_begin boundary condition is constant or not (time-dependent); this must be TRUE
-    LOGICAL(LGT)                                    :: x_end_constant_BC_steady ! logical variable to determine whether the x_end boundary condition is constant or not (time-dependent); this must be TRUE
-    ! End of edits by Toshiyuki Bandai May, 2023
+    REAL(DP), DIMENSION(:),     ALLOCATABLE         :: VG_params_zone ! array to store VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jxx_VG_params_lo ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jxx_VG_params_hi ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jyy_VG_params_lo ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jyy_VG_params_hi ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jzz_VG_params_lo ! array to store the location of VG parameters when reading input file
+    INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: jzz_VG_params_hi ! array to store the location of VG parameters when reading input file
+        
+    ! End of edits by Toshiyuki Bandai Oct, 2024
     ! *************************************************
     
     !!  PETSc arrays for solver
@@ -220,31 +178,28 @@ MODULE flow
     REAL(DP), DIMENSION(:), ALLOCATABLE          :: qgt
     REAL(DP), DIMENSION(:), ALLOCATABLE             :: tpump
     LOGICAL(LGT)                                   :: pumptimeseries
-    !! Dynamic water table Lucien Stolze 20211201
-    REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: pressurebct
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: twatertable
-    LOGICAL(LGT)                                   :: watertabletimeseries
-    !!Evapotranspiration timeseries
-    REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
-    REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_transpi
-    REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_transpi
-    ! Lucien Stolze: evapotranspiration
-    LOGICAL(LGT)                                     :: evapofix !fixed evaporation
-    LOGICAL(LGT)                                     :: evapotimeseries !transient evaporation
-    LOGICAL(LGT)                                     :: transpifix !fixed transpiration
-    LOGICAL(LGT)                                     :: transpitimeseries !transient transpiration
-    REAL(DP)                                         :: evaporate !evaporation rate
-    REAL(DP)                                         :: transpirate !transpiration rate
-    INTEGER(I4B)                                     :: transpicells !nb of transpiration cells
-    ! infiltration timeseries added by Toshiyuki Bandai June, 2023
-    LOGICAL(LGT)                                     :: infiltration_timeseries
-    LOGICAL(LGT)                                     :: infiltration_fix
-    REAL(DP)                                         :: infiltration_rate
-    REAL(DP), DIMENSION(:), ALLOCATABLE              :: qt_infiltration
-    REAL(DP), DIMENSION(:), ALLOCATABLE              :: t_infiltration
     
-    REAL(DP), DIMENSION(:), ALLOCATABLE              :: transpirate_cell
+    !!!Evapotranspiration timeseries
+    !REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_evapo
+    !REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_evapo
+    !REAL(DP), DIMENSION(:), ALLOCATABLE          :: qt_transpi
+    !REAL(DP), DIMENSION(:), ALLOCATABLE             :: t_transpi
+    !! Lucien Stolze: evapotranspiration
+    !LOGICAL(LGT)                                     :: evapofix !fixed evaporation
+    !LOGICAL(LGT)                                     :: evapotimeseries !transient evaporation
+    !LOGICAL(LGT)                                     :: transpifix !fixed transpiration
+    !LOGICAL(LGT)                                     :: transpitimeseries !transient transpiration
+    !REAL(DP)                                         :: evaporate !evaporation rate
+    !REAL(DP)                                         :: transpirate !transpiration rate
+    !INTEGER(I4B)                                     :: transpicells !nb of transpiration cells
+    !! infiltration timeseries added by Toshiyuki Bandai June, 2023
+    !LOGICAL(LGT)                                     :: infiltration_timeseries
+    !LOGICAL(LGT)                                     :: infiltration_fix
+    !REAL(DP)                                         :: infiltration_rate
+    !REAL(DP), DIMENSION(:), ALLOCATABLE              :: qt_infiltration
+    !REAL(DP), DIMENSION(:), ALLOCATABLE              :: t_infiltration
+    !
+    !REAL(DP), DIMENSION(:), ALLOCATABLE              :: transpirate_cell
     
     END MODULE flow
     
