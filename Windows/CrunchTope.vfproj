@@ -32,6 +32,21 @@
 			<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+			<Filter Name="EasyRead">
+				<File RelativePath="..\Source\EasyRead\Easy_Read_and_Store.F90"/>
+				<File RelativePath="..\Source\EasyRead\OpenInputFile.F90"/>
+				<File RelativePath="..\Source\EasyRead\Types_and_parameters.F90"/>
+			</Filter>
+			<Filter Name="EQ36-Read">
+				<File RelativePath="..\Source\EQ36-Read\ifnobl.f"/>
+				<File RelativePath="..\Source\EQ36-Read\ilnobl.f"/>
+				<File RelativePath="..\Source\EQ36-Read\ldbar2.f"/>
+				<File RelativePath="..\Source\EQ36-Read\ldbar3.f"/>
+				<File RelativePath="..\Source\EQ36-Read\lejust.f"/>
+				<File RelativePath="..\Source\EQ36-Read\locase.f"/>
+				<File RelativePath="..\Source\EQ36-Read\rdgrid.f"/>
+				<File RelativePath="..\Source\EQ36-Read\rdpar.f"/>
+			</Filter>
 			<File RelativePath="..\Source\AffinityNumerical.F90"/>
 			<File RelativePath="..\Source\AllocateALL.F90"/>
 			<File RelativePath="..\Source\AllocateGasesGimrt.F90"/>

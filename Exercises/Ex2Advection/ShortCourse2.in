@@ -61,6 +61,7 @@ PRIMARY_SPECIES
 Tracer
 Na+
 Cl-
+H2O
 END
 
 Condition junk1
@@ -70,6 +71,7 @@ temperature      25.0
 Tracer           0.1
 Na+              0.01
 Cl-              0.01
+H2O              55.50843506
 END
 
 Condition junk2
@@ -79,6 +81,7 @@ set_porosity     1.0
 Tracer           0.000001
 Na+              0.01
 Cl-              0.01
+H2O              55.50843506
 END
  
 POROSITY

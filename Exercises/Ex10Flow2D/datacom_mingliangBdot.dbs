@@ -1,4 +1,4 @@
-IncludeBdot
+includebdot
 'temperature points' 8   0.  25.  60. 100. 150. 200. 250. 300.
 'Debye-Huckel adh'   0.4939  0.5114 0.5465 0.5995 0.6855 0.7994 0.9593 1.2180
 'Debye-Huckel bdh'   0.3253  0.3288 0.3346 0.3421 0.3525 0.3639 0.3766 0.3925

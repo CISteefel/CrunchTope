@@ -233,6 +233,9 @@ ALLOCATE(ax0(mcmplx))
 ALLOCATE(zx(mcmplx))
 ALLOCATE(bdotSecondary(mcmplx))
 ALLOCATE(vbarkin(nm))
+IF (ALLOCATED(azero)) THEN
+  DEALLOCATE(azero)
+END IF
 ALLOCATE(azero(nc+mcmplx))
 ALLOCATE(coef(ndim,5))
 

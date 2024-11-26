@@ -455,7 +455,7 @@ END IF
 WRITE(*,*)
 WRITE(*,*) '   ************************** CrunchFlow ******************************'
 WRITE(*,*)
-WRITE(*,*) '                 Authors:  C.I. STEEFEL, S. MOLINS, & T. BANDAI'
+WRITE(*,*) '                 Authors:  C.I. STEEFEL, T. BANDAI, S. MOLINS'
 
 WRITE(*,*) '                      *** Copyright Notice ***          '
 WRITE(*,*) '     Copyright (c) 2016, The Regents of the University of California, '
@@ -1798,6 +1798,12 @@ DO WHILE (nn <= nend)
                  END IF
                   
                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+                if (jx==8) then
+                  continue
+                end if
+                if (jx==401) then
+                  continue
+                end if
             END DO
           END DO
           

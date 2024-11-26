@@ -150,17 +150,17 @@ END IF
 ALLOCATE(lngamma(ncomp+nspec,nx,ny,nz))
 lngamma = 0.0
 
-IF (ALLOCATED(lngammawater)) THEN
-  DEALLOCATE(lngammawater)
-END IF
-ALLOCATE(lngammawater(nx,ny,nz))
-lngammawater = 0.0
+!!!IF (ALLOCATED(lngammawater)) THEN
+!!!  DEALLOCATE(lngammawater)
+!!!END IF
+!!!ALLOCATE(lngammawater(nx,ny,nz))
+!!!lngammawater = 0.0
 
-IF (ALLOCATED(gammawater)) THEN
-  DEALLOCATE(gammawater)
-END IF
-ALLOCATE(gammawater(nx,ny,nz))
-gammawater = 1.0
+!!!IF (ALLOCATED(gammawater)) THEN
+!!!  DEALLOCATE(gammawater)
+!!!END IF
+!!!ALLOCATE(gammawater(nx,ny,nz))
+!!!gammawater = 1.0
 
 IF (ALLOCATED(deriv_gamma)) THEN
   DEALLOCATE(deriv_gamma)

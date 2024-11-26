@@ -111,6 +111,7 @@ Tracer
 H+
 Na+
 Cl-
+H2O
 END
 
 SECONDARY_SPECIES
@@ -124,6 +125,7 @@ Tracer         1.0E-8
 H+             1.0E-8
 Na+              0.01
 Cl-              0.01
+H2O              55.50843506
 END
 
 Condition injection
@@ -133,6 +135,7 @@ Tracer         1.0E-3
 H+             1.0E-3
 Na+              0.01
 Cl-              0.01
+H2O              55.50843506
 END
 
 TEMPERATURE

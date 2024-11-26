@@ -43,7 +43,7 @@
 !!!      ****************************************
     
 SUBROUTINE database(ncomp,ncmplx,mnrl,nrct,ngas,nsurf,nsurf_sec,ntemp,  &
-  iprint,icomplete,jtemp,data1,namc,namcx,namrl,  &
+  iprint,icomplete,jtemp,data1,namc,namcx,namrl,                        &
   vbar,wtminfull,wtbas,coef,temp,z,bdotPrimary,zx,bdotSecondary,a0,ax0)
 USE crunchtype
 USE params
@@ -381,15 +381,6 @@ IF (data1 /= ' ') THEN
   
   OPEN(UNIT=iunit5,FILE=data1,STATUS='old',ERR=334)
   
-  
-!        open(unit=iunit5,file=data1,status='old',err=334,access='sequential',recl=1024)
-  
-!      else if (temp .eq. 25.d0 .and. jtemp.eq.0) then
-! write(*,*) '        --> using database: master25'
-! write(iunit2,*)'        --> using database: master25'
-!        open(iunit5, file=
-!     .  '/users/steefel/threedata/master25.data',
-!     .  status='old',err=334)
 ELSE
   WRITE(*,*)
   WRITE(*,*) ' No default database:  must be specified in input file'
@@ -483,24 +474,7 @@ IF (ntemp > 1) THEN
     vec(5,i) = 1.d0/((tempc(i) + tk)*(tempc(i) + tk))
   END DO
   
-!  ALLOCATE(w(nbasis,nbasis))
-!  ALLOCATE(indx(nbasis))
-
-!  DO j = 1, nbasis
-!    DO k = j, nbasis
-!      w(j,k) = 0.d0
-!      DO i = 1, ntemp
-!        w(j,k) = w(j,k) + vec(j,i)*vec(k,i)
-!      END DO
-!      IF (j /= k) w(k,j) = w(j,k)
-!    END DO
-!  END DO
-  
-!  CALL ludcmp90(w,indx,dd,nbasis)
-!  CALL ludcmp(w,nbasis,n0,indx,dd)
- 
-  
-!  ***********  Calculate coefficients for Debye-Huckel parameters  *****************
+ !  ***********  Calculate coefficients for Debye-Huckel parameters  *****************
   
   DO i = 1, ntemp
     vecgam(1,i) = 1.0
@@ -509,18 +483,6 @@ IF (ntemp > 1) THEN
     vecgam(4,i) = (tempc(i))**3
     vecgam(5,i) = (tempc(i))**4
   END DO
-  
-  !DO j = 1, nbasis
-  !  DO k = j, nbasis
-  !    wgam(j,k) = 0.d0
-  !    DO i = 1, ntemp
-  !      wgam(j,k) = wgam(j,k) + vecgam(j,i)*vecgam(k,i)
-  !    END DO
-  !    IF (j /= k) wgam(k,j) = wgam(j,k)
-  !  END DO
-  !END DO
-  
-  !CALL ludcmp(wgam,nbasis,n0,indx,dd)
   
   CALL fitgamma(nbasis,ntemp,adh,bvec,vecgam)
   DO i = 1, nbasis

@@ -1021,12 +1021,15 @@ DO i = 1,ncomp
     IF (isaturate == 1) THEN
       gas_transport = df*sgas(i,jx,jy,jz)* ( bg(jx,jy,jz)+ eg(jx,jy,jz) )
     END IF
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource ) &
-        + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)  &
-        + xvectors*df + yvectors*df + df*xbdflux + df*ybdflux  &
-        + xvec_ex*df + yvec_ex*df + xvecgas*df + yvecgas*df  &
-        + ex_transport + gas_transport  &
-        + xspecdiffw*df + xspecdiffe*df + xspecdiffs*df + xspecdiffn*df ! Species-dependent diffusion
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
+        + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)  &   !! Diagonal aqueous transport
+        + xvectors*df + yvectors*df       & 
+        + df*xbdflux + df*ybdflux         &
+        + xvec_ex*df + yvec_ex*df         &
+        + xvecgas*df + yvecgas*df         &
+        + ex_transport + gas_transport    &
+        + xspecdiffw*df + xspecdiffe*df   &
+        + xspecdiffs*df + xspecdiffn*df       ! Species-dependent diffusion
         
   END IF
   
