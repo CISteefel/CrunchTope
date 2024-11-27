@@ -56,4 +56,39 @@ jobs:
         cd Exercises/Ex3FickianDiffusion
         echo "Running Ex3FickianDiffusion"
         ../../Source/CrunchTope ShortCourse3.in
-
+        
+    - name: crunchtope-run4
+      run: |
+        cd Exercises/Ex4MulticomponentDiffusion
+        echo "Running Ex4MulticomponentDiffusion"
+        ../../Source/CrunchTope ShortCourse4.in
+        
+    - name: crunchtope-run5
+      run: |
+        cd Exercises/Ex5RolleTransverseDiffusion
+        echo "Running Ex5RolleTransverseDiffusion"
+        ../../Source/CrunchTope Rolle2D.in
+        
+    - name: crunchtope-run13
+      run: |
+        cd Exercises/Ex13UnsaturatedFlow
+        echo "Running Ex13UnsaturatedFlow"
+        ../../Source/CrunchTope ShortCourse13.in
+        
+    - name: crunchtope-run14
+      run: |
+        cd Exercises/Ex14UnsaturatedFlow_evaporation
+        echo "Running Ex14UnsaturatedFlow_evaporation"
+        ../../Source/CrunchTope ShortCourse14.in
+        
+     - name: crunchtope-run15
+      run: |
+        cd Exercises/Ex15UnsaturatedFlow_transient
+        echo "Running Ex15UnsaturatedFlow_transient"
+        ../../Source/CrunchTope ShortCourse15.in
+        
+     - name: crunchtope-run16
+      run: |
+        cd Exercises/Ex16UnsaturatedFlow2D
+        echo "Running Ex16UnsaturatedFlow2D"
+        ../../Source/CrunchTope ShortCourse16.in

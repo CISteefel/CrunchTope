@@ -50,7 +50,7 @@ permeability_z 0 default
 !RICHARD
 gravity 90.0 0.0 90.0 up ! gravity is from y_begin to y_end
 Richards  TRUE ! Richards solver is used to compute velocity
-Richards_print TRUE ! Newton and line search results are not printed
+Richards_print FALSE ! Newton and line search results are not printed
 Richards_steady FALSE ! steady-state Richards solver is not used to the initial condition for time-dependent Richards solver
 richards_ic -7.2613900 ! constant initial condition for Richards
 !read_richards_ic_file initial_condition.csv SingleColumn ! initial condition for time-dependent Richards solver

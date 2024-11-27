@@ -5,7 +5,7 @@
 	</Platforms>
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
-			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" MultiProcessorCompilation="true" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" BoundsCheck="true" UseMkl="mklParallel"/>
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" UseMkl="mklParallel"/>
 			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="libpetsc.lib impi.lib Advapi32.lib  Gdi32.lib User32.lib  Kernel32.lib Ws2_32.lib mkl_intel_thread.lib libiomp5md.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -286,10 +286,8 @@
 			<File RelativePath="..\Source\read_pumplocationsfile.F90"/>
 			<File RelativePath="..\Source\read_pumptimeseries.F90"/>
 			<File RelativePath="..\Source\read_pumptimeseriesfile.F90"/>
-			<File RelativePath="..\Source\read_restart.F90">
-			</File>
-			<File RelativePath="..\Source\read_richards.F90">
-			</File>
+			<File RelativePath="..\Source\read_restart.F90"/>
+			<File RelativePath="..\Source\read_richards.F90"/>
 			<File RelativePath="..\Source\read_series.F90"/>
 			<File RelativePath="..\Source\read_snapshot.F90"/>
 			<File RelativePath="..\Source\read_SolidDensity.F90"/>
@@ -303,8 +301,7 @@
 			<File RelativePath="..\Source\read_tempreg.F90"/>
 			<File RelativePath="..\Source\read_tempregion.F90"/>
 			<File RelativePath="..\Source\read_tempts.F90"/>
-			<File RelativePath="..\Source\read_timeseries.F90">
-			</File>
+			<File RelativePath="..\Source\read_timeseries.F90"/>
 			<File RelativePath="..\Source\read_title.F90"/>
 			<File RelativePath="..\Source\read_toperatio.F90"/>
 			<File RelativePath="..\Source\read_TortuosityByZone.F90"/>
@@ -332,8 +329,7 @@
 			<File RelativePath="..\Source\readtypescan1.F90"/>
 			<File RelativePath="..\Source\reallocate.F90"/>
 			<File RelativePath="..\Source\restart.F90"/>
-			<File RelativePath="..\Source\richards.F90">
-			</File>
+			<File RelativePath="..\Source\richards.F90"/>
 			<File RelativePath="..\Source\rocalc.F90"/>
 			<File RelativePath="..\Source\RunTime.F90"/>
 			<File RelativePath="..\Source\satcalc.F90"/>
