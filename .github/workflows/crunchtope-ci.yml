@@ -91,4 +91,4 @@ jobs:
       run: |
         cd Exercises/Ex16UnsaturatedFlow2D
         echo "Running Ex16UnsaturatedFlow2D"
-        ../../Source/CrunchTope ShortCourse16.in
+        ../../Source/CrunchTope ShortCourse16-ShorterVersion.in

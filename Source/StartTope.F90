@@ -1447,11 +1447,6 @@ IF (found) THEN
   ReadGeochemicalConditions = .false.
   CALL read_logical(nout,lchar,parchar,parfind,ReadGeochemicalConditions)
 
-  parchar = 'ReadGautier'
-  parfind = ' '
-  ReadGautier = .false.
-  CALL read_logical(nout,lchar,parchar,parfind,ReadGautier)
-
   parchar = 'Qingyun'
   parfind = ' '
   Qingyun = .false.
@@ -4876,9 +4871,7 @@ DO jz = 1,nz
 
       sum = 0.0
       DO k = 1,nrct
-        IF (.NOT. ReadGautier) THEN
-          volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
-        END IF
+        volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
         VolumeLastTimeStep(k,jx,jy,jz) = volfx(k,jx,jy,jz)
         area(k,jx,jy,jz) = areain(k,jinit(jx,jy,jz))
         sum = sum + volfx(k,jx,jy,jz)
@@ -4889,7 +4882,7 @@ DO jz = 1,nz
         vrSave(jx,jy,jz) = vrInitial(jinit(jx,jy,jz))
       END IF
 
-      IF (constantpor /= 0.0 .AND. .NOT. ReadGautier) THEN
+      IF (constantpor /= 0.0) THEN
          porin(jx,jy,jz) = constantpor
          por(jx,jy,jz) = constantpor
          porOld(jx,jy,jz) = por(jx,jy,jz)
@@ -4897,6 +4890,7 @@ DO jz = 1,nz
 
       IF (jpor == 2 .OR. jpor == 3) THEN                  !! Read porosity from file
         porin(jx,jy,jz) = work3(jx,jy,jz)
+        por(jx,jy,jz) = porin(jx,jy,jz)
       ELSE
         porin(jx,jy,jz) = porcond(jinit(jx,jy,jz))
       END IF
