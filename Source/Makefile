@@ -21,6 +21,9 @@ SOURCEF = \
           CrunchFunctions.F90\
           isotope.F90\
           NanoCrystal.F90\
+	  hydraulic_function.F90\
+	  richards.F90\
+	  read_richards.F90\
           CrunchTopeDriver.F90\
           CrunchTope.F90\
           AffinityNumerical.F90\
@@ -320,8 +323,6 @@ SOURCEF = \
           velocalcNS.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
-          read_watertablefile.F90\
-          read_watertable_timeseries.F90\
           interp.F90\
           interp3.F90\
           read_transpiration.F90\
@@ -331,23 +332,10 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
-          flux_Richards.F90\
-		  RichardsArrayAllocation.F90\
-		  Jacobian_Richards.F90\
-		  Jacobian_Richards_steady.F90\
-		  read_boundary_condition_Richards_1D.F90\
-		  read_vanGenuchten_parameters.F90\
-		  residual_Richards.F90\
-		  residual_Richards_steady.F90\
-		  solve_Richards.F90\
-		  vanGenuchten_model.F90\
-		  vanGenuchten_model_kr.F90\
+	  read_vanGenuchten_parameters.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
-          read_vgafile.F90\
-          read_vgnfile.F90\
-          read_wcrfile.F90\
           read_walltime.F90\
           read_permxfile.F90\
           read_permyfile.F90\
@@ -372,6 +360,9 @@ OBJSF  =  crunchtype.o\
           CrunchFunctions.o\
           isotope.o\
           NanoCrystal.o\
+	  hydraulic_function.o\
+	  richards.o\
+	  read_richards.o\
           CrunchTopeDriver.o\
           CrunchTope.o\
           AffinityNumerical.o\
@@ -671,8 +662,6 @@ OBJSF  =  crunchtype.o\
           velocalcNS.o\
           read_pumptimeseriesfile.o\
           read_pumplocationsfile.o\
-          read_watertablefile.o\
-          read_watertable_timeseries.o\
           interp.o\
           interp3.o\
           read_transpiration.o\
@@ -681,23 +670,10 @@ OBJSF  =  crunchtype.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
-          flux_Richards.o\
-		  RichardsArrayAllocation.o\
-		  Jacobian_Richards.o\
-		  Jacobian_Richards_steady.o\
-		  read_boundary_condition_Richards_1D.o\
-		  read_vanGenuchten_parameters.o\
-		  residual_Richards.o\
-		  residual_Richards_steady.o\
-		  solve_Richards.o\
-		  vanGenuchten_model.o\
-		  vanGenuchten_model_kr.o\
+	  read_vanGenuchten_parameters.o\
           read_tempreg.o\
           read_tempregion.o\
           read_tempts.o\
-          read_vgafile.o\
-          read_vgnfile.o\
-          read_wcrfile.o\
           read_walltime.o\
           read_permxfile.o\
           read_permyfile.o\

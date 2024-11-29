@@ -1,6 +1,7 @@
 MODULE read_richards_module
 
 USE crunchtype
+USE CrunchFunctions
 USE Richards_module, ONLY: Richards_Base, RichardsBC, RichardsVariableBC, Richards_Variable_BC, Richards_Options
 
 IMPLICIT NONE
