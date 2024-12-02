@@ -43,7 +43,7 @@
 !!!      ****************************************
 
 
-SUBROUTINE read_dbs(nout,Filename)
+SUBROUTINE read_dbs(nout,data1)
 USE crunchtype
 USE params
 
@@ -53,29 +53,16 @@ IMPLICIT NONE
 
 INTEGER(I4B), INTENT(IN)                                        :: nout
 
-CHARACTER (LEN=mls), INTENT(OUT)                                :: Filename
-
-CHARACTER (LEN=mls)                                             :: dumstr
-LOGICAL(LGT)                                                    :: Found
-
-!! Internal varibles and arrays
-INTEGER(I4B)                                                    :: ls
+CHARACTER (LEN=mls), INTENT(OUT)                                :: DATA1
 
 
-READ(nout,'(a)') Filename
+READ(nout,'(a)') data1
 
-Found = .FALSE.
-dumstr = TRIM(ADJUSTL(Filename))
-INQUIRE(FILE=dumstr,EXIST=Found)
-CALL stringlen(filename,ls)
-IF (Found) THEN          
-  OPEN(nout,FILE=FileName(1:ls),STATUS='UNKNOWN') 
-ELSE                   
-  WRITE(*,'(a,a,a)') " Database file ", dumstr, ", not found "
-  WRITE(*,'(a)') " STOP "
-  READ(*,*)
+IF (data1 == ' ') THEN
+  WRITE(*,*) ' Using default database'
+ELSE
+  CONTINUE
 END IF
-
 
 RETURN
 END SUBROUTINE read_dbs
