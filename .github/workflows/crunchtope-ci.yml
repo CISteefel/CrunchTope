@@ -67,7 +67,7 @@ jobs:
       run: |
         cd Exercises/Ex5RolleTransverseDiffusion
         echo "Running Ex5RolleTransverseDiffusion"
-        ../../Source/CrunchTope Rolle2D.in
+        ../../Source/CrunchTope Rolle2D_shorter.in
         
     - name: crunchtope-run13
       run: |
