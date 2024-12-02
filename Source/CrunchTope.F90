@@ -3361,7 +3361,7 @@ END IF
          END DO
        END IF
        
-       READ(*,*)
+!!       READ(*,*)
        RETURN
 !!    ********  NORMAL STOP HERE  **************
     END IF
