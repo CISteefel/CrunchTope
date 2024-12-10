@@ -23,6 +23,8 @@ pclevel             50
 gimrt_solver        gmres
 gimrt_pc            ilu
 gimrt_pclevel       1
+fix_saturation      0.90
+read_saturationfile  birendra.dat
 END
  
 OUTPUT

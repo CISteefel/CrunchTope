@@ -690,6 +690,9 @@ INTEGER(I4B)                                 :: nBoundaryConditionZone_Richards 
 ! End of edit by Toshiyuki Bandai, 2023 May
 ! ************************************
 
+CHARACTER (LEN=mls)                                           :: SerpentineFile_Mesh
+REAL(DP), DIMENSION(290,1,1)          :: xPrint
+
 #if defined(ALQUIMIA)
 
 
@@ -897,6 +900,11 @@ IF (found) THEN
   parfind = ' '
   CalciteCreep = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,CalciteCreep)
+  
+  parchar = 'SerpentineFracture'
+  parfind = ' '
+  SerpentineFracture = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,SerpentineFracture)
 
   parchar = 'montterri'
   parfind = ' '
@@ -1672,6 +1680,11 @@ IF (found) THEN
   parfind = ' '
   OelkersRateLaw = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,OelkersRateLaw)
+  
+  parchar = 'ReadMineralFile'
+  parfind = ' '
+  ReadMineralFile = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,ReadMineralFile)
 
 !!!  END IF
 
@@ -4464,8 +4477,41 @@ IF (found) THEN
     CLOSE(UNIT=52)
 
   END IF
+  
+  If (SerpentineFracture) THEN
+    
+    SerpentineFile_Mesh = 'mesh-Siqin-Transposed.txt'
+    INQUIRE(FILE=SerpentineFile_Mesh,EXIST=ext)
+    IF (.NOT. ext) THEN
+      CALL stringlen(SerpentineFile_Mesh,ls)
+      WRITE(*,*)
+      WRITE(*,*) ' Serpentine Mesh file not found: ', SerpentineFile_Mesh(1:ls)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    ELSE
+      
+      OPEN(UNIT=53,FILE=SerpentineFile_Mesh,STATUS='OLD',ERR=6001)
+      FileTemp = SerpentineFile_Mesh
+      CALL stringlen(FileTemp,FileNameLength)
 
-  IF (nmmLogical) THEN
+      nhet = 0
+
+      READ(53,*,END=1020) ( (jinit(jx,jy,1),jx=1,nx), jy=1,ny )
+
+      jinit = jinit + 1
+      nhet = nx*ny
+      activecell = 1
+
+      
+      CLOSE(unit=53,STATUS='keep')      
+    END IF
+      
+
+  END IF
+    
+
+  IF (nmmLogical .and. .not. SerpentineFracture ) THEN
 
     jz = 1
     ALLOCATE(stress(nx,ny,1))
@@ -4481,6 +4527,12 @@ IF (found) THEN
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
 
         ELSE IF (FractureNetwork) THEN
+
+          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
+  !!!                            x    y    bn    mt
+          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
+          
+        ELSE IF (CalciteCreep) THEN
 
           READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
   !!!                            x    y    bn    mt
@@ -4505,7 +4557,7 @@ IF (found) THEN
 
 END IF
 
-  IF (nhet == 0) THEN
+IF (nhet == 0) THEN
     WRITE(*,*)
     WRITE(*,*) ' No initial conditions found'
     WRITE(*,*) ' --->  No defaults available: Aborting run'
@@ -4562,6 +4614,7 @@ IF (nhet > 0 .and. .not. ReadInitialConditions) THEN
   END DO
 
 ELSE
+  
   IF (ReadInitialConditions) THEN
     WRITE(*,*)
     WRITE(*,*) ' Initial conditions read from file'
@@ -4986,6 +5039,11 @@ END DO
 !*****************************
 !Stolze Lucien, June 2023
 !START: read mineral volume fraction and bulk surface area from file
+
+!!! Wrongo Dongo --> should only read with a keyword, otherwise all hell breaks loose
+
+IF (ReadMineralFile) THEN
+
 IF (ALLOCATED(mineral_id)) THEN
   DEALLOCATE(mineral_id)
 ENDIF
@@ -5157,6 +5215,8 @@ ENDIF
 !*****************************
 !Stolze Lucien, June 2023
 !END: read mineral volume fraction and bulk surface area from file
+
+END IF
 
 IF (ALLOCATED(work3)) then
   DEALLOCATE(work3)
@@ -6353,6 +6413,8 @@ END IF
 ALLOCATE(qrecharge(nx,ny))
 qrecharge = 0
 
+!!! ****  Flow Block Found  *********
+
 IF (found) THEN
 
   !  Initialize pressure and pumping rate first
@@ -7122,6 +7184,7 @@ IF (found) THEN
         DEALLOCATE(jyypermy_hi)
         DEALLOCATE(jzzpermy_lo)
         DEALLOCATE(jzzpermy_hi)
+        
       ELSE
 
         readpermy = .false.
@@ -7237,18 +7300,47 @@ IF (found) THEN
 
             do jy = 1,ny
               do jx = 1,nx
-
                 if (jinit(jx,jy,1) == 2) then
                   perminx(jx,jy,1) = 1.0D-11
                   permx(jx,jy,1) = 1.0D-11
                   perminy(jx,jy,1) = 1.0D-11
                   permy(jx,jy,1) = 1.0D-11
                 end if
-
               end do
             end do
 
           END IF
+
+        END IF
+        
+        IF (SerpentineFracture) THEN
+          
+          write(*,*) ' Entering SerpentineFracture permeability field'
+          write(*,*)
+
+          DO jy = 1,ny
+            DO jx = 1,nx
+
+              IF (jinit(jx,jy,1) == 2) THEN     !!!  Fracture network
+                perminx(jx,jy,1) = 1.0D-11
+                permx(jx,jy,1)   = 1.0D-11
+                perminy(jx,jy,1) = 1.0D-11
+                permy(jx,jy,1)   = 1.0D-11
+                porin(jx,jy,1)   = 0.85
+                por(jx,jy,1)     = 0.85
+                
+              ELSE                              !!!  Rock matrix
+                perminx(jx,jy,1) = 1.0D-19
+                permx(jx,jy,1)   = 1.0D-19
+                perminy(jx,jy,1) = 1.0D-19
+                permy(jx,jy,1)   = 1.0D-19
+                porin(jx,jy,1)   = 0.01
+                por(jx,jy,1)     = 0.01
+                
+              END IF
+
+            END DO
+          END DO
 
 
         END IF
@@ -7264,6 +7356,7 @@ IF (found) THEN
         DEALLOCATE(jzzpermz_hi)
 
       ELSE
+        
         CALL read_permz(nout,nx,ny,nz,npermz)
         IF (permzonez(0) == 0.0 .and. .NOT.ReadPerm) THEN
           WRITE(*,*)
@@ -7278,14 +7371,14 @@ IF (found) THEN
           WRITE(*,*)
         END IF
 
-! Initialize Y permeability to default permeability (permzonez(0))
+!       Initialize Y permeability to default permeability (permzonez(0))
 
-      IF (.NOT. ReadPerm) THEN
-        perminz = permzonez(0)
-        permz = permzonez(0)
-      END IF
+        IF (.NOT. ReadPerm) THEN
+          perminz = permzonez(0)
+          permz = permzonez(0)
+        END IF
 
-!  Next, initialize permeability from various zones
+     !  Next, initialize permeability from various zones
 
         IF (npermz > 0) THEN
           DO l = 1,npermz
@@ -7315,9 +7408,8 @@ IF (found) THEN
 
       !!!  End of section where choosing between perm file read and zone specification      END IF
          
-    CALL read_gravity(nout)
-
-    
+      CALL read_gravity(nout)
+  
       IF (ALLOCATED(activecellPressure)) THEN
         DEALLOCATE(activecellPressure)
         ALLOCATE(activecellPressure(0:nx+1,0:ny+1,0:nz+1))
@@ -7331,8 +7423,9 @@ IF (found) THEN
       
       pres = PressureZone(0)
 
-      !  Next, initialize pressure from various zones
+!     Next, initialize pressure from various zones
       IF (npressure > 0) THEN
+        
         DO l = 1,npressure
           DO jz = jzzPressure_lo(l),jzzPressure_hi(l)
             DO jy = jyyPressure_lo(l),jyyPressure_hi(l)
@@ -7343,6 +7436,7 @@ IF (found) THEN
             END DO
           END DO
         END DO
+        
       END IF
 
       DEALLOCATE(PressureZone)
@@ -7354,55 +7448,56 @@ IF (found) THEN
       DEALLOCATE(jzzPressure_lo)
       DEALLOCATE(jzzPressure_hi)
 
-    parchar = 'initialize_hydrostatic'
-    parfind = ' '
-    InitializeHydrostatic = .FALSE.
-    CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
-    IF (gimrt) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
-      WRITE(*,*)
-    ELSE
-      CONTINUE
-    END IF
+      parchar = 'initialize_hydrostatic'
+      parfind = ' '
+      InitializeHydrostatic = .FALSE.
+      CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
+      IF (gimrt) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
+        WRITE(*,*)
+      ELSE
+        CONTINUE
+      END IF
     
     ! ********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
-    Richards_allocate: IF (Richards) THEN
+      Richards_allocate: IF (Richards) THEN
     
-      WRITE(*,*)
-      WRITE(*,*) ' Richards equation is solved to simualte unsaturated flow '
-      WRITE(*,*)
+        WRITE(*,*)
+        WRITE(*,*) ' Richards equation is solved to simualte unsaturated flow '
+        WRITE(*,*)
   
-      CALL RichardsDiscretize(nx, ny, nz)
-      CALL RichardsAllocate(nx, ny, nz)
-      CALL RichardsUpdateFluid(t, Richards_State%xi)
+        CALL RichardsDiscretize(nx, ny, nz)
+        CALL RichardsAllocate(nx, ny, nz)
+        CALL RichardsUpdateFluid(t, Richards_State%xi)
       
-      ! set gravity vector for gravitational flow      
-      Richards_Base%gravity_vector(1) = SignGravity*COSD(x_angle)
-      Richards_Base%gravity_vector(2) = SignGravity*COSD(y_angle)
-      Richards_Base%gravity_vector(3) = SignGravity*COSD(z_angle)
+        ! set gravity vector for gravitational flow      
+        Richards_Base%gravity_vector(1) = SignGravity*COSD(x_angle)
+        Richards_Base%gravity_vector(2) = SignGravity*COSD(y_angle)
+        Richards_Base%gravity_vector(3) = SignGravity*COSD(z_angle)
       
-      ! allocate and read van-Genuchten parameters
-      VG_error = 0
-      nzones_VG_params = 0
-      ALLOCATE(VG_params_zone(0:mperm))
-      ALLOCATE(jxx_VG_params_lo(mperm))
-      ALLOCATE(jxx_VG_params_hi(mperm))
-      ALLOCATE(jyy_VG_params_lo(mperm))
-      ALLOCATE(jyy_VG_params_hi(mperm))
-      ALLOCATE(jzz_VG_params_lo(mperm))
-      ALLOCATE(jzz_VG_params_hi(mperm))
+        ! allocate and read van-Genuchten parameters
+        VG_error = 0
+        nzones_VG_params = 0
+        ALLOCATE(VG_params_zone(0:mperm))
+        ALLOCATE(jxx_VG_params_lo(mperm))
+        ALLOCATE(jxx_VG_params_hi(mperm))
+        ALLOCATE(jyy_VG_params_lo(mperm))
+        ALLOCATE(jyy_VG_params_hi(mperm))
+        ALLOCATE(jzz_VG_params_lo(mperm))
+        ALLOCATE(jzz_VG_params_hi(mperm))
     
-    ! saturated water content theta_s (=porosity)
+      ! saturated water content theta_s (=porosity)
     
-      IF (Richards_Options%theta_s_is_porosity) THEN
-        ! theta_s is the same as the porosity, so no need to read vg_theta_s
+        IF (Richards_Options%theta_s_is_porosity) THEN
+          ! theta_s is the same as the porosity, so no need to read vg_theta_s
     
-        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-          VGM_parameters%theta_s(jx,jy,jz) = por(jx,jy,jz)
-        END FORALL
-      ELSE
+          FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+            VGM_parameters%theta_s(jx,jy,jz) = por(jx,jy,jz)
+          END FORALL
+          
+        ELSE
       
         parchar = 'read_vg_theta_s_file'
         parfind = ' '
@@ -8045,7 +8140,8 @@ ELSE
     permzOld = permz
   END IF
 
-ELSE
+ELSE     !!! No Flow Block Found
+  
   WRITE(*,*)
   WRITE(*,*) ' No flow block found'
   readvelocity = .FALSE.
@@ -8328,6 +8424,7 @@ WRITE(iunit2,*)
 ! Constant_gasflow = false, so read from file
 
 IF (readgasvelocity) THEN
+  
   call stringlen(gasvelocityfile,lfile)
   WRITE(*,*)
   WRITE(*,*) '  Reading gas velocities from file: ',gasvelocityfile(1:lfile)

@@ -26,6 +26,7 @@ pc              ilu
 pclevel         5
 Benchmark       true
 database   datacom_mingliangBdot.dbs
+later_inputfiles 
 END
 
 OUTPUT

@@ -65,6 +65,7 @@ MODULE runtime
   LOGICAL(LGT)                                                :: SilicaRateLaw
   LOGICAL(LGT)                                                :: BurchRateLaw
   LOGICAL(LGT)                                                :: OelkersRateLaw
+  LOGICAL(LGT)                                                :: ReadMineralFile
   LOGICAL(LGT)                                                :: xtool
   LOGICAL(LGT)                                                :: tecplot
   LOGICAL(LGT)                                                :: visit

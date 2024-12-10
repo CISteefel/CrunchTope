@@ -101,7 +101,7 @@ INTEGER(I4B)             ::ierr
 INTEGER(I4B)             ::irank
 INTEGER(I4B)             ::linefil
 INTEGER(I4B)             ::itsiterate
-INTEGER(I4B), PARAMETER  ::maxitsksp=2000
+INTEGER(I4B), PARAMETER  ::maxitsksp=200
 REAL(DP), PARAMETER      ::zero=0.0
 !!REAL(DP), PARAMETER      ::rtolksp=1.0d-09
 !!REAL(DP), PARAMETER      ::atolksp=1.0d-50
@@ -723,7 +723,8 @@ IF (CalculateFlow) THEN
   END IF
   IF (reason < 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Steady state flow failed to converge '
+    WRITE(*,*) ' Steady state flow failed to converge, but continue on '
+    ierr = 0
   END IF
 
  
@@ -2927,7 +2928,7 @@ END IF
     WRITE(*,*)
     WRITE(*,*) '  WRITING OUTPUT FILES'
     IF (OutputTimeUnits == 'years') THEN
-      WRITE(*,2260) time,delt
+      WRITE(*,2260) time
     ELSE IF (OutputTimeUnits == 'days') THEN
       WRITE(*,2261) time*OutputTimeScale
     ELSE IF (OutputTimeUnits == 'hours') THEN
