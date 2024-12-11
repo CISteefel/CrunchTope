@@ -462,8 +462,8 @@ WRITE(*,*) '     Copyright (c) 2016, The Regents of the University of California
 WRITE(*,*) '            through Lawrence Berkeley National Laboratory             '
 WRITE(*,*) '                        All Rights Reserved                           '
 WRITE(*,*)
-WRITE(*,*) '                  For full license agreement with disclaimers:                          '
-WRITE(*,*) '                  See https://github.com/CISteefel/CrunchTope     '                          '
+WRITE(*,*) '                  For full license agreement with disclaimers:        '
+WRITE(*,*) '                  See https://github.com/CISteefel/CrunchTope         '
 WRITE(*,*) '   ********************************************************************'
 
 IF (.NOT. RunningPest) THEN
