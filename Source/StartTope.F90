@@ -1425,7 +1425,7 @@ IF (found) THEN
 
   parchar = 'lag_activity'
   parfind = ' '
-  lag_activity =  .true.
+  lag_activity =  .false.
   CALL read_logical(nout,lchar,parchar,parfind,lag_activity)
   IF (activity_dbh) THEN
     IF (lag_activity) THEN
