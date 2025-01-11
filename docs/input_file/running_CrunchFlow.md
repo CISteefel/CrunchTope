@@ -1,4 +1,4 @@
-# Explanation
+### INPUT FILE KEYWORD BLOCKS
 
 CrunchFlow reads a user-provided input file on startup which provides the necessary physical and chemical parameters needed for a run.
 The input file, the name of which is specified by the user, is keyword-based so that the order of appearance does not matter.
@@ -35,10 +35,3 @@ The keyword block CONDITION is a special case in that it can occur multiple time
 Each occurrence of CONDITION specifies a separate geochemical condition (these may be boundary or initial conditions or source terms) containing the geochemical input needed to describe a particular problem.
 The various keyword blocks will be discussed individually in more detail below.
 
-
-# Reading Input File Name from a File
-Normally, CrunchFlow will prompt the user to enter the name of an input file interactively.
-The user can provide the name of the input file, however, by including it in a file names PestControl.ant.
-The code will check to see if this file exists in the directly from which CrunchFlow is invoked, and if it does, will attempt to read the file name from it.
-Upon successfully reading the input file name, the code will then check to see that this file exists before reading from it.
-The use of the PestControl.ant to provide an input file name will then skip the requirement of interactive input from the user, an option that is particularly useful when running PEST.
