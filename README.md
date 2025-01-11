@@ -38,13 +38,6 @@ For fully optimized production code, be sure to configure PETSc with "--with-deb
 
 ### Input File Keyword Blocks
 
-CrunchFlow reads a user-provided input file on startup which provides
-the necessary physical and chemical parameters needed for a run.
-The input file, the name of which is specified by the user, is
-keyword-based so that the order of appearance does not matter.
-Keywords are grouped broadly into keyword blocks, which in turn
-include a variety of keyword parameters.
-
 The possible keyword blocks in the input file include
 [ see markdown files for each Keyword Block in
 (https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file) ].
@@ -72,8 +65,7 @@ The possible keyword blocks in the input file include
 With the exception of the keyword block CONDITION, the blocks should 
 appear only once in the input file. Each keyword block is terminated by 
 an END. The keyword block CONDITION is a special case in that it can 
-occur multiple times. Each occurrence of CONDITION specifies a separate 
-geochemical condition.
+occur multiple times. 
 
 ### Shortcourses/Lectures
 Check back for announcements of upcoming shortcourses and/or lectures taught by the code developers. In the meantime, check out the shortcourse exercises found in CrunchTope/Exercises and described in "CrunchTope/docs/CrunchCourseDescriptions.pdf" (https://github.com/CISteefel/CrunchTope/blob/master/docs/CrunchCourseExerciseDescriptions.pdf).
