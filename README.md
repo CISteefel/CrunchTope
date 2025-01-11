@@ -1,83 +1,84 @@
 <h1 align='center'>CrunchFlow</h1>
 
-CrunchFlow is reactive transport software developed by Carl I. Steefel, Toshi Bandai, and Sergi Molins at Lawrence Berkeley National Laboratory.
+CrunchFlow is reactive transport software developed by Carl I. Steefel, Toshiyuki Bandai, and Sergi Molins at Lawrence Berkeley National Laboratory.
 
-# Copyright and License Agreement
+### Copyright and License Agreement
 
  CrunchFlow, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory
  subject to receipt of any required approvals from the U.S. Dept. of Energy.  All Rights Reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
- (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer
- 
- (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
- in the documentation and/or other materials provided with the distribution.
- 
- (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Dept. of Energy nor the names of
- its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+    (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer
 
-# News and Updates
+    (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+    (3) Neither the name of the University of California, Lawrence Berkeley National Laboratory, U.S. Department of Energy nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+### News and Updates
+
 Newly added are capabilities for 1D and 2D fully transient unsaturated flow based on the Richards equation (courtesy Toshi Bandai).  Check out Ex13UnsaturatedFlow, Ex14UnsaturatedFlow_evaporation, and Ex15UnsaturatedFlow_transient...
 
-# Installation
-Do not use petsc-3.22 with CrunchFlow, since the newly developed PETSc Fortran hooks there do not work.  Instead, use petsc-3.21. 
+### Installation
 
-git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
+Do not use petsc-3.22 with CrunchFlow, since the newly developed PETSc Fortran hooks there do not work.  Instead, use petsc-3.21.
 
-# Compilation
+    git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
+
+### Compilation
+
 For fully optimized production code, be sure to configure PETSc with "--with-debugging=0" and make sure the CrunchTope Makefile includes the -O3 flag for maximum optimization.
 
-FFLAGS  = -w -O3 -ffpe-trap=invalid,overflow,zero 
+    FFLAGS  = -w -O3 -ffpe-trap=invalid,overflow,zero 
 
-# RunTime
+### RunTime
+
 ---> Add "H2O" to the end of the list of PRIMARY SPECIES.  
 ---> Add also to each of the CONDITION blocks  "H2O  55.50843506"
 
-# INPUT FILE KEYWORD BLOCKS
+### Input File Keyword Blocks
 
-CrunchFlow reads a user-provided input file on startup which provides 
+CrunchFlow reads a user-provided input file on startup which provides
 the necessary physical and chemical parameters needed for a run.
-The input file, the name of which is specified by the user, is 
+The input file, the name of which is specified by the user, is
 keyword-based so that the order of appearance does not matter.
-Keywords are grouped broadly into keyword blocks, which in turn 
+Keywords are grouped broadly into keyword blocks, which in turn
 include a variety of keyword parameters.
 
-The possible keyword blocks in the input file include (see Markdown files for each Keyword Block in [GitHubCrunchTope\docs\input_file:](https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file):
+The possible keyword blocks in the input file include
+[ see markdown files for each Keyword Block in
+(https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file) ].
 
-```
-TITLE
-RUNTIME
-OUTPUT
-PRIMARY_SPECIES
-SECONDARY_SPECIES
-GASES
-MINERALS
-AQUEOUS_KINETICS
-ION_EXCHANGE
-SURFACE_COMPLEXATION
-DISCRETIZATION
-INITIAL_CONDITIONS
-BOUNDARY_CONDITIONS
-TRANSPORT
-FLOW
-POROSITY
-TEMPERATURE
-PEST
-CONDITION
- 
+    TITLE
+    RUNTIME
+    OUTPUT
+    PRIMARY_SPECIES
+    SECONDARY_SPECIES
+    GASES
+    MINERALS
+    AQUEOUS_KINETICS
+    ION_EXCHANGE
+    SURFACE_COMPLEXATION
+    DISCRETIZATION
+    INITIAL_CONDITIONS
+    BOUNDARY_CONDITIONS
+    TRANSPORT
+    FLOW
+    POROSITY
+    TEMPERATURE
+    PEST
+    CONDITION
+
 With the exception of the keyword block CONDITION, the blocks should 
 appear only once in the input file. Each keyword block is terminated by 
 an END. The keyword block CONDITION is a special case in that it can 
 occur multiple times. Each occurrence of CONDITION specifies a separate 
 geochemical condition.
 
-# Shortcourses/Lectures
-Check back for announcements of upcoming shortcourses and/or lectures taught by the code developers.
-In the meantime, check out the shortcourse exercises found in CrunchTope/Exercises and described in docs 
-      https://github.com/CISteefel/CrunchTope/blob/master/docs/CrunchCourseExerciseDescriptions.pdf
+### Shortcourses/Lectures
+Check back for announcements of upcoming shortcourses and/or lectures taught by the code developers. In the meantime, check out the shortcourse exercises found in CrunchTope/Exercises and described in "CrunchTope/docs/CrunchCourseDescriptions.pdf" (https://github.com/CISteefel/CrunchTope/blob/master/docs/CrunchCourseExerciseDescriptions.pdf).
 
-# Citations
+### Citations
 Steefel, C.I., Appelo, C.A.J., Arora, B., Jacques, D., Kalbacher, T., Kolditz, O., Lagneau, V., Lichtner, P.C., Mayer, K.U., Meeussen, J.C.L. and Molins, S., Moulton, D., Shao, H., Simunek, J., Spycher, N., Yabusaki, S.B., Yeh, G.T. (2015) Reactive transport codes for subsurface environmental simulation. Computational Geosciences, 19, pp.445-478.
 
 Steefel, C.I. (2019) Reactive transport at the crossroads. Reviews in Mineralogy and Geochemistry 85: 1-26.
