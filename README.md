@@ -34,6 +34,44 @@ FFLAGS  = -w -O3 -ffpe-trap=invalid,overflow,zero
 ---> Add "H2O" to the end of the list of PRIMARY SPECIES.  
 ---> Add also to each of the CONDITION blocks  "H2O  55.50843506"
 
+# INPUT FILE KEYWORD BLOCKS
+
+CrunchFlow reads a user-provided input file on startup which provides 
+the necessary physical and chemical parameters needed for a run.
+The input file, the name of which is specified by the user, is 
+keyword-based so that the order of appearance does not matter.
+Keywords are grouped broadly into keyword blocks, which in turn 
+include a variety of keyword parameters.
+
+The possible keyword blocks in the input file include (see Markdown files for each Keyword Block in [GitHubCrunchTope\docs\input_file:](https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file):
+
+```
+TITLE
+RUNTIME
+OUTPUT
+PRIMARY_SPECIES
+SECONDARY_SPECIES
+GASES
+MINERALS
+AQUEOUS_KINETICS
+ION_EXCHANGE
+SURFACE_COMPLEXATION
+DISCRETIZATION
+INITIAL_CONDITIONS
+BOUNDARY_CONDITIONS
+TRANSPORT
+FLOW
+POROSITY
+TEMPERATURE
+PEST
+CONDITION
+ 
+With the exception of the keyword block CONDITION, the blocks should 
+appear only once in the input file. Each keyword block is terminated by 
+an END. The keyword block CONDITION is a special case in that it can 
+occur multiple times. Each occurrence of CONDITION specifies a separate 
+geochemical condition.
+
 # Shortcourses/Lectures
 Check back for announcements of upcoming shortcourses and/or lectures taught by the code developers.
 In the meantime, check out the shortcourse exercises found in CrunchTope/Exercises and described in docs 

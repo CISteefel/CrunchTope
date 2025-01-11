@@ -1,104 +1,75 @@
-# Porosity Block
+### POROSITY {#porosity .SteefelHeading3}
 
+This keyword block is used to set parameters and options related to the
+treatment of the porosity. The main contrast is between simulations in
+which the porosity is fixed and those in which it evolves as the mineral
+volume fractions evolve.
 
-This keyword block is used to set parameters and options related to the treatment of the porosity.
-The main contrast is between simulations in which the porosity is fixed and those in which it evolves as the mineral volume fractions evolve.
+#### **Fix_porosity** {#fix_porosity .SteefelHeading4}
 
+Keyword followed by a value giving the default fixed porosity.
 
-[Basic keywords](#basic-keywords)
-- [fix_porosity](#fix_porosity)
-- [minimum_porosity](#minimum_porosity)
-- [porosity_update](#porosity_update)
-- [read_PorosityFile](#read_porosityfile)
+Syntax:  **fix_porosity** *value*
 
-## Basic keywords
+<u> Default </u>:  If not provided, the code calculates porosity
+based on the mineral volume fractions.
 
-### fix_porosity
+Explanation:  The keyword parameter *fix_porosity* is used
+to set a global fixed porosity for a simulation. When provided, it
+disables the calculation of porosity based on the sum of the volume
+fractions. Accordingly, no porosity update based on these quantities is
+possible. When this parameter is set in the POROSITY keyword block,
+*set_porosity* keywords within individual geochemical conditions can be
+used once the geochemical condition is distributed in space within the
+INITIAL_CONDITION keyword block.
 
-#### Syntax
-```
-fix_porosity  [value]
-```
-[value] is a real number (Default:  If not provided, the code calculates porosity based on the mineral volume fractions).
+#### **Minimum_porosity** {#minimum_porosity .SteefelHeading4}
 
+Keyword giving the minimum porosity value that is allowed as the mineral
+volume fractions evolve.
 
-#### Explanation
-The keyword parameter fix_porosity is used to set a global fixed porosity for a simulation.
-When provided, it disables the calculation of porosity based on the sum of the volume fractions.
-Accordingly, no porosity update based on these quantities is possible.
-When this parameter is set in the POROSITY keyword block, set_porosity keywords within individual geochemical conditions can be used once the geochemical condition is distributed in space within the INITIAL_CONDITION keyword block.
+Syntax:  **minimum_porosity** *value*
 
-#### Example
+<u> Default </u>: 10^-14^
 
-```
-fix_porosity   0.45
-```
+Explanation:  This keyword is only used to set a minimum to
+which the porosity can evolve as the mineral volume fractions change.
+This option is only used where *porosity_update* is true and neither
+*fix_porosity* nor *read_porosity* are set.
 
-### minimum_porosity
+#### **Porosity_update** {#porosity_update .SteefelHeading4}
 
-#### Syntax
-```
-minimum_porosity  [value]
-```
-[value] is a real number (Default: $10^{-14}$).
+Keyword followed by a logical (true or false) used to determine whether
+the porosity is updated as the mineral volume fractions evolve.
 
-#### Explanation
-This keyword is only used to set a minimum to which the porosity can evolve as the mineral volume fractions change.
-This option is only used where porosity_update is true and neither fix_porosity nor read_porosity are set.
+Syntax:  **porosity_update** *logical*
 
-#### Example
+<u> Default </u>: *False*
 
-```
-minimum_porosity   1e-3
-```
+Explanation:  This keyword is only used where neither the
+fix_porosity or read_porosity keywords have been set. When true, it
+instructs the code to update the porosity as the mineral volume
+fractions evolve according to
 
-### porosity_update
+$$\phi = \sum_{m = 1}^{Nm}{1 - \phi_{m}},$$
 
-#### Syntax
-```
-porosity_update [logical]
-```
-[logical] = true or yes or false or no (Default=false) 
+where *N~m~* is the number of minerals in the system and $\phi_{m}$ is
+the volume fraction of the individual mineral.
 
-#### Explanation
-This keyword followed by a logical (true or yes or false or no) and is used to determine whether the porosity is updated as the mineral volume fractions evolve.
-This keyword is only used where neither the fix_porosity nor read_porosity keywords have been set.
-When true, it instructs the code to update the porosity as the mineral volume fractions evolve according to
-$$\phi = \sum_{n=1}^{N_m} 1 - \phi_m$$
-where $N_m$ is the number of minerals in the system and $\phi_m$ is the volume fraction of the individual mineral.
+#### **Read_PorosityFile** {#read_porosityfile .SteefelHeading4}
 
-#### Example
+Keyword followed by a file name containing permeability values over the
+entire spatial domain.
 
-```
-porosity_update true
-```
+Syntax:  **read\_ PorosityFile** *filename format*
 
-### read_PorosityFile
+[Backwards compatible:]{.underline} **read\_ porosity**
 
-#### Syntax
-```
-read_PorosityFile [filename] [format]
-```
-[filename] gives the name of the file (up to 132 characters) containing temperatures distributed in space to be read (Default: none). 
-[format]= SingleColumn, ContinuousRead, FullFormat, or Unformatted (Default: SingleColumn) 
+<u> Default </u>: *None*
 
-#### Explanation
-This keyword provides the name of file containing porosity values defined at the center of the grid cell for the entire spatial domain.
-This option supersedes all other temperature specifications (???).
-The format of the file depends on the optional format specified (see Format of Additionnal Input Files).
-If no format is specified, the code assumes a single column (SingleColumn) of values in the order 1-NX, 1-NY, 1-NZ:
-```
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO jx = 1,nx
-      READ(52,*) p(jx,jy,jz)
-    END DO
-  END DO
-END DO
-```
-
-#### Example
-
-```
-read_PorosityFile MyPorosityFile.dat ContinuousRead
-```
+Explanation:  This keyword provides the name of file
+containing porosity values defined at the center of the grid cell for
+the entire spatial domain. The format of the file depends on the file
+format specified. In none is provided, a single column format consisting
+of a single porosity per line, with NX varying first, then NY, and then
+NZ is assumed.
