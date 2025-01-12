@@ -46,8 +46,8 @@ The possible keyword blocks in the input file include
 [ see markdown files for each Keyword Block in
 (https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file) ].
 
-    TITLE 
-    [RUNTIME](./doc/input_file/runtime.md)
+	TITLE 
+ 	[RUNTIME](./doc/input_file/runtime.md)
     [OUTPUT](./doc/input_file/output.md)
     [PRIMARY_SPECIES](./doc/input_file/output.md)
     [SECONDARY_SPECIES](./doc/input_file/secondary_species,md)
