@@ -1,15 +1,15 @@
-### EROSION {#erosion .SteefelHeading3}
+## EROSION
 
-#### **Read_BurialFile** {#read_burialfile .SteefelHeading4}
+#### Read_BurialFile
 
 Keyword followed by a file name containing erosion/burial values over
 the X direction.
 
-Syntax:  **read_BurialFile** *filename format*
+Syntax:  &nbsp; read_BurialFile &nbsp; *filename format*
 
-[Backwards compatibility:]{.underline} **read_burial**
+<u> Backwards compatibility </u>: &nbsp; read_burial
 
-<u> Default </u>: *None*
+<u> Default </u>: &nbsp; *None*
 
 Explanation:  This keyword provides a name for a file
 containing burial/erosion rates values in the X coordinate direction.
@@ -23,6 +23,6 @@ listed with NX varying first, then NY, and then NZ. For those familiar
 with FORTRAN and using the *SingleColumn* format (the default), the
 actual source code is:
 
-Do jx = 0,nx\
-READ(52,\*) FluidBuryX(jx,jy,jz),SolidBuryX(jx,jy,jz)\
-End Do
+    Do jx = 0,nx
+      READ(52,*) FluidBuryX(jx,jy,jz),SolidBuryX(jx,jy,jz)
+    End Do

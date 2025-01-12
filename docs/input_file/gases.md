@@ -26,29 +26,26 @@ condition.
 
 For unsaturated transport and gas-liquid partitioning, gases must be
 explicitly entered. In the case of unsaturated transport and reaction,
-an actual mass balance on the individual gas concentrations is carried
-out.
+an actual mass balance based on the individual gas concentrations is carried
+out based on the ideal gas law.
 
 If the *database_sweep* option is specified, then the code will
 automatically sweep the thermodynamic database looking for relevant
 gases based on the user's choice of primary species. Any entries in the
 **GASES** keyword block will be ignored in this case. These will then be
-listed in the standard output file "'input filename prefix'.out".
+listed in the standard output file "*input filename prefix*.out".
 
 #### Database Format
 
 The format for gases in the database is similar to that of the secondary
 species:
 
-\<'Gas' \> \<Molar volume (not currently used by code)\> \<Number of
-species in reaction (integer) \> \<Stoichiometric coefficient\>
-\<'SpeciesName'\> \<Stoichiometric coefficient\> \<'SpeciesName'\>
-...\<Log K array\> \<Molecular weight\>
+    <'Gas'>  <Molar volume> <Number of species in reaction (integer)> <Stoichiometric coefficient> <'SpeciesName'> <Stoichiometric coefficient> <'SpeciesName'> ... <Log K array> <Molecular weight>
 
 #### Input File Entry of Secondary Species
 
 Gases are input as a simple list, with one gas per line of the **GASES**
 keyword block. If the database sweep option has been chosen previously,
-the list of gases written to the file "'input filename prefix'.out" may
+the list of gases written to the file "*input filename prefix*.out" may
 be copied from this file and then pasted directly into the **GASES**
 block.

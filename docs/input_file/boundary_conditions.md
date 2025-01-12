@@ -1,14 +1,14 @@
-# Boundary Conditions Block
+## Boundary Conditions Block
 
 Boundary conditions are required for any problem involving transport.
 The input currently involves specifying boundary conditions, corresponding 
 essentially to "ghost cells" outside of the domain. Two possible approaches are possible:  1) grid cell by grid cell specific zones along boundary (recommended), or 2) the legacy approach in which a single boundary condition is applied across the entire face. 
 
 The preferred way to specify boundary conditions is
-```
+
      boundarycondition   condition_name  zone [jxbegin-jxend   jybegin-jyend jzbegin-jzend]  boundary_condition_type 
      boundarycondition   condition_name  zone [jxbegin-jxend   jybegin-jyend   jzbegin-jzend]  boundary_condition_type 
-```
+     
 <u> Default:</u> &nbsp; None. All grid cells along a face must be specified.
 
 Alternatively, the legacy approach can be used, but this is deprecated since it does not allow for heterogeneity along the boundary.

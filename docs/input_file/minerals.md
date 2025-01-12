@@ -1,4 +1,4 @@
-### MINERALS
+## MINERALS
 
 The keyword block **MINERALS** refers to any solid-aqueous phase
 heterogeneous reaction, mineral-water reactions being the most common of
@@ -20,16 +20,14 @@ are large relative to transport rates.
 
 #### Database Formats
 
-<u> Thermodynamic Database Entries </u>
+##### Thermodynamic Database Entries
 
 The thermodynamic database for solid-liquid phase reactions begins with
 a separate line for each entry, with the mineral or solid name being
 enclosed in single quotes. This is followed by the molar volume of the
 mineral in units of cm3/mole.
 
-\<'MineralName' \> \<Molar Volume\> \<Number of species in reaction\>
-\<Stoichiometric coefficient\> \<'SpeciesName'\> \<Stoichiometric
-coefficient\> \<'SpeciesName'\> ...\<Log K array\> \<Molecular Weight\>
+    <'MineralName' > <Molar Volume> <Number of species in reaction> <Stoichiometric coefficient> <'SpeciesName'> <Stoichiometric coefficient> <'SpeciesName'> ...<Log K array> <Molecular Weight>
 
 In this format, the number of pairs of stoichiometric coefficients and
 species names is determined by the preceding value in "Number of species
@@ -39,13 +37,11 @@ length of the "Log K" array is given by the number following
 
 An example is given by the entries for quartz and calcite:
 
-> \'Quartz\' 22.6880 1 1.00 \'SiO2(aq)\' -4.6319 -3.9993 -3.4734 -3.0782
-> -2.7191 -2.4378 -2.2057 -2.0168 60.0843
->
-> \'Calcite\' 36.9340 3 -1.00 \'H+\' 1.00 \'Ca++\' 1.00 \'HCO3-\' 2.2257
-> 1.8487 1.3330 0.7743 0.0999 -0.5838 -1.3262 -2.2154 100.0872
+    'Quartz' 22.6880 1 1.00 'SiO2(aq)' -4.6319 -3.9993 -3.4734 -3.0782 -2.7191 -2.4378 -2.2057 -2.0168 60.0843
 
-<u> Kinetic Database Entries </u>
+    'Calcite' 36.9340 3 -1.00 'H\' 1.00 'Ca++' 1.00 'HCO3-' 2.2257 1.8487 1.3330 0.7743 0.0999 -0.5838 -1.3262 -2.2154 100.0872
+
+##### Kinetic Database Entries
 
 The kinetic database entries include information on rate formulations
 and coefficients to be used in a simulation. Some of these values can be
@@ -56,7 +52,7 @@ the particular reaction, even if some of the values are not used. The
 beginning of the section on solid-liquid phase kinetics in the database
 is marked by the string:
 
-> Begin mineral kinetics
+    > Begin mineral kinetics
 
 which is not enclosed in quotes. Each entry is delimited by a line
 beginning with a "+" which speeds up the database searching. This is
@@ -78,12 +74,12 @@ after the fifth line depending on the type of reaction involved (see
 below), all of the solid-liquid phase kinetic entries have a common
 input format for the first five lines following the "+" separator:
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> Calcite\
-> label = \<name\>\
-> type = \<type of reaction\>\
-> rate(25C) = \<rate at 25C in log (base 10) units\>\
-> activation = \<activation energy (kcal/mole)\>
+    +---------------------------------------------------
+    Calcite
+    label = <name>
+    type = <type of reaction>
+    rate(25C) = <rate at 25C in log (base 10) units>
+    activation = <activation energy (kcal/mole)>
 
 The "label" option can be used to construct an overall rate of reaction
 that is the sum of a number of parallel reaction pathways. An example
@@ -96,16 +92,16 @@ calcite will be given.
 Several types of reactions may be specified. The five options currently
 available are:
 
-type = tst\
-type = monod\
-type = irreversible\
-type = PrecipitationOnly\
-type = DissolutionOnly\
-type = MonodBiomass
+- type = tst
+- type = monod
+- type = irreversible
+- type = PrecipitationOnly
+- type = DissolutionOnly
+- type = MonodBiomass
 
 and are described briefly below.
 
-*TST:* These three different reaction types involve different kinds of
+<u>TST:</u> &nbsp; These three different reaction types involve different kinds of
 input following the "rate(25C)" because of the difference in the rate
 formulations. The "tst" rate law is described in detail by Lasaga (1981;
 1984) and by Aagaard and Helgeson (1981) and takes the form:
@@ -115,22 +111,21 @@ R = A_{m}k_{m}\exp\left\lbrack \frac{- E_{a}}{RT} \right\rbrack\prod_{}^{}a_{i}^
 g \equiv \frac{\Delta G}{RT} = \ln\left\lbrack \frac{Q}{K_{eq}} \right\rbrack
 \end{matrix}$$
 
-where A~m~ is the mineral surface area, k~m~ is the intrinsic rate
-constant in units of mol/m^2^/s, E~a~ is the activation energy
-(kcal/mole), Q~m~ is the ion activity product for the mineral-water
-reaction, K~eq~ is the corresponding equilibrium constant, and
-$\prod_{}^{}a_{i}^{n}$is a product representing the inhibition or
+where $A_m$ is the mineral surface area, $k_m$ is the intrinsic rate
+constant in units of mol/m^2^/s, $E_a$ is the activation energy
+(kcal/mole), $Q_m$ is the ion activity product for the mineral-water
+reaction, $K_{eq}$ is the corresponding equilibrium constant, and
+$\prod_{}^{}a_{i}^{n}$ is a product representing the inhibition or
 catalysis of the reaction by various ions in solution raised to the
 power n. Note that this last term operates far from equilibrium, that
-is, when Q~m~/K~eq~ is very small (i.e., the mineral is very
+is, when $Q_m/K_m$ is very small (i.e., the mineral is very
 undersaturated).
 
 Following the specification of the activation energy is the
 specification of the dependences of the far from equilibrium rate on
 various species in solution:
 
-dependence : \<species name\> \<exponent\> \<species name\> \<exponent\>
-...
+    dependence : <species name> <exponent> <species name> <exponent>
 
 The dependence of the far from equilibrium rate is given by pairs of
 species names in free format followed by the appropriate exponent.
@@ -138,28 +133,28 @@ species names in free format followed by the appropriate exponent.
 An example of a database input which provides both pH dependent and pH
 independent calcite dissolution rates is given below:
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> Calcite\
-> label = default\
-> type = tst\
-> rate(25C) = -6.19\
-> activation = 15.0 (kcal/mole)\
-> dependence :\
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> Calcite\
-> label = h+\
-> type = tst\
-> rate(25C) = -3.00\
-> activation = 15.0 (kcal/mole)\
-> dependence : H+ 1.0
+    +------------------------------------------------------
+    Calcite
+    label = default
+    type = tst
+    rate(25C) = -6.19
+    activation = 15.0 (kcal/mole)
+    dependence :
+    +------------------------------------------------------
+    Calcite
+    label = h+
+    type = tst
+    rate(25C) = -3.00
+    activation = 15.0 (kcal/mole)
+    dependence : H+ 1.0
 
 A general form for a dependence on reaction affinity (or Gibbs free
 energy) is given following that given in Burch et al (1993) and Hellmann
 and Tisserand (2006). The affinity dependence of the rate is defined
-with the parameters *m~1~, m~2~, and m~3~*. A more familiar form would
+with the parameters $m_1$, $m_2$, and $m_3$. A more familiar form would
 be:
 
-$$R = \left\lbrack 1 - \left( m3\frac{Q}{K_{eq}} \right)^{m_{2}} \right\rbrack^{m_{1}}$$
+$$R = \left\lbrack 1 - \left( m2\frac{Q}{K_{eq}} \right)^{m_{3}} \right\rbrack^{m_{1}}$$
 
 The form in the database is
 
@@ -201,7 +196,7 @@ terms", that is, the dependence of the reaction rate on electron
 acceptors and/or electron donors. The specification of Monod terms takes
 the form:
 
-    monod_terms : <electron donor or acceptor> <half-saturation constant> 
+    monod_terms : <electron donor or acceptor> <half-saturation constant>
 
 The half-saturation constant is assumed to be in concentration units of
 moles/kg water. This in turn is followed by a field for the
@@ -425,7 +420,7 @@ Previously, it was possible to specify a threshold for nucleation, but
 implemented in the simple fashion in which it was, numerical convergence
 was poor due to the discontinuity in rates across the nucleation
 threshold. The Newton method for nonlinear equations performs poorly
-with functions that are not continuously differentiable. 
+with functions that are not continuously differentiable.
 
 For the case of linear kinetics, the code uses an analytical expression
 for the approach to equilibrium that is continuously differentiable,

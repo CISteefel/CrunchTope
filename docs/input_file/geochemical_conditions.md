@@ -1,4 +1,4 @@
-### GEOCHEMICAL CONDITIONS
+## GEOCHEMICAL CONDITIONS
 
 Geochemical conditions are keyword blocks which may occur more than once
 and are used to set up boundary and initial conditions and source terms.
@@ -38,9 +38,9 @@ Table 3: Options for specifying concentrations in geochemical conditions
   | parts per million   | ppm                  |
 
 In each case, the use of the "ppm" units refers to the parts per million
-of the solute using the molecular weight.of the primary species to which
-it refers. Therefore, if the primary species is NO$_3^-$, then the
-concentration in ppm is calculated using the molecular weight of NO$_3^-$
+of the solute using the molecular weight of the primary species to which
+it refers. Therefore, if the primary species is $NO_3^-$, then the
+concentration in ppm is calculated using the molecular weight of $NO_3^-$
 (not, for example, using N).
 
 #### Equilibrate_surface
@@ -77,13 +77,13 @@ condition.
 
     Syntax:  set_porosity <value>
 
-<u> Default </u>:  Provided by value in POROSITY keyword block
+<u> Default </u>: &nbsp;  Provided by value in POROSITY keyword block
 
 Explanation:  This keyword overrides the value set in the
 **POROSITY** keyword block. If absent in the CONDITION, that value is used for the
 geochemical condition.
 
-<u>NOTE:</u> This option only works if **fix_porosity** is set
+<u>NOTE:</u> &nbsp; This option only works if **fix_porosity** is set
 in the **POROSITY** keyword block. Otherwise, porosity is calculated
 from the 1 minus the sum of the volume fractions of the minerals.*
 
@@ -94,7 +94,7 @@ condition.
 
     Syntax:  set_saturation <value>
 
-<u> Default </u>:  Provided by value in RUNTIME keyword block,
+<u> Default </u>: &nbsp; Provided by value in RUNTIME keyword block,
 otherwise 1.0
 
 Explanation:  This keyword overrides the value set in the
@@ -162,11 +162,11 @@ the user follows the concentration value with the keyword
 *equilibrate_surface* as in the first three entries of the following
 example:
 
->     Am+++ 1.00e-10 equilibrate_surface
->     Np++++ 1.00e-10 equilibrate_surface
->     Pu++++241 1.00e-10 equilibrate_surface
->     K+ 8.70e-5
->     Mg++ 2.06e-5
+    Am+++ 1.00e-10 equilibrate_surface
+    Np++++ 1.00e-10 equilibrate_surface
+    Pu++++241 1.00e-10 equilibrate_surface
+    K+ 8.70e-5
+    Mg++ 2.06e-5
 
 In this example, the Am, Np, and Pu will be partitioned between the
 aqueous phase and the exchange and surface hydroxyl sites (if present),
@@ -181,7 +181,7 @@ Since the total concentration constraint is considered the default, it
 is necessary to specify the keyword species after the concentration
 value:
 
-     <PrimarySpeciesName> <Concentration> species
+    <PrimarySpeciesName> <Concentration> species
 
 #### Species Activity Constraint
 
@@ -302,14 +302,14 @@ hydroxyl sites per volume porous medium.
 The two surface area options lead to different methods for computing
 mineral surface area as a function of time.
 
-[Bulk surface area:]{.underline} In the case where the bulk surface area
+<u>Bulk surface area:</u> &nbsp; In the case where the bulk surface area
 is specified, the reactive surface area of a solid phase as a function
 of time is calculated according to:
 
-$$A_{bulk} = A_{bulk}^{initial}\left( \frac{\phi_{m}}{\phi_{m}^{initial}} \right)^{2/3}\left( \frac{\phi}{\phi_{}^{initial}} \right)^{2/3}$
+$$A_{bulk} = A_{bulk}^{initial}\left( \frac{\phi_{m}}{\phi_{m}^{initial}} \right)^{2/3}\left( \frac{\phi}{\phi_{}^{initial}} \right)^{2/3}
 (dissolution)$$
 
-$$A_{bulk} = A_{bulk}^{initial}\left( \frac{\phi}{\phi_{}^{initial}} \right)^{2/3}$
+$$A_{bulk} = A_{bulk}^{initial}\left( \frac{\phi}{\phi_{}^{initial}} \right)^{2/3}
 (precipitation)$$
 
 where $\phi$ refers to the porosity and $\phi_{m}$ refers to the
@@ -326,7 +326,7 @@ calculating the reduction in surface area of a secondary phase if later
 dissolution occurs. More accurate for secondary minerals (and therefore
 recommended) is the use of specific surface area.
 
-[Specific surface area:]{.underline} When specific surface area is
+<u>Specific surface area:</u> &nbsp; When specific surface area is
 selected in the input file, the reactive surface area used for mineral
 precipitation and dissolution is calculated from:
 
@@ -351,14 +351,14 @@ surface area until the computed time-evolving volume fraction exceeds
 the threshold value. A threshold value for the case of an initial volume
 fraction = 0 is set by
 
-    <name of solid phase> 0.0 specific_surface_area <value> <threshold volume fraction>
+     <name of solid phase> 0.0 specific_surface_area <value> <threshold volume fraction>
 
 So, for example, we could specify that the bulk surface area of calcite
 (which is initially not present) be calculated from a threshold volume
 fraction of 0.0001 and a specific surface area of 2 m^2^/g with the
 following form:
 
-    Calcite 0.0 specific_surface_area 2.0 0.0001
+     Calcite 0.0 specific_surface_area 2.0 0.0001
 
 With this formulation, the bulk surface area of calcite would be
 calculated directly from the calcite volume fraction and specific
@@ -381,7 +381,7 @@ $$C_{sites}^{\ }\  = \frac{\rho_{sites}A_{specific}MW_{m}\phi_{m}}{V_{m}}$$
 
 The format for inputting the molar density of sites is (mol/m^2^):
 
-    <Surface complex> Value
+     <Surface complex> Value
 
 #### Exchanger Concentrations
 
@@ -395,7 +395,7 @@ phase (e.g., clay as a result of chemical weathering or Fe-oxyhydroxide
 as a result of corrosion) will increase the cation exchange capacity of
 the bulk material.
 
-*Exchange on bulk material*: This option is used where no specific
+<u>Exchange on bulk material:</u> &nbsp; This option is used where no specific
 mineral has been identified as the exchanger phase using the *on
 mineral* syntax in the **ION_EXCHANGE** keyword block. To calculate
 total concentration of exchange sites per bulk porous medium, the cation
@@ -406,7 +406,7 @@ This information must be provided in each geochemical
 To specify the cation exchange capacity associated with each exchanger
 in a geochemical condition, the following syntax is used:
 
-    Exchanger -cec Value
+     Exchanger -cec Value
 
 where the CEC is given in units of equivalents per gram solid. The name
 of the exchanger must correspond to one of those identified in the
@@ -416,17 +416,17 @@ Solid density may be specified one of three ways:
 
 1.  Direct specification of the bulk solid density (kg/m^3^)
 
->     SolidDensity Value
+    SolidDensity Value
 
 2.  Specification of the solid:solution ratio (g/kg water \~ g/L):
 
->     SolidDensity -ss_ratio Value
+    SolidDensity -ss_ratio Value
 
 3.  Calculation based on the sum of the mineral volume fractions:
 
->     SolidDensity CalculateFromMinerals
+    SolidDensity CalculateFromMinerals
 
-*Exchange on a specfic mineral:* Here, the total number of equivalents
+<u>Exchange on a specfic mineral:</u> &nbsp; Here, the total number of equivalents
 of exchange sites is calculated from the combination of the mineral
 volume fraction and the cation exchange capacity per gram of that
 mineral. The solid density, therefore, is not relevant (the keyword is

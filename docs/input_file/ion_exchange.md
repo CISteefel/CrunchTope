@@ -7,8 +7,8 @@ generic form as
 
 $$vACl_{u}(aq) + uBX_{\nu}(s) \leftrightarrow uBCl_{\nu}(aq) + vAX_{u}(s)$$
 
-where X refers to the exchange site occupied by the cations A$^{u+}$ and
-B$^{v+}$. The equilibrium constant, K$_{eq}$, for this reaction can be
+where X refers to the exchange site occupied by the cations $A^{u+}$ and
+$B^{v+}$. The equilibrium constant, $K_{eq}$, for this reaction can be
 written as (Vanselow, 1932)
 
 $$K_{eq} = \frac{(BCl_{\nu})^{u}(AX_{u})^{\nu}}{(ACl_{u})^{\nu}(BX_{\nu})^{u}}$$
@@ -17,11 +17,11 @@ where the parentheses () refer to the thermodynamic activities. Several
 activity conventions are in wide use. One possibility is the
 Gaines-Thomas activity convention, which assumes a reaction
 stoichiometry of the following form (Appelo and Postma,1993), written
-here assuming the Cs$^+$ is the relevant cation of interest
+here assuming the $Cs^+$ is the relevant cation of interest
 
 $$Cs^{+} + \frac{1}{m}MX(i)_{m} \leftrightarrow CsX(i) + \frac{1}{m}M^{m +}$$
 
-where *M* is the competing cation (Na$^{+}$, K$^{+}$, Ca$^{2+}$), *m* is its
+where *M* is the competing cation ($Na^{+}$, $K^{+}$, $Ca^{2+}$), *m* is its
 charge, and *X(i)* refers to the *i*th type of exchange site. In the
 Gaines-Thomas convention, each exchange site, *X(i),* has a charge of
 -1. The activities of adsorbed species correspond to the charge
@@ -29,7 +29,7 @@ equivalent fractions, $\beta(i)_{M}$,
 
 $$\beta(i)_{M} = \frac{z_{M}q(i)_{M}}{\sum_{M}^{}{z_{M}q(i)_{M}}} = \lbrack X(i)_{M}\rbrack$$
 
-where z$^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
+where $z^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
 of adsorbed cation *M* in exchange site *i* (moles/g), and the square
 brackets denote activities. The Gapon activity convention is obtained by
 writing the reactions in every case with a single exchanger (Appelo and
@@ -61,8 +61,7 @@ where *exchanger_name* is the name of the exchanger given in the
 database. Multiple exchangers can be listed. If the exchanger name is
 not followed by anything, it is assumed that exchange is on the bulk
 material, in which case a CEC is calculated from the combination of the
-solid phase density, porosity, and liquid saturation (see Section
-1.2.14). Alternatively, it is possible to specify exchange on a specific
+solid phase density, porosity, and liquid saturation. Alternatively, it is possible to specify exchange on a specific
 mineral, in which case the CEC is calculated from the volume fraction of
 the mineral, which may change with time, for example:
 
@@ -73,4 +72,4 @@ Also required is the keyword *convention*
     convention activity_convention
 
 where activity_convention must be either *Gaines-Thomas* (of which Gapon
-is a variant) or *Vanselow*.
+is a variant where the reaction is written with a single exchange site) or *Vanselow*.

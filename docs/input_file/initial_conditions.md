@@ -1,4 +1,4 @@
-### INITIAL_CONDITIONS
+## INITIAL_CONDITIONS
 
 In order to run a reactive transport or a reaction path calculations,
 initial conditions must be set. Even in the case where the desired
@@ -15,19 +15,19 @@ where the initial condition is to be set. The initial condition can be
 fixed for the entire course of the simulation using the optional
 appended keyword *fix*.
 
-<u> Syntax: </u>  condition_name JX-JX \[JY-JY\] \[JZ-JZ\] \[fix\]*
+<u> Syntax:</u>  &nbsp; condition_name JX-JX \[JY-JY\] \[JZ-JZ\] \[fix\]*
 
-<u> Default </u>: None.
+<u> Default:</u> &nbsp; None.
 
-Explanation:  Using this keyword block, geochemical
+*Explanation:*  &nbsp; Using this keyword block, geochemical
 conditions are distributed over the spatial domain. Multiple
 specifications can occur. Initial conditions listed later in the input
 file will overwrite conditions specified above. The optional parameter
 fix can be appended to the output so as to fix this geochemical
 condition for the entire course of the simulation. The code now assumes
 that if fix appears, it will occur immediately after the specification
-of the X coordinates (JX) in a 1D problem, immediately after the Y
-coordinates (JY) in a 2D problem, and after the Z coordinate (JZ) in the
+of the X coordinates (*jx*) in a 1D problem, immediately after the Y
+coordinates (*jy*) in a 2D problem, and after the Z coordinate (*jz*) in the
 case of a 3D problem. In the example below, the code will verify that
 the geochemical condition names (quartz_zone, portlandite_zone, and
 nonreactive_zone) have been provided in the input file. This keyword
@@ -36,10 +36,10 @@ the input file are read. The code will also verify that every grid cell
 in the domain is specified, implying that this block is read after the
 **DISCRETIZATION** keyword block.
 
-Example:
+*Example:*
 
->     INITIAL_CONDITIONS
->     quartz_zone 1-42 1-42
->     portlandite_zone 22-33 1-42
->     nonreactive_zone 42-42 42-42 fix
->     END
+    INITIAL_CONDITIONS
+    quartz_zone 1-42 1-42
+    portlandite_zone 22-33 1-42
+    nonreactive_zone 42-42 42-42 fix
+    END
