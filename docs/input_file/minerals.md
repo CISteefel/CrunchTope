@@ -158,38 +158,37 @@ $$R = \left\lbrack 1 - \left( m2\frac{Q}{K_{eq}} \right)^{m_{3}} \right\rbrack^{
 
 The form in the database is
 
-AffinityDependence = m1 m2 m3
+    AffinityDependence =  m1  m2  m3
 
 As an example, the rate law for albite dissolution proposed by Hellmann
 and Tisserand (2006) can be implemented by specifying two parallel rate
 laws
 
-> Albite\
-> label = HellmannFFE\
-> type = tst\
-> rate (25C) = -11.9897\
-> activation = 0.00 (kcal/mol)\
-> dependence :\
-> AffinityDependence = 1.00 0.0000798 3.81
+    Albite
+    label = HellmannFFE
+    type = tst
+    rate (25C) = -11.9897
+    activation = 0.00 (kcal/mol)
+    dependence :
+    AffinityDependence =  1.00  0.0000798  3.81
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
->
-> Albite\
-> label = HellmannCTE\
-> type = tst\
-> rate (25C) = -13.743\
-> activation = 0.00 (kcal/mol)\
-> dependence :\
-> AffinityDependence = 1.17 1.00 1.00
-
-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+    +------------------------------------------------------------
+    Albite
+    label = HellmannCTE
+    type = tst
+    rate (25C) = -13.743
+    activation = 0.00 (kcal/mol)
+    dependence :
+    AffinityDependence =  1.17  1.00  1.00
+    +------------------------------------------------------------
 
 Currently, it is only possible to specify a dependence on reaction
 affinity in the database. Only those rate laws in which a dependence on
 reaction affinity occurs (TST, PrecipitationOnly, and DissolutionOnly)
 will be affected.
 
-<u> Monod</u>:  Monod reactions take a slightly different form than
+##### Monod  
+Monod reactions take a slightly different form than
 do TST-type reactions. Following the specification of the activation
 energy, the Monod option has a field for inputting various "Monod
 terms", that is, the dependence of the reaction rate on electron
@@ -214,14 +213,14 @@ is to use a dual Monod form in which a dependence on an electron
 acceptor and on an electron donor are provided. An example involving
 aerobic respiration is given by:
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> CH2O\
-> label = aerobic_respiration\
-> type = monod\
-> rate(25C) = -9.699\
-> activation = 0.0\
-> monod_terms : O2(aq) 15.0e-06\
-> inhibition :
+    +------------------------------------------------------------
+    CH2O
+    label = aerobic_respiration
+    type = monod
+    rate(25C) = -9.699
+    activation = 0.0
+    monod_terms : O2(aq) 15.0e-06
+    inhibition :
 
 The inhibition terms take a similar (if inverted) hyperbolic
 mathematical form:
@@ -232,14 +231,15 @@ where K~in~ is the inhibition constant and C~i~ refers to the inhibiting
 species. An example involving denitrification is given in the following
 database input:
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> CH2O\
-> label = denitrification\
-> type = monod\
-> rate(25C) = -10.00 ! Regnier and Steefel (1999)\
-> activation = 0.0 (kcal/mole)\
-> monod_terms : NO3- 45.0e-06\
-> inhibition : O2(aq) 30.0e-06
+    +------------------------------------------------------------
+    CH2O
+    label = denitrification
+    type = monod
+    rate(25C) = -10.00 ! Regnier and Steefel (1999)
+    activation = 0.0 (kcal/mole)
+    monod_terms : NO3- 45.0e-06
+    inhibition : O2(aq) 30.0e-06
+    +------------------------------------------------------------
 
 Note that both of these forms are typical of those used for single as
 opposed to dual Monod formulations. In these cases, the organic carbon
@@ -247,7 +247,8 @@ is considered to be in excess of any limiting concentration. At this
 point, all Monod-type reactions are assumed to be irreversible (that is,
 no use is made of the equilibrium constants).
 
-[Irreversible]{.underline}: Irreversible reactions are the simplest kind
+##### Irreversible
+Irreversible reactions are the simplest kind
 in that no use is made of the equilibrium constants. The reactions are
 assumed to take the form
 
@@ -257,54 +258,56 @@ and are therefore similar to the TST form except that a dependence on
 the saturation state is missing. Because of the similarity to the TST
 reactions, the input is also similar, for example:
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> Iron\
-> label = tce\
-> type = irreversible\
-> rate(25C) = -6.92\
-> activation = 15.0 (kcal/mole)\
-> dependence : TCE(aq) 1.0
+    +------------------------------------------------------------
+    Iron
+    label = tce
+    type = irreversible
+    rate(25C) = -6.92
+    activation = 15.0 (kcal/mole)
+    dependence : TCE(aq) 1.0
+    +------------------------------------------------------------
 
 where the rate of dissolution of zero-valent iron is here considered to
 have a first-order dependence on the concentration of TCE in solution.
 
-<u>PrecipitationOnly</u>
+##### PrecipitationOnly
 
 Invoking this option in the database causes the code to calculate
 mineral precipitation only---dissolution is suppressed. An example is
 given by:
 
-> KaoliniteYang\
-> label = Yang\
-> type = PrecipitationOnly\
-> rate(25C) = -13.47\
-> activation = 0.0 (kcal/mole)\
-> dependence :\
-> AffinityDependence = 1.00  2.07468 -1.00000
->
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+    +------------------------------------------------------------
+    KaoliniteYang
+    label = Yang
+    type = PrecipitationOnly
+    rate(25C) = -13.47
+    activation = 0.0 (kcal/mole)
+    dependence :
+    AffinityDependence = 1.00   2.07468  -1.00000
+    +------------------------------------------------------------
 
-<u>DissolutionOnly</u>
+##### DissolutionOnly
 
 Invoking this option in the database causes the code to calculate
 mineral dissolution only---precipitation is suppressed. An example is
 given by:
 
-> KaoliniteYang\
-> label = Yang\
-> type = DissolutionOnly\
-> rate(25C) = -12.9393\
-> activation = 0.0 (kcal/mole)\
-> dependence :\
-> AffinityDependence = 1.00 0.5 1.00
->
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+    +------------------------------------------------------------
+    KaoliniteYang
+    label = Yang
+    type = DissolutionOnly
+    rate(25C) = -12.9393
+    activation = 0.0 (kcal/mole)
+    dependence :
+    AffinityDependence = 1.00 0.5 1.00
+    +------------------------------------------------------------
 
 This option is useful for specifying different rate laws for
-precipitation and dissolution where both PrecipitationOnly and
-DissolutionOnly are invoked separately for the same mineral.
+precipitation and dissolution where both *PrecipitationOnly* and
+*DissolutionOnly* are invoked separately for the same mineral.
 
-<u>MonodBiomass</u>: When a mineral reaction is mediated by
+##### MonodBiomass
+When a mineral reaction is mediated by
 microbes, a monod-type formulation is used with the addition of terms in
 the reaction rate expression. One expresses a first order dependence on
 biomass concentration (see BIOMASS section below) and the other a
@@ -321,32 +324,33 @@ overall reaction.
 The kinetic entry is no different than for Monod type reaction. For
 example,
 
-> +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--\
-> Ferrihydrite_DIRB_Lc\
-> label = DIRB\
-  type = MonodBiomass\
-> rate(25C) = -11.25\
-> activation = 0.0 (kcal/mole)\
-> monod_terms : self 0.0005 tot_Lactate 1.0E-3\
-> 1 0.0 -1
+    +------------------------------------------------------------
+    Ferrihydrite_DIRB_Lc
+    label = DIRB
+    type = MonodBiomass
+    rate(25C) = -11.25
+    activation = 0.0 (kcal/mole)
+    monod_terms : self  0.0005  tot_Lactate  1.0E-3
+    1   0.0   -1
+    +------------------------------------------------------------
 
 While the entry in the database file is for the overall stoichiometry of
 the reaction including the anabolic (biomass growth) pathway, the
 thermodynamic term is calculated exclusively as a function of the
 catabolic (or energy-yielding) pathway stoichiometry. As a stop gap
 solution, to provide this information, an additional file
-(CatabolicPathways.in) must be provided. This file uses the *namelist*
+(*CatabolicPathways.in*) must be provided. This file uses the *namelist*
 read format available in Fortran 90. For the entry corresponding to the
 microbially mediated mineral reaction above, this is required:
 
-> &CatabolicPathway\
-> name = Ferrihydrite_DIRB_Lc\
-> reaction = -1.833 H+ 1.000 Fe++ 0.250 HCO3- -0.083 Lactate\
-> keq = 19.1\
-> biomass = \'C5H7O2NFe(s)\'\
-> bq = 0.0\
-> chi = 1\
-> direction = -1
+    &CatabolicPathway
+    name = Ferrihydrite_DIRB_Lc
+    reaction =  -1.833 H+   1.000 Fe++   0.250 HCO3-   -0.083 Lactate
+    keq = 19.1
+    biomass = 'C5H7O2NFe(s)'
+    bq = 0.0
+    chi = 1
+    direction = -1
 
 where keq is the equilibrium constant of the catabolic pathway in log10
 units, biomass points to the biomass species that mediates the reaction,
@@ -391,36 +395,29 @@ labeled as "default".
 Following the specification of the reaction, the mineral kinetic options
 that can be specified in the input file include:
 
-    -label \<label\>
-    -rate \<rate\>
-    -activation \<activation energy\>
-    -suppress_precipitation \<ε\>
-    -local_equilibrium
-    -associate \<mineral_name\>
+    label  <label>
+    rate  <rate>
+    activation  <activation energy>
+    local_equilibrium
+    associate  <mineral_name>
 
 To load solid-liquid phase reactions with labels other than "default",
 one uses the form:
 
-> \<Reaction name\> -label \<label\>
+    <Reaction name>  -label <label>
 
 where "label" is a string which must match one in the kinetic database.
 Similarly, one can overwrite the reaction rate in the database with a
 specification in the input file:
 
-> \<Reaction name\> -label \<label\> -rate \<rate\>
+    <Reaction name> -label <label>  -rate <rate>
 
 where the rate is assumed to be the logarithm of the rate in units of
 moles/m^2^/s at 25C. The activation energy may also be overwritten:
 
-> \<Reaction name\> -label \<label\> -activation \<activation energy\>,
+    <Reaction name> -label <label> -activation <activation energy>
 
 where the activation energy is in units of kcal/mol.
-
-Previously, it was possible to specify a threshold for nucleation, but
-implemented in the simple fashion in which it was, numerical convergence
-was poor due to the discontinuity in rates across the nucleation
-threshold. The Newton method for nonlinear equations performs poorly
-with functions that are not continuously differentiable.
 
 For the case of linear kinetics, the code uses an analytical expression
 for the approach to equilibrium that is continuously differentiable,
@@ -458,14 +455,14 @@ detail on the magnitude of the transport rates. The following example
 should provide local equilibrium with respect to the minerals
 *portlandite* and *Ca-oxalate* even under relatively high flow rates
 
->   MINERALS\
-    Portlandite -rate -3.00 -local_equilibrium\
-    Ca-Oxalate -rate -3.00 -local_equilibrium\
+    MINERALS
+    Portlandite -rate  -3.00  -local_equilibrium
+    Ca-Oxalate  -rate  -3.00  -local_equilibrium
     END
 
 Another option that has been recently added is given by
 
-    <Reaction name> -associate <mineral_name>
+    <Reaction name>  -associate <mineral_name>
 
 which is used to associate more than one reaction stoichiometry and
 equilibrium constant with the same mineral. This is relevant normally
@@ -495,10 +492,10 @@ phases because of the different entries and stoichiometries, unless the
 then only the volume percentage and reactive surface of the "associated"
 mineral is updated. So in the example above, the following usage:
 
-> MINERALS\
-> Iron_DIRB\
-> Iron_H2S -associate Iron_DIRB\
-> END
+    MINERALS
+    Iron_DIRB
+    Iron_H2S -associate Iron_DIRB
+    END
 
 would result in the dissolution according to the Iron_H2S kinetic
 pathway affecting the volume fraction and surface area of the Iron_DIRB
@@ -534,12 +531,12 @@ where the field used for mineral molar volume is required but ignored.
 
 In the mineral species kinetic block, use the format
 
-> C5H7O2N(s)\
-> label = default\
-> type = tst\
-> rate(25C) = 2.0\
-> activation = 15.0 (kcal/mole)\
-> dependence :
+    C5H7O2N(s)
+    label = default
+    type = tst
+    rate(25C) = 2.0
+    activation = 15.0 (kcal/mole)
+    dependence :
 
 where a 'tst' rate is used. In this example, the logK for T = 25 C was
 set to an arbitrarily small value and the rate constant to an
@@ -551,15 +548,15 @@ to immobile biomass and contributes to the redox reaction rates.
 
 In the input file, both aqueous and immobile must be included
 
-> PRIMARY_SPECIES\
-> [other primary species in the problem]\
-> C5H7O2N\
-> END
->
-> MINERALS\
-> [other mineral species in the problem]\
-> C5H7O2N(s) -label default -rate 2.0 -biomass\
-> END
+    PRIMARY_SPECIES
+    [other primary species in the problem]
+    C5H7O2N
+    END
+
+    MINERALS
+    [other mineral species in the problem]
+    C5H7O2N(s) -label default -rate 2.0 -biomass
+    END
 
 If a species in the mineral list is associated with immobile biomass, it
 must be labeled '-biomass'.
@@ -568,13 +565,13 @@ In the geochemical conditions block, use the mineral entry to enter the
 initial concentration of biomass in units of mol-biomass/L-H2O, while
 use an arbitrarily small initial concentration for the aqueous biomass:
 
-> CONDITION initial\
-> units mmol/kg\
-> temperature 25.0\
-> [other initial conditions]\
-> C5H7O2N 1.0E-12\
-> C5H7O2N(s) 5.0e-5\
-> END
+    CONDITION initial
+    units mmol/kg
+    temperature 25.0
+    [other initial conditions]
+    C5H7O2N 1.0E-12
+    C5H7O2N(s) 5.0e-5
+    END
 
 If there is biomass in the aqueous solution used as a boundary
 condition, then do use the field for initial aqueous concentrations in
