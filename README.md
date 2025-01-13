@@ -43,28 +43,27 @@ For fully optimized production code, be sure to configure PETSc with "--with-deb
 ### Input File Keyword Blocks
 
 The possible keyword blocks in the input file include
-[ see markdown files for each Keyword Block in
-(https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file) ].
+(see markdown files for each Keyword Block [here](https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file)
 
-    TITLE
-    RUNTIME
-    OUTPUT
-    PRIMARY_SPECIES
-    SECONDARY_SPECIES
-    GASES
-    MINERALS
-    AQUEOUS_KINETICS
-    ION_EXCHANGE
-    SURFACE_COMPLEXATION
-    DISCRETIZATION
-    INITIAL_CONDITIONS
-    BOUNDARY_CONDITIONS
-    TRANSPORT
-    FLOW
-    POROSITY
-    TEMPERATURE
-    PEST
-    CONDITION
+TITLE  
+[RUNTIME](./docs/input_file/runtime.md)  
+[OUTPUT](./docs/input_file/output.md)  
+[PRIMARY_SPECIES](./docs/input_file/output.md)  
+[SECONDARY_SPECIES](./docs/input_file/secondary_species,md)  
+[GASES](./docs/input_file/gases.md)  
+[MINERALS](./docs/input_file/minerals.md)  
+[AQUEOUS_KINETICS](./docs/input_file/aqueous_kinetics.md)  
+[ION_EXCHANGE](./docs/input_file/ion_exchange.md)  
+[SURFACE_COMPLEXATION](./docs/input_file/surface_complexation.md)  
+[DISCRETIZATION](./docs/input_file/discretization.md)  
+[INITIAL_CONDITIONS](./docs/input_file/initial_conditions.md)  
+[BOUNDARY_CONDITIONS](./docs/input_file/boundary_conditions.md)  
+[TRANSPORT](./docs/input_file/transport.md)  
+[FLOW](./docs/input_file/flow.md)  
+[POROSITY](./docs/input_file/porosity.md)  
+[TEMPERATURE](./doc/input_file/temperature.md)  
+[PEST](./doc/input_file/pest.md)  
+[CONDITION](./doc/input_file/geochemical_conditions.md)  
 
 With the exception of the keyword block CONDITION, the blocks should 
 appear only once in the input file. Each keyword block is terminated by 
