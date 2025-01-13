@@ -1,5 +1,5 @@
 
-### SECONDARY_SPECIES
+## SECONDARY_SPECIES
 
 The **SECONDARY_SPECIES** keyword block gives the user's choice of
 secondary species for a particular problem. Secondary or "non-component"
@@ -27,11 +27,11 @@ specified by the user in the input file. The "database secondary
 species" block follows the primary species block and is initiated with
 the line marking the end of the "database primary species" block:
 
-> \'End of primary\' 0.0 0.0 0.0
+    'End of primary' 0.0 0.0 0.0
 
 and terminated by
 
-> \'End of secondary\' 1 0. \'0\' 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+    'End of secondary' 1 0.  '0'  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.  0.
 
 "Database secondary species" are written in every case as the
 destruction one mole of the secondary species. Using the standard
@@ -39,10 +39,7 @@ convention, therefore, the stoichiometric coefficient for the secondary
 species is assumed to be --1, even though this is not explicitly given
 in the database. The format for a "database secondary species" is:
 
-\<'SpeciesName' \> \<Number of species in reaction (integer) \>
-\<Stoichiometric coefficient\> \<'SpeciesName'\> \<Stoichiometric
-coefficient\> \<'SpeciesName'\> ...\<Log K array\> \<Debye-Huckel size
-parameter\> \<Charge\> \<Molecular weight\>
+    <'SpeciesName'> <Number of species in reaction (integer)> <Stoichiometric coefficient> <'SpeciesName'> <Stoichiometric coefficient> <'SpeciesName'> ...<Log K array> <Debye-Huckel size parameter> <Charge> <Molecular weight>
 
 In this format, the number of pairs of stoichiometric coefficients and
 species names is determined by the preceding value in "Number of species
@@ -52,15 +49,14 @@ length of the "Log K" array is given by the number following
 eight temperature points are used following the EQ3 database format, for
 example:
 
-\'temperature points\' 8 0. 25. 60. 100. 150. 200. 250. 300.
+    'temperature points '  8  0.  25.  60.  100.  150.  200.  250.  300.
 
 In this example, log K values for the reaction will be provided at eight
 temperatures between 0C and 300C.
 
 An example of an entry for the species CO2(aq) is given by:
 
-> \'CO2(aq)\' 3 -1.00 \'H2O\' 1.00 \'H+\' 1.00 \'HCO3-\' -6.5804 -6.3447
-> -6.2684 -6.3882 -6.7235 -7.1969 -7.7868 -8.5280 3.0 0.0 44.0098
+    'CO2(aq)' 3  -1.00 'H2O'  1.00 'H+'  1.00 'HCO3-' -6.5804 -6.3447 -6.2684 -6.3882 -6.7235 -7.1969 -7.7868 -8.5280 3.0 0.0 44.0098
 
 #### Input File Entry of Secondary Species
 
@@ -96,10 +92,10 @@ and then pasted into the input file. As with primary species, the input
 is case-sensitive---the species listed must be found in the database or
 an error message will result.
 
-Example:
+<u>Example:</u>
 
-> SECONDARY_SPECIES\
-> OH-\
-> AlOH++\
-> HCO3-\
-> END
+    SECONDARY_SPECIES
+    OH-
+    AlOH++
+    HCO3-
+    END

@@ -1,23 +1,5 @@
-**CrunchFlow**
 
-**Software for Modeling**
-**Multicomponent Reactive Flow and Transport**
-
-*USER'S MANUAL*
-
-**Carl I. Steefel**\
-**Toshiyuki Bandai**\
-**Sergi Molins**
-
-Energy Geosciences Division\
-Lawrence Berkeley National Laboratory\
-Berkeley, CA 94720 USA
-
-CISteefel@lbl.gov
-
-***December 9, 2024***
-
-# **RUNTIME**
+## RUNTIME
 
 The **RUNTIME** keyword block contains a number of parameters for
 running a particular simulation. All of them are optional, as is the
