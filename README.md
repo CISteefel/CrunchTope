@@ -43,8 +43,9 @@ For fully optimized production code, be sure to configure PETSc with "--with-deb
 ### Input File Keyword Blocks
 
 The possible keyword blocks in the input file include
-(see markdown files for each Keyword Block [here](https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file)
+(see markdown files for each Keyword Block [here](https://github.com/CISteefel/CrunchTope/tree/master/docs/input_file)  
 
+[Running CrunchFlow](./docs/input_file/running_crunchflow.md)  
 [TITLE](./docs/input_file/title.md)  
 [RUNTIME](./docs/input_file/runtime.md)  
 [OUTPUT](./docs/input_file/output.md)  
