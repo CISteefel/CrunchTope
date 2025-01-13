@@ -64,7 +64,7 @@ The possible keyword blocks in the input file include
 [RICHARDS_FLOW](./docs/input_file/flow.md)  
 [POROSITY](./docs/input_file/porosity.md)  
 [TEMPERATURE](./doc/input_file/temperature.md)  
-[EROSION](./doc/input_file/erosion.md) 
+[EROSION](./doc/input_file/erosion.md)  
 [PEST](./doc/input_file/pest.md)  
 [CONDITION](./doc/input_file/geochemical_conditions.md)  
 
