@@ -14,7 +14,7 @@ keywords within the TRANSPORT block.
 
     Syntax:  fix_diffusion   value
 
-<u>Default:</u>  &nbsp; *0.0 (default units of m^2^/yr)*
+<u>Default:</u>  &nbsp; 0.0 (default units of $m^2$/yr)
 
 <u>Explanation:</u> &nbsp;  If this parameter is set, then additional
 instructions to calculate diffusion (*calculate_diffusion*) based on a
@@ -37,7 +37,7 @@ keywords within the TRANSPORT block.
 
     Syntax:  calculate_diffusion  value
 
-<u>Default:</u> &nbsp; *0.0 (default units of m^2^/yr)*
+<u>Default:</u> &nbsp; 0.0 (default units of $m^2$/yr)
 
 <u>Explanation:</u> &nbsp;  This parameter is used to calculate a
 diffusion coefficient at 25°C. Diffusion coefficients at other
@@ -52,7 +52,7 @@ Law.
 
     Syntax:  cementation_exponent  value
 
-<u>Default:</u> &nbsp; *1.0*
+<u>Default:</u> &nbsp; 1.0
 
 <u>Explanation:</u> &nbsp;  This parameter provides an exponent to be
 used in Archie's Law to specify a porosity-dependent tortuosity
@@ -98,7 +98,7 @@ energy in kcal/mole.
 
     Syntax:  diffusion_threshold  value
 
-<u>Default:</u> &nbsp; $D_{w}$  5.0 (default units of kcal/mole)
+<u>Default:</u> &nbsp; $D_{w}$ = 5.0 (default units of kcal/mole)
 
 <u>Explanation:</u> &nbsp;  This parameter sets the activation energy to
 be used in calculating diffusion coefficients at temperatures other than
@@ -127,7 +127,7 @@ Keyword followed by a value for the gas diffusion coefficient.
 
     Syntax:  gas_diffusion  value
 
-<u>Default:</u> &nbsp;  0.0 (default units of m^2^/yr)
+<u>Default:</u> &nbsp;  0.0 (default units of $m^2$/yr)
 
 <u>Explanation:</u> &nbsp;  This keyword sets a value for the gas
 diffusion coefficient in the units given in the *time_units* and
@@ -219,11 +219,11 @@ is:
 
 Keyword used to specify tortuosity by zone in the input file.
 
-    Syntax:  tortuosity value zone  jxbegin-jxend  jybegin-jyend  jzbegin-jzend
+    Syntax:  tortuosity  value  zone  jxbegin-jxend  jybegin-jyend  jzbegin-jzend
 
 or
 
-    Syntax:  tortuosity value value
+    Syntax:  tortuosity value
 
 <u>Default:</u> &nbsp; 1.0
 
