@@ -27,7 +27,7 @@ Gaines-Thomas convention, each exchange site, *X(i),* has a charge of
 -1. The activities of adsorbed species correspond to the charge 
 equivalent fractions, $\beta(i)_{M}$,
 
-$$\beta(i)_{M} = \frac{z_{M}q(i)_{M}}{\sum_{M}^{}{z_{M}q(i)_{M}}} = \lbrack X(i)_{M}\rbrack$$
+$$\beta(i)_{M} = \frac{z_{M}q(i)_{M}}{\sum_{M}^{}{z_{M}q(i)_{M}}} = [X(i)_{M}]$$
 
 where $z^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
 of adsorbed cation *M* in exchange site *i* (moles/g), and the square
@@ -36,12 +36,12 @@ writing the reactions in every case with a single exchanger (Appelo and
 Postma, 1993). Alternatively, the Vanselow convention (Vanselow, 1932)
 describes the exchanger activity with mole fractions
 
-$$\beta(i)_{M} = \frac{q(i)_{M}}{\sum_{M}^{}{q(i)_{M}}} = \lbrack X(i)_{M}\rbrack$$
+$$\beta(i)_{M} = \frac{q(i)_{M}}{\sum_{M}^{}{q(i)_{M}}} = [X(i)_{M}]$$
 
 The exchange reactions can then be used to write a mass action equation
 for binary Cs-M exchange:
 
-$$K_{M/Cs} = \frac{\beta(i{)_{M}}^{1/m}\lbrack Cs^{+}\rbrack}{\beta(i)_{Cs}\lbrack M^{m +}\rbrack^{1/m}} = \frac{\lbrack X(i)_{M}\rbrack^{1/m}\lbrack Cs^{+}\rbrack}{\lbrack X(i)_{Cs}\rbrack\lbrack M^{m +}\rbrack^{1/m}}$$
+$$K_{M/Cs} = \frac{ \beta(i)_{M}^{1/m} [Cs^{+}] } {\beta(i)_{Cs}[M^{m +}]^{1/m}} = \frac{[X(i)_{M}]^{1/m}[Cs^{+}] }{[X(i)_{Cs}][M^{m +}]^{1/m}}$$
 
 In a single-site ion exchange model, the CEC is equal to the sum of the
 charge equivalent concentrations of the adsorbed cations:
