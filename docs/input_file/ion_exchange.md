@@ -19,15 +19,14 @@ Gaines-Thomas activity convention, which assumes a reaction
 stoichiometry of the following form (Appelo and Postma,1993), written
 here assuming the $Cs^+$ is the relevant cation of interest
 
-$$Cs^{+} + \frac{1}{m}MX(i)_{m} \leftrightarrow CsX(i) + \frac{1}{m}M^{m +}$$
+$$ Cs^{+} + \frac{1}{m}MX(i)_{m} \leftrightarrow CsX(i) + \frac{1}{m}M^{m +} $$
 
 where *M* is the competing cation ($Na^{+}$, $K^{+}$, $Ca^{2+}$), *m* is its
 charge, and *X(i)* refers to the *i*th type of exchange site. In the
-Gaines-Thomas convention, each exchange site, *X(i),* has a charge of
--1. The activities of adsorbed species correspond to the charge 
-equivalent fractions
+Gaines-Thomas convention, each exchange site, *X(i)*, has a charge of
+-1. The activities of adsorbed species correspond to the charge equivalent fractions
 
-$$ \beta(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M}^{} {z_{M}q(i)_{M}} } = X(i)_{M} $$
+$$ \beta(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M} {z_{M}q(i)_{M}} } = [X(i)_{M}] $$
 
 where $z^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
 of adsorbed cation *M* in exchange site *i* (moles/g), and the square
