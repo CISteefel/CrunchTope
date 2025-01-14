@@ -31,7 +31,7 @@ $$
 $$
 
 $$
-\beta(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M}{} z_{M}q(i)_{M} }
+\beta (i)_{M} = \frac{ z_{M} q (i)_{M} } { \sum_{M}{} z_{M} q (i)_{M} }
 $$
 
 where $z^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
