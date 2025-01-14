@@ -26,7 +26,13 @@ charge, and *X(i)* refers to the *i*th type of exchange site. In the
 Gaines-Thomas convention, each exchange site, *X(i)*, has a charge of
 -1. The activities of adsorbed species correspond to the charge equivalent fractions
 
-$$\beta(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M}{} {z_{M}q(i)_{M}} }$$  
+$$
+B(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M}{} z_{M} q(i)_{M} }  
+$$
+
+$$
+\beta(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M}{} z_{M}q(i)_{M} }  
+$$
 
 where $z^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
 of adsorbed cation *M* in exchange site *i* (moles/g), and the square
