@@ -24,7 +24,7 @@ $$Cs^{+} + \frac{1}{m}MX(i)_{m} \leftrightarrow CsX(i) + \frac{1}{m}M^{m +}$$
 where *M* is the competing cation ($Na^{+}$, $K^{+}$, $Ca^{2+}$), *m* is its
 charge, and *X(i)* refers to the *i*th type of exchange site. In the
 Gaines-Thomas convention, each exchange site, *X(i),* has a charge of
--1. The activities of adsorbed species correspond to the charge
+-1. The activities of adsorbed species correspond to the charge 
 equivalent fractions, $\beta(i)_{M}$,
 
 $$\beta(i)_{M} = \frac{z_{M}q(i)_{M}}{\sum_{M}^{}{z_{M}q(i)_{M}}} = \lbrack X(i)_{M}\rbrack$$
