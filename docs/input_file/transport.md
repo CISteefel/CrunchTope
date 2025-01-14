@@ -1,4 +1,4 @@
-## TRANSPORT {#transport .SteefelHeading3}
+## TRANSPORT
 
 The TRANSPORT keyword block reads in the inputs controlling transport of
 species. Flow is treated in the FLOW keyword block. The most important

@@ -1,4 +1,4 @@
-## Boundary Conditions Block
+## Boundary Conditions
 
 Boundary conditions are required for any problem involving transport.
 The input currently involves specifying boundary conditions, corresponding 
