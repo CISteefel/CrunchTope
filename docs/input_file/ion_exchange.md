@@ -11,7 +11,7 @@ where X refers to the exchange site occupied by the cations $A^{u+}$ and
 $B^{v+}$. The equilibrium constant, $K_{eq}$, for this reaction can be
 written as (Vanselow, 1932)
 
-$$K_{eq} = \frac{(BCl_{\nu})^{u}(AX_{u})^{\nu}}{(ACl_{u})^{\nu}(BX_{\nu})^{u}}$$
+$$K_{eq} = \frac{ (BCl_{\nu})^{u}(AX_{u})^{\nu} }{ (ACl_{u})^{\nu}(BX_{\nu})^{u} }$$
 
 where the parentheses () refer to the thermodynamic activities. Several
 activity conventions are in wide use. One possibility is the
@@ -26,7 +26,7 @@ charge, and *X(i)* refers to the *i*th type of exchange site. In the
 Gaines-Thomas convention, each exchange site, *X(i)*, has a charge of
 -1. The activities of adsorbed species correspond to the charge equivalent fractions
 
-$\beta(i)_{M} = \frac{z_{M}q(i)_{M}} {\sum_{M}{z_{M}q(i)_{M}}} = [X(i)_{M}]$  
+$$\beta(i)_{M} = \frac{ z_{M}q(i)_{M} } { \sum_{M}{} {z_{M}q(i)_{M}} } = [X(i)_{M}]$$  
 
 where $z^{+}$ is the charge of cation *M*, $q(i)_{M}$ is the concentration
 of adsorbed cation *M* in exchange site *i* (moles/g), and the square
@@ -35,7 +35,7 @@ writing the reactions in every case with a single exchanger (Appelo and
 Postma, 1993). Alternatively, the Vanselow convention (Vanselow, 1932)
 describes the exchanger activity with mole fractions
 
-$$\beta(i)_{M} = \frac{q(i)_{M}}{\sum_{M}^{}{q(i)_{M}}} = [X(i)_{M}]$$
+$$\beta (i)_{M} = \frac{ q(i)_{M} }{ \sum_{M}^{}{q(i)_{M}} } = [X(i)_{M}]$$
 
 The exchange reactions can then be used to write a mass action equation
 for binary Cs-M exchange:
