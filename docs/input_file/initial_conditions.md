@@ -16,11 +16,11 @@ where the initial condition is to be set. The initial condition can be
 fixed for the entire course of the simulation using the optional
 appended keyword *fix*.
 
-    Syntax:  condition_name  JX-JX [JY-JY] [JZ-JZ]  [fix]  
+    Syntax:  condition_name  JX-JX [JY-JY] [JZ-JZ]  [fix]   
 
-<u>Default:</u> &nbsp; None.
+<u>Default:</u> &nbsp; None.  
 
-<u>Explanation:</u> &nbsp; Using this keyword block, geochemical
+<u>Explanation:</u>  &nbsp; Using this keyword block, geochemical
 conditions are distributed over the spatial domain. Multiple
 specifications can occur. Initial conditions listed later in the input
 file will overwrite conditions specified above. The optional parameter
