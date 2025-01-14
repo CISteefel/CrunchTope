@@ -4,7 +4,7 @@ In order to run a reactive transport or a reaction path calculations,
 initial conditions must be set. Even in the case where the desired
 result is a steady state simulation in which initial conditions are
 irrelevant, the code must still achieve this steady state by stepping
-through time. Only with the *speciate_only* or *database\_*sweep
+through time. Only with the *speciate_only* or *database_sweep*
 keywords set to true in the **RUNTIME** keyword block is it possible to
 proceed without specifying initial conditions for the entire spatial
 domain.
@@ -15,11 +15,11 @@ where the initial condition is to be set. The initial condition can be
 fixed for the entire course of the simulation using the optional
 appended keyword *fix*.
 
-<u> Syntax:</u>  &nbsp; condition_name JX-JX \[JY-JY\] \[JZ-JZ\] \[fix\]*
+    Syntax:  condition_name  JX-JX [JY-JY] [JZ-JZ]  [fix]  
 
-<u> Default:</u> &nbsp; None.
+<u>Default:</u> &nbsp; None.
 
-*Explanation:*  &nbsp; Using this keyword block, geochemical
+<u>Explanation:</u> &nbsp; Using this keyword block, geochemical
 conditions are distributed over the spatial domain. Multiple
 specifications can occur. Initial conditions listed later in the input
 file will overwrite conditions specified above. The optional parameter
