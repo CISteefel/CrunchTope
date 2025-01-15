@@ -61,6 +61,8 @@ REAL(DP), INTENT(IN)                                       :: tempc
 REAL(DP)                                                   :: tempk
 REAL(DP)                                                   :: denmol
 REAL(DP)                                                   :: sum
+REAL(DP)                                                   :: lnActivity
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
@@ -73,7 +75,15 @@ DO kk = 1,ngas
 
     sum = 0.0
     DO i = 1,ncomp
-      sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
+      
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+        lnActivity = gamtmp(i) 
+      ELSE
+        lnActivity = (sptmp(i)+gamtmp(i))
+      END IF
+      sum = sum + mugas(kk,i)*lnActivity
+      
     END DO
 
   spgastmp(kk) = keqgas_tmp(kk) + sum 

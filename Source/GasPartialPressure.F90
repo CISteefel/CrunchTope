@@ -69,6 +69,9 @@ REAL(DP)                                                   :: denmol
 REAL(DP)                                                   :: pg
 REAL(DP)                                                   :: ln_fco2
 REAL(DP)                                                   :: vrInOut
+REAL(DP)                                                   :: lnActivity
+
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
@@ -84,10 +87,20 @@ END IF
 
 DO kk = 1,ngas
   
-    sum = 0.0
-    DO i = 1,ncomp
-      sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-    END DO
+  sum = 0.0
+  DO i = 1,ncomp
+      
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      lnActivity = lngamma(i,jx,jy,jz)
+    ELSE
+      lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+    END IF
+      
+    sum = sum + mugas(kk,i) * lnActivity
+  
+  END DO
+
 
   IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)

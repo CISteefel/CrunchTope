@@ -223,6 +223,7 @@ DO jz = 1,nz
 558 FORMAT(2X, 'Porosity           = ',f10.3)
 556 FORMAT(2X, 'Liquid Saturation  = ',f10.3)
 557 FORMAT(2X, 'Liquid Density     = ',f10.3)
+563 FORMAT(2X, 'Activity of water  = ',f10.3)
 411 FORMAT(2X, 'Ionic Strength     = ',f10.3)
 5022 FORMAT(2X,'Solution pH        = ',f10.3)
 5023 FORMAT(2X,'Solution pe        = ',f10.3)
@@ -233,6 +234,7 @@ DO jz = 1,nz
       WRITE(8,558) por(jx,jy,jz)
       WRITE(8,556) satliq(jx,jy,jz)
       WRITE(8,557) ro(jx,jy,jz)
+      WRITE(8,563) gammawater(jx,jy,jz)
       WRITE(8,411) sion(jx,jy,jz)
       IF (ikph /= 0) THEN
         pHprint = -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg

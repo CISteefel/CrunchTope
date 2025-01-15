@@ -56,6 +56,7 @@ INTEGER(I4B), INTENT(IN)                                   :: ncomp
 INTEGER(I4B), INTENT(IN)                                   :: ngas
 REAL(DP), INTENT(IN)                                       :: tempc
 REAL(DP), INTENT(IN)                                       :: pg
+!!!REAL(DP), DIMENSION(ncomp)                                 :: gamtmp
 
 !  Internal variables
 
@@ -64,6 +65,9 @@ REAL(DP)                                                   :: denmol
 REAL(DP)                                                   :: sum
 REAL(DP)                                                   :: ln_fco2
 REAL(DP)                                                   :: vrinout
+REAL(DP)                                                   :: lnActivity
+
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
@@ -75,14 +79,24 @@ tempk = tempc + 273.15
 
 
 DO kk = 1,ngas
+  
   sum = 0.0
   DO i = 1,ncomp
-
-      sum = sum + mugas(kk,i)*(sptmp(i) + gamtmp(i))
-
+    
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      lnActivity = gamtmp(i) 
+    ELSE
+      lnActivity = (sptmp(i)+gamtmp(i))
+    END IF
+  
+    sum = sum + mugas(kk,i) * lnActivity
+  
   END DO
-
+  
+      
   ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
+  
 !!!  if (namg(kk) == 'CO2(g)') then
 !!!    IF (Duan) THEN
 !!!      call fugacity_co2(pg,tempk,ln_fco2,vrInOut)
@@ -94,6 +108,7 @@ DO kk = 1,ngas
 
   spgastmp(kk) = keqgas_tmp(kk) + sum - ln_fco2
   spgastmp10(kk) = DEXP(spgastmp(kk))         !!  This should be the mole fraction
+  
 END DO
 
 RETURN

@@ -225,12 +225,15 @@ INTEGER(I4B)                                               :: ks
 INTEGER(I4B)                                               :: info
 INTEGER(I4B)                                               :: nl
 INTEGER(I4B)                                               :: ico2
+INTEGER(I4B)                                               :: iH2O
 
 LOGICAL(LGT)                                               :: bagit
 LOGICAL(LGT)                                               :: ChargeBalance
 LOGICAL(LGT)                                               :: NeedChargeBalance
 LOGICAL(LGT)                                               :: ChargeOK
 LOGICAL(LGT)                                               :: InitializeMineralEquilibrium
+LOGICAL(LGT)                                               :: ikH2Ofound
+
 
 REAL(DP)                                                   :: MeanSaltConcentration
 REAL(DP)                                                   :: MassFraction
@@ -247,6 +250,7 @@ REAL(DP)                                                   :: vrInOut
 REAL(DP)                                                   :: fxMaxPotential
 REAL(DP)                                                   :: ChargeSum
 REAL(DP)                                                   :: lnActivity
+REAL(DP)                                                   :: gammawatertmp
 
 CHARACTER (LEN=3)                                          :: ulabPrint
 
@@ -362,6 +366,25 @@ DO i = 1,ncomp
     STOP
   END IF
 END DO
+
+!!! Find species number for H2O
+ikH2Ofound = .FALSE.
+DO I = 1,ncomp
+  IF ( ulab(i) == 'H2O' .or. ulab(i) == 'h2o' .or. ulab(i) == 'hho' .or. ulab(i) == 'HHO' ) THEN
+    ih2o = i
+    ikH2Ofound = .TRUE.
+  END IF
+END DO
+  
+IF (ikH2Ofound) THEN
+  CONTINUE
+ELSE
+  write(*,*)
+  write(*,*) ' Water species number not found'
+  write(*,*)
+  read(*,*)
+  stop
+END IF
 
 IF (Duan .OR. Duan2006) THEN            !! Duan CO2 routine
  
@@ -1336,6 +1359,7 @@ DO  ktrial = 1,ntrial
 560 FORMAT(2X, 'Solid Density (kg/m^3)  = ',f10.3)
 562 FORMAT(2X, 'Solid Density           = ',f10.3, ' (Assumed--cannot be computed with porosity = 100%)')
 561 FORMAT(2X, 'Solid:Solution Ratio    = ',f10.3)
+563 FORMAT(2X, 'Activity of water       = ',f10.3)
 411 FORMAT(2X, 'Ionic Strength          = ',f10.3)
 5022 FORMAT(2X,'Solution pH             = ',f10.3)
 5023 FORMAT(2X,'Solution pe             = ',f10.3)
@@ -1355,7 +1379,9 @@ DO  ktrial = 1,ntrial
 
     END DO
     sion_tmp = 0.50D0*sum
-
+    
+    gammawatertmp = EXP(gamtmp(ih2o))
+    
     WRITE(iunit2,555) tempc
     WRITE(iunit2,558) porcond(nco)
     WRITE(iunit2,556) SaturationCond(nco)
@@ -1366,6 +1392,7 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,560) SolidDensity(nco)
     END IF
     WRITE(iunit2,561) SolidSolutionRatio(nco) 
+    WRITE(iunit2,563) gammawatertmp
     
     WRITE(iunit2,411) sion_tmp
     
