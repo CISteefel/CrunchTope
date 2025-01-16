@@ -57,6 +57,7 @@ USE temperature
 USE io
 USE ReadFlow
 USE modflowModule
+USE Crunch_Modules
 
 IMPLICIT NONE
 
@@ -81,94 +82,41 @@ INTEGER(I4B)                                       :: nxyz
 
 nxyz = nx*ny*nz
 
-IF (ALLOCATED(sce)) THEN
-  DEALLOCATE(sce)
-END IF
-ALLOCATE(sce(ncomp))
-IF (ALLOCATED(scw)) THEN
-  DEALLOCATE(scw)
-END IF
-ALLOCATE(scw(ncomp))
-IF (ALLOCATED(scn)) THEN
-  DEALLOCATE(scn)
-END IF
-ALLOCATE(scn(ncomp))
-IF (ALLOCATED(scs)) THEN
-  DEALLOCATE(scs)
-END IF
-ALLOCATE(scs(ncomp))
-
-
+CALL AllocateArray_1D(sce,1,ncomp)
+CALL AllocateArray_1D(scw,1,ncomp)
+CALL AllocateArray_1D(scn,1,ncomp)
+CALL AllocateArray_1D(scs,1,ncomp)
 sce = 0.0d0
 scw = 0.0d0
 scn = 0.0d0
 scs = 0.0d0
 
-IF (ALLOCATED(gamma)) THEN
-  DEALLOCATE(gamma)
-END IF
-ALLOCATE(gamma(ncomp+nspec,nx,ny,nz))
-
-IF (ALLOCATED(keqaq)) THEN
-  DEALLOCATE(keqaq)
-END IF
-ALLOCATE(keqaq(nspec,nx,ny,nz))
-
-IF (ALLOCATED(keqgas)) THEN
-  DEALLOCATE(keqgas)
-END IF
-ALLOCATE(keqgas(ngas,nx,ny,nz))
-
-IF (ALLOCATED(keqsurf)) THEN
-  DEALLOCATE(keqsurf)
-END IF
-ALLOCATE(keqsurf(nsurf_sec,nx,ny,nz))
-
-IF (ALLOCATED(keqmin)) THEN
-  DEALLOCATE(keqmin)
-END IF
-ALLOCATE(keqmin(nreactmax,nrct,nx,ny,nz))
-  IF (ALLOCATED(silogGlobal)) THEN
-    DEALLOCATE(silogGlobal)
-  END IF
-ALLOCATE(silogGlobal(nreactmax,nrct,nx,ny,nz))
-
+CALL AllocateArrayPlus(gamma,ncomp+nspec, 1, nx, 1, ny, 1, nz)
+CALL AllocateArrayPlus(keqaq, nspec, 1, nx, 1, ny, 1, nz)
+CALL AllocateArrayPlus(keqsurf, nsurf_sec, 1, nx, 1, ny, 1, nz)
+CALL AllocateArrayPlus(keqgas, ngas, 1, nx, 1, ny, 1, nz)
+CALL AllocateArrayPlusPlus(keqmin, nreactmax, nrct, 1, nx, 1, ny, 1, nz)
+CALL AllocateArrayPlusPlus(silogGlobal, nreactmax, nrct, 1, nx, 1, ny, 1, nz)
 gamma = 0.0
 keqaq = 500.00
 keqgas = 500.00
 keqsurf = 500.00
 keqmin = 500.00
+silogGlobal = 0.0d0
 
-IF (ALLOCATED(a)) THEN
-  DEALLOCATE(a)
-END IF
-ALLOCATE(a(nx,ny,nz))
-IF (ALLOCATED(b)) THEN
-  DEALLOCATE(b)
-END IF
-ALLOCATE(b(nx,ny,nz))
-IF (ALLOCATED(c)) THEN
-  DEALLOCATE(c)
-END IF
-ALLOCATE(c(nx,ny,nz))
-IF (ALLOCATED(d)) THEN
-  DEALLOCATE(d)
-END IF
-ALLOCATE(d(nx,ny,nz))
-IF (ALLOCATED(e)) THEN
-  DEALLOCATE(e)
-END IF
-ALLOCATE(e(nx,ny,nz))
-IF (ALLOCATED(f)) THEN
-  DEALLOCATE(f)
-END IF
-ALLOCATE(f(nx,ny,nz))
+CALL AllocateArray(a,1, nx, 1, ny, 1, nz)
+CALL AllocateArray(b,1, nx, 1, ny, 1, nz)
+CALL AllocateArray(c,1, nx, 1, ny, 1, nz)
+CALL AllocateArray(d,1, nx, 1, ny, 1, nz)
+CALL AllocateArray(e,1, nx, 1, ny, 1, nz)
+CALL AllocateArray(f,1, nx, 1, ny, 1, nz)
 a = 0.0
 b = 0.0
 c = 0.0
 d = 0.0
 e = 0.0
 f = 0.0
+
 IF (ALLOCATED(ssurfn)) THEN
   DEALLOCATE(ssurfn)
 END IF
@@ -395,77 +343,37 @@ ELSE
 END IF
 
 IF (isaturate == 1) THEN
-  IF (ALLOCATED(sge)) THEN
-    DEALLOCATE(sge)
-  END IF
-  ALLOCATE(sge(ncomp))
-  IF (ALLOCATED(sgw)) THEN
-    DEALLOCATE(sgw)
-  END IF
-  ALLOCATE(sgw(ncomp))
-  IF (ALLOCATED(sgn)) THEN
-    DEALLOCATE(sgn)
-  END IF
-  ALLOCATE(sgn(ncomp))
-  IF (ALLOCATED(sgs)) THEN
-    DEALLOCATE(sgs)
-  END IF
-  ALLOCATE(sgs(ncomp))
-  IF (ALLOCATED(sgaspump)) THEN
-    DEALLOCATE(sgaspump)
-  END IF
-  ALLOCATE(sgaspump(ncomp))
-  IF (ALLOCATED(ag)) THEN
-    DEALLOCATE(ag)
-  END IF
-  ALLOCATE(ag(nx,ny,nz))
-  IF (ALLOCATED(bg)) THEN
-    DEALLOCATE(bg)
-  END IF
-  ALLOCATE(bg(nx,ny,nz))
-  IF (ALLOCATED(cg)) THEN
-    DEALLOCATE(cg)
-  END IF
-  ALLOCATE(cg(nx,ny,nz))
-  IF (ALLOCATED(dg)) THEN
-    DEALLOCATE(dg)
-  END IF
-  ALLOCATE(dg(nx,ny,nz))
-  IF (ALLOCATED(eg)) THEN
-    DEALLOCATE(eg)
-  END IF
-  ALLOCATE(eg(nx,ny,nz))
-  IF (ALLOCATED(fg)) THEN
-    DEALLOCATE(fg)
-  END IF
-ALLOCATE(fg(0:nx+1,0:ny+1,nz))
-
+  CALL AllocateArray_1D(sge,1,ncomp)
+  CALL AllocateArray_1D(sgw,1,ncomp)
+  CALL AllocateArray_1D(sgn,1,ncomp)
+  CALL AllocateArray_1D(sgs,1,ncomp)
+  CALL AllocateArray_1D(sgaspump,1,ncomp)
+  sge = 0.0d0
+  sgw = 0.0d0
+  sgn = 0.0d0
+  sgs = 0.0d0
+  sgaspump = 0.0d0
+  
+  CALL AllocateArray(ag, 0, nx+1, 0, ny+1, 1, nz)
+  CALL AllocateArray(bg, 0, nx+1, 0, ny+1, 1, nz)
+  CALL AllocateArray(cg, 0, nx+1, 0, ny+1, 1, nz)
+  CALL AllocateArray(dg, 0, nx+1, 0, ny+1, 1, nz)
+  CALL AllocateArray(eg, 0, nx+1, 0, ny+1, 1, nz)
+  CALL AllocateArray(fg, 0, nx+1, 0, ny+1, 1, nz)
   ag = 0.0
   bg = 0.0
   cg = 0.0
   dg = 0.0
   eg = 0.0
   fg = 0.0
-  sge = 0.0d0
-  sgw = 0.0d0
-  sgn = 0.0d0
-  sgs = 0.0d0
-  sgaspump = 0.0d0
-  IF (ALLOCATED(sgas)) THEN
-    DEALLOCATE(sgas)
-  END IF
-  ALLOCATE(sgas(ncomp,0:nx+1,0:ny+1,0:nz+1))
-  IF (ALLOCATED(sgasn)) THEN
-    DEALLOCATE(sgasn)
-  END IF
-  ALLOCATE(sgasn(ncomp,nx,ny,nz))
-  IF (ALLOCATED(fgas)) THEN
-    DEALLOCATE(fgas)
-  END IF
-  ALLOCATE(fgas(ncomp,ncomp,nx,ny,nz))
+  
+  CALL AllocateArrayPlus(sgas, ncomp, 0, nx+1, 0, ny+1, 0,nz+1)
+  CALL AllocateArrayPlus(sgasn, ncomp, 1, nx, 1, ny, 1, nz)
+  CALL AllocateArrayPlusPlus(fgas, ncomp, ncomp, 1, nx, 1, ny, 1, nz)
   sgas = 0.0
   sgasn = 0.0
   fgas = 0.0
+  
 END IF
 
 IF (species_diffusion) THEN
@@ -480,6 +388,7 @@ IF (species_diffusion) THEN
   IF (ALLOCATED(fjac_d)) THEN
     DEALLOCATE(fjac_d)
   END IF
+  
   ALLOCATE(fjac_d(ncomp,ncomp,nx,ny,nz))
   IF (ALLOCATED(fjac_chg)) THEN
     DEALLOCATE(fjac_chg)
