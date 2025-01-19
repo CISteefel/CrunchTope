@@ -47,6 +47,7 @@ USE crunchtype
 USE params
 USE concentration
 USE temperature
+USE medium, ONLY: PressureCond
 USE runtime, ONLY: Duan,Duan2006
 
 IMPLICIT NONE
@@ -73,7 +74,7 @@ CHARACTER (LEN=3)                                          :: ulabPrint
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
 
-  !!! Added July 17 by Carl (hopefully not stomped on)
+!!! Added July 17 by Carl (hopefully not stomped on)
   
 ln_fco2 = 0.0d0
 
@@ -81,10 +82,12 @@ IF (Duan .OR. Duan2006) THEN
   pg = GasPressureTotal(jx,jy,jz)
 END IF
 
+pg = PressureCond(jinit(jx,jy,jz)) 
+
 tempk = t(jx,jy,jz) + 273.15
 
 !!denmol = LOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
-denmol = DLOG( (1.0E05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
+denmol = DLOG( (pg*1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 !!  NOTE:  The "denmol" should convert to mol/m*3 (n/V)
 

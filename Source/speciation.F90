@@ -502,16 +502,16 @@ CLOSE(UNIT=8,STATUS='keep')
 804 FORMAT(' SPECIES         ','    Equiv/kgw',1X,'  Activity',1x,  &
 '    Equiv/kgw ',1x,'    Activity ', '  Coefficient','    Type')
 
-207 FORMAT('                 ','          Log',1X,'       Log',1x,  &
-'              ',1x,'          ', '       Activity')
-204 FORMAT(' Species         ','     Molality',1X,'  Activity',1x,  &
-'     Molality ',1x,'    Activity ', '  Coefficient','    Type')
+207 FORMAT('                 ','            Log',1X,'         Log',1x,      &
+'              ',1x,'          ', '                 Activity')
+204 FORMAT(' Species        ','        Molality',1X,'    Activity',1x,  &
+'        Molality ',1x,'       Activity ', '     Coefficient','      Type')
 
 208 FORMAT('                 ','          Log',1X,'       Log',1x,  &
 '              ',1x,' Concentration', '     ')
-206 FORMAT(' Species         ','     Molality',1X,' Activity',1x,  &
-'     Molality ',1x,'', '  Mol/m^3 blk ',1x,'    Activity ', '  Type')
-212 FORMAT(2X,a18,2X,f8.3,3X,f8.3,2X,1PE12.3,2X,1PE12.3,2X,1PE12.3,2X,a8)
+206 FORMAT(' Species        ','       Molality',1X,'    Activity',1x,  &
+'       Molality ',1x,'       Activity ', '     Coefficient','      Type')
+212 FORMAT(2X,a18,2X,f8.3,2X,f8.3,2X,1PE12.3,2X,1PE12.3,2X,1PE12.3,2X,a8)
 !!!  WRITE(8,212) namsurf(is),spprint,actprint,spsurf10(is,jx,jy,jz)/AqueousToBulk,spsurf10(is,jx,jy,jz),actprint10,namtemp
 
 
