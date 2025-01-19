@@ -3296,7 +3296,7 @@ DO nco = 1,nchem
   spgastmp10 = 1.0D-35
 
   CALL species_init(ncomp,nspec)
-  CALL gases_init(ncomp,ngas,tempc)
+  CALL gases_init(ncomp,ngas,tempc,nco)
   CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nchem)
   CALL exchange_init(ncomp,nspec,nexchange,nexch_sec,nchem)
   CALL totconc_init(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,nco)
@@ -9584,7 +9584,7 @@ DEALLOCATE(SkipAdjust)
 DEALLOCATE(rocond)
 DEALLOCATE(porcond)
 DEALLOCATE(SaturationCond)
-DEALLOCATE(PressureCond)
+!!!DEALLOCATE(PressureCond)
 DEALLOCATE(equilibrate)
 DEALLOCATE(fsurftmp)
 #endif

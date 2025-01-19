@@ -42,11 +42,12 @@
 
 !!!      ****************************************
 
-SUBROUTINE gases_init(ncomp,ngas,tempc)
+SUBROUTINE gases_init(ncomp,ngas,tempc,nco)
 USE crunchtype
 USE params
 USE concentration
 USE temperature
+USE medium, ONLY: PressureCond
 
 IMPLICIT NONE
 
@@ -55,6 +56,7 @@ IMPLICIT NONE
 INTEGER(I4B), INTENT(IN)                                   :: ncomp
 INTEGER(I4B), INTENT(IN)                                   :: ngas
 REAL(DP), INTENT(IN)                                       :: tempc
+INTEGER(I4B), INTENT(IN)                                   :: nco
 
 !  Internal variables
 
@@ -62,6 +64,7 @@ REAL(DP)                                                   :: tempk
 REAL(DP)                                                   :: denmol
 REAL(DP)                                                   :: sum
 REAL(DP)                                                   :: lnActivity
+REAL(DP)                                                   :: pg
 CHARACTER (LEN=3)                                          :: ulabPrint
 
 INTEGER(I4B)                                               :: i
@@ -69,7 +72,8 @@ INTEGER(I4B)                                               :: kk
 
 
 tempk = tempc + 273.15
-denmol = DLOG(1.e05/(8.314*tempk))           ! P/RT = n/V, with pressure converted from bars to Pascals
+pg = PressureCond(nco) 
+denmol = DLOG( (pg*1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 DO kk = 1,ngas
 

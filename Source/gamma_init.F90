@@ -117,6 +117,9 @@ DO ik = 1,ncomp+nspec
   END IF
 END DO
 gammawaterTmp = 1.0d0 - 0.017d0*TotalMoles
+!!!IF (gammawaterTmp < 0.01) THEN
+!!!  gammawaterTmp = 0.01
+!!!END IF
 
 IF (ntemp == 1) THEN
   ah = adh(1)

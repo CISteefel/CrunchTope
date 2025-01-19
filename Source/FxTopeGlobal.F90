@@ -259,25 +259,21 @@ IF (cylindrical) THEN
   df = 1.0d0
   MultiplyCell = CellVolume
   IF (CylindricalDivideVolume) THEN
-      df = 1.0/CellVolume
-      MultiplyCell = 1.0
+    df = 1.0/CellVolume
+    MultiplyCell = 1.0
   END IF
 ELSE IF (spherical) THEN
   CellVolume = (4.0d0/3.0d0)*pi*( (x(jx)+0.5d0*dxx(jx))**3.0d0 - (x(jx)-0.5d0*dxx(jx))**3.0d0  )
   df = 1.0d0
   MultiplyCell = CellVolume
   IF (CylindricalDivideVolume) THEN
-      df = 1.0/CellVolume
-      MultiplyCell = 1.0
+    df = 1.0/CellVolume
+    MultiplyCell = 1.0
   END IF
-!!  df = 1.0/CellVolume
-!!  MultiplyCell = 1.0
 ELSE
-      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-       df = 1.0d0
-       MultiplyCell = CellVolume
-!!      df = 1.0/CellVolume
-!!      MultiplyCell = 1.0
+  CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+  df = 1.0d0
+  MultiplyCell = CellVolume
 END IF
 
 fxmax = 0.0d0 

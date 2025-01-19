@@ -571,7 +571,7 @@ DO  ktrial = 1,ntrial
   if (Duan .OR. Duan2006) then
     CALL gases_init_co2(ncomp,ngas,tempc,pg,vrInOut)
   else
-    CALL gases_init(ncomp,ngas,tempc)
+    CALL gases_init(ncomp,ngas,tempc,nco)
   end if
   
   CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nco)
@@ -1333,7 +1333,7 @@ DO  ktrial = 1,ntrial
     if (Duan .OR. Duan2006) then
       CALL gases_init_co2(ncomp,ngas,tempc,pg,vrInOut)
     else
-      CALL gases_init(ncomp,ngas,tempc)
+      CALL gases_init(ncomp,ngas,tempc,nco)
     end if
     
     CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nco)
