@@ -47,6 +47,7 @@ USE crunchtype
 USE params
 USE concentration
 USE temperature
+USE medium, ONLY: PressureCond
 USE runtime, ONLY: Duan,Duan2006
 
 IMPLICIT NONE
@@ -78,6 +79,7 @@ INTEGER(I4B)                                               :: kk
 
 ln_fco2 = 0.0d0
 tempk = t(jx,jy,jz) + 273.15
+pg = LOG( PressureCond(jinit(jx,jy,jz)) )
 
 !!denmol = DLOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
 
@@ -100,8 +102,7 @@ DO kk = 1,ngas
     sum = sum + mugas(kk,i) * lnActivity
   
   END DO
-
-
+  
   IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
     if (namg(kk) == 'CO2(g)') then

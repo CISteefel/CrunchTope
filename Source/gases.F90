@@ -86,8 +86,8 @@ pg = PressureCond(jinit(jx,jy,jz))
 
 tempk = t(jx,jy,jz) + 273.15
 
-!!denmol = LOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
-denmol = DLOG( (pg*1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
+!!!denmol = LOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
+denmol = DLOG( (1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 !!  NOTE:  The "denmol" should convert to mol/m*3 (n/V)
 
@@ -124,10 +124,11 @@ DO kk = 1,ngas
     end if
   END IF
 
-!! Basically, first two terms on RHS give you the mole fraction, then multipled by n/V to gives mol/m^3
+!! Basically, first two terms on RHS give you the mole fraction, then multipled by n/V (denmol) gives mol/m^3
 
-  spgas(kk,jx,jy,jz) = keqgas(kk,jx,jy,jz) + sum + denmol - ln_fco2
+  spgas(kk,jx,jy,jz)   = keqgas(kk,jx,jy,jz) + sum + denmol - ln_fco2
   spgas10(kk,jx,jy,jz) = DEXP(spgas(kk,jx,jy,jz))  ! mol/m**3
+  continue
 
 END DO
 

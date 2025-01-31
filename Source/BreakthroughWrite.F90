@@ -63,6 +63,19 @@ USE modflowModule
 USE NanoCrystal
 
 IMPLICIT NONE
+!  *********************  INTERFACE BLOCKS  *****************************
+INTERFACE
+  SUBROUTINE GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
+    USE crunchtype
+    INTEGER(I4B), INTENT(IN)                                   :: ncomp
+    INTEGER(I4B), INTENT(IN)                                   :: ngas
+    REAL(DP), DIMENSION(:)                                     :: gastmp10
+    INTEGER(I4B), INTENT(IN)                                   :: jx
+    INTEGER(I4B), INTENT(IN)                                   :: jy
+    INTEGER(I4B), INTENT(IN)                                   :: jz
+  END SUBROUTINE GasPartialPressure
+END INTERFACE
+!  **********************************************************************
 
 !  External variables and arrays
 
@@ -86,6 +99,7 @@ INTEGER(I4B), INTENT(IN)                                     :: ikpH
 REAL(DP), INTENT(IN)                                         :: time
 INTEGER(I4B), INTENT(IN)                                    :: nplotsurface
 INTEGER(I4B), INTENT(IN)                                    :: nplotexchange
+REAL(DP), DIMENSION(ngas)                                   :: gastmp10
 
 
 !! INTERNAL VARIABLES
@@ -154,6 +168,7 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
             phwrite = 0.0
           END IF
           IF (tecplot) THEN
+            CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
             IF (iplotall == 1) THEN
               IF (ikph /= 0) THEN            
                 WRITE(intfile,705) PrintTime,phwrite,(s(iplot(i),jx,jy,jz),i=1,nplot),   &
@@ -161,14 +176,14 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas)
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               ELSE
                 WRITE(intfile,705) PrintTime,(s(iplot(i),jx,jy,jz),i=1,nplot),         &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas) 
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               END IF
             ELSE
               IF (iplotph /= 0) THEN
@@ -191,20 +206,21 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
           ELSE
 
             IF (iplotall == 1) THEN
+              CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
               IF (ikph /= 0) THEN            
                 WRITE(intfile,705) PrintTime,phwrite,(s(iplot(i),jx,jy,jz),i=1,nplot),   &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas)
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               ELSE
                 WRITE(intfile,705) PrintTime,(s(iplot(i),jx,jy,jz),i=1,nplot),   &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas) 
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               END IF
           
             ELSE
@@ -257,20 +273,21 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
 
           IF (tecplot) THEN
             IF (iplotall == 1) THEN
+              CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
               IF (ikph /= 0) THEN            
                 WRITE(intfile,705) PrintTime,phwrite,(s(iplot(i),jx,jy,jz),i=1,nplot),  &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas)
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               ELSE
                 WRITE(intfile,705) PrintTime,(s(iplot(i),jx,jy,jz),i=1,nplot),  &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas)
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               END IF
             ELSE
               IF (iplotph /= 0) THEN
@@ -304,20 +321,21 @@ REAL(DP), PARAMETER                                           :: eps=1.D-12
           ELSE    !! Kaleidagraph (and OriginLab?)
 
             IF (iplotall == 1) THEN
+              CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
               IF (ikph /= 0) THEN            
                 WRITE(intfile,705) PrintTime,phwrite,(s(iplot(i),jx,jy,jz),i=1,nplot),  &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas)
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               ELSE
                 WRITE(intfile,705) PrintTime,(s(iplot(i),jx,jy,jz),i=1,nplot),  &
                   (SurfaceCon(i),i=1,nplotsurface),(ExchangeCon(i),i=1,nplotexchange),   &
                   (sp(ik,jx,jy,jz)/clg,ik=1,ncomp+nspec),                                &
                   (spsurf10(is,jx,jy,jz)/AqueousToBulk,is=1,nsurf+nsurf_sec),            &
                   (spex10(nex+nexchange,jx,jy,jz)/AqueousToBulk,nex=1,nexch_sec),        &
-                  (spgas(kk,jx,jy,jz),kk=1,ngas)
+                  (spgas10(kk,jx,jy,jz),kk=1,ngas),(gastmp10(kk),kk = 1,ngas)
               END IF
               
             ELSE IF (iplotall == 3) THEN      

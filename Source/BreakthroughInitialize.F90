@@ -183,7 +183,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3001) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -201,7 +201,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3701) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -209,7 +209,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3701) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -229,7 +229,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3002) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -237,7 +237,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
 
           ELSE
@@ -264,7 +264,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3702) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -272,7 +272,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF    
 
           ELSE
@@ -300,7 +300,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3003) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -308,7 +308,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3003) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -326,7 +326,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3703) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -334,7 +334,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3703) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -353,14 +353,14 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3004) (ulab(iplot(i)),i=1,nplot),                &
                (ulab(i),i=1,nplotsurface),(ulab(i),i=1,nplotexchange),       &
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3004) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -378,7 +378,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3704) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -386,7 +386,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3704) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -404,14 +404,14 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3005) (ulab(iplot(i)),i=1,nplot),                &
                (ulab(i),i=1,nplotsurface),(ulab(i),i=1,nplotexchange),       &
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3005) (TimeSeriesSpecies(i),i=1,nplot) 
@@ -429,7 +429,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             ELSE
               WRITE(intfile,3705) (ulab(iplot(i)),i=1,nplot),                &
                 (SurfaceBasis(i),i=1,nplotsurface),                          &
@@ -437,7 +437,7 @@ IF (nseries >= 1) THEN
                 (ulab(ik),ik=1,ncomp+nspec),                                 &
                 (namsurf(ns),ns=1,nsurf),(namsurf_sec(ns),ns=1,nsurf_sec),   &
                 (nam_exchsec(nex),nex=1,nexch_sec),                          &
-                (namg(kk),kk=1,ngas)
+                (namg(kk),kk=1,ngas),(namg(kk),kk=1,ngas)
             END IF
           ELSE
             WRITE(intfile,3705) (TimeSeriesSpecies(i),i=1,nplot) 

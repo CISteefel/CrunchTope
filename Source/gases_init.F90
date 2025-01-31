@@ -73,7 +73,7 @@ INTEGER(I4B)                                               :: kk
 
 tempk = tempc + 273.15
 pg = PressureCond(nco) 
-denmol = DLOG( (pg*1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
+denmol = DLOG( (1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 DO kk = 1,ngas
 
@@ -90,7 +90,7 @@ DO kk = 1,ngas
       
     END DO
 
-  spgastmp(kk) = keqgas_tmp(kk) + sum 
+  spgastmp(kk) = keqgas_tmp(kk) + sum + denmol
   spgastmp10(kk) = DEXP(spgastmp(kk))       !  mole fraction of gases
 END DO
 

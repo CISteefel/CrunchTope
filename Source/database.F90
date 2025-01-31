@@ -946,6 +946,8 @@ DO  i = 1, n+1        ! list of species in reaction
       EXIT
     END IF
   END DO
+  
+  
 
   IF (speciesfound) then
     CYCLE

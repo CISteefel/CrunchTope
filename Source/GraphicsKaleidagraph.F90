@@ -204,10 +204,30 @@ INTEGER(I4B)                                               :: kMineralCommon
 INTEGER(I4B)                                               :: kMineralRare
 REAL(DP)                                                   :: totRare
 REAL(DP)                                                   :: totCommon
-REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
-INTEGER(I4B)                                       :: ls
+REAL(DP)                                                   :: CellVolume
+REAL(DP)                                                   :: totAqueousH2 
+REAL(DP)                                                   :: totGasH2 
+REAL(DP)                                                   :: totH2O
+REAL(DP)                                                   :: PorSat
+REAL(DP)                                                   :: rateOlivine_A
+REAL(DP)                                                   :: rateOlivine_B
+REAL(DP)                                                   :: rateLizardite
+REAL(DP)                                                   :: rateMagnetite
+REAL(DP)                                                   :: rateFeBrucite
+REAL(DP)                                                   :: vol1
+REAL(DP)                                                   :: vol2
+REAL(DP)                                                   :: vol3
+REAL(DP)                                                   :: vol4
+REAL(DP)                                                   :: vol5
+REAL(DP)                                                   :: OlivineNormalization
+REAL(DP)                                                   :: PartialPressureH2
 
-REAL(DP), DIMENSION(ncomp)                         :: gflux_hor
+REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
+
+INTEGER(I4B)                                               :: ls
+INTEGER(I4B)                                               :: nco
+
+REAL(DP), DIMENSION(ncomp)                                 :: gflux_hor
 
 pi = DACOS(-1.0d0)
 
@@ -390,14 +410,94 @@ WRITE(8,130)
 WRITE(8,2285) (namg(kk),kk=1,ngas)
 jy = 1
 jz = 1
-DO jx = 0,nx
-  if (jx==0) THEN
-  WRITE(8,184) x(jx)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,jz)),kk = 1,ngas)
-  else
-  WRITE(8,184) x(jx)*OutputDistanceScale,(spgas10(kk,jx,1,1),kk = 1,ngas)
-  END IF
+totAqueousH2 = 0.0
+totGasH2 = 0.0
+DO jx = 1,nx
+  CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+  PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+  WRITE(8,184) x(jx)*OutputDistanceScale,(spgas10(kk,jx,1,1)*CellVolume*PorSat,kk = 1,ngas)
 END DO
 CLOSE(UNIT=8,STATUS='keep')
+
+fn='integrated_gases'
+ilength = 16
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,2283) PrintTime
+!!!WRITE(8,130)
+!!!130 FORMAT('# Units: mol/m3')
+!!!WRITE(8,2285) (namg(kk),kk=1,ngas)
+jy = 1
+jz = 1
+totH2O = 0.0
+totAqueousH2 = 0.0
+totGasH2 = 0.0
+rateOlivine_A = 0.0
+rateOlivine_B = 0.0
+rateLizardite = 0.0
+rateMagnetite = 0.0
+rateFeBrucite = 0.0
+
+IF (namg(1) /= 'H2(g)' .or. ulab(22) /= 'H2(aq)') THEN
+  CONTINUE
+ELSE
+  DO jx = 1,nx
+    
+    tk = 273.15d0 + t(jx,jy,jz)
+    CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+    PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+    nco = jinit(jx,jy,jz)
+    
+    totH2O        = totH2O + 1000.0 * CellVolume * ro(jx,jy,jz)* porcond(nco)*   &
+                       satliq(jx,jy,jz) * (sp10(1,jx,jy,jz) - 55.50843506)
+    totAqueousH2  = totAqueousH2 + 1000.0 * CellVolume * ro(jx,jy,jz) * porcond(nco) *   &
+                       satliq(jx,jy,jz) * sp10(22,jx,jy,jz)
+    totGasH2      = totGasH2 + 1000.0*CellVolume * porcond(jinit(jx,jy,jz))    *   &
+                       (1.0-satliq(jx,jy,jz)) * spgas10(1,jx,1,1)
+    
+    vol1 = volfx(1,jx,1,1) - volin(1,nco) 
+    vol2 = volfx(2,jx,1,1) - volin(2,nco) 
+    vol3 = volfx(3,jx,1,1) - volin(3,nco) 
+    vol4 = volfx(4,jx,1,1) - volin(4,nco) 
+    vol5 = volfx(5,jx,1,1) - volin(5,nco) 
+    
+    rateOlivine_A = rateOlivine_A + vol1 /volmol(1) * CellVolume
+    rateOlivine_B = rateOlivine_B + vol2 /volmol(2) * CellVolume
+    rateLizardite = rateLizardite + vol3 /volmol(3) * CellVolume
+    rateMagnetite = rateMagnetite + vol4 /volmol(4) * CellVolume
+    rateFeBrucite = rateFeBrucite + vol5 /volmol(5) * CellVolume
+    
+  END DO
+  
+  PartialPressureH2 = 0.001 * totGasH2/(1.1*0.001) * 8.314d0 * tk/1.0E+05
+  write(8,*) ' TotH2O (mmol)           = ', totH2O
+  write(8,*) ' TotAqueousH2 (mmol)     = ', totAqueousH2
+  write(8,*) ' AqueousH2 (mol/kgw)     = ', 1000.0*totAqueousH2/0.20
+  write(8,*) ' TotGasH2     (umol)     = ', totGasH2*1000.0
+  write(8,*) ' Partial pressure        = ', PartialPressureH2
+  write(8,*)
+  write(8,*) ' Delta olivine (mmol)    = ', (rateOlivine_A + rateOlivine_B) * 1000.0
+  write(8,*) ' Delta lizardite (mmol)  = ', rateLizardite* 1000.0
+  write(8,*) ' Delta magnetite (mmol)  = ', rateMagnetite* 1000.0
+  write(8,*) ' Delta Fe-brucite (mmol) = ', rateFeBrucite* 1000.0
+  
+  OlivineNormalization = DABS((rateOlivine_A + rateOlivine_B) * 1000.0)
+  
+  write(8,*)
+  write(8,*) ' Delta olivine           = ', (rateOlivine_A + rateOlivine_B)*1000.0/OlivineNormalization
+  write(8,*) ' Delta lizardite         = ', rateLizardite* 1000.0/OlivineNormalization
+  write(8,*) ' Delta magnetite         = ', rateMagnetite* 1000.0/OlivineNormalization
+  write(8,*) ' Delta Fe-brucite        = ', rateFeBrucite* 1000.0/OlivineNormalization
+  write(8,*) ' Delta H2O               = ', totH2O/OlivineNormalization
+  write(8,*) ' Delta AqueousH2         = ', totAqueousH2/OlivineNormalization
+  write(8,*) ' Delta GasH2             = ', totGasH2/OlivineNormalization
+  
+  
+  CLOSE(UNIT=8,STATUS='keep')
+  
+END IF
+
+
 
 IF (isaturate==1) THEN
   

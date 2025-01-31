@@ -219,12 +219,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
           gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
           dumpx = porp*satp*gasd
         else
-        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
-        dume = pore*sate*gasd
-        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
-        dumw = porw*satw*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpx = porp*satp*gasd
+          gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
+          dume = pore*sate*gasd
+          gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
+          dumw = porw*satw*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpx = porp*satp*gasd
         endif
       END IF
       
@@ -241,15 +241,15 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !sats = 1.0-satliq(jx,jy,jz)
         sats = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpy = porp*satp*gasd
         else
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpy = porp*satp*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpy = porp*satp*gasd
         endif
         dums = dumpy
       ELSE IF (jy == ny) THEN
@@ -262,15 +262,15 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !sats = 1.0-satliq(jx,jy-1,jz)
         sats = 0.5*( 1.0-satliq(jx,jy-1,jz) + 1.0-satliqold(jx,jy-1,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
-        dums = pors*sats*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+          dums = pors*sats*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpy = porp*satp*gasd
         else
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
-        dums = pors*sats*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
+          dums = pors*sats*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpy = porp*satp*gasd
         endif
         dumn = dumpy
       ELSE
@@ -283,19 +283,19 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !sats = 1.0-satliq(jx,jy-1,jz)
         sats = 0.5*( 1.0-satliq(jx,jy-1,jz) + 1.0-satliqold(jx,jy-1,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
-        dums = pors*sats*gasd
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+          dums = pors*sats*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpy = porp*satp*gasd
         else
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
-        dums = pors*sats*gasd
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
+          dums = pors*sats*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpy = porp*satp*gasd
         endif
       END IF
       
@@ -317,16 +317,16 @@ SUBROUTINE gasdiff(nx,ny,nz)
         dharm = GeometricMean(dume,dumpx)
       END IF
 
-      if (jx==nx) then
-        continue
-      end if
 
       AreaE = dyy(jy)*dzz(jx,jy,jz) 
       dspe = dharm
       de = AreaE*dspe/dxe
+      IF (jx==nx) THEN
+        de = 0.0d0
+      END IF
       fe = AreaE*qxgas(jx,jy,jz)
       ae = DMAX1(-fe,0.0D0) + de
-      
+
    !!!  WEST
       
       IF (MeanDiffusion == 1) THEN
@@ -340,6 +340,9 @@ SUBROUTINE gasdiff(nx,ny,nz)
       AreaW = dyy(jy)*dzz(jx,jy,jz) 
       dspw = dharm
       dw = AreaW*dspw/dxw
+      IF (jx==1) THEN
+        dw = 0.0d0
+      END IF
       fw = AreaW*qxgas(jx-1,jy,jz)
       aw = DMAX1(fw,0.0D0) + dw
 

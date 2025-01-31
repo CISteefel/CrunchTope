@@ -169,6 +169,8 @@ REAL(DP)                                                   :: MassFraction
 REAL(DP), DIMENSION(ngas)                                  :: gastmp10
 REAL(DP)                                                   :: denmol
 REAL(DP)                                                   :: tk
+REAL(DP)                                                   :: wtt
+REAL(DP)                                                   :: pg
 
 PrintTime = realtime*OutputTimeScale
 rone = 1.0d0
@@ -224,6 +226,7 @@ DO jz = 1,nz
 556 FORMAT(2X, 'Liquid Saturation  = ',f10.3)
 557 FORMAT(2X, 'Liquid Density     = ',f10.3)
 563 FORMAT(2X, 'Activity of water  = ',f10.3)
+564 FORMAT(2X, 'Pressure (bars)    = ',f10.3)
 411 FORMAT(2X, 'Ionic Strength     = ',f10.3)
 5022 FORMAT(2X,'Solution pH        = ',f10.3)
 5023 FORMAT(2X,'Solution pe        = ',f10.3)
@@ -231,6 +234,7 @@ DO jz = 1,nz
 205  FORMAT(2X,'Total Charge       = ',1pe10.3)
 
       WRITE(8,555) t(jx,jy,jz)
+      WRITE(8,564) PressureCond(jinit(jx,jy,jz))
       WRITE(8,558) por(jx,jy,jz)
       WRITE(8,556) satliq(jx,jy,jz)
       WRITE(8,557) ro(jx,jy,jz)
@@ -414,13 +418,26 @@ DO jz = 1,nz
       END DO  
 
     WRITE(8,*)
-    WRITE(8,*) ' ****** Partial pressure of gases (bars) *****'
+    WRITE(8,*) '*** Partial pressure gas (bars)   moles gas/m^3  g gas/m^3'
     WRITE(8,*)
 
     CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
+    CALL gases(ncomp,ngas,jx,jy,jz)
+    pg = PressureCond(jinit(jx,jy,jz))
 
+    
     DO i = 1,ngas
-      WRITE(8,513)  namg(i),gastmp10(i)
+      
+      IF (namg(i) == 'H2(g)') THEN
+        wtt = 2.016*spgas10(i,jx,jy,jz)
+      ELSE IF (namg(i) == 'O2(g)') THEN
+        wtt = 31.999*spgas10(i,jx,jy,jz)
+      ELSE
+        wtt = 0.0d0
+      END IF
+        
+      WRITE(8,513)  namg(i),gastmp10(i),spgas10(i,jx,jy,jz), wtt
+      
     END DO
 
       WRITE(8,*)
@@ -467,7 +484,7 @@ CLOSE(UNIT=8,STATUS='keep')
 2285 FORMAT('    Distance    ',100(1X,a14))
 2286 FORMAT('    Distance    ',100(1X,a14))
 514 FORMAT(1X,a10,1X,1PE11.4)
-513 FORMAT(1X,a18,1X,1PE12.4,5X,a12)
+513 FORMAT(1X,a18,1X,1PE12.4,2X,1PE12.4,2X,1PE12.4)
 515 FORMAT(1X,a18,1X,1PE12.4,5X,1PE12.4,5X,1PE12.4)
 
 600 FORMAT(2X,f10.2,2X,a15)

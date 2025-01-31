@@ -945,7 +945,6 @@ DO i = 1,ncomp
       (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) -            &
        rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
 
-
   ELSE
     aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
       (rotemp*satl*s(i,jx,jy,jz) -            &
@@ -953,8 +952,8 @@ DO i = 1,ncomp
   END IF
   
   IF (isaturate == 1) THEN
-!!!    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
-        gas_accum = portemp*r*satgas*(sgas(i,jx,jy,jz) - sgasn(i,jx,jy,jz))
+    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
+!!!        gas_accum = portemp*r*satgas*(sgas(i,jx,jy,jz) - sgasn(i,jx,jy,jz))
   ELSE
     gas_accum = 0.0
     gas_transport = 0.0

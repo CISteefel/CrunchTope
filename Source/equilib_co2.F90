@@ -752,7 +752,9 @@ DO  ktrial = 1,ntrial
       
         check = sumiap + keqgas_tmp(kg) - ln_fco2 - LOG(ctot(i,nco))
       ELSE
-        check = sumiap + keqgas_tmp(kg) - LOG(ctot(i,nco))
+        pg = PressureCond(nco)
+        
+        check = sumiap + keqgas_tmp(kg) - LOG(ctot(i,nco))  !!! This should give mole fraction, not partial pressure
       END IF
 
       feq(i) = check
@@ -1352,6 +1354,7 @@ DO  ktrial = 1,ntrial
     WRITE(iunit2,*)
 
 555 FORMAT(2X, 'Temperature (C)         = ',f10.3)
+564 FORMAT(2x, 'Pressure (bars)         = ',f10.3)
 558 FORMAT(2X, 'Porosity                = ',f10.3)
 559 FORMAT(2X, 'Conversion (M->m)       = ',f10.3)
 556 FORMAT(2X, 'Liquid Saturation       = ',f10.3)
@@ -1383,6 +1386,7 @@ DO  ktrial = 1,ntrial
     gammawatertmp = EXP(gamtmp(ih2o))
     
     WRITE(iunit2,555) tempc
+    WRITE(iunit2,564) PressureCond(nco)
     WRITE(iunit2,558) porcond(nco)
     WRITE(iunit2,556) SaturationCond(nco)
     WRITE(iunit2,557) rocond(nco)
@@ -1780,10 +1784,11 @@ DO  ktrial = 1,ntrial
     WRITE(iunit2,*) ' ****** Partial pressure of gases (bars) *****'
     WRITE(iunit2,*)
     
+    pg = PressureCond(nco)
     CALL GasPartialPressure_Init(ncomp,ngas,tempc,pg)
 
     DO i = 1,ngas
-      WRITE(iunit2,513)  namg(i),1.0d0*spgastmp10(i)
+      WRITE(iunit2,513)  namg(i),spgastmp10(i)
     END DO
 
     WRITE(iunit2,*)

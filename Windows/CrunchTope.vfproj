@@ -109,16 +109,14 @@
 			<File RelativePath="..\Source\density.F90"/>
 			<File RelativePath="..\Source\dispersivity.F90"/>
 			<File RelativePath="..\Source\duan.F90"/>
-			<File RelativePath="..\Source\equilib_co2.F90">
-			</File>
+			<File RelativePath="..\Source\equilib_co2.F90"/>
 			<File RelativePath="..\Source\erosion.F90"/>
 			<File RelativePath="..\Source\ex_activity.F90"/>
 			<File RelativePath="..\Source\exactivity_init.F90"/>
 			<File RelativePath="..\Source\exchange.F90"/>
 			<File RelativePath="..\Source\exchange_init.F90"/>
 			<File RelativePath="..\Source\ExchangeConcentration.F90"/>
-			<File RelativePath="..\Source\find_condition.F90">
-			</File>
+			<File RelativePath="..\Source\find_condition.F90"/>
 			<File RelativePath="..\Source\find_firststring.F90"/>
 			<File RelativePath="..\Source\find_string.F90"/>
 			<File RelativePath="..\Source\FindMaxFlow.F90"/>
@@ -131,25 +129,20 @@
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>
 			<File RelativePath="..\Source\FractureAperture.F90"/>
-			<File RelativePath="..\Source\FxTopeGlobal.F90">
-			</File>
+			<File RelativePath="..\Source\FxTopeGlobal.F90"/>
 			<File RelativePath="..\Source\FxTopeLocal.F90"/>
 			<File RelativePath="..\Source\gamma_co2.F90"/>
-			<File RelativePath="..\Source\gamma_init.F90">
-			</File>
+			<File RelativePath="..\Source\gamma_init.F90"/>
 			<File RelativePath="..\Source\gamma_init_co2.F90"/>
 			<File RelativePath="..\Source\gamma_local.F90"/>
 			<File RelativePath="..\Source\gammaUpdated.F90"/>
 			<File RelativePath="..\Source\gascoeffCylinder.F90"/>
 			<File RelativePath="..\Source\gasdiff.F90"/>
-			<File RelativePath="..\Source\gases.F90">
-			</File>
-			<File RelativePath="..\Source\gases_init.F90">
-			</File>
+			<File RelativePath="..\Source\gases.F90"/>
+			<File RelativePath="..\Source\gases_init.F90"/>
 			<File RelativePath="..\Source\gases_init_co2.F90"/>
 			<File RelativePath="..\Source\GasInjection.F90"/>
-			<File RelativePath="..\Source\GasPartialPressure.F90">
-			</File>
+			<File RelativePath="..\Source\GasPartialPressure.F90"/>
 			<File RelativePath="..\Source\GasPartialPressure_Init.F90"/>
 			<File RelativePath="..\Source\GetMineralNumber.F90"/>
 			<File RelativePath="..\Source\GetPrimarySpeciesNumber.F90"/>
@@ -238,8 +231,7 @@
 			<File RelativePath="..\Source\read_burialfile.F90"/>
 			<File RelativePath="..\Source\read_CatabolicPath.F90"/>
 			<File RelativePath="..\Source\read_concentration.F90"/>
-			<File RelativePath="..\Source\read_condition.F90">
-			</File>
+			<File RelativePath="..\Source\read_condition.F90"/>
 			<File RelativePath="..\Source\read_constantflow.F90"/>
 			<File RelativePath="..\Source\read_constantgasflow.F90"/>
 			<File RelativePath="..\Source\read_ConstantTortuosity.F90"/>
@@ -328,11 +320,9 @@
 			<File RelativePath="..\Source\ReadFlowField.F90"/>
 			<File RelativePath="..\Source\readModFlowParameters.F90"/>
 			<File RelativePath="..\Source\readModFlowStress.F90"/>
-			<File RelativePath="..\Source\ReadPressureCondition.F90">
-			</File>
+			<File RelativePath="..\Source\ReadPressureCondition.F90"/>
 			<File RelativePath="..\Source\readRecharge.F90"/>
-			<File RelativePath="..\Source\ReadSaturation.F90">
-			</File>
+			<File RelativePath="..\Source\ReadSaturation.F90"/>
 			<File RelativePath="..\Source\readSingleString.F90"/>
 			<File RelativePath="..\Source\readtype1.F90"/>
 			<File RelativePath="..\Source\readtype2.F90"/>
@@ -349,16 +339,14 @@
 			<File RelativePath="..\Source\SolveDiffuseSpherical.F90"/>
 			<File RelativePath="..\Source\SolveGasDiffuse.F90"/>
 			<File RelativePath="..\Source\solver.F90"/>
-			<File RelativePath="..\Source\speciation.F90">
-			</File>
+			<File RelativePath="..\Source\speciation.F90"/>
 			<File RelativePath="..\Source\species.F90"/>
 			<File RelativePath="..\Source\species_init.F90"/>
 			<File RelativePath="..\Source\SpeciesLocal.F90"/>
 			<File RelativePath="..\Source\squeeze.F90"/>
 			<File RelativePath="..\Source\sschaine.F90"/>
 			<File RelativePath="..\Source\sschaine_hyph.F90"/>
-			<File RelativePath="..\Source\StartTope.F90">
-			</File>
+			<File RelativePath="..\Source\startTope.F90"/>
 			<File RelativePath="..\Source\SteadyState.F90"/>
 			<File RelativePath="..\Source\stringlen.F90"/>
 			<File RelativePath="..\Source\strings.F90"/>
