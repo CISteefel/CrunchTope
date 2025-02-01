@@ -19,11 +19,12 @@ SOURCEF = \
           flow.F90\
           crunch_interface.F90\
           CrunchFunctions.F90\
+		  CrunchModules.F90\
           isotope.F90\
           NanoCrystal.F90\
-	  hydraulic_function.F90\
-	  richards.F90\
-	  read_richards.F90\
+	      hydraulic_function.F90\
+	      richards.F90\
+	      read_richards.F90\
           CrunchTopeDriver.F90\
           CrunchTope.F90\
           AffinityNumerical.F90\
@@ -332,7 +333,7 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
-	  read_vanGenuchten_parameters.F90\
+	      read_vanGenuchten_parameters.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
@@ -358,11 +359,12 @@ OBJSF  =  crunchtype.o\
           flow.o\
           crunch_interface.o\
           CrunchFunctions.o\
+		  CrunchModules.o\
           isotope.o\
           NanoCrystal.o\
-	  hydraulic_function.o\
-	  richards.o\
-	  read_richards.o\
+	      hydraulic_function.o\
+	      richards.o\
+	      read_richards.o\
           CrunchTopeDriver.o\
           CrunchTope.o\
           AffinityNumerical.o\
@@ -670,7 +672,7 @@ OBJSF  =  crunchtype.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
-	  read_vanGenuchten_parameters.o\
+	      read_vanGenuchten_parameters.o\
           read_tempreg.o\
           read_tempregion.o\
           read_tempts.o\
