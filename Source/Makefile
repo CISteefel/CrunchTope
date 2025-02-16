@@ -12,19 +12,19 @@ SOURCEF = \
           transport.F90\
           medium.F90\
           modflowModule.F90\
-          ReadFlow.F90\
+          readFlow.F90\
           RunTime.F90\
           solver.F90\
           temperature.F90\
           flow.F90\
           crunch_interface.F90\
           CrunchFunctions.F90\
-		  CrunchModules.F90\
+          CrunchModules.F90\
           isotope.F90\
           NanoCrystal.F90\
-		  hydraulic_function.F90\
-		  richards.F90\
-		  read_richards.F90\
+          hydraulic_function.F90\
+          richards.F90\
+          read_richards.F90\
           CrunchTopeDriver.F90\
           CrunchTope.F90\
           AffinityNumerical.F90\
@@ -64,7 +64,7 @@ SOURCEF = \
           coeffCylinderDiffuse.F90\
           coeffCylinderNUFT.F90\
           coeffDiffuse.F90\
-          coeffNuft.F90\
+          oeffNuft.F90\
           coeffSphericalNew.F90\
           coeffSphericalNew_d.F90\
           convan.F90\
@@ -158,7 +158,7 @@ SOURCEF = \
           mineral_update.F90\
           MineralBreakthroughWrite.F90\
           MineralBreakthroughInitialize.F90\
-          modread.F90\
+          mod-read.F90\
           ModScan.F90\
           movie.F90\
           newfile.F90\
@@ -254,13 +254,13 @@ SOURCEF = \
           readbreak.F90\
           readCaseSensitive.F90\
           readCaseSensitivePar.F90\
-          ReadFileNameOnly.F90\
-          ReadFlowField.F90\
+          readFileNameOnly.F90\
+          readFlowField.F90\
           readModFlowParameters.F90\
           readModFlowStress.F90\
-          ReadPressureCondition.F90\
+          readPressureCondition.F90\
           readRecharge.F90\
-          ReadSaturation.F90\
+          readSaturation.F90\
           readSingleString.F90\
           readtype1.F90\
           readtype2.F90\
@@ -333,7 +333,7 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
-		  read_vanGenuchten_parameters.F90\
+          read_vanGenuchten_parameters.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
@@ -343,7 +343,8 @@ SOURCEF = \
           read_mineralfile.F90\
           read_eastriver.F90\
 
-OBJSF  =  crunchtype.o\
+OBJSF  =  \
+          crunchtype.o\
           params.o\
           strings.o\
           io.o\
@@ -352,27 +353,27 @@ OBJSF  =  crunchtype.o\
           transport.o\
           medium.o\
           modflowModule.o\
-          ReadFlow.o\
+          readFlow.o\
           RunTime.o\
           solver.o\
           temperature.o\
           flow.o\
           crunch_interface.o\
           CrunchFunctions.o\
-		  CrunchModules.o\
+          CrunchModules.o\
           isotope.o\
           NanoCrystal.o\
-		  hydraulic_function.o\
-		  richards.o\
-		  read_richards.o\
+          hydraulic_function.o\
+          richards.o\
+          read_richards.o\
           CrunchTopeDriver.o\
           CrunchTope.o\
           AffinityNumerical.o\
-          AllocateOS3D.o\
-          AllocateGIMRT.o\
           AllocateALL.o\
+          AllocateOS3D.o\
           AllocateGasesGimrt.o\
           AllocateGasesOS3D.o\
+          AllocateGIMRT.o\
           AqueousFluxInitialize.o\
           AqueousFluxWrite.o\
           AqueousToBulkConvert.o\
@@ -404,7 +405,7 @@ OBJSF  =  crunchtype.o\
           coeffCylinderDiffuse.o\
           coeffCylinderNUFT.o\
           coeffDiffuse.o\
-          coeffNuft.o\
+          oeffNuft.o\
           coeffSphericalNew.o\
           coeffSphericalNew_d.o\
           convan.o\
@@ -498,7 +499,7 @@ OBJSF  =  crunchtype.o\
           mineral_update.o\
           MineralBreakthroughWrite.o\
           MineralBreakthroughInitialize.o\
-          modread.o\
+          mod-read.o\
           ModScan.o\
           movie.o\
           newfile.o\
@@ -530,9 +531,9 @@ OBJSF  =  crunchtype.o\
           read_CatabolicPath.o\
           read_concentration.o\
           read_condition.o\
-          read_ConstantTortuosity.o\
           read_constantflow.o\
           read_constantgasflow.o\
+          read_ConstantTortuosity.o\
           read_coordinates.o\
           read_dbs.o\
           read_decay.o\
@@ -594,13 +595,13 @@ OBJSF  =  crunchtype.o\
           readbreak.o\
           readCaseSensitive.o\
           readCaseSensitivePar.o\
-          ReadFileNameOnly.o\
-          ReadFlowField.o\
+          readFileNameOnly.o\
+          readFlowField.o\
           readModFlowParameters.o\
           readModFlowStress.o\
-          ReadPressureCondition.o\
+          readPressureCondition.o\
           readRecharge.o\
-          ReadSaturation.o\
+          readSaturation.o\
           readSingleString.o\
           readtype1.o\
           readtype2.o\
@@ -672,7 +673,8 @@ OBJSF  =  crunchtype.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
-	      read_vanGenuchten_parameters.o\
+          read_infiltration_2.o\
+          read_vanGenuchten_parameters.o\
           read_tempreg.o\
           read_tempregion.o\
           read_tempts.o\
