@@ -12,7 +12,7 @@ SOURCEF = \
           transport.F90\
           medium.F90\
           modflowModule.F90\
-          readFlow.F90\
+          ReadFlow.F90\
           RunTime.F90\
           solver.F90\
           temperature.F90\
@@ -254,11 +254,11 @@ SOURCEF = \
           readbreak.F90\
           readCaseSensitive.F90\
           readCaseSensitivePar.F90\
-          readFileNameOnly.F90\
-          readFlowField.F90\
+          ReadFileNameOnly.F90\
+          ReadFlowField.F90\
           readModFlowParameters.F90\
           readModFlowStress.F90\
-          readPressureCondition.F90\
+          ReadPressureCondition.F90\
           readRecharge.F90\
           readSaturation.F90\
           readSingleString.F90\
@@ -353,7 +353,7 @@ OBJSF  =  \
           transport.o\
           medium.o\
           modflowModule.o\
-          readFlow.o\
+          ReadFlow.o\
           RunTime.o\
           solver.o\
           temperature.o\
@@ -596,7 +596,7 @@ OBJSF  =  \
           readCaseSensitive.o\
           readCaseSensitivePar.o\
           readFileNameOnly.o\
-          readFlowField.o\
+          ReadFlowField.o\
           readModFlowParameters.o\
           readModFlowStress.o\
           readPressureCondition.o\
