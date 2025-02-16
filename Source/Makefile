@@ -158,7 +158,7 @@ SOURCEF = \
           mineral_update.F90\
           MineralBreakthroughWrite.F90\
           MineralBreakthroughInitialize.F90\
-          mod-read.F90\
+          modread.F90\
           ModScan.F90\
           movie.F90\
           newfile.F90\
@@ -499,7 +499,7 @@ OBJSF  =  \
           mineral_update.o\
           MineralBreakthroughWrite.o\
           MineralBreakthroughInitialize.o\
-          mod-read.o\
+          modread.o\
           ModScan.o\
           movie.o\
           newfile.o\
