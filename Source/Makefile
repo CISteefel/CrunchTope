@@ -19,10 +19,10 @@ SOURCEF = \
           flow.F90\
           crunch_interface.F90\
           CrunchFunctions.F90\
+          hydraulic_function.F90\
           CrunchModules.F90\
           isotope.F90\
           NanoCrystal.F90\
-          hydraulic_function.F90\
           richards.F90\
           read_richards.F90\
           CrunchTopeDriver.F90\
@@ -360,10 +360,10 @@ OBJSF  =  \
           flow.o\
           crunch_interface.o\
           CrunchFunctions.o\
+          hydraulic_function.o\
           CrunchModules.o\
           isotope.o\
           NanoCrystal.o\
-          hydraulic_function.o\
           richards.o\
           read_richards.o\
           CrunchTopeDriver.o\
