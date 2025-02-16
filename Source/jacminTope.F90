@@ -246,6 +246,9 @@ REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: liqsat_fac, sat
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 !!!NoFractionationDissolution = .false.
 
 SetToAqueousMoleFraction = .FALSE.
@@ -423,8 +426,15 @@ DO k = 1,nkin
               
               sumiap = 0.0D0
               DO i2 = 1,ncomp
+                
+                ulabPrint = ulab(i)
+                IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+                  lnActivity = lngamma(i,jx,jy,jz)
+                ELSE
+                  lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+                END IF
 
-                  sumiap = sumiap + mumin(1,k,i2)*( sppTMP(i2) + lngamma(i2,jx,jy,jz) )
+                sumiap = sumiap + mumin(1,k,i2)*lnActivity
 
               END DO
               

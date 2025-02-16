@@ -189,6 +189,10 @@ REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: DecayTerm
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
+
 !**********
 !Specific to eastriver simulations (Lucien Stolze, June 2023)
 REAL(DP)                                                        :: liqsat_fac
@@ -371,14 +375,18 @@ DO k = 1,nkin
 
         kk = kcrossaff(np,k)
 
-
-
-          sumiap = 0.0D0
-          DO i = 1,ncomp
-            sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
-          END DO
-
-
+        sumiap = 0.0D0
+        DO i = 1,ncomp
+            
+          ulabPrint = ulab(i)
+          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+            lnActivity = lngamma(i,jx,jy,jz)
+          ELSE
+            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+          END IF
+            
+          sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*lnActivity
+        END DO
 
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
         
@@ -388,13 +396,19 @@ DO k = 1,nkin
       ELSE IF (imintype(np,k) == 8) THEN             !! Microbially mediated, with thermodynamic factor Ft
 
         jj = p_cat_min(k)
-
-
-          sumiap = 0.0D0
-          DO i = 1,ncomp
-            sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
-          END DO
-
+        
+        sumiap = 0.0D0
+        DO i = 1,ncomp
+            
+          ulabPrint = ulab(i)
+          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+            lnActivity = lngamma(i,jx,jy,jz)
+          ELSE
+            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+          END IF
+            
+          sumiap = sumiap + muminTMP(np,jj,i)*lnActivity
+        END DO
 
         silog(np,k) = (sumiap - keqminTMP(np,jj) - BQ_min(np,jj)/(rgas*Tk))/clg    !!  BQ in kJ/e-mole
         siln(np,k) = clg*silog(np,k)
@@ -403,12 +417,18 @@ DO k = 1,nkin
 !!    Base Case
       ELSE    
             
-
-
-          sumiap = 0.0D0
-          DO i = 1,ncomp
-            sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
-          END DO
+        sumiap = 0.0D0
+        DO i = 1,ncomp
+            
+          ulabPrint = ulab(i)
+          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+            lnActivity = lngamma(i,jx,jy,jz)
+          ELSE
+            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+          END IF
+          
+          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*lnActivity
+        END DO
 
         
 !!!     *******************************************************************
@@ -649,7 +669,7 @@ DO k = 1,nkin
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
 
-                term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
+              term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
 
             END IF
           ELSE

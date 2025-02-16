@@ -1720,8 +1720,10 @@ DO WHILE (nn <= nend)
 !!!  ********************************************************
 !!!  *************   START GIMRT BLOCK  *********************
 
-6000   IF (GIMRT) THEN
+6000 IF (GIMRT) THEN
   
+
+       
     i_substep = 1
     n_substep = 1
     dt_GIMRT = delt
@@ -1832,7 +1834,7 @@ DO WHILE (nn <= nend)
     newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
           NE = NE + 1
           iterat = iterat + 1
-
+          
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
 		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
             
@@ -2015,7 +2017,7 @@ DO WHILE (nn <= nend)
                 j = (jy-1)*nx+jx
                 
                 DO i = 1,ncomp
-                  IF (ulab(i) == "O2(aq)") THEN
+                  IF (ulab(i) == 'O2(aq)') THEN
                     MaximumCorrection = corrmax
                   ELSE
                     MaximumCorrection = 2.0
@@ -2433,7 +2435,7 @@ END IF
     
   END IF
 
-!  **********************  START GIMRT BLOCK  *********************************
+!  **********************  START GIMRT EROSION BLOCK  *********************************
 
   IF (GIMRT .AND. ierode == 1) THEN
 
@@ -2843,34 +2845,34 @@ END IF
 
 
 !  Calculate time step to be used based on various criteria
-    IF (nn > 4) THEN
-          dtmax = tstep
-          IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
-            deltmin = dtmaxcour
+  IF (nn > 4) THEN
+        dtmax = tstep
+        IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
+          deltmin = dtmaxcour
+        END IF
+        IF (dtmaxcour /= 0.0) THEN
+          dtmax = MIN(dtmax,dtmaxcour)
+        END IF
+        dtmax = MAX(dtmax,deltmin)
+        IF (ReadNuft) THEN
+          dtNuft = timeNuft - time
+          IF (dtNuft < eps) THEN
+            dtmax = delt
+          ELSE
+            dtmax = MIN(dtNuft,dtmax)
           END IF
-          IF (dtmaxcour /= 0.0) THEN
-            dtmax = MIN(dtmax,dtmaxcour)
+        END IF
+        IF (modflow) THEN
+          dtModFlow = timeModFlow - time
+          IF (dtModFlow(NumModFlowSteps) < eps) THEN
+            dtmax = delt
+          ELSE
+            dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
           END IF
-          dtmax = MAX(dtmax,deltmin)
-          IF (ReadNuft) THEN
-            dtNuft = timeNuft - time
-            IF (dtNuft < eps) THEN
-              dtmax = delt
-            ELSE
-              dtmax = MIN(dtNuft,dtmax)
-            END IF
-          END IF
-          IF (modflow) THEN
-            dtModFlow = timeModFlow - time
-            IF (dtModFlow(NumModFlowSteps) < eps) THEN
-              dtmax = delt
-            ELSE
-              dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
-            END IF
-          END IF
-          CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
-          dtold = delt
-      END IF
+        END IF
+        CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
+        dtold = delt
+    END IF
 
 
   !IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
@@ -3109,67 +3111,67 @@ END IF
         WRITE(*,*) ' Ratio of final to initial mass = ', TotalMass/InitialTotalMass
       END IF
 
-  jxmax = 0
-  jymax = 0
-  MaxDivergence = 0.00
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-        Coordinate = 'X'
-        call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        checkw = RoAveLeft*qx(jx-1,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
-        checke = RoAveRight*qx(jx,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
-        Coordinate = 'Y'
-        call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        checkn = RoAveRight*qy(jx,jy,jz)*dxx(jx)*dzz(jx,jy,jz)
-        checks = RoAveLeft*qy(jx,jy-1,jz)*dxx(jx)*dzz(jx,jy,jz)
-        Coordinate = 'Z'
-        call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
-        checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
+      jxmax = 0
+      jymax = 0
+      MaxDivergence = 0.00
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
+            Coordinate = 'X'
+            call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
+            checkw = RoAveLeft*qx(jx-1,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
+            checke = RoAveRight*qx(jx,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
+            Coordinate = 'Y'
+            call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
+            checkn = RoAveRight*qy(jx,jy,jz)*dxx(jx)*dzz(jx,jy,jz)
+            checks = RoAveLeft*qy(jx,jy-1,jz)*dxx(jx)*dzz(jx,jy,jz)
+            Coordinate = 'Z'
+            call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
+            checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
+            checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
 
-        !! Allocate pump
-        pumpterm = 0.0d0
+            !! Allocate pump
+            pumpterm = 0.0d0
 
-        !! 1) pump time series
-        IF (pumptimeseries) THEN
-          IF (npump(jx,jy,jz)>0) THEN
-            qg(1,jx,jy,jz)=qgdum
-          ELSE
-         qg(1,jx,jy,jz)=0
-          END IF
-        pumpterm = pumpterm + qg(1,jx,jy,jz)
+            !! 1) pump time series
+            IF (pumptimeseries) THEN
+              IF (npump(jx,jy,jz)>0) THEN
+                qg(1,jx,jy,jz)=qgdum
+              ELSE
+             qg(1,jx,jy,jz)=0
+              END IF
+            pumpterm = pumpterm + qg(1,jx,jy,jz)
 
-        !! 2) normal pump
-        ELSEIF (wells) THEN
+            !! 2) normal pump
+            ELSEIF (wells) THEN
 
-          DO npz = 1,npump(jx,jy,jz)
-            pumpterm = pumpterm + qg(npz,jx,jy,jz)
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + qg(npz,jx,jy,jz)
+              END DO
+
+            END IF
+
+            RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
+
+            IF (DABS(RealSum) > MaxDivergence) THEN
+                jxmax = jx
+                jymax = jy
+            END IF
+            MaxDivergence = DMAX1(MaxDivergence,DABS(RealSum))
           END DO
-
-        END IF
-
-        RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
-
-        IF (DABS(RealSum) > MaxDivergence) THEN
-            jxmax = jx
-            jymax = jy
-        END IF
-        MaxDivergence = DMAX1(MaxDivergence,DABS(RealSum))
+        END DO
       END DO
-    END DO
-  END DO
 
-  WRITE(*,*) ' Maximum divergence in flow field = ', MaxDivergence
-  write(*,*) ' At grid cells: ',jxmax,jymax
-!!  write(*,*) qx(jxmax,jymax,1), qx(jxmax-1,jymax,1)
-!!  write(*,*) qy(jxmax,jymax,1), qy(jxmax,jymax-1,1)
-!!  read(*,*)
-  WRITE(*,*)
-!!  READ(*,*)
+      WRITE(*,*) ' Maximum divergence in flow field = ', MaxDivergence
+      write(*,*) ' At grid cells: ',jxmax,jymax
+    !!  write(*,*) qx(jxmax,jymax,1), qx(jxmax-1,jymax,1)
+    !!  write(*,*) qy(jxmax,jymax,1), qy(jxmax,jymax-1,1)
+    !!  read(*,*)
+      WRITE(*,*)
+    !!  READ(*,*)
 
 
-    END IF
+  END IF
 
     IF (nint >= nstop .OR. steady) THEN
       IF (steady) THEN

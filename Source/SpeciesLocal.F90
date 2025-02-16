@@ -66,17 +66,24 @@ INTEGER(I4B)                                                :: nk
 
 REAL(DP)                                                    :: sum
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 DO ksp = 1,nspec
 
-
-
-    sum = 0.0D0
-    DO i = 1,ncomp
-      sum = sum + muaq(ksp,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-    END DO
-
- 
-
+  sum = 0.0D0
+  DO i = 1,ncomp
+      
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      lnActivity = lngamma(i,jx,jy,jz)
+    ELSE
+      lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+    END IF
+          
+    sum = sum + muaq(ksp,i)*lnActivity
+      
+  END DO
 
   nk = ncomp + ksp
   sp(nk,jx,jy,jz) = keqaq(ksp,jx,jy,jz) - lngamma(nk,jx,jy,jz) + sum

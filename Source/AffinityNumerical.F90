@@ -98,6 +98,9 @@ INTEGER(I4B)                                                    :: kMineralCommo
 INTEGER(I4B)                                                    :: iPrimaryRare
 INTEGER(I4B)                                                    :: iPrimaryCommon
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 !! DummyComment
 
 IF (kcrossaff(np,k) /= 0) THEN
@@ -111,7 +114,15 @@ END IF
 
   sumiap = 0.0D0
   DO i = 1,ncomp
-    sumiap = sumiap + mumin(npp,kk,i)*(sppTMP(i)+ lngamma(i,jx,jy,jz))
+    
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      lnActivity = lngamma(i,jx,jy,jz)
+    ELSE
+      lnActivity = sppTMP(i) + lngamma(i,jx,jy,jz)
+    END IF
+          
+    sumiap = sumiap + mumin(npp,kk,i)*lnActivity
   END DO
 
 

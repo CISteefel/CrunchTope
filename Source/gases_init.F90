@@ -77,18 +77,18 @@ denmol = DLOG( (1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure conver
 
 DO kk = 1,ngas
 
-    sum = 0.0
-    DO i = 1,ncomp
+  sum = 0.0
+  DO i = 1,ncomp
       
-      ulabPrint = ulab(i)
-      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-        lnActivity = gamtmp(i) 
-      ELSE
-        lnActivity = (sptmp(i)+gamtmp(i))
-      END IF
-      sum = sum + mugas(kk,i)*lnActivity
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      lnActivity = gamtmp(i) 
+    ELSE
+      lnActivity = (sptmp(i)+gamtmp(i))
+    END IF
+    sum = sum + mugas(kk,i)*lnActivity
       
-    END DO
+  END DO
 
   spgastmp(kk) = keqgas_tmp(kk) + sum + denmol
   spgastmp10(kk) = DEXP(spgastmp(kk))       !  mole fraction of gases

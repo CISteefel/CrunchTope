@@ -172,6 +172,9 @@ REAL(DP)                                                   :: tk
 REAL(DP)                                                   :: wtt
 REAL(DP)                                                   :: pg
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 PrintTime = realtime*OutputTimeScale
 rone = 1.0d0
 
@@ -446,8 +449,15 @@ DO jz = 1,nz
       DO k = 1,nrct
         sumiap = 0.0D0
         DO i = 1,ncomp
+          
+          ulabPrint = ulab(i)
+          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+            lnActivity = lngamma(i,jx,jy,jz)
+          ELSE
+            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+          END IF
 
-            sumiap = sumiap + mumin(1,k,i)* (sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
+          sumiap = sumiap + mumin(1,k,i)* lnActivity
 
         END DO
         silnTMP = sumiap - keqmin(1,k,jx,jy,jz)

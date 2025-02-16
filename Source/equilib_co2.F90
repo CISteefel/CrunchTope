@@ -1799,8 +1799,15 @@ DO  ktrial = 1,ntrial
       kk = k + nspec
       sumiap = 0.0D0
       DO i = 1,ncomp
+        
+        ulabPrint = ulab(i)
+        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+          lnActivity = gamtmp(i) 
+         ELSE
+          lnActivity = (sptmp(i)+gamtmp(i))
+        endif
 
-          sumiap = sumiap + mumin(1,k,i)* (sptmp(i)+gamtmp(i))
+        sumiap = sumiap + mumin(1,k,i) * lnActivity
 
       END DO
       silnTMP = sumiap - keqmin_tmp(1,k)

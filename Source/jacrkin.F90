@@ -135,6 +135,9 @@ REAL(DP)                                             :: tmp4
 REAL(DP)                                             :: satL
 REAL(DP)                                             :: vol_temp
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 REAL(DP), DIMENSION(ikin)                            :: MoleFraction
 REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
 
@@ -172,8 +175,15 @@ DO i2 = 1,ncomp
 !!    IF (muaq(ksp,i2) /= 0.0) THEN  !! If the secondary species is not affectd by primary i2, then skip it
       sum = 0.0D0
       DO ii = 1,ncomp
+        
+        ulabPrint = ulab(i)
+        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+          lnActivity = lngamma(i,jx,jy,jz)
+        ELSE
+          lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+        END IF
 
-          sum = sum + muaq(ksp,ii)*(sppTMP(ii) + lngamma(ii,jx,jy,jz))
+        sum = sum + muaq(ksp,ii)*lnActivity
 
       END DO
       sppTMP(ksp+ncomp) = keqaq(ksp,jx,jy,jz) - lngamma(ksp+ncomp,jx,jy,jz) + sum

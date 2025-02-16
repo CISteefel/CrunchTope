@@ -102,14 +102,32 @@ DO k = 1,nkin
         kk = kcrossaff(np,k)
         sumiap = 0.0D0
         DO i = 1,ncomp
-          sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(spptmp(i)+lngamma(i,jx,jy,jz))
+          
+          ulabPrint = ulab(i)
+          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+            lnActivity = lngamma(i,jx,jy,jz)
+          ELSE
+            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+          END IF
+        
+          sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*lnActivity
+          
         END DO
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
         si(np,k) = 10**(silog(np,k))
       ELSE
         sumiap = 0.0D0
         DO i = 1,ncomp
-          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(spptmp(i)+lngamma(i,jx,jy,jz))
+          
+          ulabPrint = ulab(i)
+          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+            lnActivity = lngamma(i,jx,jy,jz)
+          ELSE
+            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+          END IF
+          
+          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*lnActivity
+          
         END DO
         silogTMP = (sumiap - keqmin(np,k,jx,jy,jz))/clg
         silnTMP = clg*silogTMP

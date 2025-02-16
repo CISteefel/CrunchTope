@@ -47,7 +47,8 @@
 				<File RelativePath="..\Source\EQ36-Read\rdgrid.f"/>
 				<File RelativePath="..\Source\EQ36-Read\rdpar.f"/>
 			</Filter>
-			<File RelativePath="..\Source\AffinityNumerical.F90"/>
+			<File RelativePath="..\Source\AffinityNumerical.F90">
+			</File>
 			<File RelativePath="..\Source\AllocateALL.F90"/>
 			<File RelativePath="..\Source\AllocateGasesGimrt.F90"/>
 			<File RelativePath="..\Source\AllocateGasesOS3D.F90"/>
@@ -109,7 +110,8 @@
 			<File RelativePath="..\Source\density.F90"/>
 			<File RelativePath="..\Source\dispersivity.F90"/>
 			<File RelativePath="..\Source\duan.F90"/>
-			<File RelativePath="..\Source\equilib_co2.F90"/>
+			<File RelativePath="..\Source\equilib_co2.F90">
+			</File>
 			<File RelativePath="..\Source\erosion.F90"/>
 			<File RelativePath="..\Source\ex_activity.F90"/>
 			<File RelativePath="..\Source\exactivity_init.F90"/>
@@ -222,7 +224,8 @@
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
-			<File RelativePath="..\Source\reactionTope.F90"/>
+			<File RelativePath="..\Source\reactionTope.F90">
+			</File>
 			<File RelativePath="..\Source\reactkin.F90"/>
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
@@ -333,7 +336,8 @@
 			<File RelativePath="..\Source\richards.F90"/>
 			<File RelativePath="..\Source\rocalc.F90"/>
 			<File RelativePath="..\Source\RunTime.F90"/>
-			<File RelativePath="..\Source\satcalc.F90"/>
+			<File RelativePath="..\Source\satcalc.F90">
+			</File>
 			<File RelativePath="..\Source\solbt90.F90"/>
 			<File RelativePath="..\Source\SolveDiffuse.F90"/>
 			<File RelativePath="..\Source\SolveDiffuseSpherical.F90"/>
@@ -356,7 +360,8 @@
 			<File RelativePath="..\Source\SurfaceCharge_init.F90"/>
 			<File RelativePath="..\Source\SurfaceComplex.F90"/>
 			<File RelativePath="..\Source\SurfaceConcentration.F90"/>
-			<File RelativePath="..\Source\SurfLocal.F90"/>
+			<File RelativePath="..\Source\SurfLocal.F90">
+			</File>
 			<File RelativePath="..\Source\swap.F90"/>
 			<File RelativePath="..\Source\temperature.F90"/>
 			<File RelativePath="..\Source\timestep.F90"/>

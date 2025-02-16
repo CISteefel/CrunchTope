@@ -81,6 +81,9 @@ REAL(DP)                                                    :: activity
 REAL(DP)                                                    :: LogTotalSites
 REAL(DP)                                                    :: LogTotalEquivalents
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -93,16 +96,21 @@ DO jz = 1,nz
         IF (nptlink(ns) /= 0) THEN                            !  Electrostatic correction
 
           delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
-
-
-
-            sum = 0.0
-            DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-            END DO
-
-
-
+          
+          sum = 0.0
+          DO i = 1,ncomp
+              
+            ulabPrint = ulab(i)
+            IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+              lnActivity = lngamma(i,jx,jy,jz)
+            ELSE
+              lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+            END IF
+          
+            sum = sum + musurf(ns,i)*lnActivity
+              
+          END DO
+            
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 
 !!  Surface complexes
@@ -123,12 +131,19 @@ DO jz = 1,nz
 
         ELSE                                                  !  Non-electrostatic 
 
-
-
-            sum = 0.0
-            DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-            END DO
+          sum = 0.0
+          DO i = 1,ncomp
+              
+            ulabPrint = ulab(i)
+            IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+              lnActivity = lngamma(i,jx,jy,jz)
+            ELSE
+              lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+            END IF
+          
+            sum = sum + musurf(ns,i)*lnActivity
+            
+          END DO
 
  
           
