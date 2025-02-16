@@ -22,9 +22,9 @@ SOURCEF = \
 		  CrunchModules.F90\
           isotope.F90\
           NanoCrystal.F90\
-	      hydraulic_function.F90\
-	      richards.F90\
-	      read_richards.F90\
+		  hydraulic_function.F90\
+		  richards.F90\
+		  read_richards.F90\
           CrunchTopeDriver.F90\
           CrunchTope.F90\
           AffinityNumerical.F90\
@@ -333,7 +333,7 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
-	      read_vanGenuchten_parameters.F90\
+		  read_vanGenuchten_parameters.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
@@ -362,9 +362,9 @@ OBJSF  =  crunchtype.o\
 		  CrunchModules.o\
           isotope.o\
           NanoCrystal.o\
-	      hydraulic_function.o\
-	      richards.o\
-	      read_richards.o\
+		  hydraulic_function.o\
+		  richards.o\
+		  read_richards.o\
           CrunchTopeDriver.o\
           CrunchTope.o\
           AffinityNumerical.o\
