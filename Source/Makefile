@@ -64,7 +64,7 @@ SOURCEF = \
           coeffCylinderDiffuse.F90\
           coeffCylinderNUFT.F90\
           coeffDiffuse.F90\
-          oeffNuft.F90\
+          coeffNuft.F90\
           coeffSphericalNew.F90\
           coeffSphericalNew_d.F90\
           convan.F90\
@@ -405,7 +405,7 @@ OBJSF  =  \
           coeffCylinderDiffuse.o\
           coeffCylinderNUFT.o\
           coeffDiffuse.o\
-          oeffNuft.o\
+          coeffNuft.o\
           coeffSphericalNew.o\
           coeffSphericalNew_d.o\
           convan.o\
