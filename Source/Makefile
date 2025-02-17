@@ -595,7 +595,7 @@ OBJSF  =  \
           readbreak.o\
           readCaseSensitive.o\
           readCaseSensitivePar.o\
-          readFileNameOnly.o\
+          ReadFileNameOnly.o\
           ReadFlowField.o\
           readModFlowParameters.o\
           readModFlowStress.o\
