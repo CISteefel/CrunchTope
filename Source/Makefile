@@ -599,7 +599,7 @@ OBJSF  =  \
           ReadFlowField.o\
           readModFlowParameters.o\
           readModFlowStress.o\
-          readPressureCondition.o\
+          ReadPressureCondition.o\
           readRecharge.o\
           readSaturation.o\
           readSingleString.o\
