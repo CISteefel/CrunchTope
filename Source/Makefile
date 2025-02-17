@@ -260,7 +260,7 @@ SOURCEF = \
           readModFlowStress.F90\
           ReadPressureCondition.F90\
           readRecharge.F90\
-          readSaturation.F90\
+          ReadSaturation.F90\
           readSingleString.F90\
           readtype1.F90\
           readtype2.F90\
@@ -601,7 +601,7 @@ OBJSF  =  \
           readModFlowStress.o\
           ReadPressureCondition.o\
           readRecharge.o\
-          readSaturation.o\
+          ReadSaturation.o\
           readSingleString.o\
           readtype1.o\
           readtype2.o\
