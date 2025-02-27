@@ -29,6 +29,10 @@ Do not use petsc-3.22 with CrunchFlow, since the newly developed PETSc Fortran h
 
     git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
 
+For those using the pre-built executable (located in the Windows directory in the GitHub repo), you may need to install the Intel oneAPI redistributable libraries:
+
+    https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_ifort_runtime_p_2024.1.0.968.exe
+
 ### Compilation
 
 For fully optimized production code, be sure to configure PETSc with "--with-debugging=0" and make sure the CrunchTope Makefile includes the -O3 flag for maximum optimization.
