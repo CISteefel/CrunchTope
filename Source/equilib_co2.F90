@@ -253,6 +253,7 @@ REAL(DP)                                                   :: lnActivity
 REAL(DP)                                                   :: gammawatertmp
 
 CHARACTER (LEN=3)                                          :: ulabPrint
+CHARACTER (LEN=17)                                          :: EDLoption
 
 
 CHARACTER (LEN=1)                                          :: trans
@@ -1373,7 +1374,7 @@ DO  ktrial = 1,ntrial
 '              ',1x,'          ', '       Activity')
 204 FORMAT(' Species         ','     Molality',1X,'  Activity',1x,  &
 '     Molality ',1x,'    Activity ', '  Coefficient','    Type')
-515 FORMAT(a14,3X,1PE12.4,5X,1PE12.4,3x,1PE12.4)
+
 
     sum = 0.0D0
     DO ik = 1,ncomp+nspec
@@ -1477,15 +1478,59 @@ DO  ktrial = 1,ntrial
     namtemp = 'Surface Complex'
     IF (nsurf > 0) THEN
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Surface complex   Sites/kgw        Moles/g solid  Moles/m^3 bulk'
+      WRITE(iunit2,*) 'Surface complex   Sites/kgw      Mol/g solid    Mol/m^3 bulk  Option'
       DO is = 1,nsurf
+        IF (iedl(is) == 0) THEN
+          EDLoption = 'Electrostatic'
+        ELSE
+          EDLoption = 'Non-Electrostatic'
+        END IF
         IF (SolidSolutionRatio(nco) == 0.0d0) THEN
           WRITE(iunit2,515) namsurf(is),ssurftmp(is),0.0d0
         ELSE
-          WRITE(iunit2,515) namsurf(is),ssurftmp(is),ssurftmp(is)/SolidSolutionRatio(nco),ssurftmp(is)*porcond(nco)*rocond(nco)
+          WRITE(iunit2,515) namsurf(is),ssurftmp(is),ssurftmp(is)/SolidSolutionRatio(nco),   &  
+            ssurftmp(is)*porcond(nco)*rocond(nco),EDLoption
         END IF
       END DO
     END IF
+    
+515 FORMAT(a14,4X,1PE11.4,4X,1PE11.4,4x,1PE11.4,4x,a17)
+516     FORMAT( '-->LogPotential', i2, ' on ', a11,2x,1PE11.4 )
+517     FORMAT(7x, a13, 1x, f6.1)
+    
+    namtemp = 'Electrostatic Potentials'
+    IF (npot > 0) THEN
+      
+      WRITE(iunit2,*)
+      WRITE(iunit2,*) 'Electrostatic Potentials'
+      DO npt = 1,npot
+        WRITE(iunit2,516) npt,umin(kpot(npt)),LogPotential_tmp(npt)
+        WRITE(iunit2,*) '    Primary surface complexes '
+        DO is = 1,nsurf
+          IF (nptPrimary(is) == npt) THEN
+            WRITE(iunit2,517) namsurf(is), zsurf(is)
+          END IF
+        END DO
+        WRITE(iunit2,*) '    Secondary surface complexes '
+        DO ns = 1,nsurf_sec
+          IF (nptlink(ns) == npt) THEN
+            WRITE(iunit2,517) namsurf_sec(ns), zsurf(nsurf+ns)
+          END IF
+        END DO
+      END DO  
+      
+    END IF
+    
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
+ 
 
     IF (nsurf > 0) THEN
       namtemp = 'Surface'

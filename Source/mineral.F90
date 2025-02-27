@@ -259,6 +259,7 @@ MODULE mineral
   
   REAL(DP),DIMENSION(:,:,:), ALLOCATABLE    :: crankLogK
   
+  LOGICAL(LGT)                              :: ContactPressureLogical
   LOGICAL(LGT)                              :: nmmLogical
   LOGICAL(LGT)                              :: SaltCreep
   LOGICAL(LGT)                              :: CalciteCreep

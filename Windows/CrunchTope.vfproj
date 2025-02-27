@@ -5,7 +5,7 @@
 	</Platforms>
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
-			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" UseMkl="mklParallel"/>
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" RuntimeChecks="rtChecksNone" BoundsCheck="true" UseMkl="mklParallel"/>
 			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="libpetsc.lib impi.lib Advapi32.lib  Gdi32.lib User32.lib  Kernel32.lib Ws2_32.lib mkl_intel_thread.lib libiomp5md.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -47,8 +47,7 @@
 				<File RelativePath="..\Source\EQ36-Read\rdgrid.f"/>
 				<File RelativePath="..\Source\EQ36-Read\rdpar.f"/>
 			</Filter>
-			<File RelativePath="..\Source\AffinityNumerical.F90">
-			</File>
+			<File RelativePath="..\Source\AffinityNumerical.F90"/>
 			<File RelativePath="..\Source\AllocateALL.F90"/>
 			<File RelativePath="..\Source\AllocateGasesGimrt.F90"/>
 			<File RelativePath="..\Source\AllocateGasesOS3D.F90"/>
@@ -57,7 +56,8 @@
 			<File RelativePath="..\Source\AqueousFluxInitialize.F90"/>
 			<File RelativePath="..\Source\AqueousFluxWrite.F90"/>
 			<File RelativePath="..\Source\AqueousToBulkConvert.F90"/>
-			<File RelativePath="..\Source\AssembleGlobal.F90"/>
+			<File RelativePath="..\Source\AssembleGlobal.F90">
+			</File>
 			<File RelativePath="..\Source\AssembleLocal.F90"/>
 			<File RelativePath="..\Source\AverageRo.F90"/>
 			<File RelativePath="..\Source\bd_diffuse.F90"/>
@@ -110,8 +110,7 @@
 			<File RelativePath="..\Source\density.F90"/>
 			<File RelativePath="..\Source\dispersivity.F90"/>
 			<File RelativePath="..\Source\duan.F90"/>
-			<File RelativePath="..\Source\equilib_co2.F90">
-			</File>
+			<File RelativePath="..\Source\equilib_co2.F90"/>
 			<File RelativePath="..\Source\erosion.F90"/>
 			<File RelativePath="..\Source\ex_activity.F90"/>
 			<File RelativePath="..\Source\exactivity_init.F90"/>
@@ -131,7 +130,8 @@
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>
 			<File RelativePath="..\Source\FractureAperture.F90"/>
-			<File RelativePath="..\Source\FxTopeGlobal.F90"/>
+			<File RelativePath="..\Source\FxTopeGlobal.F90">
+			</File>
 			<File RelativePath="..\Source\FxTopeLocal.F90"/>
 			<File RelativePath="..\Source\gamma_co2.F90"/>
 			<File RelativePath="..\Source\gamma_init.F90"/>
@@ -224,8 +224,7 @@
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
-			<File RelativePath="..\Source\reactionTope.F90">
-			</File>
+			<File RelativePath="..\Source\reactionTope.F90"/>
 			<File RelativePath="..\Source\reactkin.F90"/>
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
@@ -298,8 +297,10 @@
 			<File RelativePath="..\Source\read_speciesdiffusion.F90"/>
 			<File RelativePath="..\Source\read_steady.F90"/>
 			<File RelativePath="..\Source\read_string.F90"/>
-			<File RelativePath="..\Source\read_surface.F90"/>
-			<File RelativePath="..\Source\read_surfacecomplex.F90"/>
+			<File RelativePath="..\Source\read_surface.F90">
+			</File>
+			<File RelativePath="..\Source\read_surfacecomplex.F90">
+			</File>
 			<File RelativePath="..\Source\read_temp.F90"/>
 			<File RelativePath="..\Source\read_temperature.F90"/>
 			<File RelativePath="..\Source\read_tempreg.F90"/>
@@ -336,8 +337,7 @@
 			<File RelativePath="..\Source\richards.F90"/>
 			<File RelativePath="..\Source\rocalc.F90"/>
 			<File RelativePath="..\Source\RunTime.F90"/>
-			<File RelativePath="..\Source\satcalc.F90">
-			</File>
+			<File RelativePath="..\Source\satcalc.F90"/>
 			<File RelativePath="..\Source\solbt90.F90"/>
 			<File RelativePath="..\Source\SolveDiffuse.F90"/>
 			<File RelativePath="..\Source\SolveDiffuseSpherical.F90"/>
@@ -360,8 +360,7 @@
 			<File RelativePath="..\Source\SurfaceCharge_init.F90"/>
 			<File RelativePath="..\Source\SurfaceComplex.F90"/>
 			<File RelativePath="..\Source\SurfaceConcentration.F90"/>
-			<File RelativePath="..\Source\SurfLocal.F90">
-			</File>
+			<File RelativePath="..\Source\SurfLocal.F90"/>
 			<File RelativePath="..\Source\swap.F90"/>
 			<File RelativePath="..\Source\temperature.F90"/>
 			<File RelativePath="..\Source\timestep.F90"/>

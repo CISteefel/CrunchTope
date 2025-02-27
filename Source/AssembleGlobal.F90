@@ -43,9 +43,9 @@
 
 !!!      ****************************************
     
-SUBROUTINE AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,  &
-        nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time,&
-        user,amatpetsc,nBoundaryConditionZone)
+SUBROUTINE AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,         &
+             nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time,  &
+             user,amatpetsc,nBoundaryConditionZone)
 USE crunchtype
 USE params
 USE runtime

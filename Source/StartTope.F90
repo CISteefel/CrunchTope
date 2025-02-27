@@ -881,6 +881,11 @@ IF (found) THEN
     stop
   END IF
 
+  ContactPressureLogical = .FALSE.
+  parchar = 'contactpressure'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,ContactPressureLogical)
+  
   nmmLogical = .FALSE.
   parchar = 'nmm'
   parfind = ' '
@@ -2260,7 +2265,9 @@ IF (found) THEN
   END IF
 
 ELSE
+  WRITE(*,*)
   WRITE(*,*) ' No ion exchange block found'
+  WRITE(*,*)
 END IF
 
 !  Now, check to see that species dependences specified for mineral
@@ -2433,6 +2440,7 @@ DO is = 1,nsurf
   END IF
 END DO
 
+kpot = 0
 npot = 0
 DO k = 1,nrct
   IF (kPotential(k) .eqv.  .TRUE.) THEN
@@ -2465,9 +2473,27 @@ IF (ALLOCATED(nptlink)) THEN
 ELSE
   ALLOCATE(nptlink(nsurf_sec))
 END IF
+IF (ALLOCATED(nptPrimary)) THEN
+  DEALLOCATE(nptPrimary)
+  ALLOCATE(nptPrimary(nsurf))
+ELSE
+  ALLOCATE(nptPrimary(nsurf))
+END IF
 
 surfcharge_init = 0.0
 LogPotential_tmp = 0.0
+
+DO is = 1,nsurf
+  
+    IF (iedl(is) == 0) THEN          !! Electrostatic for primary surface complex
+      DO npt = 1,npot
+        IF (kpot(npt) == ksurf(is) ) THEN
+          nptPrimary(is) = npt
+        END IF
+      END DO
+    END IF
+
+END DO
 
 !  Link the various secondary surface complexes to a primary surface hydroxyl site
 
@@ -2482,12 +2508,23 @@ END DO
 nptlink = 0
 
 DO ns = 1,nsurf_sec
-  DO npt = 1,npot
-   IF (ksurf(islink(ns)) == kpot(npt)) THEN
-     nptlink(ns) = npt
-   END IF
-  END DO
+  is = islink(ns)
+  nptlink(ns) = nptPrimary(is)
+  write(*,555) namsurf_sec(ns),nptlink(ns)
 END DO
+
+555 format(a12,1x,i2)
+
+
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (secondary) to potential (npt)
 
 !!!neqn = ncomp + nsurf + nexchange + npot + 1 + 1   [For now, "equilib.F90' will not consider the two new unknowns]
 neqn = ncomp + nsurf + nexchange + npot

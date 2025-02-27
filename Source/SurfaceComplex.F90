@@ -121,11 +121,11 @@ DO jz = 1,nz
 
           END DO
 
-!! NOTE:  Below is the LOg concentration of sites in units of mol/kgw
-          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum -                     &    
-        + 2.0d0*musurf(ns,islink(ns)+ncomp)*delta_z*LogPotential(nptlink(ns),jx,jy,jz)   &
-        - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                   &
-        - DLOG(musurf(ns,islink(ns)+ncomp)) 
+!! NOTE:  Below is the Log concentration of sites in units of mol/kgw
+          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                           &    
+          + 2.0d0*musurf(ns,islink(ns)+ncomp)*delta_z*LogPotential(nptlink(ns),jx,jy,jz)   &
+          - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                              &
+          - DLOG(musurf(ns,islink(ns)+ncomp)) 
           
           spsurf10(ns+nsurf,jx,jy,jz) = DEXP( spsurf(ns+nsurf,jx,jy,jz) )
 

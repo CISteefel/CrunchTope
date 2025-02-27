@@ -191,6 +191,8 @@ REAL(DP)                                                        :: DecayTerm
 
 REAL(DP)                                                        :: lnActivity
 CHARACTER (LEN=3)                                               :: ulabPrint
+REAL(DP)                                                        :: LoadingPressureEffect
+REAL(DP)                                                        :: LogLoadingP
 
 
 !**********
@@ -322,6 +324,14 @@ ivolume = 0
 checkSaturation = .FALSE.
 UseDissolutionOnly = .FALSE.
 
+IF (ContactPressureLogical) THEN
+!!!                             MPa *  MPa->Pa  * Vm (m^3/mol) /    (RT)
+  LoadingPressureEffect = EXP( -150.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
+  LogLoadingP = LOG(LoadingPressureEffect)
+ELSE
+  LogLoadingP = 0.0d0
+END IF
+
 
 DO k = 1,nkin
 
@@ -348,8 +358,6 @@ DO k = 1,nkin
       CheckRgas = rgasKCAL
     END IF
     
-
-
 !!  Imintype = 1 --> TST
 !!  Imintype = 2 --> Monod kinetics (NOTE: Should add the affinity term here)
 !!  Imintype = 3 --> Irreversible kinetics
@@ -386,6 +394,7 @@ DO k = 1,nkin
           END IF
             
           sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*lnActivity
+          
         END DO
 
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
@@ -504,9 +513,13 @@ DO k = 1,nkin
         END IF   !! Block where nIsotopeMineral > 0
         
 !!!     ******************* End of isotopes ***************************************************
-
-
-        silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
+      
+!!!        write(*,*) ' LogLoadingP = ', LogLoadingP
+        IF (k == 3) THEN
+          silog(np,k) = (sumiap + LogLoadingP - keqmin(1,k,jx,jy,jz))/clg
+        ELSE
+          silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
+        END IF
         
         IF (nmmLogical) THEN
         

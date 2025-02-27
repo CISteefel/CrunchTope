@@ -253,9 +253,6 @@ CHARACTER (LEN=3)                                               :: ulabPrint
 
 SetToAqueousMoleFraction = .FALSE.
 
-
-
-
 IF (JacobianNumerical) THEN
     
   perturb = 1.d-09 
@@ -358,7 +355,7 @@ DO k = 1,nkin
         IF (AffinityDepend1(np,k) == 1.0D0) THEN
           term1 = sign*DABS(snorm(np,k) - 1.0D0)
         ELSE
-!!! Should be the general case, with nonlinear exponents on "snorm" term possible (calculated in reactionTope)
+!!!       Should be the general case, with nonlinear exponents on "snorm" term possible (calculated in reactionTope)
           term1 = sign*DABS(snorm(np,k) - 1.0D0)**(AffinityDepend1(np,k))
         END IF
 

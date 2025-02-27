@@ -308,6 +308,7 @@ MODULE  concentration
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: nclink
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: islink
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: nptlink
+  INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: nptPrimary
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: itot
   INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: itype
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: ndist
