@@ -46,6 +46,7 @@ SUBROUTINE SurfaceCharge(ncomp,nspec,nsurf,nsurf_sec,npot,jx,jy,jz,time)
 USE crunchtype
 USE concentration
 USE medium
+USE temperature
 USE mineral
 
 IMPLICIT NONE
@@ -77,6 +78,7 @@ REAL(DP)                                                    :: portemp
 REAL(DP)                                                    :: convert
 REAL(DP)                                                    :: correct
 REAL(DP)                                                    :: volMinimum
+REAL(DP)                                                    :: term1
 
 faraday = 96485.0d0     
 surfcharge = 0.0d0
@@ -86,32 +88,43 @@ DO npt = 1,npot
   k = kpot(npt)
 
   IF (volinByGrid(k,jx,jy,jz) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
-    correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
+    volMinimum = voltemp(k,jinit(jx,jy,jz))
   ELSE
     volMinimum = volfx(k,jx,jy,jz)
-    if (volMinimum < 1.0D-15) then
-       volMinimum = 1.0D-15
-    end if
-    correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k)   !!  m^2 mineral/m^3 BV
+    IF (volMinimum < 1.0D-15) volMinimum = 1.0D-15
   END IF
+  
+  correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k) 
 
   if (correct == 0.0) then
     write(*,*) ' Divide by zero in surface charge'
     read(*,*)
   end if
+  
+  term1 = faraday/correct
 
   DO is = 1,nsurf
     IF ( ksurf(is) == kpot(npt) ) THEN
-      surfcharge(k) = surfcharge(k) + zsurf(is)*spsurf10(is,jx,jy,jz)*faraday/correct
+      surfcharge(k) = surfcharge(k) + zsurf(is)*spsurf10(is,jx,jy,jz)*term1
     END IF
   END DO
 
   DO ns = 1,nsurf_sec
     IF (ksurf(islink(ns)) == kpot(npt)) THEN
-      surfcharge(k) = surfcharge(k) + zsurf(ns+nsurf)*spsurf10(ns+nsurf,jx,jy,jz)*faraday/correct    !!  Equation 2.1 in Dzombak
+      surfcharge(k) = surfcharge(k) + zsurf(ns+nsurf)*spsurf10(ns+nsurf,jx,jy,jz)*term1   !!  Equation 2.1 in Dzombak
     END IF
   END DO
 
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
+          
 
 END DO
 

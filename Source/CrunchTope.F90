@@ -885,6 +885,7 @@ END DO
 WRITE(*,*)
 WRITE(*,*) ' Initial aqueous mass in system = ', InitialTotalMass
 WRITE(*,*)
+WRITE(*,*)
 
 
 !!  Initial allocation for OS3D and GIMRT modes
@@ -1831,7 +1832,7 @@ DO WHILE (nn <= nend)
         icvg = 1
         iterat = 0 ! number of Newton iterations
 
-    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
+    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 9)
           NE = NE + 1
           iterat = iterat + 1
           
@@ -1933,7 +1934,6 @@ DO WHILE (nn <= nend)
             CALL dgetrs(trans,neqn,ione,aaa,neqn,indd,bb,neqn,info)
 
             xn = bb
-            continue
 
           ELSE       !  One-dimensional case
 
@@ -3044,7 +3044,7 @@ END IF
 
     IF (ny == 1 .AND. nz == 1) THEN
 
-      CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
+      CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
       IF (kaleidagraph) THEN
         CALL GraphicsKaleidagraph(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
@@ -3076,7 +3076,7 @@ END IF
     ELSE
 
       IF (nz == 1 .OR. ny == 1) THEN
-        CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
+        CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
            ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
       END IF
       IF (xtool) THEN

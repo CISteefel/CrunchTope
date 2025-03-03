@@ -80,6 +80,7 @@ REAL(DP)                                                    :: MassFraction
 REAL(DP)                                                    :: activity
 REAL(DP)                                                    :: LogTotalSites
 REAL(DP)                                                    :: LogTotalEquivalents
+REAL(DP)                                                    :: check
 
 REAL(DP)                                                        :: lnActivity
 CHARACTER (LEN=3)                                               :: ulabPrint
@@ -95,8 +96,7 @@ DO jz = 1,nz
 
         IF (nptlink(ns) /= 0) THEN                            !  Electrostatic correction
 
-          delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
-          
+          delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))       
           sum = 0.0
           DO i = 1,ncomp
               
@@ -106,28 +106,35 @@ DO jz = 1,nz
             ELSE
               lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
             END IF
-          
             sum = sum + musurf(ns,i)*lnActivity
-              
+            continue
           END DO
-            
+          
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 
 !!  Surface complexes
           DO is = 1,nsurf
-
             activity = spsurf(is,jx,jy,jz)
-            sum = sum + musurf(ns,is+ncomp)*activity
-
+            sum = sum + musurf(ns,is+ncomp)*Activity
           END DO
 
-!! NOTE:  Below is the Log concentration of sites in units of mol/kgw
-          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                           &    
-          + 2.0d0*musurf(ns,islink(ns)+ncomp)*delta_z*LogPotential(nptlink(ns),jx,jy,jz)   &
-          - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                              &
-          - DLOG(musurf(ns,islink(ns)+ncomp)) 
+          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                                &    
+            - 2.0d0*musurf(ns,islink(ns)+ncomp) * delta_z * LogPotential(nptlink(ns),jx,jy,jz)  &
+            - (musurf(ns,islink(ns)+ncomp)-1.0d0) * LogTotalSites                               &
+            - DLOG(musurf(ns,islink(ns)+ncomp)) 
           
           spsurf10(ns+nsurf,jx,jy,jz) = DEXP( spsurf(ns+nsurf,jx,jy,jz) )
+          
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
+          
 
         ELSE                                                  !  Non-electrostatic 
 
@@ -144,8 +151,6 @@ DO jz = 1,nz
             sum = sum + musurf(ns,i)*lnActivity
             
           END DO
-
- 
           
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 

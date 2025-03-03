@@ -1173,8 +1173,7 @@ DO jy = 1,ny
       ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
       k = kpot(npt)
       HyperbolicSine = SINH(LogPotential(npt,jx,jy,jz) )
-!!      fxx(ind) = 0.1174*sqrt_sion*HyperbolicSine - surfcharge(ksurf(ispot(npt)))
-      fxx(ind) = 0.1174*sqrt_sion*HyperbolicSine - surfcharge( k )
+      fxx(ind) = 0.1174d0*sqrt_sion*HyperbolicSine - surfcharge( kpot(npt) )
     END DO
     
     DO i = 1,ncomp
@@ -1487,18 +1486,18 @@ DO jy = 1,ny
     DO npt = 1,npot
 
       ncol = npt + ncomp + nexchange + nsurf
+      
       k = kpot(npt)       !!  One to one correspondence between potential and mineral surface (k)
 
       IF (volinByGrid(k,jx,jy,jz) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
-        correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*voltemp(k,jinit(jx,jy,jz))/volmol(k)   !!  m^2 mineral/m^3 BV
+        volMinimum = voltemp(k,jinit(jx,jy,jz))
       ELSE
         volMinimum = volfx(k,jx,jy,jz)
-        if (volMinimum < 1.0D-15) then
-          volMinimum = 1.0D-15
-        end if
-        correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k)   !!  m^2 mineral/m^3 BV
+        IF (volMinimum < 1.0D-15) volMinimum = 1.0D-15
       END IF
- 
+  
+    correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k) 
+      
 !!  Dependence of the potential on primary species concentrations
       DO i2 = 1,ncomp
         ind2 = i2
@@ -1510,7 +1509,7 @@ DO jy = 1,ny
         END DO
         alf(ind2,ncol,2) = sum
       END DO
-
+  
 !!  Dependence of the potential on surface complex concentrations
       DO is2 = 1,nsurf
         ind2 = is2+ncomp+nexchange
@@ -1522,6 +1521,7 @@ DO jy = 1,ny
           END IF
         END DO
         alf(ind2,ncol,2) = sum
+        
 !!      Add on primary surface complex if it is associated with the npt potential
         IF (ksurf(is2) == kpot(npt)) THEN
           alf(ind2,ncol,2) =  alf(ind2,ncol,2) - zsurf(is2)*spsurf10(is2,jx,jy,jz)*faraday/correct
@@ -1529,26 +1529,28 @@ DO jy = 1,ny
 
       END DO        !!  End of is2 loop
 
-!!    Dependence of the potential equation on the potential (through the surface charge)
-      DO npt2 = 1,npot
-        sum = 0.0
-        nrow = npt2 + ncomp + nexchange + nsurf
-          DO ns = 1,nsurf_sec
-            delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
-            IF (ksurf(islink(ns)) == kpot(npt) .AND. kpot(npt2) == kpot(npt)) THEN
-              sum = sum - zsurf(ns+nsurf)*spsurf10(ns+nsurf,jx,jy,jz)*delta_z*2.0
-            END IF
-          END DO
-
-        IF (nrow == ncol) THEN
-           alf(nrow,ncol,2) = 0.1174d0*sqrt_sion*COSH(LogPotential(npt,jx,jy,jz)) - sum*faraday/correct
-        ELSE
-!!!           alf(nrow,ncol,2) =  -sum*faraday/correct
-          alf(nrow,ncol,2) = 0.0d0
-        END IF
-
-      END DO    !!!  End of npt2 (potential) loop
+!!    Dependence of the potential equation on the potential (through the surface charge)--diagonal element (npt=npt2)
       
+      npt2 = npt
+      nrow = npt + ncomp + nexchange + nsurf
+      
+      term1 = faraday/correct
+
+      sum = 0.0
+      DO ns = 1,nsurf_sec
+        delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
+        IF (ksurf(islink(ns)) == kpot(npt)) THEN
+          sum = sum - zsurf(ns+nsurf)*spsurf10(ns+nsurf,jx,jy,jz)*delta_z*2.0
+        END IF
+      END DO
+      
+      sqrt_sion = SQRT(sion(jx,jy,jz))
+      IF (nrow == ncol) THEN
+        alf(nrow,ncol,2) = 0.1174d0*sqrt_sion*COSH(LogPotential(npt,jx,jy,jz)) - sum*term1   
+      ELSE
+        alf(nrow,ncol,2) = 0.d0
+      END IF
+
 !!   *********************************************************************************
 
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN

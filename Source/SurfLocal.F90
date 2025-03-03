@@ -117,10 +117,10 @@ CHARACTER (LEN=3)                                               :: ulabPrint
 !!!          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum -                     &
 !!!             delta_z*2.0*LogPotential(nptlink(ns),jx,jy,jz) + LogTotalEquivalents
 
-          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                  &
-        + 2.0d0*musurf(ns,islink(ns)+ncomp)*delta_z*LogPotential(nptlink(ns),jx,jy,jz)   &
-        - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                        &
-        - DLOG(musurf(ns,islink(ns)+ncomp)) 
+          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                            &
+            - 2.0d0*musurf(ns,islink(ns)+ncomp) * delta_z * LogPotential(nptlink(ns),jx,jy,jz)  &
+            - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                                 &
+            - DLOG(musurf(ns,islink(ns)+ncomp)) 
           
           spsurf10(ns+nsurf,jx,jy,jz) = DEXP( spsurf(ns+nsurf,jx,jy,jz) )
 

@@ -9638,7 +9638,7 @@ DEALLOCATE(jzzlo)
 DEALLOCATE(jzzhi)
 DEALLOCATE(jjfix)
 #ifndef ALQUIMIA
-DEALLOCATE(surfcharge_init)
+!!!DEALLOCATE(surfcharge_init)
 DEALLOCATE(LogPotential_tmp)
 #endif
 DEALLOCATE(unitsflag)

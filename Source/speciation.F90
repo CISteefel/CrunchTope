@@ -43,7 +43,7 @@
 !!!      ****************************************
     
 
-SUBROUTINE speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
+SUBROUTINE speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
     ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt)
 USE crunchtype
 USE params
@@ -84,6 +84,7 @@ INTEGER(I4B), INTENT(IN)                           :: nspec
 INTEGER(I4B), INTENT(IN)                           :: ndecay
 INTEGER(I4B), INTENT(IN)                           :: nsurf
 INTEGER(I4B), INTENT(IN)                           :: nsurf_sec
+INTEGER(I4B), INTENT(IN)                           :: npot
 INTEGER(I4B), INTENT(IN)                           :: ikin
 INTEGER(I4B), INTENT(IN)                           :: nkin
 INTEGER(I4B), INTENT(IN)                           :: ngas
@@ -162,6 +163,7 @@ CHARACTER (LEN=mls)                                        :: namtemp
 
 INTEGER(I4B)                                               :: ix
 INTEGER(I4B)                                               :: is
+INTEGER(I4B)                                               :: npt
 
 REAL(DP)                                                   :: MeanSaltConcentration
 REAL(DP)                                                   :: MassFraction
@@ -172,8 +174,10 @@ REAL(DP)                                                   :: tk
 REAL(DP)                                                   :: wtt
 REAL(DP)                                                   :: pg
 
-REAL(DP)                                                        :: lnActivity
-CHARACTER (LEN=3)                                               :: ulabPrint
+REAL(DP)                                                   :: lnActivity
+CHARACTER (LEN=3)                                          :: ulabPrint
+
+CHARACTER (LEN=17)                                         :: EDLoption
 
 PrintTime = realtime*OutputTimeScale
 rone = 1.0d0
@@ -219,7 +223,9 @@ DO jz = 1,nz
       ELSE
         MassFraction = 1.0
       END IF
+      
       AqueousToBulk = MassFraction*ro(jx,jy,jz)*satliq(jx,jy,jz)*por(jx,jy,jz)
+      
       WRITE(8,*) '**************************************************************'
       WRITE(8,FMT=102) jx,jy,jz
       WRITE(8,*)
@@ -278,45 +284,86 @@ DO jz = 1,nz
 
       namtemp = 'Exchange'
       IF (nexchange > 0) THEN
-!!  SolidSolutionRatio(nchem) = 1000.d0*SolidDensity(nchem)*(1.0-porcond(nchem))/(SaturationCond(nchem)*porcond(nchem)*rocond(nchem))
-!!        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/(satliq(jx,jy,jz)*por(jx,jy,jz)*ro(jx,jy,jz)) 
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        SolidSolutionRatioTemp = 1000.d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
-!!        WRITE(8,*) 'Exchangers        Equiv/kgw        Equiv/m^3 bulk'
         WRITE(8,*) 'Exchangers           Equiv/kgw        Equiv/g solid    Equiv/m^3 bulk'
         DO ix = 1,nexchange
-          EquivalentsPerKgWat = exchangesites(ix,jx,jy,jz)/AqueousToBulk
+          EquivalentsPerKgWat = exchangesites(ix,jx,jy,jz)/AqueousToBulk     !!! Conversion ExchangeSites/m_pm^3 to ExchangeSites/kgw
           WRITE(8,515) namexc(ix),EquivalentsPerKgWat,exchangesites(ix,jx,jy,jz)/SolidSolutionRatioTemp,exchangesites(ix,jx,jy,jz)
         END DO
       END IF
 
-!!CIS  The following call does not work with erosion (need to call the "global" routine)
+!!CIS  The following call does not work with erosion (need to call "totsurf.F90")
       IF (ierode /= 1) THEN
+        call SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
         call totsurf_local(ncomp,nsurf,nsurf_sec,jx,jy,jz)
       END IF
 
       namtemp = 'Surface Complex'
-      IF (gimrt .AND. ierode == 1 .AND. nsurf > 0) THEN
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+      IF (nsurf > 0) THEN
+        
+        SolidSolutionRatioTemp = 1000.0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
+        
         WRITE(8,*)
-!!        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/BulkVolume(m^3)'
-        WRITE(8,*) 'Surface complexes    Sites/kgw         Sites/g solid    Sites/BulkVolume(m^3)'
+        WRITE(8,*) 'Surface complex   Sites/kgw      Mol/g solid    Mol/m^3 bulk  Option'
         DO is = 1,nsurf
-          SurfacePerKgWat = ssurf(is,jx,jy,jz)/AqueousToBulk
-          WRITE(8,515) namsurf(is),SurfacePerKgWat,ssurf(is,jy,jy,jz)/SolidSolutionRatioTemp,ssurf(is,jx,jy,jz)
+          IF (iedl(is) == 0) THEN
+            EDLoption = 'Electrostatic'
+          ELSE
+            EDLoption = 'Non-Electrostatic'
+          END IF
+          IF (gimrt .and. ierode == 1) THEN
+            SurfacePerKgWat = ssurf(is,jx,jy,jz)/AqueousToBulk         !!! Conversion SurfaceSites/m_pm^3 to SurfaceSites/kgw
+            WRITE(8,515) namsurf(is),SurfacePerKgWat,ssurf(is,jy,jy,jz)/   & 
+                  SolidSolutionRatioTemp,ssurf(is,jx,jy,jz),EDLoption
+          ELSE
+            SurfacePerKgWat = ssurf_local(is)/AqueousToBulk
+            WRITE(8,515) namsurf(is),SurfacePerKgWat,ssurf_local(is)/      &
+                    SolidSolutionRatioTemp,ssurf_local(is),EDLoption
+          END IF
         END DO
-      ELSE IF (nsurf > 0) THEN
-        SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
-        WRITE(8,*)
-!!        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/BulkVolume(m^3)'
-        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/g solid Sites/BulkVolume(m^3)'
-        DO is = 1,nsurf
-          SurfacePerKgWat = ssurf_local(is)/AqueousToBulk
-          WRITE(8,515) namsurf(is),SurfacePerKgWat,ssurf_local(is)/SolidSolutionRatioTemp,ssurf_local(is)
-        END DO
-      ELSE
-        CONTINUE
+      
       END IF
+
+      
+515   FORMAT(a14,4X,1PE11.4,4X,1PE11.4,4x,1PE11.4,4x,a17)
+      
+      namtemp = 'Electrostatic Potentials'
+      IF (npot > 0) THEN
+      
+        WRITE(8,*)
+        WRITE(8,*) 'Electrostatic Potentials'
+        DO npt = 1,npot
+          WRITE(8,518) npt,umin(kpot(npt)),LogPotential(npt,jx,jy,jz)
+          WRITE(8,*) '    Primary surface complexes '
+          DO is = 1,nsurf
+            IF (nptPrimary(is) == npt) THEN
+              WRITE(8,517) namsurf(is), zsurf(is)
+            END IF
+          END DO
+          WRITE(8,*) '    Secondary surface complexes '
+          DO ns = 1,nsurf_sec
+            IF (nptlink(ns) == npt) THEN
+              WRITE(8,517) namsurf_sec(ns), zsurf(nsurf+ns)
+            END IF
+          END DO
+        END DO  
+      
+      END IF
+    
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
+      
+
+518     FORMAT( '-->LogPotential', i2, ' on ', a11,2x,1PE11.4 )
+517     FORMAT(7x, a13, 1x, f6.1)
 
       IF (nsurf > 0) THEN
         namtemp = 'Surface'
@@ -326,7 +373,7 @@ DO jz = 1,nz
         SolidSolutionRatioTemp = 1000.0d0*SolidDensity(jinit(jx,jy,jz))*(1.0d0-por(jx,jy,jz))
         WRITE(8,*)
 !!        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/BulkVolume(m^3)'
-        WRITE(8,*) ' Surface complexes    Sites/kgw     Sites/g solid Sites/BulkVolume(m^3)'
+        WRITE(8,*) 'Surface complex   Sites/kgw      Sites/g solid  Sites/BulkVolume(m^3)'
         
         totex_bas = 0.0
         DO i = 1,ncomp  
@@ -364,6 +411,9 @@ DO jz = 1,nz
       WRITE(8,*) 'Concentrations of Individual Species, Exchangers, and Surface Complexes '
       WRITE(8,*) '----------------------------------------------------------------------- '
       WRITE(8,*)
+      
+      208 FORMAT('                 ','          Log','       Log',1x,               '                                Activity   ', '     ')
+      206 FORMAT('  Species        ','     Molality','  Activity',1x,               '     Molality ','   Conc (m^3) ', '  Coefficient', '     Type')
 
 
       WRITE(8,208)
@@ -406,7 +456,10 @@ DO jz = 1,nz
 
         WRITE(8,212) namsurf_sec(ns),spprint,actprint,spsurf10(is,jx,jy,jz)/AqueousToBulk,spsurf10(is,jx,jy,jz),actprint10,namtemp
       END DO
-
+      
+      207 FORMAT('                 ','            Log',1X,'         Log',  '              ', '              ', '               Activity')
+      204 FORMAT(' Species         ','       Molality',1X,'    Activity', '         Molality ', '       Conc(m^3) ', '     Coefficient','    Type')
+    
       WRITE(8,*)
       WRITE(8,207)
       WRITE(8,204) 
@@ -495,7 +548,7 @@ CLOSE(UNIT=8,STATUS='keep')
 2286 FORMAT('    Distance    ',100(1X,a14))
 514 FORMAT(1X,a10,1X,1PE11.4)
 513 FORMAT(1X,a18,1X,1PE12.4,2X,1PE12.4,2X,1PE12.4)
-515 FORMAT(1X,a18,1X,1PE12.4,5X,1PE12.4,5X,1PE12.4)
+!!!515 FORMAT(1X,a18,1X,1PE12.4,5X,1PE12.4,5X,1PE12.4)
 
 600 FORMAT(2X,f10.2,2X,a15)
 201 FORMAT(2X,a18,2X,f8.2)
@@ -529,15 +582,9 @@ CLOSE(UNIT=8,STATUS='keep')
 804 FORMAT(' SPECIES         ','    Equiv/kgw',1X,'  Activity',1x,  &
 '    Equiv/kgw ',1x,'    Activity ', '  Coefficient','    Type')
 
-207 FORMAT('                 ','            Log',1X,'         Log',1x,      &
-'              ',1x,'          ', '                 Activity')
-204 FORMAT(' Species        ','        Molality',1X,'    Activity',1x,  &
-'        Molality ',1x,'       Activity ', '     Coefficient','      Type')
 
-208 FORMAT('                 ','          Log',1X,'       Log',1x,  &
-'              ',1x,' Concentration', '     ')
-206 FORMAT(' Species        ','       Molality',1X,'    Activity',1x,  &
-'       Molality ',1x,'       Activity ', '     Coefficient','      Type')
+
+
 212 FORMAT(2X,a18,2X,f8.3,2X,f8.3,2X,1PE12.3,2X,1PE12.3,2X,1PE12.3,2X,a8)
 !!!  WRITE(8,212) namsurf(is),spprint,actprint,spsurf10(is,jx,jy,jz)/AqueousToBulk,spsurf10(is,jx,jy,jz),actprint10,namtemp
 

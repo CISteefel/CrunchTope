@@ -251,9 +251,10 @@ REAL(DP)                                                   :: fxMaxPotential
 REAL(DP)                                                   :: ChargeSum
 REAL(DP)                                                   :: lnActivity
 REAL(DP)                                                   :: gammawatertmp
+REAL(DP)                                                   :: term1
 
 CHARACTER (LEN=3)                                          :: ulabPrint
-CHARACTER (LEN=17)                                          :: EDLoption
+CHARACTER (LEN=17)                                         :: EDLoption
 
 
 CHARACTER (LEN=1)                                          :: trans
@@ -1000,7 +1001,8 @@ DO  ktrial = 1,ntrial
       ELSE
         gramsperL = wtmin(k)*volin(k,nco)/(rocond(nco)*volmol(k)*portemp)  ! units of g/L
       END IF
- 
+      term1 = faraday/(gramsperL)
+      
       DO i2 = 1,ncomp
         ncol = i2
         sum = 0.0
@@ -1032,9 +1034,10 @@ DO  ktrial = 1,ntrial
       DO npt2 = 1,npot
         sum = 0.0
         ncol = npt2 + ncomp + nexchange + nsurf
+        
         DO ns = 1,nsurf_sec
           delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))   !! Charge associated with changing from primary to secondary surface complex
-          IF ( ksurf(islink(ns)) == kpot(npt2) .AND. kpot(npt) == kpot(npt2) ) THEN
+          IF ( ksurf(islink(ns)) == kpot(npt2) ) THEN
             sum = sum - zsurf(ns+nsurf)*spsurftmp10(ns+nsurf)*delta_z*2.0
           END IF
         END DO
@@ -1458,7 +1461,7 @@ DO  ktrial = 1,ntrial
     END DO
     
 !!!    write(123,*) PressureTemp,stmp(1)
-    write(123,*) tempc,stmp(1)
+!!!    write(123,*) tempc,stmp(1)
 
     namtemp = 'Exchange'
     IF (nexchange > 0) THEN
@@ -1538,7 +1541,7 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,*) 'Total Concentrations on Surface Hydroxyl Sites '
       WRITE(iunit2,*) '---------------------------------------------- '
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Primary Species   Moles/kgw       Moles/g solid'
+      WRITE(iunit2,*) 'Primary Species   Moles/kgw    Moles/g solid'
       totSurf_bas = 0.0
       DO i = 1,ncomp  
         DO ns = 1,nsurf_sec
