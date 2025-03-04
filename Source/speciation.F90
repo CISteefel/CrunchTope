@@ -324,8 +324,7 @@ DO jz = 1,nz
         END DO
       
       END IF
-
-      
+    
 515   FORMAT(a14,4X,1PE11.4,4X,1PE11.4,4x,1PE11.4,4x,a17)
       
       namtemp = 'Electrostatic Potentials'
@@ -359,8 +358,7 @@ DO jz = 1,nz
 !!!    kpot(npt) --> pointer to mineral upon which the potential is developed
 !!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
 !!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
-!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
-      
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)    
 
 518     FORMAT( '-->LogPotential', i2, ' on ', a11,2x,1PE11.4 )
 517     FORMAT(7x, a13, 1x, f6.1)
@@ -414,7 +412,6 @@ DO jz = 1,nz
       
       208 FORMAT('                 ','          Log','       Log',1x,               '                                Activity   ', '     ')
       206 FORMAT('  Species        ','     Molality','  Activity',1x,               '     Molality ','   Conc (m^3) ', '  Coefficient', '     Type')
-
 
       WRITE(8,208)
       WRITE(8,206) 
