@@ -1,0 +1,108 @@
+TITLE
+ShortCourse6b.in: Test of surface complexation based on PHREEQC example 8:  With test of multiple minerals
+END
+
+RUNTIME
+time_units      days
+timestep_max    0.1
+timestep_init   1.0E-09
+debye-huckel    true
+lag_activity    false
+database_sweep  false
+hindmarsh       true
+time_tolerance  0.01
+correction_max  2.0
+gimrt           true
+master_variable Zn++
+speciate_only   false
+database        datacom.dbs
+screen_output   100
+graphics        tecplot
+END
+
+OUTPUT
+time_units               days
+spatial_profile          365.0
+time_series_at_node      PHREEQCexample8.out  1  1  1
+time_series_print        all
+ime_series_interval      1
+END
+
+POROSITY
+fix_porosity     0.90
+porosity_update  false
+END
+
+TEMPERATURE
+set_temperature      25.0
+END
+
+PRIMARY_SPECIES
+H+
+Zn++
+Na+
+NO3-
+Fe+++
+O2(aq)
+Bogus
+H2O
+END
+
+SECONDARY_SPECIES
+Fe++
+OH-
+Zn(OH)2(aq)
+Zn(OH)3-
+Zn(OH)4--
+ZnOH+
+END
+
+SURFACE_COMPLEXATION
+>FeOH_weak     on Fe(OH)3 
+>FeOH_weak2    on Bogusite
+!!!
+>FeOH_strong   on Fe(OH)3 
+>FeOH_strong2  on Bogusite 
+END
+
+MINERALS  
+Fe(OH)3     -label default  -rate  -38.00
+Bogusite    -label default  -rate  -38.00
+!!!HNO3(c)      -label default  -rate  -38.00
+END
+
+GASES
+O2(g)
+END
+
+DISCRETIZATION 
+xzones  1  1.0
+END
+
+INITIAL_CONDITIONS
+Solution1   1-1  1-1  1-1
+END
+ 
+Condition Solution1 
+temperature          25.0
+pH                   7.50                       
+Zn++                 1.E-09                            
+Na+                  charge                            
+NO3-                 1.0000E-03                          
+Fe+++                1.0E-06           
+O2(aq)               2.4647E-04    
+Bogus            0.001
+H2O              55.50843506           
+!!!Site name     <site density mol/m**2>   
+>FeOH_weak       3.703704E-07  
+>FeOH_strong     9.259259E-08 
+>FeOH_weak2      3.703704E-08  
+>FeOH_strong2    9.259259E-09
+Bogusite         2.943109E-05  specific_surface_area  10.0                  
+Fe(OH)3          2.943109E-05  specific_surface_area  10.0     !! Note: Gives 0.09 g/kgw water Fe(OH)3, 54 m**2 surface
+!!!
+!!  Based on a density of 1017 kg/m**3, 1.017 g/cm**3
+!!    Volume Fraction Fe(OH)3 [m**3/m**3]*0.001*Molecular Weight Fe(OH)3/(Porosity*Molar Volume Fe(OH)3 [m**3/mole]) = g/L, but we want g/kg water, so g/L * (1/ro) = g/kgw
+SolidDensity     2600.0
+END
+

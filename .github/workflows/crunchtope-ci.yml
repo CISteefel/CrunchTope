@@ -69,6 +69,12 @@ jobs:
         echo "Running Ex5RolleTransverseDiffusion"
         ../../Source/CrunchTope Rolle2D_shorter.in
         
+    - name: crunchtope-run6B
+      run: |
+        cd Exercises/Ex6Sorption/Ex6B-SurfaceComplexation
+        echo "Running Ex6B-SurfaceComplexation"
+        ../../Source/CrunchTope TestSurfaceComplexation-MultipleMineralEDLs.in
+        
     - name: crunchtope-run13
       run: |
         cd Exercises/Ex13UnsaturatedFlow
