@@ -73,7 +73,7 @@ jobs:
       run: |
         cd Exercises/Ex6Sorption/Ex6B-SurfaceComplexation
         echo "Running Ex6B-SurfaceComplexation"
-        ../../Source/CrunchTope TestSurfaceComplexation-MultipleMineralEDLs.in
+        ../../../Source/CrunchTope TestSurfaceComplexation-MultipleMineralEDLs.in
         
     - name: crunchtope-run13
       run: |
