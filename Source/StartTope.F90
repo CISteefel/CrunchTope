@@ -51,6 +51,7 @@ SUBROUTINE StartTope(ncomp,nspec,nkin,nrct,ngas,npot,                   &
   InputFileCounter,nBoundaryConditionZone)
 USE crunchtype
 USE params
+USE CrunchFunctions
 USE runtime
 USE concentration
 USE mineral

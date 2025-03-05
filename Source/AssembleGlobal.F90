@@ -442,9 +442,12 @@ DO jy = 1,ny
     END IF
     
     alf = 0.0d0
-    aah(:,:,jx) = 0.0d0
-    bbh(:,:,jx) = 0.0d0
-    cch(:,:,jx) = 0.0d0
+    
+    IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
+      aah(:,:,jx) = 0.0d0
+      bbh(:,:,jx) = 0.0d0
+      cch(:,:,jx) = 0.0d0
+    END IF
     
     IF (ierode /= 1) THEN
       IF (nexchange > 0) THEN
