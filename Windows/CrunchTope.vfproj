@@ -56,8 +56,7 @@
 			<File RelativePath="..\Source\AqueousFluxInitialize.F90"/>
 			<File RelativePath="..\Source\AqueousFluxWrite.F90"/>
 			<File RelativePath="..\Source\AqueousToBulkConvert.F90"/>
-			<File RelativePath="..\Source\AssembleGlobal.F90">
-			</File>
+			<File RelativePath="..\Source\AssembleGlobal.F90"/>
 			<File RelativePath="..\Source\AssembleLocal.F90"/>
 			<File RelativePath="..\Source\AverageRo.F90"/>
 			<File RelativePath="..\Source\bd_diffuse.F90"/>
@@ -131,8 +130,7 @@
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>
 			<File RelativePath="..\Source\FractureAperture.F90"/>
-			<File RelativePath="..\Source\FxTopeGlobal.F90">
-			</File>
+			<File RelativePath="..\Source\FxTopeGlobal.F90"/>
 			<File RelativePath="..\Source\FxTopeLocal.F90"/>
 			<File RelativePath="..\Source\gamma_co2.F90"/>
 			<File RelativePath="..\Source\gamma_init.F90"/>
@@ -178,17 +176,12 @@
 			<File RelativePath="..\Source\jacobian.F90"/>
 			<File RelativePath="..\Source\jacobian_init.F90"/>
 			<File RelativePath="..\Source\jacobian_plus.F90"/>
-			<File RelativePath="..\Source\jacpotential.F90">
-			</File>
-			<File RelativePath="..\Source\JacPotentialLocal.F90">
-			</File>
+			<File RelativePath="..\Source\jacpotential.F90"/>
+			<File RelativePath="..\Source\JacPotentialLocal.F90"/>
 			<File RelativePath="..\Source\jacrkin.F90"/>
-			<File RelativePath="..\Source\jacsurf.F90">
-			</File>
-			<File RelativePath="..\Source\jacsurf_init.F90">
-			</File>
-			<File RelativePath="..\Source\jacsurf_local.F90">
-			</File>
+			<File RelativePath="..\Source\jacsurf.F90"/>
+			<File RelativePath="..\Source\jacsurf_init.F90"/>
+			<File RelativePath="..\Source\jacsurf_local.F90"/>
 			<File RelativePath="..\Source\keqcalc2.F90"/>
 			<File RelativePath="..\Source\keqcalc2_init.F90"/>
 			<File RelativePath="..\Source\keqcalc2_init_co2.F90"/>
@@ -217,8 +210,7 @@
 			<File RelativePath="..\Source\oldkd.F90"/>
 			<File RelativePath="..\Source\oldsurf.F90"/>
 			<File RelativePath="..\Source\oldsurface.F90"/>
-			<File RelativePath="..\Source\os3d_newton.F90">
-			</File>
+			<File RelativePath="..\Source\os3d_newton.F90"/>
 			<File RelativePath="..\Source\parameters.F90"/>
 			<File RelativePath="..\Source\params.F90"/>
 			<File RelativePath="..\Source\PauseFor.F90"/>
@@ -348,32 +340,24 @@
 			<File RelativePath="..\Source\SolveDiffuseSpherical.F90"/>
 			<File RelativePath="..\Source\SolveGasDiffuse.F90"/>
 			<File RelativePath="..\Source\solver.F90"/>
-			<File RelativePath="..\Source\speciation.F90">
-			</File>
+			<File RelativePath="..\Source\speciation.F90"/>
 			<File RelativePath="..\Source\species.F90"/>
 			<File RelativePath="..\Source\species_init.F90"/>
 			<File RelativePath="..\Source\SpeciesLocal.F90"/>
 			<File RelativePath="..\Source\squeeze.F90"/>
 			<File RelativePath="..\Source\sschaine.F90"/>
 			<File RelativePath="..\Source\sschaine_hyph.F90"/>
-			<File RelativePath="..\Source\startTope.F90">
-			</File>
+			<File RelativePath="..\Source\startTope.F90"/>
 			<File RelativePath="..\Source\SteadyState.F90"/>
 			<File RelativePath="..\Source\stringlen.F90"/>
 			<File RelativePath="..\Source\strings.F90"/>
 			<File RelativePath="..\Source\stringtype.F90"/>
-			<File RelativePath="..\Source\surf_init.F90">
-			</File>
-			<File RelativePath="..\Source\SurfaceCharge.F90">
-			</File>
-			<File RelativePath="..\Source\SurfaceCharge_init.F90">
-			</File>
-			<File RelativePath="..\Source\SurfaceComplex.F90">
-			</File>
-			<File RelativePath="..\Source\SurfaceConcentration.F90">
-			</File>
-			<File RelativePath="..\Source\SurfLocal.F90">
-			</File>
+			<File RelativePath="..\Source\surf_init.F90"/>
+			<File RelativePath="..\Source\SurfaceCharge.F90"/>
+			<File RelativePath="..\Source\SurfaceCharge_init.F90"/>
+			<File RelativePath="..\Source\SurfaceComplex.F90"/>
+			<File RelativePath="..\Source\SurfaceConcentration.F90"/>
+			<File RelativePath="..\Source\SurfLocal.F90"/>
 			<File RelativePath="..\Source\swap.F90"/>
 			<File RelativePath="..\Source\temperature.F90"/>
 			<File RelativePath="..\Source\timestep.F90"/>
@@ -386,11 +370,9 @@
 			<File RelativePath="..\Source\totexchange_local.F90"/>
 			<File RelativePath="..\Source\totgas.F90"/>
 			<File RelativePath="..\Source\totgas_init.F90"/>
-			<File RelativePath="..\Source\totsurf.F90">
-			</File>
+			<File RelativePath="..\Source\totsurf.F90"/>
 			<File RelativePath="..\Source\totsurf_init.F90"/>
-			<File RelativePath="..\Source\totsurf_local.F90">
-			</File>
+			<File RelativePath="..\Source\totsurf_local.F90"/>
 			<File RelativePath="..\Source\transport.F90"/>
 			<File RelativePath="..\Source\tridag_ser.F90"/>
 			<File RelativePath="..\Source\tvd.F90"/>

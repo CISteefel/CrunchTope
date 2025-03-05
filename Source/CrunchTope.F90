@@ -3007,7 +3007,7 @@ END IF
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
-    !!!WRITE(iures) jinit
+    WRITE(iures) jinit   !! Read IntegerDummyArray(nxyz)
     WRITE(iures) keqmin
     WRITE(iures) volfx
     WRITE(iures) dppt
