@@ -27,7 +27,7 @@ END
  
 OUTPUT
 time_units           hours
-spatial_profile      2.0
+spatial_profile      0.5
 time_series          Rolle.out    80  13  1
 time_series_print    K+  Mg++  Cl- 
 time_series_interval 1
