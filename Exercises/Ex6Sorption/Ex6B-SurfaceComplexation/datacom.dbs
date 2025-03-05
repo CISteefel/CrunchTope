@@ -3110,7 +3110,6 @@ Begin surface complexation
 '>FeOHHAsO4-_w' 3 2.0 'H+' 1.0 'AsO4---' 1.0 '>FeOH_weak' 500.0 -24.43 500.0 500.0 500.0 500.0 500.0 500.0
 '>FeOHAsO4--_w' 3 1.0 'H+' 1.0 'AsO4---' 1.0 '>FeOH_weak' 500.0 -18.10 500.0 500.0 500.0 500.0 500.0 500.0
 'davis_O(UO2)+'  3  -1.0 'H+' 1.0 '>davis_OH' 1.0 'UO2++' 500.0  -0.444 500.0 500.0 500.0 500.0 500.0 500.0
-'>CO3-' 2  -1.0 'H+' 1.0 '>CO3H'  500.0  4.9  500.0  500.0  500.0  500.0  500.0  500.0  !! From PVC + Charlet + Stumm paper
 End of surface complexation
 Begin aqueous kinetics
 FeII_oxidation 2 'tst' 5 1.0 'Fe+++'  0.500 'H2O' -0.25 'O2(aq)' -1.0 'Fe++' -1.0 'H+' 8.4887
@@ -4465,10 +4464,8 @@ Begin surface complexation parameters
 >FeOH-Mn_w       1.0
 >davis_OH        0.0
 davis_O(UO2)+    1.0
->CO3-            -1.0
+>CO3-           -1.0
 >CO3H            0.0
 End surface complexation parameters
 
-
-'HS-' 3   -2.0000 'O2(g)'    1.0000 'H+'    1.0000 'SO4--'  146.7859   132.5203   116.0105   100.8144    85.7147    73.6540    63.7280    55.2988  3.5 -1.0    33.0739
  
