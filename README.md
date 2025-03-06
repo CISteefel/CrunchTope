@@ -29,6 +29,12 @@ Do not use petsc-3.22 with CrunchFlow, since the newly developed PETSc Fortran h
 
     git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
 
+Then to download CrunchTope for the first time (i.e., a clone) use
+
+    git clone https://github.com/CISteefel/CrunchTope.git
+
+After the CrunchTope Repo is installed, you can use the various GitHub commands to update (either git Blah_Blah from the Command line, or from GitHub Desktop on Windows)
+
 For those using the pre-built executable (located in the Windows directory in the GitHub repo), you may need to install the Intel oneAPI redistributable libraries:
 
     https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_ifort_runtime_p_2024.1.0.968.exe
