@@ -24,7 +24,7 @@ jobs:
 
     - name: petsc-install
       run: |
-        git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6
+        git clone https://gitlab.com/petsc/petsc.git --branch v3.21.6 $PETSC_DIR
         cd $PETSC_DIR
         echo "CrunchTope >> Configuring petsc"
         PETSC_ARCH=$PETSC_ARCH ./configure --with-mpi=0 --with-debugging=1 --with-shared-libraries=1 --download-fblaslapack=1
