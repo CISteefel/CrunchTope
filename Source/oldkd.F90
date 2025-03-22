@@ -68,7 +68,7 @@ INTEGER(I4B)                                  :: i
 real(dp)                                      :: Retardation
 
 DO i = 1,ncomp
-  Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
+  Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/( por(jx,jy,jz)*satliq(jx,jy,jz) )
   skdold(i,jx,jy,jz) = por(jx,jy,jz) * ro(jx,jy,jz) * xgram(jx,jy,jz) * satliq(jx,jy,jz) * s(i,jx,jy,jz) * Retardation*distrib(i)   
 END DO
 

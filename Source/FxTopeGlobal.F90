@@ -236,7 +236,7 @@ aq_accum = 0.0d0
 jz = 1
 j = (jz-1)*nx*ny + (jy-1)*nx + jx
 
-Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
+Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/( por(jx,jy,jz)*satliq(jx,jy,jz) )
 
 pi = DACOS(-1.0d0)
 portemp = por(jx,jy,jz)
@@ -953,7 +953,6 @@ DO i = 1,ncomp
   
   IF (isaturate == 1) THEN
     gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
-!!!        gas_accum = portemp*r*satgas*(sgas(i,jx,jy,jz) - sgasn(i,jx,jy,jz))
   ELSE
     gas_accum = 0.0
     gas_transport = 0.0

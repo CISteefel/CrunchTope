@@ -607,6 +607,8 @@ REAL(DP)                                                      :: SSA_m2g
 
 REAL(DP)                                                      :: ScaleMineralVolumes
 
+CHARACTER (LEN=mls)                                           :: PumpUnitString
+REAL(DP)                                                      :: PumpConversion
 
 INTEGER(I4B)                                                  :: knucl
 INTEGER(I4B)                                                  :: ios
@@ -3777,6 +3779,7 @@ IF (found) THEN
   CALL read_kd(nout,ncomp,nretard)
 
 ELSE
+  
   WRITE(*,*) ' Retardation parameters not found'
   WRITE(*,*) ' Assuming NO retardation (Kd = 0) '
 
@@ -5160,7 +5163,7 @@ IF (readmineral) THEN
       STOP
     END IF
         
-    OPEN(UNIT=23,FILE=vv_file,STATUS='old',ERR=8001)
+    OPEN(UNIT=23,FILE=vv_file,STATUS='old')
     FileTemp = vv_file
     CALL stringlen(FileTemp,FileNameLength)
     
@@ -5204,7 +5207,7 @@ IF (readmineral) THEN
       STOP
     END IF
 
-    OPEN(UNIT=23,FILE=bsa_file,STATUS='old',ERR=8001)
+    OPEN(UNIT=23,FILE=bsa_file,STATUS='old')
     FileTemp = bsa_file
     CALL stringlen(FileTemp,FileNameLength)
     
@@ -6490,9 +6493,109 @@ IF (found) THEN
   ELSE
     CALL read_pump(nout,nx,ny,nz,nchem)
   ENDIF
+  
+!!! Convert pumping from units provided by user to m^3/yr
+  
+  ! select units for pump term
+  parchar = 'pumpunits'
+  parfind = ' '
+  CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+  IF (parfind == ' ') THEN
+    WRITE(*,*) ' Units for pumping should be provided (no default)'
+    WRITE(*,*)
+    STOP
+  ELSE
+    PumpUnitString = dumstring
+  END IF
+  
+!!! Check that units for pumping (volume fluid per unit time) are recognized
+  
+  PumpConversion = 0.0d0
+
+!!! Conversion is from units specified to m^3/yr
+
+  
+  IF (PumpUnitString == 'cm3_sec') THEN
+    PumpConversion = 3.1536E+01
+  END IF
+  IF (PumpUnitString == 'liter_sec') THEN
+    PumpConversion = 3.1536E+04
+  END IF
+  IF (PumpUnitString == 'm3_sec') THEN
+    PumpConversion = 3.1536E+07
+  END IF
+  
+  IF (PumpUnitString == 'cm3_min') THEN
+    PumpConversion = 5.2560E-01
+  END IF
+  IF (PumpUnitString == 'liter_min') THEN
+    PumpConversion = 5.2560E+02
+  END IF
+  IF (PumpUnitString == 'm3_min') THEN
+    PumpConversion = 5.2560E+05
+  END IF
+  
+  IF (PumpUnitString == 'cm3_hr') THEN
+    PumpConversion = 8.7600E-03
+  END IF
+  IF (PumpUnitString == 'liter_hr') THEN
+    PumpConversion = 8.7600E+00
+  END IF
+  IF (PumpUnitString == 'm3_hr') THEN
+    PumpConversion = 8.7600E+03
+  END IF
+  
+  IF (PumpUnitString == 'cm3_day') THEN
+    PumpConversion = 3.6500E-04
+  END IF
+  IF (PumpUnitString == 'liter_day') THEN
+    PumpConversion = 3.6500E-01
+  END IF
+  IF (PumpUnitString == 'm3_day') THEN
+    PumpConversion = 3.6500E+02
+  END IF
+  
+  IF (PumpUnitString == 'cm3_yr') THEN
+    PumpConversion = 1.0000E-06
+  END IF
+  IF (PumpUnitString == 'liter_yr') THEN
+    PumpConversion = 1.0000E-03
+  END IF
+  IF (PumpUnitString == 'm3_yr') THEN
+    PumpConversion = 1.0d0
+  END IF
+  
+  IF (PumpConversion == 0.0d0) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Pump units must be provided and cannot be = 0.0'
+    WRITE(*,*)
+    STOP
+  END IF
+
+!!! pumpunits      cm3_sec
+!!! pumpunits      liter_sec
+!!! pumpunits      m3_sec
+
+!!! pumpunits      cm3_min
+!!! pumpunits      liter_min
+!!! pumpunits      m3_min
+
+!!! pumpunits      cm3_hr
+!!! pumpunits      liter_hr
+!!! pumpunits      m3_hr
+
+!!! pumpunits      cm3_day
+!!! pumpunits      liter_day
+!!! pumpunits      m3_day
+
+!!! pumpunits      cm3_yr
+!!! pumpunits      liter_yr
+!!! pumpunits      m3_yr
+  
+  qg =  qg*PumpConversion
 
   CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
-
+  
   irecharge = 0
 
   IF (.NOT. modflow) THEN
@@ -6538,6 +6641,101 @@ IF (found) THEN
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,CalculateFlow)
     END IF
+  ! select units for pump term
+  parchar = 'pumpunits'
+  parfind = ' '
+  CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+  IF (parfind == ' ') THEN
+    WRITE(*,*) ' Units for pumping should be provided (no default)'
+    WRITE(*,*)
+    STOP
+  ELSE
+    PumpUnitString = dumstring
+  END IF
+  
+!!! Check that units for pumping (volume fluid per unit time) are recognized
+  
+  PumpConversion = 0.0d0
+
+!!! Conversion is from units specified to m^3/yr
+
+  
+  IF (PumpUnitString == 'cm3_sec') THEN
+    PumpConversion = 3.1536E+01
+  END IF
+  IF (PumpUnitString == 'liter_sec') THEN
+    PumpConversion = 3.1536E+04
+  END IF
+  IF (PumpUnitString == 'm3_sec') THEN
+    PumpConversion = 3.1536E+07
+  END IF
+  
+  IF (PumpUnitString == 'cm3_min') THEN
+    PumpConversion = 5.2560E-01
+  END IF
+  IF (PumpUnitString == 'liter_min') THEN
+    PumpConversion = 5.2560E+02
+  END IF
+  IF (PumpUnitString == 'm3_min') THEN
+    PumpConversion = 5.2560E+05
+  END IF
+  
+  IF (PumpUnitString == 'cm3_hr') THEN
+    PumpConversion = 8.7600E-03
+  END IF
+  IF (PumpUnitString == 'liter_hr') THEN
+    PumpConversion = 8.7600E+00
+  END IF
+  IF (PumpUnitString == 'm3_hr') THEN
+    PumpConversion = 8.7600E+03
+  END IF
+  
+  IF (PumpUnitString == 'cm3_day') THEN
+    PumpConversion = 3.6500E-04
+  END IF
+  IF (PumpUnitString == 'liter_day') THEN
+    PumpConversion = 3.6500E-01
+  END IF
+  IF (PumpUnitString == 'm3_day') THEN
+    PumpConversion = 3.6500E+02
+  END IF
+  
+  IF (PumpUnitString == 'cm3_yr') THEN
+    PumpConversion = 1.0000E-06
+  END IF
+  IF (PumpUnitString == 'liter_yr') THEN
+    PumpConversion = 1.0000E-03
+  END IF
+  IF (PumpUnitString == 'm3_yr') THEN
+    PumpConversion = 1.0d0
+  END IF
+  
+  IF (PumpConversion == 0.0d0) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Pump units must be provided and cannot be = 0.0'
+    WRITE(*,*)
+    STOP
+  END IF
+
+!!! pumpunits      cm3_sec
+!!! pumpunits      liter_sec
+!!! pumpunits      m3_sec
+
+!!! pumpunits      cm3_min
+!!! pumpunits      liter_min
+!!! pumpunits      m3_min
+
+!!! pumpunits      cm3_hr
+!!! pumpunits      liter_hr
+!!! pumpunits      m3_hr
+
+!!! pumpunits      cm3_day
+!!! pumpunits      liter_day
+!!! pumpunits      m3_day
+
+!!! pumpunits      cm3_yr
+!!! pumpunits      liter_yr
+!!! pumpunits      m3_yr
 
     flow_if: IF (CalculateFlow .AND. nxyz > 1) THEN
 
@@ -6826,7 +7024,7 @@ IF (found) THEN
             READ(*,*)
             STOP
           END IF
-          OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
+          OPEN(UNIT=23,FILE=permxfile,STATUS='old')
           FileTemp = permxfile
           CALL stringlen(FileTemp,FileNameLength)
           IF (PermFileFormat == 'ContinuousRead') THEN
@@ -9106,17 +9304,22 @@ IF (found) THEN
   call read_ConstantTortuosity(nout,nx,ny,nz,constant_tortuosity,TortuosityConstant,TortuosityOption)
 
   IF (constant_tortuosity) THEN
+    
     WRITE(*,*)
     WRITE(*,*) ' Constant tortuosity option specified'
     WRITE(*,*)
-    MillingtonQuirk = .TRUE.
-    IF (TortuosityOption /= 'none') THEN
-      CALL stringlen(TortuosityOption,ls)
-      WRITE(*,*)
-      WRITE(*,*) ' Tortuosity will be calculated using: ', TortuosityOption(1:ls)
-      WRITE(*,*)
-    END IF
     tortuosity = TortuosityConstant
+    
+    IF (TortuosityConstant == 1.0) THEN
+        
+      WRITE(*,*) ' Default tortuosity = ', TortuosityConstant
+      MillingtonQuirk = .TRUE.     !! No tortuosity heterogeneity and default tortuosity == 0, so use Millington-Quirk
+          
+    ELSE
+      WRITE(*,*) ' Default tortuosity = ', TortuosityConstant
+      MillingtonQuirk = .FALSE.     !!  No tortuosity heterogeneity, but default tortuosity /= 1.0, so do NOT use Millington-Quirk
+    END IF
+    
   ELSE
 
   !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
@@ -9131,7 +9334,7 @@ IF (found) THEN
       ReadTortuosity = .TRUE.
     END IF
 
-  !   Reading tortuosity zones directly from input file
+!!! Reading tortuosity zones directly from input file
     IF (.NOT. ReadTortuosity) THEN
 
       ALLOCATE(TortuosityZone(0:mperm))
@@ -9147,56 +9350,41 @@ IF (found) THEN
 
       CALL read_TortuosityByZone(nout,nx,ny,nz)
 
-       IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
+!!!   First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
-  !!        WRITE(*,*)
-  !!        WRITE(*,*) ' No default tortuosity given'
-  !!        WRITE(*,*) ' Tortuosity should be followed by "default" or blank string'
-  !!        WRITE(*,*)
-  !!        STOP
-
-      ELSE
-        MillingtonQuirk = .TRUE.
-        WRITE(*,*)
-        WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
-        WRITE(*,*)
-      END IF
-
-  ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
-
-      IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-        MillingtonQuirk = .TRUE.
+      IF ( nTortuosityZone == 0 ) THEN
+        
+        IF (TortuosityZone(0) == 1.0) THEN
+          WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
+          MillingtonQuirk = .TRUE.     !! No tortuosity heterogeneity and default tortuosity == 0, so use Millington-Quirk
+          tortuosity = TortuosityZone(0)
+          
+        ELSE
+          WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
+          MillingtonQuirk = .FALSE.     !!  No tortuosity heterogeneity, but default tortuosity /= 1.0, so do NOT use Millington-Quirk
+          tortuosity = TortuosityZone(0)
+          
+        END IF
+        
+      ELSE             !!  Tortuosity heterogeneity set via multiple tortuosity zones, so do NOT use Millington-Quirk
+          
+        MillingtonQuirk = .FALSE.
         Tortuosity = TortuosityZone(0)
 
-  !       Next, initialize tortuosity from various zones
+  !!!   Next, initialize tortuosity from various zones
 
-        IF (nTortuosityZone > 0) THEN
-          DO l = 1,nTortuosityZone
-            DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
-              DO jy = jyyTortuosity_lo(l),jyyTortuosity_hi(l)
-                DO jx = jxxTortuosity_lo(l),jxxTortuosity_hi(l)
-                  Tortuosity(jx,jy,jz) = TortuosityZone(l)
-                END DO
+        DO l = 1,nTortuosityZone
+          DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
+            DO jy = jyyTortuosity_lo(l),jyyTortuosity_hi(l)
+              DO jx = jxxTortuosity_lo(l),jxxTortuosity_hi(l)
+                Tortuosity(jx,jy,jz) = TortuosityZone(l)
               END DO
             END DO
           END DO
-        END IF
-
-  !!      Check to see if any of the nodes are uninitialized with a non-zero value
-
-        CheckSum = MINVAL(Tortuosity)
-
-        IF (checkSum < eps) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Tortuosity is not initialized to a non-zero value everywhere'
-          WRITE(*,*)
-          STOP
-        END IF
-
-      ELSE
-        MillingtonQuirk = .FALSE.
+        END DO
+          
       END IF
-
+        
       DEALLOCATE(TortuosityZone)
       DEALLOCATE(jxxTortuosity_lo)
       DEALLOCATE(jxxTortuosity_hi)
@@ -9217,7 +9405,7 @@ IF (found) THEN
           READ(*,*)
           STOP
         END IF
-        MillingtonQuirk = .TRUE.
+        MillingtonQuirk = .FALSE.
         OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
         FileTemp = TortuosityFile
         CALL stringlen(FileTemp,FileNameLength)

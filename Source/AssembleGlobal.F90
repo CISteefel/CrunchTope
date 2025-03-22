@@ -407,7 +407,7 @@ DO jy = 1,ny
     portemp = por(jx,jy,jz)
     rotemp = ro(jx,jy,jz)
 
-    Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
+    Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/( por(jx,jy,jz)*satliq(jx,jy,jz) )
 
     CALL AqueousToBulkConvert(jx,jy,jz,AqueousToBulk)
 

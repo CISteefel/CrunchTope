@@ -666,7 +666,6 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dums,dumpy)
       END IF
-      
 
       satLs = ArithmeticMean( satliq(jx,jy-1,jz),satliq(jx,jy,jz) )
       dsps = satLs*avgro*dspy(jx,jy-1,jz) + dharm

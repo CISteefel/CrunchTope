@@ -5,7 +5,7 @@
 	</Platforms>
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
-			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" RuntimeChecks="rtChecksNone" BoundsCheck="true" UseMkl="mklParallel"/>
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" RuntimeChecks="rtChecksNone" BoundsCheck="true" UseMkl="mklParallel"/>
 			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="libpetsc.lib impi.lib Advapi32.lib  Gdi32.lib User32.lib  Kernel32.lib Ws2_32.lib mkl_intel_thread.lib libiomp5md.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -206,7 +206,8 @@
 			<File RelativePath="..\Source\NviewOutput.F90"/>
 			<File RelativePath="..\Source\oldcon.F90"/>
 			<File RelativePath="..\Source\oldcongas.F90"/>
-			<File RelativePath="..\Source\oldkd.F90"/>
+			<File RelativePath="..\Source\oldkd.F90">
+			</File>
 			<File RelativePath="..\Source\oldsurf.F90"/>
 			<File RelativePath="..\Source\oldsurface.F90"/>
 			<File RelativePath="..\Source\os3d_newton.F90"/>
@@ -218,7 +219,8 @@
 			<File RelativePath="..\Source\PestSurface.F90"/>
 			<File RelativePath="..\Source\porcalc.F90"/>
 			<File RelativePath="..\Source\porperm.F90"/>
-			<File RelativePath="..\Source\Pressure.F90"/>
+			<File RelativePath="..\Source\Pressure.F90">
+			</File>
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
@@ -232,7 +234,8 @@
 			<File RelativePath="..\Source\read_CatabolicPath.F90"/>
 			<File RelativePath="..\Source\read_concentration.F90"/>
 			<File RelativePath="..\Source\read_condition.F90"/>
-			<File RelativePath="..\Source\read_constantflow.F90"/>
+			<File RelativePath="..\Source\read_constantflow.F90">
+			</File>
 			<File RelativePath="..\Source\read_constantgasflow.F90"/>
 			<File RelativePath="..\Source\read_ConstantTortuosity.F90"/>
 			<File RelativePath="..\Source\read_coordinates.F90"/>
@@ -247,7 +250,8 @@
 			<File RelativePath="..\Source\read_exchange.F90"/>
 			<File RelativePath="..\Source\read_flowfile.F90"/>
 			<File RelativePath="..\Source\read_FluxWeightedConcentration.F90"/>
-			<File RelativePath="..\Source\read_gasdiffusion.F90"/>
+			<File RelativePath="..\Source\read_gasdiffusion.F90">
+			</File>
 			<File RelativePath="..\Source\read_gasflowfile.F90"/>
 			<File RelativePath="..\Source\read_gaspump.F90"/>
 			<File RelativePath="..\Source\read_graphics.F90"/>
@@ -271,7 +275,8 @@
 			<File RelativePath="..\Source\read_multpar.F90"/>
 			<File RelativePath="..\Source\read_multstring.F90"/>
 			<File RelativePath="..\Source\read_nuft.F90"/>
-			<File RelativePath="..\Source\read_par.F90"/>
+			<File RelativePath="..\Source\read_par.F90">
+			</File>
 			<File RelativePath="..\Source\read_permfile.F90"/>
 			<File RelativePath="..\Source\read_permx.F90"/>
 			<File RelativePath="..\Source\read_permxfile.F90"/>
@@ -281,7 +286,8 @@
 			<File RelativePath="..\Source\read_pH.F90"/>
 			<File RelativePath="..\Source\read_porosity.F90"/>
 			<File RelativePath="..\Source\read_pressureAlternative.F90"/>
-			<File RelativePath="..\Source\read_pump.F90"/>
+			<File RelativePath="..\Source\read_pump.F90">
+			</File>
 			<File RelativePath="..\Source\read_pumpfile.F90"/>
 			<File RelativePath="..\Source\read_pumplocations.F90"/>
 			<File RelativePath="..\Source\read_pumplocationsfile.F90"/>
@@ -294,7 +300,8 @@
 			<File RelativePath="..\Source\read_SolidDensity.F90"/>
 			<File RelativePath="..\Source\read_speciesdiffusion.F90"/>
 			<File RelativePath="..\Source\read_steady.F90"/>
-			<File RelativePath="..\Source\read_string.F90"/>
+			<File RelativePath="..\Source\read_string.F90">
+			</File>
 			<File RelativePath="..\Source\read_surface.F90"/>
 			<File RelativePath="..\Source\read_surfacecomplex.F90"/>
 			<File RelativePath="..\Source\read_temp.F90"/>
@@ -376,11 +383,14 @@
 			<File RelativePath="..\Source\tridag_ser.F90"/>
 			<File RelativePath="..\Source\tvd.F90"/>
 			<File RelativePath="..\Source\units_concentration.F90"/>
-			<File RelativePath="..\Source\units_distance.F90"/>
-			<File RelativePath="..\Source\units_time.F90"/>
+			<File RelativePath="..\Source\units_distance.F90">
+			</File>
+			<File RelativePath="..\Source\units_time.F90">
+			</File>
 			<File RelativePath="..\Source\units_timeOutput.F90"/>
 			<File RelativePath="..\Source\UpdateExchanger.F90"/>
-			<File RelativePath="..\Source\velocalc.F90"/>
+			<File RelativePath="..\Source\velocalc.F90">
+			</File>
 			<File RelativePath="..\Source\velocalcNS.F90"/>
 			<File RelativePath="..\Source\WaterReacted.F90"/>
 			<File RelativePath="..\Source\WaterReactedNodeByNode.F90"/>
