@@ -381,6 +381,22 @@ DO jx = 1,nx
 END DO
 CLOSE(UNIT=8,STATUS='keep')
 
+IF (isaturate == 1) THEN
+  fn='gasflux'
+  ilength = 7
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,125)
+125   FORMAT('# Units: Mol/kgw')
+  jz = 1
+  jy = 1
+    DO jx = 1,nx
+      WRITE(8,184) x(jx)*OutputDistanceScale,qxgas(jx,jy,jz)*spgas10(1,jx,jy,jz)
+    END DO 
+  CLOSE(UNIT=8,STATUS='keep')
+END IF
+
 
 fn='gases'
 ilength = 5
@@ -499,42 +515,6 @@ END IF
 
 
 
-IF (isaturate==1) THEN
-  
-  117 FORMAT('# Units: mol gas/m2/year')
-  fn='gasdiffflux'
-  ilength = 11
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,2283) PrintTime
-  WRITE(8,117)
-  WRITE(8,2285) (namg(kk),kk=1,ngas)
-  jy = 1
-  jz = 1
-  DO jx = 0,nx
-    DO i = 1,ngas
-      
-      if (jx==0) THEN
-        gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))
-      elseif (jx==nx) THEN
-        gflux_hor(i)= (cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))
-      else
-        gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))
-      END IF
-      if (gflux_hor(i)<1.0E-30 .and. gflux_hor(i)>-1.0E-30) THEN
-        gflux_hor(i)=1.0E-30
-      END IF      
-    END DO
-    
-    if (jx==0) THEN
-    WRITE(8,184) x(jx)*OutputDistanceScale-dxx(jx)/2,(gflux_hor(i),i=1,ngas)
-    else
-    WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
-    END IF
-  END DO
-  CLOSE(UNIT=8,STATUS='keep')
-  
-END IF
 
 IF (nexchange > 0) THEN
   fn='exchange'

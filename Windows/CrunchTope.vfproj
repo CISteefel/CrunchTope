@@ -116,7 +116,8 @@
 			<File RelativePath="..\Source\exchange.F90"/>
 			<File RelativePath="..\Source\exchange_init.F90"/>
 			<File RelativePath="..\Source\ExchangeConcentration.F90"/>
-			<File RelativePath="..\Source\find_condition.F90"/>
+			<File RelativePath="..\Source\find_condition.F90">
+			</File>
 			<File RelativePath="..\Source\find_firststring.F90"/>
 			<File RelativePath="..\Source\find_string.F90"/>
 			<File RelativePath="..\Source\FindMaxFlow.F90"/>
@@ -171,7 +172,8 @@
 			<File RelativePath="..\Source\jacexchange_init.F90"/>
 			<File RelativePath="..\Source\jacgas.F90"/>
 			<File RelativePath="..\Source\jacgas_local.F90"/>
-			<File RelativePath="..\Source\jacminTope.F90"/>
+			<File RelativePath="..\Source\jacminTope.F90">
+			</File>
 			<File RelativePath="..\Source\jacobian.F90"/>
 			<File RelativePath="..\Source\jacobian_init.F90"/>
 			<File RelativePath="..\Source\jacobian_plus.F90"/>
@@ -206,8 +208,7 @@
 			<File RelativePath="..\Source\NviewOutput.F90"/>
 			<File RelativePath="..\Source\oldcon.F90"/>
 			<File RelativePath="..\Source\oldcongas.F90"/>
-			<File RelativePath="..\Source\oldkd.F90">
-			</File>
+			<File RelativePath="..\Source\oldkd.F90"/>
 			<File RelativePath="..\Source\oldsurf.F90"/>
 			<File RelativePath="..\Source\oldsurface.F90"/>
 			<File RelativePath="..\Source\os3d_newton.F90"/>
@@ -219,12 +220,12 @@
 			<File RelativePath="..\Source\PestSurface.F90"/>
 			<File RelativePath="..\Source\porcalc.F90"/>
 			<File RelativePath="..\Source\porperm.F90"/>
-			<File RelativePath="..\Source\Pressure.F90">
-			</File>
+			<File RelativePath="..\Source\Pressure.F90"/>
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
-			<File RelativePath="..\Source\reactionTope.F90"/>
+			<File RelativePath="..\Source\reactionTope.F90">
+			</File>
 			<File RelativePath="..\Source\reactkin.F90"/>
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
@@ -234,8 +235,7 @@
 			<File RelativePath="..\Source\read_CatabolicPath.F90"/>
 			<File RelativePath="..\Source\read_concentration.F90"/>
 			<File RelativePath="..\Source\read_condition.F90"/>
-			<File RelativePath="..\Source\read_constantflow.F90">
-			</File>
+			<File RelativePath="..\Source\read_constantflow.F90"/>
 			<File RelativePath="..\Source\read_constantgasflow.F90"/>
 			<File RelativePath="..\Source\read_ConstantTortuosity.F90"/>
 			<File RelativePath="..\Source\read_coordinates.F90"/>
@@ -250,8 +250,7 @@
 			<File RelativePath="..\Source\read_exchange.F90"/>
 			<File RelativePath="..\Source\read_flowfile.F90"/>
 			<File RelativePath="..\Source\read_FluxWeightedConcentration.F90"/>
-			<File RelativePath="..\Source\read_gasdiffusion.F90">
-			</File>
+			<File RelativePath="..\Source\read_gasdiffusion.F90"/>
 			<File RelativePath="..\Source\read_gasflowfile.F90"/>
 			<File RelativePath="..\Source\read_gaspump.F90"/>
 			<File RelativePath="..\Source\read_graphics.F90"/>
@@ -267,7 +266,8 @@
 			<File RelativePath="..\Source\read_kinetics_Bio.F90"/>
 			<File RelativePath="..\Source\read_logical.F90"/>
 			<File RelativePath="..\Source\read_master.F90"/>
-			<File RelativePath="..\Source\read_mineral.F90"/>
+			<File RelativePath="..\Source\read_mineral.F90">
+			</File>
 			<File RelativePath="..\Source\read_mineralfile.F90"/>
 			<File RelativePath="..\Source\read_minkin.F90"/>
 			<File RelativePath="..\Source\read_minseries.F90"/>
@@ -275,8 +275,7 @@
 			<File RelativePath="..\Source\read_multpar.F90"/>
 			<File RelativePath="..\Source\read_multstring.F90"/>
 			<File RelativePath="..\Source\read_nuft.F90"/>
-			<File RelativePath="..\Source\read_par.F90">
-			</File>
+			<File RelativePath="..\Source\read_par.F90"/>
 			<File RelativePath="..\Source\read_permfile.F90"/>
 			<File RelativePath="..\Source\read_permx.F90"/>
 			<File RelativePath="..\Source\read_permxfile.F90"/>
@@ -286,8 +285,7 @@
 			<File RelativePath="..\Source\read_pH.F90"/>
 			<File RelativePath="..\Source\read_porosity.F90"/>
 			<File RelativePath="..\Source\read_pressureAlternative.F90"/>
-			<File RelativePath="..\Source\read_pump.F90">
-			</File>
+			<File RelativePath="..\Source\read_pump.F90"/>
 			<File RelativePath="..\Source\read_pumpfile.F90"/>
 			<File RelativePath="..\Source\read_pumplocations.F90"/>
 			<File RelativePath="..\Source\read_pumplocationsfile.F90"/>
@@ -300,8 +298,7 @@
 			<File RelativePath="..\Source\read_SolidDensity.F90"/>
 			<File RelativePath="..\Source\read_speciesdiffusion.F90"/>
 			<File RelativePath="..\Source\read_steady.F90"/>
-			<File RelativePath="..\Source\read_string.F90">
-			</File>
+			<File RelativePath="..\Source\read_string.F90"/>
 			<File RelativePath="..\Source\read_surface.F90"/>
 			<File RelativePath="..\Source\read_surfacecomplex.F90"/>
 			<File RelativePath="..\Source\read_temp.F90"/>
@@ -383,14 +380,11 @@
 			<File RelativePath="..\Source\tridag_ser.F90"/>
 			<File RelativePath="..\Source\tvd.F90"/>
 			<File RelativePath="..\Source\units_concentration.F90"/>
-			<File RelativePath="..\Source\units_distance.F90">
-			</File>
-			<File RelativePath="..\Source\units_time.F90">
-			</File>
+			<File RelativePath="..\Source\units_distance.F90"/>
+			<File RelativePath="..\Source\units_time.F90"/>
 			<File RelativePath="..\Source\units_timeOutput.F90"/>
 			<File RelativePath="..\Source\UpdateExchanger.F90"/>
-			<File RelativePath="..\Source\velocalc.F90">
-			</File>
+			<File RelativePath="..\Source\velocalc.F90"/>
 			<File RelativePath="..\Source\velocalcNS.F90"/>
 			<File RelativePath="..\Source\WaterReacted.F90"/>
 			<File RelativePath="..\Source\WaterReactedNodeByNode.F90"/>

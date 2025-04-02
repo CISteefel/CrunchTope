@@ -515,7 +515,7 @@ DO k = 1,nkin
 !!!     ******************* End of isotopes ***************************************************
       
 !!!        write(*,*) ' LogLoadingP = ', LogLoadingP
-        IF (k == 3) THEN
+        IF (k == 4) THEN
           silog(np,k) = (sumiap + LogLoadingP - keqmin(1,k,jx,jy,jz))/clg
         ELSE
           silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
@@ -571,6 +571,10 @@ DO k = 1,nkin
 !!  "MineralID" is the pointer to the mineral number whose volume fraction is being tracked
     
     IF (silog(np,k) >= 0.0D0 .AND. iarea(k,jinit(jx,jy,jz)) == 0) THEN       !! Supersaturated AND bulk_surface_area option
+      
+      IF (k == 13) then
+        continue
+      end if
 
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
@@ -595,7 +599,7 @@ DO k = 1,nkin
             surf(np,k) = areainByGrid(k,jx,jy,jz)*porfactor
           END IF
         ELSE
-          surf(np,k) = area(k,jx,jy,jz)*porfactor            
+          surf(np,k) = areainByGrid(k,jx,jy,jz)*porfactor            
         END IF
 
       END IF
