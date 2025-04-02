@@ -52,19 +52,19 @@ For fully optimized production code, be sure to configure PETSc with "--with-deb
 
 ### Example of TRANSPORT block
 
-TRANSPORT
-distance_units        centimeters
-time_units            second
-cementation_exponent  2.00
-fix_diffusion         1.0E-05
-dispersivity          0.0  0.0 
-gas_diffusion         5.E-03
-cementation_exponent  1.00
-!!! constant_tortuosity  1.00
-!!! read_tortuosityfile  WhatEver.dat
-MillingtonQuirk    false   !!! NOTE: MillingtonQuirk == .TRUE. 
-!!!                        overrides setting "cementation_exponent /= 1.0"
-END
+    TRANSPORT
+    distance_units        centimeters
+    time_units            second
+    cementation_exponent  2.00
+    fix_diffusion         1.0E-05
+    dispersivity          0.0  0.0 
+    gas_diffusion         5.E-03
+    cementation_exponent  1.00
+    MillingtonQuirk   false  !!! NOTE: MillingtonQuirk == .TRUE. 
+    !!!                      overrides setting "cementation_exponent /= 1.0"
+    !!! constant_tortuosity  1.00
+    !!! read_tortuosityfile  WhatEver.dat
+    END
 
 ### Input File Keyword Blocks
 
