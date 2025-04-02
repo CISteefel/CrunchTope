@@ -248,6 +248,7 @@ DO jy = 1,ny
 !!!      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx-1,jy,jz)
+      
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -267,15 +268,19 @@ DO jy = 1,ny
           tort = TortuosityBelowThreshold
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort
+        
       ELSE IF (MillingtonQuirk) THEN
         dume = ro(jx+1,jy,jz)*(sate)**(SatPow) * (pore)**(PorPow)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dumw = ro(jx-1,jy,jz)*(satw)**(SatPow) * (porw)**(PorPow)*dstar(jx-1,jy,jz)
+   
       ELSE
-        dume = ro(jx+1,jy,jz)*sate*pore**(uli)*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
-        dumw = ro(jx-1,jy,jz)*satw*porw**(uli)*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
+        dume  = ro(jx+1,jy,jz) *sate * pore**(uli) * dstar(jx+1,jy,jz) * tortuosity(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)   *satp * porp**(uli) * dstar(jx,jy,jz)   * tortuosity(jx,jy,jz)
+        dumw  = ro(jx-1,jy,jz) *satw * porw**(uli) * dstar(jx-1,jy,jz) * tortuosity(jx-1,jy,jz)
+        
       END IF
+      
     END IF
     
     100     CONTINUE

@@ -9124,7 +9124,7 @@ anisotropyY = 1.0d0
 !!!anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
-MillingtonQuirk = .TRUE.
+MillingtonQuirk = .FALSE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
@@ -9134,6 +9134,7 @@ ELSE
   ALLOCATE(tortuosity(nx,ny,nz))
 END IF
 
+!!! Set tortuosity = 1.0 as default case
 tortuosity = 1.0d0
 
 IF (ALLOCATED(anisotropyZ)) THEN
@@ -9145,6 +9146,7 @@ END IF
 
 anisotropyZ = 1.0d0
 
+!!! Following is ONLY for MontTerri simulations
 IF (MontTerri) THEN
 
   DO jz = 1,nz
@@ -9228,9 +9230,9 @@ IF (MontTerri) THEN
 !!! 6: Inner disturbed zone
 !!! 7: Opalinus Clay (OPA)    
   
-END IF
+END IF      !!! End MontTerri simulations
 
-IF (found) THEN
+IF (FOUND) THEN
 
   WRITE(*,*)
   WRITE(*,*) ' Transport block found'
@@ -9309,20 +9311,14 @@ IF (found) THEN
     WRITE(*,*) ' Constant tortuosity option specified'
     WRITE(*,*)
     tortuosity = TortuosityConstant
+    WRITE(*,*) ' Default tortuosity = ', TortuosityConstant
     
-    IF (TortuosityConstant == 1.0) THEN
-        
-      WRITE(*,*) ' Default tortuosity = ', TortuosityConstant
-      MillingtonQuirk = .TRUE.     !! No tortuosity heterogeneity and default tortuosity == 0, so use Millington-Quirk
-          
-    ELSE
-      WRITE(*,*) ' Default tortuosity = ', TortuosityConstant
-      MillingtonQuirk = .FALSE.     !!  No tortuosity heterogeneity, but default tortuosity /= 1.0, so do NOT use Millington-Quirk
-    END IF
+!!! If tortuosity is set, then do NOT use Millington-Quirk
+    MillingtonQuirk = .FALSE.
     
   ELSE
 
-  !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
+  ! No constant tortuosity specified, so look for file read or for tortuosity set by zones
 
     TortuosityFile = ' '
     ReadTortuosity = .FALSE.
@@ -9335,7 +9331,7 @@ IF (found) THEN
     END IF
 
 !!! Reading tortuosity zones directly from input file
-    IF (.NOT. ReadTortuosity) THEN
+    IF (.NOT. ReadTortuosity) THEN    !!! No file read of tortuosity, so look for tortuosity zones
 
       ALLOCATE(TortuosityZone(0:mperm))
 
@@ -9353,20 +9349,11 @@ IF (found) THEN
 !!!   First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
       IF ( nTortuosityZone == 0 ) THEN
+        MillingtonQuirk = .FALSE.
+        tortuosity = TortuosityZone(0)     !!! Should be set = 1.0 in "read_TortuosityByZone"
         
-        IF (TortuosityZone(0) == 1.0) THEN
-          WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
-          MillingtonQuirk = .TRUE.     !! No tortuosity heterogeneity and default tortuosity == 0, so use Millington-Quirk
-          tortuosity = TortuosityZone(0)
-          
-        ELSE
-          WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
-          MillingtonQuirk = .FALSE.     !!  No tortuosity heterogeneity, but default tortuosity /= 1.0, so do NOT use Millington-Quirk
-          tortuosity = TortuosityZone(0)
-          
-        END IF
-        
-      ELSE             !!  Tortuosity heterogeneity set via multiple tortuosity zones, so do NOT use Millington-Quirk
+      ELSE             !!!  Tortuosity heterogeneity [nTurtuosityZone > 0]set via multiple tortuosity zones, 
+                       !!!  so do NOT use Millington-Quirk
           
         MillingtonQuirk = .FALSE.
         Tortuosity = TortuosityZone(0)
@@ -9531,7 +9518,28 @@ IF (found) THEN
         CLOSE(UNIT=52,STATUS='KEEP')
       END IF
     END IF
+    
+  END IF     !!! End of tortuosity file read
+  
+  IF (nTortuosityZone == 0) THEN
+    
+    IF (constant_tortuosity) THEN
+      continue
+    ELSE
+      parchar = 'MillingtonQuirk'
+      parfind = ' '
+      MillingtonQuirk = .FALSE.
+      CALL read_logical(nout,lchar,parchar,parfind,MillingtonQuirk)
+      IF (MillingtonQuirk) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' MillingtonQuirk set to TRUE'
+        WRITE(*,*)
+      END IF
+      
+    END IF
+    
   END IF
+    
 
   parchar = 'anisotropy_ratioY'
   parfind = ' '
@@ -9576,7 +9584,7 @@ IF (found) THEN
     UseThresholdPorosity = .FALSE.
   ELSE
     UseThresholdPorosity = .TRUE.
-    MillingtonQuirk = .TRUE.
+    !!! MillingtonQuirk = .TRUE.
     parchar = 'tortuosity_below'
     parfind = ' '
     realjunk = 0.0
