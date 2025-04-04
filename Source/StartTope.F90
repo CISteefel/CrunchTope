@@ -6496,16 +6496,31 @@ IF (found) THEN
   
 !!! Convert pumping from units provided by user to m^3/yr
   
+!!! Check to see if there are any pumping wells first
+  
+  ThereArePumpingWells = .FALSE.
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        IF (npump(jx,jy,jz) > 0) THEN
+          ThereArePumpingWells = .TRUE.
+        END IF
+      END DO
+    END DO
+  END DO
+  
   ! select units for pump term
   parchar = 'pumpunits'
   parfind = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN
-    WRITE(*,*) ' Units for pumping should be provided (no default)'
-    WRITE(*,*)
-    STOP
-  ELSE
-    PumpUnitString = dumstring
+  IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
+    IF (parfind == ' ') THEN
+      WRITE(*,*) ' Units for pumping should be provided (no default)'
+      WRITE(*,*)
+      STOP
+    ELSE
+      PumpUnitString = dumstring
+    END IF
   END IF
   
 !!! Check that units for pumping (volume fluid per unit time) are recognized
@@ -6565,7 +6580,7 @@ IF (found) THEN
     PumpConversion = 1.0d0
   END IF
   
-  IF (PumpConversion == 0.0d0) THEN
+  IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
     WRITE(*,*)
     WRITE(*,*) ' Pump units must be provided and cannot be = 0.0'
     WRITE(*,*)

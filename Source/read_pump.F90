@@ -385,9 +385,6 @@ IF (wells) THEN
     END DO
   END DO
 
-  !!  Convert pumping rate from liters/sec to m**3/yr
-  !!! --> Moved outside to use the user units provided: qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
-
 END IF
 
 DEALLOCATE(qgTemp)
