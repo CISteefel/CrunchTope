@@ -6456,7 +6456,7 @@ qrecharge = 0
 
 !!! ****  Flow Block Found  *********
 
-IF (found) THEN
+IF (FOUND) THEN
 
   !  Initialize pressure and pumping rate first
 
@@ -6491,7 +6491,7 @@ IF (found) THEN
   IF (pumptimeseries) THEN
     CALL read_pumplocations(nout,nx,ny,nz,nchem)
   ELSE
-    CALL read_pump(nout,nx,ny,nz,nchem)
+    CALL read_pump(nout,nx,ny,nz,nchem)    !!! If there  are pump terms, returns "wells" == .TRUE.
   ENDIF
   
 !!! Convert pumping from units provided by user to m^3/yr
@@ -6513,15 +6513,16 @@ IF (found) THEN
   parchar = 'pumpunits'
   parfind = ' '
   CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
+  !!!IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
     IF (parfind == ' ') THEN
-      WRITE(*,*) ' Units for pumping should be provided (no default)'
-      WRITE(*,*)
-      STOP
+ !!!     WRITE(*,*)
+ !!!     WRITE(*,*) ' Units for pumping should be provided (no default)'
+ !!!     WRITE(*,*)
+ !!!     STOP
     ELSE
       PumpUnitString = dumstring
     END IF
-  END IF
+  !!!END IF
   
 !!! Check that units for pumping (volume fluid per unit time) are recognized
   
@@ -6536,6 +6537,9 @@ IF (found) THEN
   IF (PumpUnitString == 'liter_sec') THEN
     PumpConversion = 3.1536E+04
   END IF
+  IF (PumpUnitString == 'dm3_sec') THEN
+    PumpConversion = 3.1536E+04
+  END IF
   IF (PumpUnitString == 'm3_sec') THEN
     PumpConversion = 3.1536E+07
   END IF
@@ -6544,6 +6548,9 @@ IF (found) THEN
     PumpConversion = 5.2560E-01
   END IF
   IF (PumpUnitString == 'liter_min') THEN
+    PumpConversion = 5.2560E+02
+  END IF
+  IF (PumpUnitString == 'dm3_min') THEN
     PumpConversion = 5.2560E+02
   END IF
   IF (PumpUnitString == 'm3_min') THEN
@@ -6556,6 +6563,9 @@ IF (found) THEN
   IF (PumpUnitString == 'liter_hr') THEN
     PumpConversion = 8.7600E+00
   END IF
+  IF (PumpUnitString == 'dm3_hr') THEN
+    PumpConversion = 8.7600E+00
+  END IF
   IF (PumpUnitString == 'm3_hr') THEN
     PumpConversion = 8.7600E+03
   END IF
@@ -6564,6 +6574,9 @@ IF (found) THEN
     PumpConversion = 3.6500E-04
   END IF
   IF (PumpUnitString == 'liter_day') THEN
+    PumpConversion = 3.6500E-01
+  END IF
+  IF (PumpUnitString == 'dm3_day') THEN
     PumpConversion = 3.6500E-01
   END IF
   IF (PumpUnitString == 'm3_day') THEN
@@ -6576,38 +6589,48 @@ IF (found) THEN
   IF (PumpUnitString == 'liter_yr') THEN
     PumpConversion = 1.0000E-03
   END IF
+  IF (PumpUnitString == 'dm3_yr') THEN
+    PumpConversion = 1.0000E-03
+  END IF
   IF (PumpUnitString == 'm3_yr') THEN
     PumpConversion = 1.0d0
   END IF
   
-  IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
+  IF ( PumpConversion == 0.0 .AND. (ThereArePumpingWells .OR. pumptimeseries) ) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Pump units must be provided and cannot be = 0.0'
+    WRITE(*,*) ' Pump units must be provided and cannot be = 0.0 if there are pumping wells'
     WRITE(*,*)
     STOP
   END IF
 
 !!! pumpunits      cm3_sec
 !!! pumpunits      liter_sec
+!!! pumpunits      dm3_sec
 !!! pumpunits      m3_sec
 
 !!! pumpunits      cm3_min
 !!! pumpunits      liter_min
+!!! pumpunits      dm3_min
 !!! pumpunits      m3_min
 
 !!! pumpunits      cm3_hr
 !!! pumpunits      liter_hr
+!!! pumpunits      dm3_hr
 !!! pumpunits      m3_hr
 
 !!! pumpunits      cm3_day
 !!! pumpunits      liter_day
+!!! pumpunits      dm3_day
 !!! pumpunits      m3_day
 
 !!! pumpunits      cm3_yr
 !!! pumpunits      liter_yr
+!!! pumpunits      dm3_yr
 !!! pumpunits      m3_yr
   
-  qg =  qg*PumpConversion
+  IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
+    qg =  qg*PumpConversion
+  END IF
 
   CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
   
@@ -6656,101 +6679,6 @@ IF (found) THEN
       parfind = ' '
       CALL read_logical(nout,lchar,parchar,parfind,CalculateFlow)
     END IF
-  ! select units for pump term
-  parchar = 'pumpunits'
-  parfind = ' '
-  CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
-  IF (parfind == ' ') THEN
-    WRITE(*,*) ' Units for pumping should be provided (no default)'
-    WRITE(*,*)
-    STOP
-  ELSE
-    PumpUnitString = dumstring
-  END IF
-  
-!!! Check that units for pumping (volume fluid per unit time) are recognized
-  
-  PumpConversion = 0.0d0
-
-!!! Conversion is from units specified to m^3/yr
-
-  
-  IF (PumpUnitString == 'cm3_sec') THEN
-    PumpConversion = 3.1536E+01
-  END IF
-  IF (PumpUnitString == 'liter_sec') THEN
-    PumpConversion = 3.1536E+04
-  END IF
-  IF (PumpUnitString == 'm3_sec') THEN
-    PumpConversion = 3.1536E+07
-  END IF
-  
-  IF (PumpUnitString == 'cm3_min') THEN
-    PumpConversion = 5.2560E-01
-  END IF
-  IF (PumpUnitString == 'liter_min') THEN
-    PumpConversion = 5.2560E+02
-  END IF
-  IF (PumpUnitString == 'm3_min') THEN
-    PumpConversion = 5.2560E+05
-  END IF
-  
-  IF (PumpUnitString == 'cm3_hr') THEN
-    PumpConversion = 8.7600E-03
-  END IF
-  IF (PumpUnitString == 'liter_hr') THEN
-    PumpConversion = 8.7600E+00
-  END IF
-  IF (PumpUnitString == 'm3_hr') THEN
-    PumpConversion = 8.7600E+03
-  END IF
-  
-  IF (PumpUnitString == 'cm3_day') THEN
-    PumpConversion = 3.6500E-04
-  END IF
-  IF (PumpUnitString == 'liter_day') THEN
-    PumpConversion = 3.6500E-01
-  END IF
-  IF (PumpUnitString == 'm3_day') THEN
-    PumpConversion = 3.6500E+02
-  END IF
-  
-  IF (PumpUnitString == 'cm3_yr') THEN
-    PumpConversion = 1.0000E-06
-  END IF
-  IF (PumpUnitString == 'liter_yr') THEN
-    PumpConversion = 1.0000E-03
-  END IF
-  IF (PumpUnitString == 'm3_yr') THEN
-    PumpConversion = 1.0d0
-  END IF
-  
-  IF (PumpConversion == 0.0d0) THEN
-    WRITE(*,*)
-    WRITE(*,*) ' Pump units must be provided and cannot be = 0.0'
-    WRITE(*,*)
-    STOP
-  END IF
-
-!!! pumpunits      cm3_sec
-!!! pumpunits      liter_sec
-!!! pumpunits      m3_sec
-
-!!! pumpunits      cm3_min
-!!! pumpunits      liter_min
-!!! pumpunits      m3_min
-
-!!! pumpunits      cm3_hr
-!!! pumpunits      liter_hr
-!!! pumpunits      m3_hr
-
-!!! pumpunits      cm3_day
-!!! pumpunits      liter_day
-!!! pumpunits      m3_day
-
-!!! pumpunits      cm3_yr
-!!! pumpunits      liter_yr
-!!! pumpunits      m3_yr
 
     flow_if: IF (CalculateFlow .AND. nxyz > 1) THEN
 

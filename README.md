@@ -50,6 +50,44 @@ For fully optimized production code, be sure to configure PETSc with "--with-deb
 ---> Add "H2O" to the end of the list of PRIMARY SPECIES.  
 ---> Add also to each of the CONDITION blocks  "H2O  55.50843506"
 
+### Pumping Wells
+ 
+---> If there are pumping wells, them "pumpunits" must be set /= 0.0
+
+    ---> Partial Example
+    FLOW
+    distance_units    centimeters
+    time_units        days
+    calculate_flow    true
+    pumpunits         dm3_min
+    pump              0.0006   amendment  1  1  1
+
+    ---> Possible pumpunits:
+    cm3_sec
+    liter_sec
+    dm3_sec
+    m3_sec
+
+    cm3_min
+    liter_min
+    dm3_min
+    m3_min
+
+    cm3_hr
+    liter_hr
+    dm3_hr
+    m3_hr
+
+    cm3_day
+    liter_day
+    dm3_day
+    m3_day
+
+    cm3_yr
+    liter_yr
+    dm3_yr
+    m3_yr
+
 ### Example of TRANSPORT block
 
     TRANSPORT

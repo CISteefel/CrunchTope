@@ -17,7 +17,7 @@ master                  H+
 database                OldRifleDatabaseLiLi.dbs
 coordinates             rectangular
 gimrt                   true
-screen_output           100
+screen_output           1
 JennyDruhan             true
 SetSurfaceAreaConstant  true
 aqueousdatabase         aqueousRifleColumn.dbs
@@ -154,11 +154,13 @@ END
 FLOW
 distance_units      centimeters
 time_units          days
-constant_flow       12.657
-!!!!!calculate_flow    true
-!!!!!permeability_x    1.0756e-12
-!!!!!pressure          1.6141e3  zone 0-0 1-1 1-1 fix
-!!!!!pressure          0.0000      zone 101-101 1-1 1-1 fix
+!!!constant_flow       12.657
+calculate_flow    true
+pumpunits         dm3_min
+pump             0.0006   amendment  1  1  1
+permeability_x    1.0756e-12
+pressure          1.6141e3    zone 0-0     1-1 1-1 fix
+pressure          0.0000      zone 101-101 1-1 1-1 fix
 END
 
 POROSITY

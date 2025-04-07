@@ -445,31 +445,33 @@ WRITE(8,2283) PrintTime
 !!!WRITE(8,2285) (namg(kk),kk=1,ngas)
 jy = 1
 jz = 1
+
 totH2O = 0.0
 totAqueousH2 = 0.0
-totGasH2 = 0.0
+
 rateOlivine_A = 0.0
 rateOlivine_B = 0.0
 rateLizardite = 0.0
 rateMagnetite = 0.0
 rateFeBrucite = 0.0
 
-IF (namg(1) /= 'H2(g)' .or. ulab(22) /= 'H2(aq)') THEN
+IF (namg(1) /= 'H2(g)' .or. ulab(21) /= 'H2(aq)') THEN
   CONTINUE
 ELSE
-  DO jx = 1,nx
+  
+  DO jx = 1,nx-3
     
     tk = 273.15d0 + t(jx,jy,jz)
     CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
     PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
     nco = jinit(jx,jy,jz)
     
+    !!! Water at time of snapshot - original water of 55.50843506
+    !!! NOTE: Units of mmol
     totH2O        = totH2O + 1000.0 * CellVolume * ro(jx,jy,jz)* porcond(nco)*   &
                        satliq(jx,jy,jz) * (sp10(1,jx,jy,jz) - 55.50843506)
     totAqueousH2  = totAqueousH2 + 1000.0 * CellVolume * ro(jx,jy,jz) * porcond(nco) *   &
-                       satliq(jx,jy,jz) * sp10(22,jx,jy,jz)
-    totGasH2      = totGasH2 + 1000.0*CellVolume * porcond(jinit(jx,jy,jz))    *   &
-                       (1.0-satliq(jx,jy,jz)) * spgas10(1,jx,1,1)
+                       satliq(jx,jy,jz) * sp10(21,jx,jy,jz)
     
     vol1 = volfx(1,jx,1,1) - volin(1,nco) 
     vol2 = volfx(2,jx,1,1) - volin(2,nco) 
@@ -477,37 +479,54 @@ ELSE
     vol4 = volfx(4,jx,1,1) - volin(4,nco) 
     vol5 = volfx(5,jx,1,1) - volin(5,nco) 
     
-    rateOlivine_A = rateOlivine_A + vol1 /volmol(1) * CellVolume
-    rateOlivine_B = rateOlivine_B + vol2 /volmol(2) * CellVolume
-    rateLizardite = rateLizardite + vol3 /volmol(3) * CellVolume
-    rateMagnetite = rateMagnetite + vol4 /volmol(4) * CellVolume
-    rateFeBrucite = rateFeBrucite + vol5 /volmol(5) * CellVolume
+    rateOlivine_A = rateOlivine_A + vol1 /volmol(1) * CellVolume   !!! Units: mole
+    rateOlivine_B = rateOlivine_B + vol2 /volmol(2) * CellVolume   !!! Units: mole
+    rateLizardite = rateLizardite + vol3 /volmol(3) * CellVolume   !!! Units: mole
+    rateMagnetite = rateMagnetite + vol4 /volmol(4) * CellVolume   !!! Units: mole
+    rateFeBrucite = rateFeBrucite + vol5 /volmol(5) * CellVolume   !!! Units: mole
+    
+  END DO
+  
+  totGasH2 = 0.0
+  
+  DO jx = 1,nx
+    
+    tk = 273.15d0 + t(jx,jy,jz)
+    CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+    PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+    nco = jinit(jx,jy,jz)
+    
+    !!! Water at time of snapshot - original water of 55.50843506
+    !!! NOTE: Units of mmol
+    totGasH2      = totGasH2 + 1000.0*CellVolume * porcond(jinit(jx,jy,jz))    *   &
+                        (1.0-satliq(jx,jy,jz)) * spgas10(1,jx,1,1)
     
   END DO
   
   PartialPressureH2 = 0.001 * totGasH2/(1.1*0.001) * 8.314d0 * tk/1.0E+05
   write(8,*) ' TotH2O (mmol)           = ', totH2O
   write(8,*) ' TotAqueousH2 (mmol)     = ', totAqueousH2
-  write(8,*) ' AqueousH2 (mol/kgw)     = ', 1000.0*totAqueousH2/0.20
-  write(8,*) ' TotGasH2     (umol)     = ', totGasH2*1000.0
+  write(8,*) ' TotGasH2     (mmol)     = ', totGasH2
   write(8,*) ' Partial pressure        = ', PartialPressureH2
   write(8,*)
-  write(8,*) ' Delta olivine (mmol)    = ', (rateOlivine_A + rateOlivine_B) * 1000.0
-  write(8,*) ' Delta lizardite (mmol)  = ', rateLizardite* 1000.0
-  write(8,*) ' Delta magnetite (mmol)  = ', rateMagnetite* 1000.0
-  write(8,*) ' Delta Fe-brucite (mmol) = ', rateFeBrucite* 1000.0
+  write(8,*) ' Delta olivine (mmol)    = ', (rateOlivine_A + rateOlivine_B) * 1000.0   !!! Units: mmol
+  write(8,*) ' Delta serpentine (mmol) = ', rateLizardite* 1000.0                      !!! Units: mmol
+  write(8,*) ' Delta magnetite (mmol)  = ', rateMagnetite* 1000.0                      !!! Units: mmol
+  write(8,*) ' Delta Fe-brucite (mmol) = ', rateFeBrucite* 1000.0                      !!! Units: mmol
   
   OlivineNormalization = DABS((rateOlivine_A + rateOlivine_B) * 1000.0)
   
   write(8,*)
-  write(8,*) ' Delta olivine           = ', (rateOlivine_A + rateOlivine_B)*1000.0/OlivineNormalization
-  write(8,*) ' Delta lizardite         = ', rateLizardite* 1000.0/OlivineNormalization
-  write(8,*) ' Delta magnetite         = ', rateMagnetite* 1000.0/OlivineNormalization
-  write(8,*) ' Delta Fe-brucite        = ', rateFeBrucite* 1000.0/OlivineNormalization
-  write(8,*) ' Delta H2O               = ', totH2O/OlivineNormalization
-  write(8,*) ' Delta AqueousH2         = ', totAqueousH2/OlivineNormalization
-  write(8,*) ' Delta GasH2             = ', totGasH2/OlivineNormalization
+  write(8,*) ' Delta olivine           = ', (rateOlivine_A + rateOlivine_B)*1000.0/OlivineNormalization  !!! Units: mmol
+  write(8,*) ' Delta serpentine        = ', rateLizardite* 1000.0/OlivineNormalization                   !!! Units: mmol
+  write(8,*) ' Delta magnetite         = ', rateMagnetite* 1000.0/OlivineNormalization                   !!! Units: mmol
+  write(8,*) ' Delta Fe-brucite        = ', rateFeBrucite* 1000.0/OlivineNormalization                   !!! Units: mmol
+  write(8,*) ' Delta H2O               = ', totH2O/OlivineNormalization                                  !!! Units: mmol
+  write(8,*) ' Delta AqueousH2         = ', totAqueousH2/OlivineNormalization                            !!! Units: mmol
+  write(8,*) ' Delta GasH2             = ', totGasH2/OlivineNormalization                                !!! Units: mmol
   
+  write(8,*)
+  write(8,*) ' Ratio of H2O to H2      =', (totH2O/OlivineNormalization)/(totGasH2/OlivineNormalization)
   
   CLOSE(UNIT=8,STATUS='keep')
   
