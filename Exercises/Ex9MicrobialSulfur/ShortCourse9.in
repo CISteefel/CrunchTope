@@ -4,9 +4,9 @@ END
 
 RUNTIME
 time_units              days
-timestep_max            0.01
+timestep_max            0.001
 timestep_init           1.E-10
-time_tolerance          0.001
+time_tolerance          0.0001
 hindmarsh               true
 correction_max          2.0
 debye-huckel            true
@@ -17,9 +17,9 @@ master                  H+
 database                OldRifleDatabaseLiLi.dbs
 coordinates             rectangular
 gimrt                   true
-screen_output           1
-JennyDruhan             true
-SetSurfaceAreaConstant  true
+screen_output           100
+JennyDruhan             false
+SetSurfaceAreaConstant  false
 aqueousdatabase         aqueousRifleColumn.dbs
 catabolicdatabase       CatabolicPathways_RifleColumn.dbs         
 END
@@ -48,7 +48,7 @@ S34                  -label  default -rate  -3.0
 Fe(OH)3              -label  default -rate  -9.43  -associate Ferrihydrite_DIRB
 C5H7O2NFe(s)         -label  default -rate  -2.0
 C5H7O2NSO4(s)        -label  default -rate  -2.0
-Quartz               -label  default -rate  -35.5
+Quartz               -label  default -rate  -5.5
 decay_b_so4(s)       -label  default -rate  -4.3   -associate  C5H7O2NSO4(s)
 END
 
@@ -69,7 +69,8 @@ units            mmol/kg
 temperature      25.0         
 pH               7.2            
 Fe++             1.0-08
-Fe+++            Fe(OH)3
+!!!Fe+++            Fe(OH)3
+Fe+++            1.0E-10
 SiO2(aq)         0.35
 Na+              10.6
 Ca++             4.48
@@ -89,7 +90,8 @@ C5H7O2NFe        1.0E-12
 C5H7O2NSO4       1.0E-12
 decay_b_so4      1.0E-12
 
-XRifle-      -cec    5.1E-5
+!!!XRifle-      -cec    5.1E-05
+XRifle-      -cec    1.0E-06
 SolidDensity     2650
 
 ! Mineral name <volume fraction m3/m3>
@@ -114,7 +116,8 @@ units            mmol/kg
 temperature      25.0         
 pH               7.2            
 Fe++             1.0-08
-Fe+++            Fe(OH)3
+!!!Fe+++            Fe(OH)3
+Fe+++            1.0E-10
 SiO2(aq)         0.35
 Na+              22.0
 Ca++             5.4
@@ -134,11 +137,11 @@ C5H7O2NFe        0.00
 C5H7O2NSO4       0.00
 decay_b_so4      1.0E-12
 
-XRifle-      -cec    0.0
+XRifle-      -cec    1.0E-05
 END
 
 INITIAL_CONDITIONS
-initial 1-100  1-1  1-1
+initial  1-100  1-1  1-1
 END                                    
                                     
 BOUNDARY_CONDITIONS
@@ -154,10 +157,10 @@ END
 FLOW
 distance_units      centimeters
 time_units          days
-!!!constant_flow       12.657
-calculate_flow    true
+constant_flow       12.657
+calculate_flow    false
 pumpunits         dm3_min
-pump             0.0006   amendment  1  1  1
+pump              0.000   amendment  1  1  1
 permeability_x    1.0756e-12
 pressure          1.6141e3    zone 0-0     1-1 1-1 fix
 pressure          0.0000      zone 101-101 1-1 1-1 fix
@@ -171,9 +174,9 @@ TRANSPORT
 distance_units           centimeters
 time_units               second
 fix_diffusion            0.919e-05 
-formation_factor         1.00
+!!!formation_factor         1.00
 cementation_exponent     1.90
-dispersivity             4.0
+dispersivity             2.0
 END
 
 PRIMARY_SPECIES

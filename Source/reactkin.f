@@ -119,8 +119,6 @@ REAL(DP)                                                       :: snormAqueous
 
 real(dp)                                                       :: vol_temp
 real(dp)                                                       :: satL
-REAL(DP)                                                        :: lnActivity
-CHARACTER (LEN=3)                                               :: ulabPrint
 
 !!REAL(DP), DIMENSION(ikin)                                      :: MoleFraction
 
