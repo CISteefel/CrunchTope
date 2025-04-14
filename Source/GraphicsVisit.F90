@@ -207,10 +207,17 @@ REAL(DP)                                                   :: totRare
 REAL(DP)                                                   :: totCommon
 REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
 
-REAL(DP), DIMENSION(ncomp)                         :: gflux_ver
-REAL(DP), DIMENSION(ncomp)                         :: gflux_hor
-REAL(DP), DIMENSION(nrct)                          :: MineralPercent
-REAL(DP), DIMENSION(ikin)                          :: dummy_raq_tot
+REAL(DP), DIMENSION(:), ALLOCATABLE                        :: gflux_ver
+REAL(DP), DIMENSION(:), ALLOCATABLE                        :: gflux_hor
+
+REAL(DP), DIMENSION(nrct)                                  :: MineralPercent
+REAL(DP), DIMENSION(ikin)                                  :: dummy_raq_tot
+
+REAL(DP)                                                   :: check
+REAL(DP)                                                   :: Area_XorY
+
+ALLOCATE(gflux_ver(ngas))
+ALLOCATE(gflux_hor(ngas))
 
 !!!jz = 1
 PrintTime = realtime*OutputTimeScale
@@ -536,7 +543,7 @@ END IF
 IF (nrct > 0) THEN
 
   fn='Mineralrate'
-  ilength = 4
+  ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Mineral Rate (mol/m^3/sec)" '
@@ -569,7 +576,7 @@ IF (nrct > 0) THEN
   CLOSE(UNIT=8,STATUS='keep')
 
   fn = 'Mineralvolumefraction'
-  ilength = 6
+  ilength = 21
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Mineral Volumes (m^3 mineral/m^3 porous medium)" '
@@ -591,6 +598,36 @@ IF (nrct > 0) THEN
       DO jx = 1,nx
         DO k = 1,nrct
           dvolpr(k) = volfx(k,jx,jy,jz)*1.0
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(dvolpr(k),k=1,nrct)
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+  
+  fn = 'Delta_Mineralvolume'
+  ilength = 19
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Mineral Volumes (m^3 mineral/m^3 porous medium)" '
+  DO k= 1, nrct
+    StringTemp = umin(k)
+    CALL stringlen(StringTemp,ls)
+    IF (ls > 14) THEN
+      ls = 14
+    END IF
+    StringProper(1:1) = '"'
+    StringProper(2:ls+1) = StringTemp(1:ls)
+    StringProper(ls+2:ls+3) = '"'
+    WriteString(k) = StringProper(1:ls+3)
+  END DO
+    WRITE(8,2009) (WriteString(k),k=1,nrct)
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        DO k = 1,nrct
+          dvolpr(k) = volfx(k,jx,jy,jz) - volin(k,jinit(jx,jy,jz)) 
         END DO
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(dvolpr(k),k=1,nrct)
       END DO
@@ -1026,7 +1063,7 @@ IF (isaturate == 1) THEN
     ilength = 5
     CALL newfile(fn,suf1,fnv,nint,ilength)
     OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Gas concentration (bars)" '
+    WRITE(8,*) 'TITLE = "Gas partial pressure (bars)" '
     DO kk=1,ngas
       StringTemp = namg(kk)
       CALL stringlen(StringTemp,ls)
@@ -1038,7 +1075,7 @@ IF (isaturate == 1) THEN
       StringProper(ls+2:ls+3) = '"'
       WriteString(kk) = StringProper(1:ls+3)
     END DO
-      WRITE(8,2009) (WriteString(kk),kk=1,ngas)
+    WRITE(8,2009) (WriteString(kk),kk=1,ngas)
     WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
     
     DO jz = 1,nz
@@ -1060,95 +1097,128 @@ IF (isaturate == 1) THEN
     CLOSE(UNIT=8,STATUS='keep')
     
     fn='gases_conc'
-      ilength = 10
+    ilength = 10
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Gas concentration (mol/m3)" '
+    WRITE(8,2009) (WriteString(kk),kk=1,ngas)
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                  z(jz)*OutputDistanceScale,(spgas10(kk,jx,jy,1),kk = 1,ngas)
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+
+    IF (ny > 1) THEN
+      
+      fn='gasdifffluxY_South'
+      ilength = 18
       CALL newfile(fn,suf1,fnv,nint,ilength)
       OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
       WRITE(8,2283) PrintTime
-      WRITE(8,130)
-      130 FORMAT('# Units: mol/m3')
-
+      117 FORMAT('# Units: mol gas/m2/year')
+      WRITE(8,117)
       WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
       jz = 1
-      DO jy = 1,ny
+      jy = 1
       DO jx = 1,nx
-        !!IF (activecellPressure(jx,jy,jz) == 0) THEN
-        !!WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,1)),kk = 1,ngas)
-        !!ELSE
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spgas10(kk,jx,jy,1),kk = 1,ngas)
-        !!END IF
+        IF (jx==1 .OR. jx==nx) THEN
+          Area_XorY = dxx(jx)
+        ELSE
+          Area_XorY = dxx(jx)
+        END IF
+        
+        DO i = 1,ngas
+          gflux_ver(i) = fg(jx,jy,1) * ( spgas10(i,jx,jy-1,1) - spgas10(i,jx,jy,jz) ) / Area_XorY
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_ver(i),i=1,ngas)
       END DO
-    END DO
       CLOSE(UNIT=8,STATUS='keep')
-
-!!!    IF (ny > 1) THEN
       
-!!!      fn='gasdifffluxY'
-!!!      ilength = 12
-!!!      CALL newfile(fn,suf1,fnv,nint,ilength)
-!!!      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-!!!      WRITE(8,2283) PrintTime
-!!!      117 FORMAT('# Units: mol gas/m2/year')
-!!!      WRITE(8,117)
-!!!      WRITE(8,2285) (namg(kk),kk=1,ngas)
-!!!      jz = 1
-!!!      DO jy = 0,ny
-!!!        DO jx = 1,nx
-!!!          DO i = 1,ngas
-!!!            IF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-!!!              gflux_ver(i)=0
-!!!            ELSEIF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-!!!              gflux_ver(i)=0
-!!!            ELSEIF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
-!!!              gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))
-!!!            ELSEIF (jy<ny .AND. activecellPressure(jx,jy,jz) == 1 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-!!!              gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))
-!!!            ELSE
-!!!              gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spgas10(i,jx,jy,1))
-!!!            END IF
-!!!            IF (abs(gflux_ver(i))<1.0E-30) THEN
-!!!              gflux_ver(i)=1.0E-30
-!!!            END IF
-!!!          END DO
-!!!          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale+dyy(jy)/2,z(jz)*OutputDistanceScale, &
-!!!                       (gflux_ver(i),i=1,ngas)
-!!!        END DO
-!!!      END DO
-!!!      CLOSE(UNIT=8,STATUS='keep')
+      fn='gasdifffluxY_North'
+      ilength = 18
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
       
-!!!    ENDIF
+      jz = 1
+      jy = ny
+      DO jx = 1,nx
+        IF (jx==1 .OR. jx==nx) THEN
+          Area_XorY = dxx(jx)
+        ELSE
+          Area_XorY = dxx(jx)
+        END IF
+        DO i = 1,ngas
+          gflux_ver(i) = dg(jx,jy,1) * ( spgas10(i,jx,jy+1,1) - spgas10(i,jx,jy,jz) ) / Area_XorY
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_ver(i),i=1,ngas)
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+      
 
-!!!    IF (ny == 1 .AND. nz == 1) THEN
+      
+    ENDIF
+
+    IF (nz == 1) THEN
     
-!!!      fn='gasdifffluxX'
-!!!      ilength = 12
-!!!      CALL newfile(fn,suf1,fnv,nint,ilength)
-!!!      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-!!!      WRITE(8,2283) PrintTime
-!!!      WRITE(8,117)
-!!!      WRITE(8,2285) (namg(kk),kk=1,ngas)
-!!!      jz = 1
-!!!      jy = 1
-!!!      DO jx = 0,nx
-!!!        DO i = 1,ngas
-!!!          if (jx==0) THEN
-!!!            gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))
-!!!          elseif (jx==nx) THEN
-!!!            gflux_hor(i)= (cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))
-!!!          else
-!!!            gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))
-!!!          END IF
-!!!          if (abs(gflux_hor(i))<1.0E-30) THEN
-!!!            gflux_hor(i)=1.0E-30
-!!!          END IF      
-!!!        END DO
-!!!        if (jx==0) THEN
-!!!        WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
-!!!        else
-!!!        WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
-!!!        END IF
-!!!      END DO
-!!!      CLOSE(UNIT=8,STATUS='keep')
-!!!    ENDIF
+      fn='gasdifffluxX_West'
+      ilength = 18
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
+      jz = 1
+      jx = 1
+      DO jy = 1,ny
+        IF (jy==1 .OR. jy==ny) THEN
+          Area_XorY = dyy(jy)
+        ELSE
+          Area_XorY = dyy(jy)
+        END IF
+        DO i = 1,ngas
+          gflux_hor(i) = ag(jx,jy,1) * ( spgas10(i,jx-1,jy,1) - spgas10(i,jx,jy,jz) ) / Area_XorY      
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_hor(i),i=1,ngas)
+      END DO 
+      CLOSE(UNIT=8,STATUS='keep')
+      
+      fn='gasdifffluxX_East'
+      ilength = 18
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
+      jz = 1
+      jx = nx
+      DO jy = 1,ny
+       IF (jy==1 .OR. jy==ny) THEN
+          Area_XorY = dyy(jy)
+        ELSE
+          Area_XorY = dyy(jy)
+        END IF
+        DO i = 1,ngas
+          check = ( spgas10(i,jx+1,jy,1) - spgas10(i,jx,jy,jz) )
+          !!! Transport coefficient "cg" = m^3/yr so multiplying by mol/m^3 gives mol/yr dividing by Area gives mol/m^2/yr
+          gflux_hor(i) = cg(jx,jy,1) * ( spgas10(i,jx+1,jy,1) - spgas10(i,jx,jy,jz) ) / Area_XorY 
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_hor(i),i=1,ngas)
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+      
+    END IF
 
   ENDIF
 
@@ -1471,6 +1541,9 @@ END IF
 2281 FORMAT('   X        ','     Y        ',4X,a18)
 2285 FORMAT('    X        ','     Y        ',3X,30(1X,a13))
 2286 FORMAT('    X        ','      Y               ',3X,30(1X,a15))
+     
+DEALLOCATE(gflux_ver)
+DEALLOCATE(gflux_hor)
 
 RETURN
 END SUBROUTINE GraphicsVisit

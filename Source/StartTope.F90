@@ -3047,12 +3047,14 @@ IF (ALLOCATED(conversion)) THEN
 ELSE
   ALLOCATE(conversion(mchem))
 END IF
+
 IF (ALLOCATED(unitsflag)) THEN
   DEALLOCATE(unitsflag)
   ALLOCATE(unitsflag(mchem))
 ELSE
   ALLOCATE(unitsflag(mchem))
 END IF
+
 IF (ALLOCATED(sionInit)) THEN
   DEALLOCATE(sionInit)
   ALLOCATE(sionInit(mchem))
@@ -3358,7 +3360,7 @@ DO nco = 1,nchem
   tk = tempc + 273.15d0
   denmol = 1.e05/(8.314*tk)   ! P/RT = n/V, with pressure converted from bars to Pascals
 
-  spgastmp10 = spgastmp10*denmol
+  !!!spgastmp10 = spgastmp10*denmol
   spgastmp = DLOG(spgastmp10)
 
   DO ik = 1,ncomp+nspec
@@ -4944,6 +4946,7 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
   CLOSE(UNIT=52)
 END IF
 
+!!! The following distributes variables within internal domain (1-nx,1-ny,1-nz)
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -6889,6 +6892,22 @@ IF (FOUND) THEN
     ELSE
       ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
     END IF
+    
+    IF (nz == 1) THEN
+      IF (ALLOCATED(GasFlowFactorX)) THEN
+        DEALLOCATE(GasFlowFactorX)
+        ALLOCATE(GasFlowFactorX(0:nx,1:ny,1))
+      ELSE
+        ALLOCATE(GasFlowFactorX(0:nx,1:ny,1))
+      END IF
+    
+      IF (ALLOCATED(GasFlowFactorY)) THEN
+        DEALLOCATE(GasFlowFactorY)
+        ALLOCATE(GasFlowFactorY(1:nx,0:ny,1))
+      ELSE
+        ALLOCATE(GasFlowFactorY(1:nx,0:ny,1))
+      END IF
+    END IF
 
     pres = 0.0
     perminx = 0.0
@@ -7429,9 +7448,9 @@ IF (FOUND) THEN
             END DO
           END IF
 
-          permmaxy = 0.0
+          permmaxY = 0.0
           permy = perminy
-          permmaxy = MAXVAL(DABS(permy))
+          permmaxY = MAXVAL(DABS(permy))
 
           DEALLOCATE(permzoney)
           DEALLOCATE(jxxpermy_lo)
@@ -7443,6 +7462,18 @@ IF (FOUND) THEN
 
         END IF
       END IF
+      
+      jz = 1
+      DO jy = 1,ny
+        DO jx = 0,nx
+          GasFlowFactorX(jx,jy,jz) = permx(jx,jy,jz)/permmaxX
+        END DO
+      END DO
+      DO jy = 0,ny
+        DO jx = 1,nx
+          GasFlowFactorY(jx,jy,jz) = permy(jx,jy,jz)/permmaxY
+        END DO
+      END DO
 
       IF (nz == 1) THEN
 
@@ -7632,9 +7663,6 @@ IF (FOUND) THEN
       InitializeHydrostatic = .FALSE.
       CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
       IF (gimrt) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
-        WRITE(*,*)
       ELSE
         CONTINUE
       END IF
@@ -8393,10 +8421,24 @@ IF (constant_gasflow) THEN
   qxgasinit = qxgasinit/(time_scale*dist_scale)
   qygasinit = qygasinit/(time_scale*dist_scale)
   qzgasinit = qzgasinit/(time_scale*dist_scale)
+  
+      
 
   qxgas = qxgasinit
   qygas = qygasinit
   qzgas = qzgasinit
+  
+  DO jy = 1,ny
+    DO jx = 0,nx
+      qxgas(jx,jy,1) = GasFlowFactorX(jx,jy,1)*qxgas(jx,jy,1)
+    END DO
+  END DO
+  DO jy = 0,ny
+    DO jx = 1,nx
+      qygas(jx,jy,1) = GasFlowFactorY(jx,jy,1)*qygas(jx,jy,1)
+    END DO
+  END DO
+      
 
 END IF
 

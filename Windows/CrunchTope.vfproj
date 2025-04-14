@@ -48,15 +48,19 @@
 				<File RelativePath="..\Source\EQ36-Read\rdpar.f"/>
 			</Filter>
 			<File RelativePath="..\Source\AffinityNumerical.F90"/>
-			<File RelativePath="..\Source\AllocateALL.F90"/>
-			<File RelativePath="..\Source\AllocateGasesGimrt.F90"/>
+			<File RelativePath="..\Source\AllocateALL.F90">
+			</File>
+			<File RelativePath="..\Source\AllocateGasesGimrt.F90">
+			</File>
 			<File RelativePath="..\Source\AllocateGasesOS3D.F90"/>
-			<File RelativePath="..\Source\AllocateGIMRT.F90"/>
+			<File RelativePath="..\Source\AllocateGIMRT.F90">
+			</File>
 			<File RelativePath="..\Source\AllocateOS3D.F90"/>
 			<File RelativePath="..\Source\AqueousFluxInitialize.F90"/>
 			<File RelativePath="..\Source\AqueousFluxWrite.F90"/>
 			<File RelativePath="..\Source\AqueousToBulkConvert.F90"/>
-			<File RelativePath="..\Source\AssembleGlobal.F90"/>
+			<File RelativePath="..\Source\AssembleGlobal.F90">
+			</File>
 			<File RelativePath="..\Source\AssembleLocal.F90"/>
 			<File RelativePath="..\Source\AverageRo.F90"/>
 			<File RelativePath="..\Source\bd_diffuse.F90"/>
@@ -124,7 +128,8 @@
 			<File RelativePath="..\Source\fit.F90"/>
 			<File RelativePath="..\Source\fitgamma.F90"/>
 			<File RelativePath="..\Source\Flash.F90"/>
-			<File RelativePath="..\Source\flow.F90"/>
+			<File RelativePath="..\Source\flow.F90">
+			</File>
 			<File RelativePath="..\Source\FluxWeightedConcentrationInitialize.F90"/>
 			<File RelativePath="..\Source\FluxWeightedConcentrationWrite.F90"/>
 			<File RelativePath="..\Source\FormatForNameList.F90"/>

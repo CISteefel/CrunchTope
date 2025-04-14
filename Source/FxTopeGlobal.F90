@@ -979,8 +979,7 @@ DO i = 1,ncomp
       gas_transport = df*eg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )&
-        + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz) + yvectors*df  &
+    fxx(ind) = MultiplyCell* (aq_accum + gas_accum + ex_accum - recharge - source - GasSource ) &
         + df*ybdflux + yvec_ex*df  &
         + yvecgas*df + ex_transport  &
         + gas_transport 

@@ -90,6 +90,24 @@ interface
   END SUBROUTINE gaussj
 END interface
 
+INTERFACE
+  SUBROUTINE GasPartialPressure_Init(ncomp,ngas,gastmp10,tempc,pg)
+  USE crunchtype
+  USE params
+  USE runtime, ONLY: Duan,Duan2006
+  USE medium, ONLY: PressureCond
+  USE concentration
+  IMPLICIT NONE
+  !  External variables
+  INTEGER(I4B), INTENT(IN)                                   :: ncomp
+  INTEGER(I4B), INTENT(IN)                                   :: ngas
+  REAL(DP), DIMENSION(:)                                     :: gastmp10
+  REAL(DP), INTENT(IN)                                       :: tempc
+  REAL(DP), INTENT(IN)                                       :: pg
+  END SUBROUTINE GasPartialPressure_Init
+END INTERFACE
+
+
 !  ********************  End of interface blocks  ******************
 
 !  External variables
@@ -121,6 +139,7 @@ LOGICAL(LGT), INTENT(IN)                                   :: pest
 !  Internal variables and arrays
 
 REAL(DP)                                                   :: pg
+REAL(DP), DIMENSION(ngas)                                  :: gastmp10
 
 REAL(DP)                                                   :: PressureTemp
 
@@ -1827,16 +1846,19 @@ DO  ktrial = 1,ntrial
       write(iunit2,514)'Ln CO2 fugacity coefficient: ',ln_fco2
       write(iunit2,514)'CO2 fugacity coefficient:    ',fco2
     END IF
-
-    WRITE(iunit2,*)
-    WRITE(iunit2,*) ' ****** Partial pressure of gases (bars) *****'
-    WRITE(iunit2,*)
     
+    WRITE(iunit2,*)
+    WRITE(iunit2,*) '     *** Partial pressure gas (bars)   moles gas/m^3 '
+    WRITE(iunit2,*)
+
+    CALL GasPartialPressure_Init(ncomp,ngas,gastmp10,tempc,pg)
+    CALL gases_init(ncomp,ngas,tempc,nco)
     pg = PressureCond(nco)
-    CALL GasPartialPressure_Init(ncomp,ngas,tempc,pg)
 
     DO i = 1,ngas
-      WRITE(iunit2,513)  namg(i),spgastmp10(i)
+        
+      WRITE(iunit2,513)  namg(i),gastmp10(i),spgastmp10(i)
+      
     END DO
 
     WRITE(iunit2,*)
@@ -1941,7 +1963,7 @@ STOP
 
 
 509 FORMAT(2X,a18,2X,f12.4)
-513 FORMAT(1X,a18,1X,1PE16.8) !FORMAT(1X,a18,1X,1PE12.4)
+513 FORMAT(1X,a18,1X,1PE16.8,1X,1PE16.8) !FORMAT(1X,a18,1X,1PE12.4)
 514 FORMAT(1X,a28,1X,1PE16.8) 
 510 FORMAT(2X,'GEOCHEMICAL CONDITION NUMBER',i3)
 

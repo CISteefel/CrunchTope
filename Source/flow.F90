@@ -151,6 +151,8 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permxOld
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permyOld
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permzOld
+    REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: GasFlowFactorX
+    REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: GasFlowFactorY
     
     INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
     

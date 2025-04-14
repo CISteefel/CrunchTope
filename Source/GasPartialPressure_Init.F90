@@ -41,10 +41,12 @@
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
-SUBROUTINE GasPartialPressure_Init(ncomp,ngas,tempc,pg)
+!!!SUBROUTINE GasPartialPressure_Init(ncomp,ngas,tempc,pg)
+SUBROUTINE GasPartialPressure_Init(ncomp,ngas,gastmp10,tempc,pg)
 USE crunchtype
 USE params
 USE runtime, ONLY: Duan,Duan2006
+USE medium, ONLY: PressureCond
 USE concentration
 USE temperature
 
@@ -54,6 +56,7 @@ IMPLICIT NONE
 
 INTEGER(I4B), INTENT(IN)                                   :: ncomp
 INTEGER(I4B), INTENT(IN)                                   :: ngas
+REAL(DP), DIMENSION(:)                                     :: gastmp10
 REAL(DP), INTENT(IN)                                       :: tempc
 REAL(DP), INTENT(IN)                                       :: pg
 !!!REAL(DP), DIMENSION(ncomp)                                 :: gamtmp
@@ -104,9 +107,9 @@ DO kk = 1,ngas
 !!!    END IF
 
 !!!  end if
-
-  spgastmp(kk) = keqgas_tmp(kk) + sum - ln_fco2
-  spgastmp10(kk) = DEXP(spgastmp(kk))         !!  This should be the mole fraction
+  
+  
+  gastmp10(kk) = DEXP(keqgas_tmp(kk) + sum - ln_fco2 )  !!  This should be the mole fraction     
   
 END DO
 

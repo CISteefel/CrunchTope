@@ -92,8 +92,6 @@ REAL(DP)                                      :: an
 REAL(DP)                                      :: fs
 REAL(DP)                                      :: as
 REAL(DP)                                      :: tk
-REAL(DP)                                      :: Uliaq
-REAL(DP)                                      :: Quirkaq
 REAL(DP)                                      :: porn
 REAL(DP)                                      :: pors
 REAL(DP)                                      :: dharm
@@ -198,8 +196,8 @@ DO jy = 1,ny
         dumw = dumpx
         
       ELSE
-        dume = ro(jx+1,jy,jz)*sate*pore**(uli)*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dume  = ro(jx+1,jy,jz)* sate* pore**(uli)* dstar(jx+1,jy,jz)* tortuosity(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)*   satp* porp**(uli)* dstar(jx,jy,jz)*   tortuosity(jx,jy,jz)
         dumw = dumpx
 
       END IF
@@ -233,8 +231,8 @@ DO jy = 1,ny
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dume = dumpx
       ELSE
-        dumw = ro(jx-1,jy,jz)*satw*porw**(uli)*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dumw  = ro(jx-1,jy,jz)*satw* porw**(uli)* dstar(jx-1,jy,jz)* tortuosity(jx-1,jy,jz)
+        dumpx = ro(jx,jy,jz)  *satp* porp**(uli)* dstar(jx,jy,jz)*   tortuosity(jx,jy,jz)
         dume = dumpx
       END IF
       

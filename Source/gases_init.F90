@@ -70,7 +70,6 @@ CHARACTER (LEN=3)                                          :: ulabPrint
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
 
-
 tempk = tempc + 273.15
 pg = PressureCond(nco) 
 denmol = DLOG( (1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
@@ -84,14 +83,15 @@ DO kk = 1,ngas
     IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
       lnActivity = gamtmp(i) 
     ELSE
-      lnActivity = (sptmp(i)+gamtmp(i))
+      lnActivity = (sptmp(i) + gamtmp(i))
     END IF
-    sum = sum + mugas(kk,i)*lnActivity
+    sum = sum + mugas(kk,i) * lnActivity
       
   END DO
 
   spgastmp(kk) = keqgas_tmp(kk) + sum + denmol
   spgastmp10(kk) = DEXP(spgastmp(kk))       !  mole fraction of gases
+  
 END DO
 
 RETURN

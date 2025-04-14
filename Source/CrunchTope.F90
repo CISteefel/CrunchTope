@@ -391,6 +391,7 @@ REAL(DP)                                                   :: pumpterm
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
 INTEGER(I4B)                                               :: i_substep
+INTEGER(I4B)                                               :: kk
 
 ! transient pump time series (Lucien Stolze)
 REAL(DP)                                                    :: time_norm
@@ -405,6 +406,15 @@ INTEGER(I4B)                                                :: depthwattab
 
 CHARACTER (LEN=3)                                           :: ulabPrint
 REAL(DP)                                                    :: sionPrint
+
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceWest
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceEast
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceSouth
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceNorth
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceWest
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceEast
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceSouth
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceNorth
 
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2024 Oct.
@@ -514,6 +524,55 @@ str_hr  = 0
 str_min = 0
 str_sec = 0
 str_millisec = 0
+
+IF (ALLOCATED(GasFlux_FaceWest)) THEN
+  DEALLOCATE(GasFlux_FaceWest)
+END IF
+ALLOCATE(GasFlux_FaceWest(ngas))
+GasFlux_FaceWest = 0.0
+
+IF (ALLOCATED(GasFlux_FaceEast)) THEN
+  DEALLOCATE(GasFlux_FaceEast)
+END IF
+ALLOCATE(GasFlux_FaceEast(ngas))
+GasFlux_FaceEast = 0.0
+
+IF (ALLOCATED(GasFlux_FaceSouth)) THEN
+  DEALLOCATE(GasFlux_FaceSouth)
+END IF
+ALLOCATE(GasFlux_FaceSouth(ngas))
+GasFlux_FaceSouth = 0.0
+
+IF (ALLOCATED(GasFlux_FaceNorth)) THEN
+  DEALLOCATE(GasFlux_FaceNorth)
+END IF
+ALLOCATE(GasFlux_FaceNorth(ngas))
+GasFlux_FaceNorth = 0.0
+
+!!!!!!!!!!!!!!!!!!!!
+IF (ALLOCATED(AqueousFlux_FaceWest)) THEN
+  DEALLOCATE(AqueousFlux_FaceWest)
+END IF
+ALLOCATE(AqueousFlux_FaceWest(ngas))
+AqueousFlux_FaceWest = 0.0
+
+IF (ALLOCATED(AqueousFlux_FaceEast)) THEN
+  DEALLOCATE(AqueousFlux_FaceEast)
+END IF
+ALLOCATE(AqueousFlux_FaceEast(ngas))
+AqueousFlux_FaceEast = 0.0
+
+IF (ALLOCATED(AqueousFlux_FaceSouth)) THEN
+  DEALLOCATE(AqueousFlux_FaceSouth)
+END IF
+ALLOCATE(AqueousFlux_FaceSouth(ngas))
+AqueousFlux_FaceSouth = 0.0
+
+IF (ALLOCATED(AqueousFlux_FaceNorth)) THEN
+  DEALLOCATE(AqueousFlux_FaceNorth)
+END IF
+ALLOCATE(AqueousFlux_FaceNorth(ngas))
+GasFlux_FaceNorth = 0.0
 
 ! ************ Initialize PETSc stuff ***************************************
 IF ( InputFileCounter == 1) THEN
@@ -656,7 +715,7 @@ IF (CalculateFlow) THEN
       END DO
     END DO
   END IF
-
+  
  ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  
@@ -2808,6 +2867,87 @@ END IF
         END IF
 
         WRITE(*,*) 'Time step # ',nn
+        
+      GasFlux_FaceWest = 0.0
+      GasFlux_FaceEast = 0.0
+      GasFlux_FaceSouth = 0.0
+      GasFlux_FaceNorth = 0.0
+
+      jz = 1
+      jx = 1
+      DO jy = 1,ny
+        DO kk = 1,ngas
+          GasFlux_FaceWest(kk) = GasFlux_FaceWest(kk) + ag(jx,jy,1) * (spgas10(kk,jx-1,jy,1)-spgas10(kk,jx,jy,jz)) * delt
+        END DO
+      END DO    
+      
+      jz = 1
+      jx = nx
+      DO jy = 1,ny
+        DO kk = 1,ngas
+          GasFlux_FaceEast(kk) = GasFlux_FaceEast(kk) +  cg(jx,jy,1) * (spgas10(kk,jx+1,jy,1)-spgas10(kk,jx,jy,jz)) * delt
+        END DO
+      END DO
+      
+      jz = 1
+      jy = 1
+      DO jx = 1,nx
+        DO kk = 1,ngas
+          GasFlux_FaceSouth(kk) = GasFlux_FaceSouth(kk) + fg(jx,jy,1) * (spgas10(kk,jx,jy-1,1)-spgas10(kk,jx,jy,jz)) * delt
+        END DO
+      END DO 
+      
+      jz = 1
+      jy = ny
+      DO jx = 1,nx
+        DO kk = 1,ngas
+          GasFlux_FaceNorth(kk) = GasFlux_FaceNorth(kk) + dg(jx,jy,1) * (spgas10(kk,jx,jy+1,1)-spgas10(kk,jx,jy,jz)) * delt
+        END DO
+      END DO
+      
+      !!! Transport coefficient "dg" = m^3/yr so multiplying by mol/m^3 gives mol/yr. Multiplying by Delta t gives moles
+      
+          write(202,2255) time, GasFlux_FaceWest(1)
+          write(203,2255) time, GasFlux_FaceEast(1)
+          write(204,2255) time, GasFlux_FaceSouth(1)
+          write(205,2255) time, GasFlux_FaceNorth(1)
+          
+      AqueousFlux_FaceWest = 0.0
+      AqueousFlux_FaceEast = 0.0
+      AqueousFlux_FaceSouth = 0.0
+      AqueousFlux_FaceNorth = 0.0
+      
+      kk = 22
+      
+      jz = 1
+      jx = 1
+      DO jy = 1,ny
+        AqueousFlux_FaceWest(kk) = AqueousFlux_FaceWest(kk) + a(jx,jy,1) * (sp10(kk,jx-1,jy,1)-sp10(kk,jx,jy,jz)) * delt
+      END DO  
+      
+      jz = 1
+      jx = nx
+      DO jy = 1,ny
+        AqueousFlux_FaceEast(kk) = AqueousFlux_FaceEast(kk) + c(jx,jy,1) * (sp10(kk,jx+1,jy,1)-sp10(kk,jx,jy,jz)) * delt
+      END DO 
+      
+      jz = 1
+      jy = 1
+      DO jx = 1,nx
+        AqueousFlux_FaceSouth(kk) = AqueousFlux_FaceSouth(kk) + f(jx,jy,1) * (sp10(kk,jx,jy-1,1)-sp10(kk,jx,jy,jz)) * delt
+      END DO 
+      
+      jz = 1
+      jy = ny
+      DO jx = 1,nx
+        AqueousFlux_FaceNorth(kk) = AqueousFlux_FaceNorth(kk) + d(jx,jy,1) * (sp10(kk,jx,jy+1,1)-sp10(kk,jx,jy,jz)) * delt
+      END DO
+      
+          write(212,2255) time, AqueousFlux_FaceWest(1)
+          write(213,2255) time, AqueousFlux_FaceEast(1)
+          write(214,2255) time, AqueousFlux_FaceSouth(1)
+          write(215,2255) time, AqueousFlux_FaceNorth(1)
+
           IF (OutputTimeUnits == 'years') THEN
             WRITE(*,225) time,delt
           ELSE IF (OutputTimeUnits == 'days') THEN
@@ -3419,6 +3559,7 @@ STOP
 2252 FORMAT(2X,'Time (hrs) = ',1PE12.5,2X,'Delt (hrs) =',1PE10.3)
 2253 FORMAT(2X,'Time (mins) = ',1PE12.5,2X,'Delt (mins) =',1PE10.3)
 2254 FORMAT(2X,'Time (secs) = ',1PE12.5,2X,'Delt (secs) =',1PE10.3)
+2255 FORMAT( 2X,1PE12.5,2X,4(1X,1PE10.3) )
 2260 FORMAT(2X,'Time (yrs) = ',1PE10.3)
 2261 FORMAT(2X,'Time (days) = ',1PE10.3)
 2262 FORMAT(2X,'Time (hrs) = ',1PE10.3)
