@@ -295,6 +295,7 @@ INTEGER(I4B)                                                  :: lenInput
 
 CHARACTER (LEN=15)                                            :: text
 CHARACTER (LEN=mls)                                           :: filename
+CHARACTER (LEN=21)                                           :: FileOpen
 CHARACTER (LEN=mls)                                           :: FileOutput
 CHARACTER (LEN=mls)                                           :: vxfile
 CHARACTER (LEN=mls)                                           :: vyfile
@@ -4484,6 +4485,42 @@ IF (found) THEN
     READ(*,*)
     STOP
   END IF
+  
+  IF (ContactPressureLogical) THEN
+    IF (ALLOCATED(stress)) THEN
+      DEALLOCATE(stress)
+    END IF
+    ALLOCATE(stress(nx,ny,nz))
+    stress = 0.00
+  END IF
+  
+  IF (nmmLogical .AND. ContactPressureLogical) THEN
+    
+    FileName = 'Updated_to_Crunch.dat'
+    FileOpen = FileName(1:21)
+    INQUIRE(FILE=FileOpen,EXIST=ext)
+    IF (.NOT. ext) THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Cedars Stress file not found: '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    ELSE
+      OPEN(UNIT=53,FILE=FileOpen,STATUS='OLD',ERR=6001) 
+      write(*,*)
+      write(*,*) 'Reading stress from "Updated_to_Crunch.dat" file'
+      write(*,*)
+      read(*,*)
+      
+      DO jy = 1,ny
+        DO jx= 1,nx
+          READ(53,*,END=1020) xdum,ydum,zdum, xdum, xdum, ydum, zdum, stress(jx,jy,1)
+!!!                             x   y    bn    mt    sx    sy    txy     sigmean
+        END DO
+      END DO
+    END IF
+  
+  END IF
 
   CALL read_het(nout,nchem,nhet,nx,ny,nz)
 
@@ -4545,19 +4582,16 @@ IF (found) THEN
       jinit = jinit + 1
       nhet = nx*ny
       activecell = 1
-
       
       CLOSE(unit=53,STATUS='keep')      
     END IF
       
-
   END IF
-    
 
-  IF (nmmLogical .and. .not. SerpentineFracture ) THEN
+  IF (nmmLogical .and. SerpentineFracture ) THEN
 
     jz = 1
-    ALLOCATE(stress(nx,ny,1))
+!!!    ALLOCATE(stress(nx,ny,1))
 
     nhet = 0
     DO jy = 1,ny
@@ -4566,13 +4600,13 @@ IF (found) THEN
       
         IF (SaltCreep) THEN
           READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-  !!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
+  !!!                           x    y    bn    mt             sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
 
         ELSE IF (FractureNetwork) THEN
 
           READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-  !!!                            x    y    bn    mt
+  !!!                            x  y    bn    mt
           jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
           
         ELSE IF (CalciteCreep) THEN
@@ -7511,11 +7545,72 @@ IF (FOUND) THEN
             do jy = 1,ny
               do jx = 1,nx
                 if (jinit(jx,jy,1) == 2) then
-                  perminx(jx,jy,1) = 1.0D-11
-                  permx(jx,jy,1) = 1.0D-11
-                  perminy(jx,jy,1) = 1.0D-11
-                  permy(jx,jy,1) = 1.0D-11
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
                 end if
+                if (jx > 7 .and. jx < 11 .and. jy > 47 .and. jy < 53) then
+                  jinit(jx,jy,jz) = 2
+                  do k = 1,nrct
+                    volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                  end do
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
+                end if
+               if (jx > 0 .and. jx < 4 .and. jy > 21 .and. jy < 24) then
+                  jinit(jx,jy,jz) = 2
+                  do k = 1,nrct
+                    volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                  end do
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
+               end if
+               if (jx > 14 .and. jx < 18 .and. jy > 94 .and. jy < 96) then
+                  jinit(jx,jy,jz) = 2
+                  do k = 1,nrct
+                    volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                  end do
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
+               end if
+               if (jx > 16 .and. jx < 19 .and. jy > 95 .and. jy < 105) then
+                  jinit(jx,jy,jz) = 2
+                  do k = 1,nrct
+                    volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                  end do
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
+               end if
+               if (jx > 0 .and. jx < 3 .and. jy > 188 .and. jy < 190) then
+                  jinit(jx,jy,jz) = 2
+                  do k = 1,nrct
+                    volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                  end do
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
+               end if
+               if (jx > 69 .and. jx < 73 .and. jy > 68 .and. jy < 71) then
+                  jinit(jx,jy,jz) = 2
+                  do k = 1,nrct
+                    volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                  end do
+                  perminx(jx,jy,1) = 1.0D-14
+                  permx(jx,jy,1)   = 1.0D-14
+                  perminy(jx,jy,1) = 1.0D-14
+                  permy(jx,jy,1)   = 1.0D-14
+               end if
+
               end do
             end do
 

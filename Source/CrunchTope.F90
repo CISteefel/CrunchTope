@@ -553,25 +553,25 @@ GasFlux_FaceNorth = 0.0
 IF (ALLOCATED(AqueousFlux_FaceWest)) THEN
   DEALLOCATE(AqueousFlux_FaceWest)
 END IF
-ALLOCATE(AqueousFlux_FaceWest(ngas))
+ALLOCATE(AqueousFlux_FaceWest(ncomp+nspec))
 AqueousFlux_FaceWest = 0.0
 
 IF (ALLOCATED(AqueousFlux_FaceEast)) THEN
   DEALLOCATE(AqueousFlux_FaceEast)
 END IF
-ALLOCATE(AqueousFlux_FaceEast(ngas))
+ALLOCATE(AqueousFlux_FaceEast(ncomp+nspec))
 AqueousFlux_FaceEast = 0.0
 
 IF (ALLOCATED(AqueousFlux_FaceSouth)) THEN
   DEALLOCATE(AqueousFlux_FaceSouth)
 END IF
-ALLOCATE(AqueousFlux_FaceSouth(ngas))
+ALLOCATE(AqueousFlux_FaceSouth(ncomp+nspec))
 AqueousFlux_FaceSouth = 0.0
 
 IF (ALLOCATED(AqueousFlux_FaceNorth)) THEN
   DEALLOCATE(AqueousFlux_FaceNorth)
 END IF
-ALLOCATE(AqueousFlux_FaceNorth(ngas))
+ALLOCATE(AqueousFlux_FaceNorth(ncomp+nspec))
 GasFlux_FaceNorth = 0.0
 
 ! ************ Initialize PETSc stuff ***************************************
@@ -2917,7 +2917,7 @@ END IF
       AqueousFlux_FaceSouth = 0.0
       AqueousFlux_FaceNorth = 0.0
       
-      kk = 22
+      kk = 23
       
       jz = 1
       jx = 1

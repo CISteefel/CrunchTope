@@ -191,6 +191,7 @@ REAL(DP)                                                        :: DecayTerm
 
 REAL(DP)                                                        :: lnActivity
 CHARACTER (LEN=3)                                               :: ulabPrint
+CHARACTER (LEN=10)                                               :: uMinPrint
 REAL(DP)                                                        :: LoadingPressureEffect
 REAL(DP)                                                        :: LogLoadingP
 
@@ -324,19 +325,20 @@ ivolume = 0
 checkSaturation = .FALSE.
 UseDissolutionOnly = .FALSE.
 
-IF (ContactPressureLogical) THEN
-!!!                             MPa *  MPa->Pa  * Vm (m^3/mol) /    (RT)
-  LoadingPressureEffect = EXP( -150.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
-  LogLoadingP = LOG(LoadingPressureEffect)
-ELSE
-  LogLoadingP = 0.0d0
-END IF
-
-
 DO k = 1,nkin
 
   checkSaturation = .FALSE.
   UseDissolutionOnly = .FALSE.
+  
+  IF (ContactPressureLogical) THEN
+!!!                                 MPa  *  MPa->Pa  * Vm (m^3/mol) /    (RT)
+!!!  LoadingPressureEffect = EXP( -150.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
+    LoadingPressureEffect = EXP( -DABS(stress(jx,jy,1)) * volmol(k) / (8.314*Tk) )
+    LogLoadingP = LOG(LoadingPressureEffect)
+  
+  ELSE
+    LogLoadingP = 0.0d0
+  END IF
 
   dppt(k,jx,jy,jz) = 0.0D0
 
@@ -513,23 +515,11 @@ DO k = 1,nkin
         END IF   !! Block where nIsotopeMineral > 0
         
 !!!     ******************* End of isotopes ***************************************************
-      
-!!!        write(*,*) ' LogLoadingP = ', LogLoadingP
-        IF (k == 4) THEN
-          silog(np,k) = (sumiap + LogLoadingP - keqmin(1,k,jx,jy,jz))/clg
-        ELSE
-          silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
-        END IF
+           
+!!!     LogLoadingP is from the contact stress (read in from NMM, or set for the entire domain)
         
-        IF (nmmLogical) THEN
-        
-!!!       if (silog(np,k) < 0.0d0) then
-!!!            silog(np,k) = (sumiap - (crankLogK(jx,jy,jz) + keqmin(1,k,jx,jy,jz)))/clg 
-!!!       end if
-          
-        END IF        
-          
-!!!        silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
+        silog(np,k) = (sumiap + LogLoadingP - keqmin(1,k,jx,jy,jz))/clg
+
         silogGlobal(np,k,jx,jy,jz) = silog(np,k)
         siln(np,k)  = clg*silog(np,k)
         si(np,k)    = 10**(silog(np,k))
@@ -549,7 +539,6 @@ DO k = 1,nkin
 !!CSD   
 !!CSD        END IF
 !!CSD!!  **********  CrystalSizeDistribution  *********************************************
-
     
 !!        IF (DABS(silog(np,k)) < 0.00001 .AND. checkSaturation) THEN
 !!          UseDissolutionOnly = .TRUE.

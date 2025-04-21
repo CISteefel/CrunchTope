@@ -178,7 +178,7 @@ SUBROUTINE gasdiff(nx,ny,nz)
         endif
         dumw = dumpx
         
-      ELSE IF (jx == nx .and. gad_diff_T) THEN
+      ELSE IF (jx == nx) THEN
         
         dxw = 0.5*(dxx(jx)+dxx(jx-1))
         dxe = 0.5*dxx(nx)
