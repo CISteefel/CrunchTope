@@ -1272,7 +1272,7 @@ END IF
 !! Begin Fracturenetwork
 !****************
   
-IF (nmmLogical .and. .not. FractureNetwork) THEN
+IF (nmmLogical .AND. ContactPressureLogical) THEN
   fn = 'stress'
   ilength = 6
   CALL newfile(fn,suf1,fnv,nint,ilength)

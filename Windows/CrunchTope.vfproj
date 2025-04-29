@@ -47,8 +47,7 @@
 				<File RelativePath="..\Source\EQ36-Read\rdgrid.f"/>
 				<File RelativePath="..\Source\EQ36-Read\rdpar.f"/>
 			</Filter>
-			<File RelativePath="..\Source\AllocateALL.F90">
-			</File>
+			<File RelativePath="..\Source\AllocateALL.F90"/>
 			<File RelativePath="..\Source\AllocateGasesGimrt.F90"/>
 			<File RelativePath="..\Source\AllocateGasesOS3D.F90"/>
 			<File RelativePath="..\Source\AllocateGIMRT.F90"/>
@@ -137,8 +136,7 @@
 			<File RelativePath="..\Source\gamma_local.F90"/>
 			<File RelativePath="..\Source\gammaUpdated.F90"/>
 			<File RelativePath="..\Source\gascoeffCylinder.F90"/>
-			<File RelativePath="..\Source\gasdiff.F90">
-			</File>
+			<File RelativePath="..\Source\gasdiff.F90"/>
 			<File RelativePath="..\Source\gases.F90"/>
 			<File RelativePath="..\Source\gases_init.F90"/>
 			<File RelativePath="..\Source\gases_init_co2.F90"/>
@@ -172,8 +170,7 @@
 			<File RelativePath="..\Source\jacexchange_init.F90"/>
 			<File RelativePath="..\Source\jacgas.F90"/>
 			<File RelativePath="..\Source\jacgas_local.F90"/>
-			<File RelativePath="..\Source\jacminTope.F90">
-			</File>
+			<File RelativePath="..\Source\jacminTope.F90"/>
 			<File RelativePath="..\Source\jacobian.F90"/>
 			<File RelativePath="..\Source\jacobian_init.F90"/>
 			<File RelativePath="..\Source\jacobian_plus.F90"/>
@@ -224,8 +221,7 @@
 			<File RelativePath="..\Source\PressureNS.F90"/>
 			<File RelativePath="..\Source\PrimarySpeciesCheck.F90"/>
 			<File RelativePath="..\Source\ratecheck.F90"/>
-			<File RelativePath="..\Source\reactionTope.F90">
-			</File>
+			<File RelativePath="..\Source\reactionTope.F90"/>
 			<File RelativePath="..\Source\reactkin.F90"/>
 			<File RelativePath="..\Source\read98.F90"/>
 			<File RelativePath="..\Source\read_AqueousFluxSeries.F90"/>
@@ -349,8 +345,7 @@
 			<File RelativePath="..\Source\squeeze.F90"/>
 			<File RelativePath="..\Source\sschaine.F90"/>
 			<File RelativePath="..\Source\sschaine_hyph.F90"/>
-			<File RelativePath="..\Source\startTope.F90">
-			</File>
+			<File RelativePath="..\Source\startTope.F90"/>
 			<File RelativePath="..\Source\SteadyState.F90"/>
 			<File RelativePath="..\Source\stringlen.F90"/>
 			<File RelativePath="..\Source\strings.F90"/>

@@ -27,7 +27,6 @@ SOURCEF = \
           read_richards.F90\
           CrunchTopeDriver.F90\
           CrunchTope.F90\
-          AffinityNumerical.F90\
           AllocateALL.F90\
           AllocateOS3D.F90\
           AllocateGasesGimrt.F90\
@@ -368,7 +367,6 @@ OBJSF  =  \
           read_richards.o\
           CrunchTopeDriver.o\
           CrunchTope.o\
-          AffinityNumerical.o\
           AllocateALL.o\
           AllocateOS3D.o\
           AllocateGasesGimrt.o\

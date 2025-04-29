@@ -194,6 +194,7 @@ CHARACTER (LEN=3)                                               :: ulabPrint
 CHARACTER (LEN=10)                                               :: uMinPrint
 REAL(DP)                                                        :: LoadingPressureEffect
 REAL(DP)                                                        :: LogLoadingP
+REAL(DP)                                                        :: StressPrint
 
 
 !**********
@@ -333,7 +334,8 @@ DO k = 1,nkin
   IF (ContactPressureLogical) THEN
 !!!                                 MPa  *  MPa->Pa  * Vm (m^3/mol) /    (RT)
 !!!  LoadingPressureEffect = EXP( -150.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
-    LoadingPressureEffect = EXP( -DABS(stress(jx,jy,1)) * volmol(k) / (8.314*Tk) )
+    StressPrint = DABS( stress(jx,jy,1) )
+    LoadingPressureEffect = DEXP( -StressPrint * volmol(k) / (8.314D0*Tk) )
     LogLoadingP = LOG(LoadingPressureEffect)
   
   ELSE
