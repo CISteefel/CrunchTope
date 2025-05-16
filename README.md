@@ -17,7 +17,7 @@ CrunchFlow is reactive transport software developed by Carl I. Steefel, Toshiyuk
 
 ### CrunchFlow Web Site
 
-[crunchflow.lbl.gov](https://crunch.lbl.gov/)
+    [crunchflow.lbl.gov](https://crunch.lbl.gov/)
 
 ### News and Updates
 
@@ -41,11 +41,13 @@ For those using the pre-built executable (located in the Windows directory in th
 
 ### Compilation
 
-To run on Windows, first download and install Visual Studio 2022.  Then download and install Intel oneAPI Base Toolkit, choosing the option to integrate with Visual Studio.  The installation script should provide the option to link with Visual Studio 2022, if it doesn't, then something is wrong with the Visual Studio installation.  Then download and install Intel oneAPI HPC toolkit.  Once installed, you should see the option to start a Intel oneAPI command prompt for Intel 64 for Visual Studio.  Starting this will set all of the Environment Variables for the use of oneAPI.  Then run from this same Command Window: 
+To run on Windows, first download and install Visual Studio 2022.  Then download and install Intel oneAPI Base Toolkit, choosing the option to integrate with Visual Studio.  The installation script should provide the option to link with Visual Studio 2022, if it doesn't, then something is wrong with the Visual Studio installation.  Then download and install Intel oneAPI HPC toolkit.  
+
+Once installed, you should see the option to start a Intel oneAPI command prompt for Intel 64 for Visual Studio in the list of Apps under Windows 11 (Intel oneAPI 2025).  Starting this will set all of the Environment Variables for the use of oneAPI.  Then run from this from the same Command Window: 
 
     C:\cygwin64\bin\mintty.exe -
 
-to start up a Cygwin window (Unix) that inherits the Environment Variables from the oneAPI Command Prompt.  From here set the PETSC_DIR
+to start up a Cygwin terminal (Unix) that inherits the Environment Variables from the oneAPI Command Prompt.  From here set the PETSC_DIR
 
     export PETSC_DIR=/cygdrive/c/software/petsc
 
@@ -64,7 +66,7 @@ A limited set of tests indicate that the "simpler" build of PETSc and Crunch wit
     --with-debugging=0 \
     --with-shared-libraries=0
 
-And then to use Visual Studio 2022 to build Crunch (use "ifx" Fortran compiler):
+And then to use Visual Studio 2022 to build Crunch (use "ifx" Fortran compiler), with maximum optimizations set (unless you want to use the Visual Studio Debugger, in which Optimizations=None).  Attempts to use Interprocedural Optimization doubled the execution time.
 
     Additional Include Directories
     $(OUTDIR)
@@ -81,7 +83,7 @@ And then to use Visual Studio 2022 to build Crunch (use "ifx" Fortran compiler):
     $(ONEAPI_ROOT)\mpi\latest\lib
     ..\
 
-For fully optimized production code, be sure to configure PETSc with "--with-debugging=0" and make sure the CrunchTope Makefile includes the -O3 flag for maximum optimization.
+For fully optimized production code, be sure to configure PETSc with "--with-debugging=0" and make sure the CrunchTope Makefile includes the -O3 flag for maximum optimization (this is for Linux or Mac).
 
     FFLAGS  = -w -O3 -ffpe-trap=invalid,overflow,zero 
 
