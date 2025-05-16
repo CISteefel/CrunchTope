@@ -61,10 +61,8 @@ USE CrunchFunctions
 USE Richards_module
 !!USE fparser
 
-#include "petsc/finclude/petscmat.h"
-#include "petsc/finclude/petscksp.h"
-USE petscmat
-USE petscksp
+#include <petsc/finclude/petsc.h>
+      use petsc
 
 IMPLICIT NONE
 
@@ -2917,7 +2915,7 @@ END IF
       AqueousFlux_FaceSouth = 0.0
       AqueousFlux_FaceNorth = 0.0
       
-      kk = 23
+      kk = 21
       
       jz = 1
       jx = 1
@@ -3246,9 +3244,9 @@ END IF
       END DO
 
       WRITE(*,*)
-      WRITE(*,*) ' Initial mass in system = ',TotalMass
+      WRITE(*,*)   ' Initial mass in system           = ',TotalMass
       IF (InitialTotalMass /= 0.0d0) THEN
-        WRITE(*,*) ' Ratio of final to initial mass = ', TotalMass/InitialTotalMass
+        WRITE(*,*) ' Ratio of final to initial mass   =', TotalMass/InitialTotalMass
       END IF
 
       jxmax = 0

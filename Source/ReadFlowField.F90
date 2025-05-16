@@ -55,9 +55,9 @@ USE flow
 USE temperature
 USE ReadFlow
 
-#include "petsc/finclude/petscmat.h"
-USE petscmat
-
+#include <petsc/finclude/petsc.h>
+      use petsc
+      
 IMPLICIT NONE
 
 !!  External variables and arrays

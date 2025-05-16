@@ -1,4 +1,4 @@
-<h1 align='center'>CrunchFlow</h1>
+k<h1 align='center'>CrunchFlow</h1>
 
 CrunchFlow is reactive transport software developed by Carl I. Steefel, Toshiyuki Bandai, and Sergi Molins at Lawrence Berkeley National Laboratory.
 
@@ -40,6 +40,36 @@ For those using the pre-built executable (located in the Windows directory in th
     https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_ifort_runtime_p_2024.1.0.968.exe
 
 ### Compilation
+
+A limited set of tests indicate that the "simpler" build of PETSc and Crunch with downloaded Blas-Lapack libraries (no MKL) and no MPI is faster.  So we recommend using this configure.py script to build (first) PETSc, then Crunch:
+
+    export PETSC_DIR=/cygdrive/c/software/petsc
+
+    ./configure PETSC_ARCH=oneAPI-noMPI-ifx-opt \
+    --with-cc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_icx \
+    --with-fc=/cygdrive/c/software/petsc/lib/petsc/bin/win32fe/win32fe_ifx \
+    --with-cxx=0 \
+    --with-mpi=0 \
+    --download-fblaslapack \
+    --with-debugging=0 \
+    --with-shared-libraries=0
+
+And then to use Visual Studio 2022 to build Crunch (use "ifx" Fortran compiler):
+
+    Additional Include Directories
+    $(OUTDIR)
+    $(PETSC_DIR)
+    $(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf
+    $(PETSC_DIR)\$(PETSC_ARCH)\include
+    $(PETSC_DIR)\include\petsc\finclude
+    $(PETSC_DIR)\lib\petsc\conf
+    $(PETSC_DIR)\include\
+    $(PETSC_DIR)\include\petsc
+    $(PETSC_DIR)\$(PETSC_ARCH)\lib
+    $(ONEAPI_ROOT)\mkl\mkl\latest\include\mkl\intel64\ilp64
+    $(ONEAPI_ROOT)\mpi\latest\include\mpi
+    $(ONEAPI_ROOT)\mpi\latest\lib
+    ..\
 
 For fully optimized production code, be sure to configure PETSc with "--with-debugging=0" and make sure the CrunchTope Makefile includes the -O3 flag for maximum optimization.
 

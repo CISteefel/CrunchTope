@@ -125,6 +125,9 @@ END INTERFACE
 INTERFACE
 SUBROUTINE bdrecalc_by_grid(ncomp,nspec,jx,jy,jz,scorr)
   USE crunchtype
+  USE concentration
+  USE params
+  USE RunTime
   IMPLICIT NONE
   INTEGER(I4B), INTENT(IN)                      :: ncomp
   INTEGER(I4B), INTENT(IN)                      :: nspec

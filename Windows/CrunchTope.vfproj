@@ -5,8 +5,8 @@
 	</Platforms>
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
-			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" OutputCarriageControl="outputCCFortran" UseMkl="mklParallel"/>
-			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\flinclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\include\petsc\mpiuni;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mpi\latest\include;$(ONEAPI_ROOT)\mpi\latest\lib;$(ONEAPI_ROOT)\mpi\latest\include\mpi;..\" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="libpetsc.lib impi.lib Advapi32.lib  Gdi32.lib User32.lib  Kernel32.lib Ws2_32.lib mkl_intel_thread.lib libiomp5md.lib"/>
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" MultiProcessorCompilation="true" Preprocess="preprocessYes" AdditionalIncludeDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\finclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mkl\latest\include\mkl\intel64\ilp64;$(ONEAPI_ROOT)\mpi\latest\include\mpi;$(ONEAPI_ROOT)\mpi\latest\lib;..\" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointExceptionsModel="disable" UseMkl="mklParallel"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalYes" SuppressStartupBanner="true" AdditionalLibraryDirectories="$(OUTDIR);$(PETSC_DIR);$(PETSC_DIR)\$(PETSC_ARCH)\lib\petsc\conf;$(PETSC_DIR)\$(PETSC_ARCH)\include;$(PETSC_DIR)\include\petsc\finclude;$(PETSC_DIR)\lib\petsc\conf;$(PETSC_DIR)\include\;$(PETSC_DIR)\include\petsc;$(PETSC_DIR)\$(PETSC_ARCH)\lib;$(ONEAPI_ROOT)\mkl\latest\include\mkl\intel64\ilp64;$(ONEAPI_ROOT)\mpi\latest\include\mpi;$(ONEAPI_ROOT)\mpi\latest\lib;..\" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="libpetsc.lib impi.lib Advapi32.lib  Gdi32.lib User32.lib  Kernel32.lib Ws2_32.lib mkl_intel_thread.lib libiomp5md.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -32,11 +32,6 @@
 			<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-			<Filter Name="EasyRead">
-				<File RelativePath="..\Source\EasyRead\Easy_Read_and_Store.F90"/>
-				<File RelativePath="..\Source\EasyRead\OpenInputFile.F90"/>
-				<File RelativePath="..\Source\EasyRead\Types_and_parameters.F90"/>
-			</Filter>
 			<Filter Name="EQ36-Read">
 				<File RelativePath="..\Source\EQ36-Read\ifnobl.f"/>
 				<File RelativePath="..\Source\EQ36-Read\ilnobl.f"/>

@@ -51,8 +51,8 @@ USE medium
 USE transport
 USE temperature
 
-#include "petsc/finclude/petscmat.h"
-USE petscmat
+#include <petsc/finclude/petsc.h>
+      use petsc
  
 IMPLICIT NONE
 

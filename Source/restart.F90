@@ -61,8 +61,8 @@ USE io
 USE modflowModule
 USE Richards_module
 
-#include "petsc/finclude/petscmat.h"
-USE petscmat
+#include <petsc/finclude/petsc.h>
+      use petsc
 
 IMPLICIT NONE
 

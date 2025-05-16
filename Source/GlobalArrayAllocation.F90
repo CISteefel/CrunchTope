@@ -224,15 +224,15 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   END IF
   IF (ALLOCATED(sp)) THEN
     DEALLOCATE(sp)
-    ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,nz))
+    ALLOCATE(sp(ncomp+nspec,0:nx+1,0:ny+1,nz))
   ELSE
-    ALLOCATE(sp(ncomp+nspec,0:nx+1,ny,nz))
+    ALLOCATE(sp(ncomp+nspec,0:nx+1,0:ny+1,nz))
   END IF
   IF (ALLOCATED(sp10)) THEN
     DEALLOCATE(sp10)
-    ALLOCATE(sp10(ncomp+nspec,0:nx+1,ny,nz))
+    ALLOCATE(sp10(ncomp+nspec,0:nx+1,0:ny+1,nz))
   ELSE
-    ALLOCATE(sp10(ncomp+nspec,0:nx+1,ny,nz))
+    ALLOCATE(sp10(ncomp+nspec,0:nx+1,0:ny+1,nz))
   END IF
   IF (ALLOCATED(spex)) THEN
     DEALLOCATE(spex)
@@ -274,9 +274,9 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   END IF
   IF (ALLOCATED(spgas10)) THEN
     DEALLOCATE(spgas10)
-    ALLOCATE(spgas10(ngas,0:nx+1,ny,nz))
+    ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,nz))
   ELSE
-    ALLOCATE(spgas10(ngas,0:nx+1,ny,nz))
+    ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,nz))
   END IF
 
   IF (ALLOCATED(t)) THEN

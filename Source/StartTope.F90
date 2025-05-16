@@ -6460,6 +6460,20 @@ IF (FOUND) THEN
   IF (isaturate == 1) THEN
     gaspump = 0.0d0
   END IF
+  
+      IF (ALLOCATED(GasFlowFactorX)) THEN
+        DEALLOCATE(GasFlowFactorX)
+        ALLOCATE(GasFlowFactorX(0:nx,1:ny,nz))
+      ELSE
+        ALLOCATE(GasFlowFactorX(0:nx,1:ny,nz))
+      END IF
+    
+      IF (ALLOCATED(GasFlowFactorY)) THEN
+        DEALLOCATE(GasFlowFactorY)
+        ALLOCATE(GasFlowFactorY(1:nx,0:ny,nz))
+      ELSE
+        ALLOCATE(GasFlowFactorY(1:nx,0:ny,nz))
+      END IF
 
   CALL units_time(nout,section,time_scale)
   CALL units_distance(nout,section,dist_scale)
@@ -6873,21 +6887,9 @@ IF (FOUND) THEN
       ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
     END IF
     
-    IF (nz == 1) THEN
-      IF (ALLOCATED(GasFlowFactorX)) THEN
-        DEALLOCATE(GasFlowFactorX)
-        ALLOCATE(GasFlowFactorX(0:nx,1:ny,1))
-      ELSE
-        ALLOCATE(GasFlowFactorX(0:nx,1:ny,1))
-      END IF
-    
-      IF (ALLOCATED(GasFlowFactorY)) THEN
-        DEALLOCATE(GasFlowFactorY)
-        ALLOCATE(GasFlowFactorY(1:nx,0:ny,1))
-      ELSE
-        ALLOCATE(GasFlowFactorY(1:nx,0:ny,1))
-      END IF
-    END IF
+!!!    IF (nz == 1) THEN
+
+!!!    END IF
 
     pres = 0.0
     perminx = 0.0
@@ -7442,6 +7444,7 @@ IF (FOUND) THEN
 
         END IF
       END IF
+      
       
       jz = 1
       DO jy = 1,ny
