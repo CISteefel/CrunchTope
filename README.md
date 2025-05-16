@@ -41,6 +41,16 @@ For those using the pre-built executable (located in the Windows directory in th
 
 ### Compilation
 
+To run on Windows, first download and install Visual Studio 2022.  Then download and install Intel oneAPI Base Toolkit, choosing the option to integrate with Visual Studio.  The installation script should provide the option to link with Visual Studio 2022, if it doesn't, then something is wrong with the Visual Studio installation.  Then download and install Intel oneAPI HPC toolkit.  Once installed, you should see the option to start a Intel oneAPI command prompt for Intel 64 for Visual Studio.  Starting this will set all of the Environment Variables for the use of oneAPI.  Then run from this same Command Window: 
+
+    C:\cygwin64\bin\mintty.exe -
+
+to start up a Cygwin window (Unix) that inherits the Environment Variables from the oneAPI Command Prompt.  From here set the PETSC_DIR
+
+    export PETSC_DIR=/cygdrive/c/software/petsc
+
+and continue to build PETSC-3.21.6 from the same Cygwin terminal.
+
 A limited set of tests indicate that the "simpler" build of PETSc and Crunch with downloaded Blas-Lapack libraries (no MKL) and no MPI is faster.  So we recommend using this configure.py script to build (first) PETSc, then Crunch:
 
     export PETSC_DIR=/cygdrive/c/software/petsc
