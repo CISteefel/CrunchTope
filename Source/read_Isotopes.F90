@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -87,15 +87,21 @@ CHARACTER (LEN=mls)                                          :: stringspecies
 
 INTEGER(I4B)                                                 :: lenstring
 INTEGER(I4B)                                                 :: iPrimaryRare
+INTEGER(I4B)                                                 :: iPrimaryRare2
 INTEGER(I4B)                                                 :: lenPrimaryRare
+INTEGER(I4B)                                                 :: lenPrimaryRare2
 CHARACTER (LEN=mls)                                          :: namePrimaryRare
+CHARACTER (LEN=mls)                                          :: namePrimaryRare2
 INTEGER(I4B)                                                 :: iPrimaryCommon
 INTEGER(I4B)                                                 :: lenPrimaryCommon
 CHARACTER (LEN=mls)                                          :: namePrimaryCommon
 
 INTEGER(I4B)                                                 :: kMineralRare
+INTEGER(I4B)                                                 :: kMineralRare2
 INTEGER(I4B)                                                 :: lenMineralRare
+INTEGER(I4B)                                                 :: lenMineralRare2
 CHARACTER (LEN=mls)                                          :: nameMineralRare
+CHARACTER (LEN=mls)                                          :: nameMineralRare2
 INTEGER(I4B)                                                 :: kMineralCommon
 INTEGER(I4B)                                                 :: lenMineralCommon
 CHARACTER (LEN=mls)                                          :: nameMineralCommon
@@ -104,16 +110,23 @@ INTEGER(I4B)                                                 :: nnIsotope
 INTEGER(I4B)                                                 :: isotopologue
 INTEGER(I4B)                                                 :: kIsotopologue
 INTEGER(I4B)                                                 :: IsotopologueRareSave
+INTEGER(I4B)                                                 :: IsotopologueRareSave2
 INTEGER(I4B)                                                 :: IsotopologueCommonSave
 INTEGER(I4B)                                                 :: i
 
 LOGICAL(LGT)                                                 :: RareIsotopeFound
+LOGICAL(LGT)                                                 :: RareIsotopeFound2
 LOGICAL(LGT)                                                 :: CommonIsotopeFound
 
 IF (ALLOCATED(isotopeRare)) THEN
   DEALLOCATE(isotopeRare)
 END IF
 ALLOCATE(isotopeRare(25))
+IF (ALLOCATED(isotopeRare2)) THEN
+  DEALLOCATE(isotopeRare2)
+END IF
+ALLOCATE(isotopeRare2(25))
+
 IF (ALLOCATED(isotopeCommon)) THEN
   DEALLOCATE(isotopeCommon)
 END IF
@@ -122,6 +135,10 @@ IF (ALLOCATED(nameIsotopeRare)) THEN
   DEALLOCATE(nameIsotopeRare)
 END IF
 ALLOCATE(nameIsotopeRare(25))
+IF (ALLOCATED(nameIsotopeRare2)) THEN
+  DEALLOCATE(nameIsotopeRare2)
+END IF
+ALLOCATE(nameIsotopeRare2(25))
 IF (ALLOCATED(nameIsotopeCommon)) THEN
   DEALLOCATE(nameIsotopeCommon)
 END IF
@@ -131,10 +148,31 @@ IF (ALLOCATED(IsotopeReference)) THEN
 END IF
 ALLOCATE(IsotopeReference(25))
 
+IF (ALLOCATED(IsotopeReference2)) THEN
+  DEALLOCATE(IsotopeReference2)
+END IF
+ALLOCATE(IsotopeReference2(25))
+
+IF (ALLOCATED(IsotopeNumber)) THEN
+  DEALLOCATE(IsotopeNumber)
+END IF
+ALLOCATE(IsotopeNumber(30))
+
+IF (ALLOCATED(MineralisotopeNumber)) THEN
+  DEALLOCATE(MineralisotopeNumber)
+END IF
+ALLOCATE(MineralisotopeNumber(25))
+
 IF (ALLOCATED(MoleFractionAqueousRare)) THEN
   DEALLOCATE(MoleFractionAqueousRare)
 END IF
 ALLOCATE(MoleFractionAqueousRare(25))
+
+IF (ALLOCATED(MoleFractionAqueousRare2)) THEN
+  DEALLOCATE(MoleFractionAqueousRare2)
+END IF
+ALLOCATE(MoleFractionAqueousRare2(25))
+
 IF (ALLOCATED(MoleFractionAqueousCommon)) THEN
   DEALLOCATE(MoleFractionAqueousCommon)
 END IF
@@ -159,6 +197,11 @@ IF (ALLOCATED(kIsotopeRare)) THEN
 END IF
 ALLOCATE(kIsotopeRare(25))
 
+IF (ALLOCATED(kIsotopeRare2)) THEN
+  DEALLOCATE(kIsotopeRare2)
+END IF
+ALLOCATE(kIsotopeRare2(25))
+
 IF (ALLOCATED(kIsotopeCommon)) THEN
   DEALLOCATE(kIsotopeCommon)
 END IF
@@ -168,6 +211,11 @@ IF (ALLOCATED(nameIsotopeMineralRare)) THEN
   DEALLOCATE(nameIsotopeMineralRare)
 END IF
 ALLOCATE(nameIsotopeMineralRare(25))
+
+IF (ALLOCATED(nameIsotopeMineralRare2)) THEN
+  DEALLOCATE(nameIsotopeMineralRare2)
+END IF
+ALLOCATE(nameIsotopeMineralRare2(25))
 
 IF (ALLOCATED(nameIsotopeMineralCommon)) THEN
   DEALLOCATE(nameIsotopeMineralCommon)
@@ -198,6 +246,12 @@ IF (ALLOCATED(IsotopeMineralRare)) THEN
   DEALLOCATE(IsotopeMineralRare)
 END IF
 ALLOCATE(IsotopeMineralRare(nrct))
+
+IF (ALLOCATED(IsotopeMineralRare2)) THEN
+  DEALLOCATE(IsotopeMineralRare2)
+END IF
+ALLOCATE(IsotopeMineralRare2(nrct))
+
 IF (ALLOCATED(IsotopeMineralCommon)) THEN
   DEALLOCATE(IsotopeMineralCommon)
 END IF
@@ -207,6 +261,12 @@ IF (ALLOCATED(MoleFractionMineralRare)) THEN
   DEALLOCATE(MoleFractionMineralRare)
 END IF
 ALLOCATE(MoleFractionMineralRare(25))
+
+IF (ALLOCATED(MoleFractionMineralRare2)) THEN
+  DEALLOCATE(MoleFractionMineralRare2)
+END IF
+ALLOCATE(MoleFractionMineralRare2(25))
+
 IF (ALLOCATED(MoleFractionMineralCommon)) THEN
   DEALLOCATE(MoleFractionMineralCommon)
 END IF
@@ -221,11 +281,22 @@ IF (ALLOCATED(dMoleFractionAqueousRare)) THEN
 END IF
 ALLOCATE(dMoleFractionAqueousRare(ncomp,25))
 
+IF (ALLOCATED(dMoleFractionAqueousRare2)) THEN
+  DEALLOCATE(dMoleFractionAqueousRare2)
+END IF
+ALLOCATE(dMoleFractionAqueousRare2(ncomp,25))
+
 IF (ALLOCATED(lambda)) THEN
   DEALLOCATE(lambda)
 END IF
 ALLOCATE(lambda(nrct))
 lambda = 0.0d0
+
+IF (ALLOCATED(lambda2)) THEN
+  DEALLOCATE(lambda2)
+END IF
+ALLOCATE(lambda2(nrct))
+lambda2 = 0.0d0
 
 IF (ALLOCATED(decay)) THEN
   DEALLOCATE(decay)
@@ -234,15 +305,20 @@ ALLOCATE(decay(nrct))
 
 iPointerIsotope = 0
 IsotopePrimaryRare   = .FALSE.
+IsotopePrimaryRare2   = .FALSE.
 IsotopePrimaryCommon = .FALSE.
 
 IsotopeMineralRare   = .FALSE.
+IsotopeMineralRare2   = .FALSE.
 IsotopeMineralCommon = .FALSE.
 
 nIsotopePrimary = 0
 nIsotopeMineral = 0
 
 kPointerIsotope = 0
+
+isotopeNumber = 0
+MineralisotopeNumber = 0
 
 !!REWIND nout
 
@@ -272,6 +348,35 @@ IF (ssch == 'primary') THEN
 !!  If "primary", then read isotope pair (rare then common) followed by reference standard 
   nIsotopePrimary = nIsotopePrimary + 1
 
+
+  id = ids + ls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  IF(ls /= 0) THEN
+    lzs=ls
+    CALL stringtype(ssch,lzs,res)
+      
+    IF (res /= 'n') THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Isotope input following "primary" should start with the number of isotopes in the system (2 or 3)' 
+      WRITE(*,*) '   String found', ssch(1:30)
+      WRITE(*,*) '       ABORTING RUN  '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+        
+    IsotopeNumber(nIsotopePrimary) = INT(DNUM(ssch))
+      
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' No input in Isotope input'
+    WRITE(*,*) '       ABORTING RUN  '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+  
+
   id = ids + ls
   CALL sschaine(zone,id,iff,ssch,ids,ls)
   IF(ls /= 0) THEN
@@ -280,7 +385,7 @@ IF (ssch == 'primary') THEN
     
     IF (res /= 'a') THEN
       WRITE(*,*)
-      WRITE(*,*) ' Isotope input following "primary" or "mineral" should start with an ASCII string'
+      WRITE(*,*) ' The number of isotopes in the system should be followed by an ASCII string'
       WRITE(*,*) '   String found', ssch(1:30)
       WRITE(*,*) '       ABORTING RUN  '
       WRITE(*,*)
@@ -305,6 +410,45 @@ IF (ssch == 'primary') THEN
     READ(*,*)
     STOP
   END IF
+
+!read name of second rare isotope
+IF (IsotopeNumber(nIsotopePrimary) == 3) THEN
+  id = ids + ls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  IF(ls /= 0) THEN
+    lzs=ls
+    CALL stringtype(ssch,lzs,res)
+    
+    IF (res /= 'a') THEN
+      WRITE(*,*)
+      WRITE(*,*) ' The firts rare isotope should be followed by an ASCII string'
+      WRITE(*,*) '   String found', ssch(1:30)
+      WRITE(*,*) '       ABORTING RUN  '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    
+    namePrimaryRare2 = ssch
+    CALL stringlen(namePrimaryRare2,lenPrimaryRare2)
+!!    write(*,*) ssch(1:lenPrimaryRare)
+    iprimaryRare2 = GetPrimarySpeciesNumber (ncomp,namePrimaryRare2)
+    isotopeRare2(nIsotopePrimary) = iPrimaryRare2
+!!  Array is length ncomp:  iPointerIsotope
+    iPointerIsotope(iPrimaryRare2) = nIsotopePrimary
+    nameIsotopeRare2(nIsotopePrimary) = namePrimaryRare2
+    
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' No input following rare isotope in Isotope input'
+    WRITE(*,*) '       ABORTING RUN  '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+
+ENDIF
+
     
   id = ids + ls
   CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -365,12 +509,70 @@ IF (ssch == 'primary') THEN
     READ(*,*)
     STOP
   END IF
+
+
+IF (IsotopeNumber(nIsotopePrimary) == 3) THEN
+  id = ids + ls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  IF(ls /= 0) THEN
+    lzs=ls
+    CALL stringtype(ssch,lzs,res)
+      
+    IF (res /= 'n') THEN
+      WRITE(*,*)
+      WRITE(*,*) ' You should provide the second reference standard value (rare/common)' 
+      WRITE(*,*) '   String found', ssch(1:30)
+      WRITE(*,*) '       ABORTING RUN  '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+        
+    IsotopeReference2(nIsotopePrimary) = DNUM(ssch)
+      
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' No input following rare isotope in Isotope input'
+    WRITE(*,*) '       ABORTING RUN  '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+  ENDIF
       
       
 ELSE IF (ssch == 'mineral') THEN
 
 !!  If "mineral", then read mineral pair (rare then common) followed back reaction approach (bulk, surface, none)
   nIsotopeMineral = nIsotopeMineral + 1
+
+
+  id = ids + ls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  IF(ls /= 0) THEN
+    lzs=ls
+    CALL stringtype(ssch,lzs,res)
+      
+    IF (res /= 'n') THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Isotope input following "mineral" should start with the number of minerals in the system (2 or 3)' 
+      WRITE(*,*) '   String found', ssch(1:30)
+      WRITE(*,*) '       ABORTING RUN  '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+        
+    MineralisotopeNumber(nIsotopeMineral) = INT(DNUM(ssch))
+      
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' No input in Isotope input'
+    WRITE(*,*) '       ABORTING RUN  '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
   
   id = ids + ls
   CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -404,6 +606,42 @@ ELSE IF (ssch == 'mineral') THEN
     READ(*,*)
     STOP
   END IF
+
+IF (MineralisotopeNumber(nIsotopeMineral) == 3) THEN
+  id = ids + ls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  IF(ls /= 0) THEN
+    lzs=ls
+    CALL stringtype(ssch,lzs,res)
+      
+    IF (res /= 'a') THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Isotope input following "primary" or "mineral" should start with an ASCII string'
+      WRITE(*,*) '   String found', ssch(1:30)
+      WRITE(*,*) '       ABORTING RUN  '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    
+    nameMineralRare2 = ssch
+    CALL stringlen(nameMineralRare2,lenMineralRare2)
+    CALL GetMineralNumber (nrct,nameMineralRare2,kMineralRare2)
+    kIsotopeRare2(nIsotopeMineral) = kMineralRare2
+!!  Array is length nrct:  kPointerIsotope
+    kPointerIsotope(kMineralRare2) = nIsotopeMineral
+    nameIsotopeMineralRare2(nIsotopeMineral) = nameMineralRare2
+      
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' No input following "mineral" in Isotope input'
+    WRITE(*,*) '       ABORTING RUN  '
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+ENDIF
+
   
   id = ids + ls
   CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -491,8 +729,33 @@ ELSE IF (ssch == 'mineral') THEN
     END IF
     
     lambda(nIsotopeMineral) = DNUM(ssch)
+
+
+    id = ids + ls
+  CALL sschaine(zone,id,iff,ssch,ids,ls)
+  IF(ls /= 0) THEN
+    lzs=ls
+    CALL convan(ssch,lzs,res)
+    CALL stringtype(ssch,lzs,res)
+    
+    IF (res == 'a') THEN
+      WRITE(*,*)
+      WRITE(*,*) ' Following mineral isotope option, reading number for decay constant lambda2' 
+      WRITE(*,*) ' Should be a number, not a character string'
+      WRITE(*,*) '   String found: ', ssch(1:30)
+      WRITE(*,*) '       ABORTING RUN  '
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
+    
+    lambda2(nIsotopeMineral) = DNUM(ssch)
     
     END IF
+    
+    END IF
+
+  
   
   ELSE
 
@@ -504,6 +767,8 @@ ELSE IF (ssch == 'mineral') THEN
     STOP
 
   END IF  
+
+  
   
 
     
@@ -525,8 +790,12 @@ GO TO 100
 
 
 
+
 DO nnIsotope = 1,nIsotopePrimary
   IsotopePrimaryRare(isotopeRare(nnIsotope))     = .TRUE.
+  IF (IsotopeNumber(nnIsotope) == 3) THEN
+  IsotopePrimaryRare2(isotopeRare2(nnIsotope))     = .TRUE.
+  ENDIF
   IsotopePrimaryCommon(isotopeCommon(nnIsotope)) = .TRUE.
 END DO
 
@@ -535,13 +804,21 @@ DO kIsotopologue = 1,nIsotopeMineral
 
   CommonIsotopeFound = .FALSE.
   RareIsotopeFound   = .FALSE.
+  RareIsotopeFound2   = .FALSE.
 
 !! Look in MineralRare for Rare Primary
   kMineralRare     = kIsotopeRare(kIsotopologue)
+  IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+  kMineralRare2     = kIsotopeRare2(kIsotopologue)
+  ENDIF
   kMineralCommon   = kIsotopeCommon(kIsotopologue)
+
 
   DO isotopologue = 1,nIsotopePrimary
     iPrimaryRare   = isotopeRare(isotopologue)
+    IF (IsotopeNumber(isotopologue) == 3) THEN
+    iPrimaryRare2   = isotopeRare2(isotopologue)
+    endif
     iPrimaryCommon = isotopeCommon(isotopologue)
 
     DO i = 1,ncomp
@@ -549,12 +826,21 @@ DO kIsotopologue = 1,nIsotopeMineral
         IF ( ulab(iPrimaryRare) == ulab(i) ) THEN
           RareIsotopeFound = .TRUE.
           isotopologueRareSave = isotopologue
+          PRINT*, ulab(iPrimaryRare)
+        END IF
+      END IF
+      IF (mumin(1,kMineralRare2,i) /= 0.0 .AND. IsotopeNumber(isotopologue) == 3) THEN
+        IF ( ulab(iPrimaryRare2) == ulab(i) ) THEN
+          RareIsotopeFound2 = .TRUE.
+          isotopologueRareSave2 = isotopologue
+          PRINT*, ulab(iPrimaryRare2)
         END IF
       END IF
       IF (mumin(1,kMineralCommon,i) /= 0.0) THEN
         IF ( ulab(iPrimaryCommon) == ulab(i) ) THEN
           CommonIsotopeFound = .TRUE.
           isotopologueCommonSave = isotopologue
+          PRINT*, ulab(iPrimaryCommon)
         END IF
       END IF
     END DO
@@ -562,6 +848,8 @@ DO kIsotopologue = 1,nIsotopeMineral
     IF (CommonIsotopeFound .AND. RareIsotopeFound) THEN
 !!  Check that we got the same answer from Rare and Common
       IF (isotopologueRareSave /= isotopologueCommonSave) THEN
+        PRINT*, isotopologueRareSave
+        PRINT*, isotopologueCommonSave
          WRITE(*,*)
          WRITE(*,*) ' Rare and common isotope pointer should be to the same system'
          WRITE(*,*)
@@ -586,7 +874,23 @@ DO kIsotopologue = 1,nIsotopeMineral
     STOP
   END IF
 
+  IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+  IF (RareIsotopeFound2) THEN
+    CONTINUE
+  ELSE
+    WRITE(*,*)
+    WRITE(*,*) ' Primary isotope system not found in mineral'
+    WRITE(*,*) ' Looking for rare isotope system in mineral:   ', umin(kMineralRare2)
+    WRITE(*,*)
+    READ(*,*)
+    STOP
+  END IF
+  ENDIF
+
   IsotopeMineralRare(kIsotopeRare(kIsotopologue))     = .TRUE.
+  IF (MineralisotopeNumber(kIsotopologue) == 3) then
+  IsotopeMineralRare2(kIsotopeRare2(kIsotopologue))     = .TRUE.
+  endif
   IsotopeMineralCommon(kIsotopeCommon(kIsotopologue)) = .TRUE.
 END DO
 

@@ -178,8 +178,10 @@ REAL(DP)                                             :: surftmp
 INTEGER(I4B)                                                    :: kIsotopologue
 INTEGER(I4B)                                                    :: Isotopologue
 INTEGER(I4B)                                                    :: kMineralRare
+INTEGER(I4B)                                                    :: kMineralRare2
 INTEGER(I4B)                                                    :: kMineralCommon
 INTEGER(I4B)                                                    :: iPrimaryRare
+INTEGER(I4B)                                                    :: iPrimaryRare2
 INTEGER(I4B)                                                    :: iPrimaryCommon
 
 INTEGER(I4B)                                                    :: kIsotopologuePoint
@@ -281,9 +283,36 @@ porfactor = 1.0d0
 IF (nIsotopeMineral > 0) THEN
   dMoleFractionAqueousCommon = 0.0d0
   dMoleFractionAqueousRare   = 0.0d0
+  dMoleFractionAqueousRare2   = 0.0d0
 END IF
 
 DO Isotopologue = 1,nIsotopePrimary
+
+IF (IsotopeNumber(nIsotopePrimary) == 3) THEN
+  iPrimaryRare = isotopeRare(Isotopologue)
+  iPrimaryRare2 = isotopeRare2(Isotopologue)
+  iPrimaryCommon = isotopeCommon(Isotopologue)
+
+  Denom = ( sp10(iPrimaryRare,jx,jy,jz) + sp10(iPrimaryRare2,jx,jy,jz) + sp10(iPrimaryCommon,jx,jy,jz) )
+  DenomSquared = Denom*Denom
+
+  dMoleFractionAqueousRare(iPrimaryRare,isotopologue)   =        &
+         sp10(iPrimaryRare,jx,jy,jz)*   (-sp10(iPrimaryRare,jx,jy,jz)/DenomSquared + 1.0d0/Denom)
+  dMoleFractionAqueousRare2(iPrimaryRare2,isotopologue)   =        &
+         sp10(iPrimaryRare2,jx,jy,jz)*   (-sp10(iPrimaryRare2,jx,jy,jz)/DenomSquared + 1.0d0/Denom)
+  dMoleFractionAqueousCommon(iPrimaryCommon,isotopologue) =    &
+         sp10(iPrimaryCommon,jx,jy,jz)* (-sp10(iPrimaryCommon,jx,jy,jz)/DenomSquared + 1.0d0/Denom)
+
+  dMoleFractionAqueousRare(iPrimaryCommon,isotopologue)   =  sp10(iPrimaryCommon,jx,jy,jz)*   (-sp10(iPrimaryRare,jx,jy,jz)/DenomSquared)
+  dMoleFractionAqueousRare(iPrimaryRare2,isotopologue)   =  sp10(iPrimaryRare2,jx,jy,jz)*   (-sp10(iPrimaryRare,jx,jy,jz)/DenomSquared)
+  
+  dMoleFractionAqueousRare2(iPrimaryCommon,isotopologue)   =  sp10(iPrimaryCommon,jx,jy,jz)*   (-sp10(iPrimaryRare2,jx,jy,jz)/DenomSquared)
+  dMoleFractionAqueousRare2(iPrimaryRare,isotopologue)   =  sp10(iPrimaryRare,jx,jy,jz)*   (-sp10(iPrimaryRare2,jx,jy,jz)/DenomSquared)
+  
+  dMoleFractionAqueousCommon(iPrimaryRare,isotopologue)   =  sp10(iPrimaryRare,jx,jy,jz)*   (-sp10(iPrimaryCommon,jx,jy,jz)/DenomSquared)
+  dMoleFractionAqueousCommon(iPrimaryRare2,isotopologue)   =  sp10(iPrimaryRare2,jx,jy,jz)*   (-sp10(iPrimaryCommon,jx,jy,jz)/DenomSquared)
+
+ELSE
   iPrimaryRare = isotopeRare(Isotopologue)
   iPrimaryCommon = isotopeCommon(Isotopologue)
   Denom = ( sp10(iPrimaryRare,jx,jy,jz) + sp10(iPrimaryCommon,jx,jy,jz) )
@@ -294,7 +323,7 @@ DO Isotopologue = 1,nIsotopePrimary
          sp10(iPrimaryCommon,jx,jy,jz)* (-sp10(iPrimaryCommon,jx,jy,jz)/DenomSquared + 1.0d0/Denom)
   dMoleFractionAqueousRare(iPrimaryCommon,isotopologue)   =  sp10(iPrimaryCommon,jx,jy,jz)*   (-sp10(iPrimaryRare,jx,jy,jz)/DenomSquared)
   dMoleFractionAqueousCommon(iPrimaryRare,isotopologue)   =  sp10(iPrimaryRare,jx,jy,jz)*   (-sp10(iPrimaryCommon,jx,jy,jz)/DenomSquared)
-
+ENDIF
 END DO
 
 jac_rmin = 0.0d0
@@ -305,7 +334,10 @@ DO k = 1,nkin
     IF (kPointerIsotope(k)/= 0) THEN
       kIsotopologue  = kPointerIsotope(k)
       kMineralRare   = kIsotopeRare(kIsotopologue)
-      KMineralCommon = kIsotopeCommon(kIsotopologue)
+      if (MineralisotopeNumber(kIsotopologue) == 3) then
+      kMineralRare2   = kIsotopeRare2(kIsotopologue)
+      endif
+      kMineralCommon = kIsotopeCommon(kIsotopologue)
     END IF
   END IF
 
@@ -452,6 +484,9 @@ DO k = 1,nkin
 
               IF (IsotopeMineralRare(k)) THEN
 
+              ! print *, 'here'
+              ! stop
+
                 jac_sat = 0.0d0
 
                 DO i = 1,ncomp
@@ -462,10 +497,15 @@ DO k = 1,nkin
 
                 kIsotopologue  = kPointerIsotope(k)
                 kMineralRare   = kIsotopeRare(kIsotopologue)
-                KMineralCommon = kIsotopeCommon(kIsotopologue)
+                kMineralCommon = kIsotopeCommon(kIsotopologue)
                 isotopologue   = PointerToPrimaryIsotope(kIsotopologue)
                 iPrimaryCommon = isotopeCommon(Isotopologue)
                 iPrimaryRare   = isotopeRare(Isotopologue)
+
+                if (MineralisotopeNumber(kIsotopologue) == 3) then
+                kMineralRare2   = kIsotopeRare2(kIsotopologue)
+                iPrimaryRare2   = isotopeRare2(Isotopologue)
+                endif
 
                 IF (MineralAssociate(kMineralCommon)) THEN
                   kIsotopologuePoint = kPointerIsotope( MineralID(kMineralCommon) )
@@ -479,6 +519,12 @@ DO k = 1,nkin
                     jac_sat(iPrimaryRare)   = jac_sat(iPrimaryRare) + si(np,k) *                                                       &
                                               (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare(Isotopologue)          &
                                               * dMoleFractionAqueousRare(iPrimaryRare,isotopologue)
+                    
+                    if (MineralisotopeNumber(kIsotopologue) == 3) then
+                    jac_sat(iPrimaryRare2) = si(np,k) *                                                                               &
+                                              (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare(Isotopologue)          &
+                                              * dMoleFractionAqueousRare(iPrimaryRare2,isotopologue)
+                    endif
 
                     jac_sat(iPrimaryCommon) = si(np,k) *                                                                               &
                                               (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare(Isotopologue)          &
@@ -524,7 +570,12 @@ DO k = 1,nkin
 !!!              write(*,*)
 !!!              read(*,*)
 
-              ELSE IF (IsotopeMineralCommon(k)) THEN
+
+
+
+
+            ELSEIF (IsotopeMineralRare2(k)) THEN
+            !.and. MineralisotopeNumber(kPointerIsotope(k)) == 3
 
                 jac_sat = 0.0d0
 
@@ -536,10 +587,102 @@ DO k = 1,nkin
 
                 kIsotopologue  = kPointerIsotope(k)
                 kMineralRare   = kIsotopeRare(kIsotopologue)
-                KMineralCommon = kIsotopeCommon(kIsotopologue)
+                kMineralRare2   = kIsotopeRare2(kIsotopologue)
+                kMineralCommon = kIsotopeCommon(kIsotopologue)
                 isotopologue   = PointerToPrimaryIsotope(kIsotopologue)
                 iPrimaryCommon = isotopeCommon(Isotopologue)
                 iPrimaryRare   = isotopeRare(Isotopologue)
+                iPrimaryRare2   = isotopeRare2(Isotopologue)
+
+                IF (MineralAssociate(kMineralCommon)) THEN
+                  kIsotopologuePoint = kPointerIsotope( MineralID(kMineralCommon) )
+                ELSE
+                  kIsotopologuePoint = kIsotopologue
+                END IF
+
+                IF (isotopeBackReactionOption(kIsotopologuePoint) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+
+
+                    jac_sat(iPrimaryRare2)   = jac_sat(iPrimaryRare2) + si(np,k) *                                                       &
+                                              (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare2(Isotopologue)          &
+                                              * dMoleFractionAqueousRare2(iPrimaryRare2,isotopologue)
+                    
+                    jac_sat(iPrimaryRare) = si(np,k) *                                                                               &
+                                              (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare2(Isotopologue)          &
+                                              * dMoleFractionAqueousRare2(iPrimaryRare,isotopologue)
+
+                    jac_sat(iPrimaryCommon) = si(np,k) *                                                                               &
+                                              (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare2(Isotopologue)          &
+                                              * dMoleFractionAqueousRare2(iPrimaryCommon,isotopologue)
+
+!!!  **********  Numerical derivative **********************
+!!!!!            perturb = 1.0D-09
+!!!!!            sppTMP(:)   = sp(:,jx,jy,jz)
+!!!!!            sppTMP10(:) = sp10(:,jx,jy,jz)
+!!!!!            CALL AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,termTMP,time)
+!!!!!            AffinityInitial = termTMP
+!!!!!            DO i = 1,ncomp
+!!!!!                sppTMP(i) = sppTMP(i) + perturb
+!!!!!                sppTMP10(i) = DEXP(sppTMP(i))
+!!!!!                CALL AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,termTMP,time)
+!!!!!                jac_check(i) = (termTMP - AffinityInitial)/perturb
+!!!!!!!                jac_sat(i) = jac_check(i)
+!!!!!                sppTMP(i) = sp(i,jx,jy,jz) 
+!!!!!                sppTMP10(i) = sp10(i,jx,jy,jz)
+!!!!!            END DO
+!!!  *******************************************************
+
+                ELSE 
+
+                  CONTINUE
+
+                END IF
+
+                IF (imintype(np,k) == 4 .AND. silog(np,k) < 0.0d0) THEN    !! Precipitation only
+                  jac_sat = 0.0d0
+                END IF
+
+                IF (imintype(np,k) == 5 .AND. silog(np,k) > 0.0d0) THEN   !! Dissolution only
+                  jac_sat = 0.0d0
+                END IF
+
+!!!              write(*,*) umin(k)
+!!!              write(*,*)
+!!!              do i = 1,ncomp
+!!!                dumstring = ulab(i)
+!!!                write(*,*) dumstring,jac_sat(i),jac_check(i)
+!!!              end do
+!!!              write(*,*)
+!!!              read(*,*)
+
+
+
+
+
+
+
+              ELSE IF (IsotopeMineralCommon(k)) THEN
+
+
+                jac_sat = 0.0d0
+
+                DO i = 1,ncomp
+
+                  jac_sat(i) = mumin(np,k,i)*si(np,k)  
+            
+                END DO
+
+                kIsotopologue  = kPointerIsotope(k)
+                kMineralRare   = kIsotopeRare(kIsotopologue)
+                kMineralCommon = kIsotopeCommon(kIsotopologue)
+                isotopologue   = PointerToPrimaryIsotope(kIsotopologue)
+                iPrimaryCommon = isotopeCommon(Isotopologue)
+                iPrimaryRare   = isotopeRare(Isotopologue)
+
+                if (MineralisotopeNumber(kIsotopologue) == 3) then
+                kMineralRare2   = kIsotopeRare2(kIsotopologue)
+                iPrimaryRare2   = isotopeRare2(Isotopologue)
+                endif
 
                 IF (MineralAssociate(kMineralCommon)) THEN
                   kIsotopologuePoint = kPointerIsotope( MineralID(kMineralCommon) )
@@ -556,6 +699,13 @@ DO k = 1,nkin
                     jac_sat(iPrimaryRare)   = si(np,k) *                                                                          &
                                               (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousCommon(Isotopologue)   &
                                                 * dMoleFractionAqueousCommon(iPrimaryRare,isotopologue)
+
+                    if (MineralisotopeNumber(kIsotopologue) == 3) then
+                    jac_sat(iPrimaryRare2)   = si(np,k) *                                                                          &
+                                              (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousCommon(Isotopologue)   &
+                                                * dMoleFractionAqueousCommon(iPrimaryRare2,isotopologue)
+                    endif
+                
 
                 ELSE
 
@@ -999,13 +1149,13 @@ DO k = 1,nkin
                       MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
                       pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
               END DO
-              
+
             ELSE
               
               MoleFractionMineral = MoleFractionMineralRare(kPointerIsotope(k))
 !!            Use the bulk surface area (common)
               surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
-              KMineralCommon = kIsotopeCommon(kIsotopologue)
+              kMineralCommon = kIsotopeCommon(kIsotopologue)
           
               IF (NoFractionationDissolution .and. IsotopeMineralRare(k) .and. si(np,k) < 1.0d0 ) THEN
 
@@ -1021,6 +1171,54 @@ DO k = 1,nkin
               END IF
               
             END IF
+
+
+          ELSE IF (IsotopeMineralRare2(k)) THEN
+          !.and. MineralisotopeNumber(kPointerIsotope(k)) == 3
+
+            kIsotopologue = kPointerIsotope(k)
+
+            IF (MineralAssociate(kMineralCommon)) THEN
+              kIsotopologuePoint = kPointerIsotope( MineralID(kMineralCommon) )
+            ELSE
+              kIsotopologuePoint = kIsotopologue
+            END IF
+
+            IF (isotopeBackReactionOption(kIsotopologuePoint) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+
+              isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+              MoleFractionMineral = MoleFractionAqueousRare2(isotopologue)
+!!            Use the bulk surface area (common)
+              surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
+              DO i = 1,ncomp
+                jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
+                      MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+              END DO
+              
+            ELSE
+              
+              MoleFractionMineral = MoleFractionMineralRare2(kPointerIsotope(k))
+!!            Use the bulk surface area (common)
+              surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
+              kMineralCommon = kIsotopeCommon(kIsotopologue)
+          
+              IF (NoFractionationDissolution .and. IsotopeMineralRare2(k) .and. si(np,k) < 1.0d0 ) THEN
+
+                DO i = 1,ncomp
+                  jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+                END DO
+              ELSE
+                DO i = 1,ncomp
+                  jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                END DO
+              END IF
+              
+            END IF
+
 
           ELSE
               

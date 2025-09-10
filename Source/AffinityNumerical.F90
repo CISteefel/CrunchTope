@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -94,8 +94,10 @@ REAL(DP)                                                        :: Denominator
 INTEGER(I4B)                                                    :: kIsotopologue
 INTEGER(I4B)                                                    :: Isotopologue
 INTEGER(I4B)                                                    :: kMineralRare
+INTEGER(I4B)                                                    :: kMineralRare2
 INTEGER(I4B)                                                    :: kMineralCommon
 INTEGER(I4B)                                                    :: iPrimaryRare
+INTEGER(I4B)                                                    :: iPrimaryRare2
 INTEGER(I4B)                                                    :: iPrimaryCommon
 
 !! DummyComment
@@ -122,6 +124,12 @@ IF (nIsotopeMineral > 0) THEN
     kIsotopologue = kPointerIsotope(k)
 
     kMineralRare = kIsotopeRare(kIsotopologue)
+    ! print *, IsotopeNumber(kPointerIsotope(k))
+    IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+    kMineralRare2 = kIsotopeRare2(kIsotopologue)
+    ! print *, 'here'
+    ! stop
+    ENDIF
     KMineralCommon = kIsotopeCommon(kIsotopologue)
     isotopologue = PointerToPrimaryIsotope(kIsotopologue)
     iPrimaryCommon = isotopeCommon(Isotopologue)
@@ -129,11 +137,41 @@ IF (nIsotopeMineral > 0) THEN
     IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
       isotopologue = PointerToPrimaryIsotope(kIsotopologue)
       iPrimaryRare = isotopeRare(Isotopologue)
+      IF (IsotopeNumber(isotopologue) == 3) THEN
+      iPrimaryRare2 = isotopeRare2(Isotopologue)
+      ENDIF
       iPrimaryCommon = isotopeCommon(Isotopologue)
+      IF (IsotopeNumber(isotopologue) == 3) THEN
+      denominator = sppTMP10(iPrimaryRare) + sppTMP10(iPrimaryCommon) + sppTMP10(iPrimaryRare)
+      ELSE
       denominator = sppTMP10(iPrimaryRare) + sppTMP10(iPrimaryCommon)
+      ENDIF
       MoleFractionMineral = (sppTMP10(iPrimaryRare)/denominator)
     ELSE
       MoleFractionMineral = MoleFractionMineralRare(kPointerIsotope(k))
+    END IF
+    sumiap = sumiap - (mumin(1,kMineralCommon,iPrimaryCommon))*DLOG(MoleFractionMineral)
+
+
+  ELSEIF (IsotopeMineralRare2(k)) THEN
+
+    kIsotopologue = kPointerIsotope(k)
+
+    kMineralRare = kIsotopeRare(kIsotopologue)
+    kMineralRare2 = kIsotopeRare2(kIsotopologue)
+    KMineralCommon = kIsotopeCommon(kIsotopologue)
+    isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+    iPrimaryCommon = isotopeCommon(Isotopologue)
+
+    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+      isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+      iPrimaryRare = isotopeRare(Isotopologue)
+      iPrimaryRare2 = isotopeRare2(Isotopologue)
+      iPrimaryCommon = isotopeCommon(Isotopologue)
+      denominator = sppTMP10(iPrimaryRare) + sppTMP10(iPrimaryCommon) + sppTMP10(iPrimaryRare2)
+      MoleFractionMineral = (sppTMP10(iPrimaryRare2)/denominator)
+    ELSE
+      MoleFractionMineral = MoleFractionMineralRare2(kPointerIsotope(k))
     END IF
     sumiap = sumiap - (mumin(1,kMineralCommon,iPrimaryCommon))*DLOG(MoleFractionMineral)
 
@@ -142,6 +180,11 @@ IF (nIsotopeMineral > 0) THEN
     kIsotopologue = kPointerIsotope(k)
 
     kMineralRare = kIsotopeRare(kIsotopologue)
+    IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+    kMineralRare2 = kIsotopeRare2(kIsotopologue)
+    ! print *, 'here'
+    ! stop
+    ENDIF
     KMineralCommon = kIsotopeCommon(kIsotopologue)
     isotopologue = PointerToPrimaryIsotope(kIsotopologue)
     iPrimaryCommon = isotopeCommon(Isotopologue)
@@ -149,8 +192,15 @@ IF (nIsotopeMineral > 0) THEN
     IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
       isotopologue = PointerToPrimaryIsotope(kIsotopologue)
       iPrimaryRare = isotopeRare(Isotopologue)
+      IF (IsotopeNumber(isotopologue) == 3) THEN
+      iPrimaryRare2 = isotopeRare2(Isotopologue)
+      ENDIF
       iPrimaryCommon = isotopeCommon(Isotopologue)
+      IF (IsotopeNumber(isotopologue) == 3) THEN
+      denominator = sppTMP10(iPrimaryRare) + sppTMP10(iPrimaryCommon) + sppTMP10(iPrimaryRare)
+      ELSE
       denominator = sppTMP10(iPrimaryRare) + sppTMP10(iPrimaryCommon)
+      ENDIF
       MoleFractionMineral = (sppTMP10(iPrimaryCommon)/denominator)
     ELSE
       MoleFractionMineral = MoleFractionMineralCommon(kPointerIsotope(k))

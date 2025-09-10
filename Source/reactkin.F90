@@ -92,6 +92,7 @@ INTEGER(I4B)                                                   :: jj, ib
 ! biomass end
 
 INTEGER(I4B)                                                   :: IsotopologueOther
+INTEGER(I4B)                                                   :: IsotopologueOther2
 INTEGER(I4B)                                                   :: nnisotope
 
 REAL(DP)                                                       :: affinity
@@ -284,9 +285,16 @@ DO ir = 1,ikin
         IF (IsotopePrimaryCommon(i)) THEN
          
           IsotopologueOther = isotopeRare(iPointerIsotope(i))
+          if (IsotopeNumber(iPointerIsotope(i)) == 3) then
+          IsotopologueOther2 = isotopeRare2(iPointerIsotope(i))
+          endif
           IF (itot_monodaq(id,ir) == 1) THEN
 
+            if (IsotopeNumber(iPointerIsotope(i)) == 3) then
+            termMonod(id,ir) = s(i,jx,jy,jz)/( s(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+(s(IsotopologueOther,jx,jy,jz) + s(IsotopologueOther2,jx,jy,jz))/halfsataq(id,ir) ) )
+            else
             termMonod(id,ir) = s(i,jx,jy,jz)/( s(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+s(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )
+            endif
             term2 = term2 * termMonod(id,ir)
 
 
@@ -296,7 +304,11 @@ DO ir = 1,ikin
 
           ELSE      !! Case where individual species concentration is used in hyperbolic term
 
-            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )
+            if (IsotopeNumber(iPointerIsotope(i)) == 3) then
+            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+(sp10(IsotopologueOther,jx,jy,jz)+sp10(IsotopologueOther2,jx,jy,jz))/halfsataq(id,ir) ) )  
+            else
+            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )     
+            endif
             term2 = term2 * termMonod(id,ir)
 
           END IF
@@ -304,14 +316,42 @@ DO ir = 1,ikin
         ELSE IF (IsotopePrimaryRare(i)) THEN
          
           IsotopologueOther = isotopeCommon(iPointerIsotope(i))
+          if (IsotopeNumber(iPointerIsotope(i)) == 3) then
+          IsotopologueOther2 = isotopeRare2(iPointerIsotope(i))
+          endif
           IF (itot_monodaq(id,ir) == 1) THEN
 
+            if (IsotopeNumber(iPointerIsotope(i)) == 3) then
+            termMonod(id,ir) = s(i,jx,jy,jz)/( s(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+(s(IsotopologueOther,jx,jy,jz) + s(IsotopologueOther2,jx,jy,jz))/halfsataq(id,ir) ) )
+            else
             termMonod(id,ir) = s(i,jx,jy,jz)/( s(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+s(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )
+            endif
             term2 = term2 * termMonod(id,ir)
 
           ELSE      !! Case where individual species concentration is used in hyperbolic term
 
-            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )
+            if (IsotopeNumber(iPointerIsotope(i)) == 3) then
+            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+(sp10(IsotopologueOther,jx,jy,jz)+sp10(IsotopologueOther2,jx,jy,jz))/halfsataq(id,ir) ) )   
+            else
+            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir) ) )      
+            endif
+            term2 = term2 * termMonod(id,ir)
+
+          END IF
+
+
+        ELSE IF (IsotopePrimaryRare2(i)) THEN
+         
+          IsotopologueOther = isotopeCommon(iPointerIsotope(i))
+          IsotopologueOther2 = isotopeRare(iPointerIsotope(i))
+          IF (itot_monodaq(id,ir) == 1) THEN
+
+            termMonod(id,ir) = s(i,jx,jy,jz)/( s(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+(s(IsotopologueOther,jx,jy,jz) + s(IsotopologueOther2,jx,jy,jz))/halfsataq(id,ir) ) )
+            term2 = term2 * termMonod(id,ir)
+
+          ELSE      !! Case where individual species concentration is used in hyperbolic term
+
+            termMonod(id,ir) = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz) + halfsataq(id,ir)*(1.0d0+(sp10(IsotopologueOther,jx,jy,jz)+sp10(IsotopologueOther2,jx,jy,jz))/halfsataq(id,ir) ) )  
             term2 = term2 * termMonod(id,ir)
 
           END IF

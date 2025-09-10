@@ -1,17 +1,17 @@
 !!! *** Copyright Notice ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
-!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved.
-!!! 
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory 
+!!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).ï¿½ All rights reserved.
+!!!ï¿½
 !!! If you have questions about your rights to use or distribute this software, please contact 
-!!! Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
-!!! 
-!!! NOTICE.  This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
+!!! Berkeley Lab's Innovation & Partnerships Office atï¿½ï¿½IPO@lbl.gov.
+!!!ï¿½
+!!! NOTICE.ï¿½ This Software was developed under funding from the U.S. Department of Energy and the U.S. Government 
 !!! consequently retains certain rights. As such, the U.S. Government has been granted for itself and others acting 
 !!! on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the Software to reproduce, distribute copies to the public, 
 !!! prepare derivative works, and perform publicly and display publicly, and to permit other to do so.
 !!!
 !!! *** License Agreement ***
-!!! “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
+!!! ï¿½CrunchFlowï¿½, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory)
 !!! subject to receipt of any required approvals from the U.S. Dept. of Energy).  All rights reserved."
 !!! 
 !!! Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -56,30 +56,41 @@ MODULE isotope
 !! Primary species
 
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: isotopeRare
+  INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: isotopeRare2
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: isotopeCommon
 
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: IsotopePrimaryRare
+  LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: IsotopePrimaryRare2
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: IsotopePrimaryCommon
 
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: iPointerIsotope
 
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: nameIsotopeRare
+  CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: nameIsotopeRare2
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: nameIsotopeCommon
 
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: IsotopeReference
+  REAL(DP), DIMENSION(:), ALLOCATABLE              :: IsotopeReference2
+
+  INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: IsotopeNumber
+  INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: MineralisotopeNumber
 
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: MoleFractionAqueousRare
+  REAL(DP), DIMENSION(:), ALLOCATABLE              :: MoleFractionAqueousRare2
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: MoleFractionAqueousCommon
 
   REAL(DP), DIMENSION(:,:), ALLOCATABLE              :: dMoleFractionAqueousCommon
   REAL(DP), DIMENSION(:,:), ALLOCATABLE              :: dMoleFractionAqueousRare
+  REAL(DP), DIMENSION(:,:), ALLOCATABLE              :: dMoleFractionAqueousRare2
 
 !! Minerals
 
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: kIsotopeRare
+  INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: kIsotopeRare2
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: kIsotopeCommon
 
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: IsotopeMineralRare
+  LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: IsotopeMineralRare2
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: IsotopeMineralCommon
   
   LOGICAL(LGT)                                     :: NoFractionationDissolution
@@ -88,11 +99,13 @@ MODULE isotope
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: kPointerIsotope
 
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: nameIsotopeMineralRare
+  CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: nameIsotopeMineralRare2
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: nameIsotopeMineralCommon
 
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: isotopeBackReactionOption
 
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: MoleFractionMineralRare
+  REAL(DP), DIMENSION(:), ALLOCATABLE              :: MoleFractionMineralRare2
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: MoleFractionMineralCommon 
 
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: PointerToPrimaryIsotope
@@ -101,6 +114,7 @@ MODULE isotope
   
   LOGICAL(LGT), DIMENSION(:), ALLOCATABLE          :: decay
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: lambda 
+  REAL(DP), DIMENSION(:), ALLOCATABLE              :: lambda2
 
 
 

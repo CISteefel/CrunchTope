@@ -3709,12 +3709,17 @@ IF (ALLOCATED(IsotopeMineralRare)) THEN
 DEALLOCATE(IsotopeMineralRare)
 END IF
 ALLOCATE(IsotopeMineralRare(nrct))
+IF (ALLOCATED(IsotopeMineralRare2)) THEN
+DEALLOCATE(IsotopeMineralRare2)
+END IF
+ALLOCATE(IsotopeMineralRare2(nrct))
 IF (ALLOCATED(IsotopeMineralCommon)) THEN
 DEALLOCATE(IsotopeMineralCommon)
 END IF
 ALLOCATE(IsotopeMineralCommon(nrct))
 
 IsotopeMineralRare = .FALSE.
+IsotopeMineralRare2 = .FALSE.
 IsotopeMineralCommon = .FALSE.
 
 section = 'isotopes'
@@ -3724,11 +3729,16 @@ IF (ALLOCATED(IsotopePrimaryRare)) THEN
 DEALLOCATE(IsotopePrimaryRare)
 END IF
 ALLOCATE(IsotopePrimaryRare(ncomp))
+IF (ALLOCATED(IsotopePrimaryRare2)) THEN
+DEALLOCATE(IsotopePrimaryRare2)
+END IF
+ALLOCATE(IsotopePrimaryRare2(ncomp))
 IF (ALLOCATED(IsotopePrimaryCommon)) THEN
 DEALLOCATE(IsotopePrimaryCommon)
 END IF
 ALLOCATE(IsotopePrimaryCommon(ncomp))
 IsotopePrimaryRare = 0
+IsotopePrimaryRare2 = 0
 IsotopePrimaryCommon = 0
 
 IF (found) THEN

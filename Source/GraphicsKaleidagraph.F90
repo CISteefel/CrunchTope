@@ -202,12 +202,17 @@ INTEGER(I4B)                                               :: kIsotopologue
 INTEGER(I4B)                                               :: isotopologue
 INTEGER(I4B)                                               :: kMineralCommon
 INTEGER(I4B)                                               :: kMineralRare
+INTEGER(I4B)                                               :: kMineralRare2
 REAL(DP)                                                   :: totRare
+REAL(DP)                                                   :: totRare2
 REAL(DP)                                                   :: totCommon
 REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
+REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio2
 INTEGER(I4B)                                       :: ls
 
 REAL(DP), DIMENSION(ncomp)                         :: gflux_hor
+INTEGER(I4B)                                                :: dummyboolean
+INTEGER(I4B)                                                :: dummy_counter
 
 pi = DACOS(-1.0d0)
 
@@ -277,6 +282,9 @@ END IF
 CLOSE(UNIT=8,STATUS='keep')
 
 IF (nIsotopePrimary > 0) THEN
+
+dummyboolean = 0
+
   fn='toperatio_aq'
   ilength = 12
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -297,18 +305,60 @@ IF (nIsotopePrimary > 0) THEN
     DO id = 1,nIsotopePrimary
       totCommon = s(isotopeCommon(id),jx,jy,jz)
       totRare = s(isotopeRare(id),jx,jy,jz)
-    checkRatio = totrare/totcommon
+      checkRatio = totrare/totcommon
       IsotopeRatio(id) = ( (totRare/totCommon)/IsotopeReference(id) - 1.0d0 ) *1000.0d0
+      IF (IsotopeNumber(id) == 3) THEN ! check if there is a defined ternary isotope system
+      dummyboolean = 1
+      ENDIF
     END DO
     WRITE(8,184) x(jx)*OutputDistanceScale,(IsotopeRatio(id),id = 1,nIsotopePrimary)
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
+  IF (dummyboolean == 1) THEN !In case there is a at least one ternary isotope system
+  fn='toperatio2_aq'
+  ilength = 12
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Isotope ratios 2" '
+  dummy_counter = 0
+  DO id= 1, nIsotopePrimary
+  IF (IsotopeNumber(id) == 3) THEN
+  dummy_counter = dummy_counter + 1
+    StringTemp = nameIsotopeCommon(id)
+    CALL stringlen(StringTemp,ls)
+    IF (ls > 16) THEN
+      ls = 16
+    END IF
+    WriteString(dummy_counter) = StringTemp(1:ls)
+  ENDIF
+  END DO
+  WRITE(8,2285) (WriteString(id),id=1,dummy_counter)   
+  jz = 1
+  jy = 1
+  DO jx = 1,nx
+    dummy_counter = 0
+    DO id = 1,nIsotopePrimary
+    IF (IsotopeNumber(id) == 3) THEN
+      dummy_counter = dummy_counter + 1
+      totCommon = s(isotopeCommon(id),jx,jy,jz)
+      totRare2 = s(isotopeRare2(id),jx,jy,jz)
+      checkRatio = totrare2/totcommon
+      IsotopeRatio2(dummy_counter) = ( (totRare2/totCommon)/IsotopeReference2(id) - 1.0d0 ) *1000.0d0
+    ENDIF
+    END DO
+    WRITE(8,184) x(jx)*OutputDistanceScale,(IsotopeRatio2(id),id = 1,dummy_counter)
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+  ENDIF
+
 END IF
 
 IF (nIsotopeMineral > 0) THEN
 
-  fn='toperatio_min'
+  dummyboolean = 0
+
+  fn='toperatio2_min'
   ilength = 13
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
@@ -327,6 +377,9 @@ IF (nIsotopeMineral > 0) THEN
   DO jx = 1,nx
     DO kIsotopologue = 1,nIsotopeMineral
 
+    IF (MineralisotopeNumber(kIsotopologue) == 3) THEN ! check if there is a defined ternary isotope system    
+    dummyboolean = 1
+    ENDIF
       kMineralRare = kIsotopeRare(kIsotopologue)
       KMineralCommon = kIsotopeCommon(kIsotopologue)
       isotopologue = PointerToPrimaryIsotope(kIsotopologue)
@@ -343,6 +396,51 @@ IF (nIsotopeMineral > 0) THEN
   END DO
 
   CLOSE(UNIT=8,STATUS='keep')
+
+  IF (dummyboolean == 1) THEN
+
+    fn='toperatio_min'
+    ilength = 13
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Isotope ratios" '
+    DO id= 1, nIsotopeMineral
+      StringTemp = nameIsotopeMineralCommon(id)
+      CALL stringlen(StringTemp,ls)
+      IF (ls > 16) THEN
+        ls = 16
+      END IF
+      WriteString(id) = StringTemp(1:ls)
+    END DO
+    WRITE(8,2285) (WriteString(id),id=1,nIsotopeMineral)   
+
+
+    DO jx = 1,nx
+    dummy_counter = 0
+      DO kIsotopologue = 1,nIsotopeMineral
+
+      IF (MineralisotopeNumber(kIsotopologue) == 3) THEN ! check if there is a defined ternary isotope system
+      dummy_counter = dummy_counter + 1
+      
+
+        kMineralRare2 = kIsotopeRare2(kIsotopologue)
+        KMineralCommon = kIsotopeCommon(kIsotopologue)
+        isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+
+        totCommon = volfx(kMineralCommon,jx,jy,jz)
+        totRare2   = volfx(kMineralRare2,jx,jy,jz)
+        IF (totCommon == 0.0) THEN
+          IsotopeRatio(dummy_counter) = 0.0
+        ELSE
+          IsotopeRatio(dummy_counter) = ( (totRare2/totCommon)/IsotopeReference2(isotopologue) - 1.0d0 ) *1000.0d0
+        END IF
+      
+      ENDIF
+      END DO
+      WRITE(8,184) x(jx)*OutputDistanceScale,(IsotopeRatio(kIsotopologue),kIsotopologue = 1,dummy_counter)
+    END DO
+
+  ENDIF
 
 END IF
 

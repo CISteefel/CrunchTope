@@ -138,10 +138,13 @@ REAL(DP)                                                        :: MoleFractionM
 INTEGER(I4B)                                                    :: kIsotopologue
 INTEGER(I4B)                                                    :: Isotopologue
 INTEGER(I4B)                                                    :: kMineralRare
+INTEGER(I4B)                                                    :: kMineralRare2
 INTEGER(I4B)                                                    :: kMineralCommon
 INTEGER(I4B)                                                    :: kMineralRarePoint
+INTEGER(I4B)                                                    :: kMineralRarePoint2
 INTEGER(I4B)                                                    :: kMineralCommonPoint
 INTEGER(I4B)                                                    :: iPrimaryRare
+INTEGER(I4B)                                                    :: iPrimaryRare2
 INTEGER(I4B)                                                    :: iPrimaryCommon
 
 INTEGER(I4B)                                                    :: kIsotopologuePoint
@@ -188,6 +191,7 @@ REAL(DP)                                                        :: NucleationTer
 REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: DecayTerm
+REAL(DP)                                                        :: DecayTerm2
 
 !**********
 !Specific to eastriver simulations (Lucien Stolze, June 2023)
@@ -231,7 +235,10 @@ DO kIsotopologue = 1,nIsotopeMineral
 !! Points back to mineral number
   
   kMineralRare = kIsotopeRare(kIsotopologue)
-  KMineralCommon = kIsotopeCommon(kIsotopologue)
+  if (MineralisotopeNumber(kIsotopologue) == 3) then
+  kMineralRare2 = kIsotopeRare2(kIsotopologue)
+  endif
+  kMineralCommon = kIsotopeCommon(kIsotopologue)
   
 !!  Decay in a mineral, within a isotope system
   
@@ -242,6 +249,16 @@ DO kIsotopologue = 1,nIsotopeMineral
       DecayTerm = volfx(kMineralRare,jx,jy,jz)*DEXP(-lambda(kIsotopologue)*delt)   !!! year^-1
       volfx(kMineralCommon,jx,jy,jz) = volfx(kMineralCommon,jx,jy,jz) + DecayTerm
       volfx(kMineralRare,jx,jy,jz)   = volfx(kMineralRare,jx,jy,jz)   - DecayTerm
+      
+  END IF
+
+  IF (lambda2(kIsotopologue) /= 0.0) THEN
+      
+!! Should be in units of yr-1 to match the time step "delt" in years
+      
+      DecayTerm2 = volfx(kMineralRare2,jx,jy,jz)*DEXP(-lambda2(kIsotopologue)*delt)   !!! year^-1
+      volfx(kMineralCommon,jx,jy,jz) = volfx(kMineralCommon,jx,jy,jz) + DecayTerm2
+      volfx(kMineralRare2,jx,jy,jz)   = volfx(kMineralRare2,jx,jy,jz)   - DecayTerm2
       
   END IF
 
@@ -259,6 +276,15 @@ DO kIsotopologue = 1,nIsotopeMineral
   ELSE
     kMineralRarePoint = kMineralRare
   END IF
+
+  if (MineralisotopeNumber(kIsotopologue) == 3) then
+  IF (MineralAssociate(kMineralRare2)) THEN
+    kMineralRarePoint2 = MineralID(kMineralRare2)
+  ELSE
+    kMineralRarePoint2 = kMineralRare2
+  END IF
+  endif
+
   IF (MineralAssociate(kMineralCommon)) THEN
     kMineralCommonPoint = MineralID(kMineralCommon)
   ELSE
@@ -275,28 +301,39 @@ DO kIsotopologue = 1,nIsotopeMineral
   iPrimaryCommon = isotopeCommon(Isotopologue)
 
   IF (IsotopeBackReactionOption(kIsotopologuePoint) == 'bulk' .OR. time < LagSurface/365.0) THEN
-    
+
+    IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+    denominator = volfx(kMineralRarePoint,jx,jy,jz) + volfx(kMineralRarePoint2,jx,jy,jz) + volfx(kMineralCommonPoint,jx,jy,jz) 
+    ELSE    
     denominator = volfx(kMineralRarePoint,jx,jy,jz) + volfx(kMineralCommonPoint,jx,jy,jz) 
-     
+    ENDIF
     
     IF (denominator == 0.0d0 .OR. time < LagSurface/365.0) THEN
       UseAqueousMoleFraction(kIsotopologue) = .TRUE.
     ELSE
       
 !!! Standard mole fraction gives activity of isotopologue in mineral
-      
 !!!      Ion activity product = [Ca++] [CO3--]/activity_calcite
+      IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+      MoleFractionMineralRare2(kIsotopologue) = (volfx(kMineralRarePoint2,jx,jy,jz)/denominator)
+      ENDIF
       MoleFractionMineralRare(kIsotopologue) = (volfx(kMineralRarePoint,jx,jy,jz)/denominator)
       MoleFractionMineralCommon(kIsotopologue) = (volfx(kMineralCommonPoint,jx,jy,jz)/denominator)
-      
     END IF
   ELSE IF (IsotopeBackReactionOption(kIsotopologuePoint) == 'surface') THEN
+    IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+    denominator = volsave(kMineralRarePoint,jx,jy,jz) + volsave(kMineralRarePoint2,jx,jy,jz) + volsave(kMineralCommonPoint,jx,jy,jz)
+    ELSE
     denominator = volsave(kMineralRarePoint,jx,jy,jz) + volsave(kMineralCommonPoint,jx,jy,jz)
+    ENDIF
     IF (denominator == 0.0d0 .OR. time<LagSurface/365.0) THEN
       UseAqueousMoleFraction(kIsotopologue) = .TRUE.
     ELSE
       MoleFractionMineralRare(kIsotopologue) = volsave(kMineralRarePoint,jx,jy,jz)/denominator
       MoleFractionMineralCommon(kIsotopologue) = volsave(kMineralCommonPoint,jx,jy,jz)/denominator
+      IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+      MoleFractionMineralRare2(kIsotopologue) = volsave(kMineralRarePoint2,jx,jy,jz)/denominator
+      ENDIF
     END IF
   ELSE
     UseAqueousMoleFraction(kIsotopologue) = .TRUE.
@@ -305,11 +342,27 @@ DO kIsotopologue = 1,nIsotopeMineral
 END DO
 
 DO Isotopologue = 1,nIsotopePrimary
+!IF (MineralisotopeNumber(Isotopologue) == 3) then
+
+  IF (IsotopeNumber(Isotopologue) == 3) then
+  iPrimaryRare = isotopeRare(Isotopologue)
+  iPrimaryRare2 = isotopeRare2(Isotopologue)
+  iPrimaryCommon = isotopeCommon(Isotopologue)
+  denominator = sp10(iPrimaryRare,jx,jy,jz) + sp10(iPrimaryRare2,jx,jy,jz) + sp10(iPrimaryCommon,jx,jy,jz)
+  MoleFractionAqueousRare(Isotopologue) = (sp10(iPrimaryRare,jx,jy,jz)/denominator)
+  MoleFractionAqueousRare2(Isotopologue) = (sp10(iPrimaryRare2,jx,jy,jz)/denominator)
+  MoleFractionAqueousCommon(Isotopologue) = (sp10(iPrimaryCommon,jx,jy,jz)/denominator)
+  ELSE
   iPrimaryRare = isotopeRare(Isotopologue)
   iPrimaryCommon = isotopeCommon(Isotopologue)
   denominator = sp10(iPrimaryRare,jx,jy,jz) + sp10(iPrimaryCommon,jx,jy,jz)
   MoleFractionAqueousRare(Isotopologue) = (sp10(iPrimaryRare,jx,jy,jz)/denominator)
   MoleFractionAqueousCommon(Isotopologue) = (sp10(iPrimaryCommon,jx,jy,jz)/denominator)
+  ENDIF
+
+
+  
+
 END DO
 
 decay_correct = 1.0D0
@@ -419,13 +472,11 @@ DO k = 1,nkin
         IF (nIsotopeMineral > 0) THEN
 
 !!        Now modify the Ion Activity Product (Q) for the case of a solid solution (activity /= 1)
-
           IF (IsotopeMineralRare(k)) THEN
-
             kIsotopologue = kPointerIsotope(k)
 
             kMineralRare = kIsotopeRare(kIsotopologue)
-            KMineralCommon = kIsotopeCommon(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
 
             IF (MineralAssociate(kMineralRare)) THEN
               kMineralRarePoint = MineralID(kMineralRare)
@@ -448,18 +499,54 @@ DO k = 1,nkin
               IF (MoleFractionMineralRare(kIsotopologue) == 0.0d0) THEN
                 MoleFractionMineral = 1.0d0
               ELSE
-                MoleFractionMineral = MoleFractionMineralRare(isotopologue)
+                MoleFractionMineral = MoleFractionMineralRare(kIsotopologue)
               END IF
             END IF
 
             sumiap = sumiap - (mumin(1,kMineralCommon,iPrimaryCommon))*DLOG(MoleFractionMineral)
 
-          ELSE IF (IsotopeMineralCommon(k)) THEN
+          ELSEIF (IsotopeMineralRare2(k)) THEN
+          !.and. MineralisotopeNumber(kPointerIsotope(k)) == 3
 
             kIsotopologue = kPointerIsotope(k)
 
+            kMineralRare2 = kIsotopeRare2(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
+
+            IF (MineralAssociate(kMineralRare2)) THEN
+              kMineralRarePoint2 = MineralID(kMineralRare2)
+            ELSE
+              kMineralRarePoint2 = kMineralRare2
+            END IF
+            IF (MineralAssociate(kMineralCommon)) THEN
+              kMineralCommonPoint = MineralID(kMineralCommon)
+            ELSE
+              kMineralCommonPoint = kMineralCommon
+            END IF
+
+            isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+            iPrimaryCommon = isotopeCommon(Isotopologue)
+
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+              MoleFractionMineral = MoleFractionAqueousRare2(isotopologue)
+            ELSE
+
+              IF (MoleFractionMineralRare2(kIsotopologue) == 0.0d0) THEN
+                MoleFractionMineral = 1.0d0
+              ELSE
+                MoleFractionMineral = MoleFractionMineralRare2(kIsotopologue)
+              END IF
+
+            END IF
+
+            sumiap = sumiap - (mumin(1,kMineralCommon,iPrimaryCommon))*DLOG(MoleFractionMineral)
+
+
+          ELSE IF (IsotopeMineralCommon(k)) THEN
+            kIsotopologue = kPointerIsotope(k)
+
             kMineralRare = kIsotopeRare(kIsotopologue)
-            KMineralCommon = kIsotopeCommon(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
@@ -472,8 +559,7 @@ DO k = 1,nkin
                 MoleFractionMineral = 1.0d0
               ELSE
 
-                MoleFractionMineral = MoleFractionMineralCommon(isotopologue)
-
+                MoleFractionMineral = MoleFractionMineralCommon(kIsotopologue)
               END IF
             END IF
 
@@ -1082,7 +1168,7 @@ DO k = 1,nkin
 
             kIsotopologue = kPointerIsotope(k)
             kMineralRare = kIsotopeRare(kIsotopologue)
-            KMineralCommon = kIsotopeCommon(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
@@ -1097,7 +1183,7 @@ DO k = 1,nkin
 
             kIsotopologue = kPointerIsotope(k)
             kMineralRare = kIsotopeRare(kIsotopologue)
-            KMineralCommon = kIsotopeCommon(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
@@ -1108,7 +1194,28 @@ DO k = 1,nkin
 !!            Use the bulk surface area (common)
               surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
             ELSE
-              MoleFractionMineral = MoleFractionMineralRare(kPointerIsotope(k))
+              MoleFractionMineral = MoleFractionMineralRare(kIsotopologue)
+!!            Use the bulk surface area (common)
+              surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
+            END IF
+
+          ELSE IF (IsotopeMineralRare2(k) ) THEN
+          !.and. MineralisotopeNumber(kPointerIsotope(k)) == 3
+
+            kIsotopologue = kPointerIsotope(k)
+            kMineralRare2 = kIsotopeRare2(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
+            isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+            iPrimaryCommon = isotopeCommon(Isotopologue)
+
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+              isotopologue = PointerToPrimaryIsotope(kIsotopologue)
+              MoleFractionMineral = MoleFractionAqueousRare2(isotopologue)
+
+!!            Use the bulk surface area (common)
+              surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
+            ELSE
+              MoleFractionMineral = MoleFractionMineralRare2(kIsotopologue)
 !!            Use the bulk surface area (common)
               surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
             END IF
@@ -1141,19 +1248,23 @@ DO k = 1,nkin
         
         IF (nIsotopeMineral > 0) THEN
             
-          IF (IsotopeMineralCommon(k) .or. IsotopeMineralRare(k)) THEN
-            
+          IF (IsotopeMineralCommon(k) .or. IsotopeMineralRare(k) .or. IsotopeMineralRare2(k)) THEN
+            ! print *, 'here1'
+            ! print *, MineralisotopeNumber(kPointerIsotope(k))
             kIsotopologue = kPointerIsotope(k)
-            KMineralCommon = kIsotopeCommon(kIsotopologue)
+            kMineralCommon = kIsotopeCommon(kIsotopologue)
             
             IF (NoFractionationDissolution .and. IsotopeMineralRare(k) .and. si(np,k) < 1.0d0) THEN
               rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,kMineralCommon)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+            ELSEIF (NoFractionationDissolution .and. IsotopeMineralRare2(k) .and. si(np,k) < 1.0d0) THEN
+              rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,kMineralCommon)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
             ELSE
               rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+              ! print *, 'here2'
             END IF
             
           ELSE
-            rmin(np,k) =   MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm            
+            rmin(np,k) =   MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm         
             
           END IF
           
@@ -1161,6 +1272,7 @@ DO k = 1,nkin
           
         
         rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+
           
         END IF
      
@@ -1203,7 +1315,6 @@ DO k = 1,nkin
 !********************
   
   END DO   !  End of npth parallel reaction
-
   !Check if volume fraction goes below zero:
 
 !********************
@@ -1262,6 +1373,7 @@ DO k = 1,nkin
   ENDIF
     
 END DO     !  End of kth mineral
+
 
 RETURN
 END SUBROUTINE reaction
