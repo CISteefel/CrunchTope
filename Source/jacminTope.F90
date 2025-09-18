@@ -288,7 +288,7 @@ END IF
 
 DO Isotopologue = 1,nIsotopePrimary
 
-IF (IsotopeNumber(nIsotopePrimary) == 3) THEN
+IF (IsotopeNumber(Isotopologue) == 3) THEN
   iPrimaryRare = isotopeRare(Isotopologue)
   iPrimaryRare2 = isotopeRare2(Isotopologue)
   iPrimaryCommon = isotopeCommon(Isotopologue)

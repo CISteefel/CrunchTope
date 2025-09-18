@@ -829,11 +829,13 @@ DO kIsotopologue = 1,nIsotopeMineral
           PRINT*, ulab(iPrimaryRare)
         END IF
       END IF
-      IF (mumin(1,kMineralRare2,i) /= 0.0 .AND. IsotopeNumber(isotopologue) == 3) THEN
+      IF (MineralisotopeNumber(kIsotopologue) == 3) THEN
+        IF (mumin(1,kMineralRare2,i) /= 0.0) THEN
         IF ( ulab(iPrimaryRare2) == ulab(i) ) THEN
           RareIsotopeFound2 = .TRUE.
           isotopologueRareSave2 = isotopologue
           PRINT*, ulab(iPrimaryRare2)
+        END IF
         END IF
       END IF
       IF (mumin(1,kMineralCommon,i) /= 0.0) THEN
