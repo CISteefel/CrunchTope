@@ -134,7 +134,7 @@ IF (nIsotopeMineral > 0) THEN
     isotopologue = PointerToPrimaryIsotope(kIsotopologue)
     iPrimaryCommon = isotopeCommon(Isotopologue)
 
-    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
       isotopologue = PointerToPrimaryIsotope(kIsotopologue)
       iPrimaryRare = isotopeRare(Isotopologue)
       IF (IsotopeNumber(isotopologue) == 3) THEN
@@ -163,7 +163,7 @@ IF (nIsotopeMineral > 0) THEN
     isotopologue = PointerToPrimaryIsotope(kIsotopologue)
     iPrimaryCommon = isotopeCommon(Isotopologue)
 
-    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
       isotopologue = PointerToPrimaryIsotope(kIsotopologue)
       iPrimaryRare = isotopeRare(Isotopologue)
       iPrimaryRare2 = isotopeRare2(Isotopologue)
@@ -189,7 +189,7 @@ IF (nIsotopeMineral > 0) THEN
     isotopologue = PointerToPrimaryIsotope(kIsotopologue)
     iPrimaryCommon = isotopeCommon(Isotopologue)
 
-    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+    IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
       isotopologue = PointerToPrimaryIsotope(kIsotopologue)
       iPrimaryRare = isotopeRare(Isotopologue)
       IF (IsotopeNumber(isotopologue) == 3) THEN

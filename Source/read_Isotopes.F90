@@ -232,11 +232,6 @@ IF (ALLOCATED(PointerToPrimaryIsotope)) THEN
 END IF
 ALLOCATE(PointerToPrimaryIsotope(25))
 
-IF (ALLOCATED(UseAqueousMoleFraction)) THEN
-  DEALLOCATE(UseAqueousMoleFraction)
-END IF
-ALLOCATE(UseAqueousMoleFraction(25))
-
 IF (ALLOCATED(kPointerIsotope)) THEN
   DEALLOCATE(kPointerIsotope)
 END IF

@@ -309,7 +309,7 @@ DO kIsotopologue = 1,nIsotopeMineral
     ENDIF
     
     IF (denominator == 0.0d0 .OR. time < LagSurface/365.0) THEN
-      UseAqueousMoleFraction(kIsotopologue) = .TRUE.
+      UseAqueousMoleFraction(kIsotopologue,jx,jy,jz) = .TRUE.
     ELSE
       
 !!! Standard mole fraction gives activity of isotopologue in mineral
@@ -327,7 +327,7 @@ DO kIsotopologue = 1,nIsotopeMineral
     denominator = volsave(kMineralRarePoint,jx,jy,jz) + volsave(kMineralCommonPoint,jx,jy,jz)
     ENDIF
     IF (denominator == 0.0d0 .OR. time<LagSurface/365.0) THEN
-      UseAqueousMoleFraction(kIsotopologue) = .TRUE.
+      UseAqueousMoleFraction(kIsotopologue,jx,jy,jz) = .TRUE.
     ELSE
       MoleFractionMineralRare(kIsotopologue) = volsave(kMineralRarePoint,jx,jy,jz)/denominator
       MoleFractionMineralCommon(kIsotopologue) = volsave(kMineralCommonPoint,jx,jy,jz)/denominator
@@ -336,7 +336,7 @@ DO kIsotopologue = 1,nIsotopeMineral
       ENDIF
     END IF
   ELSE
-    UseAqueousMoleFraction(kIsotopologue) = .TRUE.
+    UseAqueousMoleFraction(kIsotopologue,jx,jy,jz) = .TRUE.
   END IF
 
 END DO
@@ -492,7 +492,7 @@ DO k = 1,nkin
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
-            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
               MoleFractionMineral = MoleFractionAqueousRare(isotopologue)
             ELSE
 
@@ -527,7 +527,7 @@ DO k = 1,nkin
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
-            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
               MoleFractionMineral = MoleFractionAqueousRare2(isotopologue)
             ELSE
 
@@ -550,7 +550,7 @@ DO k = 1,nkin
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
-            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
 
               MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
 
@@ -1172,7 +1172,7 @@ DO k = 1,nkin
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
-            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
               isotopologue = PointerToPrimaryIsotope(kIsotopologue)
               MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
             ELSE
@@ -1187,7 +1187,7 @@ DO k = 1,nkin
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
-            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
               isotopologue = PointerToPrimaryIsotope(kIsotopologue)
               MoleFractionMineral = MoleFractionAqueousRare(isotopologue)
 
@@ -1208,7 +1208,7 @@ DO k = 1,nkin
             isotopologue = PointerToPrimaryIsotope(kIsotopologue)
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
-            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
+            IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue,jx,jy,jz)) THEN
               isotopologue = PointerToPrimaryIsotope(kIsotopologue)
               MoleFractionMineral = MoleFractionAqueousRare2(isotopologue)
 

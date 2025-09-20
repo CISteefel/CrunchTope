@@ -57,6 +57,7 @@ USE io
 USE strings
 USE ReadFlow
 USE modflowModule
+USE isotope
 
 IMPLICIT NONE
 
@@ -201,6 +202,11 @@ END IF
 ! ELSE
 !   ALLOCATE(immobile_species(0:ncomp))
 ! END IF
+
+IF (ALLOCATED(UseAqueousMoleFraction)) THEN
+  DEALLOCATE(UseAqueousMoleFraction)
+END IF
+ALLOCATE(UseAqueousMoleFraction(30,nx,ny,nz))
 
 
 IF (ny == 1 .AND. nz == 1) THEN
