@@ -1115,15 +1115,41 @@ DO k = 1,nkin
               isotopologue = PointerToPrimaryIsotope(kIsotopologue)
               MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
               DO i = 1,ncomp
+              IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) + MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousCommon(i,isotopologue)  )
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) + MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousCommon(i,isotopologue)  )
+                ELSE
                 jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) + MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
                       pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousCommon(i,isotopologue)  )
+              ENDIF
               END DO
             ELSE
               MoleFractionMineral = MoleFractionMineralCommon(kPointerIsotope(k))
               DO i = 1,ncomp
+               IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+                ELSE
                 jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+              ENDIF
               END DO
             END IF
 
@@ -1144,10 +1170,26 @@ DO k = 1,nkin
 !!            Use the bulk surface area (common)
               surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
               DO i = 1,ncomp
+              IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
+                      MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
+                      MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+                ELSE
                 jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
                       MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
                       pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+              ENDIF
               END DO
 
             ELSE
@@ -1160,13 +1202,37 @@ DO k = 1,nkin
               IF (NoFractionationDissolution .and. IsotopeMineralRare(k) .and. si(np,k) < 1.0d0 ) THEN
 
                 DO i = 1,ncomp
+                IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm ) 
+                ELSE
                   jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+                ENDIF
                 END DO
               ELSE
                 DO i = 1,ncomp
+                IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                ELSE
                   jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                ENDIF  
                 END DO
               END IF
               
@@ -1191,10 +1257,26 @@ DO k = 1,nkin
 !!            Use the bulk surface area (common)
               surf(np,k) = surf(np,kIsotopeCommon(kIsotopologue))
               DO i = 1,ncomp
+              IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
+                      MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
+                      MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
+                      pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+                ELSE
                 jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( MoleFractionMineral*pre_rmin(np,k)*jac_sat(i) +   &
                       MoleFractionMineral*jac_pre(i,np)*AffinityTerm  +  &
                       pre_rmin(np,k)*AffinityTerm*dMoleFractionAqueousRare(i,isotopologue)  )
+              ENDIF
               END DO
               
             ELSE
@@ -1207,13 +1289,37 @@ DO k = 1,nkin
               IF (NoFractionationDissolution .and. IsotopeMineralRare2(k) .and. si(np,k) < 1.0d0 ) THEN
 
                 DO i = 1,ncomp
+                IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )  
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm ) 
+                ELSE
                   jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,kMineralCommon)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+                ENDIF
                 END DO
               ELSE
                 DO i = 1,ncomp
+                IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+                sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+                liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+                jac_rmin(i,np,k) =  liqsat_fac*MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                ELSE
                   jac_rmin(i,np,k) =  MoleFractionMineral*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )     
+                ENDIF 
                 END DO
               END IF
               
@@ -1223,8 +1329,20 @@ DO k = 1,nkin
           ELSE
               
             DO i = 1,ncomp
+            IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+              sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+              liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+              jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+              ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
+              sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+              liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+              jac_rmin(i,np,k) =  liqsat_fac*surf(np,k)*actenergy(np,k)*rate0(np,k)* &
+                     ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+              ELSE
               jac_rmin(i,np,k) =  surf(np,k)*actenergy(np,k)*rate0(np,k)* &
                      ( pre_rmin(np,k)*jac_sat(i) + jac_pre(i,np)*AffinityTerm )
+              ENDIF
             END DO
             
           END IF

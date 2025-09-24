@@ -772,7 +772,11 @@ DO k = 1,nkin
           term2 = Kformation(np,k)/denominator
         END IF
 
-        IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
+        IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_respiration13' .or. umin(k)=='Root_respiration14') THEN
+          sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
+          liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
+          term2 = liqsat_fac
+        ELSEIF (umin(k)=='Root_exudates' .or. umin(k)=='Root_exudates13' .or. umin(k)=='Root_exudates14') THEN
           sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
           liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
           term2 = liqsat_fac
@@ -965,7 +969,23 @@ DO k = 1,nkin
       
       pre_rmin(np,k) = term2
 
+      ELSE IF (east_river .and. umin(k)=='Root_respiration13') THEN
+
+      pre_rmin(np,k) = term2
+
+      ELSE IF (east_river .and. umin(k)=='Root_respiration14') THEN
+
+      pre_rmin(np,k) = term2
+
       ELSE IF (east_river .and. umin(k)=='Root_exudates') THEN 
+
+      pre_rmin(np,k) = term2
+
+      ELSE IF (east_river .and. umin(k)=='Root_exudates13') THEN 
+
+      pre_rmin(np,k) = term2
+
+      ELSE IF (east_river .and. umin(k)=='Root_exudates14') THEN 
 
       pre_rmin(np,k) = term2
 
