@@ -3129,6 +3129,7 @@ END IF
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
+    WRITE(iures) lngammawater
     WRITE(iures) jinit   !! Read IntegerDummyArray(nxyz)
     WRITE(iures) keqmin
     WRITE(iures) volfx
@@ -3393,6 +3394,7 @@ END IF
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
+    WRITE(iures) lngammawater
     WRITE(iures) jinit
 
 !!    WRITE(iures) mumin_decay
