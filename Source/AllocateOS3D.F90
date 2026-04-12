@@ -197,6 +197,7 @@ INTEGER(I4B), INTENT(IN)                           :: nz
   fsurf_local = 0.0
   sNCexch_local = 0.0
   sNCsurf_local = 0.0
+  
 IF (ALLOCATED(a)) THEN
   DEALLOCATE(a)
 END IF

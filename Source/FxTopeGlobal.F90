@@ -179,6 +179,7 @@ REAL(DP)                                                  :: satgasOld
 REAL(DP)                                                  :: df
 REAL(DP)                                                  :: sumchgbd
 REAL(DP)                                                  :: xvectors
+REAL(DP)                                                  :: xvectors_H2O
 REAL(DP)                                                  :: xvecgas
 REAL(DP)                                                  :: xvec_ex
 REAL(DP)                                                  :: xspecdiffw
@@ -191,8 +192,10 @@ REAL(DP)                                                  :: yvectors
 REAL(DP)                                                  :: yvecgas
 REAL(DP)                                                  :: yvec_ex
 REAL(DP)                                                  :: xbdflux
+REAL(DP)                                                  :: xbdflux_H2O
 REAL(DP)                                                  :: ybdflux
 REAL(DP)                                                  :: source
+REAL(DP)                                                  :: source_H2O
 REAL(DP)                                                  :: aq_accum
 REAL(DP)                                                  :: gas_accum
 REAL(DP)                                                  :: gas_transport
@@ -280,6 +283,8 @@ ELSE
 END IF
 
 fxmax = 0.0d0 
+
+call xmassNodeByNode(jx,jy,jz,ncomp,nspec)
 
 IF (species_diffusion .and. nBoundaryConditionZone == 0) THEN
 
@@ -662,7 +667,10 @@ ELSE
 
 END IF
 
+!!! End of Boundary Concentrations
+
 200 IF (species_diffusion) THEN
+      
   dgradw = 0.0
   dgrade = 0.0
   dgrads = 0.0
@@ -699,6 +707,7 @@ DO i = 1,ncomp
     
     IF (jc(1) == 1 .or. JcByGrid(jx-1,jy,jz) == 1 ) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
+      xvectors_H2O = a_H2O(jx,jy,jz)*scw(i) + c_H2O(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
@@ -706,6 +715,7 @@ DO i = 1,ncomp
       END IF
     ELSE
       xvectors = c(jx,jy,jz)*sce(i)
+      xvectors_H2O = c_H2O(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
@@ -717,13 +727,16 @@ DO i = 1,ncomp
     
     IF (jc(2) == 1 .or. JcByGrid(jx+1,jy,jz) == 1) THEN    ! Dirichlet bdy
       xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
+      xvectors_H2O = a_H2O(jx,jy,jz)*scw(i) + c_H2O(jx,jy,jz)*sce(i)
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
         xvecgas = 0.0
       END IF
+      continue
     ELSE      
       xvectors = a(jx,jy,jz)*scw(i)
+      xvectors_H2O = a_H2O(jx,jy,jz)*scw(i) 
       IF (isaturate == 1) THEN
         xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
       ELSE
@@ -734,6 +747,7 @@ DO i = 1,ncomp
   ELSE
     
     xvectors = a(jx,jy,jz)*scw(i) + c(jx,jy,jz)*sce(i)
+    xvectors_H2O = a_H2O(jx,jy,jz)*scw(i) + c_H2O(jx,jy,jz)*sce(i)
     IF (isaturate == 1) THEN
       xvecgas = ag(jx,jy,jz)*sgw(i) + cg(jx,jy,jz)*sge(i)
     ELSE
@@ -850,12 +864,14 @@ DO i = 1,ncomp
   IF (jx == 1 .AND. netflowx(0,jy,jz) > 0.0) THEN
     IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN
       xbdflux = a(jx,jy,jz)*scw(i)
+      xbdflux_H2O = a_H2O(jx,jy,jz)*scw(i) 
     ELSE
       xbdflux = 0.0d0
     END IF
   ELSE IF (jx == nx .AND. netflowx(nx,jy,jz) < 0.0) THEN
     IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN
       xbdflux = c(jx,jy,jz)*sce(i)
+      xbdflux_H2O = c_H2O(jx,jy,jz)*sce(i)
     ELSE
       xbdflux = 0.0d0
     END IF
@@ -893,10 +909,14 @@ DO i = 1,ncomp
       IF (qg(npz,jx,jy,jz) > 0.0) THEN    ! Injection well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
+!!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
+        source_H2O = 0.0d0
 
       ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
+!!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
+        source_H2O = 0.0d0
         
       ELSE
         CONTINUE
@@ -906,32 +926,8 @@ DO i = 1,ncomp
     
   END IF
 
-! ************************************
-! Edit by Lucien Stolze, June 2023
-! Extract solutes via transpiration
-  !IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
-  !      if (ny == 1 .AND. nz == 1) THEN
-  !      A_transpi = dyy(jy) * dzz(jx,jy,jz)
-  !      source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
-  !ENDIF
-  !ENDIF
-! ************************************
-! end of edit by Lucien Stolze, June 2023
-
   GasSource = 0.0
 
-!!!  IF (isaturate == 1) THEN
-!!!    IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
-!!!      IF (cylindrical .OR. spherical) THEN
-!!        GasSource = gaspump(jx,jy,jz)*sgaspump(i)
-!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
-!!!      ELSE
-!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
-!!!      END IF
-!!!    ELSE
-!!!      GasSource = 0.0
-!!!    END IF
-!!!  END IF
 
   IF (jy == 1) THEN
     IF (ReadNuft .AND. infiltration /= 0) THEN
@@ -943,15 +939,15 @@ DO i = 1,ncomp
     recharge = 0.0
   END IF
   
+  !!! First the solutes
   IF (i /= ikh2o) THEN
-    aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
-      (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) -            &
-       rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
+    
+    aq_accum = 1.0d0/dt * xgram(jx,jy,jz)*portemp*                            &
+      ( rotemp*satl*s(i,jx,jy,jz) - rotempOld*satlOld*sn(i,jx,jy,jz) )*(1.0 + Retardation*distrib(i) )
 
+  !!! Then H2O
   ELSE
-    aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
-      (rotemp*satl*s(i,jx,jy,jz) -            &
-       rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
+    aq_accum = 1.0d0/dt * (s(i,jx,jy,jz) - sn(i,jx,jy,jz))  !! Units of mol/m^3_medium/s
   END IF
   
   IF (isaturate == 1) THEN
@@ -996,7 +992,15 @@ DO i = 1,ncomp
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
+    IF (i == ikh2o) THEN
+      
+      fxx(ind) = MultiplyCell*(aq_accum - source_H2O) 
+
+      CONTINUE
+      
+    ELSE
+         
+         fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
               + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)   &  !! Diagonal aqueous transport
               + xvectors*df     &   !! Off-diagonal aqueous transport
               + df*xbdflux      &   !! Advective flux through boundary
@@ -1006,18 +1010,23 @@ DO i = 1,ncomp
               + gas_transport   &   !! diagonal gas transport
               + xspecdiffw*df   &   !! Species-dependent diffusion
               + xspecdiffe*df       !! Species-dependent diffusion
+           
+    END IF
     
-      CONTINUE
       
   ELSE
       
     IF (ierode == 1) THEN
       ex_transport =  df*sch(i,jx,jy,jz)* ( bbu(jx,jy,jz) + ebu(jx,jy,jz) )
     END IF
+    
     IF (isaturate == 1) THEN
       gas_transport = df*sgas(i,jx,jy,jz)* ( bg(jx,jy,jz)+ eg(jx,jy,jz) )
     END IF
-    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
+    
+    IF (i /= ikh2o) THEN
+      
+      fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)  &   !! Diagonal aqueous transport
         + xvectors*df + yvectors*df       & 
         + df*xbdflux + df*ybdflux         &
@@ -1026,6 +1035,11 @@ DO i = 1,ncomp
         + ex_transport + gas_transport    &
         + xspecdiffw*df + xspecdiffe*df   &
         + xspecdiffs*df + xspecdiffn*df       ! Species-dependent diffusion
+    ELSE
+         
+      fxx(ind) = MultiplyCell*(aq_accum - source_H2O) 
+          
+    END IF
         
   END IF
   

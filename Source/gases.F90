@@ -87,7 +87,7 @@ pg = PressureCond(jinit(jx,jy,jz))
 tempk = t(jx,jy,jz) + 273.15
 
 !!!denmol = LOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
-denmol = DLOG( (1.0E+05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
+denmol = DLOG( (1.0E05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 !!  NOTE:  The "denmol" should convert to mol/m*3 (n/V)
 
@@ -107,22 +107,22 @@ DO kk = 1,ngas
       
     END DO
 
-  ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-  IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-    if (namg(kk) == 'CO2(g)') then
-      vrInOut = vrSave(jx,jy,jz)
-      call fugacity_co2(pg,tempk,ln_fco2,vrInOut)
-      vrSave(jx,jy,jz) = vrInOut
-    end if
-  ELSE IF (Duan2006) THEN
-    ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-    if (namg(kk) == 'CO2(g)') then
-      vrInOut = vrSave(jx,jy,jz)
-      call fugacity_co24(pg,tempk,ln_fco2,vrInOut)
-      vrSave(jx,jy,jz) = vrInOut
-    end if
-  END IF
+    IF (Duan) THEN
+      ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
+      if (namg(kk) == 'CO2(g)') then
+        vrInOut = vrSave(jx,jy,jz)
+        call fugacity_co2(pg,tempk,ln_fco2,vrInOut)
+        vrSave(jx,jy,jz) = vrInOut
+      end if
+    ELSE IF (Duan2006) THEN
+      ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
+      if (namg(kk) == 'CO2(g)') then
+        vrInOut = vrSave(jx,jy,jz)
+        call fugacity_co24(pg,tempk,ln_fco2,vrInOut)
+        vrSave(jx,jy,jz) = vrInOut
+      end if
+    END IF
 
 !! Basically, first two terms on RHS give you the mole fraction, then multipled by n/V (denmol) gives mol/m^3
 

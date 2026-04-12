@@ -85,7 +85,6 @@
 			<File RelativePath="..\Source\convan.F90"/>
 			<File RelativePath="..\Source\CourantStep.F90"/>
 			<File RelativePath="..\Source\CourantStepAlt.F90"/>
-			<File RelativePath="..\Source\CPUdefinition.F90"/>
 			<File RelativePath="..\Source\crunch_interface.F90"/>
 			<File RelativePath="..\Source\CrunchFunctions.F90"/>
 			<File RelativePath="..\Source\CrunchModules.F90"/>
@@ -335,7 +334,11 @@
 			<File RelativePath="..\Source\solver.F90"/>
 			<File RelativePath="..\Source\speciation.F90"/>
 			<File RelativePath="..\Source\species.F90"/>
-			<File RelativePath="..\Source\species_init.F90"/>
+			<File RelativePath="..\Source\species_init.F90">
+				<FileConfiguration Name="Debug|x64">
+					<Tool Name="VFFortranCompilerTool" DebugInformationFormat="debugDisabled" Optimization="optimizeMaxSpeed" BoundsCheck="false"/>
+				</FileConfiguration>
+			</File>
 			<File RelativePath="..\Source\SpeciesLocal.F90"/>
 			<File RelativePath="..\Source\squeeze.F90"/>
 			<File RelativePath="..\Source\sschaine.F90"/>

@@ -84,9 +84,19 @@ REAL(DP)                                      :: dyn
 REAL(DP)                                      :: dumsum
 REAL(DP)                                      :: avgro
 REAL(DP)                                      :: fe
-REAL(DP)                                      :: ae
+
 REAL(DP)                                      :: fw
 REAL(DP)                                      :: aw
+REAL(DP)                                      :: ae
+REAL(DP)                                      :: apx
+
+REAL(DP)                                      :: aw_H2O
+REAL(DP)                                      :: ae_H2O
+REAL(DP)                                      :: apx_H2O
+REAL(DP)                                      :: as_H2O
+REAL(DP)                                      :: an_H2O
+REAL(DP)                                      :: apy_H2O
+
 REAL(DP)                                      :: fn
 REAL(DP)                                      :: an
 REAL(DP)                                      :: fs
@@ -103,7 +113,7 @@ REAL(DP)                                      :: ds
 REAL(DP)                                      :: dn
 REAL(DP)                                      :: dsps
 REAL(DP)                                      :: dspn
-REAL(DP)                                      :: apx
+
 REAL(DP)                                      :: apy
 REAL(DP)                                      :: tort
 REAL(DP)                                      :: AreaE
@@ -418,6 +428,8 @@ DO jy = 1,ny
       netflowX(1,jy,jz) = fe
       netDiffuseX(1,jy,jz) = de
       
+      ae_H2O = 0.0d0
+      
       !!!  WEST
       
       AreaW = dyy(jy)*dzz(jx,jy,jz)												  
@@ -440,11 +452,15 @@ DO jy = 1,ny
         netDiffuseX(jx-1,jy,jz) = 0.0d0
       END IF
       
+      aw_H2O = 0.0D0
+      
       IF (jc(1) == 2 .or. JcByGrid(jx-1,jy,jz) == 2) THEN  
         apx = de +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)  !  Pure advective bdy
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
       END IF
+      
+      apx_H2O = 0.0D0
   
  ELSE IF (jx == nx) THEN
          
@@ -469,7 +485,7 @@ DO jy = 1,ny
       netflowX(nx-1,jy,jz) = fw
       netDiffuseX(nx-1,jy,jz) = dw
       
-      apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
+      aw_H2O = 0.0D0
        
   !!! EAST
       
@@ -491,12 +507,16 @@ DO jy = 1,ny
         netDiffuseX(jx,jy,jz) = de
       END IF
       
+      ae_H2O = 0.0d0
+      
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
         apx = dw +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)   !Pure advective bdy			
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
-	  
+        
       END IF
+      
+      apx_H2O = 0.0D0
        
     ELSE     !!! Not jx /= 1 .or. jx /= nx
 					 
@@ -519,6 +539,8 @@ DO jy = 1,ny
       ae = DMAX1(-fe,0.0D0) + de
       netflowX(jx,jy,jz) = fe
       netDiffuseX(jx,jy,jz) = de
+      
+      ae_H2O = 0.0D0
 							   
   !!!  WEST
       
@@ -538,10 +560,12 @@ DO jy = 1,ny
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       aw = DMAX1(fw,0.0D0) + dw
-   
       
-	  
+      aw_H2O = 0.0D0
+   
       apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
+      
+      apx_H2O = 0.0D0
       
     END IF
     
@@ -594,6 +618,10 @@ DO jy = 1,ny
         apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
       END IF
       
+      apy_H2O = 0.0d0
+      as_H2O = 0.0d0
+      an_H2O = 0.0d0
+      
     ELSE IF (jy == ny) THEN    
 	  
       AreaN = dxx(jx)*dzz(jx,jy,jz)
@@ -638,6 +666,10 @@ DO jy = 1,ny
       ELSE
         apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
       END IF
+      
+      apy_H2O = 0.0d0
+      as_H2O = 0.0d0
+      an_H2O = 0.0d0
        
     ELSE     !!! JY /= 1 or NY
       
@@ -678,6 +710,10 @@ DO jy = 1,ny
       
       apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
       
+      apy_H2O = 0.0d0
+      as_H2O = 0.0d0
+      an_H2O = 0.0d0
+      
     END IF
     
 400 CONTINUE
@@ -686,11 +722,20 @@ DO jy = 1,ny
       a(jx,jy,jz) = 0.0d0
       b(jx,jy,jz) = 0.0d0
       c(jx,jy,jz) = 0.0d0
+      
+      a_H2O(jx,jy,jz) = -aw_H2O
+      c_H2O(jx,jy,jz) = -ae_H2O
+      b_H2O(jx,jy,jz) = apx_H2O
+      
     ELSE
       
       a(jx,jy,jz) = -aw
       c(jx,jy,jz) = -ae
       b(jx,jy,jz) = apx
+      
+      a_H2O(jx,jy,jz) = 0.0d0
+      c_H2O(jx,jy,jz) = 0.0d0
+      b_H2O(jx,jy,jz) = 0.0d0
       
       
     END IF
@@ -699,11 +744,20 @@ DO jy = 1,ny
       d(jx,jy,jz) = 0.0d0
       f(jx,jy,jz) = 0.0d0
       e(jx,jy,jz) = 0.0d0
+      
+      d_H2O(jx,jy,jz) = 0.0d0
+      f_H2O(jx,jy,jz) = 0.0d0
+      e_H2O(jx,jy,jz) = 0.0d0
+      
     ELSE
       
       d(jx,jy,jz) = -an
       f(jx,jy,jz) = -as
       e(jx,jy,jz) = apy
+      
+      d_H2O(jx,jy,jz) = 0.0d0
+      f_H2O(jx,jy,jz) = 0.0d0
+      e_H2O(jx,jy,jz) = 0.0d0
       
     END IF
 

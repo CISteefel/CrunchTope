@@ -135,6 +135,7 @@ MODULE  concentration
 
 !  Permanent arrays, but can be reallocated to smaller size
 
+
   REAL(DP), DIMENSION(5)                           :: adhcoeff 
   REAL(DP), DIMENSION(5)                           :: bdhcoeff 
   REAL(DP), DIMENSION(5)                           :: bdtcoeff 
@@ -153,6 +154,11 @@ MODULE  concentration
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: namsurf
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: namsurf_sec
 
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: MoleChange
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: ChangeH2O
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: ChangeH2
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: ChangeH2_gas
+  
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: fweight
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: fanalyt
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: as1
@@ -377,6 +383,7 @@ MODULE  concentration
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spgas
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spgasold
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spgas10
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE     :: spgas10_old
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sgas
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sgasn
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: ssurf
@@ -407,6 +414,9 @@ MODULE  concentration
   
   REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE        :: deriv_gamma
   REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE        :: deriv_conc
+  
+  REAL(DP)                                           :: GasFlux_FaceEast_H2 
+  REAL(DP)                                           :: AqueousFlux_FaceEast_H2 
 
 
 END MODULE concentration

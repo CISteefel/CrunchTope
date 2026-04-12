@@ -111,6 +111,8 @@ REAL(DP)                                                    :: RipenRate3
 REAL(DP)                                                    :: RipenRate4
 REAL(DP)                                                    :: RipenRate5
 
+REAL(DP)                                                    :: VolChange
+
 CHARACTER (LEN=mls)                                         :: dumstring
 
 INTEGER(I4B)                                                :: nn 
@@ -133,6 +135,8 @@ ineg = 0
 ireduce = 0
 volneg = 0.0
 
+MoleChange = 0.0d0
+
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -143,13 +147,13 @@ DO jz = 1,nz
             
           kk = MineralID(k)
           IF (spinup .AND. mintype(k) /= 1 .AND. imintype(1,k) /= 9) THEN ! minerals (spinup)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. mintype(k) == 1) THEN ! biomass (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. imintype(1,k) /= 9) THEN ! biomass decay (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSE
-          VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
+            VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
           ENDIF
           voldiff = VolumeUpdate + volfx(kk,jx,jy,jz)
           IF (voldiff < volneg) THEN
@@ -163,15 +167,21 @@ DO jz = 1,nz
         ELSE
           
           IF (spinup .AND. mintype(k) /= 1 .AND. imintype(1,k) /= 9) THEN ! minerals (spinup)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. mintype(k) == 1) THEN ! biomass (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. imintype(1,k) /= 9) THEN ! biomass decay (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSE
-          VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
+            VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
           ENDIF
           voldiff = VolumeUpdate + volfx(k,jx,jy,jz)
+          
+          VolChange = voldiff - volfx(k,jx,jy,jz)
+          
+ !!!         MoleChange(k) = MoleChange(k) + VolChange/volmol(k)
+          MoleChange(k) = MoleChange(k) + VolumeUpdate/volmol(k)
+          
           IF (voldiff < volneg) THEN
             volneg = voldiff
             kneg = k
@@ -186,30 +196,11 @@ DO jz = 1,nz
 
       END DO
 
+
     END DO
   END DO
 END DO
 
-!300  IF (ireduce == 1) THEN
-!  dtnew = dt/2.0
-!  dumstring = umin(kchg)
-!  call stringlen(dumstring,ls)
-!  WRITE(*,*) ' Mineral dissolving too fast: ', dumstring(1:ls)
-!  WRITE(*,100) dtnew
-!  WRITE(*,*)
-!  ineg = 1
-!  RETURN
-!END IF
-!IF (ireduce == 2) THEN
-!  dtnew = dt/2.0
-!  dumstring = umin(kchg)
-!  call stringlen(dumstring,ls)
-!  WRITE(*,*) ' Mineral precipitating too fast: ', dumstring(1:ls)
-!  WRITE(*,100) dtnew
-!  WRITE(*,*)
-!  ineg = 1
-!  RETURN
-!END IF
 
 !  Calculate a new delt and repeat time step if mineral concentrations
 !  are too far below 0
@@ -243,29 +234,29 @@ DO jz = 1,nz
             
           kk = MineralID(k)
           IF (spinup .AND. mintype(k) /= 1 .AND. imintype(1,k) /= 9) THEN ! minerals (spinup)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. mintype(k) == 1) THEN ! biomass (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. imintype(1,k) /= 9) THEN ! biomass decay (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSE
-          VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
+            VolumeUpdate = volmol(kk)*dppt(k,jx,jy,jz)*dt   !  Point to volume fraction of associated mineral
           ENDIF
-          volfx(kk,jx,jy,jz) = volfx(kk,jx,jy,jz) + VolumeUpdate
-          IF (volfx(kk,jx,jy,jz) < 0.0) THEN
-            volfx(kk,jx,jy,jz) = 0.0
-          END IF
+            volfx(kk,jx,jy,jz) = volfx(kk,jx,jy,jz) + VolumeUpdate
+            IF (volfx(kk,jx,jy,jz) < 0.0) THEN
+              volfx(kk,jx,jy,jz) = 0.0
+            END IF
           
         ELSE
           
           IF (spinup .AND. mintype(k) /= 1 .AND. imintype(1,k) /= 9) THEN ! minerals (spinup)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. mintype(k) == 1) THEN ! biomass (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSEIF (biomassfixed .AND. imintype(1,k) /= 9) THEN ! biomass decay (biomassfixed)
-          VolumeUpdate = 0  
+            VolumeUpdate = 0  
           ELSE
-          VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
+            VolumeUpdate = volmol(k)*dppt(k,jx,jy,jz)*dt
           ENDIF
           volfx(k,jx,jy,jz) = volfx(k,jx,jy,jz) + VolumeUpdate
           volSaveByTimeStep(ncounter,k,jx,jy,jz) = VolumeUpdate
