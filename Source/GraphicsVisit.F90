@@ -277,24 +277,10 @@ WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        if (activecell(jx,jy,jz) == 0) THEN
-          do i = 1,ncomp
-            sprint(i) = -0.001 
-          end do
-        ELSE
-          do i = 1,ncomp
-            if (s(i,jx,jy,jz) < 1.0E-30) THEN
-              sprint(i) = 1.0E-30
-              ELSE
-              sprint(i) = s(i,jx,jy,jz)
-              END IF
-          end do
-        END IF
-        
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sprint(i),i = 1,ncomp)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
+      END DO
     END DO
   END DO
-END DO
 CLOSE(UNIT=8,STATUS='keep')
 
 fn='Aq_conc'
@@ -1113,6 +1099,32 @@ IF (isaturate == 1) THEN
       END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')
+
+    ! Fill spgas10 ghost cells with Dirichlet BC concentrations
+    ! before computing boundary gas diffusion fluxes.
+    ! Ghost cells are never set during the transport solve, so
+    ! without this they contain 0.0, giving a wrong concentration
+    ! gradient and therefore wrong flux at Dirichlet boundaries.
+    IF (jc(1) == 1) THEN       ! West boundary (X_begin, Dirichlet)
+      DO jy = 1,ny
+        spgas10(:,0,jy,1) = spbgas(:,1)
+      END DO
+    END IF
+    IF (jc(2) == 1) THEN       ! East boundary (X_end, Dirichlet)
+      DO jy = 1,ny
+        spgas10(:,nx+1,jy,1) = spbgas(:,2)
+      END DO
+    END IF
+    IF (jc(3) == 1) THEN       ! South boundary (Y_begin, Dirichlet)
+      DO jx = 1,nx
+        spgas10(:,jx,0,1) = spbgas(:,3)
+      END DO
+    END IF
+    IF (jc(4) == 1) THEN       ! North boundary (Y_end, Dirichlet)
+      DO jx = 1,nx
+        spgas10(:,jx,ny+1,1) = spbgas(:,4)
+      END DO
+    END IF
 
     IF (ny > 1) THEN
       
