@@ -277,24 +277,10 @@ WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-        if (activecell(jx,jy,jz) == 0) THEN
-          do i = 1,ncomp
-            sprint(i) = -0.001 
-          end do
-        ELSE
-          do i = 1,ncomp
-            if (s(i,jx,jy,jz) < 1.0E-30) THEN
-              sprint(i) = 1.0E-30
-              ELSE
-              sprint(i) = s(i,jx,jy,jz)
-              END IF
-          end do
-        END IF
-        
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sprint(i),i = 1,ncomp)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(s(i,jx,jy,jz),i = 1,ncomp)
+      END DO
     END DO
   END DO
-END DO
 CLOSE(UNIT=8,STATUS='keep')
 
 fn='Aq_conc'
