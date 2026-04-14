@@ -113,7 +113,6 @@ REAL(DP), PARAMETER                                                   :: alphaSa
 REAL(DP), DIMENSION(-3:3)                                             :: coef
 
 REAL(DP)                                                              :: alphaBear
-REAL(DP)                                                              :: QreactTerm
 
 CHARACTER (LEN=1)                                                     :: Coordinate
 
@@ -168,7 +167,6 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
       BvecCrunchP(j) = pres(jx,jy,jz)*big 
       XvecCrunchP(j) = pres(jx,jy,jz)
     ELSE
-      
       CALL AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
       coef(-1) = -2.0d0*RoAveLeft*harx(jx-1,jy,jz)/(dxx(jx)*(dxx(jx)+dxx(jx-1))) 
       coef(1) = -2.0d0*RoAveRight*harx(jx,jy,jz)/(dxx(jx)*(dxx(jx+1)+dxx(jx))) 
@@ -186,12 +184,8 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
       END DO
       
       BodyForceX = -COSD(x_angle)*grav*SignGravity*(RoAveRight*RoAveRight*harx(jx,jy,jz) - RoAveLeft*RoAveLeft*harx(jx-1,jy,jz))/dxx(jx)
-      
-      QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-      QreactTerm = 0.0d0
-      BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + QreactTerm) 
+      BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX) 
       XvecCrunchP(j) = pres(jx,jy,jz)
-      
     END IF
  
   END DO
@@ -237,10 +231,7 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
     ELSE
       AddPressureX = 0.0d0
     END IF 
-
-    QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-    QreactTerm = 0.0d0
-    BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + QreactTerm) 
+    BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX) 
     XvecCrunchP(j) = pres(jx,jy,jz)
     
   END IF
@@ -287,10 +278,7 @@ IF (nx > 1 .AND. ny ==1 .AND. nz == 1) THEN           ! 1D problem assuming jx i
     ELSE
       AddPressureX = 0.0d0
     END IF 
-    
-    QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-    QreactTerm = 0.0d0
-    BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + QreactTerm) 
+    BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX) 
     XvecCrunchP(j) = pres(jx,jy,jz)
     
   END IF
@@ -344,10 +332,11 @@ ELSE                !!  2D or 3D problem
           DO npz = 1,npump(jx,jy,jz)
             pumpterm = pumpterm + visc*ro(jx,jy,jz)*qg(npz,jx,jy,jz)/(secyr*dxx(jx)*dyy(jy)*dzz(jx,jy,jz))
           END DO
-            
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + QreactTerm)    
+
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
 
         END IF
@@ -413,10 +402,10 @@ ELSE                !!  2D or 3D problem
           ELSE
             AddPressureY = 0.0d0
           END IF
-          
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX  + BodyForceY + AddPressureY + QreactTerm)    
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureY
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
         
@@ -476,10 +465,10 @@ ELSE                !!  2D or 3D problem
           ELSE
             AddPressureY = 0.0d0
           END IF
-          
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureY + QreactTerm)   
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
       END DO
@@ -540,10 +529,10 @@ ELSE                !!  2D or 3D problem
           ELSE
             AddPressureX = 0.0d0
           END IF
-
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + BodyForceY + QreactTerm)  
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
       END DO
@@ -602,10 +591,10 @@ ELSE                !!  2D or 3D problem
           ELSE
             AddPressureX = 0.0d0
           END IF
-
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + BodyForceY + QreactTerm)   
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
       END DO
@@ -679,9 +668,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY = 0.0d0
           END IF
           
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr) 
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + BodyForceY + AddPressureY + QreactTerm) 
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
 
@@ -754,9 +744,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY = 0.0d0
           END IF
           
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + BodyForceY + AddPressureY + QreactTerm) 
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
 
@@ -829,9 +820,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY = 0.0d0
           END IF
           
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + BodyForceY + AddPressureY + QreactTerm) 
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
         END IF
 
@@ -904,9 +896,10 @@ ELSE                !!  2D or 3D problem
             AddPressureY = 0.0d0
           END IF
           
-          QreactTerm = visc*ro(jx,jy,jz)*Qreact(jx,jy,jz)/(secyr)
-          QreactTerm = 0.0d0
-          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + AddPressureX + BodyForceY + AddPressureY + QreactTerm) 
+            !Zhi Li for debugging
+            BodyForceX = 0.0d0
+            BodyForceY = 0.0d0
+          BvecCrunchP(j) = (pumpterm + tdepend + BodyForceX + BodyForceY + AddPressureX + AddPressureY) 
           XvecCrunchP(j) = pres(jx,jy,jz)
 
         END IF

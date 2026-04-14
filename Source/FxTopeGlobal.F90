@@ -904,11 +904,13 @@ DO i = 1,ncomp
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
 !!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
+        source_H2O = 0.0d0
 
       ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
 !!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
+        source_H2O = 0.0d0
         
       ELSE
         CONTINUE

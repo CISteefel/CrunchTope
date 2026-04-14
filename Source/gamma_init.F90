@@ -116,11 +116,6 @@ DO ik = 1,ncomp+nspec
     TotalMoles = TotalMoles + sptmp10(ik)
   END IF
 END DO
-
-IF (TotalMoles > 10.0) THEN
-  TotalMoles = 10.0
-END IF
-
 gammawaterTmp = 1.0d0 - 0.017d0*TotalMoles
 !!!IF (gammawaterTmp < 0.01) THEN
 !!!  gammawaterTmp = 0.01

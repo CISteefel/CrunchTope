@@ -326,10 +326,6 @@ SUBROUTINE gasdiff(nx,ny,nz)
       END IF      
       ae = DMAX1(-fe,0.0D0) + de
 
-      if (jx==100) then
-        continue
-      end if
-      
    !!!  WEST
       
       IF (MeanDiffusion == 1) THEN
@@ -416,8 +412,6 @@ SUBROUTINE gasdiff(nx,ny,nz)
       
     END DO
   END DO
-  
-  continue
   
   RETURN
   END SUBROUTINE gasdiff

@@ -46,9 +46,6 @@ SUBROUTINE jacobian(ncomp,nspec,nx,ny,nz)
 USE crunchtype
 USE params
 USE concentration
-USE medium
-USE transport, ONLY: satliq,satliqold
-USE temperature, ONLY: ro
 USE solver
 
 IMPLICIT NONE
@@ -66,7 +63,6 @@ INTEGER(I4B), INTENT(IN)                             :: nz
 REAL(DP)                                             :: sum
 REAL(DP)                                             :: spec_conc
 REAL(DP)                                             :: mutemp
-REAL(DP)                                             :: ConvertToMeterCubed
 
 INTEGER(I4B)                                         :: i
 INTEGER(I4B)                                         :: i2
@@ -81,19 +77,14 @@ fjac = 0.0d0
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      
-      ConvertToMeterCubed = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
 
       DO ksp = 1,nspec
         spec_conc = sp10(ksp+ncomp,jx,jy,jz)
-        
-        !!! Cycle through primary species
         DO i = 1,ncomp
-          
           IF (muaq(ksp,i) /= 0.0) THEN
             mutemp = muaq(ksp,i)
 
-            DO i2 = 1,ncomp
+            DO i2 = 1,i-1
 
               fjac(i2,i,jx,jy,jz) = fjac(i2,i,jx,jy,jz) +           &
                  mutemp*muaq(ksp,i2)*spec_conc
@@ -103,20 +94,14 @@ DO jz = 1,nz
             fjac(i,i,jx,jy,jz) = fjac(i,i,jx,jy,jz) +               &
                  mutemp*mutemp*spec_conc 
           END IF
-          
         END DO
-        !!! End of cycle through primary species
-        
       END DO
 
       DO i = 1,ncomp
-        
-        IF (i == ikh2o) THEN
-          fjac(i,i,jx,jy,jz) = ConvertToMeterCubed * fjac(i,i,jx,jy,jz) + sp10(i,jx,jy,jz)          
-        ELSE
-          fjac(i,i,jx,jy,jz) = fjac(i,i,jx,jy,jz) + sp10(i,jx,jy,jz)
-        END IF
-        
+        DO i2 = 1,i-1
+          fjac(i,i2,jx,jy,jz) = fjac(i2,i,jx,jy,jz)
+        END DO
+        fjac(i,i,jx,jy,jz) = fjac(i,i,jx,jy,jz) + sp10(i,jx,jy,jz)
       END DO
 
     END DO

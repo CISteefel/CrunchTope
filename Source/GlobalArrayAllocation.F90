@@ -157,14 +157,6 @@ IF (ALLOCATED(satliqold)) THEN
 ELSE
   ALLOCATE(satliqold(-1:nx+2,-1:ny+2,-1:nz+2))
 END IF
-
-IF (ALLOCATED(Qreact)) THEN
-  DEALLOCATE(Qreact)
-  ALLOCATE( Qreact(nx,ny,nz) ) 
-ELSE
-  ALLOCATE( Qreact(nx,ny,nz) ) 
-END IF
-
 IF (ALLOCATED(dstar)) THEN
   DEALLOCATE(dstar)
   ALLOCATE(dstar(-1:nx+2,-1:ny+2,nz))
@@ -280,20 +272,12 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
   ELSE
     ALLOCATE(spsurf10(nsurf+nsurf_sec,0:nx+1,ny,nz))
   END IF
-  
   IF (ALLOCATED(spgas10)) THEN
     DEALLOCATE(spgas10)
     ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,nz))
   ELSE
     ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,nz))
   END IF
-  
-!!!  IF (ALLOCATED(spgas10_old)) THEN
-!!!    DEALLOCATE(spgas10_old)
-!!!    ALLOCATE(spgas10_old(ngas,0:nx+1,0:ny+1,nz))
-!!!  ELSE
-!!!    ALLOCATE(spgas10_old(ngas,0:nx+1,0:ny+1,nz))
-!!!  END IF
 
   IF (ALLOCATED(t)) THEN
     DEALLOCATE(t)
