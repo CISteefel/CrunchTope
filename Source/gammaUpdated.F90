@@ -143,9 +143,9 @@ END IF
 
 !*** Now calculate the activity coefficients for : water, other uncharged species, charged species
 
-gamma(:,jx,jy,jz) = 1D0
-lngamma(:,jx,jy,jz)  = 0D0
-deriv_gamma(:,:,jx,jy,jz) = 0D0 
+gamma(:,jx,jy,jz) = 1.0D0
+lngamma(:,jx,jy,jz)  = 0.0D0
+deriv_gamma(:,:,jx,jy,jz) = 0.0D0 
 
 IF (igamma == 0) THEN ! unit activity coefficient except for water
 

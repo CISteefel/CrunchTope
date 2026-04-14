@@ -46,6 +46,9 @@ SUBROUTINE totconc(ncomp,nspec,jx,jy,jz)
 USE crunchtype
 USE params
 USE concentration
+USE medium
+USE transport, ONLY: satliq,satliqold
+USE temperature, ONLY: ro
 
 IMPLICIT NONE
 
@@ -64,6 +67,9 @@ INTEGER(I4B)                                                :: i
 INTEGER(I4B)                                                :: kk
 
 REAL(DP)                                                    :: sum
+REAL(DP)                                                    :: ConvertToMeterCubed
+
+ConvertToMeterCubed = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
 
 DO i = 1,ncomp
   sum=0.0D0
@@ -71,8 +77,16 @@ DO i = 1,ncomp
     kk = ksp + ncomp
     sum = sum + muaq(ksp,i)*sp10(kk,jx,jy,jz)
   END DO
-  s(i,jx,jy,jz) = sum + sp10(i,jx,jy,jz)
+  
+  IF (i == ikh2o) THEN
+    s(i,jx,jy,jz) = ConvertToMeterCubed*sum + sp10(i,jx,jy,jz)
+  ELSE
+    s(i,jx,jy,jz) = sum + sp10(i,jx,jy,jz)
+  END IF
+  
 END DO
+
+
 
 RETURN
 END SUBROUTINE totconc

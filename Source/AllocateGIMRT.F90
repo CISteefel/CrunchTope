@@ -107,6 +107,8 @@ silogGlobal = 0.0d0
 CALL AllocateArray(a,1, nx, 1, ny, 1, nz)
 CALL AllocateArray(b,1, nx, 1, ny, 1, nz)
 CALL AllocateArray(c,1, nx, 1, ny, 1, nz)
+
+
 CALL AllocateArray(d,1, nx, 1, ny, 1, nz)
 CALL AllocateArray(e,1, nx, 1, ny, 1, nz)
 CALL AllocateArray(f,1, nx, 1, ny, 1, nz)

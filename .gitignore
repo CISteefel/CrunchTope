@@ -1,5 +1,5 @@
 # ignore visual studio files
-CrunchTope.*
+CrunchTope.exe
 CrunchTopeInputs
 
 # but selectively track the project file

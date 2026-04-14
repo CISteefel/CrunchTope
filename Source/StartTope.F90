@@ -5478,11 +5478,11 @@ IF (nBoundaryConditionZone > 0) THEN
         spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
         spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
       END DO
-      do ix = 1,nexchange
+      do ix = 1,nexchange+nexch_sec
         spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
       end do
       DO ix = 1,nexchange+nexch_sec
-        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+        spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
       END DO
       DO is = 1,nsurf
         spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
@@ -5526,11 +5526,11 @@ IF (nBoundaryConditionZone > 0) THEN
         spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
         spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
       END DO
-      do ix = 1,nexchange
+      do ix = 1,nexchange+nexch_sec
         spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
       end do
       DO ix = 1,nexchange+nexch_sec
-        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
+        spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
       END DO
       DO is = 1,nsurf
         spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))

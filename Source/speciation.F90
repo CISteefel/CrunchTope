@@ -512,7 +512,7 @@ DO jz = 1,nz
         END DO
         silnTMP = sumiap - keqmin(1,k,jx,jy,jz)
         siprnt = silnTMP/clg
-        WRITE(8,509) umin(k),siprnt
+        WRITE(8,509) umin(k),silogGlobal(1,k,jx,jy,jz)
       END DO
       WRITE(8,*)
       WRITE(8,*)

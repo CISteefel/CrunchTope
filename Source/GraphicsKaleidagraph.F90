@@ -205,27 +205,81 @@ INTEGER(I4B)                                               :: kMineralRare
 REAL(DP)                                                   :: totRare
 REAL(DP)                                                   :: totCommon
 REAL(DP)                                                   :: CellVolume
+REAL(DP)                                                   :: CellVolumeTotal
+REAL(DP)                                                   :: CellVolumeNX
 REAL(DP)                                                   :: totAqueousH2 
 REAL(DP)                                                   :: totGasH2 
 REAL(DP)                                                   :: totH2O
 REAL(DP)                                                   :: PorSat
-REAL(DP)                                                   :: rateOlivine_A
-REAL(DP)                                                   :: rateOlivine_B
-REAL(DP)                                                   :: rateLizardite
+REAL(DP)                                                   :: rateOlivine
+REAL(DP)                                                   :: rateSerpentine
 REAL(DP)                                                   :: rateMagnetite
-REAL(DP)                                                   :: rateFeBrucite
+REAL(DP)                                                   :: rateBrucite
+REAL(DP)                                                   :: rateOPX
+REAL(DP)                                                   :: rateCPX
+
 REAL(DP)                                                   :: vol1
 REAL(DP)                                                   :: vol2
 REAL(DP)                                                   :: vol3
 REAL(DP)                                                   :: vol4
 REAL(DP)                                                   :: vol5
+REAL(DP)                                                   :: vol6
+REAL(DP)                                                   :: vol7
+REAL(DP)                                                   :: vol8
+REAL(DP)                                                   :: vol9
+REAL(DP)                                                   :: vol10
+REAL(DP)                                                   :: vol11
+REAL(DP)                                                   :: vol12
+REAL(DP)                                                   :: vol13
+REAL(DP)                                                   :: vol14
+REAL(DP)                                                   :: vol15
+REAL(DP)                                                   :: vol16
+REAL(DP)                                                   :: vol17
+REAL(DP)                                                   :: vol18
+REAL(DP)                                                   :: vol19
+REAL(DP)                                                   :: vol20
+REAL(DP)                                                   :: vol21
+REAL(DP)                                                   :: vol22
+REAL(DP)                                                   :: vol23
+REAL(DP)                                                   :: vol24
+REAL(DP)                                                   :: vol25
+REAL(DP)                                                   :: vol26
+
 REAL(DP)                                                   :: OlivineNormalization
+REAL(DP)                                                   :: StoichiometricRatio
 REAL(DP)                                                   :: PartialPressureH2
+REAL(DP)                                                   :: TotMass
+REAL(DP)                                                   :: TotMassInitial
+REAL(DP)                                                   :: TotVol
+REAL(DP)                                                   :: TotVolInitial
+REAL(DP)                                                   :: VolumeChange
+REAL(DP)                                                   :: StoichiometricVolumeChange
+REAL(DP)                                                   :: Stoich1
+REAL(DP)                                                   :: Stoich3
+REAL(DP)                                                   :: Stoich4
+REAL(DP)                                                   :: Stoich5
+
+REAL(DP)                                                   :: totAqueousH2_LastCell
+REAL(DP)                                                   :: totGasH2_LastCell
+REAL(DP)                                                   :: totH2O_LastCell
+
+REAL(DP)                                                   :: TotalChangeH2O 
+REAL(DP)                                                   :: TotalChangeH2
+REAL(DP)                                                   :: TotalChangeH2_gas 
+REAL(DP)                                                   :: GramColumn
+
+REAL(DP)                                                   :: totalVolumechange
+
+REAL(DP)                                                   :: NewVolume
+REAL(DP)                                                   :: OriginalVolume
+REAL(DP)                                                   :: PercentageVolumeChange
+
 
 REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
 
 INTEGER(I4B)                                               :: ls
 INTEGER(I4B)                                               :: nco
+INTEGER(I4B)                                               :: npointer
 
 REAL(DP), DIMENSION(ncomp)                                 :: gflux_hor
 
@@ -251,6 +305,639 @@ END DO
 DO ns = 1,nsurf_sec
   prtsurf(ns+nsurf) = namsurf_sec(ns)
 END DO
+
+!!! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!! BatchReactor Keyword Only
+
+IF (BatchReactor) THEN
+  
+!!  Integrated Gases from GraphicsKaleidagraph
+
+  fn='integrated_gases'
+  ilength = 16
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  !!!WRITE(8,130)
+  !!!130 FORMAT('# Units: mol/m3')
+  !!!WRITE(8,2285) (namg(kk),kk=1,ngas)
+  jy = 1
+  jz = 1
+
+  totH2O = 0.0
+  totAqueousH2 = 0.0
+
+  rateOlivine = 0.0
+  rateSerpentine = 0.0
+  rateMagnetite = 0.0
+  rateBrucite = 0.0
+
+  IF (namg(1) /= 'H2(g)' .or. ulab(6) /= 'H2(aq)') THEN
+    CONTINUE
+  ELSE
+  
+!!!    DO jx = 1,nx-3
+    DO jx = 1,nx
+      tk = 273.15d0 + t(jx,jy,jz)
+      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+      PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+      nco = jinit(jx,jy,jz)
+    
+      !!! Water at time of snapshot - original water of 55.50843506
+      !!! NOTE: Units of mmol
+
+      totH2O        = totH2O + 1000.0 * CellVolume * (s(1,jx,jy,jz) - 55.50843506 * SaturationCond(nco)*porcond(nco)*rocond(nco) )
+      totAqueousH2  = totAqueousH2 + 1000.0 * CellVolume * ro(jx,jy,jz) * porcond(nco) *   &
+                         satliq(jx,jy,jz) * sp10(6,jx,jy,jz)
+      
+!!!       vol1    Fo90-A           -label default  -rate  -9.98
+!!!       vol2    Fo90-B           -label default  -rate  -37.12
+!!!       vol3    Lizardite           -label default  -rate  -14.00
+!!!       vol4    Magnetite        -label default  -rate  -15.00
+!!!       vol5    FeBrucite85      -label default  -rate  -6.00
+
+!!!       vol6    Serp95           -label default  -rate  -38.00
+!!!       vol7    Serp90           -label default  -rate  -32.00
+!!!       vol8    Serp85           -label default  -rate  -38.00
+!!!       vol9    Serp80           -label default  -rate  -38.00
+!!!       vol10    Serp75           -label default  -rate  -38.00
+!!!       vol11    Serp70           -label default  -rate  -38.00
+!!!       vol12    Serp65           -label default  -rate  -38.00
+!!!       vol13    Serp60           -label default  -rate  -38.00
+!!!       vol14    Serp55           -label default  -rate  -38.00
+!!!       vol15    Serp50           -label default  -rate  -38.00
+
+!!!       vol16 FeBrucite95      -label default  -rate  -36.00
+!!!       vol17 FeBrucite90      -label default  -rate  -36.00
+!!!       vol18 FeBrucite80      -label default  -rate  -36.00
+!!!       vol19 FeBrucite75      -label default  -rate  -36.00
+!!!       vol20 FeBrucite70      -label default  -rate  -36.00
+
+!!!       vol21 Greenalite       -label  default -rate  -38.00
+!!!       vol22 Mg-Cronstedtite  -label default  -rate  -38.00
+!!!       vol23 Hematite         -label default  -rate  -38.00
+!!!       vol24 En90             -label default  -rate  -10.00
+!!!       vol25 Diopside         -label default  -rate  -10.00
+!!!       vol26 Calcite          -label default  -rate  -8.00
+      
+    
+      vol1 = volfx(1,jx,1,1) - volin(1,nco)        !!! Olivine-A
+      vol2 = volfx(2,jx,1,1) - volin(2,nco)        !!! Olivine-B
+      vol3 = volfx(3,jx,1,1) - volin(3,nco)        !!! Lizardite
+      vol4 = volfx(4,jx,1,1) - volin(4,nco)        !!! Magnetite 
+      vol5 = volfx(5,jx,1,1) - volin(5,nco)        !!! Brucite85
+      
+      vol6 = volfx(6,jx,1,1) - volin(6,nco)        !!!
+      vol7 = volfx(7,jx,1,1) - volin(7,nco)        !!!
+      vol8 = volfx(8,jx,1,1) - volin(8,nco)        !!!
+      vol9 = volfx(9,jx,1,1) - volin(9,nco)        !!!
+      vol10 = volfx(10,jx,1,1) - volin(10,nco)     !!!
+      vol11 = volfx(11,jx,1,1) - volin(11,nco)     !!!
+      vol12 = volfx(12,jx,1,1) - volin(12,nco)     !!!
+      vol13 = volfx(13,jx,1,1) - volin(13,nco)     !!!
+      vol14 = volfx(14,jx,1,1) - volin(14,nco)     !!!
+      vol15 = volfx(15,jx,1,1) - volin(15,nco)     !!!
+      vol16 = volfx(16,jx,1,1) - volin(16,nco)     !!!
+      vol17 = volfx(17,jx,1,1) - volin(17,nco)     !!!
+      vol18 = volfx(18,jx,1,1) - volin(18,nco)     !!!
+      vol19 = volfx(19,jx,1,1) - volin(19,nco)     !!!
+      vol20 = volfx(20,jx,1,1) - volin(20,nco)     !!!
+      vol21 = volfx(21,jx,1,1) - volin(21,nco)     !!!
+      vol22 = volfx(22,jx,1,1) - volin(22,nco)     !!!
+      vol23 = volfx(23,jx,1,1) - volin(23,nco)     !!!
+      vol24 = volfx(24,jx,1,1) - volin(24,nco)     !!!
+      vol25 = volfx(25,jx,1,1) - volin(25,nco)     !!!
+      vol26 = volfx(26,jx,1,1) - volin(26,nco)     !!!
+
+    
+    END DO
+  
+    totGasH2 = 0.0
+    totGasH2_LastCell = 0.0
+    totAqueousH2_LastCell = 0.0
+    CellVolumeNX = dxx(nx)*dyy(1)*dzz(nx,jy,jz)
+    
+    totGasH2_LastCell     = 1000000.0 * CellVolumeNX * por(nx,jy,jz)                *   &
+                               (1.0-satliq(nx,jy,jz)) * spgas10(1,nx,1,1)
+    totAqueousH2_LastCell = 1000000.0 * CellVolumeNX * ro(nx,jy,jz) * por(nx,jy,jz) *   &
+                                satliq(nx,jy,jz) * sp10(6,nx,jy,jz)  
+    
+    TotalChangeH2O = 0.0
+    TotalChangeH2 = 0.0
+    TotalChangeH2_gas = 0.0
+      
+    DO jx = 1,nx
+    
+      tk = 273.15d0 + t(jx,jy,jz)
+      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+
+      PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+      nco = jinit(jx,jy,jz)
+    
+      !!! Water at time of snapshot - original water of 55.50843506
+      !!! NOTE: Units of mmol
+      
+!!!   totGasH2 in units of umol
+      totGasH2      = totGasH2 + 1000000.0*CellVolume * porcond(jinit(jx,jy,jz))   *   &
+                          (1.0-satliq(jx,jy,jz)) * spgas10(1,jx,1,1)
+      
+      TotalChangeH2O    = TotalChangeH2O + ChangeH2O(jx)
+      TotalChangeH2     = TotalChangeH2 + ChangeH2(jx)
+      TotalChangeH2_gas = TotalChangeH2_gas + ChangeH2_gas(jx)
+    
+    END DO
+    
+    rateOlivine = rateOlivine + ( MoleChange(1) + MoleChange(2) ) * CellVolume        !!! Units: moles
+
+    rateSerpentine = rateSerpentine + (                          &
+                              MoleChange(3)                     &
+                            + MoleChange(6)                     &
+                            + MoleChange(7)                     &
+                            + MoleChange(8)                     &
+                            + MoleChange(9)                     &
+                            + MoleChange(10)                     &
+                            + MoleChange(11)                     &
+                            + MoleChange(12)                     &
+                            + MoleChange(13)                     &
+                            + MoleChange(14)                     &
+                            + MoleChange(15)                     &
+                            + MoleChange(21)                     &
+                            + MoleChange(22)                     &
+                                                  ) * CellVolume                      !!! Units: moles
+      
+      
+rateMagnetite = rateMagnetite + MoleChange(4) * CellVolume                           !!! Units: moles
+      
+rateBrucite = rateBrucite +           (            &
+                              MoleChange(5)                     &
+                            + MoleChange(16)                     &
+                            + MoleChange(17)                     &
+                            + MoleChange(18)                     &
+                            + MoleChange(19)                     &
+                            + MoleChange(20)                     &
+                                          ) * CellVolume                            !!! Units: moles
+  
+  
+    PartialPressureH2 = 0.001 * totGasH2/(1.1*0.001) * 8.314d0 * tk/1.0E+05
+    write(8,*) ' TotH2 (umol)            = ', totGasH2_LastCell + totAqueousH2_LastCell
+    write(8,*) ' TotH2O (mmol)           = ', totH2O
+    write(8,*) ' TotAqueousH2 (mmol)     = ', totAqueousH2
+    write(8,*) ' TotGasH2     (umol)     = ', totGasH2
+    write(8,*) ' Partial pressure        = ', PartialPressureH2
+    write(8,*)
+    write(8,*)  ' +++++++++++++++++++++++++'
+    write(8,*)
+    write(8,*) ' Integrated minerals in mol '
+    write(8,*)
+    write(8,*) ' Delta olivine (mol)    = ', rateOlivine                     !!! Units: mol
+    write(8,*) ' Delta serpentine (mol) = ', rateSerpentine                      !!! Units: mol
+    write(8,*) ' Delta magnetite (mol)  = ', rateMagnetite                       !!! Units: mol
+    write(8,*) ' Delta Fe-brucite (mol) = ', rateBrucite                         !!! Units: mol
+    
+    write(8,*)
+    write(8,*) ' Integrated minerals in grams '
+    write(8,*)
+    write(8,*) ' Delta olivine (g)    = ', rateOlivine     * wtmin(1)                    !!! Units: grams
+    write(8,*) ' Delta serpentine (g) = ', rateSerpentine  * wtmin(3)                    !!! Units: grams
+    write(8,*) ' Delta magnetite (g)  = ', rateMagnetite   * wtmin(4)                    !!! Units: grams
+    write(8,*) ' Delta Fe-brucite (g) = ', rateBrucite     * wtmin(5)                    !!! Units: grams
+    
+    nco = jinit(50,1,1)
+    
+    TotMassInitial = volin(1,nco) /volmol(1)  * wtmin(1) +  &
+                     volin(3,nco) /volmol(3)  * wtmin(3) +  &
+                     volin(4,nco) /volmol(4)  * wtmin(4) +  &
+                     volin(5,nco) /volmol(5)  * wtmin(5) 
+    
+    IF (TotMassInitial == 0.0) THEN
+      write(*,*) 'Initial mass should not be zero'
+      read(*,*)
+    END IF
+      
+    write(8,*)
+    write(8,*) ' Initial Mass Percent '
+    write(8,*) 
+    write(8,*) ' Olivine (%)     = ', 100.0*( volin( 1,nco) /volmol(1)  * wtmin(1) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volin( 3,nco) /volmol(3)  * wtmin(3) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volin( 4,nco) /volmol(4)  * wtmin(4) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volin( 5,nco) /volmol(5)  * wtmin(5) /TotMassInitial )                  !!! Units: Mass %
+    
+    TotMass = volfx(1,20,1,1) /volmol(1)  * wtmin(1) +  &
+              volfx(3,20,1,1) /volmol(3)  * wtmin(3) +  &
+              volfx(4,20,1,1) /volmol(4)  * wtmin(4) +  &
+              volfx(5,20,1,1) /volmol(5)  * wtmin(5) 
+      
+    write(8,*)
+    write(8,*) ' Mass Percent '
+    write(8,*)
+    write(8,*) ' Olivine (%)     = ', 100.0*( volfx(1,20,1,1) /volmol(1)  * wtmin(1) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volfx(3,20,1,1) /volmol(3)  * wtmin(3) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volfx(4,20,1,1) /volmol(4)  * wtmin(4) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volfx(5,20,1,1) /volmol(5)  * wtmin(5) /TotMass )                  !!! Units: Mass %
+    
+    TotalVolumeChange = ( rateOlivine* volmol(1)  +                 &
+                        rateSerpentine* volmol(3) +                &
+                        rateMagnetite* volmol(4) +                 &
+                        rateBrucite* volmol(5) ) * 1.0E06
+    
+    write(8,*)
+    write(8,*) ' Integrated mineral volume change (cm^3) '
+    write(8,*)
+    write(8,*) ' Delta olivine (cm^3)       = ', rateOlivine    * volmol(1) * 1.0E06                     !!! Units: cm^3
+    write(8,*) ' Delta serpentine (cm^3)    = ', rateSerpentine * volmol(3) * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta magnetite (cm^3)     = ', rateMagnetite  * volmol(4) * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta Fe-brucite (cm^3)    = ', rateBrucite    * volmol(5) * 1.0E06                       !!! Units: cm^3
+    write(8,*)
+    write(8,*) ' Total Volume Change (cm^3) = ', TotalVolumeChange        !!! Units: cm^3
+    
+!!!    OlivineNormalization = DABS( rateOlivine * 1000.0 )
+    
+    OlivineNormalization = DABS( rateOlivine * 1000.0 )
+    
+    stoich1 = rateOlivine     * 1000.0/OlivineNormalization
+    stoich3 = rateSerpentine  * 1000.0/OlivineNormalization
+    stoich4 = rateMagnetite   * 1000.0/OlivineNormalization
+    stoich5 = rateBrucite     * 1000.0/OlivineNormalization
+  
+    write(8,*)
+    write(8,*)  ' +++++++++++++++++++++++++'
+    write(8,*)
+    write(8,*)
+    write(8,*) ' Normalized reaction stoichiometry (to 1.0 mole olivine)'
+    write(8,*)
+    write(8,*) ' Delta olivine           = ', rateOlivine       * 1000.0/OlivineNormalization       !!! Units: mmol
+    write(8,*) ' Delta serpentine        = ', rateSerpentine    * 1000.0/OlivineNormalization       !!! Units: mmol
+    write(8,*) ' Delta magnetite         = ', rateMagnetite     * 1000.0/OlivineNormalization       !!! Units: mmol
+    write(8,*) ' Delta Fe-brucite        = ', rateBrucite       * 1000.0/OlivineNormalization       !!! Units: mmol
+    write(8,*) ' Delta H2O               = ', TotalChangeH2O    * 1000.0/OlivineNormalization       !!! Units: mmol
+    write(8,*) ' Delta AqueousH2         = ', TotalChangeH2     * 1000.0/OlivineNormalization       !!! Units: mmol
+    write(8,*) ' Delta GasH2             = ', TotalChangeH2_gas * 1000.0/OlivineNormalization       !!! Units: mmol
+  
+    write(8,*)
+    IF (totGasH2 /= 0.0) THEN
+      write(8,*) ' Ratio of H2O to H2      =', -TotalChangeH2O/( TotalChangeH2 + TotalChangeH2_gas )
+    END IF
+    
+    NewVolume      = volfx(1,50,1,1) + volfx(3,50,1,1) + volfx(4,50,1,1) + volfx(5,50,1,1)
+    OriginalVolume = volin(1,nco) + volin(3,nco) + volin(4,nco) + volin(5,nco) 
+    
+    write(8,*)
+
+    PercentageVolumeChange = 100.0*(NewVolume - OriginalVolume)/OriginalVolume
+    
+    write(8,*)  ' %change in mineral volumes      = ', PercentageVolumeChange
+     
+  
+    CLOSE(UNIT=8,STATUS='keep')
+  
+  END IF
+  
+END IF
+
+!!! BatchReactor2 Keyword Only
+!!! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+IF (BatchReactor2) THEN
+  
+!!  Integrated Gases from GraphicsKaleidagraph
+
+  fn='integrated_gases'
+  ilength = 16
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  !!!WRITE(8,130)
+  !!!130 FORMAT('# Units: mol/m3')
+  !!!WRITE(8,2285) (namg(kk),kk=1,ngas)
+  jy = 1
+  jz = 1
+
+  totH2O = 0.0
+  totAqueousH2 = 0.0
+  totGasH2 = 0.0
+
+  rateOlivine = 0.0
+  rateSerpentine = 0.0
+  rateMagnetite = 0.0
+  rateBrucite = 0.0
+  rateOPX = 0.0
+  rateCPX = 0.0
+
+  IF (namg(1) /= 'H2(g)' .and. ulab(6) /= 'H2(aq)') THEN
+    CONTINUE
+  ELSE
+  
+!!!    DO jx = 1,nx-3
+    DO jx = 1,nx
+      
+      tk = 273.15d0 + t(jx,jy,jz)
+      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+      PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+      nco = jinit(jx,jy,jz)
+    
+      !!! Water at time of snapshot - original water of 55.50843506
+      !!! NOTE: Units of umol
+
+      totH2O        = totH2O + 1000.0 * CellVolume * (s(1,jx,jy,jz) - 55.50843506 * SaturationCond(nco)*porcond(nco)*rocond(nco) )
+      totAqueousH2  = totAqueousH2 + 1000000.0 * CellVolume * ro(jx,jy,jz) * porcond(nco) * satliq(jx,jy,jz) * sp10(6,jx,jy,jz)
+      
+    
+      vol1 = volfx(1,jx,1,1) - volin(1,nco)        !!! Olivine-A
+      vol2 = volfx(2,jx,1,1) - volin(2,nco)        !!! Olivine-B
+      vol3 = volfx(3,jx,1,1) - volin(3,nco)        !!! Lizardite
+      vol4 = volfx(4,jx,1,1) - volin(4,nco)        !!! Magnetite 
+      vol5 = volfx(5,jx,1,1) - volin(5,nco)        !!! Brucite85
+      
+      vol6 = volfx(6,jx,1,1) - volin(6,nco)        !!!
+      vol7 = volfx(7,jx,1,1) - volin(7,nco)        !!!
+      vol8 = volfx(8,jx,1,1) - volin(8,nco)        !!!
+      vol9 = volfx(9,jx,1,1) - volin(9,nco)        !!!
+      vol10 = volfx(10,jx,1,1) - volin(10,nco)     !!!
+      vol11 = volfx(11,jx,1,1) - volin(11,nco)     !!!
+      vol12 = volfx(12,jx,1,1) - volin(12,nco)     !!!
+      vol13 = volfx(13,jx,1,1) - volin(13,nco)     !!!
+      vol14 = volfx(14,jx,1,1) - volin(14,nco)     !!!
+      vol15 = volfx(15,jx,1,1) - volin(15,nco)     !!!
+      vol16 = volfx(16,jx,1,1) - volin(16,nco)     !!!
+      vol17 = volfx(17,jx,1,1) - volin(17,nco)     !!!
+      vol18 = volfx(18,jx,1,1) - volin(18,nco)     !!!
+      vol19 = volfx(19,jx,1,1) - volin(19,nco)     !!!
+      vol20 = volfx(20,jx,1,1) - volin(20,nco)     !!!
+      vol21 = volfx(21,jx,1,1) - volin(21,nco)     !!!
+      vol22 = volfx(22,jx,1,1) - volin(22,nco)     !!!
+      vol23 = volfx(23,jx,1,1) - volin(23,nco)     !!!
+      vol24 = volfx(24,jx,1,1) - volin(24,nco)     !!!
+      vol25 = volfx(25,jx,1,1) - volin(25,nco)     !!!
+      vol26 = volfx(26,jx,1,1) - volin(26,nco)     !!!
+    
+    END DO
+  
+
+    CellVolumeNX = dxx(nx)*dyy(1)*dzz(nx,jy,jz)
+    
+    totH2O_LastCell       = 1000000.0 * CellVolumeNX * ro(nx,jy,jz) * por(nx,jy,jz) * satliq(nx,jy,jz) * s(1,nx,jy,jz)
+    totGasH2_LastCell     = 1000000.0 * CellVolumeNX * por(nx,jy,jz)                *  (1.0-satliq(nx,jy,jz)) * spgas10(1,nx,1,1)
+    totAqueousH2_LastCell = 1000000.0 * CellVolumeNX * ro(nx,jy,jz) * por(nx,jy,jz) *  satliq(nx,jy,jz) * sp10(6,nx,jy,jz)  
+    
+    TotalChangeH2O    = 0.0
+    TotalChangeH2     = 0.0
+    TotalChangeH2_gas = 0.0
+    
+    totGasH2 = 0.0
+    totAqueousH2 = 0.0
+    CellVolumeTotal = 0.0
+      
+    DO jx = 1,nx
+    
+      tk = 273.15d0 + t(jx,jy,jz)
+      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+      CellVolumeTotal = CellVolumeTotal + CellVolume
+
+      PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
+      nco = jinit(jx,jy,jz)
+    
+      !!! Water at time of snapshot - original water of 55.50843506
+      !!! NOTE: Units of mmol
+      
+!!!   totGasH2 in units of umol
+      
+      totGasH2     = totGasH2     + 1000000.0 * CellVolume * por(jx,jy,jz) * (1.0-satliq(jx,jy,jz)) * spgas10(1,jx,1,1)
+      totAqueousH2 = totAqueousH2 + 1000000.0 * CellVolume * por(jx,jy,jz) * satliq(jx,jy,jz)       * sp10(6,jx,jy,jz) * ro(jx,jy,jz) 
+      
+      TotalChangeH2O    = TotalChangeH2O    + ChangeH2O(jx)
+      TotalChangeH2     = TotalChangeH2     + ChangeH2(jx)
+      TotalChangeH2_gas = TotalChangeH2_gas + ChangeH2_gas(jx)
+    
+    END DO
+    
+    !!! NOTE: Units of MoleChange are mol/m^3 porous medium, so multiply by CellVolume to get moles
+    
+    rateOlivine = rateOlivine + ( MoleChange(1) + MoleChange(2) ) * CellVolume        !!! Units: moles
+
+    rateSerpentine = rateSerpentine + (                         &
+                              MoleChange(3)                     &
+                            + MoleChange(6)                     &
+                            + MoleChange(7)                     &
+                            + MoleChange(8)                     &
+                            + MoleChange(9)                     &
+                            + MoleChange(10)                    &
+                            + MoleChange(11)                    &
+                            + MoleChange(12)                    &
+                            + MoleChange(13)                    &
+                            + MoleChange(14)                    &
+                            + MoleChange(15)                    &
+                            + MoleChange(21)                    &
+                            + MoleChange(22)                    &
+                                                  ) * CellVolume                      !!! Units: moles
+      
+      
+  rateMagnetite = rateMagnetite + MoleChange(4) * CellVolume                            !!! Units: moles
+      
+  rateBrucite = rateBrucite +           (            &
+                              MoleChange(5)                     &
+                            + MoleChange(16)                     &
+                            + MoleChange(17)                     &
+                            + MoleChange(18)                     &
+                            + MoleChange(19)                     &
+                            + MoleChange(20)                     &
+                                          ) * CellVolume                              !!! Units: moles
+  
+  rateOPX = rateOPX +           (            &
+                              MoleChange(24)  + MoleChange(26)                   &
+                                          ) * CellVolume                              !!! Units: moles
+  
+  rateCPX = rateCPX +           (            &
+                              MoleChange(25)                     &
+                                          ) * CellVolume                              !!! Units: moles
+  
+    PartialPressureH2 = 0.001 * totGasH2/(1.1*0.001) * 8.314d0 * tk/1.0E+05
+    
+
+    write(8,*) ' TotH2 (umol)            = ', totGasH2 + totAqueousH2
+    write(8,*) ' TotaAqueousH2_LastCell  = ', totAqueousH2_LastCell
+    write(8,*) ' TotaGasH2_LastCell      = ', totGasH2_LastCell
+    write(8,*)
+    write(8,*) ' Partial pressure        = ', PartialPressureH2
+    write(8,*)
+    write(8,*)  ' +++++++++++++++++++++++++'
+    
+!!!    GramColumn = 1175.944
+    
+    GramColumn = 93.77
+    GramColumn = 22.9
+    
+    npointer = 20
+    nco = jinit(npointer,1,1)
+ 
+    
+    TotMassInitial = volin(1,nco) /volmol(1)  * wtmin(1)  +  &
+                     volin(2,nco) /volmol(2)  * wtmin(2)  +  &
+                     volin(3,nco) /volmol(3)  * wtmin(3)  +  &
+                     volin(4,nco) /volmol(4)  * wtmin(4)  +  &
+                     volin(5,nco) /volmol(5)  * wtmin(5)  +  &
+                     volin(24,nco)/volmol(24) * wtmin(24) +  &
+                     volin(25,nco)/volmol(25) * wtmin(25) +  &
+                     volin(27,nco)/volmol(27) * wtmin(27)
+    
+    IF (TotMassInitial == 0.0) THEN
+      write(*,*) 'Initial mass should not be zero'
+      read(*,*)
+    END IF
+      
+    write(8,*)
+    write(8,*) ' Initial Mass Percent '
+    write(8,*) 
+    write(8,*) ' Olivine (%)     = ', 100.0*( ( volin( 1,nco) + volin(2,nco) )/volmol(1)  * wtmin(1) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volin( 3,nco) /volmol(3)  * wtmin(3) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volin( 4,nco) /volmol(4)  * wtmin(4) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volin( 5,nco) /volmol(5)  * wtmin(5) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' OPX (%)         = ', 100.0*( ( volin( 24,nco) + volin(27,nco) ) /volmol(24)  * wtmin(24) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' CPX (%)         = ', 100.0*( ( volin( 25,nco) ) /volmol(25)  * wtmin(25) /TotMassInitial )                  !!! Units: Mass %
+    
+    TotMass = volfx(1,npointer,1,1) /volmol(1)  * wtmin(1)    +  &
+              volfx(2,npointer,1,1) /volmol(2)  * wtmin(2)    +  &
+              volfx(3,npointer,1,1) /volmol(3)  * wtmin(3)    +  &
+              volfx(4,npointer,1,1) /volmol(4)  * wtmin(4)    +  &
+              volfx(5,npointer,1,1) /volmol(5)  * wtmin(5)    +  &
+              volfx(24,npointer,1,1) /volmol(24)  * wtmin(24) +  &
+              volfx(25,npointer,1,1) /volmol(25)  * wtmin(25) +  &
+              volfx(27,npointer,1,1) /volmol(27)  * wtmin(27) 
+        
+      
+      
+    !!! Final mass percent
+    
+    write(8,*)
+    write(8,*) ' Final Mass Percent '
+    write(8,*)
+    write(8,*) ' Olivine (%)     = ', 100.0*( ( volfx(1,npointer,1,1) + volfx(2,npointer,1,1) ) /volmol(1)  * wtmin(1) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volfx(3,npointer,1,1) /volmol(3)  * wtmin(3) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volfx(4,npointer,1,1) /volmol(4)  * wtmin(4) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volfx(5,npointer,1,1) /volmol(5)  * wtmin(5) /TotMass )                  !!! Units: Mass %
+    
+    write(8,*) ' OPX (%)         = ', 100.0*( ( volfx(24,npointer,1,1)+volfx(27,npointer,1,1) )/volmol(24)  * wtmin(24) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' CPX (%)         = ', 100.0*( volfx(25,npointer,1,1) /volmol(25)  * wtmin(25) /TotMass )                  !!! Units: Mass %    
+    write(8,*)
+    
+    TotVolInitial =  volin(1,nco)     +  &
+                     volin(2,nco)     +  &
+                     volin(3,nco)     +  &
+                     volin(4,nco)     +  &
+                     volin(5,nco)     +  &
+                     volin(24,nco)    +  &
+                     volin(25,nco)   
+        
+    TotVol =  volfx(1,npointer,1,1)    +  &
+              volfx(2,npointer,1,1)     +  &
+              volfx(3,npointer,1,1)     +  &
+              volfx(4,npointer,1,1)     +  &
+              volfx(5,npointer,1,1)      +  &
+              volfx(24,npointer,1,1)    +  &
+              volfx(25,npointer,1,1) 
+    
+    write(8,*) ' Initial Volume Percent '
+    write(8,*) 
+    write(8,*) ' Olivine (%)     = ', 100.0*( volin(1,nco) + volin(1,nco)    )               !!! Units: Vol %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volin(3,nco)  )               !!! Units: Vol %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volin(4,nco)  )                !!! Units: Vol %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volin(5,nco)  )               !!! Units: Vol %
+    write(8,*) ' OPX (%)         = ', 100.0*( volin(24,nco)  )             !!! Units: Vol %
+    write(8,*) ' CPX (%)         = ', 100.0*( volin(25,nco) )             !!! Units: Vol %
+    
+    write(8,*) ' Final Volume Percent '
+    write(8,*) 
+    write(8,*) ' Olivine (%)     = ', 100.0*( volfx(1,npointer,1,1)+volfx(2,npointer,1,1)    )               !!! Units: Vol %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volfx(3,npointer,1,1)   )               !!! Units: Vol %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volfx(4,npointer,1,1)   )                !!! Units: Vol %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volfx(5,npointer,1,1)   )               !!! Units: Vol %
+    write(8,*) ' OPX (%)         = ', 100.0*( volfx(24,npointer,1,1)  )             !!! Units: Vol %
+    write(8,*) ' CPX (%)         = ', 100.0*( volfx(25,npointer,1,1)  )             !!! Units: Vol %
+    
+    
+    TotalVolumeChange = ( rateOlivine* volmol(1)  +     &
+                        rateSerpentine* volmol(3) +     &
+                        rateMagnetite* volmol(4) +      &
+                        rateBrucite* volmol(5)  +       & 
+                        rateOPX* volmol(24)  +          & 
+                        rateCPX* volmol(25)             )    * 1.0E06
+    
+    write(8,*)
+    write(8,*) ' Integrated mineral volume change (cm^3) '
+    write(8,*)
+    write(8,*) ' Delta olivine (cm^3)       = ', rateOlivine    * volmol(1)  * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta serpentine (cm^3)    = ', rateSerpentine * volmol(3)  * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta magnetite (cm^3)     = ', rateMagnetite  * volmol(4)  * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta Fe-brucite (cm^3)    = ', rateBrucite    * volmol(5)  * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta OPX (cm^3)           = ', rateOPX        * volmol(24) * 1.0E06                       !!! Units: cm^3
+    write(8,*) ' Delta CPX (cm^3)           = ', rateCPX        * volmol(25) * 1.0E06                       !!! Units: cm^3
+    write(8,*)
+    write(8,*) ' Total Volume Change (cm^3) = ', TotalVolumeChange        !!! Units: cm^3
+    
+    
+    OlivineNormalization = DABS( rateOlivine)  !!! Leave it in moles (instead of mmol)
+    
+    stoich1 = rateOlivine     /OlivineNormalization
+    stoich3 = rateSerpentine  / OlivineNormalization
+    stoich4 = rateMagnetite   / OlivineNormalization
+    stoich5 = rateBrucite     / OlivineNormalization
+    
+    write(8,*)
+    write(8,*)  ' +++++++++++++++++++++++++'
+    write(8,*)
+    write(8,*)
+    write(8,*) ' Change in moles over column (mol/m3)'
+    write(8,*)
+    write(8,*) ' Delta olivine           = ', rateOlivine       / CellVolume       !!! Units: mol/m3
+    write(8,*) ' Delta serpentine        = ', rateSerpentine    / CellVolume       !!! Units: mol/m3
+    write(8,*) ' Delta magnetite         = ', rateMagnetite     / CellVolume       !!! Units: mol/m3
+    write(8,*) ' Delta Fe-brucite        = ', rateBrucite       / CellVolume       !!! Units: mol/m3
+    write(8,*) ' Delta OPX               = ', rateOPX           / CellVolume       !!! Units: mol/m3
+    write(8,*) ' Delta CPX               = ', rateCPX           / CellVolume       !!! Units: mol/m3
+
+  
+    write(8,*)
+    write(8,*)  ' +++++++++++++++++++++++++'
+    write(8,*)
+    write(8,*)
+    write(8,*) ' Normalized reaction stoichiometry (to 1.0 mole olivine)'
+    write(8,*)
+    write(8,*) ' Delta olivine            = ', rateOlivine       / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta serpentine         = ', rateSerpentine    / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta magnetite          = ', rateMagnetite     / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta Fe-brucite         = ', rateBrucite       / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta OPX                = ', rateOPX           / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta CPX                = ', rateCPX           / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta H2O                = ', TotalChangeH2O    / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta AqueousH2          = ', TotalChangeH2     / OlivineNormalization       !!! Units: mol
+    write(8,*) ' Delta GasH2              = ', TotalChangeH2_gas / OlivineNormalization       !!! Units: mol
+    write(8,*)
+    write(8,*) ' Rate olivine (umol/g/yr) = ', 1000000.0*rateOlivine/Delt/GramColumn          !!! Units: mol/g/yr
+    write(8,*) ' Rate H2 (umol/g/yr)      = ', (-1.0)*1000000.0*rateOlivine/Delt/GramColumn        &
+                                               * TotalChangeH2_gas / OlivineNormalization     !!! Units: mol/g/yr
+    
+    write(8,*)
+    IF (totGasH2 /= 0.0) THEN
+      write(8,*) ' Ratio of H2O to H2      =', -TotalChangeH2O/( TotalChangeH2 + TotalChangeH2_gas )
+    END IF
+    
+    NewVolume      = volfx(1,npointer,1,1) + volfx(3,npointer,1,1) + volfx(4,npointer,1,1) + volfx(5,npointer,1,1) + volfx(24,npointer,1,1) + volfx(25,npointer,1,1)
+    OriginalVolume = volin(1,nco) + volin(3,nco) + volin(4,nco) + volin(5,nco) + volin(24,nco) + volin(25,nco)
+    
+    write(8,*)
+
+    PercentageVolumeChange = 100.0*(NewVolume - OriginalVolume)/OriginalVolume
+    
+    write(8,*)  ' Percent change in mineral volumes      = ', PercentageVolumeChange
+     
+  
+    CLOSE(UNIT=8,STATUS='keep')
+  
+  END IF
+  
+END IF
+
+!!! BatchReactor2 Keyword Only
+!!! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !  Write out master variable
 
@@ -296,6 +983,9 @@ ELSE
 END IF
 CLOSE(UNIT=8,STATUS='keep')
 
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+!!! Isotopologues in aqueous phase
+
 IF (nIsotopePrimary > 0) THEN
   fn='toperatio_aq'
   ilength = 12
@@ -325,6 +1015,11 @@ IF (nIsotopePrimary > 0) THEN
   CLOSE(UNIT=8,STATUS='keep')
 
 END IF
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+!!! Isotopologues in minerals
 
 IF (nIsotopeMineral > 0) THEN
 
@@ -435,108 +1130,10 @@ DO jx = 1,nx
 END DO
 CLOSE(UNIT=8,STATUS='keep')
 
-IF (BatchReactor) THEN
-  
-!!  Integrated Gases from GraphicsKaleidagraph
 
-  fn='integrated_gases'
-  ilength = 16
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,2283) PrintTime
-  !!!WRITE(8,130)
-  !!!130 FORMAT('# Units: mol/m3')
-  !!!WRITE(8,2285) (namg(kk),kk=1,ngas)
-  jy = 1
-  jz = 1
 
-  totH2O = 0.0
-  totAqueousH2 = 0.0
-
-  rateOlivine_A = 0.0
-  rateOlivine_B = 0.0
-  rateLizardite = 0.0
-  rateMagnetite = 0.0
-  rateFeBrucite = 0.0
-
-  IF (namg(1) /= 'H2(g)' .or. ulab(21) /= 'H2(aq)') THEN
-    CONTINUE
-  ELSE
-  
-    DO jx = 1,nx-3
-    
-      tk = 273.15d0 + t(jx,jy,jz)
-      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-      PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
-      nco = jinit(jx,jy,jz)
-    
-      !!! Water at time of snapshot - original water of 55.50843506
-      !!! NOTE: Units of mmol
-      totH2O        = totH2O + 1000.0 * CellVolume * ro(jx,jy,jz)* porcond(nco)*   &
-                         satliq(jx,jy,jz) * (sp10(1,jx,jy,jz) - 55.50843506)
-      totAqueousH2  = totAqueousH2 + 1000.0 * CellVolume * ro(jx,jy,jz) * porcond(nco) *   &
-                         satliq(jx,jy,jz) * sp10(21,jx,jy,jz)
-    
-      vol1 = volfx(1,jx,1,1) - volin(1,nco) 
-      vol2 = volfx(2,jx,1,1) - volin(2,nco) 
-      vol3 = volfx(3,jx,1,1) - volin(3,nco) 
-      vol4 = volfx(4,jx,1,1) - volin(4,nco) 
-      vol5 = volfx(5,jx,1,1) - volin(5,nco) 
-    
-      rateOlivine_A = rateOlivine_A + vol1 /volmol(1) * CellVolume   !!! Units: mole
-      rateOlivine_B = rateOlivine_B + vol2 /volmol(2) * CellVolume   !!! Units: mole
-      rateLizardite = rateLizardite + vol3 /volmol(3) * CellVolume   !!! Units: mole
-      rateMagnetite = rateMagnetite + vol4 /volmol(4) * CellVolume   !!! Units: mole
-      rateFeBrucite = rateFeBrucite + vol5 /volmol(5) * CellVolume   !!! Units: mole
-    
-    END DO
-  
-    totGasH2 = 0.0
-  
-    DO jx = 1,nx
-    
-      tk = 273.15d0 + t(jx,jy,jz)
-      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-      PorSat = porcond(jinit(jx,jy,jz))*(1.0 - satliq(jx,jy,jz))
-      nco = jinit(jx,jy,jz)
-    
-      !!! Water at time of snapshot - original water of 55.50843506
-      !!! NOTE: Units of mmol
-      totGasH2      = totGasH2 + 1000.0*CellVolume * porcond(jinit(jx,jy,jz))    *   &
-                          (1.0-satliq(jx,jy,jz)) * spgas10(1,jx,1,1)
-    
-    END DO
-  
-    PartialPressureH2 = 0.001 * totGasH2/(1.1*0.001) * 8.314d0 * tk/1.0E+05
-    write(8,*) ' TotH2O (mmol)           = ', totH2O
-    write(8,*) ' TotAqueousH2 (mmol)     = ', totAqueousH2
-    write(8,*) ' TotGasH2     (mmol)     = ', totGasH2
-    write(8,*) ' Partial pressure        = ', PartialPressureH2
-    write(8,*)
-    write(8,*) ' Delta olivine (mmol)    = ', (rateOlivine_A + rateOlivine_B) * 1000.0   !!! Units: mmol
-    write(8,*) ' Delta serpentine (mmol) = ', rateLizardite* 1000.0                      !!! Units: mmol
-    write(8,*) ' Delta magnetite (mmol)  = ', rateMagnetite* 1000.0                      !!! Units: mmol
-    write(8,*) ' Delta Fe-brucite (mmol) = ', rateFeBrucite* 1000.0                      !!! Units: mmol
-  
-    OlivineNormalization = DABS((rateOlivine_A + rateOlivine_B) * 1000.0)
-  
-    write(8,*)
-    write(8,*) ' Delta olivine           = ', (rateOlivine_A + rateOlivine_B)*1000.0/OlivineNormalization  !!! Units: mmol
-    write(8,*) ' Delta serpentine        = ', rateLizardite* 1000.0/OlivineNormalization                   !!! Units: mmol
-    write(8,*) ' Delta magnetite         = ', rateMagnetite* 1000.0/OlivineNormalization                   !!! Units: mmol
-    write(8,*) ' Delta Fe-brucite        = ', rateFeBrucite* 1000.0/OlivineNormalization                   !!! Units: mmol
-    write(8,*) ' Delta H2O               = ', totH2O/OlivineNormalization                                  !!! Units: mmol
-    write(8,*) ' Delta AqueousH2         = ', totAqueousH2/OlivineNormalization                            !!! Units: mmol
-    write(8,*) ' Delta GasH2             = ', totGasH2/OlivineNormalization                                !!! Units: mmol
-  
-    write(8,*)
-    write(8,*) ' Ratio of H2O to H2      =', (totH2O/OlivineNormalization)/(totGasH2/OlivineNormalization)
-  
-    CLOSE(UNIT=8,STATUS='keep')
-  
-  END IF
-  
-END IF
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+!!! Ion Exchange
 
 IF (nexchange > 0) THEN
   fn='exchange'
@@ -579,6 +1176,11 @@ IF (nexchange > 0) THEN
 
 END IF            !!  End of exchange block
 
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+!!! Surface Complexation
+
 IF (nsurf > 0) THEN
   fn='surface'
   ilength = 7
@@ -616,6 +1218,9 @@ IF (nsurf > 0) THEN
   CLOSE(UNIT=8,STATUS='keep')
 
 END IF
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+!!! Kinetic minerals
 
 IF (nrct > 0) THEN
   fn='TotMineral'
@@ -763,7 +1368,12 @@ IF (nrct > 0) THEN
 
 ENDIF
 
-!   Write out the reaction rates in units of mol/kgw/sec
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++
+!!! Aqueous Rates
+
+!!!   Write out the reaction rates in units of mol/kgw/sec
 
 IF (ikin > 0) THEN
 
@@ -847,6 +1457,11 @@ IF (ikin > 0) THEN
   CLOSE(UNIT=8,STATUS='keep')
 END IF
 
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!! Mineral Volume Fractions and Surface Areas
+
 IF (nrct > 0) THEN
 
 !!  Volumes in %
@@ -901,6 +1516,11 @@ IF (nrct > 0) THEN
 
 END IF
 
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!! Porosity and Permeability
+
 fn = 'porosity'
 ilength = 8
 CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -922,35 +1542,38 @@ END DO
 CLOSE(UNIT=8,STATUS='keep')
 
 IF (CalculateFlow) THEN
-fn = 'permeability'
-ilength = 12
-CALL newfile(fn,suf1,fnv,nint,ilength)
-OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-WRITE(8,2283) PrintTime
-WRITE(8,123)
-123 FORMAT('# Units:           X Permeability')
-jy = 1
-jz = 1
-DO jx = 1,nx
-  WRITE(8,184) x(jx)*OutputDistanceScale,permx(jx,jy,jz)
-END DO
-CLOSE(UNIT=8,STATUS='keep')
+  fn = 'permeability'
+  ilength = 12
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,123)
+  123 FORMAT('# Units:           X Permeability')
+  jy = 1
+  jz = 1
+  DO jx = 1,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale,permx(jx,jy,jz)
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
 
-fn = 'DarcyFlux'
-ilength = 9
-CALL newfile(fn,suf1,fnv,nint,ilength)
-OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-WRITE(8,2283) PrintTime
-WRITE(8,124)
-124 FORMAT('# Units:           X Darcy Flux')
-jy = 1
-jz = 1
-DO jx = 0,nx
-  WRITE(8,184) x(jx)*OutputDistanceScale,qx(jx,jy,jz)
-END DO
-CLOSE(UNIT=8,STATUS='keep')
+  fn = 'DarcyFlux'
+  ilength = 9
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,124)
+  124 FORMAT('# Units:           X Darcy Flux')
+  jy = 1
+  jz = 1
+  DO jx = 0,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale,qx(jx,jy,jz)
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
 
 END IF
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!! Mineral Saturation Rates
 
 !  Write out the saturation indices of the minerals (log Q/K).
 
@@ -977,7 +1600,10 @@ IF (nrct > 0) THEN
 
 END IF
 
-!  Write out pressure
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!! Fluid Pressure (if CalculateFlow)
 
 IF (calculateflow) THEN
   fn='pressure'
@@ -994,26 +1620,32 @@ IF (calculateflow) THEN
 
 END IF
 
-!  Write out Darcy fluxes
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!!! Darcy Fluxes (if CalculateFlow)
 
 IF (CalculateFlow) THEN
   
-write(*,*) ' Writing velocity file '
-fn='velocity'
-ilength = 8
-CALL newfile(fn,suf1,fnv,nint,ilength)
-OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-WRITE(8,2283) PrintTime
-WRITE(8,116)
-116 FORMAT('# Units: m^3 fluid/m^2 porous medium/yr')
-jy = 1
-jz = 1
-DO jx = 0,nx
-  WRITE(8,184) x(jx)*OutputDistanceScale,qx(jx,1,1)
-END DO
-CLOSE(UNIT=8,STATUS='keep')
+  write(*,*) ' Writing velocity file '
+  fn='velocity'
+  ilength = 8
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,2283) PrintTime
+  WRITE(8,116)
+  116 FORMAT('# Units: m^3 fluid/m^2 porous medium/yr')
+  jy = 1
+  jz = 1
+  DO jx = 0,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale,qx(jx,1,1)
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
 
 END IF
+
+!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 502 FORMAT('temperature    ' ,f8.2)
 503 FORMAT(a20,4X,1PE12.4)

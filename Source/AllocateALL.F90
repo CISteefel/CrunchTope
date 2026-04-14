@@ -85,6 +85,37 @@ INTEGER(I4B), INTENT(IN)                           :: nz
 !!! ALLOCATE(sion(nx,ny,nz))
 !!! sion = 0.0
 
+IF (ALLOCATED(MoleChange)) THEN
+  DEALLOCATE(MoleChange)
+END IF
+ALLOCATE(MoleChange(nrct))
+
+IF (ALLOCATED(MoleChangeTotal)) THEN
+  DEALLOCATE(MoleChangeTotal)
+END IF
+ALLOCATE(MoleChangeTotal(nrct))
+
+IF (BatchReactor .Or. BatchReactor2) THEN
+  
+  IF (ALLOCATED(ChangeH2O)) THEN
+    DEALLOCATE(ChangeH2O)
+  END IF
+  ALLOCATE(ChangeH2O(nx))
+  
+  IF (ALLOCATED(ChangeH2)) THEN
+    DEALLOCATE(ChangeH2)
+  END IF
+  ALLOCATE(ChangeH2(nx))
+  
+  IF (ALLOCATED(ChangeH2_gas)) THEN
+    DEALLOCATE(ChangeH2_gas)
+  END IF
+  ALLOCATE(ChangeH2_gas(nx))
+  
+  
+END IF
+
+
 IF (ALLOCATED(fxmax)) THEN
   DEALLOCATE(fxmax)
 END IF

@@ -195,6 +195,10 @@ REAL(DP)        :: check3
 REAL(DP)        :: check4
 REAL(DP)        :: qgdum
 
+REAL(DP)        :: source_H2O
+REAL(DP)        :: source_jac_H2O
+REAL(DP)        :: rxnaq_H2O
+
 INTEGER(I4B)                                   :: pos_IonS
 INTEGER(I4B)                                   :: pos_GammaWater
 INTEGER(I4B)                                   :: pos_der
@@ -206,6 +210,8 @@ REAL(DP)                                       :: ChargeSum
 REAL(DP)                                       :: TotalMoles
 REAL(DP)                                       :: sumder
 REAL(DP)                                       :: gammaH2O
+REAL(DP)                                       :: LogTotalMoles
+
 INTEGER(I4B)                                   :: icomp2
 
 REAL(DP), DIMENSION(ncomp + nsurf + nexchange + npot + 1 + 1,ncomp + nsurf + nexchange + npot + 1 + 1)    :: der_residuals
@@ -245,6 +251,8 @@ nxyz = nx*ny*nz
 ntotal = 0
 surf_accum = 0.0d0
 ex_accum = 0.0d0
+rxnaq = 0.0d0
+rxnaq_H2O = 0.0d0
 
 !!!xn = 0.0d0
 
@@ -270,31 +278,6 @@ END IF
 
 TempFlux = 0.0d0
 
-! IF (RunTempts) THEN
-!   IF (ALLOCATED(temp_dum)) THEN
-!     DEALLOCATE(temp_dum)
-!   END IF
-!   ALLOCATE(temp_dum(nb_temp_ts))
-
-!   IF (TS_1year) THEN
-!     time_norm=time-floor(time)
-!     DO i=1,nb_temp_ts
-!   CALL  interp3(time_norm,delt,t_temp_ts,temp_ts(i,:),temp_dum(i),size(temp_ts(i,:)))
-!     END DO
-!     END IF
-
-!       DO jz = 1,nz
-!       DO jy = 1,ny
-!       DO jx = 1,nx
-!       DO i = 1,nb_temp_ts
-!           IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
-!             t(jx,jy,jz) = temp_dum(i)
-!           ENDIF
-!       END DO
-!       END DO
-!       END DO
-!       END DO
-! ENDIF
 
 !!!  Do the boundaries first
 
@@ -394,7 +377,7 @@ IF (species_diffusion) THEN
   END IF
 
 END IF
-!!!  ***** Nernst-Planck ******
+!!!  ***** End Nernst-Planck ******
 
 jz = 1
 DO jy = 1,ny
@@ -487,28 +470,6 @@ DO jy = 1,ny
     
     IF (nx == 1) GO TO 100
     
-!    IF (species_diffusion) THEN
-!      dgradw1 = 0.0
-!      dgradw2 = 0.0
-!      dgrade1 = 0.0
-!      dgrade2 = 0.0
-!      DO i = 1,ncomp
-!        dgradw1 = dgradw1 + chg(i)*a_d(jx,jy,jz)*(s_dsp(i,jx-1,jy,jz))
-!        dgradw2 = dgradw2 - chg(i)*a_d(jx,jy,jz)*(s_dsp(i,jx,jy,jz))
-!        dgrade1 = dgrade1 + chg(i)*c_d(jx,jy,jz)*(s_dsp(i,jx+1,jy,jz))
-!        dgrade2 = dgrade2 - chg(i)*c_d(jx,jy,jz)*(s_dsp(i,jx,jy,jz))
-!      END DO
-!      dgradw = dgradw1 + dgradw2
-!      dgrade = dgrade1 + dgrade2
-!      sumsigma_w = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx-1,jy,jz)*sumwtchg(jx-1,jy,jz))
-!      sumsigma_e = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx+1,jy,jz)*sumwtchg(jx+1,jy,jz))
-      
-!      DO i = 1,ncomp
-!        sigma_w(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx-1,jy,jz)*s_chg(i,jx-1,jy,jz))
-!        sigma_e(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx+1,jy,jz)*s_chg(i,jx+1,jy,jz))
-!      END DO
-!    END IF
-    
     IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN  ! Use Hindmarsh routine
   
       IF (jx /= 1) THEN
@@ -539,8 +500,8 @@ DO jy = 1,ny
           END DO
         END IF
 
-        
-        DO i = 1,ncomp
+        !!!  FLAG
+        DO i = 2,ncomp
           
           DO i2 = 1,ncomp
             cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
@@ -620,7 +581,8 @@ DO jy = 1,ny
           END DO
         END IF
         
-        DO i = 1,ncomp
+        !!! FLAG
+        DO i = 2,ncomp
           
           DO i2 = 1,ncomp
             bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
@@ -702,7 +664,8 @@ DO jy = 1,ny
           END DO
         END IF
         
-        DO i = 1,ncomp
+        !!! FLAG
+        DO i = 2,ncomp
           ind = (j-1)*(neqn) + i
           
           DO i2 = 1,ncomp
@@ -795,7 +758,8 @@ DO jy = 1,ny
           END DO
         END IF
 
-        DO i = 1,ncomp
+        !!! FLAG
+        DO i = 2,ncomp
           ind = (j-1)*(neqn) + i
 
           DO i2 = 1,ncomp
@@ -868,8 +832,12 @@ DO jy = 1,ny
       END IF
     END IF
     
+!!! End of JX Nernst-Planck section
+    
     100     CONTINUE
     IF (ny == 1) GO TO 200
+    
+!!! Start of JY Nernst-Planck section
     
     IF (jy /= ny) THEN
       jdum=jy+1
@@ -893,7 +861,8 @@ DO jy = 1,ny
         END DO
       END IF
 
-      DO i = 1,ncomp
+      !!! FLAG
+      DO i = 2,ncomp
         ind = (j-1)*(neqn) + i
 
         DO i2 = 1,ncomp
@@ -983,7 +952,8 @@ DO jy = 1,ny
         END DO
       END IF
 
-      DO i = 1,ncomp
+      !!! FLAG
+      DO i = 2,ncomp
         ind = (j-1)*neqn + i
 
         DO i2 = 1,ncomp
@@ -1051,16 +1021,15 @@ DO jy = 1,ny
       
     END IF
     
+!!! End of JY Nernst-Planck section
+    
 200 CONTINUE
     
     source = 0.0d0
+    source_H2O = 0.0d0
+    rxnaq = 0.0d0
+    rxnaq_H2O = 0.0d0
 
-    !IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
-    !  if (ny == 1 .AND. nz == 1) THEN
-    !  A_transpi = dyy(jy) * dzz(jx,jy,jz)
-    !  source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp/CellVolume
-    !ENDIF
-    !ENDIF
 
     IF (wells) THEN
    
@@ -1069,6 +1038,7 @@ DO jy = 1,ny
           CONTINUE                ! Source term on R.H.S.
         ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
           source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
+          source_H2O = source_H2O + qg(npz,jx,jy,jz)/CellVolume   !!  GIMRT source term in m^3/year
         ELSE
           CONTINUE
         END IF
@@ -1084,11 +1054,13 @@ DO jy = 1,ny
         CONTINUE                ! Source term on R.H.S.
       ELSE IF (qg(1,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
         source = source + xgram(jx,jy,jz)*qg(1,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
+        source_H2O = source_H2O + qg(1,jx,jy,jz)/CellVolume   !!  GIMRT source term in m^3/year
       ELSE
         CONTINUE
       END IF
     END IF
     
+!!! Nernst-Planck
     IF (species_diffusion) THEN
 
       IF (nx > 1 .AND. ny == 1) THEN
@@ -1163,6 +1135,8 @@ DO jy = 1,ny
       END IF
 
     END IF
+    
+!!! End of Nernst-Plack
 
 !  Surface charge calculation
 
@@ -1177,6 +1151,7 @@ DO jy = 1,ny
       fxx(ind) = 0.1174d0*sqrt_sion*HyperbolicSine - surfcharge( kpot(npt) )
     END DO
     
+!!! Primary species loop
     DO i = 1,ncomp
       ind = (j-1)*(neqn) + i
       
@@ -1207,7 +1182,11 @@ DO jy = 1,ny
       
 !  Update the residual, adding reaction terms and exchange terms
       
-      fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
+      IF (i == ikh2o) THEN
+        fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
+      ELSE
+        fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
+      END IF
       
       sumrd = 0.0d0
       sumjackin = 0.0d0
@@ -1229,6 +1208,7 @@ DO jy = 1,ny
           END DO
         END DO
       ELSE
+        
         DO k = 1,nkin
           DO np = 1,nreactmin(k)
             IF (mumin(np,k,i) /= 0.0) THEN
@@ -1238,6 +1218,7 @@ DO jy = 1,ny
             END IF
           END DO
         END DO
+        
       END IF
 
       DO ir = 1,ikin
@@ -1258,8 +1239,7 @@ DO jy = 1,ny
             aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
                *(1.0 + Retardation*distrib(i) )
           ELSE
-            aq_accum = satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-               *(1.0 + Retardation*distrib(i) )
+            aq_accum = fjac(i2,i,jx,jy,jz)  
           END IF
           source_jac = source*fjac(i2,i,jx,jy,jz)  
           ex_accum = r*fch(i,i2,jx,jy,jz)
@@ -1308,21 +1288,30 @@ DO jy = 1,ny
           rxnmin = sumrd(i2)
 
           rxnaq = satl*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
+          rxnaq_H2O = satl*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
 
           IF (i /= ikh2o) THEN
-            aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-                *(1.0 + Retardation*distrib(i) ) 
+            
+            aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
+                *(1.0 + Retardation*distrib(i) )/delt
 
           ELSE
-            aq_accum = satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-                *(1.0 + Retardation*distrib(i) ) 
+            
+            aq_accum = fjac(i2,i,jx,jy,jz)/delt
+            
           END IF
 
           source_jac = source*fjac(i2,i,jx,jy,jz) 
+          source_jac_H2O = source_H2O*fjac(i2,i,jx,jy,jz) 
+          
           ex_accum = r*fch_local(i,i2) 
-          alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
-               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) 
-          continue
+          
+          IF (i /= ikh2o) THEN
+            alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
+                 + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) 
+          ELSE
+            alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq_H2O + aq_accum + source_jac_H2O)  
+          END IF
 
         END DO   ! end of I2 loop
 
@@ -1355,11 +1344,13 @@ DO jy = 1,ny
       END IF
 
       IF (isaturate == 1) THEN
+        
         DO i2 = 1,ncomp     
           ind2 = i2      
           alf(ind2,i,2) = alf(ind2,i,2) + MultiplyCell*satgas*portemp*r*fgas(i2,i,jx,jy,jz)    &
              + df*(bg(jx,jy,jz)+eg(jx,jy,jz))*fgas(i2,i,jx,jy,jz)
         END DO   ! end of I2 loop
+        
       END IF
 
       IF (species_diffusion) THEN
@@ -1643,6 +1634,8 @@ DO jy = 1,ny
       ind = (j-1)*(neqn) + pos_gammawater
       
       fxx(ind) = LOG( (1.0d0 - 0.017d0*TotalMoles)/ gammaH2O )
+!!!      LogTotalMoles = DLOG(1.0d0 - 0.017d0*TotalMoles)
+!!!      fxx(ind) = lngammawater(jx,jy,jz) - LogTotalMoles
         
 !!!   Derivative of activity of water (gammawater) with respect to primary species 
 
@@ -1708,6 +1701,7 @@ DO jy = 1,ny
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
         aah(pos_IonS,pos_gammawater,jx) = der_residuals(pos_IonS,pos_gammawater) 
       endif
+
       
 !!! Then, residual for gammawater
       
@@ -1722,6 +1716,7 @@ DO jy = 1,ny
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
         aah(pos_gammawater,pos_gammawater,jx) = der_residuals(pos_gammawater,pos_gammawater)
       endif
+      CONTINUE
       
       alf(pos_IonS,pos_gammawater,2)  = der_residuals(pos_gammawater,pos_IonS)
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN

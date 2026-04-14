@@ -221,12 +221,7 @@ DO ik = 1,ncomp+nspec
     IF (ulabPrint(1:3) == 'H2O') THEN
 
       gamWaterCheck = 1.0d0 - 0.017d0*TotalMoles
-!!!   Assumes molecular weight of H2O of 18.01528
-!!!      IF (gamWaterCheck < 0.0d0) THEN
-!!!        gam(ik,jx,jy,jz) = DLOG(1.0d0/55.50843506)
-!!!      ELSE
-!!!        gam(ik,jx,jy,jz) = DLOG(gamWaterCheck/55.50843506)
-!!!      END IF
+
       
     ELSE IF (ulab(ik) == 'CO2(aq)') THEN
 

@@ -64,19 +64,25 @@ INTEGER(I4B), INTENT(IN)                                        :: nspec
 
 INTEGER(I4B)                                                    :: ik
 
-REAL(DP)                                                        :: totmass
-REAL(DP)                                                        :: MeanSaltConcentration
+REAL(DP)                                                        :: TotMass
+REAL(DP)                                                        :: kgw
 
-IF (DensityModule /= 'temperature') THEN
-! Calculate the correction for the mass fraction of water:  kg_solution/kg_water
-  
-        MeanSaltConcentration = 0.001*(wtaq(MeanSalt(1))*sn(MeanSalt(1),jx,jy,jz) +   &
-            wtaq(MeanSalt(2))*sn(MeanSalt(2),jx,jy,jz)) 
-        xgram(jx,jy,jz) = 1.0/(1.0 + MeanSaltConcentration)
+TotMass = 0.0d0
 
-ELSE
-  xgram(jx,jy,jz) = 1.0d0
+IF (ikh2o == 0) THEN
+  write(*,*)
+  write(*,*) ' H2O pointer index not set'
+  write(*,*)
+  stop
 END IF
+
+DO ik = 1,ncomp+nspec
+  IF (ik /= ikh2o) THEN
+    TotMass = TotMass + wtaq(ik)*sp10(ik,jx,jy,jz)
+  END IF
+END DO
+
+xgram(jx,jy,jz) = wtaq(ikh2o)*55.50843506/( TotMass + 55.50843506*wtaq(ikh2o) )
 
 RETURN
 END SUBROUTINE xmassNodeByNode

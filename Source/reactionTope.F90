@@ -195,6 +195,7 @@ CHARACTER (LEN=10)                                               :: uMinPrint
 REAL(DP)                                                        :: LoadingPressureEffect
 REAL(DP)                                                        :: LogLoadingP
 REAL(DP)                                                        :: StressPrint
+REAL(DP)                                                        :: CheckSilog
 
 
 !**********
@@ -333,10 +334,14 @@ DO k = 1,nkin
   
   IF (ContactPressureLogical) THEN
 !!!                                 MPa  *  MPa->Pa  * Vm (m^3/mol) /    (RT)
-!!!  LoadingPressureEffect = EXP( -150.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
-    StressPrint = DABS( stress(jx,jy,1) )
+!!!   LoadingPressureEffect = EXP( -200.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
+!!!               MPa * MPa -> Pa
+    StressPrint = 100.0 * 1000000 
     LoadingPressureEffect = DEXP( -StressPrint * volmol(k) / (8.314D0*Tk) )
     LogLoadingP = LOG(LoadingPressureEffect)
+    !!!write(*,*) k, LogLoadingP
+    !!!write(*,*)
+    !!!read(*,*)
   
   ELSE
     LogLoadingP = 0.0d0
@@ -473,13 +478,15 @@ DO k = 1,nkin
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
             IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
-              MoleFractionMineral = MoleFractionAqueousRare(isotopologue)
+!!!              MoleFractionMineral = MoleFractionAqueousRare(isotopologue)
+              MoleFractionMineral = MoleFractionAqueousRare(kIsotopologue)
             ELSE
 
               IF (MoleFractionMineralRare(kIsotopologue) == 0.0d0) THEN
                 MoleFractionMineral = 1.0d0
               ELSE
-                MoleFractionMineral = MoleFractionMineralRare(isotopologue)
+!!!                MoleFractionMineral = MoleFractionMineralRare(isotopologue)
+                MoleFractionMineral = MoleFractionMineralRare(kIsotopologue)
               END IF
             END IF
 
@@ -495,15 +502,18 @@ DO k = 1,nkin
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
             IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
-
-              MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
+              
+!!!              MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
+              MoleFractionMineral = MoleFractionAqueousCommon(kIsotopologue)
 
             ELSE
+              
               IF (MoleFractionMineralCommon(kIsotopologue) == 0.0d0) THEN
                 MoleFractionMineral = 1.0d0
               ELSE
 
-                MoleFractionMineral = MoleFractionMineralCommon(isotopologue)
+ !!!               MoleFractionMineral = MoleFractionMineralCommon(isotopologue)
+                MoleFractionMineral = MoleFractionMineralCommon(kIsotopologue)
 
               END IF
             END IF
@@ -520,7 +530,11 @@ DO k = 1,nkin
            
 !!!     LogLoadingP is from the contact stress (read in from NMM, or set for the entire domain)
         
-        silog(np,k) = (sumiap + LogLoadingP - keqmin(1,k,jx,jy,jz))/clg
+        CheckSilog = ( sumiap - keqmin(1,k,jx,jy,jz) )/clg
+        !!!write(*,*) k, CheckSilog, LogLoadingP
+        !!!write(*,*)
+        !!!read(*,*)
+        silog(np,k) = CheckSilog + LogLoadingP/clg
 
         silogGlobal(np,k,jx,jy,jz) = silog(np,k)
         siln(np,k)  = clg*silog(np,k)
@@ -1168,9 +1182,9 @@ DO k = 1,nkin
         ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
         ! ELSE
           
-        rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+          rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         
-        !ENDIF
+          CONTINUE
           
         END IF
      

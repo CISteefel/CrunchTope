@@ -108,6 +108,8 @@ pump             3.71377E-05   ambient   1  21  1
 pump             3.71377E-05   ambient   1  22  1
 pump             3.71377E-05   ambient   1  23  1
 pump             3.71377E-05   ambient   1  24  1
+
+pumpunits  liter_sec
 END
  
 POROSITY
@@ -115,13 +117,13 @@ fix_porosity    0.41
 END
  
 PRIMARY_SPECIES
+H2O
 H+
 K+    
 Na+   
 Mg++  
 Cl-   
 Br-   
-H2O
 END
 
 SECONDARY_SPECIES

@@ -377,6 +377,7 @@ DO i = 1,ncomp
     
     ncharge = ncharge + 1
     NeedChargeBalance = .TRUE.
+    write(*,*) ' Charge balancing on ', i
     
   ELSE
     WRITE(*,*)
@@ -508,7 +509,8 @@ DO i = 1,ncomp
   
 !!!  IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
   IF (ulab(i) == 'H2O') THEN
-    sptmp10(i) = 55.50843506
+    sptmp10(i) = 55.50843506 * porcond(nco) * SaturationCond(nco) * RoCond(nco)
+!!!    sptmp10(i) = 55.50843506
     sptmp(i) = DLOG(sptmp10(i))
   END IF
 END DO
@@ -632,9 +634,13 @@ DO  ktrial = 1,ntrial
       
       IF (ctot(i,nco) /= 0.0) THEN
         check = stmp(i)/ctot(i,nco)  !! Ratio of calculated total concentration to imposed
-        continue
       END IF
-      feq(i) = stmp(i) - ctot(i,nco)
+      
+      IF (i == ikh2O) THEN
+        feq(i) = stmp(i)  - 55.50843506 * porcond(nco) * SaturationCond(nco) * RoCond(nco)
+      ELSE
+        feq(i) = stmp(i) - ctot(i,nco)
+      END IF
        
       IF (check > 1000000.0 .AND. iTotNegative(i) == 0) THEN
         

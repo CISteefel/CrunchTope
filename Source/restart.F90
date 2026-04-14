@@ -156,6 +156,7 @@ END IF
     READ(iures) spex
     READ(iures) spex10
     READ(iures) lngamma
+    READ(iures) lngammawater
     READ(iures) exchangesites
     READ(iures) spexold
     READ(iures) spgas

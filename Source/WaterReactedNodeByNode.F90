@@ -63,7 +63,7 @@ REAL(DP)                                                        :: dummy1
 REAL(DP)                                                        :: dummy2
 
 H2Oreacted(jx,jy,jz) = s(ikh2o,jx,jy,jz)/sn( ikh2o,jx,jy,jz)
-      H2Oreacted(jx,jy,jz) = 1.0d0
+H2Oreacted(jx,jy,jz) = 1.0d0
 
 RETURN
 END SUBROUTINE WaterReactedNodeByNode
