@@ -115,10 +115,18 @@ MODULE transport
 
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: satliq
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: satliqold
+  
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: Qreact
 
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: a
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: b
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: c
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: a_H2O
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: b_H2O
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: c_H2O
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: d_H2O
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: e_H2O
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: f_H2O
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: d
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: e
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: f
