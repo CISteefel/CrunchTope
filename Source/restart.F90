@@ -177,7 +177,8 @@ END IF
     READ(iures) spsurfold 
     READ(iures) raq_tot
     READ(iures) sion
-    
+    READ(iures) lngammawater
+
     IF (ALLOCATED(IntegerDummyArray)) THEN
       DEALLOCATE(IntegerDummyArray)
     END IF
