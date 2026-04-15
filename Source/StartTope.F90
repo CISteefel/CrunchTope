@@ -703,7 +703,7 @@ REAL(DP), DIMENSION(290,1,1)          :: xPrint
 #if defined(ALQUIMIA)
 
 
-include 'mpif.h'
+!!!include 'mpif.h'
 integer :: rank, ierror
 character(25) :: fn
 #endif
@@ -2499,6 +2499,8 @@ END IF
 
 surfcharge_init = 0.0
 LogPotential_tmp = 0.0
+nptlink = 0
+nptPrimary = 0
 
 DO is = 1,nsurf
   
@@ -5842,8 +5844,6 @@ ELSE   !! Conventional treatment of boundaries as corresponding to an entire bou
       END DO
     END DO
   END DO
-  
-  !!! Comment
 
   jy = ny+1
   DO jz = 1,nz

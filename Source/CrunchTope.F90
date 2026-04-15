@@ -587,9 +587,6 @@ AqueousFlux_FaceNorth = 0.0
 
 AqueousFlux_FaceEast_H2 = 0.0
 GasFlux_FaceEast_H2 = 0.0
-ChangeH2O    = 0.0
-ChangeH2     = 0.0
-ChangeH2_gas = 0.0
 
 !!! Gas and Aqueous Fluxes (to be moved to subroutine)
 
@@ -977,6 +974,12 @@ IF (GIMRT) THEN
 END IF
 
 call AllocateALL(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny,nz)
+
+IF (BatchReactor .Or. BatchReactor2) THEN
+  ChangeH2O    = 0.0d0
+  ChangeH2     = 0.0d0
+  ChangeH2_gas = 0.0d0
+END IF
 
 MoleChangeTotal = 0.0d0
 
@@ -2286,8 +2289,8 @@ DO WHILE (nn <= nend)
           !!!   Update lngammawater
                 
                 ind = (j-1)*(neqn) + ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(xn(ind)) > 0.5) THEN
-                  xn(ind) = SIGN(0.5,xn(ind))
+                IF (DABS(xn(ind)) > 0.5d0) THEN
+                  xn(ind) = SIGN(0.5d0,xn(ind))
                 ELSE
                   CONTINUE
                 END IF 
@@ -2454,9 +2457,11 @@ DO WHILE (nn <= nend)
      
 !! For greater accuracy, update reaction rate
      
-ChangeH2O    = 0.0
-ChangeH2     = 0.0
-ChangeH2_gas = 0.0
+IF (BatchReactor .Or. BatchReactor2) THEN
+  ChangeH2O    = 0.0
+  ChangeH2     = 0.0
+  ChangeH2_gas = 0.0
+END IF
 
 DO jz = 1,nz
   DO jy = 1,ny

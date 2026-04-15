@@ -73,8 +73,10 @@ REAL(DP)                                                    :: LogDependence
 
 DO ns = 1,nsurf_sec
 
+
   IF (nptlink(ns) /= 0) THEN
       
+
 !!!  Primary surface complex charge minus secondary surface complex charge 
 
     delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
