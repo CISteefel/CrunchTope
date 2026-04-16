@@ -68,11 +68,11 @@ fix_porosity 0.60
 END
 
 PRIMARY_SPECIES
+H2O 
 H+
 Ca++
 Ca44++
 HCO3-
-H2O 
 END
 
 SECONDARY_SPECIES

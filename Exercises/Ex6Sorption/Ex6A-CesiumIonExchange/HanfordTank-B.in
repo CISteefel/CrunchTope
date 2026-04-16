@@ -154,6 +154,7 @@ set_temperature  25.0
 END
  
 PRIMARY_SPECIES
+H2O
 Cs+
 Na+
 Ca++
@@ -165,7 +166,6 @@ HCO3-
 K+
 NO3-
 Cl-
-H2O
 END
  
 SECONDARY_SPECIES

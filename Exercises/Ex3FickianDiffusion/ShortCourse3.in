@@ -9,8 +9,8 @@ timestep_init      0.005
 time_tolerance     0.001
 hindmarsh          true
 master             Tracer
-correction_max     2.0
-debye-huckel       true
+correction_max     0.1
+debye-huckel       false
 database_sweep     no
 speciate_only      false
 gimrt              true
@@ -38,8 +38,10 @@ dispersivity   0.0
 END
 
 BOUNDARY_CONDITIONS
-x_begin   junk2           flux
-x_end     junk2           flux
+BoundaryCondition      junk2   zone   0-0       1-1     1-1  flux
+BoundaryCondition      junk2    zone  502-502   1-1     1-1  flux
+!!!x_begin   junk2           flux
+!!!x_end     junk2           flux
 END
 
 INITIAL_CONDITIONS
@@ -80,10 +82,10 @@ fix_porosity     1.0
 END
  
 PRIMARY_SPECIES
+H2O
 Tracer
 Na+
 Cl-
-H2O
 END
  
 

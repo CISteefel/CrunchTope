@@ -93,13 +93,13 @@ set_temperature  25.0
 END
  
 PRIMARY_SPECIES
+H2O
 H+
 Cl-
 37Cl-
 Na+
 NO3-
 CO2(aq)
-H2O
 END
  
 SECONDARY_SPECIES

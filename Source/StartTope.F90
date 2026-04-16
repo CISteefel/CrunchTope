@@ -703,7 +703,7 @@ REAL(DP), DIMENSION(290,1,1)          :: xPrint
 #if defined(ALQUIMIA)
 
 
-!!!include 'mpif.h'
+include 'mpif.h'
 integer :: rank, ierror
 character(25) :: fn
 #endif
@@ -893,6 +893,11 @@ IF (found) THEN
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,ContactPressureLogical)
   
+  PseudomorphicLogical = .FALSE.
+  parchar = 'pseudomorphic'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,PseudomorphicLogical)
+  
   UtahForgeLogical = .FALSE.
   parchar = 'utahforge'
   parfind = ' '
@@ -927,6 +932,11 @@ IF (found) THEN
   parfind = ' '
   BatchReactor = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,BatchReactor)
+  
+  parchar = 'BatchReactor2'
+  parfind = ' '
+  BatchReactor2 = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,BatchReactor2)
 
   parchar = 'montterri'
   parfind = ' '
@@ -2196,7 +2206,6 @@ IF (.NOT. H2Ofound) THEN
   write(*,*)
   write(*,*) ' H2O must be present in list of PRIMARY SPECIES'
   write(*,*) ' Add "H2O" to the end of the PRIMARY SPECIES list'
-  write(*,*) ' Add "H2O  55.50843506" to the CONDITION blocks'
   write(*,*)
   STOP
 END IF
@@ -2499,8 +2508,6 @@ END IF
 
 surfcharge_init = 0.0
 LogPotential_tmp = 0.0
-nptlink = 0
-nptPrimary = 0
 
 DO is = 1,nsurf
   
@@ -2634,12 +2641,14 @@ IF (ALLOCATED(spcondex)) THEN
 ELSE
   ALLOCATE(spcondex(nexchange+nexch_sec,mchem))
 END IF
+
 IF (ALLOCATED(spcondex10)) THEN
   DEALLOCATE(spcondex10)
   ALLOCATE(spcondex10(nexchange+nexch_sec,mchem))
 ELSE
   ALLOCATE(spcondex10(nexchange+nexch_sec,mchem))
 END IF
+
 IF (ALLOCATED(spcondsurf)) THEN
   DEALLOCATE(spcondsurf)
   ALLOCATE(spcondsurf(nsurf+nsurf_sec,mchem))
@@ -3186,6 +3195,20 @@ DO i = 1,ncomp
   END IF
 END DO
 
+IF (ikH2O /= 1) THEN
+  write(*,*)
+  write(*,*) ' H2O should be Number 1 in Primary Species list'
+  write(*,*)
+  stop
+END IF
+
+IF (.not. H2Opresent) THEN
+  write(*,*)
+  write(*,*) ' H2O needs to present in the primary species list'
+  write(*,*)
+  stop
+END IF
+
 !!!  ******************************************************
 !!!  *****************  PEST BLOCK  ***********************
 
@@ -3318,6 +3341,9 @@ WRITE(iunit2,*)
 WRITE(iunit2,*) '  ********  SPECIATION OF GEOCHEMICAL CONDITIONS  ********'
 WRITE(iunit2,*)
 
+IF (ALLOCATED(AqueousToBulkCond)) THEN
+  DEALLOCATE(AqueousToBulkCond)
+END IF
 ALLOCATE(AqueousToBulkCond(nchem))
 
 iinit = 1
@@ -4037,6 +4063,7 @@ IF (found) THEN
   !*************
 
 ELSE
+  
   WRITE(*,*)
   WRITE(*,*) ' Failed to find discretization block'
   WRITE(*,*)
@@ -4069,36 +4096,37 @@ END IF
 #ifndef ALQUIMIA
 
 
-  IF (nzonex == 0) THEN
+IF (nzonex == 0) THEN
 
-  ELSE
+ELSE
+  nsum = 0
+  DO i = 1,nzonex
+    nsum = nsum + nvx(i)
+  END DO
+END IF
+
+IF (nzoney == 0) THEN
+
+ELSE
+  nsum = 0
+  DO i = 1,nzoney
+    nsum = nsum + nvy(i)
+  END DO
+END IF
+
+IF (nzonez == 0) THEN
+
+ELSE
     nsum = 0
-    DO i = 1,nzonex
-      nsum = nsum + nvx(i)
+    DO i = 1,nzonez
+      nsum = nsum + nvz(i)
     END DO
-  END IF
-
-  IF (nzoney == 0) THEN
-
-  ELSE
-    nsum = 0
-    DO i = 1,nzoney
-      nsum = nsum + nvy(i)
-    END DO
-  END IF
-
-  IF (nzonez == 0) THEN
-
-  ELSE
-      nsum = 0
-      DO i = 1,nzonez
-        nsum = nsum + nvz(i)
-      END DO
-  END IF
+END IF
 
   !  Now calculate NX, NY, and NZ
 
   IF (nzonex == 0) THEN
+    
     nx = 1
     IF (ALLOCATED(x)) THEN
       DEALLOCATE(x)
@@ -4121,6 +4149,7 @@ END IF
     x(1) = 0.5d0*dxx(1)
 
   ELSE
+    
     nx = 0
     DO i = 1,nzonex
       IF (nvx(i) == 0) THEN
@@ -4174,6 +4203,7 @@ END IF
   1019 FORMAT(1X,i3,1X,1PE12.3)
 
   IF (nzoney == 0) THEN
+    
     ny = 1
     IF (ALLOCATED(y)) THEN
       DEALLOCATE(y)
@@ -4197,6 +4227,7 @@ END IF
     y(1) = 0.5d0*dyy(1)
     
   ELSE
+    
     ny = 0
     DO i = 1,nzoney
       IF (nvy(i) == 0) THEN
@@ -4329,21 +4360,25 @@ END IF
 
 nxyz = nx*ny*nz
 
-  IF (ALLOCATED(gammawater)) THEN
-    DEALLOCATE(gammawater)
-    ALLOCATE(gammawater(nx,ny,nz))
-  ELSE
-    ALLOCATE(gammawater(nx,ny,nz))
-  END IF
-  IF (ALLOCATED(lngammawater)) THEN
-    DEALLOCATE(lngammawater)
-    ALLOCATE(lngammawater(nx,ny,nz))
-  ELSE
-    ALLOCATE(lngammawater(nx,ny,nz))
-  END IF
+IF (nx == 3 .and. ny == 1 .and. nz == 1) THEN
+  ihindmarsh = 0
+END IF
 
-  gammawater = 1.0d0
-  lngammawater = 0.0d0
+IF (ALLOCATED(gammawater)) THEN
+  DEALLOCATE(gammawater)
+  ALLOCATE(gammawater(nx,ny,nz))
+ELSE
+  ALLOCATE(gammawater(nx,ny,nz))
+END IF
+IF (ALLOCATED(lngammawater)) THEN
+  DEALLOCATE(lngammawater)
+  ALLOCATE(lngammawater(nx,ny,nz))
+ELSE
+  ALLOCATE(lngammawater(nx,ny,nz))
+END IF
+
+gammawater = 1.0d0
+lngammawater = 0.0d0
 
 !!!  **************  End of DISCRETIZATION  *********************************
 !!!  ************************************************************************
@@ -4503,7 +4538,17 @@ IF (found) THEN
   
   CALL read_het(nout,nchem,nhet,nx,ny,nz)
   
-  IF (ContactPressureLogical .and. UtahForgeLogical) THEN
+  IF (ContactPressureLogical .and. PseudomorphicLogical) THEN
+    
+    IF (ALLOCATED(stress)) THEN
+      DEALLOCATE(stress)
+    END IF
+    ALLOCATE(stress(nx,ny,nz))
+
+    stress = 0.00
+  END IF
+  
+  IF (ContactPressureLogical .and. SerpentineFracture) THEN
     
     IF (ALLOCATED(stress)) THEN
       DEALLOCATE(stress)
@@ -5484,6 +5529,7 @@ IF (nBoundaryConditionZone > 0) THEN
         spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
       end do
       DO ix = 1,nexchange+nexch_sec
+        write(*,*) 
         spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
       END DO
       DO is = 1,nsurf
@@ -5582,7 +5628,7 @@ IF (nBoundaryConditionZone > 0) THEN
           spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
         end do
         DO ix = 1,nexchange+nexch_sec
-          spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
         END DO
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
@@ -5626,11 +5672,11 @@ IF (nBoundaryConditionZone > 0) THEN
           spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
           spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
         END DO
-        do ix = 1,nexchange+nexch_sec
+        do ix = 1,nexchange
           spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
         end do
         DO ix = 1,nexchange+nexch_sec
-          spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
         END DO
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
@@ -5678,11 +5724,11 @@ IF (nBoundaryConditionZone > 0) THEN
           spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
           spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
         END DO
-        do ix = 1,nexchange+nexch_sec
+        do ix = 1,nexchange
           spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
         end do
         DO ix = 1,nexchange+nexch_sec
-          spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
         END DO
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
@@ -5726,11 +5772,11 @@ IF (nBoundaryConditionZone > 0) THEN
           spgas10(kk,jx,jy,jz) = spcondgas10(kk,ConditionNumber)
           spgas(kk,jx,jy,jz)   = spcondgas(kk,ConditionNumber)
         END DO
-        do ix = 1,nexchange+nexch_sec
+        do ix = 1,nexchange
           spex(ix,jx,jy,jz)    = spcondex(ix,ConditionNumber)
         end do
         DO ix = 1,nexchange+nexch_sec
-          spex10(ix,jx,jy,jz) = convert*spcondex10(ix,ConditionNumber)  ! Now in eq/m3 por. med.
+          spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,ConditionNumber)  ! Now in eq/m3 por. med.
         END DO
         DO is = 1,nsurf
           spsurf(is,jx,jy,jz)   = LOG(convert*spcondsurf10(is,ConditionNumber))
@@ -7535,6 +7581,7 @@ IF (FOUND) THEN
 
         IF (nmmLogical .and. SerpentineFracture) THEN
 
+          jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
               if (jinit(jx,jy,1) == 2) then
@@ -8566,6 +8613,22 @@ IF (constant_gasflow) THEN
   qxgas = qxgasinit
   qygas = qygasinit
   qzgas = qzgasinit
+  
+
+  
+  !!! Hardwired for cylindrical meter-scale
+  IF (nx == 37) THEN
+    qygas = 0.0
+    qzgas = 0.0
+    do jy = 0,nx
+      do jx = 29,nx
+        qygas(jx,jy,1) = 0.0
+      end do
+    end do
+  END IF
+
+  
+  
   
 !!!  DO jy = 1,ny
 !!!    DO jx = 0,nx
@@ -9939,9 +10002,9 @@ DEALLOCATE(namdep_nyf)
 #ifndef ALQUIMIA
 DEALLOCATE(tempcond)
 DEALLOCATE(SkipAdjust)
-DEALLOCATE(rocond)
+!!!DEALLOCATE(rocond)
 !!!DEALLOCATE(porcond)
-DEALLOCATE(SaturationCond)
+!!!DEALLOCATE(SaturationCond)
 !!!DEALLOCATE(PressureCond)
 DEALLOCATE(equilibrate)
 DEALLOCATE(fsurftmp)

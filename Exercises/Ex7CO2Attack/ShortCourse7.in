@@ -221,13 +221,13 @@ calculate_flow      false
 END
 
 PRIMARY_SPECIES
+H2O
 H+
 Ca++
 CO2(aq) 
 SiO2(aq)
 Na+
 Cl-
-H2O
 END
 
 SECONDARY_SPECIES

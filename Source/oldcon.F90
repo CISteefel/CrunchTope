@@ -78,7 +78,7 @@ INTEGER(I4B)                                  :: ns
 
 ConvertToMeterCubed = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
 
-DO i = 1,ncomp
+DO i = 2,ncomp
   sum1 = 0.0
   sum2 = 0.0
   sum3 = 0.0
@@ -91,16 +91,15 @@ DO i = 1,ncomp
   DO ns = 1,nsurf_sec
     sum3 = sum3 + musurf(ns,i)*spsurf10(ns+nsurf,jx,jy,jz)
   END DO
-  
-  IF (i == ikh2o) THEN
-    sn(i,jx,jy,jz) = ConvertToMeterCubed*sum1 + sp10(i,jx,jy,jz)
-  ELSE
-    sn(i,jx,jy,jz) = sum1 + sp10(i,jx,jy,jz)
-  END IF
+     
+  sn(i,jx,jy,jz) = sum1 + sp10(i,jx,jy,jz)
   
   sexold(i,jx,jy,jz) = sum2
   ssurfold(i,jx,jy,jz) = sum3
+  
 END DO
+  
+sn(ikh2o,jx,jy,jz) = sp10(ikh2o,jx,jy,jz)
 
 RETURN
 END SUBROUTINE oldcon

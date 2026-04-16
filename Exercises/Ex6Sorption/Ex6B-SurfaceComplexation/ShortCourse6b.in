@@ -36,13 +36,13 @@ set_temperature      25.0
 END
 
 PRIMARY_SPECIES
+H2O
 H+
 Zn++
 Na+
 NO3-
 Fe+++
 O2(aq)
-H2O
 END
 
 SECONDARY_SPECIES

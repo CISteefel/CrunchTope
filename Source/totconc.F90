@@ -71,22 +71,24 @@ REAL(DP)                                                    :: ConvertToMeterCub
 
 ConvertToMeterCubed = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
 
-DO i = 1,ncomp
+!!! Check that ikh2o == 1
+if (ikh2O /= 1) then
+  write(*,*) ' H2O should be component 1'
+  read(*,*)
+end if
+
+DO i = 2,ncomp
   sum=0.0D0
   DO ksp = 1,nspec
     kk = ksp + ncomp
     sum = sum + muaq(ksp,i)*sp10(kk,jx,jy,jz)
   END DO
-  
-  IF (i == ikh2o) THEN
-    s(i,jx,jy,jz) = ConvertToMeterCubed*sum + sp10(i,jx,jy,jz)
-  ELSE
-    s(i,jx,jy,jz) = sum + sp10(i,jx,jy,jz)
-  END IF
+
+  s(i,jx,jy,jz) = sum + sp10(i,jx,jy,jz)
   
 END DO
 
-
+s(ikh2o,jx,jy,jz) = sp10(ikh2o,jx,jy,jz)
 
 RETURN
 END SUBROUTINE totconc

@@ -20,13 +20,13 @@ time_series_interval 1
 END
 
 PRIMARY_SPECIES
+H2O
 H+
 CO2(aq)
 13CO2(aq)
 Ca++
 Na+
 Cl-
-H2O
 END
 
 ISOTOPES

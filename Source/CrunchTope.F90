@@ -1,5 +1,4 @@
-
-  !!! *** Copyright Notice ***
+!!! *** Copyright Notice ***
 !!! �CrunchFlow�, Copyright (c) 2016, The Regents of the University of California, through Lawrence Berkeley National Laboratory
 !!! (subject to receipt of any required approvals from the U.S. Dept. of Energy).� All rights reserved.
 !!!�
@@ -138,7 +137,7 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                        :: break
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: c0
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: csave
 REAL(DP), DIMENSION(:,:), ALLOCATABLE                      :: aaaTemp
-REAL(DP), PARAMETER                                        :: atol=1.e-08
+REAL(DP), PARAMETER                                        :: atol=1.e-09
 REAL(DP), PARAMETER                                        :: rtol=1.e-06
 REAL(DP), PARAMETER                                        :: correx=1.0
 REAL(DP), PARAMETER                                        :: tiny=1.0E-13
@@ -358,8 +357,6 @@ REAL(DP)                                                   :: CumulativeFe
 REAL(DP)                                                   :: CumulativeO2
 REAL(DP)                                                   :: CumulativeCO2
 
-REAL(DP)                                                   :: CellVolume
-
 CHARACTER (LEN=1)                                          :: trans
 
 INTEGER(I4B)                                               :: info
@@ -416,14 +413,6 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_Face
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceEast
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceSouth
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceNorth
-
-REAL(DP)                                                   :: totAqueousH2 
-REAL(DP)                                                   :: totGasH2 
-REAL(DP)                                                   :: totH2O
-REAL(DP)                                                   :: ChangeInH2_gas
-REAL(DP)                                                   :: SatGas
-
-
 
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2024 Oct.
@@ -499,7 +488,7 @@ END IF    !  Above is not used when running PEST
 
 FirstCall = .TRUE.
 
-!!!  Initialize
+!!  Initialize
 trans = 'N'
 solve_flag = .FALSE.
 steady = .FALSE.
@@ -522,10 +511,10 @@ dtmaxcour = 0.0
 iprnt = 0
 ncounter = 0
 
-CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,                  &
-       ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,                      &
-       corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,         &
-       str_day,str_hr,str_min,str_sec,NumInputFiles,InputFileCounter,nBoundaryConditionZone)
+CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,               &
+    ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,                      &
+    corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,         &
+    str_day,str_hr,str_min,str_sec,NumInputFiles,InputFileCounter,nBoundaryConditionZone)
 
 str_mon = 0
 str_day = 0
@@ -533,8 +522,6 @@ str_hr  = 0
 str_min = 0
 str_sec = 0
 str_millisec = 0
-
-!!! Gas and Aqueous Fluxes (to be moved to subroutine)
 
 IF (ALLOCATED(GasFlux_FaceWest)) THEN
   DEALLOCATE(GasFlux_FaceWest)
@@ -583,13 +570,7 @@ IF (ALLOCATED(AqueousFlux_FaceNorth)) THEN
   DEALLOCATE(AqueousFlux_FaceNorth)
 END IF
 ALLOCATE(AqueousFlux_FaceNorth(ncomp+nspec))
-AqueousFlux_FaceNorth = 0.0
-
-AqueousFlux_FaceEast_H2 = 0.0
-GasFlux_FaceEast_H2 = 0.0
-
-!!! Gas and Aqueous Fluxes (to be moved to subroutine)
-
+GasFlux_FaceNorth = 0.0
 
 ! ************ Initialize PETSc stuff ***************************************
 IF ( InputFileCounter == 1) THEN
@@ -635,8 +616,8 @@ dtold = delt
 time = 0.0
 
 WRITE(*,*)
-WRITE(*,*)      '        INITIALIZATION COMPLETED '
-WRITE(*,*)      '        --> STARTING TIMESTEPPING '
+WRITE(*,*) '        INITIALIZATION COMPLETED '
+WRITE(*,*) '        --> STARTING TIMESTEPPING '
 WRITE(*,*)
 WRITE(iunit2,*)
 WRITE(iunit2,*) '        INITIALIZATION COMPLETED '
@@ -659,7 +640,7 @@ IF (GIMRT) THEN
 !******************end petsc addition for cleanup on error ******************************
     READ(*,*)
     STOP
-    
+	
   END IF
   
 ELSE
@@ -679,11 +660,11 @@ WRITE(*,*) ' Grid cells in Y direction (NY): ', ny
 WRITE(*,*) ' Grid cells in Z direction (NZ): ', nz
 WRITE(*,*)
 
-
 !!!  *******************************************************
 !!!  ***************  FLOW CALCULATION  ********************
 
 IF (CalculateFlow) THEN
+
   
   SteadyFlow = .FALSE.
   
@@ -724,7 +705,7 @@ IF (CalculateFlow) THEN
     WRITE(*,*) ' Initializing to hydrostatic'
     DO jz = 1,nz
       DO jy = 1,ny
-            DO jx = 1,nx
+		    DO jx = 1,nx
           harx(jx,jy,jz) = (1.0d0 - COSD(x_angle))*1.0D-22 + COSD(x_angle)*harx(jx,jy,jz)
           hary(jx,jy,jz) = (1.0d0 - COSD(y_angle))*1.0D-22 + COSD(y_angle)*hary(jx,jy,jz)
           harz(jx,jy,jz) = (1.0d0 - COSD(z_angle))*1.0D-22 + COSD(z_angle)*harz(jx,jy,jz)
@@ -736,108 +717,110 @@ IF (CalculateFlow) THEN
  ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  
-  initial_flow_solver_if: IF (Richards) THEN
+ initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
 
-    steady_Richards: IF (Richards_Options%is_steady) THEN
-      ! solve the 1D state-state Richards equation
-      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-      Richards_BCs_pointer => Richards_BCs_steady
-      CALL RichardsSolve(nx, ny, nz, delt)
-      Richards_Options%is_steady = .FALSE.
-      Richards_BCs_pointer => Richards_BCs
+   steady_Richards: IF (Richards_Options%is_steady) THEN
+   ! solve the 1D state-state Richards equation
+     WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
+     Richards_BCs_pointer => Richards_BCs_steady
+     CALL RichardsSolve(nx, ny, nz, delt)
+     Richards_Options%is_steady = .FALSE.
+     Richards_BCs_pointer => Richards_BCs
 
-    ELSE steady_Richards
+   ELSE steady_Richards
      
-      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
-      ! compute water flux from the initial condition and the boundary conditions at t = 0
-      CALL RichardsFlux(nx, ny, nz)
+     WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
+     ! compute water flux from the initial condition and the boundary conditions at t = 0
+     CALL RichardsFlux(nx, ny, nz)
      
-     END IF steady_Richards
+   END IF steady_Richards
 
-  ! End of edit by Toshiyuki Bandai, 2024 Oct
-  ! ******************************************************************
-  ELSE initial_flow_solver_if
+ ! End of edit by Toshiyuki Bandai, 2024 Oct
+ ! ******************************************************************
+ ELSE initial_flow_solver_if
 
-    atolksp = 1.D-50
-    rtolksp = GIMRTRTOLKSP
-    rtolksp = 1.0D-25
-    dtolksp = 1.0D-30
+  atolksp = 1.D-50
+  rtolksp = GIMRTRTOLKSP
+  rtolksp = 1.0D-25
+  dtolksp = 1.0D-30
 
-    pc%v = userP(5)
-    ksp%v = userP(6)
+  pc%v = userP(5)
+  ksp%v = userP(6)
 
-    CALL KSPSetOperators(ksp,amatP,amatP,ierr)
+  CALL KSPSetOperators(ksp,amatP,amatP,ierr)
   
-    WRITE(*,*)
-    WRITE(*,*) ' Running flow field to steady state prior to chemistry'
-    WRITE(*,*)
+  WRITE(*,*)
+  WRITE(*,*) ' Running flow field to steady state prior to chemistry'
+  WRITE(*,*)
   
-    IF (NavierStokes) THEN
-      CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
-    ELSE
-      CALL pressure(nx,ny,nz,dtflow,amatP,SteadyFlow)
-    END IF
+  IF (NavierStokes) THEN
+    CALL pressureNS(nx,ny,nz,dtflow,amatP,SteadyFlow)
+  ELSE
+    CALL pressure(nx,ny,nz,dtflow,amatP,SteadyFlow)
+  END IF
 
-    CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
-    CALL KSPSolve(ksp,BvecP,XvecP,ierr)
-    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+  CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
+  CALL KSPSolve(ksp,BvecP,XvecP,ierr)
+  CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+
+  WRITE(*,*)
+  WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
+  WRITE(*,*)
+
+  CALL KSPGetConvergedReason(ksp,reason,ierr)
+  IF (reason == 2) THEN
+    WRITE(*,*) ' Converged on relative tolerance in linear solver'
+  END IF
+  IF (reason == 3) THEN
+    WRITE(*,*) ' Converged on absolute tolerance in linear solver'
+  END IF
+  IF (reason == 4) THEN
+    WRITE(*,*) ' Converged based on iterations in linear solver'
+  END IF
+  IF (reason < 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
-    WRITE(*,*)
+    WRITE(*,*) ' Steady state flow failed to converge, but continue on '
+    ierr = 0
+  END IF
 
-    CALL KSPGetConvergedReason(ksp,reason,ierr)
-    IF (reason == 2) THEN
-      WRITE(*,*) ' Converged on relative tolerance in linear solver'
-    END IF
-    IF (reason == 3) THEN
-      WRITE(*,*) ' Converged on absolute tolerance in linear solver'
-    END IF
-    IF (reason == 4) THEN
-      WRITE(*,*) ' Converged based on iterations in linear solver'
-    END IF
-    IF (reason < 0) THEN
-      WRITE(*,*)
-      WRITE(*,*) ' Steady state flow failed to converge, but continue on '
-      ierr = 0
-    END IF
-
+ 
 !     ***** PETSc closeout*******
 
-    IF (ierr /= 0) then
-      WRITE(*,*)
-      WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
+  IF (ierr /= 0) then
+    WRITE(*,*)
+    WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
 
-      !   ***** PETSc closeout**************
-      IF (petscon) then
-        call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
-      END IF
-      IF (CalculateFlow) then
-        call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
-      END IF
-      IF (OS3Dpetsc) then
-        call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
-      END IF
-      call PetscFinalize(ierr)
-      !   ****** PETSc closeout finished *********
-      READ(*,*)
-      STOP
+!   ***** PETSc closeout**************
+    IF (petscon) then
+      call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
     END IF
+    IF (CalculateFlow) then
+      call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
+    END IF
+    IF (OS3Dpetsc) then
+      call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
+    END IF
+    call PetscFinalize(ierr)
+!   ****** PETSc closeout finished *********
+    READ(*,*)
+    STOP
+  END IF
 
-    FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-      pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-    END FORALL
+  FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+    pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+  END FORALL
+  
 
-    IF (NavierStokes) THEN
+  IF (NavierStokes) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
-    ELSE
+  ELSE
       CALL velocalc(nx,ny,nz)
-    END IF
+  END IF
   
   END If initial_flow_solver_if
-  
  ! End of If construct for solvers needing PETSc or not
    
   ! **********************************************
@@ -918,7 +901,6 @@ IF (CalculateFlow) THEN
             jymax = jy
         END IF
         MaxDivergence = DMAX1(MaxDivergence,DABS(RealSum))
-        
       END DO
     END DO
   END DO
@@ -933,7 +915,7 @@ END IF   !!  End of steady state flow block
 
 !!!  **********  END OF FLOW BLOCK  ************************
 !!!  *******************************************************
-      
+
 
 !!  Initial mass in system
 IF (ALLOCATED(InitialMass)) THEN
@@ -975,14 +957,6 @@ END IF
 
 call AllocateALL(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny,nz)
 
-IF (BatchReactor .Or. BatchReactor2) THEN
-  ChangeH2O    = 0.0d0
-  ChangeH2     = 0.0d0
-  ChangeH2_gas = 0.0d0
-END IF
-
-MoleChangeTotal = 0.0d0
-
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -1018,9 +992,9 @@ endif   !  PETSc setup
 
 IF (irestart == 1) THEN
 
-  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave,           &
-                delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
-                amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
+  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave,          &
+               delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
+               amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
 
 END IF
 
@@ -1044,10 +1018,10 @@ END IF
 
 IF (OS3D) THEN
 
-  call FindMaxFlow(nx,ny,nz)
-  IF (xflow .OR. yflow .OR. zflow) THEN
-    call CourantStepAlt(nx,ny,nz,dtmaxcour)
-  END IF
+    call FindMaxFlow(nx,ny,nz)
+    IF (xflow .OR. yflow .OR. zflow) THEN
+      call CourantStepAlt(nx,ny,nz,dtmaxcour)
+    END IF
 
 END IF
 
@@ -1124,9 +1098,8 @@ IF (Richards) THEN
     END DO
   END DO
 END IF
+!**********************************************
 
-!!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!!! Time Stepping --> DO WHILE LOOP
 i_substep = 0
 DO WHILE (nn <= nend)
 
@@ -1138,7 +1111,7 @@ DO WHILE (nn <= nend)
 
   nn = nn + 1
 
-!!!  Call timestep-dependent re-speciation routine to check whether initial state should be updated --> FLASH
+!!!  Call timestep-dependent re-speciation routine to check whether initial state should be updated  FLASH
 
   jx = 0
   jy = 1
@@ -1157,14 +1130,11 @@ DO WHILE (nn <= nend)
     CALL UpdateExchanger(nx,ny,nz,nexchange)
   END IF
 
-  !!! Deleted code from Lucien (Lucien-Delete1.txt)
-  
-  !!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  !!! ++++++++++++++++++  BEGIN FLOW CALCULATION  ++++++++++++++++++++++++++++
+!!! Deleted code from Lucien (Lucien-Delete1.txt)
 
   IF (CalculateFlow) THEN
 
-    !!! Initialize ghost cells for density
+    !!! Initialize ghost cells for flow
     ro(0,:,:) = ro(1,:,:)
     ro(nx+1,:,:) = ro(nx,:,:)
     ro(:,0,:) = ro(:,1,:)
@@ -1181,222 +1151,211 @@ DO WHILE (nn <= nend)
     ! Edit by Toshiyuki Bandai 2023 May
     ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
     flow_solver_if_time: IF (Richards) THEN
-      ! ******************************************************************
-      IF (Richards_Options%is_print) THEN
-        WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
-      END IF
-               
-      ! update fluid property
-      CALL RichardsUpdateFluid(t, Richards_State%xi)
-          
-      ! update permeability at faces
-      CALL harmonic(nx,ny,nz)
-          
-      ! store the previous time step water content
-      Richards_State%theta_prev = Richards_State%theta         
-          
-      ! update transient boundary condition
-      DO i = 1, Richards_Base%n_bfaces
-        IF (Richards_BCs_pointer(i)%is_variable) THEN
-          Richards_Variable_BC_ptr => Richards_Variable_BC
-              
-          DO j = 1, Richards_BCs_pointer(i)%variable_BC_index - 1
-            Richards_Variable_BC_ptr => Richards_Variable_BC%p
-          END DO
-              
-          CALL interp(time + delt, Richards_Variable_BC_ptr%BC_time, Richards_Variable_BC_ptr%BC_values, Richards_BCs_pointer(i)%BC_value, size(Richards_Variable_BC_ptr%BC_time))
-        END IF
-      END DO
-             
-      ! solve the Richards equation
-      CALL RichardsSolve(nx, ny, nz, delt)
-          
-      ! update saturation
-      satliqold = satliq
-          
-      DO jz = 1, nz
-        DO jy = 1, ny
-          DO jx = 1, nx
-              satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
-          END DO
-        END DO
-      END DO
-    
-      ! fill ghost points by zero-order extrapolation
-      text = 'Liquid_Saturation'
-      lowX = LBOUND(satliq,1)
-      lowY = LBOUND(satliq,2)
-      lowZ = LBOUND(satliq,3)
-      highX = UBOUND(satliq,1)
-      highY = UBOUND(satliq,2)
-      highZ = UBOUND(satliq,3)
-      call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
-          
-      ! the velocity at the boundary is forced to zero when the vector goes outward
-      ! not to consider chemcial transport via evaporation
-
-      IF (Richards_Options%evaporation_boundary) THEN
-        
-        IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-          jy = 1
-          jz = 1
-              
-          DO i = 1, Richards_Base%n_bfaces
-            IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
-              IF (i == 1) THEN
-              ! left boundary
-                jx = 0
-                IF (qx(jx, jy, jz) < 0.0d0) THEN
-                  qx(jx, jy, jz) = 0.0d0
-                END IF
-              ELSE
-              ! right boundary
-                jx = nx
-                IF (qx(jx, jy, jz) > 0.0d0) THEN
-                  qx(jx, jy, jz) = 0.0d0
-                END IF
-              END IF
-            END IF   
-          END DO
-          
-        ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-          
-          jz = 1
-          IF (Richards_Base%spatial_domain == 'regular') THEN  
-            
-            DO i = 1, Richards_Base%n_bfaces
-              IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
-                IF (i <= nx) THEN
-                ! bottom boundary
-                  jx = i
-                  jy = 0
-                  IF (qy(jx, jy, jz) < 0.0d0) THEN
-                    qy(jx, jy, jz) = 0.0d0
-                  END IF
-                ELSE IF (i > nx .AND. i <= nx+ny) THEN
-                  ! right boundary
-                  jx = nx
-                  jy = i - nx
-                  IF (qx(jx, jy, jz) > 0.0d0) THEN
-                    qx(jx, jy, jz) = 0.0d0
-                  END IF
-                ELSE IF (i > nx + ny .AND. i <= 2*nx+ny) THEN  
-                  ! top boundary
-                  jx = 2*nx + ny - i + 1
-                  jy = ny
-                  IF (qy(jx, jy, jz) > 0.0d0) THEN
-                    qy(jx, jy, jz) = 0.0d0
-                  END IF
-                ELSE
-                ! left boundary
-                  jx = 0
-                  jy = 2*nx + 2*ny - i + 1
-                  IF (qx(jx, jy, jz) < 0.0d0) THEN
-                    qx(jx, jy, jz) = 0.0d0
-                  END IF
-                END IF
-              END IF
-                
-            END DO
-                
-          ELSE
-            
-            WRITE(*,*)
-            WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-            
+        ! ******************************************************************
+          IF (Richards_Options%is_print) THEN
+            WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
           END IF
-            
-        ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+               
+          ! update fluid property
+          CALL RichardsUpdateFluid(t, Richards_State%xi)
           
-          WRITE(*,*)
-          WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-          WRITE(*,*)
-          READ(*,*)
-          STOP
-            
-        END IF
+          ! update permeability at faces
+          CALL harmonic(nx,ny,nz)
           
-      END IF
-      ! End of edit by Toshiyuki Bandai, 2024 Oct
+          ! store the previous time step water content
+          Richards_State%theta_prev = Richards_State%theta         
           
-      ! ******************************************************************
-      !!! Original version using PETSc solve for fully saturated flow
-    ELSE flow_solver_if_time
+          ! update transient boundary condition
+          DO i = 1, Richards_Base%n_bfaces
+            IF (Richards_BCs_pointer(i)%is_variable) THEN
+              Richards_Variable_BC_ptr => Richards_Variable_BC
+              
+              DO j = 1, Richards_BCs_pointer(i)%variable_BC_index - 1
+                Richards_Variable_BC_ptr => Richards_Variable_BC%p
+              END DO
+              
+              CALL interp(time + delt, Richards_Variable_BC_ptr%BC_time, Richards_Variable_BC_ptr%BC_values, Richards_BCs_pointer(i)%BC_value, size(Richards_Variable_BC_ptr%BC_time))
+            END IF
+          END DO
+             
+          ! solve the Richards equation
+          CALL RichardsSolve(nx, ny, nz, delt)
+          
+          ! update saturation
+          satliqold = satliq
+          
+          DO jz = 1, nz
+            DO jy = 1, ny
+              DO jx = 1, nx
+                  satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
+              END DO
+            END DO
+          END DO
+    
+       
+          ! fill ghost points by zero-order extrapolation
+          text = 'Liquid_Saturation'
+          lowX = LBOUND(satliq,1)
+          lowY = LBOUND(satliq,2)
+          lowZ = LBOUND(satliq,3)
+          highX = UBOUND(satliq,1)
+          highY = UBOUND(satliq,2)
+          highZ = UBOUND(satliq,3)
+          call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
+          
+          ! the velocity at the boundary is forced to zero when the vector goes outward
+          ! not to consider chemcial transport via evaporation
+
+          IF (Richards_Options%evaporation_boundary) THEN
+            IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+              jy = 1
+              jz = 1
+              
+              DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i == 1) THEN
+                  ! left boundary
+                    jx = 0
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE
+                  ! right boundary
+                    jx = nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END IF
+                END IF
+                
+              END DO
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+              jz = 1
+              IF (Richards_Base%spatial_domain == 'regular') THEN  
+                DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i <= nx) THEN
+                  ! bottom boundary
+                    jx = i
+                    jy = 0
+                    IF (qy(jx, jy, jz) < 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx .AND. i <= nx+ny) THEN
+                    ! right boundary
+                    jx = nx
+                    jy = i - nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx + ny .AND. i <= 2*nx+ny) THEN  
+                    ! top boundary
+                    jx = 2*nx + ny - i + 1
+                    jy = ny
+                    IF (qy(jx, jy, jz) > 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE
+                  ! left boundary
+                    jx = 0
+                    jy = 2*nx + 2*ny - i + 1
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END IF
+                END IF
+                
+              END DO
+                
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+              WRITE(*,*)
+              WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+          END IF
+        ! End of edit by Toshiyuki Bandai, 2024 Oct
+          
+        ! ******************************************************************
+        !!! Original version using PETSc solve for fully saturated flow
+        ELSE flow_solver_if_time
    
-      atolksp = 1.D-50
-      rtolksp = GIMRTRTOLKSP
-      rtolksp = 1.0D-25
-      dtolksp = 1.0D-30
+          atolksp = 1.D-50
+          rtolksp = GIMRTRTOLKSP
+          rtolksp = 1.0D-25
+          dtolksp = 1.0D-30
 
-      pc%v = userP(5)
-      ksp%v = userP(6)
+          pc%v = userP(5)
+          ksp%v = userP(6)
 
-      SteadyFlow = .FALSE.
-      CALL KSPSetOperators(ksp,amatP,amatP,ierr)
-      CALL harmonic(nx,ny,nz)
+          SteadyFlow = .FALSE.
+          CALL KSPSetOperators(ksp,amatP,amatP,ierr)
+          CALL harmonic(nx,ny,nz)
 
-      IF (NavierStokes) THEN
-        CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
-      ELSE
-        CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
-      END IF
+          IF (NavierStokes) THEN
+            CALL pressureNS(nx,ny,nz,delt,amatP,SteadyFlow)
+          ELSE
+            CALL pressure(nx,ny,nz,delt,amatP,SteadyFlow)
+          END IF
 
-      CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
+          CALL CrunchPETScTolerances(userP,rtolksp,atolksp,dtolksp,maxitsksp,ierr)
 
 !!!!  To invoke direct solve
 !!!!    call KSPGetPC(ksp,pc,ierr)
 !!!!    call PCSetType(pc,PCLU,ierr)
 
-      IF (SolverMethod /= 'direct') THEN
-        CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
-      END IF
+        IF (SolverMethod /= 'direct') THEN
+          CALL KSPSetInitialGuessNonzero(ksp,PETSC_TRUE,ierr)
+        END IF
 
-  !!!    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
-  !!!    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-      CALL KSPSolve(ksp,BvecP,XvecP,ierr)
-  !!!    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+    !!!    CALL MatView(amatP, PETSC_VIEWER_STDOUT_SELF,ierr)
+    !!!    CALL VecView(BvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
+        CALL KSPSolve(ksp,BvecP,XvecP,ierr)
+    !!!    CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
-  !!!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
+    !!!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
   
-      IF (ierr /= 0) then
-        WRITE(*,*)
-        WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
+        IF (ierr /= 0) then
+          WRITE(*,*)
+          WRITE(*,*) ' Error solving pressure equation in KSPSolve', ierr
 
-  !     ***** PETSc closeout**************
-        IF (petscon) then
-          call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
+    !     ***** PETSc closeout**************
+          IF (petscon) then
+            call CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
+          END IF
+          IF (CalculateFlow) then
+            call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
+          END IF
+          IF (OS3Dpetsc) then
+            call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
+          END IF
+          call PetscFinalize(ierr)
+    !     ****** PETSc closeout finished *********
+          READ(*,*)
+          STOP
         END IF
-        IF (CalculateFlow) then
-          call CrunchPETScFinalizeSolver(xvecP,bvecP,amatP,userP,ierr)
-        END IF
-        IF (OS3Dpetsc) then
-          call CrunchPETScFinalizeSolver(xvecD,bvecD,amatD,userD,ierr)
-        END IF
-        call PetscFinalize(ierr)
-  !     ****** PETSc closeout finished *********
-        READ(*,*)
-        STOP
-      END IF
         
-      FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
-        pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
-      END FORALL
+        FORALL (jx=1:nx, jy=1:ny, jz=1:nz)
+          pres(jx,jy,jz) = XvecCrunchP((jz-1)*nx*ny + (jy-1)*nx + jx - 1)
+        END FORALL
 
-      IF (NavierStokes) THEN
-          CALL velocalcNS(nx,ny,nz,delt)
-      ELSE
-          CALL velocalc(nx,ny,nz)
-      END IF
+        IF (NavierStokes) THEN
+            CALL velocalcNS(nx,ny,nz,delt)
+        ELSE
+            CALL velocalc(nx,ny,nz)
+        END IF
         
-    END If flow_solver_if_time
+        END If flow_solver_if_time
           
   END IF
-  
-  !!! ++++++++++++++++++  END of FLOW CALCULATION  ++++++++++++++++++++++++++++
-  !!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !! Return here to restart time step after failure
 
@@ -1529,6 +1488,7 @@ DO WHILE (nn <= nend)
           END DO
         END DO
       END DO
+
       DO jz = 1,nz
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1536,6 +1496,7 @@ DO WHILE (nn <= nend)
           END DO
         END DO
       END DO
+
 
       CALL tvd(nx,ny,nz,delt,i)
       DO jz = 1,nz
@@ -1811,14 +1772,16 @@ DO WHILE (nn <= nend)
 
   END IF    ! End of OS3D block
 
-  !!!  *************   END OF OS3D BLOCK  *********************
-  !!!  ********************************************************
+!!!  *************   END OF OS3D BLOCK  **********************
+!!!  ********************************************************
 
-  !!!  ********************************************************
-  !!!  *************   START GIMRT BLOCK  *********************
+!!!  ********************************************************
+!!!  *************   START GIMRT BLOCK  *********************
 
-  6000 IF (GIMRT) THEN
-        
+6000 IF (GIMRT) THEN
+  
+
+       
     i_substep = 1
     n_substep = 1
     dt_GIMRT = delt
@@ -1836,7 +1799,6 @@ DO WHILE (nn <= nend)
 
         !!  Diffusion block for GIMRT
         IF (species_diffusion) THEN 
-          !!! Nernst-Planck diffusion
           
           IF (spherical) THEN
             IF (xflow .OR. yflow .OR. zflow) THEN
@@ -1856,7 +1818,6 @@ DO WHILE (nn <= nend)
           END IF
           
         ELSE
-          !! Fickian diffusion
           
           IF (cylindrical) THEN
             CALL coeffCylinder(nx,ny,nz)
@@ -1869,9 +1830,8 @@ DO WHILE (nn <= nend)
         END IF
 
         IF (isaturate == 1) THEN
-          !!! Partially saturated case
-          
           IF (cylindrical) THEN
+    !!        CALL gasdiffCylinder(nx,ny,nz)
             CALL gascoeffCylinder(nx,ny,nz)
           ELSE
             CALL gasdiff(nx,ny,nz)
@@ -1879,11 +1839,9 @@ DO WHILE (nn <= nend)
         END IF
 
         IF (ierode == 1) THEN
-          !!! Erosion
           CALL erosion(nx,ny,nz)
         END IF
 
-        !!! Equilibrium constants
         jz = 1
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1892,29 +1850,27 @@ DO WHILE (nn <= nend)
         END DO
 
         IF (igamma == 3 .or. igamma == 2 .or. igamma == 0) THEN
-          !!! Activity coefficients
-          
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
               
-                IF (Duan .OR. Duan2006) THEN         !!! Duan disabled for the moment          
+                IF (Duan .OR. Duan2006) THEN                 
 !!!                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
                  ELSE
 !!!                   CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
                  END IF
                   
                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-
+                if (jx==8) then
+                  continue
+                end if
+                if (jx==401) then
+                  continue
+                end if
             END DO
           END DO
           
         END IF
-        
-        satliqold = satliq
-                
-        
-!!!     Update the old concentrations before start of Newton loop
         
         jz = 1
         DO jy = 1,ny
@@ -1923,8 +1879,7 @@ DO WHILE (nn <= nend)
             IF (isaturate == 1) THEN
               CALL oldcongas(ncomp,ngas,jx,jy,jz)
             END IF
-            CALL oldsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)       
-          
+            CALL oldsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
           END DO
         END DO
 
@@ -1939,8 +1894,7 @@ DO WHILE (nn <= nend)
           iterat = iterat + 1
           
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-                   
-              CALL jacobian(ncomp,nspec,nx,ny,nz)								   
+		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
             
           jz = 1
           DO jy = 1,ny
@@ -1957,8 +1911,6 @@ DO WHILE (nn <= nend)
               end if
  
               CALL totconc(ncomp,nspec,jx,jy,jz)
-          !!! Account for reaction of water
-              CALL WaterReactedNodeByNode(jx,jy,jz)
                   
             END DO
           END DO 
@@ -2166,8 +2118,8 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO npt = 1,npot
-                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > MaximumCorrection) THEN
-                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(MaximumCorrection,yh(npt+ncomp+nexchange+nsurf,jx))
+                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.9d0) THEN
+                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.9d0,yh(npt+ncomp+nexchange+nsurf,jx))
                   ELSE
                     CONTINUE
                   END IF
@@ -2177,7 +2129,7 @@ DO WHILE (nn <= nend)
                 
           !!!   Update ionic strength
                 
-            ind = ncomp + nexchange + nsurf + npot + 1 
+                ind = ncomp + nexchange + nsurf + npot + 1 
                 IF (DABS(yh(ind,jx)) > MaximumCorrection) THEN
                   yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
                 ELSE
@@ -2199,13 +2151,12 @@ DO WHILE (nn <= nend)
                   CONTINUE
                 END IF
                 
-                lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + yh(ind,jx)       
-
+                lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + yh(ind,jx)           
                 
               END DO
             END DO
 
-          ELSE    !!! PETSc solve
+          ELSE
 
             jz = 1
             errmax = 0.0D0
@@ -2270,7 +2221,7 @@ DO WHILE (nn <= nend)
                 
                 !!!   Update ionic strength
                 
-                ind = (j-1)*(neqn) + ncomp + nexchange + nsurf + npot + 1
+                ind = ncomp + nexchange + nsurf + npot + 1
                 IF (DABS(xn(ind)) > MaximumCorrection) THEN
                   xn(ind) = SIGN(MaximumCorrection,xn(ind))
                 ELSE
@@ -2288,14 +2239,14 @@ DO WHILE (nn <= nend)
                 
           !!!   Update lngammawater
                 
-                ind = (j-1)*(neqn) + ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(xn(ind)) > 0.5d0) THEN
-                  xn(ind) = SIGN(0.5d0,xn(ind))
+                ind = ncomp + nexchange + nsurf + npot + 1 + 1
+                IF (DABS(xn(ind)) > MaximumCorrection) THEN
+                  xn(ind) = SIGN(MaximumCorrection,xn(ind))
                 ELSE
                   CONTINUE
-                END IF 
+                END IF
                 
-                LnGammaWater(jx,jy,jz) = LnGammaWater(jx,jy,jz) + xn(ind)      
+                lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + xn(ind) 
                 
               END DO
             END DO
@@ -2434,7 +2385,7 @@ DO WHILE (nn <= nend)
           IF (ALLOCATED(lrow)) DEALLOCATE(lrow)
           IF (ALLOCATED(levptr)) DEALLOCATE(levptr)
         END IF
-        
+
         CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
         CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
 
@@ -2450,55 +2401,20 @@ DO WHILE (nn <= nend)
         i_substep = 0
     END IF ! end i_substep == n_substep
 
-     END IF    !  END OF GIMRT NEWTON LOOP
+END IF    !  END OF GIMRT NEWTON LOOP
 
 !!!  *********  End of NEWTON LOOP  ********************
 !!!  ***************************************************
-     
+       
 !! For greater accuracy, update reaction rate
-     
-IF (BatchReactor .Or. BatchReactor2) THEN
-  ChangeH2O    = 0.0
-  ChangeH2     = 0.0
-  ChangeH2_gas = 0.0
-END IF
-
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      
+!!      CALL totconc(ncomp,nspec,jx,jy,jz))
       CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
-        
-      IF (BatchReactor .OR. BatchReactor2) THEN
-        
-        CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
-            
-        CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-        
-        satgas = 1.0 - satliq(jx,jy,jz)
-              
-!!!     NOTE: In units of moles
-                  
-        porsatro         = por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)
-        
-        totH2O           = CellVolume * (s(1,jx,jy,jz) - sn(1,jx,jy,jz)  )
-        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - EXP(spold(6,jx,jy,jz) )  )
-        
-        ChangeInH2_gas   = EXP( spgas(1,jx,jy,jz) ) -  EXP( spgasold(1,jx,jy,jz) ) 
-        totGasH2         = CellVolume * por(jx,jy,jz) * satgas * ChangeInH2_gas
-        
-        ChangeH2O(jx)    = ChangeH2O(jx) + totH2O
-        ChangeH2(jx)     = ChangeH2(jx) + totAqueousH2
-        ChangeH2_gas(jx) = ChangeH2_gas(jx) + totGasH2
-
-      END IF
-        
     END DO
   END DO
 END DO
-
-spold = sp
-spgasold = spgas
 
 time = time + delt
 
@@ -2538,8 +2454,6 @@ END IF
       call rmesh51(nx,ny)
     END IF
   END IF
-  
-
 
 !  NOTE:  Will have to change some routines below for OS3D
 
@@ -2923,16 +2837,7 @@ END IF
     ELSE
     
         
-177   format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)
-      
-      IF (BatchReactor2) THEN
-        
-!!!        write(*,*) ' Time step: ',nn
-      
-        GasFlux_FaceEast_H2      =  GasFlux_FaceEast_H2 - cg(nx,1,1) * (spgas10(1,nx+1,1,1) - spgas10(1,nx,1,1)) * delt
-        AqueousFlux_FaceEast_H2  =  AqueousFlux_FaceEast_H2 - c(nx,1,1) * (sp10(6,nx+1,1,1) - sp10(6,nx,1,1)) * delt
-        
-      END IF
+  177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)
               
       IF (MOD(nn,ScreenInterval) == 0) THEN
         
@@ -3071,6 +2976,22 @@ END IF
           dtmax = MIN(dtmax,dtmaxcour)
         END IF
         dtmax = MAX(dtmax,deltmin)
+        IF (ReadNuft) THEN
+          dtNuft = timeNuft - time
+          IF (dtNuft < eps) THEN
+            dtmax = delt
+          ELSE
+            dtmax = MIN(dtNuft,dtmax)
+          END IF
+        END IF
+        IF (modflow) THEN
+          dtModFlow = timeModFlow - time
+          IF (dtModFlow(NumModFlowSteps) < eps) THEN
+            dtmax = delt
+          ELSE
+            dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
+          END IF
+        END IF
         CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
         dtold = delt
     END IF
@@ -3188,7 +3109,6 @@ END IF
     WRITE(iures) spex
     WRITE(iures) spex10
     WRITE(iures) lngamma
-    WRITE(iures) lngammawater
     WRITE(iures) exchangesites
     WRITE(iures) spexold
     WRITE(iures) spgas
@@ -3271,7 +3191,7 @@ END IF
       IF (tecplot) THEN
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
         
       END IF
 
@@ -3290,11 +3210,11 @@ END IF
       ELSE IF (visit) THEN
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
       ELSE
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
 
       END IF
 

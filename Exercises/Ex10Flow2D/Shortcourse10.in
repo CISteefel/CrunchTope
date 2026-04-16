@@ -167,6 +167,7 @@ porosity_update    true
 END
 
 PRIMARY_SPECIES
+H2O
 H+
 CO2(aq) 
 Ca++
@@ -178,7 +179,6 @@ O2(aq)
 Na+
 Cl-
 Tracer
-H2O
 END
 
 SECONDARY_SPECIES

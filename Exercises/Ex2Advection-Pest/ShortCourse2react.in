@@ -82,6 +82,7 @@ primary  30SiO2(aq)  SiO2(aq)  0.0300
 END
  
 PRIMARY_SPECIES
+H2O
 Tracer
 SiO2(aq)
 30SiO2(aq)

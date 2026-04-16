@@ -89,17 +89,14 @@ DO jz = 1,nz
       DO ksp = 1,nspec
         ik = ksp + ncomp
      
-            sum = 0.0D0
-            DO icomp = 1,ncomp
+        sum = 0.0D0
+        sum = sum + muaq(ksp,ikh2o) * lngammawater(jx,jy,jz)
+                            
+        DO icomp = 2,ncomp
               
-              ulabPrint = ulab(icomp)
-              IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
-                sum = sum + muaq(ksp,icomp) * (sp(icomp,jx,jy,jz) + lngamma(icomp,jx,jy,jz))
-              ELSE
-                sum = sum + muaq(ksp,icomp) * lngammawater(jx,jy,jz)
-              END IF
+          sum = sum + muaq(ksp,icomp) * (sp(icomp,jx,jy,jz) + lngamma(icomp,jx,jy,jz))
               
-            END DO
+        END DO
 
         sp(ik,jx,jy,jz) = keqaq(ksp,jx,jy,jz) - lngamma(ik,jx,jy,jz) + sum
         sp10(ik,jx,jy,jz) = DEXP(sp(ik,jx,jy,jz))
@@ -111,13 +108,9 @@ DO jz = 1,nz
 
 !!! -->  -->    Primary species
       
-      DO icomp = 1,ncomp
-        ulabPrint = ulab(icomp)
-        IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
-          deriv_conc(icomp,icomp,jx,jy,jz) = sp10(icomp,jx,jy,jz)    
-        ELSE 
-          deriv_conc(icomp,icomp,jx,jy,jz) = 1.0D0
-        END IF
+      deriv_conc(ikh2o,ikh2o,jx,jy,jz) = 1.0D0
+      DO icomp = 2,ncomp
+        deriv_conc(icomp,icomp,jx,jy,jz) = sp10(icomp,jx,jy,jz)    
       END DO
 
 !!! -->  -->    Secondary species
@@ -126,33 +119,27 @@ DO jz = 1,nz
         ik = ksp + ncomp
 
   !     deriv / conc_icomp
-        DO icomp = 1, ncomp   
+        
+        !!!   deriv / gammawater
+        pos_der = ncomp + nexchange + nsurf + npot + 1 + 1              !!! With respect to activity of water
+        deriv_conc(ik,pos_der,jx,jy,jz) = muaq(ksp,ikh2o) * sp10(ik,jx,jy,jz)
+        
+        DO icomp = 2, ncomp   
           
-        !!! NOTE: first subscript is species of interest, second is primary species differentiated with respect to:  dln [C(ik)/d C(i) ]
+          !!! NOTE: first subscript is species of interest, second is primary species differentiated with respect to:  dln [C(ik)/d C(i) ]
           
-          ulabPrint = ulab(icomp)
-          IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
-            deriv_conc(ik,icomp,jx,jy,jz) = muaq(ksp,icomp) * sp10(ik,jx,jy,jz)
-          ELSE
-
-      !!!   deriv / gammawater
-            pos_der = ncomp + nexchange + nsurf + npot + 1 + 1              !!! With respect to activity of water
-            deriv_conc(ik,pos_der,jx,jy,jz) = muaq(ksp,icomp) * sp10(ik,jx,jy,jz)
-            
-          END IF
+          deriv_conc(ik,icomp,jx,jy,jz) = muaq(ksp,icomp) * sp10(ik,jx,jy,jz)
+          deriv_conc(ik,icomp,jx,jy,jz) = sp10(ik,jx,jy,jz) * muaq(ksp,icomp) 
           
         END DO
         
-       !!! deriv / I
-       pos_der = ncomp + nexchange + nsurf + npot + 1                !!! With respect to ionic strength
-       sumderiv_gamma = 0.0D0
-       DO icomp = 1,ncomp
-          ulabPrint = ulab(icomp)
-          IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
+        !!! deriv / I
+        pos_der = ncomp + nexchange + nsurf + npot + 1                !!! With respect to ionic strength
+        sumderiv_gamma = 0.0D0
+        DO icomp = 2,ncomp
             sumderiv_gamma = sumderiv_gamma + muaq(ksp,icomp) / gamma(icomp,jx,jy,jz) * deriv_gamma(icomp,pos_der,jx,jy,jz)   
-          END IF
-       END DO
-       deriv_conc(ik,pos_der,jx,jy,jz) = sp10(ik,jx,jy,jz) * ( sumderiv_gamma - deriv_gamma(ik,pos_der,jx,jy,jz) / gamma(ik,jx,jy,jz) )
+        END DO
+        deriv_conc(ik,pos_der,jx,jy,jz) = sp10(ik,jx,jy,jz) * ( sumderiv_gamma - deriv_gamma(ik,pos_der,jx,jy,jz) / gamma(ik,jx,jy,jz) )
 
       END DO
       

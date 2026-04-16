@@ -179,7 +179,6 @@ REAL(DP)                                                  :: satgasOld
 REAL(DP)                                                  :: df
 REAL(DP)                                                  :: sumchgbd
 REAL(DP)                                                  :: xvectors
-REAL(DP)                                                  :: xvectors_H2O
 REAL(DP)                                                  :: xvecgas
 REAL(DP)                                                  :: xvec_ex
 REAL(DP)                                                  :: xspecdiffw
@@ -192,10 +191,8 @@ REAL(DP)                                                  :: yvectors
 REAL(DP)                                                  :: yvecgas
 REAL(DP)                                                  :: yvec_ex
 REAL(DP)                                                  :: xbdflux
-REAL(DP)                                                  :: xbdflux_H2O
 REAL(DP)                                                  :: ybdflux
 REAL(DP)                                                  :: source
-REAL(DP)                                                  :: source_H2O
 REAL(DP)                                                  :: aq_accum
 REAL(DP)                                                  :: gas_accum
 REAL(DP)                                                  :: gas_transport
@@ -284,8 +281,6 @@ END IF
 
 fxmax = 0.0d0 
 
-call xmassNodeByNode(jx,jy,jz,ncomp,nspec)
-
 IF (species_diffusion .and. nBoundaryConditionZone == 0) THEN
 
   nbnd = 1
@@ -373,30 +368,6 @@ IF (jx == 1) THEN
     END IF
 
   END IF
- 
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_east(i) = sch(i,jdum,jy,jz)
-    END DO
-    IF (SolidBuryX(0) > 0.0) THEN
-      CALL bdexchange(ncomp,nspec,nexchange,nexch_sec,  &
-          nsurf,nsurf_sec,nbnd,sex_west)
-    ELSE
-      DO i = 1,ncomp
-        sex_west(i) = 0.0
-      END DO
-    END IF
-    DO is = 1,nsurf
-      surf_east(is) = ssurf(is,jdum,jy,jz)
-    END DO
-    IF (SolidBuryX(0) > 0.0) THEN
-      CALL bdsurf(ncomp,nsurf,nsurf_sec,nbnd,surf_west)
-    ELSE
-      DO is = 1,nsurf
-        surf_west(is) = 0.0
-      END DO
-    END IF
-  END IF    !  Block only used if ierode = 1 (erosion or burial)
 
 ELSE IF (jx == nx) THEN
 
@@ -437,30 +408,6 @@ ELSE IF (jx == nx) THEN
 
   END IF
 
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_west(i) = sch(i,jdum,jy,jz)
-    END DO
-    IF (SolidBuryX(nx) < 0.0) THEN
-      CALL bdexchange(ncomp,nspec,nexchange,nexch_sec,  &
-          nsurf,nsurf_sec,nbnd,sex_east)
-    ELSE
-      DO i = 1,ncomp
-        sex_east(i) = 0.0
-      END DO
-    END IF
-    DO is = 1,nsurf
-      surf_west(is) = ssurf(is,jdum,jy,jz)
-    END DO
-    IF (SolidBuryX(nx) < 0.0) THEN
-      CALL bdsurf(ncomp,nsurf,nsurf_sec,nbnd,surf_east)
-    ELSE
-      DO is = 1,nsurf
-        surf_east(is) = 0.0
-      END DO
-    END IF
-  END IF    !  Block used only if ierode = 1 (erosion or burial)
-
 ELSE
 
   jdum = jx+1
@@ -473,15 +420,6 @@ ELSE
     END DO
   END IF
 
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_east(i) = sch(i,jdum,jy,jz)
-    END DO
-    DO is = 1,nsurf
-      surf_east(is) = ssurf(is,jdum,jy,jz)
-    END DO
-  END IF    !  Block only used if ierode = 1 (erosion or burial)
-
   jdum = jx-1
   DO i = 1,ncomp
     scw(i) = s(i,jdum,jy,jz)*xgram(jdum,jy,jz)
@@ -492,14 +430,6 @@ ELSE
     END DO
   END IF
 
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_west(i) = sch(i,jdum,jy,jz)
-    END DO
-    DO is = 1,nsurf
-      surf_west(is) = ssurf(is,jdum,jy,jz)
-    END DO
-  END IF    !  Block only used if ierode = 1 (erosion or burial)
 
 END IF
 
@@ -544,28 +474,6 @@ IF (jy == 1) THEN
 
   END IF
 
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_north(i) = sch(i,jx,jdum,jz)
-    END DO
-    IF (SolidBuryY(0) > 0.0) THEN
-      CALL bdexchange(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,nbnd,sex_south)
-    ELSE
-      DO i = 1,ncomp
-        sex_south(i) = 0.0
-      END DO
-    END IF
-    DO is = 1,nsurf
-      surf_north(is) = ssurf(is,jx,jdum,jz)
-    END DO
-    IF (SolidBuryY(0) > 0.0) THEN
-      CALL bdsurf(ncomp,nsurf,nsurf_sec,nbnd,surf_south)
-    ELSE
-      DO is = 1,nsurf
-        surf_south(is) = 0.0
-      END DO
-    END IF
-  END IF    !   Block only used if ierode = 1 (erosion or burial)
 
 ELSE IF (jy == ny) THEN
 
@@ -605,28 +513,6 @@ IF (nBoundaryConditionZone > 0) THEN   !! Boundary cells by grid
 
   END IF
 
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_south(i) = sch(i,jx,jdum,jz)
-    END DO
-    IF (SolidBuryY(ny) < 0.0) THEN
-      CALL bdexchange(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,nbnd,sex_north)
-    ELSE
-      DO i = 1,ncomp
-        sex_north(i) = 0.0
-      END DO
-    END IF
-    DO is = 1,nsurf
-      surf_south(is) = ssurf(is,jx,jdum,jz)
-    END DO
-    IF (SolidBuryY(ny) < 0.0) THEN
-      CALL bdsurf(ncomp,nsurf,nsurf_sec,nbnd,surf_north)
-    ELSE
-      DO is = 1,nsurf
-        surf_north(is) = 0.0
-      END DO
-    END IF
-  END IF     !  Block only used if ierode = 1 (erosion or burial)
 
 ELSE
   jdum = jy+1
@@ -638,14 +524,6 @@ ELSE
       sgn(i) = sgas(i,jx,jdum,jz)
     END DO
   END IF
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_north(i) = sch(i,jx,jdum,jz)
-    END DO
-    DO is = 1,nsurf
-      surf_north(is) = ssurf(is,jx,jdum,jz)
-    END DO
-  END IF       !  Block only used if ierode = 1 (erosion or burial)
 
   jdum = jy-1
   DO i = 1,ncomp
@@ -656,48 +534,46 @@ ELSE
       sgs(i) = sgas(i,jx,jdum,jz)
     END DO
   END IF
-  IF (ierode == 1) THEN
-    DO i = 1,ncomp
-      sex_south(i) = sch(i,jx,jdum,jz)
-    END DO
-    DO is = 1,nsurf
-      surf_south(is) = ssurf(is,jx,jdum,jz)
-    END DO
-  END IF        !  Block only used if ierode = 1 (erosion or burial)
 
 END IF
-
-!!! End of Boundary Concentrations
 
 200 IF (species_diffusion) THEN
-      
-  dgradw = 0.0
-  dgrade = 0.0
-  dgrads = 0.0
-  dgradn = 0.0
-  DO i = 1,ncomp
-    dgradw = dgradw + chg(i)*a_d(jx,jy,jz)*(s_dsp(i,jx-1,jy,jz) - s_dsp(i,jx,jy,jz))
-    dgrade = dgrade + chg(i)*c_d(jx,jy,jz)*(s_dsp(i,jx+1,jy,jz) - s_dsp(i,jx,jy,jz))
-    dgrads = dgrads + chg(i)*f_d(jx,jy,jz)*(s_dsp(i,jx,jy-1,jz) - s_dsp(i,jx,jy,jz))
-    dgradn = dgradn + chg(i)*d_d(jx,jy,jz)*(s_dsp(i,jx,jy+1,jz) - s_dsp(i,jx,jy,jz))
-    sigma_w(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx-1,jy,jz)*s_chg(i,jx-1,jy,jz))
-    sigma_e(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx+1,jy,jz)*s_chg(i,jx+1,jy,jz))
-    sigma_s(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx,jy-1,jz)*s_chg(i,jx,jy-1,jz))
-    sigma_n(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx,jy+1,jz)*s_chg(i,jx,jy+1,jz))
-  END DO
-  sumsigma_w = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx-1,jy,jz)*sumwtchg(jx-1,jy,jz))
-  sumsigma_e = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx+1,jy,jz)*sumwtchg(jx+1,jy,jz))
-  sumsigma_s = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx,jy-1,jz)*sumwtchg(jx,jy-1,jz))
-  sumsigma_n = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx,jy+1,jz)*sumwtchg(jx,jy+1,jz))
-END IF
+      dgradw = 0.0
+      dgrade = 0.0
+      dgrads = 0.0
+      dgradn = 0.0
+      DO i = 2,ncomp
+        dgradw = dgradw + chg(i)*a_d(jx,jy,jz)*(s_dsp(i,jx-1,jy,jz) - s_dsp(i,jx,jy,jz))
+        dgrade = dgrade + chg(i)*c_d(jx,jy,jz)*(s_dsp(i,jx+1,jy,jz) - s_dsp(i,jx,jy,jz))
+        dgrads = dgrads + chg(i)*f_d(jx,jy,jz)*(s_dsp(i,jx,jy-1,jz) - s_dsp(i,jx,jy,jz))
+        dgradn = dgradn + chg(i)*d_d(jx,jy,jz)*(s_dsp(i,jx,jy+1,jz) - s_dsp(i,jx,jy,jz))
+        sigma_w(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx-1,jy,jz)*s_chg(i,jx-1,jy,jz))
+        sigma_e(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx+1,jy,jz)*s_chg(i,jx+1,jy,jz))
+        sigma_s(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx,jy-1,jz)*s_chg(i,jx,jy-1,jz))
+        sigma_n(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx,jy+1,jz)*s_chg(i,jx,jy+1,jz))
+      END DO
+      sumsigma_w = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx-1,jy,jz)*sumwtchg(jx-1,jy,jz))
+      sumsigma_e = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx+1,jy,jz)*sumwtchg(jx+1,jy,jz))
+      sumsigma_s = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx,jy-1,jz)*sumwtchg(jx,jy-1,jz))
+      sumsigma_n = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx,jy+1,jz)*sumwtchg(jx,jy+1,jz))
+    END IF
 
 !!!IF (isaturate == 1) THEN
 !!!  IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
 !!!    call GasInjection(ncomp,nspec,ngas,sgaspump,jx,jy,jz)
 !!!  END IF
 !!!END IF
+    
+!!! Residual for H2O
+    
+aq_accum =  ( s(ikh2o,jx,jy,jz) - sn(ikh2o,jx,jy,jz) ) / dt
 
-DO i = 1,ncomp
+ind = (j-1)*(neqn) + ikh2o
+
+fxx(ind) = MultiplyCell*aq_accum
+        
+
+DO i = 2,ncomp
   
   ind = (j-1)*(neqn) + i
   
@@ -730,7 +606,6 @@ DO i = 1,ncomp
       ELSE
         xvecgas = 0.0
       END IF
-      continue
     ELSE      
       xvectors = a(jx,jy,jz)*scw(i)
       IF (isaturate == 1) THEN
@@ -751,11 +626,7 @@ DO i = 1,ncomp
     
   END IF
   
-  IF (ierode == 1) THEN
-    xvec_ex = cbu(jx,jy,jz)*sex_east(i) + abu(jx,jy,jz)*sex_west(i)
-  ELSE
-    xvec_ex = 0.0
-  END IF
+  xvec_ex = 0.0
   
   IF (species_diffusion) THEN
      
@@ -846,11 +717,7 @@ DO i = 1,ncomp
     
   END IF
   
-  IF (ierode == 1) THEN
-    yvec_ex = dbu(jx,jy,jz)*sex_north(i) + fbu(jx,jy,jz)*sex_south(i)
-  ELSE
-    yvec_ex = 0.0
-  END IF
+  yvec_ex = 0.0
   
   400   CONTINUE
   
@@ -895,7 +762,6 @@ DO i = 1,ncomp
   
 !!NOTE:  "GIMRT" source term in m**3/year
   source = 0.0d0
-  
   IF (wells) THEN
    
     DO npz = 1,npump(jx,jy,jz)
@@ -903,14 +769,10 @@ DO i = 1,ncomp
       IF (qg(npz,jx,jy,jz) > 0.0) THEN    ! Injection well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
-!!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
-        source_H2O = 0.0d0
 
       ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
 
         source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
-!!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
-        source_H2O = 0.0d0
         
       ELSE
         CONTINUE
@@ -920,8 +782,32 @@ DO i = 1,ncomp
     
   END IF
 
+! ************************************
+! Edit by Lucien Stolze, June 2023
+! Extract solutes via transpiration
+  !IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
+  !      if (ny == 1 .AND. nz == 1) THEN
+  !      A_transpi = dyy(jy) * dzz(jx,jy,jz)
+  !      source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp*s(i,jx,jy,jz)/CellVolume
+  !ENDIF
+  !ENDIF
+! ************************************
+! end of edit by Lucien Stolze, June 2023
+
   GasSource = 0.0
 
+!!!  IF (isaturate == 1) THEN
+!!!    IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
+!!!      IF (cylindrical .OR. spherical) THEN
+!!        GasSource = gaspump(jx,jy,jz)*sgaspump(i)
+!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
+!!!      ELSE
+!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
+!!!      END IF
+!!!    ELSE
+!!!      GasSource = 0.0
+!!!    END IF
+!!!  END IF
 
   IF (jy == 1) THEN
     IF (ReadNuft .AND. infiltration /= 0) THEN
@@ -933,16 +819,9 @@ DO i = 1,ncomp
     recharge = 0.0
   END IF
   
-  !!! First the solutes
-  IF (i /= ikh2o) THEN
-    
-    aq_accum = 1.0d0/dt * xgram(jx,jy,jz)*portemp*                            &
-      ( rotemp*satl*s(i,jx,jy,jz) - rotempOld*satlOld*sn(i,jx,jy,jz) )*(1.0 + Retardation*distrib(i) )
-
-  !!! Then H2O
-  ELSE
-    aq_accum = 1.0d0/dt * (s(i,jx,jy,jz) - sn(i,jx,jy,jz))  !! Units of mol/m^3_medium/s
-  END IF
+  aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
+      (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) -            &
+       rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
   
   IF (isaturate == 1) THEN
     gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
@@ -951,12 +830,8 @@ DO i = 1,ncomp
     gas_transport = 0.0
   END IF
   
-  IF (ierode == 1) THEN
-    ex_accum = r*(sch(i,jx,jy,jz)-sexOld(i,jx,jy,jz)- ssurfOld(i,jx,jy,jz))
-  ELSE
     ex_accum = r*(sNCexch_local(i)+sNCsurf_local(i) -sexOld(i,jx,jy,jz) - ssurfOld(i,jx,jy,jz)) 
     ex_transport = 0.0
-  END IF
   
   IF (nx == 1 .AND. ny == 1) THEN
 
@@ -965,9 +840,7 @@ DO i = 1,ncomp
 
   ELSE IF (nx == 1) THEN
     
-    IF (ierode == 1) THEN
-      ex_transport =  df*ebu(jx,jy,jz)*sch(i,jx,jy,jz)
-    END IF
+
     IF (isaturate == 1) THEN
       gas_transport = df*eg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
@@ -979,22 +852,11 @@ DO i = 1,ncomp
     
   ELSE IF (ny == 1) THEN  
     
-    IF (ierode == 1) THEN
-      ex_transport =  df*bbu(jx,jy,jz)*sch(i,jx,jy,jz)
-    END IF
     IF (isaturate == 1) THEN
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    IF (i == ikh2o) THEN
-      
-      fxx(ind) = MultiplyCell*(aq_accum - source_H2O) 
-
-      CONTINUE
-      
-    ELSE
-         
-         fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
               + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)   &  !! Diagonal aqueous transport
               + xvectors*df     &   !! Off-diagonal aqueous transport
               + df*xbdflux      &   !! Advective flux through boundary
@@ -1004,23 +866,15 @@ DO i = 1,ncomp
               + gas_transport   &   !! diagonal gas transport
               + xspecdiffw*df   &   !! Species-dependent diffusion
               + xspecdiffe*df       !! Species-dependent diffusion
-           
-    END IF
     
+      CONTINUE
       
   ELSE
       
-    IF (ierode == 1) THEN
-      ex_transport =  df*sch(i,jx,jy,jz)* ( bbu(jx,jy,jz) + ebu(jx,jy,jz) )
-    END IF
-    
     IF (isaturate == 1) THEN
       gas_transport = df*sgas(i,jx,jy,jz)* ( bg(jx,jy,jz)+ eg(jx,jy,jz) )
     END IF
-    
-    IF (i /= ikh2o) THEN
-      
-      fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)  &   !! Diagonal aqueous transport
         + xvectors*df + yvectors*df       & 
         + df*xbdflux + df*ybdflux         &
@@ -1029,11 +883,6 @@ DO i = 1,ncomp
         + ex_transport + gas_transport    &
         + xspecdiffw*df + xspecdiffe*df   &
         + xspecdiffs*df + xspecdiffn*df       ! Species-dependent diffusion
-    ELSE
-         
-      fxx(ind) = MultiplyCell*(aq_accum - source_H2O) 
-          
-    END IF
         
   END IF
   
@@ -1046,19 +895,13 @@ END DO
 DO is = 1,nsurf
   ind = (j-1)*(neqn) + is+ncomp+nexchange
   
-  IF (ierode == 1) THEN  
-    surf_accum = r*(ssurf(is,jx,jy,jz)-ssurfn(is,jx,jy,jz))
-    xvec_surf = cbu(jx,jy,jz)*surf_east(is) + abu(jx,jy,jz)*surf_west(is)
-    yvec_surf = dbu(jx,jy,jz)*surf_north(is) + fbu(jx,jy,jz)*surf_south(is)
-  ELSE
+
     check = ssurf_local(is) - ssurfn(is,jx,jy,jz)
     surf_accum = r*check
-!!!    surf_accum = r*(ssurf_local(is)-ssurfn(is,jx,jy,jz))
-!!!    surf_accum = r*( ssurf_local(is) - c_surf(is,jinit(jx,jy,jz)) )
     surf_accum = 0.0d0
     xvec_surf = 0.0
     yvec_surf = 0.0
-  END IF
+
   
   IF (nx == 1 .AND. ny == 1) THEN
     
@@ -1066,29 +909,23 @@ DO is = 1,nsurf
     
   ELSE IF (nx == 1) THEN
     
-    IF (ierode == 1) THEN
-      surf_transport = df*ebu(jx,jy,jz)*ssurf(is,jx,jy,jz)
-    ELSE
+
       surf_transport = 0.0
-    END IF
+
     fxx(ind) = MultiplyCell*(surf_accum) + surf_transport + yvec_surf*df
     
   ELSE IF (ny == 1) THEN
     
-    IF (ierode == 1) THEN
-      surf_transport = df*bbu(jx,jy,jz)*ssurf(is,jx,jy,jz)
-    ELSE
+
       surf_transport = 0.0
-    END IF
+
     fxx(ind) = MultiplyCell*(surf_accum) + surf_transport + xvec_surf*df
     
   ELSE
     
-    IF (ierode == 1) THEN
-      surf_transport = df*ssurf(is,jx,jy,jz)*( bbu(jx,jy,jz) + ebu(jx,jy,jz) )
-    ELSE
+
       surf_transport = 0.0
-    END IF
+
     fxx(ind) = MultiplyCell*(surf_accum) + surf_transport + xvec_surf*df + yvec_surf*df
 
   END IF
@@ -1097,7 +934,7 @@ END DO
 
 800 IF (activecell(jx,jy,jz) == 0) THEN
 
-  DO i = 1,ncomp
+  DO i = 2,ncomp
     ind = (j-1)*(neqn) + i
     fxx(ind) = sp10(i,jx,jy,jz) - spcond10(i,jinit(jx,jy,jz))
   END DO

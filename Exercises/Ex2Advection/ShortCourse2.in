@@ -58,10 +58,10 @@ END
 ! adding Na+ and Cl- as background solution is necessary to prevent non-convergence 
 ! due to the addiiton of ionic strength
 PRIMARY_SPECIES
+H2O
 Tracer
 Na+
 Cl-
-H2O
 END
 
 Condition junk1

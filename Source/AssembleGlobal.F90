@@ -195,10 +195,6 @@ REAL(DP)        :: check3
 REAL(DP)        :: check4
 REAL(DP)        :: qgdum
 
-REAL(DP)        :: source_H2O
-REAL(DP)        :: source_jac_H2O
-REAL(DP)        :: rxnaq_H2O
-
 INTEGER(I4B)                                   :: pos_IonS
 INTEGER(I4B)                                   :: pos_GammaWater
 INTEGER(I4B)                                   :: pos_der
@@ -210,8 +206,6 @@ REAL(DP)                                       :: ChargeSum
 REAL(DP)                                       :: TotalMoles
 REAL(DP)                                       :: sumder
 REAL(DP)                                       :: gammaH2O
-REAL(DP)                                       :: LogTotalMoles
-
 INTEGER(I4B)                                   :: icomp2
 
 REAL(DP), DIMENSION(ncomp + nsurf + nexchange + npot + 1 + 1,ncomp + nsurf + nexchange + npot + 1 + 1)    :: der_residuals
@@ -251,26 +245,20 @@ nxyz = nx*ny*nz
 ntotal = 0
 surf_accum = 0.0d0
 ex_accum = 0.0d0
-rxnaq = 0.0d0
-rxnaq_H2O = 0.0d0
 
 !!!xn = 0.0d0
 
 IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
   indexx = 0
-  bbh = 0.0
-  cch = 0.0
-  aah = 0.0
-  yh  = 0.0
+  bbh = 0.0d0
+  cch = 0.0d0
+  aah = 0.0d0
+  yh  = 0.0d0
 END IF
 
-fxx = 0.0
+fxx = 0.0d0
+alf = 0.0d0
 
-IF (ierode /= 1) THEN
-  IF (nsurf > 0) THEN
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
-  END IF
-END IF
 
 IF (npot > 0) THEN
   CALL jacpotential(ncomp,nsurf,nsurf_sec,npot,nx,ny,nz)
@@ -278,6 +266,31 @@ END IF
 
 TempFlux = 0.0d0
 
+! IF (RunTempts) THEN
+!   IF (ALLOCATED(temp_dum)) THEN
+!     DEALLOCATE(temp_dum)
+!   END IF
+!   ALLOCATE(temp_dum(nb_temp_ts))
+
+!   IF (TS_1year) THEN
+!     time_norm=time-floor(time)
+!     DO i=1,nb_temp_ts
+!   CALL  interp3(time_norm,delt,t_temp_ts,temp_ts(i,:),temp_dum(i),size(temp_ts(i,:)))
+!     END DO
+!     END IF
+
+!       DO jz = 1,nz
+!       DO jy = 1,ny
+!       DO jx = 1,nx
+!       DO i = 1,nb_temp_ts
+!           IF (temp_region(jx,jy,jz) == reg_temp_ts(i)) THEN
+!             t(jx,jy,jz) = temp_dum(i)
+!           ENDIF
+!       END DO
+!       END DO
+!       END DO
+!       END DO
+! ENDIF
 
 !!!  Do the boundaries first
 
@@ -377,7 +390,7 @@ IF (species_diffusion) THEN
   END IF
 
 END IF
-!!!  ***** End Nernst-Planck ******
+!!!  ***** Nernst-Planck ******
 
 jz = 1
 DO jy = 1,ny
@@ -430,30 +443,13 @@ DO jy = 1,ny
       cch(:,:,jx) = 0.0d0
     END IF
     
-    IF (ierode /= 1) THEN
-      IF (nexchange > 0) THEN
-        CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
-      END IF
-    END IF
-    
     CALL FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,nspec,  &
         ngas,neqn,delt,jx,jy,jz,nBoundaryConditionZone)
     
-    IF (ierode == 1) THEN
-      CALL ex_activity(ncomp,nexchange,nexch_sec,jx,jy,jz)
-      CALL jacexchange(ncomp,nexchange,nexch_sec,neqn,jx,jy,jz)
-    END IF
     
 !!    IF (nexchange > 0) THEN
 !!      CALL tot_ex(ncomp,nexchange,nexch_sec,jx,jy,jz)
 !!    END IF
-    
-    IF (ierode /= 1) THEN
-      CALL jac_exchange_local(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,neqn,jx,jy,jz)
-      IF (nsurf > 0) THEN
-        CALL jacsurf_local(ncomp,nsurf,nsurf_sec,jx,jy,jz)
-      END IF
-    END IF
         
     IF (nrct > 0) THEN
       CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
@@ -470,20 +466,42 @@ DO jy = 1,ny
     
     IF (nx == 1) GO TO 100
     
+!    IF (species_diffusion) THEN
+!      dgradw1 = 0.0
+!      dgradw2 = 0.0
+!      dgrade1 = 0.0
+!      dgrade2 = 0.0
+!      DO i = 1,ncomp
+!        dgradw1 = dgradw1 + chg(i)*a_d(jx,jy,jz)*(s_dsp(i,jx-1,jy,jz))
+!        dgradw2 = dgradw2 - chg(i)*a_d(jx,jy,jz)*(s_dsp(i,jx,jy,jz))
+!        dgrade1 = dgrade1 + chg(i)*c_d(jx,jy,jz)*(s_dsp(i,jx+1,jy,jz))
+!        dgrade2 = dgrade2 - chg(i)*c_d(jx,jy,jz)*(s_dsp(i,jx,jy,jz))
+!      END DO
+!      dgradw = dgradw1 + dgradw2
+!      dgrade = dgrade1 + dgrade2
+!      sumsigma_w = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx-1,jy,jz)*sumwtchg(jx-1,jy,jz))
+!      sumsigma_e = 0.5*(dstar(jx,jy,jz)*sumwtchg(jx,jy,jz) + dstar(jx+1,jy,jz)*sumwtchg(jx+1,jy,jz))
+      
+!      DO i = 1,ncomp
+!        sigma_w(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx-1,jy,jz)*s_chg(i,jx-1,jy,jz))
+!        sigma_e(i) = 0.5*(dstar(jx,jy,jz)*s_chg(i,jx,jy,jz) + dstar(jx+1,jy,jz)*s_chg(i,jx+1,jy,jz))
+!      END DO
+!    END IF
+    
     IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN  ! Use Hindmarsh routine
   
       IF (jx /= 1) THEN
         jdum=jx-1
         
         IF (species_diffusion) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             fgradsum = 0.0
             fjwtchg = 0.0
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               fgradsum = fgradsum + a_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jdum,jy,jz)
               fjwtchg = fjwtchg + 0.5*dstar(jdum,jy,jz)*chg(i)*fjac_chg(i2,i,jdum,jy,jz)
             END DO
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               term1 = a_d(jx,jy,jz)*fjac_d(i2,i,jdum,jy,jz)
               term2 = 0.5*dstar(jdum,jy,jz)*fjac_chg(i2,i,jdum,jy,jz)
               term3 = -1.0/(sumsigma_w*sumsigma_w) * fjwtchg
@@ -500,62 +518,26 @@ DO jy = 1,ny
           END DO
         END IF
 
-        !!!  FLAG
+        
         DO i = 2,ncomp
           
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             cch(i,i2,jx) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
           END DO
 
-          IF (ierode == 1) THEN
-            DO i2 = 1,ncomp
-              cch(i,i2,jx) = cch(i,i2,jx) + df*abu(jx,jy,jz)*fch(i,i2,jdum,jy,jz)
-            END DO
-          END IF
-
           IF (isaturate == 1) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               cch(i,i2,jx) = cch(i,i2,jx) + df*ag(jx,jy,jz)*fgas(i2,i,jdum,jy,jz)
             END DO           
           END IF
 
           IF (species_diffusion) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               cch(i,i2,jx) = cch(i,i2,jx) + fanalyt(i,i2)
             END DO
           END IF
           
-          IF (ierode == 1) THEN
-            DO ix2 = 1,nexchange
-              cch(i,ix2+ncomp,jx) = df*abu(jx,jy,jz)*fch(i,ix2+ncomp,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              cch(i,is2+ncomp+nexchange,jx) = df*abu(jx,jy,jz)*  &
-                  fch(i,is2+ncomp+nexchange,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              cch(i,npt2+ncomp+nexchange+nsurf,jx) = df*abu(jx,jy,jz)*  &
-                  fjpotncomp(npt2,i,jdum,jy,jz)
-            END DO
-          END IF
-          
         END DO
-        
-        IF (ierode == 1) THEN
-          DO is = 1,nsurf
-            DO i2 = 1,ncomp
-              cch(is+ncomp+nexchange,i2,jx) = df*abu(jx,jy,jz)*fsurf(is,i2,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              cch(is+ncomp+nexchange,is2+ncomp+nexchange,jx) = df*abu(jx,jy,jz)*  &
-                  fsurf(is,is2+ncomp,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              cch(is+ncomp+nexchange,npt2+ncomp+nexchange+nsurf,jx) =    &
-                 df*abu(jx,jy,jz)*fjpotnsurf(npt2,is,jdum,jy,jz)
-            END DO
-          END DO
-        END IF
 
       END IF
       
@@ -563,14 +545,14 @@ DO jy = 1,ny
         jdum=jx+1
         
         IF (species_diffusion) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             fgradsum = 0.0
             fjwtchg = 0.0
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               fgradsum = fgradsum + c_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jdum,jy,jz)
               fjwtchg = fjwtchg + 0.5*dstar(jdum,jy,jz)*chg(i)*fjac_chg(i2,i,jdum,jy,jz)
             END DO
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               term1 = c_d(jx,jy,jz)*fjac_d(i2,i,jdum,jy,jz)
               term2 = 0.5*dstar(jdum,jy,jz)*fjac_chg(i2,i,jdum,jy,jz)
               term3 = -1.0/(sumsigma_e*sumsigma_e) * fjwtchg
@@ -581,62 +563,25 @@ DO jy = 1,ny
           END DO
         END IF
         
-        !!! FLAG
         DO i = 2,ncomp
           
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             bbh(i,i2,jx) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
           END DO
 
-          IF (ierode == 1) THEN
-            DO i2 = 1,ncomp
-              bbh(i,i2,jx) = bbh(i,i2,jx) + df*cbu(jx,jy,jz)*fch(i,i2,jdum,jy,jz)
-            END DO
-          END IF
-
           IF (isaturate == 1) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               bbh(i,i2,jx) = bbh(i,i2,jx) + df*cg(jx,jy,jz)*fgas(i2,i,jdum,jy,jz)
             END DO
           END IF
 
           IF (species_diffusion) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               bbh(i,i2,jx) = bbh(i,i2,jx) + fanalyt(i,i2)
             END DO
           END IF
           
-          IF (ierode == 1) THEN
-            DO ix2 = 1,nexchange
-              bbh(i,ix2+ncomp,jx) = df*cbu(jx,jy,jz)*fch(i,ix2+ncomp,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              bbh(i,is2+ncomp+nexchange,jx) = df*cbu(jx,jy,jz)*  &
-                  fch(i,is2+ncomp+nexchange,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              bbh(i,npt2+ncomp+nexchange+nsurf,jx) = df*cbu(jx,jy,jz)*  &
-                  fjpotncomp(npt2,i,jdum,jy,jz)
-            END DO
-          END IF
-          
         END DO
-        
-        IF (ierode == 1) THEN
-          DO is = 1,nsurf
-            DO i2 = 1,ncomp
-              bbh(is+ncomp+nexchange,i2,jx) = df*cbu(jx,jy,jz)*fsurf(is,i2,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              bbh(is+ncomp+nexchange,is2+ncomp+nexchange,jx) = df*cbu(jx,jy,jz)*  &
-                  fsurf(is,is2+ncomp,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              bbh(is+ncomp+nexchange,npt2+ncomp+nexchange+nsurf,jx) = df*cbu(jx,jy,jz)*  &
-                  fjpotnsurf(npt2,is,jdum,jy,jz)
-            END DO
-          END DO
-        END IF
         
       END IF
       
@@ -646,14 +591,14 @@ DO jy = 1,ny
         jdum=jx-1
 
         IF (species_diffusion) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             fgradsum = 0.0
             fjwtchg = 0.0
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               fgradsum = fgradsum + a_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jdum,jy,jz)
               fjwtchg = fjwtchg + 0.5*dstar(jdum,jy,jz)*chg(i)*fjac_chg(i2,i,jdum,jy,jz)
             END DO
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               term1 = a_d(jx,jy,jz)*fjac_d(i2,i,jdum,jy,jz)
               term2 = 0.5*dstar(jdum,jy,jz)*fjac_chg(i2,i,jdum,jy,jz)
               term3 = -1.0/(sumsigma_w*sumsigma_w) * fjwtchg
@@ -664,90 +609,44 @@ DO jy = 1,ny
           END DO
         END IF
         
-        !!! FLAG
         DO i = 2,ncomp
           ind = (j-1)*(neqn) + i
           
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             ind2 = i2
             alf(ind2,i,1) = xgram(jdum,jy,jz)*df*a(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
           END DO
 
-          IF (ierode == 1) THEN
-            DO i2 = 1,ncomp
-              ind2 = i2
-              alf(ind2,i,1) = alf(ind2,i,1) + df*abu(jx,jy,jz)*fch(i,i2,jdum,jy,jz)
-            END DO
-          END IF
-
           IF (isaturate == 1) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               ind2 = i2
               alf(ind2,i,1) = alf(ind2,i,1) + df*ag(jx,jy,jz)*fgas(i2,i,jdum,jy,jz)
             END DO
           END IF
 
           IF (species_diffusion) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               ind2 = i2
               alf(ind2,i,1) = alf(ind2,i,1) + fanalyt(i,i2)
             END DO
           END IF
-          
-          IF (ierode == 1) THEN
-            DO ix2 = 1,nexchange
-              ind2 = ix2+ncomp
-              alf(ind2,i,1) = df*abu(jx,jy,jz)*fch(i,ix2+ncomp,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              ind2 = is2+ncomp+nexchange
-              alf(ind2,i,1) = df*abu(jx,jy,jz)*         &
-                 fch(i,is2+ncomp+nexchange,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              ind2 = npt2+ncomp+nexchange+nsurf
-              alf(ind2,i,1) = df*abu(jx,jy,jz)*         &
-                 fjpotncomp(npt2,i,jdum,jy,jz)
-            END DO
-          END IF
 
         END DO
-        
-        IF (ierode == 1) THEN
-          DO is = 1,nsurf
-            ind = (j-1)*(neqn) + is+ncomp+nexchange
-            DO i2 = 1,ncomp
-              ind2 = i2
-              alf(ind2,is+ncomp+nexchange,1) = df*abu(jx,jy,jz)*   &
-                 fsurf(is,i2,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              ind2 = is2+ncomp+nexchange
-              alf(ind2,is+ncomp+nexchange,1) = df*abu(jx,jy,jz)*   &
-                 fsurf(is,is2+ncomp,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              ind2 = npt2+ncomp+nexchange+nsurf
-              alf(ind2,is+ncomp+nexchange,1) = df*abu(jx,jy,jz)*   &
-                 fjpotnsurf(npt2,is,jdum,jy,jz)
-            END DO
-          END DO
-        END IF
-        
+
       END IF
       
       IF (jx /= nx) THEN
         jdum=jx+1
 
         IF (species_diffusion) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             fgradsum = 0.0
             fjwtchg = 0.0
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               fgradsum = fgradsum + c_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jdum,jy,jz)
               fjwtchg = fjwtchg + 0.5*dstar(jdum,jy,jz)*chg(i)*fjac_chg(i2,i,jdum,jy,jz)
             END DO
-            DO i = 1,ncomp
+            DO i = 2,ncomp
               term1 = c_d(jx,jy,jz)*fjac_d(i2,i,jdum,jy,jz)
               term2 = 0.5*dstar(jdum,jy,jz)*fjac_chg(i2,i,jdum,jy,jz)
               term3 = -1.0/(sumsigma_e*sumsigma_e) * fjwtchg
@@ -758,99 +657,48 @@ DO jy = 1,ny
           END DO
         END IF
 
-        !!! FLAG
         DO i = 2,ncomp
           ind = (j-1)*(neqn) + i
 
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             ind2 = i2
             alf(ind2,i,3) = xgram(jdum,jy,jz)*df*c(jx,jy,jz)*fjac(i2,i,jdum,jy,jz)
           END DO
 
-          IF (ierode == 1) THEN
-            DO i2 = 1,ncomp
-              ind2 = i2
-              alf(ind2,i,3) = alf(ind2,i,3) + df*cbu(jx,jy,jz)*      &
-                 fch(i,i2,jdum,jy,jz)
-            END DO
-          END IF
-
           IF (isaturate == 1) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               ind2 = i2
               alf(ind2,i,3) = alf(ind2,i,3) + df*cg(jx,jy,jz)*fgas(i2,i,jdum,jy,jz)
             END DO
           END IF
 
           IF (species_diffusion) THEN
-            DO i2 = 1,ncomp
+            DO i2 = 2,ncomp
               ind2 = i2
               alf(ind2,i,3) = alf(ind2,i,3) + fanalyt(i,i2)
             END DO
           END IF
           
-          IF (ierode == 1) THEN
-            DO ix2 = 1,nexchange
-              ind2 =ix2+ncomp
-              alf(ind2,i,3) = df*cbu(jx,jy,jz)*fch(i,ix2+ncomp,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              ind2 = is2+ncomp+nexchange
-              alf(ind2,i,3) = df*cbu(jx,jy,jz)*              &
-                 fch(i,is2+ncomp+nexchange,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              ind2 = npt2+ncomp+nexchange+nsurf
-              alf(ind2,i,3) = df*cbu(jx,jy,jz)*              &
-                 fjpotncomp(npt2,i,jdum,jy,jz)
-            END DO
-          END IF
-          
         END DO
-        
-        IF (ierode == 1) THEN
-          DO is = 1,nsurf
-            ind = (j-1)*(neqn) + is+ncomp+nexchange
-            DO i2 = 1,ncomp
-              ind2 = i2
-              alf(ind2,is+ncomp+nexchange,3) = df*cbu(jx,jy,jz)*     &
-                 fsurf(is,i2,jdum,jy,jz)
-            END DO
-            DO is2 = 1,nsurf
-              ind2 = is2+ncomp+nexchange
-              alf(ind2,is+ncomp+nexchange,3) = df*cbu(jx,jy,jz)*     & 
-                 fsurf(is,is2+ncomp,jdum,jy,jz)
-            END DO
-            DO npt2 = 1,npot
-              ind2 = npt2+ncomp+nexchange+nsurf
-              alf(ind2,is+ncomp+nexchange,3) = df*cbu(jx,jy,jz)*     & 
-                 fjpotnsurf(npt2,is,jdum,jy,jz)
-            END DO
-          END DO
-        END IF
         
       END IF
     END IF
     
-!!! End of JX Nernst-Planck section
-    
     100     CONTINUE
     IF (ny == 1) GO TO 200
-    
-!!! Start of JY Nernst-Planck section
     
     IF (jy /= ny) THEN
       jdum=jy+1
 
       IF (species_diffusion) THEN
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           fgradsum = 0.0
           fjwtchg = 0.0
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             fgradsum = fgradsum + d_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jdum,jz)
             fjwtchg = fjwtchg + 0.5*dstar(jx,jdum,jz)*chg(i)*fjac_chg(i2,i,jx,jdum,jz)
           END DO
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             term1 = d_d(jx,jy,jz)*fjac_d(i2,i,jx,jdum,jz)
             term2 = 0.5*dstar(jx,jdum,jz)*fjac_chg(i2,i,jx,jdum,jz)
             term3 = -1.0/(sumsigma_n*sumsigma_n) * fjwtchg
@@ -861,72 +709,29 @@ DO jy = 1,ny
         END DO
       END IF
 
-      !!! FLAG
       DO i = 2,ncomp
         ind = (j-1)*(neqn) + i
 
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           ind2 = i2
           alf(ind2,i,5) = xgram(jx,jdum,jz)*df*d(jx,jy,jz)*fjac(i2,i,jx,jdum,jz)
         END DO
-        
-        IF (ierode == 1) THEN
-          DO i2 = 1,ncomp
-            ind2 = i2
-            alf(ind2,i,5) = alf(ind2,i,5) + df*dbu(jx,jy,jz)*fch(i,i2,jx,jdum,jz)
-          END DO
-        END IF
 
         IF (isaturate == 1) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             ind2 = i2
             alf(ind2,i,5) = alf(ind2,i,5) + df*dg(jx,jy,jz)*fgas(i2,i,jx,jdum,jz)
           END DO
         END IF
 
         IF (species_diffusion) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             ind2 = i2
             alf(ind2,i,5) = alf(ind2,i,5) + fanalyt(i,i2)
           END DO
         END IF
         
-        IF (ierode == 1) THEN
-          DO ix2 = 1,nexchange
-            ind2 = ix2+ncomp
-            alf(ind2,i,5) = df*dbu(jx,jy,jz)*fch(i,ix2+ncomp,jx,jdum,jz)
-          END DO
-          DO is2 = 1,nsurf
-            ind2 = is2+ncomp+nexchange
-            alf(ind2,i,5) = df*dbu(jx,jy,jz)*fch(i,is2+ncomp+nexchange,jx,jdum,jz)
-          END DO
-          DO npt2 = 1,npot
-            ind2 = npt2+ncomp+nexchange+nsurf
-            alf(ind2,i,5) = df*dbu(jx,jy,jz)*   &
-               fjpotncomp(npt2,i,jx,jdum,jz)
-          END DO
-        END IF
-        
       END DO
-      
-      IF (ierode == 1) THEN
-        DO is = 1,nsurf
-          ind = (j-1)*neqn + is+ncomp+nexchange
-          DO i2 = 1,ncomp
-            ind2 = i2
-            alf(ind2,is+ncomp+nexchange,5) = df*dbu(jx,jy,jz)*fsurf(is,i2,jx,jdum,jz)
-          END DO
-          DO is2 = 1,nsurf
-            ind2 = is2+ncomp+nexchange
-            alf(ind2,is+ncomp+nexchange,5) = df*dbu(jx,jy,jz)*fsurf(is,is2+ncomp,jx,jdum,jz)
-          END DO
-          DO npt2 = 1,npot
-            ind2 = npt2+ncomp+nexchange+nsurf
-            alf(ind2,is+ncomp+nexchange,5) = df*dbu(jx,jy,jz)*   &
-                 fjpotnsurf(npt2,is,jx,jdum,jz)
-          END DO
-        END DO
-      END IF
       
     END IF
 
@@ -934,14 +739,14 @@ DO jy = 1,ny
       jdum=jy-1
 
       IF (species_diffusion) THEN
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           fgradsum = 0.0
           fjwtchg = 0.0
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             fgradsum = fgradsum + f_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jdum,jz)
             fjwtchg = fjwtchg + 0.5*dstar(jx,jdum,jz)*chg(i)*fjac_chg(i2,i,jx,jdum,jz)
           END DO
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             term1 = f_d(jx,jy,jz)*fjac_d(i2,i,jx,jdum,jz)
             term2 = 0.5*dstar(jx,jdum,jz)*fjac_chg(i2,i,jx,jdum,jz)
             term3 = -1.0/(sumsigma_s*sumsigma_s) * fjwtchg
@@ -952,84 +757,42 @@ DO jy = 1,ny
         END DO
       END IF
 
-      !!! FLAG
       DO i = 2,ncomp
         ind = (j-1)*neqn + i
 
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           ind2 = i2
           alf(ind2,i,4) = xgram(jx,jdum,jz)*df*f(jx,jy,jz)*fjac(i2,i,jx,jdum,jz)
         END DO
 
-        IF (ierode == 1) THEN
-          DO i2 = 1,ncomp
-            ind2 = i2
-            alf(ind2,i,4) = alf(ind2,i,4) + df*fbu(jx,jy,jz)*fch(i,i2,jx,jdum,jz)
-          END DO
-        END IF
-
         IF (isaturate == 1) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             ind2 = i2
             alf(ind2,i,4) = alf(ind2,i,4) + df*fg(jx,jy,jz)*fgas(i2,i,jx,jdum,jz)
           END DO
         END IF
 
         IF (species_diffusion) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             ind2 = i2
             alf(ind2,i,4) = alf(ind2,i,4) + fanalyt(i,i2)
           END DO
         END IF
         
-        IF (ierode == 1) THEN
-
-          DO ix2 = 1,nexchange
-            ind2= ix2+ncomp
-            alf(ind2,i,4) = df*fbu(jx,jy,jz)*fch(i,ix2+ncomp,jx,jdum,jz)
-          END DO
-          DO is2 = 1,nsurf
-            ind2 =is2+ncomp+nexchange
-            alf(ind2,i,4) = df*fbu(jx,jy,jz)*fch(i,is2+ncomp+nexchange,jx,jdum,jz)
-          END DO
-          DO npt2 = 1,npot
-            ind2 =npt2+ncomp+nexchange+nsurf
-            alf(ind2,i,4) = df*fbu(jx,jy,jz)*    &
-                fjpotncomp(npt2,i,jx,jdum,jz)
-          END DO
-        END IF
       END DO
       
-      IF (ierode == 1) THEN
-        DO is = 1,nsurf
-          ind = (j-1)*neqn + is+ncomp+nexchange
-          DO i2 = 1,ncomp
-            ind2 = i2
-            alf(ind2,is+ncomp+nexchange,4) = df*fbu(jx,jy,jz)*fsurf(is,i2,jx,jdum,jz)
-          END DO
-          DO is2 = 1,nsurf
-            ind2 = is2+ncomp+nexchange
-            alf(ind2,is+ncomp+nexchange,4) = df*fbu(jx,jy,jz)*fsurf(is,is2+ncomp,jx,jdum,jz)
-          END DO
-          DO npt2 = 1,npot
-            ind2 = npt2+ncomp+nexchange+nsurf
-            alf(ind2,is+ncomp+nexchange,4) = df*fbu(jx,jy,jz)*   &
-                fjpotnsurf(npt2,is,jx,jdum,jz)
-          END DO
-        END DO
-      END IF
-      
     END IF
-    
-!!! End of JY Nernst-Planck section
     
 200 CONTINUE
     
     source = 0.0d0
-    source_H2O = 0.0d0
-    rxnaq = 0.0d0
-    rxnaq_H2O = 0.0d0
 
+    !IF ((transpifix .OR. transpitimeseries) .AND. Richards) THEN
+    !  if (ny == 1 .AND. nz == 1) THEN
+    !  A_transpi = dyy(jy) * dzz(jx,jy,jz)
+    !  source = source - xgram(jx,jy,jz)*transpirate_cell(jx)*A_transpi*rotemp/CellVolume
+    !ENDIF
+    !ENDIF
 
     IF (wells) THEN
    
@@ -1038,7 +801,6 @@ DO jy = 1,ny
           CONTINUE                ! Source term on R.H.S.
         ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
           source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
-          source_H2O = source_H2O + qg(npz,jx,jy,jz)/CellVolume   !!  GIMRT source term in m^3/year
         ELSE
           CONTINUE
         END IF
@@ -1054,27 +816,25 @@ DO jy = 1,ny
         CONTINUE                ! Source term on R.H.S.
       ELSE IF (qg(1,jx,jy,jz) < 0.0) THEN  ! Pumping well, S(i,j) unknown
         source = source + xgram(jx,jy,jz)*qg(1,jx,jy,jz)*rotemp/CellVolume   !!  GIMRT source term in m^3/year
-        source_H2O = source_H2O + qg(1,jx,jy,jz)/CellVolume   !!  GIMRT source term in m^3/year
       ELSE
         CONTINUE
       END IF
     END IF
     
-!!! Nernst-Planck
     IF (species_diffusion) THEN
 
       IF (nx > 1 .AND. ny == 1) THEN
 
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           fgradsume = 0.0
           fgradsumw = 0.0
           fjwtchg = 0.0
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             fgradsume = fgradsume - c_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jy,jz)
             fgradsumw = fgradsumw - a_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jy,jz)
             fjwtchg = fjwtchg + 0.5*dstar(jx,jy,jz)*chg(i)*fjac_chg(i2,i,jx,jy,jz)
           END DO
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             term1 = -fjac_d(i2,i,jx,jy,jz)*( a_d(jx,jy,jz)+c_d(jx,jy,jz) )
             term2 = 0.5*dstar(jx,jy,jz)*fjac_chg(i2,i,jx,jy,jz)
             term3a = -1.0/(sumsigma_w*sumsigma_w) * fjwtchg
@@ -1101,20 +861,20 @@ DO jy = 1,ny
         END DO
 
       ELSE IF (nx > 1 .AND. ny > 1) THEN             !  2d PROBLEM
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           fgradsume = 0.0
           fgradsumw = 0.0
           fgradsumn = 0.0
           fgradsums = 0.0
           fjwtchg = 0.0
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             fgradsume = fgradsume - c_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jy,jz)
             fgradsumw = fgradsumw - a_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jy,jz)
             fgradsumn = fgradsumn - d_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jy,jz)
             fgradsums = fgradsums - f_d(jx,jy,jz)*chg(i)*fjac_d(i2,i,jx,jy,jz)
             fjwtchg = fjwtchg + 0.5*dstar(jx,jy,jz)*chg(i)*fjac_chg(i2,i,jx,jy,jz)
           END DO
-          DO i = 1,ncomp
+          DO i = 2,ncomp
             term1 = -fjac_d(i2,i,jx,jy,jz)*( a_d(jx,jy,jz)+c_d(jx,jy,jz)+d_d(jx,jy,jz)+f_d(jx,jy,jz) )
             term2 = 0.5*dstar(jx,jy,jz)*fjac_chg(i2,i,jx,jy,jz)
             term3a = -1.0/(sumsigma_w*sumsigma_w) * fjwtchg
@@ -1135,8 +895,6 @@ DO jy = 1,ny
       END IF
 
     END IF
-    
-!!! End of Nernst-Plack
 
 !  Surface charge calculation
 
@@ -1151,8 +909,7 @@ DO jy = 1,ny
       fxx(ind) = 0.1174d0*sqrt_sion*HyperbolicSine - surfcharge( kpot(npt) )
     END DO
     
-!!! Primary species loop
-    DO i = 1,ncomp
+    DO i = 2,ncomp
       ind = (j-1)*(neqn) + i
       
       IF (nradmax > 0) THEN
@@ -1182,11 +939,7 @@ DO jy = 1,ny
       
 !  Update the residual, adding reaction terms and exchange terms
       
-      IF (i == ikh2o) THEN
-        fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
-      ELSE
-        fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
-      END IF
+      fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
       
       sumrd = 0.0d0
       sumjackin = 0.0d0
@@ -1196,11 +949,11 @@ DO jy = 1,ny
           DO np = 1,nreactmin(k)
             IF (mumin(np,k,i) /= 0.0) THEN
               IF (rmin(np,k) >= 0.0) THEN
-                DO i2 = 1,ncomp+nexchange+nsurf
+                DO i2 = 2,ncomp+nexchange+nsurf
                   sumrd(i2) = sumrd(i2) + decay_correct(i,k)*mumin(np,k,i)*jac_rmin(i2,np,k)
                 END DO
               ELSE
-                DO i2 = 1,ncomp+nexchange+nsurf
+                DO i2 = 2,ncomp+nexchange+nsurf
                   sumrd(i2) = sumrd(i2) + decay_correct(i,k)*mumin_decay(np,k,i,jx,jy,jz)*jac_rmin(i2,np,k)
                 END DO
               END IF 
@@ -1208,110 +961,46 @@ DO jy = 1,ny
           END DO
         END DO
       ELSE
-        
         DO k = 1,nkin
           DO np = 1,nreactmin(k)
             IF (mumin(np,k,i) /= 0.0) THEN
-              DO i2 = 1,ncomp+nexchange+nsurf
+              DO i2 = 2,ncomp+nexchange+nsurf
                 sumrd(i2) = sumrd(i2) + decay_correct(i,k)*mumin(np,k,i)*jac_rmin(i2,np,k)         
               END DO
             END IF
           END DO
         END DO
-        
       END IF
 
       DO ir = 1,ikin
         IF (mukin(ir,i) /= 0.0) THEN
-          DO i2 = 1,ncomp
+          DO i2 = 2,ncomp
             sumjackin(i2) = sumjackin(i2) - mukin(ir,i)*rdkin(ir,i2)
           END DO
         END IF
       END DO
 
-      IF (ierode == 1) THEN 
         
-        DO i2 = 1,ncomp        
-          ind2 = i2                
-          rxnmin = sumrd(i2)
-          rxnaq =  0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
-          IF (i /= ikh2o) THEN
-            aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-               *(1.0 + Retardation*distrib(i) )
-          ELSE
-            aq_accum = fjac(i2,i,jx,jy,jz)  
-          END IF
-          source_jac = source*fjac(i2,i,jx,jy,jz)  
-          ex_accum = r*fch(i,i2,jx,jy,jz)
-          ex_transport = df*(ebu(jx,jy,jz)+bbu(jx,jy,jz))*fch(i,i2,jx,jy,jz)
-          alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)         &
-               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) + ex_transport  
+!!! Residual for H2O
+    
+        aq_accum =  ( s(ikh2o,jx,jy,jz) - sn(ikh2o,jx,jy,jz) ) / delt
+        ind = (j-1)*(neqn) + ikh2o
+        alf(ikh2O,ikh2O,2) = MultiplyCell*fjac(ikh2o,ikh2o,jx,jy,jz)/delt
 
-        END DO   ! end of I2 loop
-
-        DO ix2 = 1,nexchange
-          ind2 = ix2+ncomp
-          rxnmin = sumrd(ix2+ncomp)
-          ex_accum =r*fch(i,ix2+ncomp,jx,jy,jz)
-          ex_transport = df*( ebu(jx,jy,jz) + bbu(jx,jy,jz) )*fch(i,ix2+ncomp,jx,jy,jz)
-          alf(ind2,i,2) = MultiplyCell*(ex_accum + rxnmin) + ex_transport
-        END DO
-
-        DO is2 = 1,nsurf
-          ind2 = is2+ncomp+nexchange
-          rxnmin = sumrd(is2+ncomp+nexchange)
-          surf_accum = r*fch(i,is2+ncomp+nexchange,jx,jy,jz)
-          surf_transport = df*      &
-             ( ebu(jx,jy,jz) + bbu(jx,jy,jz) )*fch(i,is2+ncomp+nexchange,jx,jy,jz)
-          alf(ind2,i,2) = MultiplyCell*(surf_accum + rxnmin) + surf_transport 
-        END DO
-
-!!  Dependence of the total aqueous concentration on the potential
-        DO npt2 = 1,npot
-          ind2 = npt2+ncomp+nexchange+nsurf
-!          rxnmin = sumrd(is2+ncomp+nexchange)
-          pot_accum = r*fjpotncomp(npt2,i,jx,jy,jz)
-          pot_transport = df*      &
-             ( ebu(jx,jy,jz) + bbu(jx,jy,jz) )*fjpotncomp(npt2,i,jx,jy,jz)
-          alf(ind2,i,2) = MultiplyCell*pot_accum + pot_transport !  + rxnmin
-
-!  NOTE:  Need to add dependence of reaction rate on potentials (if surface complex is in 
-!         reaction rate
-
-        END DO
-!!  ***************************************************************
-      
-      ELSE    !! Following is for no burial/erosion
-
-        DO i2 = 1,ncomp        
+        DO i2 = 2,ncomp        
           ind2 = i2                
           rxnmin = sumrd(i2)
 
           rxnaq = satl*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
-          rxnaq_H2O = satl*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
 
-          IF (i /= ikh2o) THEN
-            
-            aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-                *(1.0 + Retardation*distrib(i) )/delt
-
-          ELSE
-            
-            aq_accum = fjac(i2,i,jx,jy,jz)/delt
-            
-          END IF
+          aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
+                *(1.0 + Retardation*distrib(i) ) 
 
           source_jac = source*fjac(i2,i,jx,jy,jz) 
-          source_jac_H2O = source_H2O*fjac(i2,i,jx,jy,jz) 
-          
           ex_accum = r*fch_local(i,i2) 
-          
-          IF (i /= ikh2o) THEN
-            alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
-                 + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) 
-          ELSE
-            alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq_H2O + aq_accum + source_jac_H2O)  
-          END IF
+          alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq + aq_accum + ex_accum - source_jac)   &
+               + xgram(jx,jy,jz)*df*(e(jx,jy,jz)+b(jx,jy,jz))*fjac(i2,i,jx,jy,jz) 
+          continue
 
         END DO   ! end of I2 loop
 
@@ -1341,32 +1030,39 @@ DO jy = 1,ny
         END DO 
 !!  ***************************************************************
 
-      END IF
-
+      
       IF (isaturate == 1) THEN
-        
-        DO i2 = 1,ncomp     
+        DO i2 = 2,ncomp     
           ind2 = i2      
           alf(ind2,i,2) = alf(ind2,i,2) + MultiplyCell*satgas*portemp*r*fgas(i2,i,jx,jy,jz)    &
              + df*(bg(jx,jy,jz)+eg(jx,jy,jz))*fgas(i2,i,jx,jy,jz)
         END DO   ! end of I2 loop
-        
       END IF
 
       IF (species_diffusion) THEN
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           ind2 = i2
           alf(ind2,i,2) = alf(ind2,i,2) + fanalyt(i,i2)
         END DO
       END IF
 
-      IF (ihindmarsh == 1 .AND. nxyz == nx .AND. nx /= 1) THEN
+!!!      IF (ihindmarsh == 1 .AND. nxyz == nx .AND. nx /= 1) THEN
+!!!         DO i2 = 1,neqn
+!!!           aah(i,i2,jx) = alf(i2,i,2)
+!!!         END DO
+!!!       END IF
+      
+    END DO     ! end of I primary species loop
+    
+    IF (ihindmarsh == 1 .AND. nxyz == nx .AND. nx /= 1) THEN
+      
+      DO i = 1,neqn
         DO i2 = 1,neqn
           aah(i,i2,jx) = alf(i2,i,2)
         END DO
-      END IF
+      END DO
       
-    END DO     ! end of I primary species loop
+    END IF
 
 !!! Start of IX exchange loop
     
@@ -1391,14 +1087,14 @@ DO jy = 1,ny
         fxx(ind) = sumactivity(ix) - 1.0
       END IF
 
-      DO i2 = 1,ncomp+nexchange
+      DO i2 = 2,ncomp+nexchange
         ind2 = i2
         alf(ind2,ix+ncomp,2) = fexch(ix+ncomp,i2)
 !!        alf(ind2,ix+ncomp,2) = fexch(ix+ncomp,i2)
       END DO
 
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
-        DO i2 = 1,ncomp+nexchange
+        DO i2 = 2,ncomp+nexchange
           ind2 = i2
           aah(ix+ncomp,i2,jx) = alf(ind2,ix+ncomp,2)
         END DO
@@ -1411,36 +1107,8 @@ DO jy = 1,ny
     DO is = 1,nsurf
 
       ind = (j-1)*(neqn) + is+ncomp+nexchange
-     
-      IF (ierode == 1) THEN
-      
-        DO i2 = 1,ncomp
-          ind2 = i2
-          surf_accum = r*fsurf(is,i2,jx,jy,jz)
-          surf_transport = df*(bbu(jx,jy,jz)+ebu(jx,jy,jz))*fsurf(is,i2,jx,jy,jz)
-          alf(ind2,is+ncomp+nexchange,2) = MultiplyCell*(surf_accum) + surf_transport
-        END DO
 
-        DO is2 = 1,nsurf
-          ind2 = is2+ncomp+nexchange
-          surf_accum = r* fsurf(is,is2+ncomp,jx,jy,jz)
-          surf_transport = df*(bbu(jx,jy,jz)+ebu(jx,jy,jz))*fsurf(is,is2+ncomp,jx,jy,jz)
-          alf(ind2,is+ncomp+nexchange,2) = MultiplyCell*(surf_accum) + surf_transport
-        END DO
-
-!!  Dependence of the total surface complex concentration on the potential
-        DO npt2 = 1,npot
-          ind2 = npt2+ncomp+nexchange+nsurf
-          pot_accum = r*fjpotnsurf(npt2,is,jx,jy,jz)
-          pot_transport = df*(bbu(jx,jy,jz)+ebu(jx,jy,jz))*     &
-               fjpotnsurf(npt2,is,jx,jy,jz)
-          alf(ind2,is+ncomp+nexchange,2) = MultiplyCell*(pot_accum) + pot_transport
-        END DO
-!!  ***********************************************************************
-      
-      ELSE
-
-        DO i2 = 1,ncomp
+        DO i2 = 2,ncomp
           ind2 = i2
           surf_accum = r*fsurf_local(is,i2)
           alf(ind2,is+ncomp+nexchange,2) = MultiplyCell*(surf_accum)
@@ -1460,7 +1128,6 @@ DO jy = 1,ny
         END DO
 !!  ***********************************************************************
 
-      END IF
       
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
         DO i2 = 1,neqn
@@ -1491,7 +1158,7 @@ DO jy = 1,ny
     correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k) 
       
 !!  Dependence of the potential on primary species concentrations
-      DO i2 = 1,ncomp
+      DO i2 = 2,ncomp
         ind2 = i2
         sum = 0.0
         DO ns = 1,nsurf_sec
@@ -1554,6 +1221,8 @@ DO jy = 1,ny
     END DO                   !!! End of NPT electrical potential loop
     
 !!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+        
       
 !!! --> Start of new functionality section (Ionic Strength and Activity of Water)
     
@@ -1565,7 +1234,7 @@ DO jy = 1,ny
       der_residuals(pos_IonS,:) = 0D0
       
       ChargeSum = 0.0d0
-      DO ik = 1,ncomp+nspec
+      DO ik = 2,ncomp+nspec
         ChargeSum  = ChargeSum + sp10(ik,jx,jy,jz)*chg(ik)*chg(ik)
       END DO
       
@@ -1579,7 +1248,7 @@ DO jy = 1,ny
 !!!  NOTE: First subscript points to residual, second to variable differentiated with respect to...
       
       !!! Derivative of ionic strength with respect to "icomp" primary species
-      DO icomp = 1, ncomp
+      DO icomp = 2, ncomp
         sumder = 0D0
         ulabPrint = ulab(icomp)
         IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
@@ -1622,9 +1291,10 @@ DO jy = 1,ny
       
       gammawater(jx,jy,jz) = EXP( lngammawater(jx,jy,jz) )
       gammaH2O = gammawater(jx,jy,jz)
+
       
       TotalMoles = 0.0d0
-      DO ik = 1,ncomp+nspec
+      DO ik = 2,ncomp+nspec
         ulabPrint = ulab(ik)
         IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
           TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
@@ -1634,13 +1304,11 @@ DO jy = 1,ny
       ind = (j-1)*(neqn) + pos_gammawater
       
       fxx(ind) = LOG( (1.0d0 - 0.017d0*TotalMoles)/ gammaH2O )
-!!!      LogTotalMoles = DLOG(1.0d0 - 0.017d0*TotalMoles)
-!!!      fxx(ind) = lngammawater(jx,jy,jz) - LogTotalMoles
         
 !!!   Derivative of activity of water (gammawater) with respect to primary species 
 
       sumder = 0D0
-      DO icomp = 1, ncomp
+      DO icomp = 2, ncomp
 
         ulabPrint = ulab(icomp)
         IF (ulabPrint(1:3) /= 'H2O' .and. ulabPrint(1:3) /= 'HHO') THEN
@@ -1685,7 +1353,7 @@ DO jy = 1,ny
       
 !!! ---> First, residual for ionic strength
       
-      do icomp2 = 1,ncomp
+      do icomp2 = 2,ncomp
         alf(icomp2,pos_IonS,2)  = der_residuals(pos_IonS,icomp2)
         IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
           aah(pos_IonS,icomp2,jx) = der_residuals(pos_IonS,icomp2)
@@ -1701,11 +1369,10 @@ DO jy = 1,ny
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
         aah(pos_IonS,pos_gammawater,jx) = der_residuals(pos_IonS,pos_gammawater) 
       endif
-
       
 !!! Then, residual for gammawater
       
-      do icomp2 = 1,ncomp
+      do icomp2 = 2,ncomp
         alf(icomp2,pos_gammawater,2)  = der_residuals(pos_gammawater,icomp2)
         IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
           aah(pos_gammawater,icomp2,jx) = der_residuals(pos_gammawater,icomp2)
@@ -1716,7 +1383,6 @@ DO jy = 1,ny
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
         aah(pos_gammawater,pos_gammawater,jx) = der_residuals(pos_gammawater,pos_gammawater)
       endif
-      CONTINUE
       
       alf(pos_IonS,pos_gammawater,2)  = der_residuals(pos_gammawater,pos_IonS)
       IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN
@@ -1745,6 +1411,7 @@ DO jy = 1,ny
                xgram(jx,jy,jz)*por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz)
       END DO
       
+      
       DO i = 1,ncomp
         ind2 = i
         alf(ind2,i,2) = sp10(i,jx,jy,jz)
@@ -1770,6 +1437,13 @@ DO jy = 1,ny
       END DO
       
     END IF
+    
+!!!        write(*,*) ' Check aah and alf diagonals'      
+!!!        write(*,*) ' Diagonal for H2O ', alf(ikh2O,ikh2O,2)
+!!!        write(*,*) ' Hindmarsh diagonal', aah(ikh2o,ikh2o,1)
+!!!        write(*,*) ' Old concentration of H2O', sn(ikh2O,jx,jy,jz)
+!!!        write(*,*) ' New concentration of H2O', s(ikh2O,jx,jy,jz)
+!!!        read(*,*)
 
     IF (ihindmarsh == 0 .OR. nxyz /= nx) THEN
 

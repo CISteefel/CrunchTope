@@ -93,8 +93,7 @@
 			<File RelativePath="..\Source\CrunchPETScInitializeDiffusion.F90"/>
 			<File RelativePath="..\Source\CrunchPETScInitializePressure.F90"/>
 			<File RelativePath="..\Source\CrunchPETScTolerances.F90"/>
-			<File RelativePath="..\Source\CrunchTope.F90">
-			</File>
+			<File RelativePath="..\Source\CrunchTope.F90"/>
 			<File RelativePath="..\Source\CrunchTopeDriver.F90"/>
 			<File RelativePath="..\Source\crunchtype.F90"/>
 			<File RelativePath="..\Source\database.F90"/>
@@ -166,7 +165,7 @@
 			<File RelativePath="..\Source\jacgas.F90"/>
 			<File RelativePath="..\Source\jacgas_local.F90"/>
 			<File RelativePath="..\Source\jacminTope.F90"/>
-			<File RelativePath="..\Source\jacobian.F90"/>
+			<File RelativePath="..\Source\jacobian-New.F90"/>
 			<File RelativePath="..\Source\jacobian_init.F90"/>
 			<File RelativePath="..\Source\jacobian_plus.F90"/>
 			<File RelativePath="..\Source\jacpotential.F90"/>

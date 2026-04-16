@@ -180,6 +180,7 @@ dispersivity             2.0
 END
 
 PRIMARY_SPECIES
+H2O 
 H+
 Fe++
 Fe+++
@@ -200,7 +201,6 @@ Br-
 C5H7O2NFe
 C5H7O2NSO4
 decay_b_so4
-H2O 
 END
 
 SECONDARY_SPECIES
