@@ -1,6 +1,6 @@
 ALL: CrunchMain
 
-FFLAGS  = -w -ffpe-trap=invalid,overflow,zero   
+FFLAGS  = -w -ffpe-trap=invalid,overflow,zero -fcheck=all   
 
 SOURCEF = \
           crunchtype.F90\
@@ -18,12 +18,14 @@ SOURCEF = \
           temperature.F90\
           flow.F90\
           crunch_interface.F90\
+          hydraulic_function.F90\
           CrunchFunctions.F90\
           isotope.F90\
+	  CrunchModules.F90\
           NanoCrystal.F90\
           CrunchTopeDriver.F90\
+          richards.F90\
           CrunchTope.F90\
-          AffinityNumerical.F90\
           AllocateALL.F90\
           AllocateOS3D.F90\
           AllocateGasesGimrt.F90\
@@ -277,6 +279,7 @@ SOURCEF = \
           squeeze.F90\
           sschaine.F90\
           sschaine_hyph.F90\
+          read_richards.F90\
           StartTope.F90\
           SteadyState.F90\
           stringlen.F90\
@@ -320,9 +323,8 @@ SOURCEF = \
           velocalcNS.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
-          read_watertablefile.F90\
-          read_watertable_timeseries.F90\
           interp3.F90\
+          interp.F90\
           read_transpiration.F90\
           read_evaporation.F90\
           read_timeseries.F90\
@@ -330,23 +332,10 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
-          flux_Richards.F90\
-		  Jacobian_Richards.F90\
-		  Jacobian_Richards_steady.F90\
-		  read_boundary_condition_Richards.F90\
-		  read_vanGenuchten_parameters.F90\
-		  residual_Richards.F90\
-		  residual_Richards_steady.F90\
-		  solve_Richards.F90\
-		  solve_Richards_steady.F90\
-		  vanGenuchten_model.F90\
-		  vanGenuchten_model_kr.F90\
+          read_vanGenuchten_parameters.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
-          read_vgafile.F90\
-          read_vgnfile.F90\
-          read_wcrfile.F90\
           read_walltime.F90\
           read_permxfile.F90\
           read_permyfile.F90\
@@ -370,10 +359,12 @@ OBJSF  =  crunchtype.o\
           crunch_interface.o\
           CrunchFunctions.o\
           isotope.o\
+          hydraulic_function.o\
+          CrunchModules.o\
           NanoCrystal.o\
           CrunchTopeDriver.o\
+          richards.o\
           CrunchTope.o\
-          AffinityNumerical.o\
           AllocateOS3D.o\
           AllocateGIMRT.o\
           AllocateALL.o\
@@ -627,6 +618,7 @@ OBJSF  =  crunchtype.o\
           squeeze.o\
           sschaine.o\
           sschaine_hyph.o\
+          read_richards.o\
           StartTope.o\
           SteadyState.o\
           stringlen.o\
@@ -670,9 +662,8 @@ OBJSF  =  crunchtype.o\
           velocalcNS.o\
           read_pumptimeseriesfile.o\
           read_pumplocationsfile.o\
-          read_watertablefile.o\
-          read_watertable_timeseries.o\
           interp3.o\
+          interp.o\
           read_transpiration.o\
           read_evaporation.o\
           read_timeseries.o\
@@ -680,33 +671,20 @@ OBJSF  =  crunchtype.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
           read_infiltration_2.o\
-          flux_Richards.o\
-		  Jacobian_Richards.o\
-		  Jacobian_Richards_steady.o\
-		  read_boundary_condition_Richards.o\
-		  read_vanGenuchten_parameters.o\
-		  residual_Richards.o\
-		  residual_Richards_steady.o\
-		  solve_Richards.o\
-		  solve_Richards_steady.o\
-		  vanGenuchten_model.o\
-		  vanGenuchten_model_kr.o\
+          read_vanGenuchten_parameters.o\
           read_tempreg.o\
           read_tempregion.o\
           read_tempts.o\
-          read_vgafile.o\
-          read_vgnfile.o\
-          read_wcrfile.o\
           read_walltime.o\
           read_permxfile.o\
           read_permyfile.o\
           read_mineralfile.o\
           read_eastriver.o\
 
-LOCDIR   = ${CrunchTope_Dir}
+LOCDIR   = .
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
 
 CrunchMain : ${OBJSF} #chkopts
-	-${FLINKER} -o CrunchTope ${OBJSF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}
+	-${FLINKER} -o CrunchTope_gfortran ${OBJSF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}
