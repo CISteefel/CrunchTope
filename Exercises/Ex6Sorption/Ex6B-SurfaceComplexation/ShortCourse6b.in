@@ -5,7 +5,7 @@ END
 RUNTIME
 time_units      days
 timestep_max    0.1
-timestep_init   1.E-10
+timestep_init   1.E-01
 debye-huckel    true
 database_sweep  false
 time_tolerance  0.01
@@ -55,8 +55,8 @@ ZnOH+
 END
 
 SURFACE_COMPLEXATION
->FeOH_strong   on Fe(OH)3
->FeOH_weak     on Fe(OH)3
+>FeOH_strong   on Fe(OH)3  
+>FeOH_weak     on Fe(OH)3 
 END
 
 MINERALS  
@@ -73,7 +73,7 @@ xzones  1  1.0
 END
 
 INITIAL_CONDITIONS
-Solution13   1-1  1-1  1-1
+Solution12   1-1  1-1  1-1
 END
  
 Condition Solution1 
@@ -107,6 +107,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution3 
@@ -122,6 +123,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution4 
@@ -152,6 +154,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution6 
@@ -167,6 +170,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution7 
@@ -182,6 +186,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution8 
@@ -197,6 +202,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution9 
@@ -212,6 +218,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution10 
@@ -227,6 +234,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution11
@@ -242,6 +250,7 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
 Condition Solution12
@@ -257,20 +266,6 @@ H2O              55.50843506
 >FeOH_weak       3.703704E-06  
 >FeOH_strong     9.259259E-08                 
 Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
+SolidDensity     2600.0
 END
 
-Condition Solution13
-temperature          25.0
-pH                   8.00                       
-Zn++                 1.E-07           equilibrate_surface                   
-Na+                  charge                            
-NO3-                 1.0000E-01                          
-Fe+++                0.00            
-O2(aq)               2.4647E-04  
-H2O              55.50843506             
-!Site name     <site density mol/m**2>   
->FeOH_weak       3.703704E-06  
->FeOH_strong     9.259259E-08                 
-Fe(OH)3          2.943109E-05  specific_surface_area  600.0     !! Note: Gives 0.09 g/kgw Fe(OH)3, 54 m**2 surface
-HNO3(c)           0.10   1.0
-END

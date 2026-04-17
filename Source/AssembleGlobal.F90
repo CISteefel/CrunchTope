@@ -909,6 +909,14 @@ DO jy = 1,ny
       fxx(ind) = 0.1174d0*sqrt_sion*HyperbolicSine - surfcharge( kpot(npt) )
     END DO
     
+!!! Residual for H2O
+    
+    aq_accum =  ( s(ikh2o,jx,jy,jz) - sn(ikh2o,jx,jy,jz) ) / delt
+    ind = (j-1)*(neqn) + ikh2o
+    alf(ikh2O,ikh2O,2) = MultiplyCell*fjac(ikh2o,ikh2o,jx,jy,jz)/delt
+    write(*,*) alf(ikh2O,ikh2O,2),fjac(ikh2o,ikh2o,jx,jy,jz), delt, MultiplyCell
+   !!! read(*,*)
+    
     DO i = 2,ncomp
       ind = (j-1)*(neqn) + i
       
@@ -980,13 +988,6 @@ DO jy = 1,ny
         END IF
       END DO
 
-        
-!!! Residual for H2O
-    
-        aq_accum =  ( s(ikh2o,jx,jy,jz) - sn(ikh2o,jx,jy,jz) ) / delt
-        ind = (j-1)*(neqn) + ikh2o
-        alf(ikh2O,ikh2O,2) = MultiplyCell*fjac(ikh2o,ikh2o,jx,jy,jz)/delt
-
         DO i2 = 2,ncomp        
           ind2 = i2                
           rxnmin = sumrd(i2)
@@ -1054,15 +1055,7 @@ DO jy = 1,ny
       
     END DO     ! end of I primary species loop
     
-    IF (ihindmarsh == 1 .AND. nxyz == nx .AND. nx /= 1) THEN
-      
-      DO i = 1,neqn
-        DO i2 = 1,neqn
-          aah(i,i2,jx) = alf(i2,i,2)
-        END DO
-      END DO
-      
-    END IF
+
 
 !!! Start of IX exchange loop
     
@@ -1121,11 +1114,11 @@ DO jy = 1,ny
         END DO
 
 !!  Dependence of the total surface complex concentration on the potential
-        DO npt2 = 1,npot
-          ind2 = npt2+ncomp+nexchange+nsurf
-          pot_accum = fjpotnsurf(npt2,is,jx,jy,jz)/delt
-          alf(ind2,is+ncomp+nexchange,2) = MultiplyCell*(pot_accum) 
-        END DO
+!!!        DO npt2 = 1,npot
+!!!          ind2 = npt2+ncomp+nexchange+nsurf
+!!!          pot_accum = fjpotnsurf(npt2,is,jx,jy,jz)/delt
+!!!          alf(ind2,is+ncomp+nexchange,2) = MultiplyCell*(pot_accum) 
+!!!        END DO
 !!  ***********************************************************************
 
       
