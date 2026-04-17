@@ -44,7 +44,7 @@
 !!!      ****************************************
 
 SUBROUTINE GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-    ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt,jpor,FirstCall, nBoundaryConditionZone)
+    ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
 USE crunchtype
 USE CrunchFunctions
 USE params

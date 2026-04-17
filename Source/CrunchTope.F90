@@ -3191,7 +3191,7 @@ END IF
       IF (tecplot) THEN
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
         
       END IF
 
@@ -3210,11 +3210,11 @@ END IF
       ELSE IF (visit) THEN
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
       ELSE
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
 
       END IF
 
