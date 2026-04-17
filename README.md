@@ -93,7 +93,7 @@ For those wanting to run CrunchFlow directly from Visual Studio, the easiest way
 
 ### RunTime
 
----> Add "H2O" to the end of the list of PRIMARY SPECIES.  
+---> Add "H2O" to the beginning of the list of PRIMARY SPECIES (Species #1).  
 ---> Add also to each of the CONDITION blocks  "H2O  55.50843506"
 
 ### Thermodynamic Database
