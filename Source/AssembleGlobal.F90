@@ -914,8 +914,6 @@ DO jy = 1,ny
     aq_accum =  ( s(ikh2o,jx,jy,jz) - sn(ikh2o,jx,jy,jz) ) / delt
     ind = (j-1)*(neqn) + ikh2o
     alf(ikh2O,ikh2O,2) = MultiplyCell*fjac(ikh2o,ikh2o,jx,jy,jz)/delt
-    write(*,*) alf(ikh2O,ikh2O,2),fjac(ikh2o,ikh2o,jx,jy,jz), delt, MultiplyCell
-   !!! read(*,*)
     
     DO i = 2,ncomp
       ind = (j-1)*(neqn) + i

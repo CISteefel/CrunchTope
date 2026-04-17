@@ -16,6 +16,7 @@ speciate_only   false
 database        datacom.dbs
 screen_output   100
 graphics        tecplot
+hindmarsh       true
 END
 
 OUTPUT
@@ -29,6 +30,13 @@ END
 POROSITY
 fix_porosity     0.90
 porosity_update  false
+END
+
+BOUNDARY_CONDITIONS
+BoundaryCondition      Solution1   zone  0-0       1-1     1-1  flux
+BoundaryCondition      Solution12    zone  4-4       1-1     1-1  flux
+!!!!x_begin                SoluteWater   dirichlet
+!!!!x_end                  Deep_Soil2    flux
 END
 
 TEMPERATURE
@@ -69,11 +77,11 @@ O2(g)
 END
 
 DISCRETIZATION 
-xzones  1  1.0
+xzones  3  1.0
 END
 
 INITIAL_CONDITIONS
-Solution12   1-1  1-1  1-1
+Solution12   1-3  1-1  1-1
 END
  
 Condition Solution1 

@@ -703,20 +703,7 @@ IF (nrct > 0) THEN
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   
   TimeMultiplier = 36.5
-  
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-        DO k = 1,nrct
-          dvolpr(k) = volfx(k,jx,jy,jz) - volin(k,jinit(jx,jy,jz)) 
-        END DO
-!!!        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(dvolpr(k),k=1,nrct)
-        DeltaSerpentine = volfx(3,jx,jy,jz) - volin(3,jinit(jx,jy,jz)) 
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale, TimeMultiplier*DeltaSerpentine
-      END DO
-    END DO
-  END DO
-  CLOSE(UNIT=8,STATUS='keep')
+
 
   fn='MineralSaturation'
   ilength = 17
