@@ -73,7 +73,6 @@ REAL(DP)                                                    :: LogDependence
 
 DO ns = 1,nsurf_sec
 
-
   IF (nptlink(ns) /= 0) THEN
       
 

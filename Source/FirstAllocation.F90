@@ -402,6 +402,14 @@ IF (ALLOCATED(iedl)) THEN
 ELSE
   ALLOCATE(iedl(msurf))
 END IF
+
+IF (ALLOCATED(LogPotential_tmp)) THEN
+  DEALLOCATE(LogPotential_tmp)
+  ALLOCATE(LogPotential_tmp(msurf))
+ELSE
+  ALLOCATE(LogPotential_tmp(msurf))
+END IF
+
 IF (ALLOCATED(LocalEquilibrium)) THEN
   DEALLOCATE(LocalEquilibrium)
   ALLOCATE(LocalEquilibrium(mrct))

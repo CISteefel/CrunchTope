@@ -2355,6 +2355,8 @@ ELSE
   ALLOCATE(kPotential(500))
 END IF
 
+
+
 ndependex = 0
 ndependsurf = 0
 ixdepend = 0
@@ -2481,12 +2483,14 @@ IF (ALLOCATED(surfcharge_init)) THEN
 ELSE
   ALLOCATE(surfcharge_init(nrct))
 END IF
+
 IF (ALLOCATED(LogPotential_tmp)) THEN
   DEALLOCATE(LogPotential_tmp)
   ALLOCATE(LogPotential_tmp(nsurf))
 ELSE
   ALLOCATE(LogPotential_tmp(nsurf))
 END IF
+
 IF (ALLOCATED(islink)) THEN
   DEALLOCATE(islink)
   ALLOCATE(islink(nsurf_sec))
@@ -2533,11 +2537,16 @@ END DO
 
 nptlink = 0
 
-DO ns = 1,nsurf_sec
-  is = islink(ns)
-  nptlink(ns) = nptPrimary(is)
-  write(*,555) namsurf_sec(ns),nptlink(ns)
-END DO
+IF (npot > 0) THEN
+
+  DO ns = 1,nsurf_sec
+    is = islink(ns)
+    nptlink(ns) = nptPrimary(is)
+    write(*,555) namsurf_sec(ns),nptlink(ns)
+  END DO
+ELSE
+  nptlink = 0
+END IF
 
 555 format(a12,1x,i2)
 
