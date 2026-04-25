@@ -414,6 +414,14 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_Face
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceSouth
 REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceNorth
 
+REAL(DP)                                                   :: totAqueousH2 
+REAL(DP)                                                   :: totGasH2 
+REAL(DP)                                                   :: totH2O
+REAL(DP)                                                   :: ChangeInH2_gas
+REAL(DP)                                                   :: SatGas
+REAL(DP)                                                   :: CellVolume
+REAL(DP)                                                   :: sp10oldH2
+
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2024 Oct.
 INTEGER(I4B)                                                  :: lowX
@@ -2412,6 +2420,32 @@ DO jz = 1,nz
     DO jx = 1,nx
 !!      CALL totconc(ncomp,nspec,jx,jy,jz))
       CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
+      
+IF (BatchReactor .OR. BatchReactor2) THEN
+        
+        CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
+            
+        CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+        
+        satgas = 1.0 - satliq(jx,jy,jz)
+              
+!!!     NOTE: In units of moles
+                  
+        porsatro         = por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)
+        
+        totH2O           = CellVolume * (s(1,jx,jy,jz) - sn(1,jx,jy,jz)  )
+        sp10oldH2        = EXP( spold(6,jx,jy,jz) )
+        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - sp10oldH2 )  
+        
+        ChangeInH2_gas   = EXP( spgas(1,jx,jy,jz) ) -  EXP( spgasold(1,jx,jy,jz) ) 
+        totGasH2         = CellVolume * por(jx,jy,jz) * satgas * ChangeInH2_gas
+        
+        ChangeH2O(jx)    = ChangeH2O(jx) + totH2O
+        ChangeH2(jx)     = ChangeH2(jx) + totAqueousH2
+        ChangeH2_gas(jx) = ChangeH2_gas(jx) + totGasH2
+
+END IF
+
     END DO
   END DO
 END DO
@@ -3129,6 +3163,7 @@ END IF
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
+    WRITE(iures) lngammawater
     WRITE(iures) jinit   !! Read IntegerDummyArray(nxyz)
     WRITE(iures) keqmin
     WRITE(iures) volfx

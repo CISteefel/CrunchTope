@@ -754,8 +754,7 @@ IF (BatchReactor2) THEN
     
 
     write(8,*) ' TotH2 (umol)            = ', totGasH2 + totAqueousH2
-    write(8,*) ' TotaAqueousH2_LastCell  = ', totAqueousH2_LastCell
-    write(8,*) ' TotaGasH2_LastCell      = ', totGasH2_LastCell
+ 
     write(8,*)
     write(8,*) ' Partial pressure        = ', PartialPressureH2
     write(8,*)

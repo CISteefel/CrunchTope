@@ -156,7 +156,6 @@ END IF
     READ(iures) spex
     READ(iures) spex10
     READ(iures) lngamma
-    READ(iures) lngammawater
     READ(iures) exchangesites
     READ(iures) spexold
     READ(iures) spgas
@@ -177,6 +176,7 @@ END IF
     READ(iures) spsurfold 
     READ(iures) raq_tot
     READ(iures) sion
+    READ(iures) lngammawater
     
     IF (ALLOCATED(IntegerDummyArray)) THEN
       DEALLOCATE(IntegerDummyArray)
