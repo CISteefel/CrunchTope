@@ -21,7 +21,7 @@ SOURCEF = \
           hydraulic_function.F90\
           CrunchFunctions.F90\
           isotope.F90\
-	  CrunchModules.F90\
+          CrunchModules.F90\
           NanoCrystal.F90\
           CrunchTopeDriver.F90\
           richards.F90\

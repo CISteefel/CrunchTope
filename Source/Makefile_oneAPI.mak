@@ -681,7 +681,10 @@ OBJSF  =  crunchtype.o\
           read_mineralfile.o\
           read_eastriver.o\
 
-LOCDIR   = .
+LOCDIR   = export CrunchTope_DIR=/home/cisteefel/CrunchTope-gfortran/
+export PETSC_DIR=/home/cisteefel/petsc
+export PETSC_ARCH=gnu-debug
+
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
