@@ -45,7 +45,7 @@
     
 SUBROUTINE AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,         &
              nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time,  &
-             user,amatpetsc,nBoundaryConditionZone)
+             user,amatpetsc,nBoundaryConditionZone, igamma)
 USE crunchtype
 USE params
 USE runtime
@@ -83,6 +83,9 @@ INTEGER(I4B), INTENT(IN)                      :: nn
 
 REAL(DP), INTENT(IN)                          :: delt
 REAL(DP), INTENT(IN)                          :: time
+
+INTEGER(I4B), INTENT(IN)                      :: nBoundaryConditionZone
+INTEGER(I4B), INTENT(IN)                      :: igamma
 
 !********************** Add in PETSC declarations for f90 variables *****
 INTEGER(I4B)                                                     :: ipetsc
@@ -165,7 +168,6 @@ INTEGER(I4B)                                  :: jpoint
 INTEGER(I4B)                                  :: round
 
 INTEGER(I4B)                                  :: nbnd
-INTEGER(I4B)                                  :: nBoundaryConditionZone
 
 INTEGER(I4B)                                  :: npz
 
@@ -198,6 +200,23 @@ REAL(DP)        :: qgdum
 REAL(DP)        :: source_H2O
 REAL(DP)        :: source_jac_H2O
 REAL(DP)        :: rxnaq_H2O
+
+REAL(DP)        :: checkDerivativePot 
+REAL(DP)        :: acc
+REAL(DP)        :: prim
+REAL(DP)        :: sec
+REAL(DP)        :: diag
+REAL(DP)        :: coshTerm
+REAL(DP)        :: sumI
+REAL(DP)        :: direct
+REAL(DP)        :: diagH2Oterm
+REAL(DP)        :: denom
+
+REAL(DP), DIMENSION(ncomp)  :: dfxxwater_dsp_direct
+REAL(DP), DIMENSION(nspec)  :: dfxxwater_dsp_sec
+
+INTEGER(I4B)                                   :: isp
+
 
 INTEGER(I4B)                                   :: pos_IonS
 INTEGER(I4B)                                   :: pos_GammaWater
@@ -268,7 +287,7 @@ fxx = 0.0
 
 IF (ierode /= 1) THEN
   IF (nsurf > 0) THEN
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+    CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
   END IF
 END IF
 
@@ -1183,7 +1202,7 @@ DO jy = 1,ny
 !  Update the residual, adding reaction terms and exchange terms
       
       IF (i == ikh2o) THEN
-        fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
+!!!        fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
       ELSE
         fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
       END IF
@@ -1282,6 +1301,8 @@ DO jy = 1,ny
 !!  ***************************************************************
       
       ELSE    !! Following is for no burial/erosion
+        
+       !!! NOTE: Subscript "i" is the residual for primary species, "i2" is the derivative with respect to (i2, i, ...)
 
         DO i2 = 1,ncomp        
           ind2 = i2                
@@ -1302,7 +1323,8 @@ DO jy = 1,ny
           END IF
 
           source_jac = source*fjac(i2,i,jx,jy,jz) 
-          source_jac_H2O = source_H2O*fjac(i2,i,jx,jy,jz) 
+!!!          source_jac_H2O = source_H2O*fjac(i2,i,jx,jy,jz) 
+          source_jac_H2O = 0.0d0
           
           ex_accum = r*fch_local(i,i2) 
           
@@ -1313,7 +1335,7 @@ DO jy = 1,ny
             alf(ind2,i,2) = MultiplyCell*(rxnmin + rxnaq_H2O + aq_accum + source_jac_H2O)  
           END IF
 
-        END DO   ! end of I2 loop
+        END DO   ! end of I2 loop over ncomp derivatives
 
         DO ix2 = 1,nexchange
           ind2 = ix2+ncomp
@@ -1478,9 +1500,11 @@ DO jy = 1,ny
     DO npt = 1,npot
 
       ncol = npt + ncomp + nexchange + nsurf
-      
-      k = kpot(npt)       !!  One to one correspondence between potential and mineral surface (k)
 
+      k = kpot(npt)       !!  One to one correspondence between potential and mineral surface (k)
+      
+      coshTerm = 0.1174d0 * sqrt_sion * COSH( LogPotential(npt,jx,jy,jz) )
+      
       IF (volinByGrid(k,jx,jy,jz) == 0.0d0 .AND. volfx(k,jx,jy,jz) < voltemp(k,jinit(jx,jy,jz)) ) THEN
         volMinimum = voltemp(k,jinit(jx,jy,jz))
       ELSE
@@ -1488,11 +1512,13 @@ DO jy = 1,ny
         IF (volMinimum < 1.0D-15) volMinimum = 1.0D-15
       END IF
   
-    correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k) 
+      correct = wtmin(k)*specificByGrid(k,jx,jy,jz)*volMinimum/volmol(k) 
+      term1 = faraday / correct
       
 !!  Dependence of the potential on primary species concentrations
-      DO i2 = 1,ncomp
+      DO i2 = 2,ncomp
         ind2 = i2
+        
         sum = 0.0
         DO ns = 1,nsurf_sec
           IF (ksurf(islink(ns)) == kpot(npt)) THEN
@@ -1500,11 +1526,15 @@ DO jy = 1,ny
           END IF
         END DO
         alf(ind2,ncol,2) = sum
+         
       END DO
+  
+      !!! NEEDS CLEAN UP
   
 !!  Dependence of the potential on surface complex concentrations
       DO is2 = 1,nsurf
         ind2 = is2+ncomp+nexchange
+        
         sum = 0.0d0
         DO ns = 1,nsurf_sec
 !!        Add on secondary surface complex if it is associated with the npt potential
@@ -1541,7 +1571,69 @@ DO jy = 1,ny
         alf(nrow,ncol,2) = 0.1174d0*sqrt_sion*COSH(LogPotential(npt,jx,jy,jz)) - sum*term1   
       ELSE
         alf(nrow,ncol,2) = 0.d0
-      END IF
+      END IF   
+      
+    ! ---- direct sqrt(I) term -----------------------------------
+    direct = 0.5d0 * 0.1174d0 * sqrt_sion * SINH( LogPotential(npt,jx,jy,jz) )
+
+    ! ---- indirect: chain-rule through secondary surface species --
+    sec = 0.0d0
+    DO ns = 1,nsurf_sec
+      IF ( ksurf(islink(ns)) /= k ) CYCLE
+
+      ! sum over non-water primary aqueous species
+      sumI = 0.0d0
+      DO i = 2,ncomp
+        sumI = sumI + musurf(ns,i) * dlngamma_dlnI(i,jx,jy,jz)
+      END DO
+
+      sec = sec + zsurf(ns+nsurf)                  &
+                * spsurf10(ns+nsurf,jx,jy,jz)      &
+                * sumI
+    END DO
+
+    checkDerivativePot = direct - term1 * sec
+    
+    ncol = npt + ncomp + nexchange + nsurf
+    nrow = npot + ncomp + nexchange + nsurf + 1    !!! Ionic strength
+    
+   
+    alf(nrow,ncol,2) = checkDerivativePot
+    
+    ncol = npt + ncomp + nexchange + nsurf
+    nrow = npot + ncomp + nexchange + nsurf + 2    !!! Activity of water
+    
+    TotalMoles = 0.0d0
+    DO ik = 2,ncomp+nspec
+      TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
+    END DO
+    denom = 1.0d0 - 0.017d0*TotalMoles      ! must stay positive
+
+  ! diagonal
+    diagH2Oterm = -1.0d0
+
+  ! direct columns -- every non-water dissolved species
+    DO k = 2,ncomp
+         dfxxwater_dsp_direct(k) =                       &
+            - 0.017d0 * sp10(k,jx,jy,jz) / denom
+    END DO
+    DO ksp = 1,nspec
+      ik = ksp + ncomp
+      dfxxwater_dsp_sec(ksp) =                        &
+            - 0.017d0 * sp10(ik,jx,jy,jz) / denom
+    END DO
+  ! chain to primary unknowns via secondary-species stoichiometry
+  ! muaq(ksp,k) is the stoichiometry of primary k in secondary ksp.
+    DO k = 2,ncomp
+      acc = dfxxwater_dsp_direct(k)
+      DO ksp = 1,nspec
+        acc = acc + dfxxwater_dsp_sec(ksp) * muaq(ksp,k)
+      END DO
+      checkDerivativePot = acc
+    END DO
+    
+    alf(nrow,ncol,2) = checkDerivativePot
+
 
 !!   *********************************************************************************
 
@@ -1634,8 +1726,6 @@ DO jy = 1,ny
       ind = (j-1)*(neqn) + pos_gammawater
       
       fxx(ind) = LOG( (1.0d0 - 0.017d0*TotalMoles)/ gammaH2O )
-!!!      LogTotalMoles = DLOG(1.0d0 - 0.017d0*TotalMoles)
-!!!      fxx(ind) = lngammawater(jx,jy,jz) - LogTotalMoles
         
 !!!   Derivative of activity of water (gammawater) with respect to primary species 
 
@@ -1683,7 +1773,7 @@ DO jy = 1,ny
 !!! -->  der_residuals(pos_gammawater,pos_der)
     
       
-!!! ---> First, residual for ionic strength
+!!! ---> Derivatives for ionic strength with respect to primary species and ionic strength (diagonal)
       
       do icomp2 = 1,ncomp
         alf(icomp2,pos_IonS,2)  = der_residuals(pos_IonS,icomp2)

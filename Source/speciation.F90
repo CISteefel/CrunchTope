@@ -44,7 +44,7 @@
     
 
 SUBROUTINE speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
-    ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt)
+    ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt,igamma)
 USE crunchtype
 USE params
 USE runtime
@@ -97,6 +97,7 @@ INTEGER(I4B), INTENT(IN)                           :: nn
 INTEGER(I4B), INTENT(IN)                           :: nint
 INTEGER(I4B), INTENT(IN)                           :: ikmast
 INTEGER(I4B), INTENT(IN)                           :: ikph
+INTEGER(I4B), INTENT(IN)                           :: igamma
 
 !  Internal variables and arrays
 
@@ -295,7 +296,7 @@ DO jz = 1,nz
 
 !!CIS  The following call does not work with erosion (need to call "totsurf.F90")
       IF (ierode /= 1) THEN
-        call SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+        call SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
         call totsurf_local(ncomp,nsurf,nsurf_sec,jx,jy,jz)
       END IF
 

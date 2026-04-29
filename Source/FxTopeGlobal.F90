@@ -1055,7 +1055,7 @@ DO is = 1,nsurf
     surf_accum = r*check
 !!!    surf_accum = r*(ssurf_local(is)-ssurfn(is,jx,jy,jz))
 !!!    surf_accum = r*( ssurf_local(is) - c_surf(is,jinit(jx,jy,jz)) )
-    surf_accum = 0.0d0
+!!!    surf_accum = 0.0d0
     xvec_surf = 0.0
     yvec_surf = 0.0
   END IF

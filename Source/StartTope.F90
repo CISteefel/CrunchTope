@@ -2512,6 +2512,7 @@ END IF
 
 surfcharge_init = 0.0
 LogPotential_tmp = 0.0
+nptlink = 0
 
 DO is = 1,nsurf
   
@@ -5051,6 +5052,25 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
   CLOSE(UNIT=52)
 END IF
 
+!!! Allocate derivatives for surface complexation
+ ALLOCATE( dlngamma_dlnI( ncomp+nspec,nx,ny,nz) )
+ ALLOCATE( dspsurf_dlnaH2O(nsurf+nsurf_sec,nx,ny,nz) )
+ ALLOCATE( dspsurf10_dlnaH2O(nsurf+nsurf_sec,nx,ny,nz) )
+ ALLOCATE( dspsurf_dlnI(nsurf+nsurf_sec,nx,ny,nz) )
+
+ ALLOCATE( dspsurf10_dlnI(nsurf+nsurf_sec,nx,ny,nz) )
+ ALLOCATE( dspsurf_dsp(nsurf+nsurf_sec,ncomp,nx,ny,nz) )
+ ALLOCATE( dspsurf10_dsp(nsurf+nsurf_sec,ncomp,nx,ny,nz) )
+ ALLOCATE( dspsurf10_surf(nsurf+nsurf_sec,nsurf,nx,ny,nz) )
+ ALLOCATE( dspsurf10_dpot(nsurf+nsurf_sec,nx,ny,nz) )
+ !!!ALLOCATE( dspsurf10_dlogtot(nsurf+nsurf_sec,nx,ny,nz) )
+ ALLOCATE( dspsurf_dspsurf(nsurf+nsurf_sec,nsurf,nx,ny,nz) )
+ ALLOCATE( dspsurf_dpot(nsurf+nsurf_sec,nx,ny,nz) )
+ !!!ALLOCATE( dspsurf_dlogtot(nsurf+nsurf_sec,nx,ny,nz) )
+ ALLOCATE( dspsurf10_dspsurf( nsurf+nsurf_sec,nsurf,nx,ny,nz) )
+
+ 
+
 !!! The following distributes variables within internal domain (1-nx,1-ny,1-nz)
 DO jz = 1,nz
   DO jy = 1,ny
@@ -5150,18 +5170,18 @@ DO jz = 1,nz
         exchangesites(ix,jx,jy,jz) = convert*totexch(ix,jinit(jx,jy,jz)) ! Now in equivalents/m3 por. med.
       END DO
 
-      do ix = 1,nexchange
+      do ix = 1,nexchange+nexch_sec
         spex(ix,jx,jy,jz) = spcondex(ix,jinit(jx,jy,jz))
         spex10(ix,jx,jy,jz) = convert*spcondex10(ix,jinit(jx,jy,jz))  ! Now in eq/m3 por. med.
       end do
-      DO ix = 1,nexch_sec
-        spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,jinit(jx,jy,jz))  ! Now in eq/m3 por. med.
-      END DO
+!!!      DO ix = 1,nexch_sec
+!!!         spex10(ix+nexchange,jx,jy,jz) = convert*spcondex10(ix+nexchange,jinit(jx,jy,jz))  ! Now in eq/m3 por. med.
+!!!       END DO
 
       DO is = 1,nsurf+nsurf_sec
         spsurf10(is,jx,jy,jz) = convert*spcondsurf10(is,jinit(jx,jy,jz))
       END DO
-      DO is = 1,nsurf
+      DO is = 1,nsurf+nsurf_sec
         spsurf(is,jx,jy,jz) = LOG(convert*spcondsurf10(is,jinit(jx,jy,jz)))
       END DO
     

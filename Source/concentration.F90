@@ -418,7 +418,28 @@ MODULE  concentration
   
   REAL(DP)                                           :: GasFlux_FaceEast_H2 
   REAL(DP)                                           :: AqueousFlux_FaceEast_H2 
+  
+!!! New "Claude" allocatable arrays
+  
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dlngamma_dlnI
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf_dlnaH2O
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf10_dlnaH2O
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf_dlnI
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf10_dlnI
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE      :: dspsurf_dsp
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE      :: dspsurf10_dsp
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE      :: dspsurf10_surf
+ 
+ 
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf10_dpot
+ !!!REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf10_dlogtot
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE    :: dspsurf_dspsurf
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE    :: dspsurf10_dspsurf
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf_dpot
+ !!!REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf_dlogtot
 
+
+ 
 
 END MODULE concentration
 

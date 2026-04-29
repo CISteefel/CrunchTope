@@ -1869,12 +1869,7 @@ DO WHILE (nn <= nend)
                  END IF
                   
                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-                if (jx==8) then
-                  continue
-                end if
-                if (jx==401) then
-                  continue
-                end if
+
             END DO
           END DO
           
@@ -1924,7 +1919,7 @@ DO WHILE (nn <= nend)
           END DO 
                           
           IF (ierode == 1) THEN
-            CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+            CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
             CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
           END IF
 
@@ -1980,7 +1975,7 @@ DO WHILE (nn <= nend)
 
           CALL AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,                   &
              nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_GIMRT,time, &
-             userC,amatpetsc,nBoundaryConditionZone)
+             userC,amatpetsc,nBoundaryConditionZone,igamma)
 
           if ((nn.eq.1) .and. (ne.eq.1) .and. petscon) then
     !!          call MatSetOption(amatpetsc,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
@@ -2126,8 +2121,8 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO npt = 1,npot
-                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.9d0) THEN
-                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.9d0,yh(npt+ncomp+nexchange+nsurf,jx))
+                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.1d0) THEN
+                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.1d0,yh(npt+ncomp+nexchange+nsurf,jx))
                   ELSE
                     CONTINUE
                   END IF
@@ -2395,7 +2390,7 @@ DO WHILE (nn <= nend)
         END IF
 
         CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+        CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 
         jz = 1
         DO jy = 1,ny
@@ -2520,7 +2515,7 @@ END IF
     END DO
 
     CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+    CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 
     GO TO 6000
     
