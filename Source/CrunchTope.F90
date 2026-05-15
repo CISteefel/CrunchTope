@@ -130,7 +130,8 @@ INTEGER(I4B)                                               :: end_millisec
 REAL(DP)                                                   :: StartSeconds
 REAL(DP)                                                   :: EndSeconds
 REAL(DP)                                                   :: MilliSeconds
-INTEGER(I4B), DIMENSION(1)                                              :: MaxFx
+REAL(DP)                                                   :: MaxValFx
+INTEGER(I4B), DIMENSION(1)                                 :: MaxFx
 
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tdata
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: break
@@ -321,6 +322,8 @@ LOGICAL(LGT)                                               :: scale
 LOGICAL(LGT)                                               :: FlowConverged
 LOGICAL(LGT)                                               :: FirstCall
 
+LOGICAL(LGT)                                               :: WritePetscIterations
+
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tempreal
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: InitialMass
 
@@ -357,6 +360,8 @@ REAL(DP)                                                   :: CumulativeFe
 REAL(DP)                                                   :: CumulativeO2
 REAL(DP)                                                   :: CumulativeCO2
 
+REAL(DP)                                                   :: checkValue
+
 CHARACTER (LEN=1)                                          :: trans
 
 INTEGER(I4B)                                               :: info
@@ -390,6 +395,10 @@ INTEGER(I4B)                                               :: nBoundaryCondition
 INTEGER(I4B)                                               :: nco
 INTEGER(I4B)                                               :: i_substep
 INTEGER(I4B)                                               :: kk
+
+INTEGER(I4B)                                               :: checkInteger1
+INTEGER(I4B)                                               :: checkInteger2
+INTEGER(I4B)                                               :: checkInteger3
 
 ! transient pump time series (Lucien Stolze)
 REAL(DP)                                                    :: time_norm
@@ -750,7 +759,7 @@ IF (CalculateFlow) THEN
  ELSE initial_flow_solver_if
 
   atolksp = 1.D-50
-  rtolksp = GIMRTRTOLKSP
+  rtolksp = GIMRT_rtolksp
   rtolksp = 1.0D-25
   dtolksp = 1.0D-30
 
@@ -1297,7 +1306,7 @@ DO WHILE (nn <= nend)
         ELSE flow_solver_if_time
    
           atolksp = 1.D-50
-          rtolksp = GIMRTRTOLKSP
+          rtolksp = GIMRT_rtolksp
           rtolksp = 1.0D-25
           dtolksp = 1.0D-30
 
@@ -1977,7 +1986,7 @@ DO WHILE (nn <= nend)
              nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_GIMRT,time, &
              userC,amatpetsc,nBoundaryConditionZone,igamma)
 
-          if ((nn.eq.1) .and. (ne.eq.1) .and. petscon) then
+          if ( (nn.eq.1) .and. (ne.eq.1) .and. petscon ) then
     !!          call MatSetOption(amatpetsc,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
           endif
     !**************  End PETSC changes *********************************************
@@ -2041,7 +2050,7 @@ DO WHILE (nn <= nend)
 
                 atolksp = 1.D-50
     !!            rtolksp = 1.D-09
-                rtolksp = GIMRTRTOLKSP
+                rtolksp = GIMRT_rtolksp
                 dtolksp = 1.D+05
 
                 pc%v = userC(5)
@@ -2052,6 +2061,31 @@ DO WHILE (nn <= nend)
 
                 call KSPSolve(ksp,bvec,xvec,ierr)
                 CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+                
+                WritePetscIterations = .FALSE.
+                IF (WritePetscIterations) THEN
+                  
+                  write(*,*)
+                  write(*,*) ' Newton iteration = ', ne, ' PETSc iterations = ', itsiterate
+   
+                  CALL KSPGetConvergedReason(ksp,reason,ierr)
+                  IF (reason == 2) THEN
+                    WRITE(*,*) ' Converged on relative tolerance in linear solver'
+                  END IF
+                  IF (reason == 3) THEN
+                    WRITE(*,*) ' Converged on absolute tolerance in linear solver'
+                  END IF
+                  IF (reason == 4) THEN
+                    WRITE(*,*) ' Converged based on iterations in linear solver'
+                  END IF
+                  IF (reason < 0) THEN
+                    WRITE(*,*)
+                    WRITE(*,*) ' Steady state flow failed to converge, but continue on '
+                    ierr = 0
+                  END IF
+                  write(*,*)
+                  
+                END IF
 
                 if(ierr.ne.0) then
                     icvg = 1
@@ -2219,6 +2253,11 @@ DO WHILE (nn <= nend)
                  IF (DABS(xn(ind)) > errmax) THEN
                     errmax = DABS(xn(ind))
                  END IF
+                 IF (DABS(xn(ind)) > 0.1d0) THEN
+                   xn(ind) = SIGN(0.1d0,xn(ind))
+                 ELSE
+                   CONTINUE
+                 END IF
                   LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) + xn(ind)
                 END DO
                 
@@ -2300,7 +2339,7 @@ DO WHILE (nn <= nend)
               END DO
               
               DO npt = 1,npot
-                tolmax = 1.e-10
+                tolmax = 1.0E-03
                 ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
                 IF (DABS(fxx(ind)) > tolmax) THEN
                     icvg = 1
@@ -2329,9 +2368,16 @@ DO WHILE (nn <= nend)
 
     5017 CONTINUE
         IF (icvg == 1) THEN
+          MaxValFx = MaxVal(fxx)
           MaxFx = MaxLoc(fxx)
-    !!      MaxValFx = MaxVal(fxx)
-
+          
+          checkInteger1 = MaxFx(1)/neqn
+          checkInteger2 = checkInteger1*neqn
+          checkInteger3 = MaxFx(1) - checkInteger2
+          write(*,*)
+          write(*,*) ' Failure to converge at grid cell = ', checkInteger1
+          write(*,*) ' Failure to converge for primary variable: ', checkInteger3
+          write(*,*)
           ddtold = dt_GIMRT
           dt_GIMRT = dt_GIMRT/10.0
           itskip = 1

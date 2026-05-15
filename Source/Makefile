@@ -1,6 +1,6 @@
 ALL: CrunchMain
 
-FFLAGS  = -w -ffpe-trap=invalid,overflow,zero -fcheck=all   
+FFLAGS  = -w -ffpe-trap=invalid,overflow,zero -Wuninitialized --check=all
 
 SOURCEF = \
           crunchtype.F90\

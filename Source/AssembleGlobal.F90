@@ -490,7 +490,7 @@ DO jy = 1,ny
     IF (nx == 1) GO TO 100
     
     IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1) THEN  ! Use Hindmarsh routine
-  
+!!!     IF (nxyz == nx .AND. nxyz /= 1) THEN  ! Use Hindmarsh routine
       IF (jx /= 1) THEN
         jdum=jx-1
         
@@ -659,7 +659,7 @@ DO jy = 1,ny
         
       END IF
       
-    ELSE     !  Case where NY .ne. 1 (2D problem)
+    ELSE
       
       IF (jx /= 1) THEN
         jdum=jx-1
@@ -849,6 +849,7 @@ DO jy = 1,ny
         END IF
         
       END IF
+      
     END IF
     
 !!! End of JX Nernst-Planck section
@@ -1357,10 +1358,13 @@ DO jy = 1,ny
 !          rxnmin = sumrd(is2+ncomp+nexchange)
           pot_accum = fjpotncomp(npt2,i,jx,jy,jz)/delt
           alf(ind2,i,2) = MultiplyCell*pot_accum  !  + rxnmin
-!!!          alf(ind2,i,2) = 0.0d0
-!  NOTE:  Need to add dependence of reaction rate on potentials (if surface complex is in 
-!         reaction rate
         END DO 
+        
+        delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
+
+      dspsurf_dpot(ns+nsurf,jx,jy,jz)    = &
+            -2.0d0 * musurf(ns,islink(ns)+ncomp) * delta_z
+
 !!  ***************************************************************
 
       END IF
@@ -1600,40 +1604,15 @@ DO jy = 1,ny
    
     alf(nrow,ncol,2) = checkDerivativePot
     
+!!! ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
     ncol = npt + ncomp + nexchange + nsurf
     nrow = npot + ncomp + nexchange + nsurf + 2    !!! Activity of water
     
-    TotalMoles = 0.0d0
-    DO ik = 2,ncomp+nspec
-      TotalMoles = TotalMoles + sp10(ik,jx,jy,jz)
-    END DO
-    denom = 1.0d0 - 0.017d0*TotalMoles      ! must stay positive
-
-  ! diagonal
-    diagH2Oterm = -1.0d0
-
-  ! direct columns -- every non-water dissolved species
-    DO k = 2,ncomp
-         dfxxwater_dsp_direct(k) =                       &
-            - 0.017d0 * sp10(k,jx,jy,jz) / denom
-    END DO
-    DO ksp = 1,nspec
-      ik = ksp + ncomp
-      dfxxwater_dsp_sec(ksp) =                        &
-            - 0.017d0 * sp10(ik,jx,jy,jz) / denom
-    END DO
-  ! chain to primary unknowns via secondary-species stoichiometry
-  ! muaq(ksp,k) is the stoichiometry of primary k in secondary ksp.
-    DO k = 2,ncomp
-      acc = dfxxwater_dsp_direct(k)
-      DO ksp = 1,nspec
-        acc = acc + dfxxwater_dsp_sec(ksp) * muaq(ksp,k)
-      END DO
-      checkDerivativePot = acc
-    END DO
+    alf(nrow,ncol,2) = 0.0d0
     
-    alf(nrow,ncol,2) = checkDerivativePot
-
+!!! +++++++++++++++++++++++++++++++++++++++++++++++
+    
 
 !!   *********************************************************************************
 
@@ -1860,7 +1839,24 @@ DO jy = 1,ny
       END DO
       
     END IF
-
+    
+                !!! cch(ind,ind2,jx) = alf(ind2,ind,1)
+                !!! aah(ind,ind2,jx) = alf(ind2,ind,2)
+                !!! bbh(ind,ind2,jx) = alf(ind2,ind,3)
+    
+                !!!     do i = 1,neqn
+                !!!       !!!write(*,*) ' Primary variable = ', i, ' at grid cell = ', jx
+                !!!       do k = 1,neqn
+                !!!         if (cch(i,k,jx) /= alf(k,i,1) ) then
+                !!!           write(*,*) cch(i,k,jx),alf(k,i,1)
+                !!!           write(*,*) ' Mismatch between cch and alf'
+                !!!           read(*,*)
+                !!!         end if
+                !!!       end do
+                       !!!write(*,*)
+                !!!     end do
+           
+    
     IF (ihindmarsh == 0 .OR. nxyz /= nx) THEN
 
      IF ( petscon) THEN

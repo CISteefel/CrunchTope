@@ -636,12 +636,12 @@ LOGICAL(LGT)                                                  :: ExportGridLocat
 LOGICAL(LGT)                                                  :: H2Ofound
 
 namelist /Nucleation/                                          NameMineral,        &
-                                                             label,              &
-                                                             A_zero25C,          &
-                                                             B_nucleation,       &
-                                                             Sigma_mJm2,         &
-                                                             SSA_m2g,            &
-                                                             Surface
+                                                               label,              &
+                                                               A_zero25C,          &
+                                                               B_nucleation,       &
+                                                               Sigma_mJm2,         &
+                                                               SSA_m2g,            &
+                                                               Surface
 
 ! ************************************
 ! Edit by Lucien Stolze, June 2023
@@ -698,7 +698,7 @@ INTEGER(I4B)                                 :: nBoundaryConditionZone_Richards 
 ! ************************************
 
 CHARACTER (LEN=mls)                                           :: SerpentineFile_Mesh
-REAL(DP), DIMENSION(290,1,1)          :: xPrint
+REAL(DP), DIMENSION(290,1,1)                                  :: xPrint
 
 #if defined(ALQUIMIA)
 
@@ -1370,12 +1370,9 @@ IF (found) THEN
   realjunk = 0.0
   CALL read_par(nout,lchar,parchar,parfind,realjunk,section)
   IF (parfind == ' ') THEN  ! Parameter timestep_max not found
-    GIMRTRTOLKSP = 1.0D-09            ! Use default
+    GIMRT_rtolksp = 1.0D-09            ! Use default
   ELSE
-    GIMRTRTOLKSP = realjunk
-  END IF
-  IF (GIMRTRTOLKSP < 1.0D-10) THEN
-    GIMRTRTOLKSP = 1.0D-10
+    GIMRT_rtolksp = realjunk
   END IF
 
   parchar = 'screen_output'
@@ -5053,21 +5050,65 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
 END IF
 
 !!! Allocate derivatives for surface complexation
- ALLOCATE( dlngamma_dlnI( ncomp+nspec,nx,ny,nz) )
- ALLOCATE( dspsurf_dlnaH2O(nsurf+nsurf_sec,nx,ny,nz) )
- ALLOCATE( dspsurf10_dlnaH2O(nsurf+nsurf_sec,nx,ny,nz) )
- ALLOCATE( dspsurf_dlnI(nsurf+nsurf_sec,nx,ny,nz) )
-
- ALLOCATE( dspsurf10_dlnI(nsurf+nsurf_sec,nx,ny,nz) )
- ALLOCATE( dspsurf_dsp(nsurf+nsurf_sec,ncomp,nx,ny,nz) )
- ALLOCATE( dspsurf10_dsp(nsurf+nsurf_sec,ncomp,nx,ny,nz) )
- ALLOCATE( dspsurf10_surf(nsurf+nsurf_sec,nsurf,nx,ny,nz) )
- ALLOCATE( dspsurf10_dpot(nsurf+nsurf_sec,nx,ny,nz) )
- !!!ALLOCATE( dspsurf10_dlogtot(nsurf+nsurf_sec,nx,ny,nz) )
- ALLOCATE( dspsurf_dspsurf(nsurf+nsurf_sec,nsurf,nx,ny,nz) )
- ALLOCATE( dspsurf_dpot(nsurf+nsurf_sec,nx,ny,nz) )
- !!!ALLOCATE( dspsurf_dlogtot(nsurf+nsurf_sec,nx,ny,nz) )
- ALLOCATE( dspsurf10_dspsurf( nsurf+nsurf_sec,nsurf,nx,ny,nz) )
+  IF (ALLOCATED(dlngamma_dlnI)) THEN
+    DEALLOCATE(dlngamma_dlnI)
+  END IF 
+  ALLOCATE( dlngamma_dlnI(ncomp+nspec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf_dlnaH2O)) THEN
+    DEALLOCATE(dspsurf_dlnaH2O)
+  END IF
+  ALLOCATE( dspsurf_dlnaH2O(nsurf+nsurf_sec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf10_dlnaH2O)) THEN
+    DEALLOCATE(dspsurf10_dlnaH2O)
+  END IF
+  ALLOCATE( dspsurf10_dlnaH2O(nsurf+nsurf_sec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf_dlnI)) THEN
+    DEALLOCATE(dspsurf_dlnI)
+  END IF
+  ALLOCATE( dspsurf_dlnI(nsurf+nsurf_sec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf10_dlnI)) THEN
+    DEALLOCATE(dspsurf10_dlnI)
+  END IF
+  ALLOCATE( dspsurf10_dlnI(nsurf+nsurf_sec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf_dsp)) THEN
+    DEALLOCATE(dspsurf_dsp)
+  END IF
+  ALLOCATE(dspsurf_dsp(nsurf+nsurf_sec,ncomp,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf10_dsp)) THEN
+    DEALLOCATE(dspsurf10_dsp)
+  END IF
+  ALLOCATE( dspsurf10_dsp(nsurf+nsurf_sec,ncomp,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf10_surf)) THEN
+    DEALLOCATE(dspsurf10_surf)
+  END IF
+  ALLOCATE( dspsurf10_surf(nsurf+nsurf_sec,nsurf,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf10_dpot)) THEN
+    DEALLOCATE(dspsurf10_dpot)
+  END IF
+  ALLOCATE( dspsurf10_dpot(nsurf+nsurf_sec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf_dspsurf)) THEN
+    DEALLOCATE(dspsurf_dspsurf)
+  END IF
+  ALLOCATE( dspsurf_dspsurf(nsurf+nsurf_sec,nsurf,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf_dpot)) THEN
+    DEALLOCATE(dspsurf_dpot)
+  END IF
+  ALLOCATE( dspsurf_dpot(nsurf+nsurf_sec,nx,ny,nz) )
+  
+  IF (ALLOCATED(dspsurf10_dspsurf)) THEN
+    DEALLOCATE(dspsurf10_dspsurf)
+  END IF
+  ALLOCATE( dspsurf10_dspsurf( nsurf+nsurf_sec,nsurf,nx,ny,nz) )
 
  
 
