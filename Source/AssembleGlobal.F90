@@ -1359,11 +1359,6 @@ DO jy = 1,ny
           pot_accum = fjpotncomp(npt2,i,jx,jy,jz)/delt
           alf(ind2,i,2) = MultiplyCell*pot_accum  !  + rxnmin
         END DO 
-        
-        delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
-
-      dspsurf_dpot(ns+nsurf,jx,jy,jz)    = &
-            -2.0d0 * musurf(ns,islink(ns)+ncomp) * delta_z
 
 !!  ***************************************************************
 
