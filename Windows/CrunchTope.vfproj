@@ -118,7 +118,8 @@
 			<File RelativePath="..\Source\gamma_init.F90"/>
 			<File RelativePath="..\Source\gamma_init_co2.F90"/>
 			<File RelativePath="..\Source\gamma_local.F90"/>
-			<File RelativePath="..\Source\gammaUpdated.F90"/>
+			<File RelativePath="..\Source\gammaUpdated.F90">
+			</File>
 			<File RelativePath="..\Source\gascoeffCylinder.F90"/>
 			<File RelativePath="..\Source\gasdiff.F90"/>
 			<File RelativePath="..\Source\gases.F90"/>
@@ -341,7 +342,8 @@
 			<File RelativePath="..\Source\surf_init.F90"/>
 			<File RelativePath="..\Source\SurfaceCharge.F90"/>
 			<File RelativePath="..\Source\SurfaceCharge_init.F90"/>
-			<File RelativePath="..\Source\SurfaceComplex.F90"/>
+			<File RelativePath="..\Source\SurfaceComplex.F90">
+			</File>
 			<File RelativePath="..\Source\SurfaceConcentration.F90"/>
 			<File RelativePath="..\Source\SurfLocal.F90"/>
 			<File RelativePath="..\Source\swap.F90"/>

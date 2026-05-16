@@ -84,6 +84,7 @@ REAL(DP)                                                    :: activity
 REAL(DP)                                                    :: LogTotalSites
 REAL(DP)                                                    :: LogTotalEquivalents
 REAL(DP)                                                    :: check
+REAL(DP)                                                    :: tempc
 
 REAL(DP)                                                    :: sum_dlnI
 REAL(DP)                                                    :: sion_tmp
@@ -96,6 +97,9 @@ REAL(DP)                                                    :: bh
 REAL(DP)                                                    :: tmp1
 REAL(DP)                                                    :: tmp2
 REAL(DP)                                                    :: k
+
+INTEGER(I4B)                                               :: it
+INTEGER(I4B)                                               :: ItPoint
 
 LOGICAL(LGT)                                              :: Davies
 LOGICAL(LGT)                                              :: Wateq_Extended_DH
@@ -198,11 +202,59 @@ DO jz = 1,nz
 ! Water: 0.  Unity model: 0.  Neutral: clg*0.1*I.
 ! Davies / Helgeson / Wateq_Extended_DH: closed forms below.
 !-----------------------------------------------------------------------
+      
+  sion_tmp = sion(jx,jy,jz)
+  sqrt_IonS = SQRT(sion_tmp)
+  tempc = t(jx,jy,jz)
+  
+  IF (ntemp == 1) THEN
+  ah = adh(1)
+  bh = bdh(1)
+  bdt = bdot(1)
+ELSE
+
+  ItPoint = 0
+  DO it = 1,ntemp
+    IF (tempc == DatabaseTemperature(it)) THEN
+      ItPoint = it
+      ah = adh(ItPoint)
+      bh = bdh(ItPoint)
+      bdt = bdot(ItPoint)
+    END IF
+  END DO
+
+  IF (ItPoint == 0) THEN
+    ah = adhcoeff(1) + adhcoeff(2)*tempc  &
+       + adhcoeff(3)*tempc*tempc + adhcoeff(4)*tempc*tempc*tempc  &
+       + adhcoeff(5)*tempc*tempc*tempc*tempc
+    bh = bdhcoeff(1) + bdhcoeff(2)*tempc  &
+       + bdhcoeff(3)*tempc*tempc + bdhcoeff(4)*tempc*tempc*tempc  &
+       + bdhcoeff(5)*tempc*tempc*tempc*tempc
+    bdt = bdtcoeff(1) + bdtcoeff(2)*tempc  &
+       + bdtcoeff(3)*tempc*tempc + bdtcoeff(4)*tempc*tempc*tempc  &
+       + bdtcoeff(5)*tempc*tempc*tempc*tempc
+  ELSE
+    CONTINUE
+  END IF
+
+END IF
+
   dlngamma_dlnI(:,jx,jy,jz) = 0.0d0
 
   IF (igamma /= 0) THEN
 
     DO ik = 1,ncomp+nspec
+      
+      IF (IncludeBdot) THEN
+        IF (azero(ik) == 0.0d0) THEN
+          Davies = .TRUE.
+        ELSE
+          Wateq_Extended_DH = .TRUE.
+        END IF
+      ELSE
+        Helgeson = .TRUE. !!  Helgesonian-LLNL bdot expression based on extended Debye-Huckel
+      END IF
+      
       ulabPrint = ulab(ik)
 
       IF (ulabPrint(1:3) == 'H2O' .OR. ulabPrint(1:3) == 'HHO') THEN
