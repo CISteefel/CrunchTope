@@ -503,7 +503,7 @@ DO jz = 1,nz
           
           ulabPrint = ulab(i)
           IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngamma(i,jx,jy,jz)
+            lnActivity = lngammawater(jx,jy,jz)
           ELSE
             lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
           END IF

@@ -177,7 +177,8 @@ ELSE
     ulabPrint = ulab(ik)   
     IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
       gamma(ik,jx,jy,jz) = gammawaterTMP
-      lngamma(ik,jx,jy,jz) = LOG(gammawaterTMP)
+!!      lngamma(ik,jx,jy,jz) = LOG(gammawaterTMP)
+      lngamma(ik,jx,jy,jz) = lnGammaWater(jx,jy,jz)
       pos_der = ncomp + nexchange + nsurf + npot + 1 + 1      ! gamma water--note that activity of water is 1 + 1 
       deriv_gamma(ik,pos_der,jx,jy,jz) = gammawaterTMP            ! gammawater is a primary variable  
   

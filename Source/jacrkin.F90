@@ -171,7 +171,7 @@ DO i2 = 1,ncomp
       DO ii = 1,ncomp
         ulabPrint = ulab(ii)
         IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-          lnActivity = lngamma(ii,jx,jy,jz)
+          lnActivity = lngammawater(jx,jy,jz)
         ELSE
           lnActivity = sp(ii,jx,jy,jz) + lngamma(ii,jx,jy,jz)
         END IF

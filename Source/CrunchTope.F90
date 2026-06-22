@@ -391,6 +391,8 @@ REAL(DP)                                                   :: CheckMass1
 REAL(DP)                                                   :: CheckMass2
 REAL(DP)                                                   :: pumpterm
 
+REAL(DP)                                                   :: FxxFail
+
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
 INTEGER(I4B)                                               :: i_substep
@@ -1901,7 +1903,7 @@ DO WHILE (nn <= nend)
         icvg = 1
         iterat = 0 ! number of Newton iterations
 
-    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 9)
+    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 12)
           NE = NE + 1
           iterat = iterat + 1
           
@@ -2104,6 +2106,8 @@ DO WHILE (nn <= nend)
 
           IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
 
+            MaximumCorrection = corrmax
+            
             errmax = 0.0
             jz = 1
             DO jy = 1,ny
@@ -2111,15 +2115,10 @@ DO WHILE (nn <= nend)
                 j = (jy-1)*nx+jx
                 
                 DO i = 1,ncomp
-                  IF (ulab(i) == 'O2(aq)') THEN
-                    MaximumCorrection = corrmax
-                  ELSE
-                    MaximumCorrection = 2.0
-                  END IF
-                  IF (ABS(yh(i,jx)) > errmax) THEN
-                    errmax = ABS(yh(i,jx))
-                  END IF
                   IF (ABS(yh(i,jx)) > MaximumCorrection) THEN
+                    write(*,*) 'Implementing MaximumCorrection'
+                    write(*,*) TRIM( ulab(i) ),yh(i,jx)
+!!!                    read(*,*)
                     yh(i,jx) = SIGN(MaximumCorrection,yh(i,jx))
                   ELSE
                     CONTINUE
@@ -2129,9 +2128,6 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO ix = 1,nexchange
-                  IF (DABS(yh(ix+ncomp,jx)) > errmax) THEN
-                    errmax = DABS(yh(ix+ncomp,jx))
-                  END IF
                   IF (DABS(yh(ix+ncomp,jx)) > MaximumCorrection) THEN
                     yh(ix+ncomp,jx) = SIGN(MaximumCorrection,yh(ix+ncomp,jx))
                   ELSE
@@ -2142,9 +2138,6 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO is = 1,nsurf
-                  IF (DABS(yh(is+ncomp+nexchange,jx)) > errmax) THEN
-                    errmax = DABS(yh(is+ncomp+nexchange,jx))
-                  END IF
                   IF (DABS(yh(is+ncomp+nexchange,jx)) > MaximumCorrection) THEN
                     yh(is+ncomp+nexchange,jx) = SIGN(MaximumCorrection,yh(is+ncomp+nexchange,jx))
                   ELSE
@@ -2155,8 +2148,8 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO npt = 1,npot
-                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.1d0) THEN
-                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.1d0,yh(npt+ncomp+nexchange+nsurf,jx))
+                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.9d0) THEN
+                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.9d0,yh(npt+ncomp+nexchange+nsurf,jx))
                   ELSE
                     CONTINUE
                   END IF
@@ -2167,8 +2160,8 @@ DO WHILE (nn <= nend)
           !!!   Update ionic strength
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 
-                IF (DABS(yh(ind,jx)) > MaximumCorrection) THEN
-                  yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
+                IF (DABS(yh(ind,jx)) > 0.5) THEN
+                  yh(ind,jx) = SIGN( 0.5,yh(ind,jx) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2182,8 +2175,8 @@ DO WHILE (nn <= nend)
           !!!   Update lngammawater
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(yh(ind,jx) ) > MaximumCorrection) THEN
-                  yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
+                IF (DABS(yh(ind,jx) ) > 0.5) THEN
+                  yh(ind,jx) = SIGN( 0.5,yh(ind,jx) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2194,6 +2187,8 @@ DO WHILE (nn <= nend)
             END DO
 
           ELSE
+            
+            MaximumCorrection = corrmax
 
             jz = 1
             errmax = 0.0D0
@@ -2202,15 +2197,7 @@ DO WHILE (nn <= nend)
                 j = (jy-1)*nx+jx
                 
                 DO i = 1,ncomp
-                  IF (ulab(i) == "O2(aq)") THEN
-                    MaximumCorrection = corrmax
-                  ELSE
-                    MaximumCorrection = 2.0d0
-                  END IF
                   ind = (j-1)*(neqn) + i
-                  IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                  END IF
                   IF (DABS(xn(ind)) > MaximumCorrection) THEN
                     xn(ind) = SIGN(MaximumCorrection,xn(ind))
                   ELSE
@@ -2222,9 +2209,6 @@ DO WHILE (nn <= nend)
 
                 DO ix = 1,nexchange
                   ind = (j-1)*(neqn) + ix+ncomp
-                  IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                  END IF
                   IF (DABS(xn(ind)) > MaximumCorrection) THEN
                     xn(ind) = SIGN(MaximumCorrection,xn(ind))
                   ELSE
@@ -2236,9 +2220,6 @@ DO WHILE (nn <= nend)
 
                 DO is = 1,nsurf
                   ind = (j-1)*(neqn) + is+ncomp+nexchange
-                  IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                  END IF
                   IF (DABS(xn(ind)) > MaximumCorrection) THEN
                     xn(ind) = SIGN(MaximumCorrection,xn(ind))
                   ELSE
@@ -2250,11 +2231,8 @@ DO WHILE (nn <= nend)
 
                 DO npt = 1,npot
                   ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
-                 IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                 END IF
-                 IF (DABS(xn(ind)) > 0.1d0) THEN
-                   xn(ind) = SIGN(0.1d0,xn(ind))
+                 IF (DABS(xn(ind)) > 0.9d0) THEN
+                   xn(ind) = SIGN(0.9d0,xn(ind))
                  ELSE
                    CONTINUE
                  END IF
@@ -2270,14 +2248,11 @@ DO WHILE (nn <= nend)
                   CONTINUE
                 END IF
                 
-                IF ( sion(jx,jy,jz) == 0.d0 .AND. xn(ind) == 0.0d0) THEN
-                  write(*,*)
-                  write(*,*) ' Ionic strength cannot be zero '
-                  write(*,*)
-                  stop
+                IF ( sion(jx,jy,jz) == 0.0d0 ) THEN
+                  sion(jx,jy,jz) = 1.0D-06
+                ELSE
+                  sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
                 END IF
-                  
-                sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
                 
           !!!   Update lngammawater
                 
@@ -2290,34 +2265,33 @@ DO WHILE (nn <= nend)
                 
                 lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + xn(ind) 
                 
+                
               END DO
             END DO
 
           END IF
 
+          FxxFail = 0.0
           icvg = 0
+          
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
               j = (jy-1)*nx+jx
               
-              DO i = 1,ncomp
+              DO i = 2,ncomp
                 ind = (j-1)*(neqn) + i
+                
                 IF (ResidualTolerance /= 0.0d0) THEN
                   tolmax = ResidualTolerance
                 ELSE
                   tolmax = atol
                 END IF
-                
-                IF (SaltCreep) THEN
-                  IF (DABS(fxx(ind)) > tolmax) THEN
-                    icvg = 1
-                  END IF
-                ELSE
-                  IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
+
+                IF (DABS(delt*fxx(ind)) > tolmax) THEN
 !!!                IF (DABS(fxx(ind)) > tolmax) THEN
-                    icvg = 1
-                  END IF
+                  icvg = 1
+                  FxxFail = Max( DABS( fxx(ind) ),FxxFail )
                 END IF
                 
               END DO
@@ -2325,21 +2299,24 @@ DO WHILE (nn <= nend)
               DO ix = 1,nexchange
                 tolmax = 1.e-10
                 ind = (j-1)*(neqn) + ix+ncomp
-                IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
+!!!                IF (DABS(delt*fxx(ind)) > tolmax) THEN
+                IF (fxx(ind) > tolmax) THEN
                     icvg = 1
+                    FxxFail = Max( DABS( fxx(ind) ),FxxFail )
                 END IF
               END DO
               
               DO is = 1,nsurf
                 tolmax = atol
                 ind = (j-1)*(neqn) + is+ncomp+nexchange
-                IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
-                    icvg = 1
+                IF (DABS(delt*fxx(ind)) > tolmax) THEN
+                  icvg = 1
+                  FxxFail = Max( DABS( fxx(ind) ),FxxFail )
                 END IF
               END DO
               
               DO npt = 1,npot
-                tolmax = 1.0E-03
+                tolmax = 1.0E-08
                 ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
                 IF (DABS(fxx(ind)) > tolmax) THEN
                     icvg = 1
@@ -2348,10 +2325,6 @@ DO WHILE (nn <= nend)
               
             END DO
           END DO
-
-          IF (ABS(errmax) < 1.e-15) THEN
-            icvg = 0
-          END IF
 
     !! If electrochemical migration is considered, always carry out at least two Newton iterations
           IF (species_diffusion .AND. iterat<=2) THEN
@@ -2368,16 +2341,25 @@ DO WHILE (nn <= nend)
 
     5017 CONTINUE
         IF (icvg == 1) THEN
+          
           MaxValFx = MaxVal(fxx)
-          MaxFx = MaxLoc(fxx)
+          MaxFx    = MaxLoc(fxx)
           
           checkInteger1 = MaxFx(1)/neqn
           checkInteger2 = checkInteger1*neqn
           checkInteger3 = MaxFx(1) - checkInteger2
+          
           write(*,*)
+          write(*,*) ' Newton iterations= ', iterat
           write(*,*) ' Failure to converge at grid cell = ', checkInteger1
           write(*,*) ' Failure to converge for primary variable: ', checkInteger3
+          write(*,*) ' FxxFail = ', FxxFail
           write(*,*)
+          do kk = 2,neqn
+            write(*,*) kk, '  ', fxx(checkInteger2+kk)
+          end do
+          write(*,*)
+
           ddtold = dt_GIMRT
           dt_GIMRT = dt_GIMRT/10.0
           itskip = 1

@@ -397,7 +397,7 @@ DO k = 1,nkin
             
           ulabPrint = ulab(i)
           IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngamma(i,jx,jy,jz)
+            lnActivity = lngammawater(jx,jy,jz)
           ELSE
             lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
           END IF
@@ -420,7 +420,7 @@ DO k = 1,nkin
             
           ulabPrint = ulab(i)
           IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngamma(i,jx,jy,jz)
+            lnActivity = lngammawater(jx,jy,jz)
           ELSE
             lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
           END IF
@@ -440,7 +440,7 @@ DO k = 1,nkin
             
           ulabPrint = ulab(i)
           IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngamma(i,jx,jy,jz)
+            lnActivity = lngammawater(jx,jy,jz)
           ELSE
             lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
           END IF
@@ -576,10 +576,6 @@ DO k = 1,nkin
 !!  "MineralID" is the pointer to the mineral number whose volume fraction is being tracked
     
     IF (silog(np,k) >= 0.0D0 .AND. iarea(k,jinit(jx,jy,jz)) == 0) THEN       !! Supersaturated AND bulk_surface_area option
-      
-      IF (k == 13) then
-        continue
-      end if
 
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
@@ -590,8 +586,6 @@ DO k = 1,nkin
           write(*,*) ' Associated mineral should be earlier in mineral list'
           write(*,*)
           stop
-!!!8-24          surf(np,k) = areain(MineralID(k),jinit(jx,jy,jz))*porfactor
-!!!          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
         END IF
 
       ELSE
