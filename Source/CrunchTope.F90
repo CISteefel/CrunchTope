@@ -1975,6 +1975,14 @@ DO WHILE (nn <= nend)
               END DO
 
               CALL decbt90(neqn,nx,ier)
+              IF (ier /= 0) THEN
+                WRITE(*,'(A,I0,A,I0)') &
+                  '  Hindmarsh band solver: singular matrix at block ',ier, &
+                  ' (Newton iter ',iterat,')'
+                WRITE(*,*) '  Reducing timestep.'
+                icvg = 1
+                GO TO 5017
+              END IF
               CALL solbt90(neqn,nx)
 
             ELSE IF (ihindmarsh == 2) THEN

@@ -144,7 +144,7 @@ DO jy = 1,ny
     j = (jy-1)*nx+jx
     tk = 273.15 + t(jx,jy,jz)
     IF (idiffus == 0) THEN
-      dstar(jx,jy,jz) = dzero*EXP((activation/rgas)*(tk25 - 1.0/tk))/formation
+      dstar(jx,jy,jz) = dzero*EXP((activation/rgasKCAL)*(tk25 - 1.0/tk))/formation
     ELSE
       dstar(jx,jy,jz) = dcoeff/formation
     END IF
