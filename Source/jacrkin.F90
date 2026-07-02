@@ -135,6 +135,9 @@ REAL(DP)                                             :: tmp4
 REAL(DP)                                             :: satL
 REAL(DP)                                             :: vol_temp
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 REAL(DP), DIMENSION(ikin)                            :: MoleFraction
 REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction
 
@@ -145,15 +148,9 @@ tk = t(jx,jy,jz) + 273.15D0
 satL = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
 tkinv = 1.0D0/tk
 reft = 1.0D0/(298.15D0)
+															!! Numerical derivatives of total concentration for use in Monod terms
 
-
-!  First, calculate the derivatives of the affinity terms w/respect
-!    to the primary species
-
-!! Numerical derivatives of total concentration for use in Monod terms
-
-
-perturb = 1.d-09 
+perturb = 1.d-08 
 sppTMP = sp(:,jx,jy,jz)
 sppTMP10(:) = sp10(:,jx,jy,jz)
 DO i2 = 1,ncomp
@@ -172,9 +169,16 @@ DO i2 = 1,ncomp
 !!    IF (muaq(ksp,i2) /= 0.0) THEN  !! If the secondary species is not affectd by primary i2, then skip it
       sum = 0.0D0
       DO ii = 1,ncomp
-
-          sum = sum + muaq(ksp,ii)*(sppTMP(ii) + lngamma(ii,jx,jy,jz))
-
+        ulabPrint = ulab(ii)
+        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+          lnActivity = lngammawater(jx,jy,jz)
+        ELSE
+          lnActivity = sp(ii,jx,jy,jz) + lngamma(ii,jx,jy,jz)
+        END IF
+        
+        sum = sum + muaq(ksp,ii)*lnActivity
+        
+        
       END DO
       sppTMP(ksp+ncomp) = keqaq(ksp,jx,jy,jz) - lngamma(ksp+ncomp,jx,jy,jz) + sum
       sppTMP10(ksp+ncomp) = EXP(sppTMP(ksp+ncomp))  
@@ -195,6 +199,15 @@ DO i2 = 1,ncomp
   sppTMP10(i2) = sp10(i2,jx,jy,jz)
 
 END DO
+
+! biomass end
+
+!  First, calculate the derivatives of the affinity terms w/respect
+!    to the primary species
+
+!! Numerical derivatives of total concentration for use in Monod terms	   
+
+
 
 
 rdkin = 0.0
@@ -666,4 +679,3 @@ END DO
 
 RETURN
 END SUBROUTINE jacrkin
-

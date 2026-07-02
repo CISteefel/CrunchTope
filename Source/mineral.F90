@@ -259,9 +259,15 @@ MODULE mineral
   
   REAL(DP),DIMENSION(:,:,:), ALLOCATABLE    :: crankLogK
   
+  LOGICAL(LGT)                              :: ContactPressureLogical
+  LOGICAL(LGT)                              :: PseudomorphicLogical
+  LOGICAL(LGT)                              :: UtahForgeLogical
   LOGICAL(LGT)                              :: nmmLogical
   LOGICAL(LGT)                              :: SaltCreep
   LOGICAL(LGT)                              :: CalciteCreep
+  LOGICAL(LGT)                              :: SerpentineFracture
+  LOGICAL(LGT)                              :: BatchReactor
+  LOGICAL(LGT)                              :: BatchReactor2
   LOGICAL(LGT)                              :: CriticalZone
   
   CHARACTER (LEN=mlen)                      :: AqueousKineticFile

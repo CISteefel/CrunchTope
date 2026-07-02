@@ -1,4 +1,4 @@
-SUBROUTINE read_timeseries(nout,nx,ny,nz,tout,qtout,lfile,tsfile,tslength)
+SUBROUTINE read_timeseries(tout,qtout,lfile,tsfile,tslength)
 
 USE crunchtype
 USE medium
@@ -15,10 +15,6 @@ IMPLICIT NONE
 
 !  External variables and arrays
 
-INTEGER(I4B), INTENT(IN)                                   :: nout
-INTEGER(I4B), INTENT(IN)                                   :: nx
-INTEGER(I4B), INTENT(IN)                                   :: ny
-INTEGER(I4B), INTENT(IN)                                   :: nz
 INTEGER(I4B), INTENT(IN)                                   :: lfile
 INTEGER(I4B), INTENT(IN)                                   :: tslength
 CHARACTER (LEN=mls), INTENT(IN)                            :: tsfile
@@ -26,28 +22,16 @@ REAL(DP),  INTENT(IN OUT)            :: tout(tslength)
 REAL(DP) ,  INTENT(IN OUT)            :: qtout(tslength)
 !  Internal variables and arrays
 
-INTEGER(I4B)                                                :: id
-INTEGER(I4B)                                                :: iff
-INTEGER(I4B)                                                :: ids
-INTEGER(I4B)                                                :: ls
-INTEGER(I4B)                                                :: lzs
-INTEGER(I4B)                                                :: nlen1
-INTEGER(I4B)                                                :: jx
-INTEGER(I4B)                                                :: jy
-INTEGER(I4B)                                                :: jz
-REAL(DP)                                               :: tpdis
 CHARACTER (LEN=mls)                                           :: FileTemp
-REAL(DP)                                                      :: check
 INTEGER(I4B)                                                   :: tp
 INTEGER(I4B)                                                  :: FileNameLength
 LOGICAL(LGT)                                               :: ext
 INTEGER(I4B)                                                     :: ierr
-INTEGER(I4B)                                                  :: lenarray
 REAL(DP)                                                      :: t_dum
 REAL(DP)                                                      :: q_dum
 REAL(DP), ALLOCATABLE, DIMENSION(:)           :: tout_dum
 REAL(DP) , ALLOCATABLE, DIMENSION(:)           :: qtout_dum
-REWIND nout
+!REWIND nout
 
 
 WRITE(iunit2,*)

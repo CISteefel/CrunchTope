@@ -41,7 +41,7 @@
 !!! derivative works thereof, in binary and source code form.
 
 !!!      ****************************************
-    
+! This converts uppercase letters in the input character string zone to lowercase letters.
 SUBROUTINE majuscules(zone,nbc)
 USE crunchtype
 USE params

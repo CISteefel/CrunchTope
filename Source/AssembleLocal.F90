@@ -142,7 +142,7 @@ source = 0.0
 !! CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
 !! MultiplyCell = CellVolume
 
-Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
+Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/( por(jx,jy,jz)*satliq(jx,jy,jz) )
 
 r = 1.0/delt      
 neqn = ncomp + nsurf + nexchange + npot + 1 + 1

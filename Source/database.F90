@@ -43,7 +43,7 @@
 !!!      ****************************************
     
 SUBROUTINE database(ncomp,ncmplx,mnrl,nrct,ngas,nsurf,nsurf_sec,ntemp,  &
-  iprint,icomplete,jtemp,data1,namc,namcx,namrl,  &
+  iprint,icomplete,jtemp,data1,namc,namcx,namrl,                        &
   vbar,wtminfull,wtbas,coef,temp,z,bdotPrimary,zx,bdotSecondary,a0,ax0)
 USE crunchtype
 USE params
@@ -381,15 +381,6 @@ IF (data1 /= ' ') THEN
   
   OPEN(UNIT=iunit5,FILE=data1,STATUS='old',ERR=334)
   
-  
-!        open(unit=iunit5,file=data1,status='old',err=334,access='sequential',recl=1024)
-  
-!      else if (temp .eq. 25.d0 .and. jtemp.eq.0) then
-! write(*,*) '        --> using database: master25'
-! write(iunit2,*)'        --> using database: master25'
-!        open(iunit5, file=
-!     .  '/users/steefel/threedata/master25.data',
-!     .  status='old',err=334)
 ELSE
   WRITE(*,*)
   WRITE(*,*) ' No default database:  must be specified in input file'
@@ -528,7 +519,13 @@ ELSE
   READ(iunit5,*,ERR=6002) NAME,aa0,zz,wtt
 END IF
 
-IF (NAME == 'End of primary') GO TO 501   !  End of primary species block
+IF (NAME == 'End of primary') THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Reached end of primary species'
+  WRITE(*,*)
+  GO TO 501   !  End of primary species block
+END IF
+
 DO jj = 1, ncomp   ! Search through list of primary species in input file
   j = jj
   IF (NAME == namc(jj)) GO TO 530
@@ -578,7 +575,12 @@ ELSE
     (alogk0(l),l=1,ntemp),aa0,zz,wtt
 END IF
 
-IF (nam(1) == 'End of secondary' ) GO TO 29
+IF (nam(1) == 'End of secondary') THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Reached end of secondary species'
+  WRITE(*,*)
+  GO TO 29   !  End of secondary species block
+END IF
 
 sto(1) = -1    ! Secondary species in EQ3 list has stoichiometric coefficient of -1
 
@@ -711,9 +713,14 @@ ELSE
   END IF
 END IF
 
-29  IF (icomplete == 1 .AND. isweep < 3) GO TO 41
+29 IF (icomplete == 1 .AND. isweep < 3) GO TO 41
 
-IF (nam(1) == 'End of secondary') GO TO 39
+IF (nam(1) == 'End of secondary') THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Reached end of secondary species'
+  WRITE(*,*)
+  GO TO 39   !  End of secondary species block
+END IF
 
 
 IF (nsecond == 1) THEN
@@ -955,6 +962,8 @@ DO  i = 1, n+1        ! list of species in reaction
       EXIT
     END IF
   END DO
+  
+  
 
   IF (speciesfound) then
     CYCLE
@@ -1028,7 +1037,13 @@ END IF
 READ(iunit5,*,ERR=6005) nam(1),vbargas,n,(sto(i+1),nam(i+1),i=1,n),  &
     (alogk0(l),l=1,ntemp),wtt
 
-IF (nam(1) == 'End of gases') GO TO 52
+IF (nam(1) == 'End of gases') THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Reached end of gases'
+  WRITE(*,*)
+  GO TO 52   !  End of gase  block
+END IF
+
 
 nct = 0
 
@@ -1193,7 +1208,13 @@ END IF
   END IF
 END IF
 
-IF (nam(1) == 'End of gases') GO TO 42
+
+IF (nam(1) == 'End of gases') THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Reached end of gases'
+  WRITE(*,*)
+  GO TO 42   !  End of gase  block
+END IF
 
 IF (nct /= n+1) GO TO 41
 
@@ -1343,7 +1364,13 @@ IF (icomplete == 1) THEN
   sto(1) = -1.
   nct = 0
   
-  IF (nam(1) == 'End of minerals') GO TO 32
+  
+  IF (nam(1) == 'End of minerals') THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Reached end of minerals'
+    WRITE(*,*)
+    GO TO 32   !  End of minerals block
+  END IF
   
 !     ----decide if reaction occurs in chosen system
   
@@ -1593,10 +1620,16 @@ DO  i = 1, n
     WRITE(*,*)
     REWIND iunit5
     READ(iunit5,*) dummy
-    5005   READ(iunit5,*) nam(1)
+5005 READ(iunit5,*) nam(1)
+     
     IF (nam(1) == 'End of gases') THEN
-      GO TO 5006
-    END IF
+    WRITE(*,*)
+    WRITE(*,*) ' Reached end of gases'
+    WRITE(*,*)
+    GO TO 5006   !  End of gases block
+  END IF
+    
+    
     GO TO 5005
     5006   icheck = mnrl_new - mnrl
     WRITE(*,*)
@@ -2484,10 +2517,10 @@ END IF
 !  600 format(' ',a12,1pe12.4,<ncomp>(0pf7.2))
 !  601 format(' ',a12,1pe12.4,<ncomp+nsurf>(0pf7.2))
 !  602 format(' ',27x,<ncomp+nsurf>a7)
-599 FORMAT(' ',27X,100A7)
-600 FORMAT(' ',a18,1PE12.4,100(0PF7.2))
-601 FORMAT(' ',a18,1PE12.4,100(0PF7.2))
-602 FORMAT(' ',27X,100A7)
+599 FORMAT('       ',27X,100A7)
+600 FORMAT('       ',a18,1PE12.4,100(0PF7.2))
+601 FORMAT('       ',a18,1PE12.4,100(0PF7.2))
+602 FORMAT('       ',27X,100A7)
 
 IF (ncmplx > 0) THEN
   IF (iprint == 1) THEN

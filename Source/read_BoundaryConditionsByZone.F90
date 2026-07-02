@@ -174,6 +174,7 @@ DO nCond = 1,mBoundaryConditionZone
             END IF
             
             BoundaryConditionName(nBoundaryConditionZone) = GeochemicalConditionName        
+            write(*,*) ' Geochemical Condition: ', GeochemicalConditionName
             
             id = ids + ls
             CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)
@@ -210,7 +211,7 @@ DO nCond = 1,mBoundaryConditionZone
               WRITE(*,*) ' BoundaryCondition zone ',nBoundaryConditionZone
               WRITE(*,*)
               STOP
-            END IF
+            END IF     
             
             id = ids + ls
             CALL sschaine_hyph(zone,id,iff,ssch_a,ssch_b,ids,ls_a,ls_b,ls)

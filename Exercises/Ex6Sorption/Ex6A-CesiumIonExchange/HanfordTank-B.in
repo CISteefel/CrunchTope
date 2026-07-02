@@ -6,7 +6,7 @@ END
 RUNTIME
 time_units          hours
 timestep_max        0.1
-timestep_init       0.00001
+timestep_init       1.0E-12
 time_tolerance      0.01
 solver              gmres
 preconditioner      ilu
@@ -85,6 +85,7 @@ Ca++             0.000
 Mg++             0.0
 Tracer           0.001
 Cl-              0.0
+H2O              55.50843506
 !!Following to go with HanfordTanksColumnFit3Site-GT.dbs
 Xhan1-   -cec   2.277023E-08    
 Xhan2-   -cec   2.621486E-07    
@@ -109,6 +110,7 @@ Ca++             0.0
 Mg++             0.0
 Tracer           0.001
 Cl-              0.0
+H2O              55.50843506
 !!Following to go with HanfordTanksColumnFit3Site-GT.dbs
 Xhan1-   -cec   2.277023E-08    
 Xhan2-   -cec   2.621486E-07    
@@ -131,6 +133,7 @@ Ca++             Calcite
 Mg++             0.00005
 Tracer           0.0
 Cl-              charge
+H2O              55.50843506
 !!Following to go with HanfordTanksColumnFit3Site-GT.dbs
 Xhan1-   -cec   2.277023E-08   
 Xhan2-   -cec   2.621486E-07    
@@ -151,6 +154,7 @@ set_temperature  25.0
 END
  
 PRIMARY_SPECIES
+H2O
 Cs+
 Na+
 Ca++

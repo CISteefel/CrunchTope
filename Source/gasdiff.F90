@@ -178,7 +178,7 @@ SUBROUTINE gasdiff(nx,ny,nz)
         endif
         dumw = dumpx
         
-      ELSE IF (jx == nx .and. gad_diff_T) THEN
+      ELSE IF (jx == nx) THEN
         
         dxw = 0.5*(dxx(jx)+dxx(jx-1))
         dxe = 0.5*dxx(nx)
@@ -219,12 +219,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
           gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
           dumpx = porp*satp*gasd
         else
-        gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
-        dume = pore*sate*gasd
-        gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
-        dumw = porw*satw*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpx = porp*satp*gasd
+          gasd = (pore)**(PorPow)*(sate)**(SatPow)*dgas
+          dume = pore*sate*gasd
+          gasd = (porw)**(PorPow)*(satw)**(SatPow)*dgas
+          dumw = porw*satw*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpx = porp*satp*gasd
         endif
       END IF
       
@@ -241,17 +241,18 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !sats = 1.0-satliq(jx,jy,jz)
         sats = 0.5*( 1.0-satliq(jx,jy,jz) + 1.0-satliqold(jx,jy,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpy = porp*satp*gasd
         else
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpy = porp*satp*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpy = porp*satp*gasd
         endif
         dums = dumpy
+        
       ELSE IF (jy == ny) THEN
         dys = 0.5*(dyy(jy)+dyy(jy-1))
         dyn = 0.5*dyy(ny)
@@ -262,17 +263,18 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !sats = 1.0-satliq(jx,jy-1,jz)
         sats = 0.5*( 1.0-satliq(jx,jy-1,jz) + 1.0-satliqold(jx,jy-1,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
-        dums = pors*sats*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+          dums = pors*sats*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpy = porp*satp*gasd
         else
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
-        dums = pors*sats*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
+          dums = pors*sats*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpy = porp*satp*gasd
         endif
         dumn = dumpy
+        
       ELSE
         dyn = 0.5*(dyy(jy)+dyy(jy+1))
         dys = 0.5*(dyy(jy)+dyy(jy-1))
@@ -283,29 +285,25 @@ SUBROUTINE gasdiff(nx,ny,nz)
         !sats = 1.0-satliq(jx,jy-1,jz)
         sats = 0.5*( 1.0-satliq(jx,jy-1,jz) + 1.0-satliqold(jx,jy-1,jz) )
         if (east_river .and. gad_diff_T) then
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
-        dums = pors*sats*gasd
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas*(((t(jx,jy-1,jz)+273.15)/273.15)**1.81)
+          dums = pors*sats*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas*(((t(jx,jy+1,jz)+273.15)/273.15)**1.81)
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas*(((t(jx,jy,jz)+273.15)/273.15)**1.81)
+          dumpy = porp*satp*gasd
         else
-        gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
-        dums = pors*sats*gasd
-        gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
-        dumn = porn*satn*gasd
-        gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
-        dumpy = porp*satp*gasd
+          gasd = (pors)**(PorPow)*(sats)**(SatPow)*dgas
+          dums = pors*sats*gasd
+          gasd = (porn)**(PorPow)*(satn)**(SatPow)*dgas
+          dumn = porn*satn*gasd
+          gasd = (porp)**(PorPow)*(satp)**(SatPow)*dgas
+          dumpy = porp*satp*gasd
         endif
       END IF
       
       200     CONTINUE
       IF (nx == 1) GO TO 300
-      
-!!! NOTE: Below assumes gas is always a Dirichlet boundary condition.  
-!!!         This agrees with what is is in FxTopeGlobal
-      
-                !!! Steefel Checked
+  
         
     !!! East
         
@@ -317,16 +315,17 @@ SUBROUTINE gasdiff(nx,ny,nz)
         dharm = GeometricMean(dume,dumpx)
       END IF
 
-      if (jx==nx) then
-        continue
-      end if
-
       AreaE = dyy(jy)*dzz(jx,jy,jz) 
+      AreaW = dyy(jy)*dzz(jx,jy,jz) 
+            
       dspe = dharm
       de = AreaE*dspe/dxe
       fe = AreaE*qxgas(jx,jy,jz)
+      IF ( jx == nx .AND. (jc(2) == 2 .OR. JcByGrid(jx+1,jy,jz) == 2) ) THEN  
+        de = 0.00
+      END IF      
       ae = DMAX1(-fe,0.0D0) + de
-      
+
    !!!  WEST
       
       IF (MeanDiffusion == 1) THEN
@@ -337,10 +336,12 @@ SUBROUTINE gasdiff(nx,ny,nz)
         dharm = GeometricMean(dumw,dumpx)
       END IF
 
-      AreaW = dyy(jy)*dzz(jx,jy,jz) 
       dspw = dharm
       dw = AreaW*dspw/dxw
       fw = AreaW*qxgas(jx-1,jy,jz)
+      IF ( jx == 1 .AND. (jc(1) == 2 .OR. JcByGrid(jx-1,jy,jz) == 2) ) THEN  
+        dw = 0.00
+      END IF
       aw = DMAX1(fw,0.0D0) + dw
 
       apx = dw + de + DMAX1(-fw,zero) + DMAX1(fe,zero)
@@ -349,6 +350,9 @@ SUBROUTINE gasdiff(nx,ny,nz)
       
       300     CONTINUE
       IF (ny == 1) GO TO 400
+      
+      AreaS = dxx(jx)*dzz(jx,jy,jz) 
+      AreaN = dxx(jx)*dzz(jx,jy,jz) 
       
       tempn= dumn + dumpy
       temps = dums + dumpy
@@ -362,24 +366,25 @@ SUBROUTINE gasdiff(nx,ny,nz)
       ELSE
         dsps = zero
       END IF
-      dn = dspn*dxx(jx)/dyn
-      ds = dsps*dxx(jx)/dys
+      dn = AreaN*dspn/dyn
+      ds = AreaS*dsps/dys
   
-      IF (jy == 1 .AND. jc(3) == 2) THEN
+      IF ( jy == 1 .AND. (jc(3) == 2 .OR. JcByGrid(jx,jy-1,jz) == 2) ) THEN  
         ds = 0.00
       END IF
   
-      IF (jy == Ny .AND. jc(4) == 2) THEN
+      IF ( jy == ny .AND. (jc(4) == 2 .OR. JcByGrid(jx,jy+1,jz) == 2) ) THEN  
         dn = 0.00
       END IF
       
+      
   !!  The following forces Dirichlet conditions for gases at all times (unless above is uncommented)
   
-      fn = dxx(jx)*qygas(jx,jy,jz)
-      an = DMAX1(-fn,zero) + dn
+      fn = AreaN*qygas(jx,jy,jz)
+      an = (DMAX1(-fn,zero) + dn)
       
-      fs = dxx(jx)*qygas(jx,jy-1,jz)
-      as = DMAX1(fs,zero) + ds
+      fs = AreaS*qygas(jx,jy-1,jz)
+      as = (DMAX1(fs,zero) + ds)
       
       apy = ds + dn + DMAX1(-fs,zero) + DMAX1(fn,zero)
       

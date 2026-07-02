@@ -42,7 +42,7 @@
 
 !!!      ****************************************
     
-    subroutine def_time(CPU_unit)
+subroutine def_time(CPU_unit)
 
 USE crunchtype
 

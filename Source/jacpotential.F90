@@ -83,6 +83,53 @@ DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
 
+      DO ns = 1,nsurf_sec
+        
+        surfconc = spsurf10(ns+nsurf,jx,jy,jz)
+        delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
+
+        DO i = 1,ncomp
+          IF (musurf(ns,i) /= 0.0) THEN
+            mutemp = musurf(ns,i)
+            DO npt2 = 1,npot
+             IF (ksurf(islink(ns)) == kpot(npt2)) THEN
+                fjpotncomp(npt2,i,jx,jy,jz) = fjpotncomp(npt2,i,jx,jy,jz) -         &
+                    2.0*delta_z*mutemp*surfconc
+              END IF
+            END DO     
+          END IF
+        END DO       
+        
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
+
+        DO is = 1,nsurf
+          IF (musurf(ns,is+ncomp) /= 0.0) THEN
+            mutemp = musurf(ns,is+ncomp)
+            DO npt2 = 1,npot
+              IF (ksurf(islink(ns)) == kpot(npt2)) THEN
+                fjpotnsurf(npt2,is,jx,jy,jz) = fjpotnsurf(npt2,is,jx,jy,jz) -       & 
+                   2.0*delta_z*mutemp*surfconc
+              END IF
+            END DO
+          END IF   
+        END DO
+      END DO
+
+    END DO
+  END DO
+END DO
+
+RETURN
+END SUBROUTINE jacpotential
+  
 !!!    DO i = 1,ncomp
 !!!        DO npt2 = 1,npot
 !!!          is2 = ispot(npt2)
@@ -112,42 +159,3 @@ DO jz = 1,nz
 !!!        END IF   
 !!!      END DO
 !!!    END DO
-
-
-      DO ns = 1,nsurf_sec
-        surfconc = spsurf10(ns+nsurf,jx,jy,jz)
-        delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
-
-        DO i = 1,ncomp
-          IF (musurf(ns,i) /= 0.0) THEN
-            mutemp = musurf(ns,i)
-            DO npt2 = 1,npot
-             IF (ksurf(islink(ns)) == kpot(npt2)) THEN
-                fjpotncomp(npt2,i,jx,jy,jz) = fjpotncomp(npt2,i,jx,jy,jz) -         &
-                    2.0*delta_z*mutemp*surfconc
-!!!                fjpotncomp(npt2,i,jx,jy,jz) = 0.0d0
-              END IF
-            END DO     
-          END IF
-        END DO
-
-        DO is = 1,nsurf
-          IF (musurf(ns,is+ncomp) /= 0.0) THEN
-            mutemp = musurf(ns,is+ncomp)
-            DO npt2 = 1,npot
-              IF (ksurf(islink(ns)) == kpot(npt2)) THEN
-                fjpotnsurf(npt2,is,jx,jy,jz) = fjpotnsurf(npt2,is,jx,jy,jz) -       & 
-                   2.0*delta_z*mutemp*surfconc
-!!!                fjpotnsurf(npt2,is,jx,jy,jz) = 0.0d0
-              END IF
-            END DO
-          END IF   
-        END DO
-      END DO
-
-    END DO
-  END DO
-END DO
-
-RETURN
-END SUBROUTINE jacpotential

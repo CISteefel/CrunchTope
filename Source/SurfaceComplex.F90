@@ -42,7 +42,7 @@
 
 !!!      ****************************************
     
-SUBROUTINE SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+SUBROUTINE SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 USE crunchtype
 USE concentration
 USE mineral
@@ -56,11 +56,13 @@ IMPLICIT NONE
 !  External variables and arrays
 
 INTEGER(I4B), INTENT(IN)                                    :: ncomp
+INTEGER(I4B), INTENT(IN)                                    :: nspec
 INTEGER(I4B), INTENT(IN)                                    :: nsurf
 INTEGER(I4B), INTENT(IN)                                    :: nsurf_sec
 INTEGER(I4B), INTENT(IN)                                    :: nx
 INTEGER(I4B), INTENT(IN)                                    :: ny
 INTEGER(I4B), INTENT(IN)                                    :: nz
+INTEGER(I4B), INTENT(IN)                                    :: igamma
 
 !  Internal variables and arrays
 
@@ -70,6 +72,7 @@ INTEGER(I4B)                                                :: is
 INTEGER(I4B)                                                :: jx
 INTEGER(I4B)                                                :: jy
 INTEGER(I4B)                                                :: jz
+INTEGER(I4B)                                                :: ik
 
 REAL(DP)                                                    :: sum
 REAL(DP)                                                    :: delta_z
@@ -80,6 +83,31 @@ REAL(DP)                                                    :: MassFraction
 REAL(DP)                                                    :: activity
 REAL(DP)                                                    :: LogTotalSites
 REAL(DP)                                                    :: LogTotalEquivalents
+REAL(DP)                                                    :: check
+REAL(DP)                                                    :: tempc
+
+REAL(DP)                                                    :: sum_dlnI
+REAL(DP)                                                    :: sion_tmp
+REAL(DP)                                                    :: aa1
+REAL(DP)                                                    :: ah
+REAL(DP)                                                    :: sqrt_ions
+REAL(DP)                                                    :: bdt
+REAL(DP)                                                    :: bdotpar
+REAL(DP)                                                    :: bh
+REAL(DP)                                                    :: tmp1
+REAL(DP)                                                    :: tmp2
+REAL(DP)                                                    :: k
+
+INTEGER(I4B)                                               :: it
+INTEGER(I4B)                                               :: ItPoint
+
+LOGICAL(LGT)                                              :: Davies
+LOGICAL(LGT)                                              :: Wateq_Extended_DH
+LOGICAL(LGT)                                              :: Helgeson
+LOGICAL(LGT)                                              :: Unity
+
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
 
 DO jz = 1,nz
   DO jy = 1,ny
@@ -92,45 +120,61 @@ DO jz = 1,nz
 
         IF (nptlink(ns) /= 0) THEN                            !  Electrostatic correction
 
-          delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
-
-
-
-            sum = 0.0
-            DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-            END DO
-
-
-
+          delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))       
+          sum = 0.0
+          DO i = 1,ncomp
+              
+            ulabPrint = ulab(i)
+            IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+              lnActivity = lngammawater(jx,jy,jz)
+            ELSE
+              lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+            END IF
+            sum = sum + musurf(ns,i)*lnActivity
+            continue
+          END DO
+          
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 
 !!  Surface complexes
           DO is = 1,nsurf
-
             activity = spsurf(is,jx,jy,jz)
-            sum = sum + musurf(ns,is+ncomp)*activity
-
+            sum = sum + musurf(ns,is+ncomp)*Activity
           END DO
 
-!! NOTE:  Below is the LOg concentration of sites in units of mol/kgw
-          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum -                     &    
-        + 2.0d0*musurf(ns,islink(ns)+ncomp)*delta_z*LogPotential(nptlink(ns),jx,jy,jz)   &
-        - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                   &
-        - DLOG(musurf(ns,islink(ns)+ncomp)) 
+          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                                &    
+            - 2.0d0*musurf(ns,islink(ns)+ncomp) * delta_z * LogPotential(nptlink(ns),jx,jy,jz)  &
+            - (musurf(ns,islink(ns)+ncomp)-1.0d0) * LogTotalSites                               &
+            - DLOG(musurf(ns,islink(ns)+ncomp)) 
           
           spsurf10(ns+nsurf,jx,jy,jz) = DEXP( spsurf(ns+nsurf,jx,jy,jz) )
+          
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
+          
 
         ELSE                                                  !  Non-electrostatic 
 
-
-
-            sum = 0.0
-            DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-            END DO
-
- 
+          sum = 0.0
+          DO i = 1,ncomp
+              
+            ulabPrint = ulab(i)
+            IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+              lnActivity = lngammawater(jx,jy,jz)
+            ELSE
+              lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+            END IF
+          
+            sum = sum + musurf(ns,i)*lnActivity
+            
+          END DO
           
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 
@@ -148,6 +192,149 @@ DO jz = 1,nz
 
         END IF
       END DO
+      
+      
+!!! Derivatives
+      
+!-----------------------------------------------------------------------
+! Build dlngamma_dlnI(i,jx,jy,jz) = d ln gamma(i) / d ln(I)
+! Mirrors the four branches in your activity-coefficient block.
+! Water: 0.  Unity model: 0.  Neutral: clg*0.1*I.
+! Davies / Helgeson / Wateq_Extended_DH: closed forms below.
+!-----------------------------------------------------------------------
+      
+  sion_tmp = sion(jx,jy,jz)
+  sqrt_IonS = SQRT(sion_tmp)
+  tempc = t(jx,jy,jz)
+  
+  IF (ntemp == 1) THEN
+  ah = adh(1)
+  bh = bdh(1)
+  bdt = bdot(1)
+ELSE
+
+  ItPoint = 0
+  DO it = 1,ntemp
+    IF (tempc == DatabaseTemperature(it)) THEN
+      ItPoint = it
+      ah = adh(ItPoint)
+      bh = bdh(ItPoint)
+      bdt = bdot(ItPoint)
+    END IF
+  END DO
+
+  IF (ItPoint == 0) THEN
+    ah = adhcoeff(1) + adhcoeff(2)*tempc  &
+       + adhcoeff(3)*tempc*tempc + adhcoeff(4)*tempc*tempc*tempc  &
+       + adhcoeff(5)*tempc*tempc*tempc*tempc
+    bh = bdhcoeff(1) + bdhcoeff(2)*tempc  &
+       + bdhcoeff(3)*tempc*tempc + bdhcoeff(4)*tempc*tempc*tempc  &
+       + bdhcoeff(5)*tempc*tempc*tempc*tempc
+    bdt = bdtcoeff(1) + bdtcoeff(2)*tempc  &
+       + bdtcoeff(3)*tempc*tempc + bdtcoeff(4)*tempc*tempc*tempc  &
+       + bdtcoeff(5)*tempc*tempc*tempc*tempc
+  ELSE
+    CONTINUE
+  END IF
+
+END IF
+
+  dlngamma_dlnI(:,jx,jy,jz) = 0.0d0
+
+  IF (igamma /= 0) THEN
+
+    DO ik = 1,ncomp+nspec
+      
+      IF (IncludeBdot) THEN
+        IF (azero(ik) == 0.0d0) THEN
+          Davies = .TRUE.
+        ELSE
+          Wateq_Extended_DH = .TRUE.
+        END IF
+      ELSE
+        Helgeson = .TRUE. !!  Helgesonian-LLNL bdot expression based on extended Debye-Huckel
+      END IF
+      
+      ulabPrint = ulab(ik)
+
+      IF (ulabPrint(1:3) == 'H2O' .OR. ulabPrint(1:3) == 'HHO') THEN
+        dlngamma_dlnI(ik,jx,jy,jz) = 0.0d0          ! water decoupled from I
+
+      ELSE IF (chg(ik) == 0.0d0) THEN               ! neutral non-water
+        dlngamma_dlnI(ik,jx,jy,jz) = clg * 0.1d0 * sion_tmp
+
+      ELSE                                          ! charged species
+        IF (Davies) THEN
+          aa1 = - clg * ah * chg(ik) * chg(ik)
+          dlngamma_dlnI(ik,jx,jy,jz) = aa1 *                              &
+               ( 0.5d0 * sqrt_IonS / ((1.0d0 + sqrt_IonS)**2)             &
+                 - 0.3d0 * sion_tmp )
+
+        ELSE IF (Helgeson .OR. Wateq_Extended_DH) THEN
+          IF (Helgeson) THEN
+            bdotpar = bdt
+          ELSE
+            bdotpar = bdotparameter(ik)
+          END IF
+          tmp1 = 1.0d0 + bh * azero(ik) * sqrt_IonS
+          tmp2 = ah * chg(ik) * chg(ik)
+          dlngamma_dlnI(ik,jx,jy,jz) = clg *                              &
+               ( - 0.5d0 * tmp2 * sqrt_IonS / (tmp1*tmp1)                 &
+                 + bdotpar * sion_tmp )
+        END IF
+      END IF
+    END DO
+
+  END IF
+  
+!-----------------------------------------------------------------------
+! Jacobian of nsurf_sec secondary surface species (non-electrostatic).
+! Unknowns differentiated:
+!   sp(k)         k = 1..ncomp        (log primary aqueous concentrations)
+!   lngammawater                       (= ln a_H2O,  at pos_gammawater)
+!   ln(I)         ionic strength       (at pos_IonS, log-space convention)
+!
+! Frozen-gamma w.r.t. composition: d lngamma(i)/d sp(k) = 0.
+! All ionic-strength dependence of lngamma(i) carried in dlngamma_dlnI.
+!-----------------------------------------------------------------------
+      
+ DO ns = 1,nsurf_sec
+
+    !---------------- d / d sp(k) -----------------------------------
+    DO k = 1,ncomp
+      ulabPrint = ulab(k)
+      IF (ulabPrint(1:3) == 'H2O' .OR. ulabPrint(1:3) == 'HHO') THEN
+        dspsurf_dsp  (ns+nsurf,k,jx,jy,jz) = 0.0d0
+        dspsurf10_dsp(ns+nsurf,k,jx,jy,jz) = 0.0d0
+      ELSE
+        dspsurf_dsp  (ns+nsurf,k,jx,jy,jz) = musurf(ns,k)
+        dspsurf10_dsp(ns+nsurf,k,jx,jy,jz) =                            &
+             spsurf10(ns+nsurf,jx,jy,jz) * musurf(ns,k)
+      END IF
+    END DO
+
+    !---------------- d / d lngammawater  (= d / d ln a_H2O) --------
+    !  Water enters the residual through lnActivity(ikh2o) = lngamma(ikh2o)
+    !  and lngamma(ikh2o) is exactly the unknown lngammawater.
+    dspsurf_dlnaH2O(ns+nsurf,jx,jy,jz) = musurf(ns,ikh2o)
+    dspsurf10_dlnaH2O(ns+nsurf,jx,jy,jz) =                              &
+         spsurf10(ns+nsurf,jx,jy,jz) * musurf(ns,ikh2o)
+
+    !---------------- d / d ln(I) -----------------------------------
+    !  Only non-water lngamma(i) carry I dependence in this code.
+    sum_dlnI = 0.0d0
+    DO i = 1,ncomp
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .OR. ulabPrint(1:3) == 'HHO') CYCLE
+      sum_dlnI = sum_dlnI + musurf(ns,i) * dlngamma_dlnI(i,jx,jy,jz)
+    END DO
+    dspsurf_dlnI(ns+nsurf,jx,jy,jz) = sum_dlnI
+    dspsurf10_dlnI(ns+nsurf,jx,jy,jz) =                                 &
+    spsurf10(ns+nsurf,jx,jy,jz) * sum_dlnI
+
+ END DO
+ 
+ 
 
     END DO
   END DO

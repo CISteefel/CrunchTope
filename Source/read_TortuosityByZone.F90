@@ -76,7 +76,7 @@ REAL(DP)                                                    :: tortuosity_tmp
 
 nxyz = nx*ny*nz
 
-TortuosityZone(0) = 0.0
+TortuosityZone(0) = 1.0
 REWIND nout
 
 nTortuosityZone = 0

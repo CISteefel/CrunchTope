@@ -45,11 +45,9 @@
 subroutine CrunchPETScFinalizeSolver(xvec,bvec,amatpetsc,userC,ierr)
 USE crunchtype
 
-#include "petsc/finclude/petscksp.h"
-#include "petsc/finclude/petscmat.h"
-USE petscksp
-USE petscmat
-
+#include <petsc/finclude/petsc.h>
+      use petsc
+      
 IMPLICIT NONE
 
 !  External variables and arrays

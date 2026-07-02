@@ -44,7 +44,7 @@
 !!!      ****************************************
 
 SUBROUTINE GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-    ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+    ndecay,ikin,nx,ny,nz,realtime,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
 USE crunchtype
 USE CrunchFunctions
 USE params
@@ -58,6 +58,7 @@ USE flow
 USE temperature
 USE strings
 USE isotope
+USE Richards_module, ONLY: Richards_State
 
 IMPLICIT NONE
 !  *********************  INTERFACE BLOCKS  *****************************
@@ -99,6 +100,7 @@ INTEGER(I4B), INTENT(IN)                           :: ikmast
 INTEGER(I4B), INTENT(IN)                           :: ikph
 INTEGER(I4B), INTENT(IN)                           :: jpor
 LOGICAL(LGT), INTENT(IN)                           :: FirstCall
+INTEGER(I4B), INTENT(IN)                                  :: nBoundaryConditionZone
 
 !  Internal variables and arrays
 
@@ -206,10 +208,22 @@ REAL(DP)                                                   :: totRare
 REAL(DP)                                                   :: totCommon
 REAL(DP), DIMENSION(ncomp)                                 :: IsotopeRatio
 
-REAL(DP), DIMENSION(ncomp)                         :: gflux_ver
-REAL(DP), DIMENSION(ncomp)                         :: gflux_hor
-REAL(DP), DIMENSION(nrct)                          :: MineralPercent
-REAL(DP), DIMENSION(ikin)                          :: dummy_raq_tot
+REAL(DP), DIMENSION(:), ALLOCATABLE                        :: gflux_ver
+REAL(DP), DIMENSION(:), ALLOCATABLE                        :: gflux_hor
+
+REAL(DP), DIMENSION(nrct)                                  :: MineralPercent
+REAL(DP), DIMENSION(ikin)                                  :: dummy_raq_tot
+
+REAL(DP)                                                   :: check
+REAL(DP)                                                   :: Area_XorY
+
+REAL(DP)                                                   :: TimeMultiplier
+REAL(DP)                                                   :: DeltaSerpentine
+
+
+
+ALLOCATE(gflux_ver(ngas))
+ALLOCATE(gflux_hor(ngas))
 
 !!!jz = 1
 PrintTime = realtime*OutputTimeScale
@@ -244,166 +258,160 @@ CALL stringlen(char_time,ls)
 
 200 FORMAT(1PE9.2)
 
-
 !****************
 !! Begin default
 !****************
 
 fn='Aq_totconc'
-  ilength = 6
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Total Concentrations (mol/kgw)" '
-  DO ik= 1, ncomp
-    StringTemp = ulab(ik)
-    CALL stringlen(StringTemp,ls)
-    IF (ls > 14) THEN
-      ls = 14
-    END IF
-    StringProper(1:1) = '"'
-    StringProper(2:ls+1) = StringTemp(1:ls)
-    StringProper(ls+2:ls+3) = '"'
-    WriteString(ik) = StringProper(1:ls+3)
-  END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp)
-!!!  WRITE(8,2009) (ulab(ik),ik=1,ncomp)
-  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          if (activecell(jx,jy,jz) == 0) THEN
-            do i = 1,ncomp
-              sprint(i) = -0.001 
-            end do
-          ELSE
-            do i = 1,ncomp
-              if (s(i,jx,jy,jz) < 1.0E-30) THEN
-                sprint(i) = 1.0E-30
-                ELSE
-                sprint(i) = s(i,jx,jy,jz)
-                END IF
-            end do
-          END IF
+ilength = 10
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,*) 'TITLE = "Total Concentrations (mol/kgw)" '
+DO ik= 1, ncomp
+  StringTemp = ulab(ik)
+  CALL stringlen(StringTemp,ls)
+  IF (ls > 14) THEN
+    ls = 14
+  END IF
+  StringProper(1:1) = '"'
+  StringProper(2:ls+1) = StringTemp(1:ls)
+  StringProper(ls+2:ls+3) = '"'
+  WriteString(ik) = StringProper(1:ls+3)
+END DO
+WRITE(8,2009) (WriteString(ik),ik=1,ncomp)
+WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        if (activecell(jx,jy,jz) == 0) THEN
+          do i = 1,ncomp
+            sprint(i) = -0.001 
+          end do
+        ELSE
+          do i = 1,ncomp
+            sprint(i) = s(i,jx,jy,jz)
+          end do
+        END IF
         
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sprint(i),i = 1,ncomp)
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(sprint(i),i = 1,ncomp)
+    END DO
+  END DO
+END DO
+CLOSE(UNIT=8,STATUS='keep')
+
+fn='Aq_conc'
+ilength = 7
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,*) 'TITLE = "Concentrations (log mol/kgw)" '
+DO ik= 1, ncomp+nspec
+  StringTemp = ulab(ik)
+  CALL stringlen(StringTemp,ls)
+  IF (ls > 14) THEN
+    ls = 14
+  END IF
+  StringProper(1:1) = '"'
+  StringProper(2:ls+1) = StringTemp(1:ls)
+  StringProper(ls+2:ls+3) = '"'
+  WriteString(ik) = StringProper(1:ls+3)
+END DO
+WRITE(8,2009) (WriteString(ik),ik=1,ncomp+nspec)
+WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+              z(jz)*OutputDistanceScale,(sp(IK,jx,jy,jz)/clg,IK = 1,ncomp+nspec)
       END DO
     END DO
   END DO
-  CLOSE(UNIT=8,STATUS='keep')
+CLOSE(UNIT=8,STATUS='keep')
 
-  fn='Aq_conc'
-  ilength = 4
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Concentrations (log mol/kgw)" '
-  DO ik= 1, ncomp+nspec
-    StringTemp = ulab(ik)
-    CALL stringlen(StringTemp,ls)
-    IF (ls > 14) THEN
-      ls = 14
-    END IF
-    StringProper(1:1) = '"'
-    StringProper(2:ls+1) = StringTemp(1:ls)
-    StringProper(ls+2:ls+3) = '"'
-    WriteString(ik) = StringProper(1:ls+3)
-  END DO
-    WRITE(8,2009) (WriteString(ik),ik=1,ncomp+nspec)
-  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                z(jz)*OutputDistanceScale,(sp(IK,jx,jy,jz)/clg,IK = 1,ncomp+nspec)
-        END DO
-      END DO
+fn='velocity'
+ilength = 8
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,*) 'TITLE = "Velocity (m/yr)" '
+WRITE(8,2012)
+2012 FORMAT('VARIABLES = "X"          "Y"              "Z"           "X Velocity"     "Y-Velocity"     "Z-Velocity" ')
+WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+              z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
     END DO
-  CLOSE(UNIT=8,STATUS='keep')
+  END DO
+END DO
+CLOSE(UNIT=8,STATUS='keep')
 
-  fn='velocity'
+fn = 'temperature'
+ilength = 11
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,*) 'TITLE = "Temperature (C)" '
+WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "Wcres" '
+WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+    WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
+    t(jx,jy,jz)
+    END DO
+  END DO
+END DO
+CLOSE(UNIT=8,STATUS='keep')
+  
+fn = 'porosity'
   ilength = 8
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Velocity (m/yr)" '
-  WRITE(8,2012)
-  2012 FORMAT('VARIABLES = "X"          "Y"              "Z"           "X Velocity"     "Y-Velocity"     "Z-Velocity" ')
-  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
-      END DO
-    END DO
-  END DO
-  CLOSE(UNIT=8,STATUS='keep')
-
-  fn = 'temperature'
-  ilength = 11
-  CALL newfile(fn,suf1,fnv,nint,ilength)
-  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Temperature (C)" '
-  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "Wcres" '
+  WRITE(8,*) 'TITLE = "Porosity" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Porosity" '
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
   DO jz = 1,nz
     DO jy = 1,ny
       DO jx = 1,nx
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-      t(jx,jy,jz)
+        porprt = por(jx,jy,jz)*1.0
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,porprt
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
-  
-  fn = 'porosity'
-    ilength = 8
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Porosity" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Porosity" '
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          porprt = por(jx,jy,jz)*1.0
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,porprt
-        END DO
-      END DO
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
     
-    fn = 'porositychange'
-    ilength = 14
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Porosity Change" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "PorosityChange" '
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          porprt = (porin(jx,jy,jz) - por(jx,jy,jz))
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,porprt
-        END DO
-      END DO
-    END DO
-    CLOSE(UNIT=8,STATUS='keep')
-
-    fn='tortuosity'
-  ilength = 12
+  fn = 'porositychange'
+  ilength = 14
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  WRITE(8,*) 'TITLE = "Tortuosity" '
-  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "Tortuosity" '
+  WRITE(8,*) 'TITLE = "Porosity Change" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "PorosityChange" '
   WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
-                z(jz)*OutputDistanceScale,tortuosity(jx,jy,jz)
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        porprt = (porin(jx,jy,jz) - por(jx,jy,jz))
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,porprt
       END DO
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+
+fn='tortuosity'
+ilength = 12
+CALL newfile(fn,suf1,fnv,nint,ilength)
+OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+WRITE(8,*) 'TITLE = "Tortuosity" '
+WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "Tortuosity" '
+WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+              z(jz)*OutputDistanceScale,tortuosity(jx,jy,jz)
+    END DO
+  END DO
+END DO
+CLOSE(UNIT=8,STATUS='keep')
 
 !****************
 !! End default
@@ -413,29 +421,104 @@ fn='Aq_totconc'
 !! Begin pH
 !****************
 
-  IF (ikph /= 0) THEN
+IF (ikph /= 0) THEN
 
-    fn='pH'
-    ilength = 2
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Solution pH" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"             "pH" '
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,phprt
-        END DO
+  fn='pH'
+  ilength = 2
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Solution pH" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"             "pH" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        phprt =  -(sp(ikph,jx,jy,jz)+lngamma(ikph,jx,jy,jz))/clg
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,phprt
       END DO
     END DO
-    CLOSE(UNIT=8,STATUS='keep')
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
 
-  END IF
+END IF
 
 !****************
 !! End pH
+!****************
+
+!****************
+!! Begin activity of H2O
+!****************
+
+  fn='ActivityH2O'
+  ilength = 11
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Activity of Water" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"             "Activity" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        phprt =  DEXP( lngammawater(jx,jy,jz) )
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,phprt
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
+!****************
+!! End activity of water
+!****************
+  
+!****************
+!! Begin ionic strength
+!****************
+
+  fn='IonicStrength'
+  ilength = 13
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Ionic Strength (mol/kgw)" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"             "Ionic Strength" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        phprt =  sion(jx,jy,jz)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,phprt
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
+!****************
+!! End ionic strength
+!****************
+  
+  !****************
+!! Begin mass fraction
+!****************
+
+  fn='MassFraction'
+  ilength = 12
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Mass Fraction H2O (xgram)" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"             "Mass Fraction H2O" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        phprt =  xgram(jx,jy,jz)
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,phprt
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
+!****************
+!! End ionic strength
 !****************
 
 !****************
@@ -444,6 +527,7 @@ fn='Aq_totconc'
 
 
 IF (nIsotopePrimary > 0) THEN
+  
   fn='toperatio_aq'
   ilength = 12
   CALL newfile(fn,suf1,fnv,nint,ilength)
@@ -529,15 +613,14 @@ END IF
 !! End isotopes
 !****************
 
-
 !****************
 !! Begin minerals
 !****************
 
 IF (nrct > 0) THEN
 
-  fn='Mineralrate'
-  ilength = 4
+  fn='MineralRate'
+  ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Mineral Rate (mol/m^3/sec)" '
@@ -569,8 +652,8 @@ IF (nrct > 0) THEN
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn = 'Mineralvolumefraction'
-  ilength = 6
+  fn = 'MineralVolumeFraction'
+  ilength = 21
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Mineral Volumes (m^3 mineral/m^3 porous medium)" '
@@ -598,25 +681,32 @@ IF (nrct > 0) THEN
     END DO
   END DO
   CLOSE(UNIT=8,STATUS='keep')
+  
+  fn = 'Delta_MineralVolume'
+  ilength = 19
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Mineral Volumes (m^3 mineral/m^3 porous medium)" '
+  DO k= 1, nrct
+    StringTemp = umin(k)
+    CALL stringlen(StringTemp,ls)
+    IF (ls > 14) THEN
+      ls = 14
+    END IF
+    StringProper(1:1) = '"'
+    StringProper(2:ls+1) = StringTemp(1:ls)
+    StringProper(ls+2:ls+3) = '"'
+    WriteString(k) = StringProper(1:ls+3)
+  END DO
+!!!    WRITE(8,2009) (WriteString(k),k=1,nrct)
+    WRITE(8,2009) WriteString(3)
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  
+  TimeMultiplier = 36.5
 
-  !   fn='MineralVolfraction'
-  !   ilength = 18
-  !   CALL newfile(fn,suf1,fnv,nint,ilength)
-  !   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-  !   WRITE(8,2283) PrintTime
-  !   WRITE(8,131)
-  !   131 FORMAT('# Units: % of vol occupied by mineral')
-  !   WRITE(8,2285)  (uminprnt(k),k=1,nrct)
-  !   jz = 1
-  !   DO jy = 1,ny
-  !   DO jx = 1,nx
-  !     WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(volfx(k,jx,jy,jz),k = 1,nrct)
-  !   END DO
-  !  END DO
-  !   CLOSE(UNIT=8,STATUS='keep')
 
-  fn='Mineralsaturation'
-  ilength = 5
+  fn='MineralSaturation'
+  ilength = 17
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Mineral Saturation State (log Q/Keq)" '
@@ -638,7 +728,7 @@ IF (nrct > 0) THEN
       DO jx = 1,nx
         CALL satcalc(ncomp,nrct,jx,jy,jz)
         DO k = 1,nrct
-          dsat(k) = silog(1,k)
+          dsat(k) = silogGlobal(1,k,jx,jy,jz)
         END DO
         WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,(dsat(k),k=1,nrct)
       END DO
@@ -646,8 +736,8 @@ IF (nrct > 0) THEN
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn='Mineralconc'
-  ilength = 10
+  fn='MineralConc'
+  ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Total Component Concentration in Minerals (mol/m^3 PM)" '
@@ -685,8 +775,8 @@ IF (nrct > 0) THEN
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn='Mineralarea'
-  ilength = 4
+  fn='MineralArea'
+  ilength = 11
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Mineral Area (m^2/m^3 PM)" '
@@ -742,14 +832,12 @@ IF (nrct > 0) THEN
     END DO
     CLOSE(UNIT=8,STATUS='keep')
 
-  
 
 END IF   
 
 !****************
 !! End of minerals
 !****************
-
 
 !****************
 !! Begin aqueous reactions
@@ -802,8 +890,9 @@ END IF
 !!Begin Velocity field for velocity_read:
 !****************
 
-  IF (generate_velocity_vector) THEN
-  fn='velocityx'
+IF (generate_velocity_vector) THEN
+  
+  fn='velocityX'
   ilength = 9
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
@@ -821,7 +910,7 @@ END IF
   CLOSE(UNIT=8,STATUS='keep')
   
   fn='divergence'
-  ilength = 9
+  ilength = 10
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
   WRITE(8,*) 'TITLE = "Velocity (m/yr)" '
@@ -837,7 +926,7 @@ END IF
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn='velocityy'
+  fn='velocityY'
   ilength = 9
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
@@ -854,7 +943,7 @@ END IF
   END DO
   CLOSE(UNIT=8,STATUS='keep')
 
-  fn='velocityz'
+  fn='velocityZ'
   ilength = 9
   CALL newfile(fn,suf1,fnv,nint,ilength)
   OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
@@ -882,424 +971,367 @@ ENDIF
 !! Begin Calculateflow
 !****************
 
-  IF (calculateflow) THEN
-    fn = 'permeability'
+IF (calculateflow) THEN
+  
+  fn = 'permeability'
+  ilength = 12
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Log Permeability (m^2)" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "X-Perm" "Y-Perm" "Z-Perm"'
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        IF (permx(jx,jy,jz) == 0.0) THEN
+          WritePermx = -30.00
+        ELSE
+          WritePermx = Log10(permx(jx,jy,jz))
+        END IF
+        IF (permy(jx,jy,jz) == 0.0) THEN
+          WritePermy = -30.00
+        ELSE
+          WritePermy = Log10(permy(jx,jy,jz))
+        END IF
+
+        IF (ny==1)  THEN
+          WritePermy = 0.0
+        ENDIF
+        IF (nz==1)  THEN
+          WritePermz = 0.0
+        ENDIF
+      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
+            WritePermx, WritePermy, WritePermz
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+
+  IF (Richards) THEN
+        
+    fn='WaterContent'
     ilength = 12
     CALL newfile(fn,suf1,fnv,nint,ilength)
     OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Log Permeability (m^2)" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "X-Perm" "Y-Perm" "Z-Perm"'
+    WRITE(8,*) 'TITLE = "Water content (-)" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Water Content" '
     WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          IF (permx(jx,jy,jz) == 0.0) THEN
-            WritePermx = -30.00
-          ELSE
-            WritePermx = Log10(permx(jx,jy,jz))
-          END IF
-          IF (permy(jx,jy,jz) == 0.0) THEN
-            WritePermy = -30.00
-          ELSE
-            WritePermy = Log10(permy(jx,jy,jz))
-          END IF
-
-          IF (ny==1)  THEN
-            WritePermy = 0.0
-          ENDIF
-          IF (nz==1)  THEN
-            WritePermz = 0.0
-          ENDIF
-        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-             WritePermx, WritePermy, WritePermz
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                  z(jz)*OutputDistanceScale,Richards_State%theta(jx,jy,jz)
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+             
+    fn='PressureHead'
+    ilength = 12
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Pressure Head (m)" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Head" '
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                  z(jz)*OutputDistanceScale,Richards_State%head(jx,jy,jz)
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+          
+    fn='WaterPotential'
+    ilength = 14
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Water Potential (m)" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Water Potential" '
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
+            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                  z(jz)*OutputDistanceScale,Richards_State%psi(jx,jy,jz)
         END DO
       END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')
 
-      IF (Richards) THEN
-        
-        fn='water_content'
-        ilength = 8
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Water content (-)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Water Content" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-                WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,theta(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-        
-        
-        fn='pressure_head'
-        ilength = 8
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Pressure Head (m)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Head" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-                WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,head(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-          
-        fn='water_potential'
-        ilength = 8
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Water Potential (m)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Water Potential" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-                WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,psi(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-
-        fn = 'VG_alpha'
-        ilength = 12
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Van Genuchten alpha (m-1)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_a"'
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-            VG_alpha(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-        
-        fn = 'VG_n'
-        ilength = 12
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Van Genuchten n (-)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_n"'
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-            VG_n(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-        
-        fn = 'VG_theta_r'
-        ilength = 12
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Van Genuchten residual water content (-)" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "residual water content" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-          DO jy = 1,ny
-            DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-            theta_r(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
-        
-        IF (evapofix .or. evapotimeseries) THEN
-          fn = 'evapo_rate'
-          ilength = 12
-          CALL newfile(fn,suf1,fnv,nint,ilength)
-          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-          WRITE(8,*) 'TITLE = "evaporate [mm/yr]" '
-          WRITE(8,*) 'VARIABLES = "evapo"'
-          WRITE(8,*) ' F=POINT'
-          WRITE(8,184) evaporate*1000+1e-9
-          CLOSE(UNIT=8,STATUS='keep')
-        END IF
-
-        IF (transpifix .or. transpitimeseries) THEN
-          fn = 'transpi_rate'
-          ilength = 12
-          CALL newfile(fn,suf1,fnv,nint,ilength)
-          OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-          WRITE(8,*) 'TITLE = "transpirate [mm/yr]" '
-          WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"     "VG_a"'
-          WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-              WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,   &
-              transpirate_cell(jx)*1000+1e-9
-              END DO
-            END DO
-          END DO
-          CLOSE(UNIT=8,STATUS='keep')
-        ENDIF
-      
-      ELSE
-        fn='pressure'
-        ilength = 8
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        115 FORMAT('# Units: Pascals')
-        WRITE(8,*) 'TITLE = "Pressure" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Pressure" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-        DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,pres(jx,jy,jz)
-          END DO
-        END DO
-        ENDDO
-        CLOSE(UNIT=8,STATUS='keep')
-
-      ENDIF
+  ELSE
+    
+    fn='pressure'
+    ilength = 8
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    115 FORMAT('# Units: Pascals')
+    WRITE(8,*) 'TITLE = "Pressure" '
+    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Pressure" '
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,pres(jx,jy,jz)
+      END DO
+    END DO
+    ENDDO
+    CLOSE(UNIT=8,STATUS='keep')
 
   ENDIF
 
-  !****************
-  !! End of Calculateflow
-  !****************
+ENDIF
+
+!****************
+!! End of Calculateflow
+!****************
 
 !****************
 !! Begin unsaturated
 !****************
 
-  IF (isaturate == 1) THEN
+IF (isaturate == 1) THEN
 
-        fn='liquid_saturation'
-        ilength = 8
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,*) 'TITLE = "Liquid saturation" '
-        WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Liquid saturation" '
-        WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-          DO jz = 1,nz
-            DO jy = 1,ny
-              DO jx = 1,nx
-                WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                      z(jz)*OutputDistanceScale,satliq(jx,jy,jz)
-            END DO
-          END DO
-        END DO
-        CLOSE(UNIT=8,STATUS='keep')
+  fn='LiquidSaturation'
+  ilength = 16
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Liquid saturation" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Liquid saturation" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
+                z(jz)*OutputDistanceScale,satliq(jx,jy,jz)
+      END DO
+    END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
     
   IF (ngas > 0) THEN
-      fn='gases_pp'
-      ilength = 5
-      CALL newfile(fn,suf1,fnv,nint,ilength)
-      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-      WRITE(8,*) 'TITLE = "Gas concentration (bars)" '
-      DO kk=1,ngas
-        StringTemp = namg(kk)
-        CALL stringlen(StringTemp,ls)
-        IF (ls > 14) THEN
-          ls = 14
-        END IF
-        StringProper(1:1) = '"'
-        StringProper(2:ls+1) = StringTemp(1:ls)
-        StringProper(ls+2:ls+3) = '"'
-        WriteString(kk) = StringProper(1:ls+3)
-      END DO
-        WRITE(8,2009) (WriteString(kk),kk=1,ngas)
-      WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
     
-      DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
-            tk = 273.15d0 + t(jx,jy,jz)
-            denmol = 1.e05/(8.314*tk)                      ! P/RT = n/V, with pressure converted from bars to Pascals
-            CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
-            DO kk = 1,ngas
-              if (gastmp10(kk)<1E-30) THEN
-                gastmp10(kk)=1.0E-30
-              END IF
-            END DO
-            WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
-                    z(jz)*OutputDistanceScale,(gastmp10(kk),kk = 1,ngas)
-          END DO
-        END DO
-      END DO
-      CLOSE(UNIT=8,STATUS='keep')
-    
-      fn='gases_conc'
-        ilength = 10
-        CALL newfile(fn,suf1,fnv,nint,ilength)
-        OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-        WRITE(8,2283) PrintTime
-        WRITE(8,130)
-        130 FORMAT('# Units: mol/m3')
-        WRITE(8,2285) (namg(kk),kk=1,ngas)
-        jz = 1
-        DO jy = 1,ny
-        DO jx = 1,nx
-          !!IF (activecellPressure(jx,jy,jz) == 0) THEN
-          !!WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spcondgas10(kk,jinit(jx,jy,1)),kk = 1,ngas)
-          !!ELSE
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,(spgas10(kk,jx,jy,1),kk = 1,ngas)
-          !!END IF
-        END DO
-      END DO
-        CLOSE(UNIT=8,STATUS='keep')
-
-    IF (ny > 1) THEN
-    fn='gasdifffluxY'
-    ilength = 12
+    fn='gases_pp'
+    ilength = 8
     CALL newfile(fn,suf1,fnv,nint,ilength)
     OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,2283) PrintTime
-    117 FORMAT('# Units: mol gas/m2/year')
-    WRITE(8,117)
-    WRITE(8,2285) (namg(kk),kk=1,ngas)
-    jz = 1
-    DO jy = 0,ny
-    DO jx = 1,nx
-      DO i = 1,ngas
-        IF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-        gflux_ver(i)=0
-        ELSEIF (activecellPressure(jx,jy,jz) == 0 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-        gflux_ver(i)=0
-        ELSEIF (jy == 0 .AND. activecellPressure(jx,jy+1,jz) == 1) THEN
-        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))
-        ELSEIF (jy<ny .AND. activecellPressure(jx,jy,jz) == 1 .AND. activecellPressure(jx,jy+1,jz) == 0) THEN
-        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spcondgas10(i,jinit(jx,jy,1)))
-        ELSE
-        gflux_ver(i)=(fg(jx,jy+1,1))*(spgas10(i,jx,jy+1,1)-spgas10(i,jx,jy,1))
-        END IF
-        if (abs(gflux_ver(i))<1.0E-30) THEN
-          gflux_ver(i)=1.0E-30
-        END IF
-      END DO
-      WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale+dyy(jy)/2,z(jz)*OutputDistanceScale, &
-      (gflux_ver(i),i=1,ngas)
+    WRITE(8,*) 'TITLE = "Gas partial pressure (bars)" '
+    DO kk=1,ngas
+      StringTemp = namg(kk)
+      CALL stringlen(StringTemp,ls)
+      IF (ls > 14) THEN
+        ls = 14
+      END IF
+      StringProper(1:1) = '"'
+      StringProper(2:ls+1) = StringTemp(1:ls)
+      StringProper(ls+2:ls+3) = '"'
+      WriteString(kk) = StringProper(1:ls+3)
     END DO
+    WRITE(8,2009) (WriteString(kk),kk=1,ngas)
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          tk = 273.15d0 + t(jx,jy,jz)
+          denmol = 1.e05/(8.314*tk)                      ! P/RT = n/V, with pressure converted from bars to Pascals
+          CALL GasPartialPressure(ncomp,ngas,gastmp10,jx,jy,jz)
+          DO kk = 1,ngas
+            if (gastmp10(kk)<1E-30) THEN
+              gastmp10(kk)=1.0E-30
+            END IF
+          END DO
+          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                  z(jz)*OutputDistanceScale,(gastmp10(kk),kk = 1,ngas)
+        END DO
+      END DO
     END DO
     CLOSE(UNIT=8,STATUS='keep')
-    ENDIF
-
-    IF (ny == 1 .AND. nz == 1) THEN
     
-      fn='gasdifffluxX'
-      ilength = 12
+    fn='gases_conc'
+    ilength = 10
+    CALL newfile(fn,suf1,fnv,nint,ilength)
+    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+    WRITE(8,*) 'TITLE = "Gas concentration (mol/m3)" '
+    WRITE(8,2009) (WriteString(kk),kk=1,ngas)
+    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+    
+    DO jz = 1,nz
+      DO jy = 1,ny
+        DO jx = 1,nx
+          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,   &
+                  z(jz)*OutputDistanceScale,(spgas10(kk,jx,jy,1),kk = 1,ngas)
+        END DO
+      END DO
+    END DO
+    CLOSE(UNIT=8,STATUS='keep')
+    
+    IF (nBoundaryConditionZone == 0) THEN   !! Boundary cells NOT by grid, so reset here for the gas diffusive flux calculation
+    
+      IF (jc(1) == 1) THEN       ! West boundary (X_begin, Dirichlet)
+          DO jy = 1,ny
+          spgas10(:,0,jy,1) = spbgas(:,1)
+          END DO
+      END IF
+      IF (jc(2) == 1) THEN       ! East boundary (X_end, Dirichlet)
+          DO jy = 1,ny
+          spgas10(:,nx+1,jy,1) = spbgas(:,2)
+          END DO
+      END IF
+      IF (jc(3) == 1) THEN       ! South boundary (Y_begin, Dirichlet)
+          DO jx = 1,nx
+          spgas10(:,jx,0,1) = spbgas(:,3)
+          END DO
+      END IF
+      IF (jc(4) == 1) THEN       ! North boundary (Y_end, Dirichlet)
+          DO jx = 1,nx
+          spgas10(:,jx,ny+1,1) = spbgas(:,4)
+          END DO
+      END IF
+    
+    END IF
+
+    IF (ny > 1) THEN
+      
+      fn='gasdifffluxY_South'
+      ilength = 18
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      117 FORMAT('# Units: mol gas/m2/year')
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
+      jz = 1
+      jy = 1
+      DO jx = 1,nx
+        IF (jx==1 .OR. jx==nx) THEN
+          Area_XorY = dxx(jx)
+        ELSE
+          Area_XorY = dxx(jx)
+        END IF
+        
+        DO i = 1,ngas
+          gflux_ver(i) = fg(jx,jy,1) * ( spgas10(i,jx,jy-1,1) - spgas10(i,jx,jy,jz) ) / Area_XorY
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_ver(i),i=1,ngas)
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+      
+      fn='gasdifffluxY_North'
+      ilength = 18
       CALL newfile(fn,suf1,fnv,nint,ilength)
       OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
       WRITE(8,2283) PrintTime
       WRITE(8,117)
       WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
       jz = 1
-      jy = 1
-      DO jx = 0,nx
-        DO i = 1,ngas
-          if (jx==0) THEN
-            gflux_hor(i)=(ag(jx+1,1,1))*(spgas10(i,jx+1,1,1)-spcondgas10(i,jinit(jx,jy,jz)))
-          elseif (jx==nx) THEN
-            gflux_hor(i)= (cg(jx,1,1))*(spcondgas10(i,jinit(jx+1,jy,jz))-spgas10(i,jx,1,1))
-          else
-            gflux_hor(i)=(cg(jx,1,1))*(spgas10(i,jx+1,1,1)-spgas10(i,jx,1,1))
-          END IF
-          if (abs(gflux_hor(i))<1.0E-30) THEN
-            gflux_hor(i)=1.0E-30
-          END IF      
-        END DO
-        if (jx==0) THEN
-        WRITE(8,184) x(jx)*OutputDistanceScale,(gflux_hor(i),i=1,ngas)
-        else
-        WRITE(8,184) x(jx)*OutputDistanceScale+dxx(jx)/2,(gflux_hor(i),i=1,ngas)
+      jy = ny
+      DO jx = 1,nx
+        IF (jx==1 .OR. jx==nx) THEN
+          Area_XorY = dxx(jx)
+        ELSE
+          Area_XorY = dxx(jx)
         END IF
+        DO i = 1,ngas
+          gflux_ver(i) = dg(jx,jy,1) * ( spgas10(i,jx,jy+1,1) - spgas10(i,jx,jy,jz) ) / Area_XorY
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_ver(i),i=1,ngas)
       END DO
       CLOSE(UNIT=8,STATUS='keep')
+      
+
+      
     ENDIF
+
+    IF (nz == 1) THEN
+    
+      fn='gasdifffluxX_West'
+      ilength = 18
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
+      jz = 1
+      jx = 1
+      DO jy = 1,ny
+        IF (jy==1 .OR. jy==ny) THEN
+          Area_XorY = dyy(jy)
+        ELSE
+          Area_XorY = dyy(jy)
+        END IF
+        DO i = 1,ngas
+          gflux_hor(i) = ag(jx,jy,1) * ( spgas10(i,jx-1,jy,1) - spgas10(i,jx,jy,jz) ) / Area_XorY      
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_hor(i),i=1,ngas)
+      END DO 
+      CLOSE(UNIT=8,STATUS='keep')
+      
+      fn='gasdifffluxX_East'
+      ilength = 18
+      CALL newfile(fn,suf1,fnv,nint,ilength)
+      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+      WRITE(8,2283) PrintTime
+      WRITE(8,117)
+      WRITE(8,2285) (namg(kk),kk=1,ngas)
+      
+      jz = 1
+      jx = nx
+      DO jy = 1,ny
+       IF (jy==1 .OR. jy==ny) THEN
+          Area_XorY = dyy(jy)
+        ELSE
+          Area_XorY = dyy(jy)
+        END IF
+        DO i = 1,ngas
+          check = ( spgas10(i,jx+1,jy,1) - spgas10(i,jx,jy,jz) )
+          !!! Transport coefficient "cg" = m^3/yr so multiplying by mol/m^3 gives mol/yr dividing by Area gives mol/m^2/yr
+          gflux_hor(i) = cg(jx,jy,1) * ( spgas10(i,jx+1,jy,1) - spgas10(i,jx,jy,jz) ) / Area_XorY 
+        END DO
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, (gflux_hor(i),i=1,ngas)
+      END DO
+      CLOSE(UNIT=8,STATUS='keep')
+      
+    END IF
 
   ENDIF
 
-  END IF
+END IF
 
 !****************
 !! End unsaturated
 !****************
 
-
 !****************
 !! Begin Makemovie
 !****************
 
-
-  IF (MakeMovie) THEN
-    
-    IF (FirstCall) THEN
-      fn='VelocityEvolve'
-      ilength = 14
-      CALL newfile(fn,suf1,fnv,nint,ilength)
-      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-      WRITE(8,*) 'TITLE = "Velocity (m/yr)" '
-      WRITE(8,2012)
-      WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-      DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale    &
-                    ,z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
-          END DO
-        END DO
-      END DO
-    ELSE
-      WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-      DO jz = 1,nz
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(8,191) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-                z(jz)*OutputDistanceScale,qx(jx,jy,jz),qy(jx,jy,jz),qz(jx,jy,jz)
-          END DO
-        END DO
-      END DO
-    END IF
-    
-  END IF
-
-!****************
-!! End Makemovie
-!****************
-  
 !****************
 !! Begin Fracturenetwork
 !****************
   
-  if (nmmLogical .and. .not. FractureNetwork) THEN
-    fn = 'stress'
-    ilength = 6
-    CALL newfile(fn,suf1,fnv,nint,ilength)
-    OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-    WRITE(8,*) 'TITLE = "Porosity" '
-    WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Stress (mPa)" '
-    WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
-    DO jz = 1,nz
-      DO jy = 1,ny
-        DO jx = 1,nx
-          StressPrt = stress(jx,jy,jz)*1.0E-06    !! in mPa
-          WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,StressPrt
-        END DO
+IF (nmmLogical .AND. ContactPressureLogical) THEN
+  fn = 'stress'
+  ilength = 6
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Porosity" '
+  WRITE(8,*) 'VARIABLES = "X"          "Y"              "Z"          "Stress (mPa)" '
+  WRITE(8,*) 'ZONE I=', nx,  ', J=',ny, ', K=',nz, ' F=POINT'
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        StressPrt = stress(jx,jy,jz)*1.0E-06    !! in mPa
+        WRITE(8,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,z(jz)*OutputDistanceScale,StressPrt
       END DO
     END DO
-    CLOSE(UNIT=8,STATUS='keep')
-  END IF
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+END IF
 
 !****************
 !! End Fracturenetwork
@@ -1309,47 +1341,47 @@ ENDIF
 !! Begin MontTerri
 !****************
 
-    IF (MontTerri) THEN
+IF (MontTerri) THEN
     
-      fn = 'MontTerri-Slice1-'
-      ilength = 17
-      CALL newfile(fn,suf1,fnv,nint,ilength)
-      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-      WRITE(8,*) 'TITLE = "Tracer" '
-      WRITE(8,*) 'VARIABLES = "X"        "Z"     "Tracer"'
-      WRITE(8,*) 'ZONE I=', nx,  ',  K=',nz, ' F=POINT'
+  fn = 'MontTerri-Slice1-'
+  ilength = 17
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Tracer" '
+  WRITE(8,*) 'VARIABLES = "X"        "Z"     "Tracer"'
+  WRITE(8,*) 'ZONE I=', nx,  ',  K=',nz, ' F=POINT'
       
-      jy = 30
-      DO jz = 1,nz      
-  !!!      DO jy = 1,ny
-          DO jx = 1,nx
-          WRITE(8,184) x(jx)*OutputDistanceScale, z(jz)*OutputDistanceScale, s(1,jx,jy,jz)
-          END DO
-          
-  !!!      END DO
+  jy = 30
+  DO jz = 1,nz      
+!!!      DO jy = 1,ny
+      DO jx = 1,nx
+      WRITE(8,184) x(jx)*OutputDistanceScale, z(jz)*OutputDistanceScale, s(1,jx,jy,jz)
       END DO
-      CLOSE(UNIT=8,STATUS='keep')
-      
-      fn = 'MontTerri-Porosity1-'
-      ilength = 20
-      CALL newfile(fn,suf1,fnv,nint,ilength)
-      OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
-      WRITE(8,*) 'TITLE = "Tracer" '
-      WRITE(8,*) 'VARIABLES = "X"        "Z"     "Tracer"'
-      WRITE(8,*) 'ZONE I=', nx,  ',  K=',nz, ' F=POINT'
-      
-      jy = 30
-      DO jz = 1,nz      
-  !!!      DO jy = 1,ny
-          DO jx = 1,nx
-          WRITE(8,184) x(jx)*OutputDistanceScale, z(jz)*OutputDistanceScale, por(jx,jy,jz)
-          END DO
           
-  !!!      END DO
-      END DO
-      CLOSE(UNIT=8,STATUS='keep')
+!!!      END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
       
-    END IF
+  fn = 'MontTerri-Porosity1-'
+  ilength = 20
+  CALL newfile(fn,suf1,fnv,nint,ilength)
+  OPEN(UNIT=8,FILE=fnv, ACCESS='sequential',STATUS='unknown')
+  WRITE(8,*) 'TITLE = "Tracer" '
+  WRITE(8,*) 'VARIABLES = "X"        "Z"     "Tracer"'
+  WRITE(8,*) 'ZONE I=', nx,  ',  K=',nz, ' F=POINT'
+      
+  jy = 30
+  DO jz = 1,nz      
+!!!      DO jy = 1,ny
+      DO jx = 1,nx
+      WRITE(8,184) x(jx)*OutputDistanceScale, z(jz)*OutputDistanceScale, por(jx,jy,jz)
+      END DO
+          
+!!!      END DO
+  END DO
+  CLOSE(UNIT=8,STATUS='keep')
+      
+END IF
 
 !****************
 !! End MontTerri
@@ -1430,7 +1462,6 @@ END IF
 !****************
 !! End Exchange
 !****************
-
 
 !***********
 !Begin surface complexation
@@ -1552,6 +1583,9 @@ END IF
 2281 FORMAT('   X        ','     Y        ',4X,a18)
 2285 FORMAT('    X        ','     Y        ',3X,30(1X,a13))
 2286 FORMAT('    X        ','      Y               ',3X,30(1X,a15))
+     
+DEALLOCATE(gflux_ver)
+DEALLOCATE(gflux_hor)
 
 RETURN
 END SUBROUTINE GraphicsVisit

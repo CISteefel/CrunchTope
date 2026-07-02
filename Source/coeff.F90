@@ -84,16 +84,24 @@ REAL(DP)                                      :: dyn
 REAL(DP)                                      :: dumsum
 REAL(DP)                                      :: avgro
 REAL(DP)                                      :: fe
-REAL(DP)                                      :: ae
+
 REAL(DP)                                      :: fw
 REAL(DP)                                      :: aw
+REAL(DP)                                      :: ae
+REAL(DP)                                      :: apx
+
+REAL(DP)                                      :: aw_H2O
+REAL(DP)                                      :: ae_H2O
+REAL(DP)                                      :: apx_H2O
+REAL(DP)                                      :: as_H2O
+REAL(DP)                                      :: an_H2O
+REAL(DP)                                      :: apy_H2O
+
 REAL(DP)                                      :: fn
 REAL(DP)                                      :: an
 REAL(DP)                                      :: fs
 REAL(DP)                                      :: as
 REAL(DP)                                      :: tk
-REAL(DP)                                      :: Uliaq
-REAL(DP)                                      :: Quirkaq
 REAL(DP)                                      :: porn
 REAL(DP)                                      :: pors
 REAL(DP)                                      :: dharm
@@ -105,7 +113,7 @@ REAL(DP)                                      :: ds
 REAL(DP)                                      :: dn
 REAL(DP)                                      :: dsps
 REAL(DP)                                      :: dspn
-REAL(DP)                                      :: apx
+
 REAL(DP)                                      :: apy
 REAL(DP)                                      :: tort
 REAL(DP)                                      :: AreaE
@@ -194,12 +202,12 @@ DO jy = 1,ny
         
       ELSE IF (MillingtonQuirk) THEN
         dume  = ro(jx+1,jy,jz)*(sate)**(SatPow) * (pore)**(PorPow)*dstar(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
+        dumpx = ro(jx,jy,jz)  *(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dumw = dumpx
         
       ELSE
-        dume = ro(jx+1,jy,jz)*sate*pore**(uli)*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dume  = ro(jx+1,jy,jz)* sate* pore* dstar(jx+1,jy,jz)* tortuosity(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)*   satp* porp* dstar(jx,jy,jz)*   tortuosity(jx,jy,jz)
         dumw = dumpx
 
       END IF
@@ -233,8 +241,8 @@ DO jy = 1,ny
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dume = dumpx
       ELSE
-        dumw = ro(jx-1,jy,jz)*satw*porw**(uli)*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
+        dumw  = ro(jx-1,jy,jz)*satw* porw**(uli)* dstar(jx-1,jy,jz)* tortuosity(jx-1,jy,jz)
+        dumpx = ro(jx,jy,jz)  *satp* porp**(uli)* dstar(jx,jy,jz)*   tortuosity(jx,jy,jz)
         dume = dumpx
       END IF
       
@@ -248,6 +256,7 @@ DO jy = 1,ny
 !!!      satw = 0.5*( satliq(jx-1,jy,jz)+satliqold(jx-1,jy,jz) )
       sate = satliq(jx+1,jy,jz)
       satw = satliq(jx-1,jy,jz)
+      
       IF (UseThresholdPorosity) THEN
         IF (pore > ThresholdPorosity) THEN
           tort = TortuosityAboveThreshold
@@ -267,15 +276,19 @@ DO jy = 1,ny
           tort = TortuosityBelowThreshold
         END IF
         dumpx = ro(jx,jy,jz)*dstar(jx,jy,jz)*satp*porp*tort
+        
       ELSE IF (MillingtonQuirk) THEN
         dume = ro(jx+1,jy,jz)*(sate)**(SatPow) * (pore)**(PorPow)*dstar(jx+1,jy,jz)
         dumpx = ro(jx,jy,jz)*(satp)**(SatPow) * (porp)**(PorPow)*dstar(jx,jy,jz)
         dumw = ro(jx-1,jy,jz)*(satw)**(SatPow) * (porw)**(PorPow)*dstar(jx-1,jy,jz)
+   
       ELSE
-        dume = ro(jx+1,jy,jz)*sate*pore**(uli)*dstar(jx+1,jy,jz)*tortuosity(jx+1,jy,jz)
-        dumpx = ro(jx,jy,jz)*satp*porp**(uli)*dstar(jx,jy,jz)*tortuosity(jx,jy,jz)
-        dumw = ro(jx-1,jy,jz)*satw*porw**(uli)*dstar(jx-1,jy,jz)*tortuosity(jx-1,jy,jz)
+        dume  = ro(jx+1,jy,jz) *sate * pore**(uli) * dstar(jx+1,jy,jz) * tortuosity(jx+1,jy,jz)
+        dumpx = ro(jx,jy,jz)   *satp * porp**(uli) * dstar(jx,jy,jz)   * tortuosity(jx,jy,jz)
+        dumw  = ro(jx-1,jy,jz) *satw * porw**(uli) * dstar(jx-1,jy,jz) * tortuosity(jx-1,jy,jz)
+        
       END IF
+      
     END IF
     
     100     CONTINUE
@@ -465,8 +478,6 @@ DO jy = 1,ny
       aw = DMAX1(fw,0.0D0) + dw
       netflowX(nx-1,jy,jz) = fw
       netDiffuseX(nx-1,jy,jz) = dw
-      
-      apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
        
   !!! EAST
       
@@ -488,11 +499,13 @@ DO jy = 1,ny
         netDiffuseX(jx,jy,jz) = de
       END IF
       
+      ae_H2O = 0.0d0
+      
       IF (jc(2) == 2 .or. JcByGrid(jx+1,jy,jz) == 2) THEN  
         apx = dw +      DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)   !Pure advective bdy			
       ELSE
         apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
-	  
+        
       END IF
        
     ELSE     !!! Not jx /= 1 .or. jx /= nx
@@ -516,6 +529,7 @@ DO jy = 1,ny
       ae = DMAX1(-fe,0.0D0) + de
       netflowX(jx,jy,jz) = fe
       netDiffuseX(jx,jy,jz) = de
+      
 							   
   !!!  WEST
       
@@ -535,10 +549,10 @@ DO jy = 1,ny
       dw = AreaW*dspw/dxw
       fw = AreaW*avgro*(qx(jx-1,jy,jz) + FluidBuryX(jx-1))
       aw = DMAX1(fw,0.0D0) + dw
-   
       
-	  
+   
       apx = dw + de + DMAX1(-fw,0.0D0) + DMAX1(fe,0.0D0)
+      
       
     END IF
     
@@ -666,7 +680,6 @@ DO jy = 1,ny
       ELSE
         dharm = GeometricMean(dums,dumpy)
       END IF
-      
 
       satLs = ArithmeticMean( satliq(jx,jy-1,jz),satliq(jx,jy,jz) )
       dsps = satLs*avgro*dspy(jx,jy-1,jz) + dharm
@@ -675,6 +688,7 @@ DO jy = 1,ny
       as = DMAX1(fs,0.0D0) + ds
       
       apy = ds + dn + DMAX1(-fs,0.0D0) + DMAX1(fn,0.0D0)
+
       
     END IF
     
@@ -684,6 +698,7 @@ DO jy = 1,ny
       a(jx,jy,jz) = 0.0d0
       b(jx,jy,jz) = 0.0d0
       c(jx,jy,jz) = 0.0d0
+      
     ELSE
       
       a(jx,jy,jz) = -aw
@@ -697,11 +712,13 @@ DO jy = 1,ny
       d(jx,jy,jz) = 0.0d0
       f(jx,jy,jz) = 0.0d0
       e(jx,jy,jz) = 0.0d0
+      
     ELSE
       
       d(jx,jy,jz) = -an
       f(jx,jy,jz) = -as
       e(jx,jy,jz) = apy
+  
       
     END IF
 

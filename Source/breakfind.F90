@@ -47,7 +47,7 @@ USE params
 
 IMPLICIT NONE
 
-CHARACTER (LEN=mls)                     :: dummy1
+CHARACTER (LEN=10)                     :: dummy1
 
 main:  DO
   READ(18,'(a)') dummy1

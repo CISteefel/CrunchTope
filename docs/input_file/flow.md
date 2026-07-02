@@ -18,6 +18,8 @@
 [Keywords for unsaturated flow](#keywords-for-unsaturated-flow)
 - [Richards](#richards)
 - [Richards_print](#richards_print)
+- [hydraulic_function](#hydraulic_function)
+- [richards_ic](#richards_ic)
 - [read_richards_ic_file](#read_richards_ic_file)
 - [psi_is_head](#psi_is_head)
 - [theta_r_is_S_r](#theta_r_is_s_r)
@@ -29,13 +31,19 @@
 - [read_vg_alpha](#read_vg_alpha)
 - [read_vg_n](#read_vg_n)
 - [read_vg_theta_r](#read_vg_theta_r)
+- [boundary_condition](#boundary_condition)
+- [boundary_condition_steady](#boundary_condition_steady)
 - [x_begin_bc_type](#x_begin_bc_type)
 - [x_end_bc_type ](#x_end_bc_type)
 - [x_begin_bc_type_steady](#x_begin_bc_type_steady)
 - [x_end_bc_type_steady](#x_end_bc_type_steady)
 - [set_evaporation_boundary](#set_evaporation_boundary)
 - [set_psi_0](#set_psi_0)
+- [spatial_domain](#spatial_domain)
 - [set_dpsi_max](#set_dpsi_max)
+- [set_tol_a](#set_tol_a)
+- [set_max_Newton](#set_max_Newton)
+- [set_max_line_search](#set_max_line_search)
 
 [Keywords for gas transport](#keywords-for-gas-transport)
 - [constant_gasflow](#constant_gasflow)
@@ -537,6 +545,23 @@ This should be turned on only when you want to diagnose the convergence.
 Richards_print true
 ```
 
+### richards_ic
+
+#### Syntax
+```
+richards_ic [value]
+```
+[value] is the initial water potential used for both steady-state and time-dependent Richards solver.
+
+#### Explanation
+This keyword sets the initial condition for the water potential for the Richards solver to a constant value throughout the spatial domain.
+This keyword is read only when the keyword 'read_richards_ic_file' is not provided.
+
+#### Example
+``` 
+richards_ic -1.0
+```
+
 
 ### read_richards_ic_file
 
@@ -545,10 +570,11 @@ Richards_print true
 read_richards_ic_file [filename] [format]
 ```
 [filename] gives the name of the file (up to 132 characters) containing initial condition (water potential or head) values for the Richards equation over the entire spatial domain.
-[format]= SingleColumn, ContinuousRead, FullFormat, or Unformatted (Default: SingleColumn)
+[format]= SingleColumn (Default: SingleColumn)
 
 #### Explanation
 Read the initial condition for the Richards equation from a file.
+If this keyword is used, the keyword 'richards_ic' is ignored.
 
 #### Example
 ```
@@ -612,7 +638,7 @@ theta_s_is_porosity [logical]
 #### Explanation
 This keyword indicates whether the $\theta_s$ parameter in the van Genuchten model is the same as the porosity value, or not.
 If false is selected, users need to provide information on the $\theta_s$ parameter by the keyword vg_theta_s.
-Otherwise, porosity value is used for the $theta_s$ parameter in the van Genuchten model.
+Otherwise, porosity value is used for the $theta_s$ parameter in the van Genuchten model, so the user does not need to provide $\theta_s$ value.
 
 #### Example
 

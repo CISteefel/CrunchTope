@@ -127,4 +127,102 @@ xxx(:,:,nz+1) = xxx(:,:,nz)
 
 RETURN
 
-END SUBROUTINE GhostCells
+  END SUBROUTINE GhostCells
+  
+  
+  
+  
+SUBROUTINE GhostCells_Richards(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,xxx, text)
+USE crunchtype
+
+IMPLICIT NONE
+
+!  External variables and arrays
+
+INTEGER(I4B), INTENT(IN)                                    :: nx
+INTEGER(I4B), INTENT(IN)                                    :: ny
+INTEGER(I4B), INTENT(IN)                                    :: nz
+INTEGER(I4B), INTENT(IN)                                    :: lowX
+INTEGER(I4B), INTENT(IN)                                    :: lowY
+INTEGER(I4B), INTENT(IN)                                    :: lowZ
+INTEGER(I4B), INTENT(IN)                                    :: highX
+INTEGER(I4B), INTENT(IN)                                    :: highY
+INTEGER(I4B), INTENT(IN)                                    :: highZ
+
+REAL(DP), DIMENSION(lowX:highX,lowY:highY,lowZ:highZ), INTENT(INOUT)                   :: xxx
+
+CHARACTER (LEN=15), INTENT(IN)                              :: text
+
+!  Internal variables and arrays
+
+INTEGER(I4B)                                                :: nxcheck
+INTEGER(I4B)                                                :: nycheck
+INTEGER(I4B)                                                :: nzcheck
+INTEGER(I4B)                                                :: jx
+INTEGER(I4B)                                                :: jy
+INTEGER(I4B)                                                :: jz
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                     :: xdummy
+
+
+IF (lowX /= 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Lower bounds in X direction should be 0 for: ', text
+    WRITE(*,*) 
+    STOP
+END IF
+
+IF (highX /= nx+1) THEN
+  WRITE(*,*)
+  WRITE(*,*) ' Upper bounds in X direction should be nx+1 for: ', text
+  WRITE(*,*) 
+  STOP
+END IF
+
+xxx(0,:,:) = xxx(1,:,:)
+xxx(nx+1,:,:) = xxx(nx,:,:)
+  
+IF (nx > 1 .AND. ny > 1) THEN ! more than two-dimensional problem
+  
+  IF (lowY /= 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Lower bounds in Y direction should be 0 for: ', text
+    WRITE(*,*) 
+    STOP
+  END IF
+  
+  IF (highY /= ny+1) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Upper bounds in Y direction should be ny+1 for: ', text
+    WRITE(*,*) 
+    STOP
+  END IF
+  
+  xxx(:,0,:) = xxx(:,1,:)
+  xxx(:,ny+1,:) = xxx(:,ny,:)
+
+END IF
+
+IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
+  
+  IF (lowZ /= 0) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Lower bounds in Z direction should be 0 for: ', text
+    WRITE(*,*) 
+    STOP
+  END IF
+  
+  
+  IF (highZ /= nz+1) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Upper bounds in X direction should be nz+1 for: ', text
+    WRITE(*,*) 
+    STOP
+  END IF
+  
+  xxx(:,:,0) = xxx(:,:,1)
+  xxx(:,:,nz+1) = xxx(:,:,nz)
+END IF
+
+RETURN
+
+END SUBROUTINE GhostCells_Richards

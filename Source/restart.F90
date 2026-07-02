@@ -59,9 +59,10 @@ USE flow
 USE temperature
 USE io
 USE modflowModule
+USE Richards_module
 
-#include "petsc/finclude/petscmat.h"
-USE petscmat
+#include <petsc/finclude/petsc.h>
+      use petsc
 
 IMPLICIT NONE
 
@@ -94,7 +95,8 @@ LOGICAL(LGT)                                :: TrueFalse
 REAL(DP)                                    :: DummyReal
 REAL(DP), DIMENSION(:), ALLOCATABLE         :: tempreal
 REAL(DP), DIMENSION(:), ALLOCATABLE         :: RealDummyArray
-INTEGER(I4B), DIMENSION(:), ALLOCATABLE         :: IntegerDummyArray
+INTEGER(I4B), DIMENSION(:), ALLOCATABLE     :: IntegerDummyArray
+INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE :: Integer3DDummyArray
 INTEGER(I4B)                                :: nxyz
 
 
@@ -167,8 +169,6 @@ END IF
       READ(iures) ssurf
       READ(iures) ssurfn
     endif
-  
-    
     READ(iures) sexold
     READ(iures) ssurfold
     READ(iures) spsurf
@@ -176,20 +176,30 @@ END IF
     READ(iures) spsurfold 
     READ(iures) raq_tot
     READ(iures) sion
+    READ(iures) lngammawater
+    
     IF (ALLOCATED(IntegerDummyArray)) THEN
       DEALLOCATE(IntegerDummyArray)
     END IF
     ALLOCATE(IntegerDummyArray(nxyz))
-    READ(iures) IntegerDummyArray
-!!!    READ(iures) jinit
+    
+    IF (ALLOCATED(Integer3DDummyArray)) THEN
+      DEALLOCATE(Integer3DDummyArray)
+    END IF
+    ALLOCATE(Integer3DDummyArray(0:nx+1,0:ny+1,0:nz+1))
+
+    READ(iures) Integer3DDummyArray
+!!!    READ(iures) jinit   !! this is a 3D array running from (0:nx+1,0:ny+1,0:nz+1)
     READ(iures) keqmin
     READ(iures) volfx
     READ(iures) dppt
     READ(iures) area
+    
     IF (ALLOCATED(RealDummyArray)) THEN
       DEALLOCATE(RealDummyArray)
     END IF
     ALLOCATE(RealDummyArray(nrct*nxyz))
+    
     READ(iures) RealDummyArray
     READ(iures) RealDummyArray
     READ(iures) RealDummyArray
@@ -213,8 +223,8 @@ END IF
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-      READ(iures) psi
-      READ(iures) theta
+      READ(iures) Richards_State%psi
+      READ(iures) Richards_State%theta
     END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************

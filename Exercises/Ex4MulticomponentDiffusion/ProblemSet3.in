@@ -87,6 +87,7 @@ set_temperature  25.0
 END
  
 PRIMARY_SPECIES
+H2O
 H+
 Cl-
 Na+

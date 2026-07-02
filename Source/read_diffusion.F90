@@ -313,7 +313,7 @@ IF(ls /= 0) THEN
   
   IF (ssch == 'cementation_exponent') THEN
     IF (nxyz == 1) THEN    ! No flow in case of NXYZ = 1
-      uli = 3.0d0/3.0d0
+      uli = 1.0d0
       RETURN
     END IF
     
@@ -337,7 +337,7 @@ IF(ls /= 0) THEN
       WRITE(*,*) ' No value following "cementation_exponent" '
       WRITE(*,*) ' Assuming value = 1  '
       WRITE(*,*)
-      uli = 3.0d0/3.0d0
+      uli = 1.0d0
     END IF
     
   ELSE

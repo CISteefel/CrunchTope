@@ -49,6 +49,7 @@ USE params
 USE concentration
 USE mineral
 USE temperature
+USE temperature
 USE io
 USE strings
 

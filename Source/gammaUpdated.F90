@@ -143,9 +143,9 @@ END IF
 
 !*** Now calculate the activity coefficients for : water, other uncharged species, charged species
 
-gamma(:,jx,jy,jz) = 1D0
-lngamma(:,jx,jy,jz)  = 0D0
-deriv_gamma(:,:,jx,jy,jz) = 0D0 
+gamma(:,jx,jy,jz) = 1.0D0
+lngamma(:,jx,jy,jz)  = 0.0D0
+deriv_gamma(:,:,jx,jy,jz) = 0.0D0 
 
 IF (igamma == 0) THEN ! unit activity coefficient except for water
 
@@ -177,7 +177,8 @@ ELSE
     ulabPrint = ulab(ik)   
     IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
       gamma(ik,jx,jy,jz) = gammawaterTMP
-      lngamma(ik,jx,jy,jz) = LOG(gammawaterTMP)
+!!      lngamma(ik,jx,jy,jz) = LOG(gammawaterTMP)
+      lngamma(ik,jx,jy,jz) = lnGammaWater(jx,jy,jz)
       pos_der = ncomp + nexchange + nsurf + npot + 1 + 1      ! gamma water--note that activity of water is 1 + 1 
       deriv_gamma(ik,pos_der,jx,jy,jz) = gammawaterTMP            ! gammawater is a primary variable  
   

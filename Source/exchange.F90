@@ -75,22 +75,31 @@ REAL(DP)                                                   :: check
 REAL(DP)                                                   :: sumtemp
 REAL(DP)                                                   :: exchangetemp
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 IF (iexc == 1) THEN        ! Gaines-Thomas convention
   sumactivity = 0.0
   DO nex = 1,nexch_sec
     ix = ixlink(nex)
     exchangetemp = exchangesites(ix,jx,jy,jz)
 
-
-
-      sum = 0.0
-      DO i = 1,ncomp
-        sum = sum + muexc(nex,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
-      END DO
+    sum = 0.0
+    DO i = 1,ncomp
+        
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+        lnActivity = lngammawater(jx,jy,jz)
+      ELSE
+        lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+      END IF
+          
+      sum = sum + muexc(nex,i)*lnActivity
+    END DO
 
 
     sum = sum + muexc(nex,ix+ncomp)*spex(ix,jx,jy,jz)
-    activity = EXP(-keqexc(nex) + sum + bfit(nex)*sion(jx,jy,jz) )
+    activity = EXP(-keqexc(nex) + sum  )
     aexch(nex) = activity
     spex10(nex+nexchange,jx,jy,jz) = activity*exchangetemp/(muexc(nex,ix+ncomp))  
     sumactivity(ix) = sumactivity(ix) + aexch(nex)
@@ -109,7 +118,7 @@ ELSE IF (iexc == 2) THEN   ! Vanselow convention
 
 
     sum = sum + muexc(nex,ix+ncomp)*spex(ix,jx,jy,jz)
-    aexch(nex) = EXP(-keqexc(nex) + sum + bfit(nex)*sion(jx,jy,jz))
+    aexch(nex) = EXP(-keqexc(nex) + sum )
   END DO
   wt_aexch = 0.0
   sumactivity = 0.0

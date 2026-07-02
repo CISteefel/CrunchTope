@@ -58,12 +58,11 @@ USE io
 USE ReadFlow
 USE modflowModule
 USE CrunchFunctions
+USE Richards_module
 !!USE fparser
 
-#include "petsc/finclude/petscmat.h"
-#include "petsc/finclude/petscksp.h"
-USE petscmat
-USE petscksp
+#include <petsc/finclude/petsc.h>
+      use petsc
 
 IMPLICIT NONE
 
@@ -100,7 +99,7 @@ INTEGER(I4B)             ::ierr
 INTEGER(I4B)             ::irank
 INTEGER(I4B)             ::linefil
 INTEGER(I4B)             ::itsiterate
-INTEGER(I4B), PARAMETER  ::maxitsksp=2000
+INTEGER(I4B), PARAMETER  ::maxitsksp=200
 REAL(DP), PARAMETER      ::zero=0.0
 !!REAL(DP), PARAMETER      ::rtolksp=1.0d-09
 !!REAL(DP), PARAMETER      ::atolksp=1.0d-50
@@ -131,7 +130,8 @@ INTEGER(I4B)                                               :: end_millisec
 REAL(DP)                                                   :: StartSeconds
 REAL(DP)                                                   :: EndSeconds
 REAL(DP)                                                   :: MilliSeconds
-INTEGER(I4B), DIMENSION(1)                                              :: MaxFx
+REAL(DP)                                                   :: MaxValFx
+INTEGER(I4B), DIMENSION(1)                                 :: MaxFx
 
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tdata
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: break
@@ -322,6 +322,8 @@ LOGICAL(LGT)                                               :: scale
 LOGICAL(LGT)                                               :: FlowConverged
 LOGICAL(LGT)                                               :: FirstCall
 
+LOGICAL(LGT)                                               :: WritePetscIterations
+
 REAL(DP), DIMENSION(:), ALLOCATABLE                        :: tempreal
 REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: InitialMass
 
@@ -358,6 +360,8 @@ REAL(DP)                                                   :: CumulativeFe
 REAL(DP)                                                   :: CumulativeO2
 REAL(DP)                                                   :: CumulativeCO2
 
+REAL(DP)                                                   :: checkValue
+
 CHARACTER (LEN=1)                                          :: trans
 
 INTEGER(I4B)                                               :: info
@@ -387,9 +391,16 @@ REAL(DP)                                                   :: CheckMass1
 REAL(DP)                                                   :: CheckMass2
 REAL(DP)                                                   :: pumpterm
 
+REAL(DP)                                                   :: FxxFail
+
 INTEGER(I4B)                                               :: nBoundaryConditionZone
 INTEGER(I4B)                                               :: nco
 INTEGER(I4B)                                               :: i_substep
+INTEGER(I4B)                                               :: kk
+
+INTEGER(I4B)                                               :: checkInteger1
+INTEGER(I4B)                                               :: checkInteger2
+INTEGER(I4B)                                               :: checkInteger3
 
 ! transient pump time series (Lucien Stolze)
 REAL(DP)                                                    :: time_norm
@@ -405,13 +416,33 @@ INTEGER(I4B)                                                :: depthwattab
 CHARACTER (LEN=3)                                           :: ulabPrint
 REAL(DP)                                                    :: sionPrint
 
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceWest
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceEast
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceSouth
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: GasFlux_FaceNorth
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceWest
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceEast
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceSouth
+REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_FaceNorth
+
+REAL(DP)                                                   :: totAqueousH2 
+REAL(DP)                                                   :: totGasH2 
+REAL(DP)                                                   :: totH2O
+REAL(DP)                                                   :: ChangeInH2_gas
+REAL(DP)                                                   :: SatGas
+REAL(DP)                                                   :: CellVolume
+REAL(DP)                                                   :: sp10oldH2
+
 !*************************************************************************
-! Edit by Toshiyuki Bandai, 2023 July
-INTEGER(I4B)                                               :: n_count_infiltration = 2 ! count the number for interpolating infiltration data
-INTEGER(I4B)                                               :: n_count_evaporation = 2 ! count the number for interpolating evaporation data
-INTEGER(I4B)                                               :: n_count_transpiration = 2 ! count the number for interpolating transpiration data
-INTEGER(I4B)                                               :: n_count_temperature = 2 ! count the number for interpolating temperature data
-! End of Edit by Toshiyuki Bandai, 2023 July 
+! Edit by Toshiyuki Bandai, 2024 Oct.
+INTEGER(I4B)                                                  :: lowX
+INTEGER(I4B)                                                  :: lowY
+INTEGER(I4B)                                                  :: lowZ
+INTEGER(I4B)                                                  :: highX
+INTEGER(I4B)                                                  :: highY
+INTEGER(I4B)                                                  :: highZ
+CHARACTER (LEN=15)                                            :: text
+! End of Edit by Toshiyuki Bandai, 2024 Oct. 
 !*************************************************************************
 
 !*************************************************************************
@@ -430,8 +461,6 @@ PC                   pc
 KSP                  ksp
 !!Scalar               zeroPetsc
 ! ************************end PETSc declarations of PETSc variables ******
-
-  !!! Added July 17 by Carl (hopefully not stomped on)
   
 Switcheroo = .FALSE.
 
@@ -460,6 +489,8 @@ WRITE(*,*) '     Copyright (c) 2016, The Regents of the University of California
 WRITE(*,*) '            through Lawrence Berkeley National Laboratory             '
 WRITE(*,*) '                        All Rights Reserved                           '
 WRITE(*,*)
+WRITE(*,*) '                  For full license agreement with disclaimers:        '
+WRITE(*,*) '                  See https://github.com/CISteefel/CrunchTope         '
 WRITE(*,*) '   ********************************************************************'
 
 IF (.NOT. RunningPest) THEN
@@ -510,6 +541,55 @@ str_hr  = 0
 str_min = 0
 str_sec = 0
 str_millisec = 0
+
+IF (ALLOCATED(GasFlux_FaceWest)) THEN
+  DEALLOCATE(GasFlux_FaceWest)
+END IF
+ALLOCATE(GasFlux_FaceWest(ngas))
+GasFlux_FaceWest = 0.0
+
+IF (ALLOCATED(GasFlux_FaceEast)) THEN
+  DEALLOCATE(GasFlux_FaceEast)
+END IF
+ALLOCATE(GasFlux_FaceEast(ngas))
+GasFlux_FaceEast = 0.0
+
+IF (ALLOCATED(GasFlux_FaceSouth)) THEN
+  DEALLOCATE(GasFlux_FaceSouth)
+END IF
+ALLOCATE(GasFlux_FaceSouth(ngas))
+GasFlux_FaceSouth = 0.0
+
+IF (ALLOCATED(GasFlux_FaceNorth)) THEN
+  DEALLOCATE(GasFlux_FaceNorth)
+END IF
+ALLOCATE(GasFlux_FaceNorth(ngas))
+GasFlux_FaceNorth = 0.0
+
+!!!!!!!!!!!!!!!!!!!!
+IF (ALLOCATED(AqueousFlux_FaceWest)) THEN
+  DEALLOCATE(AqueousFlux_FaceWest)
+END IF
+ALLOCATE(AqueousFlux_FaceWest(ncomp+nspec))
+AqueousFlux_FaceWest = 0.0
+
+IF (ALLOCATED(AqueousFlux_FaceEast)) THEN
+  DEALLOCATE(AqueousFlux_FaceEast)
+END IF
+ALLOCATE(AqueousFlux_FaceEast(ncomp+nspec))
+AqueousFlux_FaceEast = 0.0
+
+IF (ALLOCATED(AqueousFlux_FaceSouth)) THEN
+  DEALLOCATE(AqueousFlux_FaceSouth)
+END IF
+ALLOCATE(AqueousFlux_FaceSouth(ncomp+nspec))
+AqueousFlux_FaceSouth = 0.0
+
+IF (ALLOCATED(AqueousFlux_FaceNorth)) THEN
+  DEALLOCATE(AqueousFlux_FaceNorth)
+END IF
+ALLOCATE(AqueousFlux_FaceNorth(ncomp+nspec))
+GasFlux_FaceNorth = 0.0
 
 ! ************ Initialize PETSc stuff ***************************************
 IF ( InputFileCounter == 1) THEN
@@ -604,47 +684,12 @@ WRITE(*,*)
 
 IF (CalculateFlow) THEN
 
-!*************************************************************
-! Edit by Lucien Stolze, June 2023
-! Water table time series for multidimensional model (Richard)
-  IF (watertabletimeseries) THEN
-    
-    jz=1
-    jx=0
-    DO jy = 1,ny
-      IF (TS_1year) THEN
-        time_norm=time-floor(time)
-        CALL interp3(time_norm,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      ELSE
-        CALL interp3(time,delt,twatertable,pressurebct(:,jx,jy,jz),pres(jx,jy,jz),size(pressurebct(:,jx,jy,jz)))
-      END IF
-      if (pres(jx,jy,jz)==0) then
-        permx(jx,jy,jz)=0
-      end if
-    END DO
-    
-  END IF
-
-!*************************************************************
-! Edit by Lucien Stolze, June 2023
-! Pump time series (Richard)
-  IF (pumptimeseries) THEN
-    
-    IF (TS_1year) THEN
-      time_norm=time-floor(time)
-    CALL  interp3(time_norm,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-      ELSE
-    CALL interp3(time,delt,tpump,qgt(:),qgdum,size(qgt(:)))
-      END IF
-      
-  END IF
   
   SteadyFlow = .FALSE.
   
   CALL CrunchPETScInitializePressure(nx,ny,nz,userP,ierr,xvecP,bvecP,amatP)
   
   dtflow = delt
-  !dtflow = 1.0D-10
 
   harx = 0.0
   hary = 0.0
@@ -675,8 +720,6 @@ IF (CalculateFlow) THEN
   WRITE(*,*) ' Minimum Y permeability: ',MinPermeabilityY
   WRITE(*,*)
 
-!!!!  InitializeHydrostatic = .false.
-
   IF (InitializeHydrostatic) THEN
     WRITE(*,*) ' Initializing to hydrostatic'
     DO jz = 1,nz
@@ -689,59 +732,28 @@ IF (CalculateFlow) THEN
       END DO
     END DO
   END IF
-
+  
  ! Edit by Toshiyuki Bandai 2024 Oct
  ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
  
  initial_flow_solver_if: IF (Richards) THEN
  ! ******************************************************************
  ! Steady-state Richards solver by Toshiyuki Bandai, 2023 May
- 
- steady_Richards: IF (Richards_steady) THEN
+
+   steady_Richards: IF (Richards_Options%is_steady) THEN
    ! solve the 1D state-state Richards equation
      WRITE(*,*) ' Solves the steady-state Richards equation to obtain the the initial condition. '
-     CALL solve_Richards(nx, ny, nz, dtflow)
-     Richards_steady = .FALSE.
-     
+     Richards_BCs_pointer => Richards_BCs_steady
+     CALL RichardsSolve(nx, ny, nz, delt)
+     Richards_Options%is_steady = .FALSE.
+     Richards_BCs_pointer => Richards_BCs
+
    ELSE steady_Richards
      
      WRITE(*,*) ' Steady-state Richards equation was not used to obtain the initial condition. '
      ! compute water flux from the initial condition and the boundary conditions at t = 0
+     CALL RichardsFlux(nx, ny, nz)
      
-     IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
-       
-       SELECT CASE (x_begin_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-         value_x_begin_BC = values_x_begin_BC(1)
-       CASE DEFAULT
-         CONTINUE ! do nothing for constant boundary conditions
-       END SELECT
-     
-       SELECT CASE (x_end_BC_type)
-       CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-         value_x_end_BC = values_x_end_BC(1)
-       CASE DEFAULT
-         CONTINUE ! do nothing for constant boundary conditions
-       END SELECT
-	   
-       CALL flux_Richards(nx, ny, nz)
-       
-     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
-       WRITE(*,*)
-       WRITE(*,*) ' Currently, two-dimensional Richards solver is supported.'
-       WRITE(*,*)
-       READ(*,*)
-       STOP
-       
-     ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
-       WRITE(*,*)
-       WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
-       WRITE(*,*)
-       READ(*,*)
-       STOP
-       
-     END IF
-           
    END IF steady_Richards
 
  ! End of edit by Toshiyuki Bandai, 2024 Oct
@@ -749,7 +761,7 @@ IF (CalculateFlow) THEN
  ELSE initial_flow_solver_if
 
   atolksp = 1.D-50
-  rtolksp = GIMRTRTOLKSP
+  rtolksp = GIMRT_rtolksp
   rtolksp = 1.0D-25
   dtolksp = 1.0D-30
 
@@ -773,8 +785,6 @@ IF (CalculateFlow) THEN
   CALL KSPSolve(ksp,BvecP,XvecP,ierr)
   CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
 
-!    CALL VecView(XvecP, PETSC_VIEWER_STDOUT_SELF,ierr)
-
   WRITE(*,*)
   WRITE(*,*) ' Number of iterations for initial flow calculation = ', itsiterate
   WRITE(*,*)
@@ -791,11 +801,10 @@ IF (CalculateFlow) THEN
   END IF
   IF (reason < 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' Steady state flow failed to converge '
+    WRITE(*,*) ' Steady state flow failed to converge, but continue on '
+    ierr = 0
   END IF
 
- END If initial_flow_solver_if
- ! End of If construct for solvers needing PETSc or not
  
 !     ***** PETSc closeout*******
 
@@ -830,29 +839,35 @@ IF (CalculateFlow) THEN
       CALL velocalc(nx,ny,nz)
   END IF
   
+  END If initial_flow_solver_if
+ ! End of If construct for solvers needing PETSc or not
+   
   ! **********************************************
   ! Edit by Toshiyuki Bandai, 2024 Oct.
   ! calculate saturation from volumetric water content
   IF (Richards) THEN
     
-    jy = 1
-    jz = 1
-    DO jx = 0, nx+1
-        satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+    ! get the initial water content
+    
+    
+    DO jz = 1, nz
+      DO jy = 1, ny
+        DO jx = 1, nx
+            satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
+        END DO
+      END DO
     END DO
-    
-    ! fill ghost points using zero-order extrapolation
-    satliq(-1,jy,jz) = satliq(0,jy,jz)
-    satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
-    satliq(:,-1,:) =  satliq(:,1,:)
-    satliq(:,0,:) =  satliq(:,1,:)
-    satliq(:,2,:) =  satliq(:,1,:)
-    satliq(:,3,:) =  satliq(:,1,:)
-    
-    satliq(:,:,-1) = satliq(:,:,1)
-    satliq(:,:,0) = satliq(:,:,1)
-    satliq(:,:,2) = satliq(:,:,1)
-    satliq(:,:,3) = satliq(:,:,1)
+           
+    ! fill ghost points by zero-order extrapolation
+    text = 'Liquid_Saturation'
+    satliq(0,:,:) = satliq(1,:,:)
+    lowX = LBOUND(satliq,1)
+    lowY = LBOUND(satliq,2)
+    lowZ = LBOUND(satliq,3)
+    highX = UBOUND(satliq,1)
+    highY = UBOUND(satliq,2)
+    highZ = UBOUND(satliq,3)
+    call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
     
     satliqold = satliq
   
@@ -945,6 +960,7 @@ END DO
 
 WRITE(*,*)
 WRITE(*,*) ' Initial aqueous mass in system = ', InitialTotalMass
+WRITE(*,*)
 WRITE(*,*)
 
 
@@ -1096,7 +1112,7 @@ IF (Richards) THEN
     DO jy = 1,ny
       DO jx = 1,nx
         WRITE(10, '(6(1X,1PE16.7))') x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, &
-              z(jz)*OutputDistanceScale,theta(jx,jy,jz), psi(jx,jy,jz), satliq(jx,jy,jz)
+              z(jz)*OutputDistanceScale,Richards_State%theta(jx,jy,jz), Richards_State%psi(jx,jy,jz), satliq(jx,jy,jz)
       END DO
     END DO
   END DO
@@ -1155,99 +1171,136 @@ DO WHILE (nn <= nend)
     ! Because the 1D Richards solver by Toshiyuki Bandai does not use PETSc, we need to diverge here
     flow_solver_if_time: IF (Richards) THEN
         ! ******************************************************************
-          IF (Richards_print) THEN
+          IF (Richards_Options%is_print) THEN
             WRITE(*,*) ' Solves the time-dependent Richards equation at t = ', time + delt ! get the solution at t = time + delt
           END IF
+               
+          ! update fluid property
+          CALL RichardsUpdateFluid(t, Richards_State%xi)
           
-        ! store the previous time step water content
-          jy = 1
-          jz = 1
-          DO jx = 0,nx+1
-            theta_prev(jx,jy,jz) = theta(jx,jy,jz)
+          ! update permeability at faces
+          CALL harmonic(nx,ny,nz)
+          
+          ! store the previous time step water content
+          Richards_State%theta_prev = Richards_State%theta         
+          
+          ! update transient boundary condition
+          DO i = 1, Richards_Base%n_bfaces
+            IF (Richards_BCs_pointer(i)%is_variable) THEN
+              Richards_Variable_BC_ptr => Richards_Variable_BC
+              
+              DO j = 1, Richards_BCs_pointer(i)%variable_BC_index - 1
+                Richards_Variable_BC_ptr => Richards_Variable_BC%p
+              END DO
+              
+              CALL interp(time + delt, Richards_Variable_BC_ptr%BC_time, Richards_Variable_BC_ptr%BC_values, Richards_BCs_pointer(i)%BC_value, size(Richards_Variable_BC_ptr%BC_time))
+            END IF
           END DO
-                  
-          ! update the value used for the x_begin boundary condition by interpolating time series
-          SELECT CASE (x_begin_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux', 'variable_atomosphere')
-            CALL interp(time + delt, t_x_begin_BC, values_x_begin_BC(:), value_x_begin_BC, size(values_x_begin_BC(:)))
-          CASE DEFAULT
-            CONTINUE ! for constant boundary condition, do nothing
-          END SELECT
+             
+          ! solve the Richards equation
+          CALL RichardsSolve(nx, ny, nz, delt)
           
-          SELECT CASE (x_end_BC_type)
-          CASE ('variable_dirichlet', 'variable_neumann', 'variable_flux')
-            CALL interp(time + delt, t_x_end_BC, values_x_end_BC(:), value_x_end_BC, size(values_x_end_BC(:)))
-            
-!!! Deleted code on "Case Environmental Forcing" from Who Knows Who (EnvironmentalForcing-Deleted.txt)
-                   
-          CASE DEFAULT
-            CONTINUE ! for constant boundary condition, do nothing
-          END SELECT     
-          
-!!!   **************  1D Richards  *************************
-          ! solve the 1D time-dependent Richards equation
-          CALL solve_Richards(nx, ny, nz, delt)
-                    
           ! update saturation
-          jy = 1
-          jz = 1
           satliqold = satliq
-          DO jx = 0, nx+1
-              satliq(jx,jy,jz) = theta(jx,jy,jz)/theta_s(jx,jy,jz)
+          
+          DO jz = 1, nz
+            DO jy = 1, ny
+              DO jx = 1, nx
+                  satliq(jx,jy,jz) = Richards_State%theta(jx,jy,jz)/por(jx,jy,jz)
+              END DO
+            END DO
           END DO
-
+    
+       
           ! fill ghost points by zero-order extrapolation
-          satliq(0,jy,jz) = satliq(1,jy,jz)
-          satliq(-1,jy,jz) = satliq(0,jy,jz)
-          satliq(nx+1,jy,jz) = satliq(nx,jy,jz)
-          satliq(nx+2,jy,jz) = satliq(nx+1,jy,jz)
-    
-          satliq(:,-1,:) =  satliq(:,1,:)
-          satliq(:,0,:) =  satliq(:,1,:)
-          satliq(:,2,:) =  satliq(:,1,:)
-          satliq(:,3,:) =  satliq(:,1,:)
-    
-          satliq(:,:,-1) = satliq(:,:,1)
-          satliq(:,:,0) = satliq(:,:,1)
-          satliq(:,:,2) = satliq(:,:,1)
-          satliq(:,:,3) = satliq(:,:,1)
+          text = 'Liquid_Saturation'
+          lowX = LBOUND(satliq,1)
+          lowY = LBOUND(satliq,2)
+          lowZ = LBOUND(satliq,3)
+          highX = UBOUND(satliq,1)
+          highY = UBOUND(satliq,2)
+          highZ = UBOUND(satliq,3)
+          call GhostCells(nx,ny,nz,lowX,lowY,lowZ,highX,highY,highZ,satliq,TEXT)
           
           ! the velocity at the boundary is forced to zero when the vector goes outward
           ! not to consider chemcial transport via evaporation
-          IF (evaporation_boundary /= ' ') THEN
-            
-            SELECT CASE (evaporation_boundary)
+
+          IF (Richards_Options%evaporation_boundary) THEN
+            IF (nx > 1 .AND. ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
+              jy = 1
+              jz = 1
               
-              CASE ('x_begin')
-                DO jz = 1,nz
-                  DO jy = 1,ny
+              DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i == 1) THEN
+                  ! left boundary
                     jx = 0
                     IF (qx(jx, jy, jz) < 0.0d0) THEN
                       qx(jx, jy, jz) = 0.0d0
                     END IF
-                  END DO
-                END DO
-                
-              CASE ('x_end')
-                DO jz = 1,nz
-                  DO jy = 1,ny
+                  ELSE
+                  ! right boundary
                     jx = nx
                     IF (qx(jx, jy, jz) > 0.0d0) THEN
                       qx(jx, jy, jz) = 0.0d0
                     END IF
-                  END DO
-                END DO
-  
-              CASE DEFAULT
+                  END IF
+                END IF
+                
+              END DO
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz == 1) THEN ! two-dimensional problem
+              jz = 1
+              IF (Richards_Base%spatial_domain == 'regular') THEN  
+                DO i = 1, Richards_Base%n_bfaces
+                IF (Richards_BCs_pointer(i)%is_atmosphere) THEN
+                  IF (i <= nx) THEN
+                  ! bottom boundary
+                    jx = i
+                    jy = 0
+                    IF (qy(jx, jy, jz) < 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx .AND. i <= nx+ny) THEN
+                    ! right boundary
+                    jx = nx
+                    jy = i - nx
+                    IF (qx(jx, jy, jz) > 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE IF (i > nx + ny .AND. i <= 2*nx+ny) THEN  
+                    ! top boundary
+                    jx = 2*nx + ny - i + 1
+                    jy = ny
+                    IF (qy(jx, jy, jz) > 0.0d0) THEN
+                      qy(jx, jy, jz) = 0.0d0
+                    END IF
+                  ELSE
+                  ! left boundary
+                    jx = 0
+                    jy = 2*nx + 2*ny - i + 1
+                    IF (qx(jx, jy, jz) < 0.0d0) THEN
+                      qx(jx, jy, jz) = 0.0d0
+                    END IF
+                  END IF
+                END IF
+                
+              END DO
+                
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Currently, two-dimensional Richards solver does not support the shape ', Richards_Base%spatial_domain
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+            ELSE IF (nx > 1 .AND. ny > 1 .AND. nz > 1) THEN
               WRITE(*,*)
-              WRITE(*,*) ' The evaporation boundary cannot be set to the boundary ', evaporation_boundary, '. '
+              WRITE(*,*) ' Currently, three-dimensional Richards solver is supported.'
               WRITE(*,*)
               READ(*,*)
               STOP
-  
-            END SELECT
-
-          END IF       
+            END IF
+          END IF
         ! End of edit by Toshiyuki Bandai, 2024 Oct
           
         ! ******************************************************************
@@ -1255,7 +1308,7 @@ DO WHILE (nn <= nend)
         ELSE flow_solver_if_time
    
           atolksp = 1.D-50
-          rtolksp = GIMRTRTOLKSP
+          rtolksp = GIMRT_rtolksp
           rtolksp = 1.0D-25
           dtolksp = 1.0D-30
 
@@ -1744,8 +1797,10 @@ DO WHILE (nn <= nend)
 !!!  ********************************************************
 !!!  *************   START GIMRT BLOCK  *********************
 
-6000   IF (GIMRT) THEN
+6000 IF (GIMRT) THEN
   
+
+       
     i_substep = 1
     n_substep = 1
     dt_GIMRT = delt
@@ -1825,12 +1880,7 @@ DO WHILE (nn <= nend)
                  END IF
                   
                 CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-                if (jx==8) then
-                  continue
-                end if
-                if (jx==401) then
-                  continue
-                end if
+
             END DO
           END DO
           
@@ -1851,12 +1901,12 @@ DO WHILE (nn <= nend)
 
         5000     NE = 0
         icvg = 1
-        iterat = 0
+        iterat = 0 ! number of Newton iterations
 
-    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= newton)
+    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 12)
           NE = NE + 1
           iterat = iterat + 1
-
+          
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
 		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
             
@@ -1880,7 +1930,7 @@ DO WHILE (nn <= nend)
           END DO 
                           
           IF (ierode == 1) THEN
-            CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+            CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
             CALL jacsurf(ncomp,nsurf,nsurf_sec,nx,ny,nz)
           END IF
 
@@ -1936,9 +1986,9 @@ DO WHILE (nn <= nend)
 
           CALL AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,                   &
              nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_GIMRT,time, &
-             userC,amatpetsc,nBoundaryConditionZone)
+             userC,amatpetsc,nBoundaryConditionZone,igamma)
 
-          if ((nn.eq.1) .and. (ne.eq.1) .and. petscon) then
+          if ( (nn.eq.1) .and. (ne.eq.1) .and. petscon ) then
     !!          call MatSetOption(amatpetsc,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
           endif
     !**************  End PETSC changes *********************************************
@@ -1955,7 +2005,6 @@ DO WHILE (nn <= nend)
             CALL dgetrs(trans,neqn,ione,aaa,neqn,indd,bb,neqn,info)
 
             xn = bb
-            continue
 
           ELSE       !  One-dimensional case
 
@@ -2011,7 +2060,7 @@ DO WHILE (nn <= nend)
 
                 atolksp = 1.D-50
     !!            rtolksp = 1.D-09
-                rtolksp = GIMRTRTOLKSP
+                rtolksp = GIMRT_rtolksp
                 dtolksp = 1.D+05
 
                 pc%v = userC(5)
@@ -2022,6 +2071,31 @@ DO WHILE (nn <= nend)
 
                 call KSPSolve(ksp,bvec,xvec,ierr)
                 CALL KSPGetIterationNumber(ksp,itsiterate,ierr)
+                
+                WritePetscIterations = .FALSE.
+                IF (WritePetscIterations) THEN
+                  
+                  write(*,*)
+                  write(*,*) ' Newton iteration = ', ne, ' PETSc iterations = ', itsiterate
+   
+                  CALL KSPGetConvergedReason(ksp,reason,ierr)
+                  IF (reason == 2) THEN
+                    WRITE(*,*) ' Converged on relative tolerance in linear solver'
+                  END IF
+                  IF (reason == 3) THEN
+                    WRITE(*,*) ' Converged on absolute tolerance in linear solver'
+                  END IF
+                  IF (reason == 4) THEN
+                    WRITE(*,*) ' Converged based on iterations in linear solver'
+                  END IF
+                  IF (reason < 0) THEN
+                    WRITE(*,*)
+                    WRITE(*,*) ' Steady state flow failed to converge, but continue on '
+                    ierr = 0
+                  END IF
+                  write(*,*)
+                  
+                END IF
 
                 if(ierr.ne.0) then
                     icvg = 1
@@ -2040,6 +2114,8 @@ DO WHILE (nn <= nend)
 
           IF (nxyz == nx .AND. ihindmarsh == 1 .AND. nxyz /= 1 .or. Switcheroo) THEN
 
+            MaximumCorrection = corrmax
+            
             errmax = 0.0
             jz = 1
             DO jy = 1,ny
@@ -2047,15 +2123,10 @@ DO WHILE (nn <= nend)
                 j = (jy-1)*nx+jx
                 
                 DO i = 1,ncomp
-                  IF (ulab(i) == "O2(aq)") THEN
-                    MaximumCorrection = corrmax
-                  ELSE
-                    MaximumCorrection = 2.0
-                  END IF
-                  IF (ABS(yh(i,jx)) > errmax) THEN
-                    errmax = ABS(yh(i,jx))
-                  END IF
                   IF (ABS(yh(i,jx)) > MaximumCorrection) THEN
+                    write(*,*) 'Implementing MaximumCorrection'
+                    write(*,*) TRIM( ulab(i) ),yh(i,jx)
+!!!                    read(*,*)
                     yh(i,jx) = SIGN(MaximumCorrection,yh(i,jx))
                   ELSE
                     CONTINUE
@@ -2065,9 +2136,6 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO ix = 1,nexchange
-                  IF (DABS(yh(ix+ncomp,jx)) > errmax) THEN
-                    errmax = DABS(yh(ix+ncomp,jx))
-                  END IF
                   IF (DABS(yh(ix+ncomp,jx)) > MaximumCorrection) THEN
                     yh(ix+ncomp,jx) = SIGN(MaximumCorrection,yh(ix+ncomp,jx))
                   ELSE
@@ -2078,9 +2146,6 @@ DO WHILE (nn <= nend)
                 END DO
 
                 DO is = 1,nsurf
-                  IF (DABS(yh(is+ncomp+nexchange,jx)) > errmax) THEN
-                    errmax = DABS(yh(is+ncomp+nexchange,jx))
-                  END IF
                   IF (DABS(yh(is+ncomp+nexchange,jx)) > MaximumCorrection) THEN
                     yh(is+ncomp+nexchange,jx) = SIGN(MaximumCorrection,yh(is+ncomp+nexchange,jx))
                   ELSE
@@ -2103,8 +2168,8 @@ DO WHILE (nn <= nend)
           !!!   Update ionic strength
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 
-                IF (DABS(yh(ind,jx)) > MaximumCorrection) THEN
-                  yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
+                IF (DABS(yh(ind,jx)) > 0.5) THEN
+                  yh(ind,jx) = SIGN( 0.5,yh(ind,jx) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2118,8 +2183,8 @@ DO WHILE (nn <= nend)
           !!!   Update lngammawater
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(yh(ind,jx) ) > MaximumCorrection) THEN
-                  yh(ind,jx) = SIGN( MaximumCorrection,yh(ind,jx) )
+                IF (DABS(yh(ind,jx) ) > 0.5) THEN
+                  yh(ind,jx) = SIGN( 0.5,yh(ind,jx) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2130,6 +2195,8 @@ DO WHILE (nn <= nend)
             END DO
 
           ELSE
+            
+            MaximumCorrection = corrmax
 
             jz = 1
             errmax = 0.0D0
@@ -2138,15 +2205,7 @@ DO WHILE (nn <= nend)
                 j = (jy-1)*nx+jx
                 
                 DO i = 1,ncomp
-                  IF (ulab(i) == "O2(aq)") THEN
-                    MaximumCorrection = corrmax
-                  ELSE
-                    MaximumCorrection = 2.0d0
-                  END IF
                   ind = (j-1)*(neqn) + i
-                  IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                  END IF
                   IF (DABS(xn(ind)) > MaximumCorrection) THEN
                     xn(ind) = SIGN(MaximumCorrection,xn(ind))
                   ELSE
@@ -2158,9 +2217,6 @@ DO WHILE (nn <= nend)
 
                 DO ix = 1,nexchange
                   ind = (j-1)*(neqn) + ix+ncomp
-                  IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                  END IF
                   IF (DABS(xn(ind)) > MaximumCorrection) THEN
                     xn(ind) = SIGN(MaximumCorrection,xn(ind))
                   ELSE
@@ -2172,9 +2228,6 @@ DO WHILE (nn <= nend)
 
                 DO is = 1,nsurf
                   ind = (j-1)*(neqn) + is+ncomp+nexchange
-                  IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
-                  END IF
                   IF (DABS(xn(ind)) > MaximumCorrection) THEN
                     xn(ind) = SIGN(MaximumCorrection,xn(ind))
                   ELSE
@@ -2186,8 +2239,10 @@ DO WHILE (nn <= nend)
 
                 DO npt = 1,npot
                   ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
-                 IF (DABS(xn(ind)) > errmax) THEN
-                    errmax = DABS(xn(ind))
+                 IF (DABS(xn(ind)) > 0.9d0) THEN
+                   xn(ind) = SIGN(0.9d0,xn(ind))
+                 ELSE
+                   CONTINUE
                  END IF
                   LogPotential(npt,jx,jy,jz) = LogPotential(npt,jx,jy,jz) + xn(ind)
                 END DO
@@ -2201,14 +2256,11 @@ DO WHILE (nn <= nend)
                   CONTINUE
                 END IF
                 
-                IF ( sion(jx,jy,jz) == 0.d0 .AND. xn(ind) == 0.0d0) THEN
-                  write(*,*)
-                  write(*,*) ' Ionic strength cannot be zero '
-                  write(*,*)
-                  stop
+                IF ( sion(jx,jy,jz) == 0.0d0 ) THEN
+                  sion(jx,jy,jz) = 1.0D-06
+                ELSE
+                  sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
                 END IF
-                  
-                sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
                 
           !!!   Update lngammawater
                 
@@ -2221,34 +2273,33 @@ DO WHILE (nn <= nend)
                 
                 lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + xn(ind) 
                 
+                
               END DO
             END DO
 
           END IF
 
+          FxxFail = 0.0
           icvg = 0
+          
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
               j = (jy-1)*nx+jx
               
-              DO i = 1,ncomp
+              DO i = 2,ncomp
                 ind = (j-1)*(neqn) + i
+                
                 IF (ResidualTolerance /= 0.0d0) THEN
                   tolmax = ResidualTolerance
                 ELSE
                   tolmax = atol
                 END IF
-                
-                IF (SaltCreep) THEN
-                  IF (DABS(fxx(ind)) > tolmax) THEN
-                    icvg = 1
-                  END IF
-                ELSE
-                  IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
+
+                IF (DABS(delt*fxx(ind)) > tolmax) THEN
 !!!                IF (DABS(fxx(ind)) > tolmax) THEN
-                    icvg = 1
-                  END IF
+                  icvg = 1
+                  FxxFail = Max( DABS( fxx(ind) ),FxxFail )
                 END IF
                 
               END DO
@@ -2256,21 +2307,24 @@ DO WHILE (nn <= nend)
               DO ix = 1,nexchange
                 tolmax = 1.e-10
                 ind = (j-1)*(neqn) + ix+ncomp
-                IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
+!!!                IF (DABS(delt*fxx(ind)) > tolmax) THEN
+                IF (fxx(ind) > tolmax) THEN
                     icvg = 1
+                    FxxFail = Max( DABS( fxx(ind) ),FxxFail )
                 END IF
               END DO
               
               DO is = 1,nsurf
                 tolmax = atol
                 ind = (j-1)*(neqn) + is+ncomp+nexchange
-                IF (DABS(dt_GIMRT*fxx(ind)) > tolmax) THEN
-                    icvg = 1
+                IF (DABS(delt*fxx(ind)) > tolmax) THEN
+                  icvg = 1
+                  FxxFail = Max( DABS( fxx(ind) ),FxxFail )
                 END IF
               END DO
               
               DO npt = 1,npot
-                tolmax = 1.e-10
+                tolmax = 1.0E-08
                 ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
                 IF (DABS(fxx(ind)) > tolmax) THEN
                     icvg = 1
@@ -2279,10 +2333,6 @@ DO WHILE (nn <= nend)
               
             END DO
           END DO
-
-          IF (ABS(errmax) < 1.e-15) THEN
-            icvg = 0
-          END IF
 
     !! If electrochemical migration is considered, always carry out at least two Newton iterations
           IF (species_diffusion .AND. iterat<=2) THEN
@@ -2299,8 +2349,24 @@ DO WHILE (nn <= nend)
 
     5017 CONTINUE
         IF (icvg == 1) THEN
-          MaxFx = MaxLoc(fxx)
-    !!      MaxValFx = MaxVal(fxx)
+          
+          MaxValFx = MaxVal(fxx)
+          MaxFx    = MaxLoc(fxx)
+          
+          checkInteger1 = MaxFx(1)/neqn
+          checkInteger2 = checkInteger1*neqn
+          checkInteger3 = MaxFx(1) - checkInteger2
+          
+          write(*,*)
+          write(*,*) ' Newton iterations= ', iterat
+          write(*,*) ' Failure to converge at grid cell = ', checkInteger1
+          write(*,*) ' Failure to converge for primary variable: ', checkInteger3
+          write(*,*) ' FxxFail = ', FxxFail
+          write(*,*)
+          do kk = 2,neqn
+            write(*,*) kk, '  ', fxx(checkInteger2+kk)
+          end do
+          write(*,*)
 
           ddtold = dt_GIMRT
           dt_GIMRT = dt_GIMRT/10.0
@@ -2360,7 +2426,7 @@ DO WHILE (nn <= nend)
         END IF
 
         CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-        CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+        CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 
         jz = 1
         DO jy = 1,ny
@@ -2385,6 +2451,32 @@ DO jz = 1,nz
     DO jx = 1,nx
 !!      CALL totconc(ncomp,nspec,jx,jy,jz))
       CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
+      
+IF (BatchReactor .OR. BatchReactor2) THEN
+        
+        CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
+            
+        CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+        
+        satgas = 1.0 - satliq(jx,jy,jz)
+              
+!!!     NOTE: In units of moles
+                  
+        porsatro         = por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)
+        
+        totH2O           = CellVolume * (s(1,jx,jy,jz) - sn(1,jx,jy,jz)  )
+        sp10oldH2        = EXP( spold(6,jx,jy,jz) )
+        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - sp10oldH2 )  
+        
+        ChangeInH2_gas   = EXP( spgas(1,jx,jy,jz) ) -  EXP( spgasold(1,jx,jy,jz) ) 
+        totGasH2         = CellVolume * por(jx,jy,jz) * satgas * ChangeInH2_gas
+        
+        ChangeH2O(jx)    = ChangeH2O(jx) + totH2O
+        ChangeH2(jx)     = ChangeH2(jx) + totAqueousH2
+        ChangeH2_gas(jx) = ChangeH2_gas(jx) + totGasH2
+
+END IF
+
     END DO
   END DO
 END DO
@@ -2459,13 +2551,13 @@ END IF
     END DO
 
     CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+    CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 
     GO TO 6000
     
   END IF
 
-!  **********************  START GIMRT BLOCK  *********************************
+!  **********************  START GIMRT EROSION BLOCK  *********************************
 
   IF (GIMRT .AND. ierode == 1) THEN
 
@@ -2813,52 +2905,117 @@ END IF
   177 format(1x,1PE12.4,1x, 1PE12.4,1x,1PE12.4,1x,1PE12.4)
               
       IF (MOD(nn,ScreenInterval) == 0) THEN
-
-        if (SaltCreep) THEN
-
-          totPor = 0.0
-          totVol = 0.0
-          totChange = 0.0
-
-          do jy = 1,ny
-            do jx = 1,nx
-              IF (jinit(jx,jy,1) /= 3) THEN
-                totVol = totVol + dxx(jx)*dyy(jy)
-                totPor = totPor + por(jx,jy,1)*dxx(jx)*dyy(jy)
-                totChange = totChange + ( porin(jx,jy,1) - por(jx,jy,1) ) * dxx(jx)*dyy(jy)
-              END IF
-           end do
-          end do
-
-          totCheck = totPor/totVol
-          totCheckInitial = totChange/totVol
-!!!          write(128,*) time,totCheck
-!!!          write(129,*) time,totCheckInitial
-
-        END IF
-
+        
         WRITE(*,*) 'Time step # ',nn
-          IF (OutputTimeUnits == 'years') THEN
-            WRITE(*,225) time,delt
-          ELSE IF (OutputTimeUnits == 'days') THEN
-            WRITE(*,2251) time*OutputTimeScale,delt*OutputTimeScale
-          ELSE IF (OutputTimeUnits == 'hours') THEN
-            WRITE(*,2252) time*OutputTimeScale,delt*OutputTimeScale
-          ELSE IF (OutputTimeUnits == 'minutes') THEN
-            WRITE(*,2253) time*OutputTimeScale,delt*OutputTimeScale
-          ELSE IF (OutputTimeUnits == 'seconds') THEN
-            WRITE(*,2254) time*OutputTimeScale,delt*OutputTimeScale
-          ELSE
-            WRITE(*,*)
-            WRITE(*,*) ' Time units not recognized'
-            WRITE(*,*)
-            READ(*,*)
-            STOP
-          END IF
+
+        IF (SerpentineFracture) THEN
+
+          GasFlux_FaceWest = 0.0
+          GasFlux_FaceEast = 0.0
+          GasFlux_FaceSouth = 0.0
+          GasFlux_FaceNorth = 0.0
+
+          jz = 1
+          jx = 1
+          DO jy = 1,ny
+            DO kk = 1,ngas
+              GasFlux_FaceWest(kk) = GasFlux_FaceWest(kk) + ag(jx,jy,1) * (spgas10(kk,jx-1,jy,1)-spgas10(kk,jx,jy,jz)) * delt
+            END DO
+          END DO    
+      
+          jz = 1
+          jx = nx
+          DO jy = 1,ny
+            DO kk = 1,ngas
+              GasFlux_FaceEast(kk) = GasFlux_FaceEast(kk) +  cg(jx,jy,1) * (spgas10(kk,jx+1,jy,1)-spgas10(kk,jx,jy,jz)) * delt
+            END DO
+          END DO
+      
+          jz = 1
+          jy = 1
+          DO jx = 1,nx
+            DO kk = 1,ngas
+              GasFlux_FaceSouth(kk) = GasFlux_FaceSouth(kk) + fg(jx,jy,1) * (spgas10(kk,jx,jy-1,1)-spgas10(kk,jx,jy,jz)) * delt
+            END DO
+          END DO 
+      
+          jz = 1
+          jy = ny
+          DO jx = 1,nx
+            DO kk = 1,ngas
+              GasFlux_FaceNorth(kk) = GasFlux_FaceNorth(kk) + dg(jx,jy,1) * (spgas10(kk,jx,jy+1,1)-spgas10(kk,jx,jy,jz)) * delt
+            END DO
+          END DO
+      
+        !!! Transport coefficient "dg" = m^3/yr so multiplying by mol/m^3 gives mol/yr. Multiplying by Delta t gives moles
+      
+          write(202,2255) time, GasFlux_FaceWest(1)
+          write(203,2255) time, GasFlux_FaceEast(1)
+          write(204,2255) time, GasFlux_FaceSouth(1)
+          write(205,2255) time, GasFlux_FaceNorth(1)
+          
+          AqueousFlux_FaceWest = 0.0
+          AqueousFlux_FaceEast = 0.0
+          AqueousFlux_FaceSouth = 0.0
+          AqueousFlux_FaceNorth = 0.0
+      
+          kk = 21
+      
+          jz = 1
+          jx = 1
+          DO jy = 1,ny
+            AqueousFlux_FaceWest(kk) = AqueousFlux_FaceWest(kk) + a(jx,jy,1) * (sp10(kk,jx-1,jy,1)-sp10(kk,jx,jy,jz)) * delt
+          END DO  
+      
+          jz = 1
+          jx = nx
+          DO jy = 1,ny
+            AqueousFlux_FaceEast(kk) = AqueousFlux_FaceEast(kk) + c(jx,jy,1) * (sp10(kk,jx+1,jy,1)-sp10(kk,jx,jy,jz)) * delt
+          END DO 
+      
+          jz = 1
+          jy = 1
+          DO jx = 1,nx
+            AqueousFlux_FaceSouth(kk) = AqueousFlux_FaceSouth(kk) + f(jx,jy,1) * (sp10(kk,jx,jy-1,1)-sp10(kk,jx,jy,jz)) * delt
+          END DO 
+      
+          jz = 1
+          jy = ny
+          DO jx = 1,nx
+            AqueousFlux_FaceNorth(kk) = AqueousFlux_FaceNorth(kk) + d(jx,jy,1) * (sp10(kk,jx,jy+1,1)-sp10(kk,jx,jy,jz)) * delt
+          END DO
+      
+          write(212,2255) time, AqueousFlux_FaceWest(1)
+          write(213,2255) time, AqueousFlux_FaceEast(1)
+          write(214,2255) time, AqueousFlux_FaceSouth(1)
+          write(215,2255) time, AqueousFlux_FaceNorth(1)
+          
+        END IF
+          
+        IF (OutputTimeUnits == 'years') THEN
+          WRITE(*,225) time,delt
+        ELSE IF (OutputTimeUnits == 'days') THEN
+          WRITE(*,2251) time*OutputTimeScale,delt*OutputTimeScale
+        ELSE IF (OutputTimeUnits == 'hours') THEN
+          WRITE(*,2252) time*OutputTimeScale,delt*OutputTimeScale
+        ELSE IF (OutputTimeUnits == 'minutes') THEN
+          WRITE(*,2253) time*OutputTimeScale,delt*OutputTimeScale
+        ELSE IF (OutputTimeUnits == 'seconds') THEN
+          WRITE(*,2254) time*OutputTimeScale,delt*OutputTimeScale
+        ELSE
+          WRITE(*,*)
+          WRITE(*,*) ' Time units not recognized'
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
+          
         WRITE(*,217) iterat
         WRITE(*,227) phchg,phloc(1),phloc(2),phloc(3)
         WRITE(*,*)
+        
       END IF
+        
     ENDIF
     iteration_tot = iterat + iteration_tot
 
@@ -2875,34 +3032,34 @@ END IF
 
 
 !  Calculate time step to be used based on various criteria
-    IF (nn > 4) THEN
-          dtmax = tstep
-          IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
-            deltmin = dtmaxcour
+  IF (nn > 4) THEN
+        dtmax = tstep
+        IF (dtmaxcour < deltmin .AND. dtmaxcour /= 0.0) THEN   !  Reset the minimum DELT if the Courant-dictated time step is even smaller
+          deltmin = dtmaxcour
+        END IF
+        IF (dtmaxcour /= 0.0) THEN
+          dtmax = MIN(dtmax,dtmaxcour)
+        END IF
+        dtmax = MAX(dtmax,deltmin)
+        IF (ReadNuft) THEN
+          dtNuft = timeNuft - time
+          IF (dtNuft < eps) THEN
+            dtmax = delt
+          ELSE
+            dtmax = MIN(dtNuft,dtmax)
           END IF
-          IF (dtmaxcour /= 0.0) THEN
-            dtmax = MIN(dtmax,dtmaxcour)
+        END IF
+        IF (modflow) THEN
+          dtModFlow = timeModFlow - time
+          IF (dtModFlow(NumModFlowSteps) < eps) THEN
+            dtmax = delt
+          ELSE
+            dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
           END IF
-          dtmax = MAX(dtmax,deltmin)
-          IF (ReadNuft) THEN
-            dtNuft = timeNuft - time
-            IF (dtNuft < eps) THEN
-              dtmax = delt
-            ELSE
-              dtmax = MIN(dtNuft,dtmax)
-            END IF
-          END IF
-          IF (modflow) THEN
-            dtModFlow = timeModFlow - time
-            IF (dtModFlow(NumModFlowSteps) < eps) THEN
-              dtmax = delt
-            ELSE
-              dtmax = MIN(dtModFlow(NumModFlowSteps),dtmax)
-            END IF
-          END IF
-          CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
-          dtold = delt
-      END IF
+        END IF
+        CALL timestep(nx,ny,nz,delt,dtold,ttol,tstep,dtmax,ikmast)
+        dtold = delt
+    END IF
 
 
   !IF (time+delt > prtint(nint) .AND. prtint(nint) /= time) THEN
@@ -2962,7 +3119,7 @@ END IF
     WRITE(*,*)
     WRITE(*,*) '  WRITING OUTPUT FILES'
     IF (OutputTimeUnits == 'years') THEN
-      WRITE(*,2260) time,delt
+      WRITE(*,2260) time
     ELSE IF (OutputTimeUnits == 'days') THEN
       WRITE(*,2261) time*OutputTimeScale
     ELSE IF (OutputTimeUnits == 'hours') THEN
@@ -3037,7 +3194,8 @@ END IF
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
-    !!!WRITE(iures) jinit
+    WRITE(iures) lngammawater
+    WRITE(iures) jinit   !! Read IntegerDummyArray(nxyz)
     WRITE(iures) keqmin
     WRITE(iures) volfx
     WRITE(iures) dppt
@@ -3064,8 +3222,8 @@ END IF
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-        WRITE(iures) psi
-        WRITE(iures) theta
+        WRITE(iures) Richards_State%psi
+        WRITE(iures) Richards_State%theta
     END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
@@ -3074,7 +3232,7 @@ END IF
 
     IF (ny == 1 .AND. nz == 1) THEN
 
-      CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
+      CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
       IF (kaleidagraph) THEN
         CALL GraphicsKaleidagraph(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
@@ -3099,14 +3257,14 @@ END IF
       IF (tecplot) THEN
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
         
       END IF
 
     ELSE
 
       IF (nz == 1 .OR. ny == 1) THEN
-        CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
+        CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
            ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
       END IF
       IF (xtool) THEN
@@ -3118,11 +3276,11 @@ END IF
       ELSE IF (visit) THEN
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
       ELSE
 
         CALL GraphicsVisit(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
-          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall)
+          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor,FirstCall,nBoundaryConditionZone)
 
       END IF
 
@@ -3136,72 +3294,72 @@ END IF
       END DO
 
       WRITE(*,*)
-      WRITE(*,*) ' Initial mass in system = ',TotalMass
+      WRITE(*,*)   ' Initial mass in system           = ',TotalMass
       IF (InitialTotalMass /= 0.0d0) THEN
-        WRITE(*,*) ' Ratio of final to initial mass = ', TotalMass/InitialTotalMass
+        WRITE(*,*) ' Ratio of final to initial mass   =', TotalMass/InitialTotalMass
       END IF
 
-  jxmax = 0
-  jymax = 0
-  MaxDivergence = 0.00
-  DO jz = 1,nz
-    DO jy = 1,ny
-      DO jx = 1,nx
-        Coordinate = 'X'
-        call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        checkw = RoAveLeft*qx(jx-1,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
-        checke = RoAveRight*qx(jx,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
-        Coordinate = 'Y'
-        call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        checkn = RoAveRight*qy(jx,jy,jz)*dxx(jx)*dzz(jx,jy,jz)
-        checks = RoAveLeft*qy(jx,jy-1,jz)*dxx(jx)*dzz(jx,jy,jz)
-        Coordinate = 'Z'
-        call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
-        checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
-        checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
+      jxmax = 0
+      jymax = 0
+      MaxDivergence = 0.00
+      DO jz = 1,nz
+        DO jy = 1,ny
+          DO jx = 1,nx
+            Coordinate = 'X'
+            call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
+            checkw = RoAveLeft*qx(jx-1,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
+            checke = RoAveRight*qx(jx,jy,jz)*dyy(jy)*dzz(jx,jy,jz)
+            Coordinate = 'Y'
+            call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
+            checkn = RoAveRight*qy(jx,jy,jz)*dxx(jx)*dzz(jx,jy,jz)
+            checks = RoAveLeft*qy(jx,jy-1,jz)*dxx(jx)*dzz(jx,jy,jz)
+            Coordinate = 'Z'
+            call AverageRo(Coordinate,jx,jy,jz,RoAveRight,RoAveLeft)
+            checkPlus = RoAveRight*qz(jx,jy,jz)*dxx(jx)*dyy(jy)
+            checkMinus = RoAveLeft*qz(jx,jy,jz-1)*dxx(jx)*dyy(jy)
 
-        !! Allocate pump
-        pumpterm = 0.0d0
+            !! Allocate pump
+            pumpterm = 0.0d0
 
-        !! 1) pump time series
-        IF (pumptimeseries) THEN
-          IF (npump(jx,jy,jz)>0) THEN
-            qg(1,jx,jy,jz)=qgdum
-          ELSE
-         qg(1,jx,jy,jz)=0
-          END IF
-        pumpterm = pumpterm + qg(1,jx,jy,jz)
+            !! 1) pump time series
+            IF (pumptimeseries) THEN
+              IF (npump(jx,jy,jz)>0) THEN
+                qg(1,jx,jy,jz)=qgdum
+              ELSE
+             qg(1,jx,jy,jz)=0
+              END IF
+            pumpterm = pumpterm + qg(1,jx,jy,jz)
 
-        !! 2) normal pump
-        ELSEIF (wells) THEN
+            !! 2) normal pump
+            ELSEIF (wells) THEN
 
-          DO npz = 1,npump(jx,jy,jz)
-            pumpterm = pumpterm + qg(npz,jx,jy,jz)
+              DO npz = 1,npump(jx,jy,jz)
+                pumpterm = pumpterm + qg(npz,jx,jy,jz)
+              END DO
+
+            END IF
+
+            RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
+
+            IF (DABS(RealSum) > MaxDivergence) THEN
+                jxmax = jx
+                jymax = jy
+            END IF
+            MaxDivergence = DMAX1(MaxDivergence,DABS(RealSum))
           END DO
-
-        END IF
-
-        RealSum = ro(jx,jy,jz)* pumpterm + checkw+checks+checkMinus-checkn-checke-CheckPlus
-
-        IF (DABS(RealSum) > MaxDivergence) THEN
-            jxmax = jx
-            jymax = jy
-        END IF
-        MaxDivergence = DMAX1(MaxDivergence,DABS(RealSum))
+        END DO
       END DO
-    END DO
-  END DO
 
-  WRITE(*,*) ' Maximum divergence in flow field = ', MaxDivergence
-  write(*,*) ' At grid cells: ',jxmax,jymax
-!!  write(*,*) qx(jxmax,jymax,1), qx(jxmax-1,jymax,1)
-!!  write(*,*) qy(jxmax,jymax,1), qy(jxmax,jymax-1,1)
-!!  read(*,*)
-  WRITE(*,*)
-!!  READ(*,*)
+      WRITE(*,*) ' Maximum divergence in flow field = ', MaxDivergence
+      write(*,*) ' At grid cells: ',jxmax,jymax
+    !!  write(*,*) qx(jxmax,jymax,1), qx(jxmax-1,jymax,1)
+    !!  write(*,*) qy(jxmax,jymax,1), qy(jxmax,jymax-1,1)
+    !!  read(*,*)
+      WRITE(*,*)
+    !!  READ(*,*)
 
 
-    END IF
+  END IF
 
     IF (nint >= nstop .OR. steady) THEN
       IF (steady) THEN
@@ -3335,10 +3493,10 @@ END IF
     !********************************************
     ! Edit by Toshiyuki Bandai 2023 May
     IF (Richards) THEN
-        WRITE(iures) psi
-        WRITE(iures) head
-        WRITE(iures) theta
-        WRITE(iures) theta_prev
+        WRITE(iures) Richards_State%psi
+        WRITE(iures) Richards_State%head
+        WRITE(iures) Richards_State%theta
+        WRITE(iures) Richards_State%theta_prev
     END IF
     ! End of Edit by Toshiyuki Bandai 2023 May
     !*********************************************
@@ -3395,7 +3553,8 @@ END IF
            CLOSE(intfile)
          END DO
        END IF
-
+       
+!!       READ(*,*)
        RETURN
 !!    ********  NORMAL STOP HERE  **************
     END IF
@@ -3448,6 +3607,7 @@ STOP
 2252 FORMAT(2X,'Time (hrs) = ',1PE12.5,2X,'Delt (hrs) =',1PE10.3)
 2253 FORMAT(2X,'Time (mins) = ',1PE12.5,2X,'Delt (mins) =',1PE10.3)
 2254 FORMAT(2X,'Time (secs) = ',1PE12.5,2X,'Delt (secs) =',1PE10.3)
+2255 FORMAT( 2X,1PE12.5,2X,4(1X,1PE10.3) )
 2260 FORMAT(2X,'Time (yrs) = ',1PE10.3)
 2261 FORMAT(2X,'Time (days) = ',1PE10.3)
 2262 FORMAT(2X,'Time (hrs) = ',1PE10.3)

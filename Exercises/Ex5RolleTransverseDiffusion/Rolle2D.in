@@ -23,6 +23,8 @@ pclevel             50
 gimrt_solver        gmres
 gimrt_pc            ilu
 gimrt_pclevel       1
+fix_saturation      0.90
+read_saturationfile  birendra.dat
 END
  
 OUTPUT
@@ -106,6 +108,8 @@ pump             3.71377E-05   ambient   1  21  1
 pump             3.71377E-05   ambient   1  22  1
 pump             3.71377E-05   ambient   1  23  1
 pump             3.71377E-05   ambient   1  24  1
+
+pumpunits  liter_sec
 END
  
 POROSITY
@@ -113,6 +117,7 @@ fix_porosity    0.41
 END
  
 PRIMARY_SPECIES
+H2O
 H+
 K+    
 Na+   
@@ -149,6 +154,7 @@ Na+              0.00
 Mg++             0.29
 Cl-              charge
 Br-              0.00
+H2O              55.50843506
 END
 
 condition ambient
@@ -159,5 +165,6 @@ Na+              0.00
 Mg++             0.000001
 Cl-              charge
 Br-              0.00
+H2O              55.50843506
 END
 

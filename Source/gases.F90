@@ -47,6 +47,7 @@ USE crunchtype
 USE params
 USE concentration
 USE temperature
+USE medium, ONLY: PressureCond
 USE runtime, ONLY: Duan,Duan2006
 
 IMPLICIT NONE
@@ -66,11 +67,14 @@ REAL(DP)                                                   :: sum
 REAL(DP)                                                   :: pg
 REAL(DP)                                                   :: ln_fco2
 REAL(DP)                                                   :: vrInOut
+REAL(DP)                                                   :: lnActivity
+
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
 
-  !!! Added July 17 by Carl (hopefully not stomped on)
+!!! Added July 17 by Carl (hopefully not stomped on)
   
 ln_fco2 = 0.0d0
 
@@ -78,9 +82,11 @@ IF (Duan .OR. Duan2006) THEN
   pg = GasPressureTotal(jx,jy,jz)
 END IF
 
+pg = PressureCond(jinit(jx,jy,jz)) 
+
 tempk = t(jx,jy,jz) + 273.15
 
-!!denmol = LOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
+!!!denmol = LOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
 denmol = DLOG( (1.0E05) /(8.314d0*tempk) )   ! P/RT = n/V, with pressure converted from bars to Pascals
 
 !!  NOTE:  The "denmol" should convert to mol/m*3 (n/V)
@@ -89,30 +95,40 @@ DO kk = 1,ngas
 
     sum = 0.0
     DO i = 1,ncomp
-      sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
+      
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+        lnActivity = lngammawater(jx,jy,jz)
+      ELSE
+        lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+      END IF
+      
+      sum = sum + mugas(kk,i) * lnActivity
+      
     END DO
 
-  ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-  IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-    if (namg(kk) == 'CO2(g)') then
-      vrInOut = vrSave(jx,jy,jz)
-      call fugacity_co2(pg,tempk,ln_fco2,vrInOut)
-      vrSave(jx,jy,jz) = vrInOut
-    end if
-  ELSE IF (Duan2006) THEN
-    ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
-    if (namg(kk) == 'CO2(g)') then
-      vrInOut = vrSave(jx,jy,jz)
-      call fugacity_co24(pg,tempk,ln_fco2,vrInOut)
-      vrSave(jx,jy,jz) = vrInOut
-    end if
-  END IF
+    IF (Duan) THEN
+      ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
+      if (namg(kk) == 'CO2(g)') then
+        vrInOut = vrSave(jx,jy,jz)
+        call fugacity_co2(pg,tempk,ln_fco2,vrInOut)
+        vrSave(jx,jy,jz) = vrInOut
+      end if
+    ELSE IF (Duan2006) THEN
+      ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
+      if (namg(kk) == 'CO2(g)') then
+        vrInOut = vrSave(jx,jy,jz)
+        call fugacity_co24(pg,tempk,ln_fco2,vrInOut)
+        vrSave(jx,jy,jz) = vrInOut
+      end if
+    END IF
 
-!! Basically, first two terms on RHS give you the mole fraction, then multipled by n/V to gives mol/m^3
+!! Basically, first two terms on RHS give you the mole fraction, then multipled by n/V (denmol) gives mol/m^3
 
-  spgas(kk,jx,jy,jz) = keqgas(kk,jx,jy,jz) + sum + denmol - ln_fco2
+  spgas(kk,jx,jy,jz)   = keqgas(kk,jx,jy,jz) + sum + denmol - ln_fco2
   spgas10(kk,jx,jy,jz) = DEXP(spgas(kk,jx,jy,jz))  ! mol/m**3
+  continue
 
 END DO
 

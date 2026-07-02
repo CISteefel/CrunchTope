@@ -63,11 +63,17 @@ INTEGER(I4B), INTENT(IN)                             :: jz
 REAL(DP)                                             :: sum
 REAL(DP)                                             :: mutemp
 REAL(DP)                                             :: surftemp
+REAL(DP)                                             :: delta_z
+
 
 INTEGER(I4B)                                         :: i2
 INTEGER(I4B)                                         :: iss
 INTEGER(I4B)                                         :: ns
 INTEGER(I4B)                                         :: is
+INTEGER(I4B)                                         :: i
+INTEGER(I4B)                                         :: l
+
+CHARACTER (LEN=3)                                    :: ulabprint
 
 fsurf_local = 0.0
 
@@ -89,6 +95,81 @@ DO is = 1,nsurf
   iss = ncomp + is
   fsurf_local(is,iss) = fsurf_local(is,iss) + spsurf10(is,jx,jy,jz)
 END DO
+
+DO ns = 1,nsurf_sec
+
+    !-----------------------------------------------------------------
+    ! d spsurf(ns+nsurf) / d sp(i)         for i = 1..ncomp
+    !-----------------------------------------------------------------
+    DO i = 1,ncomp
+     
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .OR. ulabPrint(1:3) == 'HHO') THEN
+        ! Water: lnActivity = lngamma(i) only -> no sp(i) dependence
+        dspsurf_dsp(ns+nsurf,i,jx,jy,jz) = 0.0d0
+      ELSE
+        dspsurf_dsp(ns+nsurf,i,jx,jy,jz) = musurf(ns,i)
+      END IF
+    END DO
+
+    !-----------------------------------------------------------------
+    ! d spsurf(ns+nsurf) / d spsurf(is)    for is = 1..nsurf
+    ! (couples secondary site species to the other surface species)
+    !-----------------------------------------------------------------
+    DO is = 1,nsurf
+      dspsurf_dspsurf(ns+nsurf,is,jx,jy,jz) = musurf(ns,is+ncomp)
+    END DO
+    
+
+    !-----------------------------------------------------------------
+    ! Electrostatic-only contributions:
+    !   d/d LogPotential   and   d/d LogTotalSites
+    !-----------------------------------------------------------------
+    IF (nptlink(ns) /= 0) THEN
+      delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
+
+      dspsurf_dpot(ns+nsurf,jx,jy,jz)    = &
+            -2.0d0 * musurf(ns,islink(ns)+ncomp) * delta_z
+
+      !!!dspsurf_dlogtot(ns+nsurf,jx,jy,jz) = &
+      !!!     -( musurf(ns,islink(ns)+ncomp) - 1.0d0 )
+    ELSE
+      dspsurf_dpot(ns+nsurf,jx,jy,jz)    = 0.0d0
+     !!! dspsurf_dlogtot(ns+nsurf,jx,jy,jz) = &
+     !!!       -( musurf(ns,islink(ns)+ncomp) - 1.0d0 )
+    END IF
+
+    !-----------------------------------------------------------------
+    ! Chain rule for the linear-space variable spsurf10 = exp(spsurf):
+    !   d spsurf10 / d sp(i) = spsurf10 * d spsurf / d sp(i)
+    ! Use these forms wherever the mass-balance equations are written
+    ! in concentration (rather than log-concentration) form.
+    !-----------------------------------------------------------------
+    DO i = 1,ncomp
+      dspsurf10_dsp(ns+nsurf,i,jx,jy,jz) =                         &
+           spsurf10(ns+nsurf,jx,jy,jz) *                           &
+           dspsurf_dsp(ns+nsurf,i,jx,jy,jz)
+    END DO
+
+    DO is = 1,nsurf
+      dspsurf10_dspsurf(ns+nsurf,is,jx,jy,jz) =                    &
+           spsurf10(ns+nsurf,jx,jy,jz) *                           &
+           dspsurf_dspsurf(ns+nsurf,is,jx,jy,jz)
+    END DO
+
+    IF (nptlink(ns) /= 0) THEN
+      dspsurf10_dpot(ns+nsurf,jx,jy,jz) =                          &
+           spsurf10(ns+nsurf,jx,jy,jz) *                           &
+           dspsurf_dpot(ns+nsurf,jx,jy,jz)
+    ELSE
+      dspsurf10_dpot(ns+nsurf,jx,jy,jz) = 0.0d0
+    END IF
+
+!!!    dspsurf10_dlogtot(ns+nsurf,jx,jy,jz) =                         &
+!!!           spsurf10(ns+nsurf,jx,jy,jz) *                           &
+!!!           dspsurf_dlogtot(ns+nsurf,jx,jy,jz)
+
+      END DO
 
 RETURN
 END SUBROUTINE jacsurf_local

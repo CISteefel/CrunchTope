@@ -47,6 +47,7 @@ USE crunchtype
 USE params
 USE concentration
 USE temperature
+USE medium, ONLY: PressureCond
 USE runtime, ONLY: Duan,Duan2006
 
 IMPLICIT NONE
@@ -69,12 +70,16 @@ REAL(DP)                                                   :: denmol
 REAL(DP)                                                   :: pg
 REAL(DP)                                                   :: ln_fco2
 REAL(DP)                                                   :: vrInOut
+REAL(DP)                                                   :: lnActivity
+
+CHARACTER (LEN=3)                                          :: ulabPrint
 
 INTEGER(I4B)                                               :: i
 INTEGER(I4B)                                               :: kk
 
 ln_fco2 = 0.0d0
 tempk = t(jx,jy,jz) + 273.15
+pg = LOG( PressureCond(jinit(jx,jy,jz)) )
 
 !!denmol = DLOG(1.e05/(8.314*tempk))   ! P/RT = n/V, with pressure converted from bars to Pascals
 
@@ -84,11 +89,20 @@ END IF
 
 DO kk = 1,ngas
   
-    sum = 0.0
-    DO i = 1,ncomp
-      sum = sum + mugas(kk,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-    END DO
-
+  sum = 0.0
+  DO i = 1,ncomp
+      
+    ulabPrint = ulab(i)
+    IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+      lnActivity = lngammawater(jx,jy,jz)
+    ELSE
+      lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+    END IF
+      
+    sum = sum + mugas(kk,i) * lnActivity
+  
+  END DO
+  
   IF (Duan) THEN
     ln_fco2 = 0.0d0  ! fugacity coefficient for CO2(g)
     if (namg(kk) == 'CO2(g)') then

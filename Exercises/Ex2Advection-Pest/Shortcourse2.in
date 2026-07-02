@@ -59,12 +59,14 @@ Condition junk1
 units            mol/kg
 temperature      25.0
 Tracer           0.1
+H2O              55.50843506
 END
  
 Condition junk2
 units            mol/kg
 temperature      25.0
 Tracer           0.000001
+H2O              55.50843506
 set_porosity     1.0
 END
  
@@ -73,6 +75,7 @@ fix_porosity     1.0
 END
  
 PRIMARY_SPECIES
+H2O
 Tracer
 END
  

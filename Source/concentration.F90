@@ -135,6 +135,7 @@ MODULE  concentration
 
 !  Permanent arrays, but can be reallocated to smaller size
 
+
   REAL(DP), DIMENSION(5)                           :: adhcoeff 
   REAL(DP), DIMENSION(5)                           :: bdhcoeff 
   REAL(DP), DIMENSION(5)                           :: bdtcoeff 
@@ -153,6 +154,12 @@ MODULE  concentration
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: namsurf
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: namsurf_sec
 
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: MoleChange  
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: MoleChangeTotal
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: ChangeH2O
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: ChangeH2
+  REAL(DP), DIMENSION(:), ALLOCATABLE            :: ChangeH2_gas
+  
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: fweight
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: fanalyt
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: as1
@@ -308,6 +315,7 @@ MODULE  concentration
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: nclink
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: islink
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: nptlink
+  INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: nptPrimary
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: itot
   INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: itype
   INTEGER(I4B), DIMENSION(:), ALLOCATABLE          :: ndist
@@ -376,6 +384,7 @@ MODULE  concentration
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spgas
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spgasold
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: spgas10
+  REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE     :: spgas10_old
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sgas
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: sgasn
   REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: ssurf
@@ -406,7 +415,31 @@ MODULE  concentration
   
   REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE        :: deriv_gamma
   REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE        :: deriv_conc
+  
+  REAL(DP)                                           :: GasFlux_FaceEast_H2 
+  REAL(DP)                                           :: AqueousFlux_FaceEast_H2 
+  
+!!! New "Claude" allocatable arrays
+  
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dlngamma_dlnI
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf_dlnaH2O
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf10_dlnaH2O
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf_dlnI
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE        :: dspsurf10_dlnI
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE      :: dspsurf_dsp
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE      :: dspsurf10_dsp
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE      :: dspsurf10_surf
+ 
+ 
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf10_dpot
+ !!!REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf10_dlogtot
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE    :: dspsurf_dspsurf
+ REAL(DP), DIMENSION(:,:,:,:,:), ALLOCATABLE    :: dspsurf10_dspsurf
+ REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf_dpot
+ !!!REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: dspsurf_dlogtot
 
+
+ 
 
 END MODULE concentration
 
