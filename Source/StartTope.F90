@@ -576,6 +576,8 @@ REAL(DP)                                                      :: tk
 
 REAL(DP)                                                      :: SumMineralVolume
 
+CHARACTER (LEN=20)                                            :: MineralName
+
 REAL(DP)  :: dum1
 REAL(DP)  :: dum2
 REAL(DP)  :: PorosityRead
@@ -902,6 +904,11 @@ IF (found) THEN
   parchar = 'utahforge'
   parfind = ' '
   CALL read_logical(nout,lchar,parchar,parfind,UtahForgeLogical)
+  
+  SulfurPassivationLogical = .FALSE.
+  parchar = 'sulfurpassivate'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,SulfurPassivationLogical)
   
   nmmLogical = .FALSE.
   parchar = 'nmm'
@@ -2198,6 +2205,26 @@ DO i = 1,ncomp
     H2Ofound = .TRUE.
   END IF
 END DO
+
+IF (SulfurPassivationLogical) THEN
+  SulfurMineralNumber = 0
+  write(*,*)
+  write(*,*) 'Checking for Sulfur mineral number'
+  DO k = 1,nrct
+    MineralName = TRIM( umin(k) )
+    IF (MineralName == 'Sulfur') THEN
+      SulfurMineralNumber = k
+    ELSE
+      CONTINUE
+    END IF
+  END DO
+  IF (SulfurMineralNumber == 0) THEN
+    write(*,*)
+    write(*,*) ' Native Sulfur mineral not found'
+    read(*,*)
+    stop
+  END IF
+END IF
 
 IF (.NOT. H2Ofound) THEN
   write(*,*)

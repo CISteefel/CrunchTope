@@ -197,6 +197,11 @@ REAL(DP)                                                        :: LogLoadingP
 REAL(DP)                                                        :: StressPrint
 REAL(DP)                                                        :: CheckSilog
 
+CHARACTER (LEN=20)                                              :: MineralName
+
+REAL(DP)                                                        :: SulfurPassivation
+REAL(DP)                                                        :: PassivationFactor
+
 
 !**********
 !Specific to eastriver simulations (Lucien Stolze, June 2023)
@@ -577,6 +582,7 @@ DO k = 1,nkin
     
     IF (silog(np,k) >= 0.0D0 .AND. iarea(k,jinit(jx,jy,jz)) == 0) THEN       !! Supersaturated AND bulk_surface_area option
 
+      
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
 
@@ -605,7 +611,8 @@ DO k = 1,nkin
 
 !!  Case where either undersaturated OR using the specific_surface_area option  
 
-    ELSE                                                
+    ELSE        !!! Undersaturated case, log Q/Keq < 0.0     
+    
 
       IF (MineralAssociate(k)) THEN
 
@@ -623,6 +630,25 @@ DO k = 1,nkin
         END IF
 
       ELSE
+        
+        IF (SulfurPassivationLogical) THEN
+        
+          MineralName = TRIM(umin(1))
+          IF ( MineralName /= 'Chalcopyrite' ) THEN
+            write(*,*)
+            write(*,*) ' For sulfur passivation, first mineral in MINERAL should be chalcopyrite'
+            write(*,*)
+            read(*,*)
+            stop
+          END IF
+        !!! CP is mineral 1
+        !!! Factor below should depend on the volume fraction of CP, so ...
+        !!! Native Sulfur is SulfurMineralNumber, with arbitrary factor of 100
+          PassivationFactor = 1.00/0.0073
+          SulfurPassivation = 1.0/( PassivationFactor*volfx(SulfurMineralNumber,jx,jy,jz) + 1.0 )
+          surf(np,k) = area(1,jx,jy,jz) * SulfurPassivation    !!! Number < 1
+        
+        ENDIF
 
         IF (porfactor < 0.01d0) THEN
           surf(np,k) = area(k,jx,jy,jz)*porfactor

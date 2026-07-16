@@ -1988,8 +1988,7 @@ IF (dumstring == 'End of surface complexation') GO TO 62
 
 BACKSPACE (iunit5)
 
-READ(iunit5,*,ERR=6006) nam(1),n,(sto(i+1),nam(i+1),i=1,n),  &
-    (alogk0(l),l=1,ntemp)
+READ(iunit5,*,ERR=6006) nam(1),n,(sto(i+1),nam(i+1),i=1,n), (alogk0(l),l=1,ntemp)
 
 sto(1) = -1.
 
