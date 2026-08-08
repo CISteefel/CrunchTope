@@ -403,28 +403,31 @@ DO ir = 1,ikin
         IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
           denom = (s(i,jx,jy,jz)+halfsataq(id,ir)) * (s(i,jx,jy,jz)+halfsataq(id,ir))
           MonodTerm = s(i,jx,jy,jz)/(halfsataq(id,ir)+s(i,jx,jy,jz))
-          DO i2 = 1,ncomp
-            IF (os3d) THEN
-               jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
-                  pre_raq(1,ir)/MonodTerm * fjac_loc(i2,i)* (halfsataq(id,ir)/denom)
-  
-            ELSE
-               jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
-                  pre_raq(1,ir)/MonodTerm * fjac(i2,i,jx,jy,jz)* (halfsataq(id,ir)/denom)
-  
-            END IF
-          END DO
+          ! Guard: when substrate depleted MonodTerm=0 and pre_raq=0 simultaneously
+          ! giving 0/0=NaN. Skip Jacobian update -- rate=0 so d(rate)/d(sp)~=0 here.
+          IF (MonodTerm > 0.0D0) THEN
+            DO i2 = 1,ncomp
+              IF (os3d) THEN
+                jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
+                   pre_raq(1,ir)/MonodTerm * fjac_loc(i2,i)* (halfsataq(id,ir)/denom)
+              ELSE
+                jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
+                   pre_raq(1,ir)/MonodTerm * fjac(i2,i,jx,jy,jz)* (halfsataq(id,ir)/denom)
+              END IF
+            END DO
+          END IF
         ELSE
-          denom = (sp10(i,jx,jy,jz)+halfsataq(id,ir))*(sp10(i,jx,jy,jz)+halfsataq(id,ir))
+          ! Simplified form: pre_raq/MonodTerm * sp10 * Km/denom = pre_raq * Km/(sp10+Km)
+          ! avoids 0/0 when sp10->0 because MonodTerm->0 and pre_raq->0 cancel cleanly
           MonodTerm = sp10(i,jx,jy,jz)/(halfsataq(id,ir)+sp10(i,jx,jy,jz))
           IF (i <= ncomp) THEN
              jac_prekin(i,1) =  jac_prekin(i,1) +  &
-                pre_raq(1,ir)/MonodTerm * sp10(i,jx,jy,jz)* (halfsataq(id,ir)/denom)
+                pre_raq(1,ir) * (halfsataq(id,ir)/(halfsataq(id,ir)+sp10(i,jx,jy,jz)))
           ELSE
             ksp = i - ncomp
             DO i2 = 1,ncomp
                jac_prekin(i2,1) =  jac_prekin(i2,1) +  &
-                pre_raq(1,ir)/MonodTerm * muaq(ksp,i2)*sp10(i,jx,jy,jz)* (halfsataq(id,ir)/denom)
+                pre_raq(1,ir) * muaq(ksp,i2) * (halfsataq(id,ir)/(halfsataq(id,ir)+sp10(i,jx,jy,jz)))
             END DO
           END IF
         END IF

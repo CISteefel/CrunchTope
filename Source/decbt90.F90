@@ -94,9 +94,9 @@ nm1 = n - 1
 nm2 = n - 2
 ! process the first block-row. -----------------------------------------bt000480
 CALL ludcmp90(aah(:,:,1),indexx(:,1),det,m)
-ier = 0
 k = 1
-IF (ier /= 0) GO TO 200
+IF (det == 0.0_DP) GO TO 200  ! ludcmp90 detected singular/zero-row block
+ier = 0
 DO j = 1,m
   CALL lubksb90(aah(:,:,1),indexx(:,1),bbh(:,j,1),m)
   CALL lubksb90(aah(:,:,1),indexx(:,1),cch(:,j,1),m)
@@ -124,7 +124,7 @@ DO k = 2,nm1
     END DO
   END DO
   CALL ludcmp90(aah(:,:,k),indexx(:,k),det,m)
-  IF (ier /= 0) GO TO 200
+  IF (det == 0.0_DP) GO TO 200  ! ludcmp90 detected singular/zero-row block
   DO j = 1,m
     CALL lubksb90(aah(:,:,k),indexx(:,k),bbh(:,j,k),m)
   END DO
@@ -150,7 +150,7 @@ DO j = 1,m
 END DO
 CALL ludcmp90(aah(:,:,n),indexx(:,n),det,m)
 k = n
-IF (ier /= 0) GO TO 200
+IF (det == 0.0_DP) GO TO 200  ! ludcmp90 detected singular/zero-row block
 RETURN
 ! error returns. -------------------------------------------------------bt001020
 200  ier = k

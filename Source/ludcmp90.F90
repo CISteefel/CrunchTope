@@ -40,7 +40,11 @@ INTEGER(I4B)                                               :: imax
 
 d=1.0
 vv=maxval(ABS(a),dim=2)
-IF (any(vv == 0.0)) CALL nrerror('singular matrix in ludcmp')
+IF (any(vv == 0.0)) THEN
+  WRITE(*,*) '  ludcmp90: zero row in matrix (singular) -- signalling decbt90'
+  d = 0.0_DP  ! sentinel: tells decbt90 to propagate error and reduce timestep
+  RETURN
+END IF
 vv=1.0_DP/vv
 DO j=1,n
   imax=(j-1)+imaxloc(vv(j:n)*ABS(a(j:n,j)))
