@@ -103,7 +103,7 @@ SOURCEF = \
           gamma_co2.F90\
           gammaUpdated.F90\
           gamma_init_co2.F90\
-          gamma_init.F90\
+          gamma_initUpdated.F90\
           gamma_local.F90\
           gascoeffCylinder.F90\
           gasdiff.F90\
@@ -442,7 +442,7 @@ OBJSF  =  crunchtype.o\
           gamma_co2.o\
           gammaUpdated.o\
           gamma_init_co2.o\
-          gamma_init.o\
+          gamma_initUpdated.o\
           gamma_local.o\
           gascoeffCylinder.o\
           gasdiff.o\
