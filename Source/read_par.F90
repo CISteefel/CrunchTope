@@ -123,7 +123,7 @@ IF(ls /= 0) THEN
   realjunk = DNUM(ssch)
   RETURN
 ELSE
-  realjunk = 0.00
+  realjunk = -500.0
 END IF
 
 RETURN

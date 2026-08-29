@@ -103,7 +103,6 @@ DO npt = 1,npot
     END IF
   END DO
 
-
 END DO
 
 RETURN

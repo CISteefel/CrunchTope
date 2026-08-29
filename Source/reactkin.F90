@@ -119,8 +119,6 @@ REAL(DP)                                                       :: snormAqueous
 
 real(dp)                                                       :: vol_temp
 real(dp)                                                       :: satL
-REAL(DP)                                                        :: lnActivity
-CHARACTER (LEN=3)                                               :: ulabPrint
 
 !!REAL(DP), DIMENSION(ikin)                                      :: MoleFraction
 
@@ -160,15 +158,7 @@ DO ir = 1,ikin
   ELSE
     sum = 0.0d0
     DO i = 1,ncomp
-      ulabPrint = ulab(i)
-      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-        lnActivity = lngammawater(jx,jy,jz)
-      ELSE
-        lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
-      END IF
-      
-      sum = sum + mukin(ir,i)*lnActivity
-          
+      sum = sum + mukin(ir,i)*sp(i,jx,jy,jz)
     END DO
     satlog(ir,jx,jy,jz) = sum - clg*keqkin(ir)
     satkin(ir) = DEXP(satlog(ir,jx,jy,jz))
@@ -405,13 +395,7 @@ DO ir = 1,ikin
       
     sum = 0.0d0
     DO i = 1,ncomp
-      ulabPrint = ulab(i)
-      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-        lnActivity = lngammawater(jx,jy,jz)
-      ELSE
-        lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
-      END IF
-      sum = sum + mukin(ir,i)*lnActivity   
+      sum = sum + mukinTMP(jj,i)*sp(i,jx,jy,jz)
     END DO
     i = chi_kin(jj)
     i = direction_kin(jj)

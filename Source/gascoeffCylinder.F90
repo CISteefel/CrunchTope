@@ -113,6 +113,7 @@ REAL(DP)                                      :: AreaE
 REAL(DP)                                      :: AreaW
 REAL(DP)                                      :: AreaS
 REAL(DP)                                      :: AreaN
+REAL(DP)                                      :: uligas
 REAL(DP)                                      :: zero
 REAL(DP)                                      :: gasd
 

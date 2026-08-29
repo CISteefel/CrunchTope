@@ -79,12 +79,6 @@ INTEGER(I4B), INTENT(IN)                           :: nz
 
 !!  Internal arrays and variables
 
-!!! IF (ALLOCATED(sion)) THEN
-!!!   DEALLOCATE(sion)
-!!! END IF
-!!! ALLOCATE(sion(nx,ny,nz))
-!!! sion = 0.0
-
 IF (ALLOCATED(MoleChange)) THEN
   DEALLOCATE(MoleChange)
 END IF
@@ -112,9 +106,7 @@ IF (BatchReactor .Or. BatchReactor2) THEN
   END IF
   ALLOCATE(ChangeH2_gas(nx))
   
-  
 END IF
-
 
 IF (ALLOCATED(fxmax)) THEN
   DEALLOCATE(fxmax)

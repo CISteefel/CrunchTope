@@ -189,20 +189,6 @@ REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: DecayTerm
 
-REAL(DP)                                                        :: lnActivity
-CHARACTER (LEN=3)                                               :: ulabPrint
-CHARACTER (LEN=10)                                               :: uMinPrint
-REAL(DP)                                                        :: LoadingPressureEffect
-REAL(DP)                                                        :: LogLoadingP
-REAL(DP)                                                        :: StressPrint
-REAL(DP)                                                        :: CheckSilog
-
-CHARACTER (LEN=20)                                              :: MineralName
-
-REAL(DP)                                                        :: SulfurPassivation
-REAL(DP)                                                        :: PassivationFactor
-
-
 !**********
 !Specific to eastriver simulations (Lucien Stolze, June 2023)
 REAL(DP)                                                        :: liqsat_fac
@@ -332,25 +318,11 @@ ivolume = 0
 checkSaturation = .FALSE.
 UseDissolutionOnly = .FALSE.
 
+
 DO k = 1,nkin
 
   checkSaturation = .FALSE.
   UseDissolutionOnly = .FALSE.
-  
-  IF (ContactPressureLogical) THEN
-!!!                                 MPa  *  MPa->Pa  * Vm (m^3/mol) /    (RT)
-!!!   LoadingPressureEffect = EXP( -200.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
-!!!               MPa * MPa -> Pa
-    StressPrint = 100.0 * 1000000 
-    LoadingPressureEffect = DEXP( -StressPrint * volmol(k) / (8.314D0*Tk) )
-    LogLoadingP = LOG(LoadingPressureEffect)
-    !!!write(*,*) k, LogLoadingP
-    !!!write(*,*)
-    !!!read(*,*)
-  
-  ELSE
-    LogLoadingP = 0.0d0
-  END IF
 
   dppt(k,jx,jy,jz) = 0.0D0
 
@@ -372,6 +344,8 @@ DO k = 1,nkin
       CheckRgas = rgasKCAL
     END IF
     
+
+
 !!  Imintype = 1 --> TST
 !!  Imintype = 2 --> Monod kinetics (NOTE: Should add the affinity term here)
 !!  Imintype = 3 --> Irreversible kinetics
@@ -397,19 +371,14 @@ DO k = 1,nkin
 
         kk = kcrossaff(np,k)
 
-        sumiap = 0.0D0
-        DO i = 1,ncomp
-            
-          ulabPrint = ulab(i)
-          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngammawater(jx,jy,jz)
-          ELSE
-            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
-          END IF
-            
-          sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*lnActivity
-          
-        END DO
+
+
+          sumiap = 0.0D0
+          DO i = 1,ncomp
+            sumiap = sumiap + decay_correct(i,k)*mumin(1,kk,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
+          END DO
+
+
 
         silog(np,k) = (sumiap - keqmin(1,kk,jx,jy,jz))/clg
         
@@ -419,19 +388,13 @@ DO k = 1,nkin
       ELSE IF (imintype(np,k) == 8) THEN             !! Microbially mediated, with thermodynamic factor Ft
 
         jj = p_cat_min(k)
-        
-        sumiap = 0.0D0
-        DO i = 1,ncomp
-            
-          ulabPrint = ulab(i)
-          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngammawater(jx,jy,jz)
-          ELSE
-            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
-          END IF
-            
-          sumiap = sumiap + muminTMP(np,jj,i)*lnActivity
-        END DO
+
+
+          sumiap = 0.0D0
+          DO i = 1,ncomp
+            sumiap = sumiap + muminTMP(np,jj,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
+          END DO
+
 
         silog(np,k) = (sumiap - keqminTMP(np,jj) - BQ_min(np,jj)/(rgas*Tk))/clg    !!  BQ in kJ/e-mole
         siln(np,k) = clg*silog(np,k)
@@ -440,18 +403,12 @@ DO k = 1,nkin
 !!    Base Case
       ELSE    
             
-        sumiap = 0.0D0
-        DO i = 1,ncomp
-            
-          ulabPrint = ulab(i)
-          IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-            lnActivity = lngammawater(jx,jy,jz)
-          ELSE
-            lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
-          END IF
-          
-          sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*lnActivity
-        END DO
+
+
+          sumiap = 0.0D0
+          DO i = 1,ncomp
+            sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
+          END DO
 
         
 !!!     *******************************************************************
@@ -483,15 +440,13 @@ DO k = 1,nkin
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
             IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
-!!!              MoleFractionMineral = MoleFractionAqueousRare(isotopologue)
-              MoleFractionMineral = MoleFractionAqueousRare(kIsotopologue)
+              MoleFractionMineral = MoleFractionAqueousRare(isotopologue)
             ELSE
 
               IF (MoleFractionMineralRare(kIsotopologue) == 0.0d0) THEN
                 MoleFractionMineral = 1.0d0
               ELSE
-!!!                MoleFractionMineral = MoleFractionMineralRare(isotopologue)
-                MoleFractionMineral = MoleFractionMineralRare(kIsotopologue)
+                MoleFractionMineral = MoleFractionMineralRare(isotopologue)
               END IF
             END IF
 
@@ -507,18 +462,15 @@ DO k = 1,nkin
             iPrimaryCommon = isotopeCommon(Isotopologue)
 
             IF (isotopeBackReactionOption(kIsotopologue) == 'none' .OR. UseAqueousMoleFraction(kIsotopologue)) THEN
-              
-!!!              MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
-              MoleFractionMineral = MoleFractionAqueousCommon(kIsotopologue)
+
+              MoleFractionMineral = MoleFractionAqueousCommon(isotopologue)
 
             ELSE
-              
               IF (MoleFractionMineralCommon(kIsotopologue) == 0.0d0) THEN
                 MoleFractionMineral = 1.0d0
               ELSE
 
- !!!               MoleFractionMineral = MoleFractionMineralCommon(isotopologue)
-                MoleFractionMineral = MoleFractionMineralCommon(kIsotopologue)
+                MoleFractionMineral = MoleFractionMineralCommon(isotopologue)
 
               END IF
             END IF
@@ -532,15 +484,19 @@ DO k = 1,nkin
         END IF   !! Block where nIsotopeMineral > 0
         
 !!!     ******************* End of isotopes ***************************************************
-           
-!!!     LogLoadingP is from the contact stress (read in from NMM, or set for the entire domain)
-        
-        CheckSilog = ( sumiap - keqmin(1,k,jx,jy,jz) )/clg
-        !!!write(*,*) k, CheckSilog, LogLoadingP
-        !!!write(*,*)
-        !!!read(*,*)
-        silog(np,k) = CheckSilog + LogLoadingP/clg
 
+
+        silog(np,k) = (sumiap - keqmin(1,k,jx,jy,jz))/clg
+        
+        IF (nmmLogical) THEN
+        
+!!!       if (silog(np,k) < 0.0d0) then
+!!!            silog(np,k) = (sumiap - (crankLogK(jx,jy,jz) + keqmin(1,k,jx,jy,jz)))/clg 
+!!!       end if
+          
+        END IF        
+          
+!!!        silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
         silogGlobal(np,k,jx,jy,jz) = silog(np,k)
         siln(np,k)  = clg*silog(np,k)
         si(np,k)    = 10**(silog(np,k))
@@ -560,6 +516,7 @@ DO k = 1,nkin
 !!CSD   
 !!CSD        END IF
 !!CSD!!  **********  CrystalSizeDistribution  *********************************************
+
     
 !!        IF (DABS(silog(np,k)) < 0.00001 .AND. checkSaturation) THEN
 !!          UseDissolutionOnly = .TRUE.
@@ -582,7 +539,6 @@ DO k = 1,nkin
     
     IF (silog(np,k) >= 0.0D0 .AND. iarea(k,jinit(jx,jy,jz)) == 0) THEN       !! Supersaturated AND bulk_surface_area option
 
-      
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
 
@@ -592,6 +548,8 @@ DO k = 1,nkin
           write(*,*) ' Associated mineral should be earlier in mineral list'
           write(*,*)
           stop
+!!!8-24          surf(np,k) = areain(MineralID(k),jinit(jx,jy,jz))*porfactor
+!!!          surf(np,k) = area(MineralID(k),jx,jy,jz)*porfactor
         END IF
 
       ELSE
@@ -604,15 +562,14 @@ DO k = 1,nkin
             surf(np,k) = areainByGrid(k,jx,jy,jz)*porfactor
           END IF
         ELSE
-          surf(np,k) = areainByGrid(k,jx,jy,jz)*porfactor            
+          surf(np,k) = area(k,jx,jy,jz)*porfactor            
         END IF
 
       END IF
 
 !!  Case where either undersaturated OR using the specific_surface_area option  
 
-    ELSE        !!! Undersaturated case, log Q/Keq < 0.0     
-    
+    ELSE                                                
 
       IF (MineralAssociate(k)) THEN
 
@@ -630,25 +587,6 @@ DO k = 1,nkin
         END IF
 
       ELSE
-        
-        IF (SulfurPassivationLogical) THEN
-        
-          MineralName = TRIM(umin(1))
-          IF ( MineralName /= 'Chalcopyrite' ) THEN
-            write(*,*)
-            write(*,*) ' For sulfur passivation, first mineral in MINERAL should be chalcopyrite'
-            write(*,*)
-            read(*,*)
-            stop
-          END IF
-        !!! CP is mineral 1
-        !!! Factor below should depend on the volume fraction of CP, so ...
-        !!! Native Sulfur is SulfurMineralNumber, with arbitrary factor of 100
-          PassivationFactor = 1.00/0.0073
-          SulfurPassivation = 1.0/( PassivationFactor*volfx(SulfurMineralNumber,jx,jy,jz) + 1.0 )
-          surf(np,k) = area(1,jx,jy,jz) * SulfurPassivation    !!! Number < 1
-        
-        ENDIF
 
         IF (porfactor < 0.01d0) THEN
           surf(np,k) = area(k,jx,jy,jz)*porfactor
@@ -711,7 +649,7 @@ DO k = 1,nkin
               term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
             ELSE
 
-              term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
+                term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
 
             END IF
           ELSE
@@ -1202,9 +1140,9 @@ DO k = 1,nkin
         ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
         ! ELSE
           
-          rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
+        rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         
-          CONTINUE
+        !ENDIF
           
         END IF
      

@@ -90,24 +90,6 @@ interface
   END SUBROUTINE gaussj
 END interface
 
-INTERFACE
-  SUBROUTINE GasPartialPressure_Init(ncomp,ngas,gastmp10,tempc,pg)
-  USE crunchtype
-  USE params
-  USE runtime, ONLY: Duan,Duan2006
-  USE medium, ONLY: PressureCond
-  USE concentration
-  IMPLICIT NONE
-  !  External variables
-  INTEGER(I4B), INTENT(IN)                                   :: ncomp
-  INTEGER(I4B), INTENT(IN)                                   :: ngas
-  REAL(DP), DIMENSION(:)                                     :: gastmp10
-  REAL(DP), INTENT(IN)                                       :: tempc
-  REAL(DP), INTENT(IN)                                       :: pg
-  END SUBROUTINE GasPartialPressure_Init
-END INTERFACE
-
-
 !  ********************  End of interface blocks  ******************
 
 !  External variables
@@ -139,7 +121,6 @@ LOGICAL(LGT), INTENT(IN)                                   :: pest
 !  Internal variables and arrays
 
 REAL(DP)                                                   :: pg
-REAL(DP), DIMENSION(ngas)                                  :: gastmp10
 
 REAL(DP)                                                   :: PressureTemp
 
@@ -244,15 +225,12 @@ INTEGER(I4B)                                               :: ks
 INTEGER(I4B)                                               :: info
 INTEGER(I4B)                                               :: nl
 INTEGER(I4B)                                               :: ico2
-INTEGER(I4B)                                               :: iH2O
 
 LOGICAL(LGT)                                               :: bagit
 LOGICAL(LGT)                                               :: ChargeBalance
 LOGICAL(LGT)                                               :: NeedChargeBalance
 LOGICAL(LGT)                                               :: ChargeOK
 LOGICAL(LGT)                                               :: InitializeMineralEquilibrium
-LOGICAL(LGT)                                               :: ikH2Ofound
-
 
 REAL(DP)                                                   :: MeanSaltConcentration
 REAL(DP)                                                   :: MassFraction
@@ -269,11 +247,8 @@ REAL(DP)                                                   :: vrInOut
 REAL(DP)                                                   :: fxMaxPotential
 REAL(DP)                                                   :: ChargeSum
 REAL(DP)                                                   :: lnActivity
-REAL(DP)                                                   :: gammawatertmp
-REAL(DP)                                                   :: term1
 
 CHARACTER (LEN=3)                                          :: ulabPrint
-CHARACTER (LEN=17)                                         :: EDLoption
 
 
 CHARACTER (LEN=1)                                          :: trans
@@ -377,7 +352,6 @@ DO i = 1,ncomp
     
     ncharge = ncharge + 1
     NeedChargeBalance = .TRUE.
-    write(*,*) ' Charge balancing on ', i
     
   ELSE
     WRITE(*,*)
@@ -388,25 +362,6 @@ DO i = 1,ncomp
     STOP
   END IF
 END DO
-
-!!! Find species number for H2O
-ikH2Ofound = .FALSE.
-DO I = 1,ncomp
-  IF ( ulab(i) == 'H2O' .or. ulab(i) == 'h2o' .or. ulab(i) == 'hho' .or. ulab(i) == 'HHO' ) THEN
-    ih2o = i
-    ikH2Ofound = .TRUE.
-  END IF
-END DO
-  
-IF (ikH2Ofound) THEN
-  CONTINUE
-ELSE
-  write(*,*)
-  write(*,*) ' Water species number not found'
-  write(*,*)
-  read(*,*)
-  stop
-END IF
 
 IF (Duan .OR. Duan2006) THEN            !! Duan CO2 routine
  
@@ -509,8 +464,7 @@ DO i = 1,ncomp
   
 !!!  IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
   IF (ulab(i) == 'H2O') THEN
-    sptmp10(i) = 55.50843506 * porcond(nco) * SaturationCond(nco) * RoCond(nco)
-!!!    sptmp10(i) = 55.50843506
+    sptmp10(i) = 55.50843506
     sptmp(i) = DLOG(sptmp10(i))
   END IF
 END DO
@@ -594,7 +548,7 @@ DO  ktrial = 1,ntrial
   if (Duan .OR. Duan2006) then
     CALL gases_init_co2(ncomp,ngas,tempc,pg,vrInOut)
   else
-    CALL gases_init(ncomp,ngas,tempc,nco)
+    CALL gases_init(ncomp,ngas,tempc)
   end if
   
   CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nco)
@@ -634,13 +588,9 @@ DO  ktrial = 1,ntrial
       
       IF (ctot(i,nco) /= 0.0) THEN
         check = stmp(i)/ctot(i,nco)  !! Ratio of calculated total concentration to imposed
+        continue
       END IF
-      
-      IF (i == ikh2O) THEN
-        feq(i) = stmp(i)  - 55.50843506 * porcond(nco) * SaturationCond(nco) * RoCond(nco)
-      ELSE
-        feq(i) = stmp(i) - ctot(i,nco)
-      END IF
+      feq(i) = stmp(i) - ctot(i,nco)
        
       IF (check > 1000000.0 .AND. iTotNegative(i) == 0) THEN
         
@@ -779,9 +729,7 @@ DO  ktrial = 1,ntrial
       
         check = sumiap + keqgas_tmp(kg) - ln_fco2 - LOG(ctot(i,nco))
       ELSE
-        pg = PressureCond(nco)
-        
-        check = sumiap + keqgas_tmp(kg) - LOG(ctot(i,nco))  !!! This should give mole fraction, not partial pressure
+        check = sumiap + keqgas_tmp(kg) - LOG(ctot(i,nco))
       END IF
 
       feq(i) = check
@@ -1026,8 +974,7 @@ DO  ktrial = 1,ntrial
       ELSE
         gramsperL = wtmin(k)*volin(k,nco)/(rocond(nco)*volmol(k)*portemp)  ! units of g/L
       END IF
-      term1 = faraday/(gramsperL)
-      
+ 
       DO i2 = 1,ncomp
         ncol = i2
         sum = 0.0
@@ -1059,10 +1006,9 @@ DO  ktrial = 1,ntrial
       DO npt2 = 1,npot
         sum = 0.0
         ncol = npt2 + ncomp + nexchange + nsurf
-        
         DO ns = 1,nsurf_sec
           delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))   !! Charge associated with changing from primary to secondary surface complex
-          IF ( ksurf(islink(ns)) == kpot(npt2) ) THEN
+          IF ( ksurf(islink(ns)) == kpot(npt2) .AND. kpot(npt) == kpot(npt2) ) THEN
             sum = sum - zsurf(ns+nsurf)*spsurftmp10(ns+nsurf)*delta_z*2.0
           END IF
         END DO
@@ -1364,7 +1310,7 @@ DO  ktrial = 1,ntrial
     if (Duan .OR. Duan2006) then
       CALL gases_init_co2(ncomp,ngas,tempc,pg,vrInOut)
     else
-      CALL gases_init(ncomp,ngas,tempc,nco)
+      CALL gases_init(ncomp,ngas,tempc)
     end if
     
     CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nco)
@@ -1383,7 +1329,6 @@ DO  ktrial = 1,ntrial
     WRITE(iunit2,*)
 
 555 FORMAT(2X, 'Temperature (C)         = ',f10.3)
-564 FORMAT(2x, 'Pressure (bars)         = ',f10.3)
 558 FORMAT(2X, 'Porosity                = ',f10.3)
 559 FORMAT(2X, 'Conversion (M->m)       = ',f10.3)
 556 FORMAT(2X, 'Liquid Saturation       = ',f10.3)
@@ -1391,7 +1336,6 @@ DO  ktrial = 1,ntrial
 560 FORMAT(2X, 'Solid Density (kg/m^3)  = ',f10.3)
 562 FORMAT(2X, 'Solid Density           = ',f10.3, ' (Assumed--cannot be computed with porosity = 100%)')
 561 FORMAT(2X, 'Solid:Solution Ratio    = ',f10.3)
-563 FORMAT(2X, 'Activity of water       = ',f10.3)
 411 FORMAT(2X, 'Ionic Strength          = ',f10.3)
 5022 FORMAT(2X,'Solution pH             = ',f10.3)
 5023 FORMAT(2X,'Solution pe             = ',f10.3)
@@ -1402,7 +1346,7 @@ DO  ktrial = 1,ntrial
 '              ',1x,'          ', '       Activity')
 204 FORMAT(' Species         ','     Molality',1X,'  Activity',1x,  &
 '     Molality ',1x,'    Activity ', '  Coefficient','    Type')
-
+515 FORMAT(a14,3X,1PE12.4,5X,1PE12.4,3x,1PE12.4)
 
     sum = 0.0D0
     DO ik = 1,ncomp+nspec
@@ -1411,11 +1355,8 @@ DO  ktrial = 1,ntrial
 
     END DO
     sion_tmp = 0.50D0*sum
-    
-    gammawatertmp = EXP(gamtmp(ih2o))
-    
+
     WRITE(iunit2,555) tempc
-    WRITE(iunit2,564) PressureCond(nco)
     WRITE(iunit2,558) porcond(nco)
     WRITE(iunit2,556) SaturationCond(nco)
     WRITE(iunit2,557) rocond(nco)
@@ -1425,7 +1366,6 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,560) SolidDensity(nco)
     END IF
     WRITE(iunit2,561) SolidSolutionRatio(nco) 
-    WRITE(iunit2,563) gammawatertmp
     
     WRITE(iunit2,411) sion_tmp
     
@@ -1486,7 +1426,7 @@ DO  ktrial = 1,ntrial
     END DO
     
 !!!    write(123,*) PressureTemp,stmp(1)
-!!!    write(123,*) tempc,stmp(1)
+    write(123,*) tempc,stmp(1)
 
     namtemp = 'Exchange'
     IF (nexchange > 0) THEN
@@ -1506,59 +1446,15 @@ DO  ktrial = 1,ntrial
     namtemp = 'Surface Complex'
     IF (nsurf > 0) THEN
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Surface complex   Sites/kgw      Mol/g solid    Mol/m^3 bulk  Option'
+      WRITE(iunit2,*) 'Surface complex   Sites/kgw        Moles/g solid  Moles/m^3 bulk'
       DO is = 1,nsurf
-        IF (iedl(is) == 0) THEN
-          EDLoption = 'Electrostatic'
-        ELSE
-          EDLoption = 'Non-Electrostatic'
-        END IF
         IF (SolidSolutionRatio(nco) == 0.0d0) THEN
           WRITE(iunit2,515) namsurf(is),ssurftmp(is),0.0d0
         ELSE
-          WRITE(iunit2,515) namsurf(is),ssurftmp(is),ssurftmp(is)/SolidSolutionRatio(nco),   &  
-            ssurftmp(is)*porcond(nco)*rocond(nco),EDLoption
+          WRITE(iunit2,515) namsurf(is),ssurftmp(is),ssurftmp(is)/SolidSolutionRatio(nco),ssurftmp(is)*porcond(nco)*rocond(nco)
         END IF
       END DO
     END IF
-    
-515 FORMAT(a14,4X,1PE11.4,4X,1PE11.4,4x,1PE11.4,4x,a17)
-516     FORMAT( '-->LogPotential', i2, ' on ', a11,2x,1PE11.4 )
-517     FORMAT(7x, a13, 1x, f6.1)
-    
-    namtemp = 'Electrostatic Potentials'
-    IF (npot > 0) THEN
-      
-      WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Electrostatic Potentials'
-      DO npt = 1,npot
-        WRITE(iunit2,516) npt,umin(kpot(npt)),LogPotential_tmp(npt)
-        WRITE(iunit2,*) '    Primary surface complexes '
-        DO is = 1,nsurf
-          IF (nptPrimary(is) == npt) THEN
-            WRITE(iunit2,517) namsurf(is), zsurf(is)
-          END IF
-        END DO
-        WRITE(iunit2,*) '    Secondary surface complexes '
-        DO ns = 1,nsurf_sec
-          IF (nptlink(ns) == npt) THEN
-            WRITE(iunit2,517) namsurf_sec(ns), zsurf(nsurf+ns)
-          END IF
-        END DO
-      END DO  
-      
-    END IF
-    
-!!!  Surface Complexation Cheat Sheet    
-!!!    kPotential(k) --> Logical to EDL potential
-!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
-!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
-!!!    npot --> number of potentials
-!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
-!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
-!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
-!!!    nptlink(ns) --> pointer of surface complex (primary or secondary) to potential (npt)
- 
 
     IF (nsurf > 0) THEN
       namtemp = 'Surface'
@@ -1566,7 +1462,7 @@ DO  ktrial = 1,ntrial
       WRITE(iunit2,*) 'Total Concentrations on Surface Hydroxyl Sites '
       WRITE(iunit2,*) '---------------------------------------------- '
       WRITE(iunit2,*)
-      WRITE(iunit2,*) 'Primary Species   Moles/kgw    Moles/g solid'
+      WRITE(iunit2,*) 'Primary Species   Moles/kgw       Moles/g solid'
       totSurf_bas = 0.0
       DO i = 1,ncomp  
         DO ns = 1,nsurf_sec
@@ -1852,19 +1748,15 @@ DO  ktrial = 1,ntrial
       write(iunit2,514)'Ln CO2 fugacity coefficient: ',ln_fco2
       write(iunit2,514)'CO2 fugacity coefficient:    ',fco2
     END IF
-    
-    WRITE(iunit2,*)
-    WRITE(iunit2,*) '     *** Partial pressure gas (bars)   moles gas/m^3 '
-    WRITE(iunit2,*)
 
-    CALL GasPartialPressure_Init(ncomp,ngas,gastmp10,tempc,pg)
-    CALL gases_init(ncomp,ngas,tempc,nco)
-    pg = PressureCond(nco)
+    WRITE(iunit2,*)
+    WRITE(iunit2,*) ' ****** Partial pressure of gases (bars) *****'
+    WRITE(iunit2,*)
+    
+    CALL GasPartialPressure_Init(ncomp,ngas,tempc,pg)
 
     DO i = 1,ngas
-        
-      WRITE(iunit2,513)  namg(i),gastmp10(i),spgastmp10(i)
-      
+      WRITE(iunit2,513)  namg(i),1.0d0*spgastmp10(i)
     END DO
 
     WRITE(iunit2,*)
@@ -1875,15 +1767,8 @@ DO  ktrial = 1,ntrial
       kk = k + nspec
       sumiap = 0.0D0
       DO i = 1,ncomp
-        
-        ulabPrint = ulab(i)
-        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-          lnActivity = gamtmp(i) 
-         ELSE
-          lnActivity = (sptmp(i)+gamtmp(i))
-        endif
 
-        sumiap = sumiap + mumin(1,k,i) * lnActivity
+          sumiap = sumiap + mumin(1,k,i)* (sptmp(i)+gamtmp(i))
 
       END DO
       silnTMP = sumiap - keqmin_tmp(1,k)
@@ -1969,7 +1854,7 @@ STOP
 
 
 509 FORMAT(2X,a18,2X,f12.4)
-513 FORMAT(1X,a18,1X,1PE16.8,1X,1PE16.8) !FORMAT(1X,a18,1X,1PE12.4)
+513 FORMAT(1X,a18,1X,1PE16.8) !FORMAT(1X,a18,1X,1PE12.4)
 514 FORMAT(1X,a28,1X,1PE16.8) 
 510 FORMAT(2X,'GEOCHEMICAL CONDITION NUMBER',i3)
 

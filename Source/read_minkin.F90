@@ -1730,7 +1730,6 @@ IF (ssch == tempmin) THEN
   END IF
   
 ELSE
-!!!  write(*,*) tempmin
   CALL breakfind
   GO TO 475
 END IF

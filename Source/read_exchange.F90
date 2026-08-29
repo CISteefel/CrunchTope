@@ -251,7 +251,7 @@ IF (dummy1 == 'End of exchange') THEN
   RETURN
 ELSE
   BACKSPACE 18
-  READ(18,*,ERR=6003) nam(1),n,(sto(i+1),nam(i+1), i = 1, n), exchange_tmp
+  READ(18,*,ERR=6003) nam(1),n,(sto(i+1),nam(i+1), i = 1, n), exchange_tmp,bfit_tmp
   
   DO ick = 1,n
     
@@ -297,6 +297,7 @@ ELSE
     END DO
   END DO
   keqexc(nexch_sec) = exchange_tmp*clg
+  bfit(nexch_sec) = bfit_tmp*clg
   
 END IF
 

@@ -47,8 +47,7 @@ MODULE runtime
   
   USE crunchtype
   USE params
-  !!!USE concentration, ONLY: jinit
-  USE concentration
+  USE concentration, ONLY: jinit
   
   INTEGER(I4B)                                                :: iterat
   LOGICAL(LGT)                                                :: UseDissolutionOnly

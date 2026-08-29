@@ -66,25 +66,24 @@ INTEGER(I4B)                                                    :: jy
 INTEGER(I4B)                                                    :: jz
 INTEGER(I4B)                                                    :: ik
 
-REAL(DP)                                                        :: TotMass
-REAL(DP)                                                        :: kgw
+REAL(DP)                                                        :: totmass
+REAL(DP)                                                        :: MeanSaltConcentration
 
-DO jz = 1,nz
-  DO jy = 1,ny
-    DO jx = 1,nx
-      
-      TotMass = 0.0d0
+IF (DensityModule /= 'temperature') THEN
+! Calculate the correction for the mass fraction of water:  kg_solution/kg_water
 
-      DO ik = 1,ncomp+nspec
-        IF (ik /= ikh2o) THEN
-          TotMass = TotMass + wtaq(ik)*sp10(ik,jx,jy,jz)
-        END IF
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx   
+        MeanSaltConcentration = 0.001*(wtaq(MeanSalt(1))*sn(MeanSalt(1),jx,jy,jz) +   &
+            wtaq(MeanSalt(2))*sn(MeanSalt(2),jx,jy,jz)) 
+        xgram(jx,jy,jz) = 1.0/(1.0 + MeanSaltConcentration)
       END DO
-      xgram(jx,jy,jz) = wtaq(ikh2o)*55.50843506/( TotMass + 55.50843506*wtaq(ikh2o) )
-      
     END DO
   END DO
-END DO
+ELSE
+  xgram = 1.0d0
+END IF
 
 RETURN
 END SUBROUTINE xmass

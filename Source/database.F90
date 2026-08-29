@@ -519,13 +519,7 @@ ELSE
   READ(iunit5,*,ERR=6002) NAME,aa0,zz,wtt
 END IF
 
-IF (NAME == 'End of primary') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Reached end of primary species'
-  WRITE(*,*)
-  GO TO 501   !  End of primary species block
-END IF
-
+IF (NAME == 'End of primary') GO TO 501   !  End of primary species block
 DO jj = 1, ncomp   ! Search through list of primary species in input file
   j = jj
   IF (NAME == namc(jj)) GO TO 530
@@ -575,12 +569,7 @@ ELSE
     (alogk0(l),l=1,ntemp),aa0,zz,wtt
 END IF
 
-IF (nam(1) == 'End of secondary') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Reached end of secondary species'
-  WRITE(*,*)
-  GO TO 29   !  End of secondary species block
-END IF
+IF (nam(1) == 'End of secondary' ) GO TO 29
 
 sto(1) = -1    ! Secondary species in EQ3 list has stoichiometric coefficient of -1
 
@@ -713,14 +702,9 @@ ELSE
   END IF
 END IF
 
-29 IF (icomplete == 1 .AND. isweep < 3) GO TO 41
+29  IF (icomplete == 1 .AND. isweep < 3) GO TO 41
 
-IF (nam(1) == 'End of secondary') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Reached end of secondary species'
-  WRITE(*,*)
-  GO TO 39   !  End of secondary species block
-END IF
+IF (nam(1) == 'End of secondary') GO TO 39
 
 
 IF (nsecond == 1) THEN
@@ -962,8 +946,6 @@ DO  i = 1, n+1        ! list of species in reaction
       EXIT
     END IF
   END DO
-  
-  
 
   IF (speciesfound) then
     CYCLE
@@ -1037,13 +1019,7 @@ END IF
 READ(iunit5,*,ERR=6005) nam(1),vbargas,n,(sto(i+1),nam(i+1),i=1,n),  &
     (alogk0(l),l=1,ntemp),wtt
 
-IF (nam(1) == 'End of gases') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Reached end of gases'
-  WRITE(*,*)
-  GO TO 52   !  End of gase  block
-END IF
-
+IF (nam(1) == 'End of gases') GO TO 52
 
 nct = 0
 
@@ -1208,13 +1184,7 @@ END IF
   END IF
 END IF
 
-
-IF (nam(1) == 'End of gases') THEN
-  WRITE(*,*)
-  WRITE(*,*) ' Reached end of gases'
-  WRITE(*,*)
-  GO TO 42   !  End of gase  block
-END IF
+IF (nam(1) == 'End of gases') GO TO 42
 
 IF (nct /= n+1) GO TO 41
 
@@ -1364,13 +1334,7 @@ IF (icomplete == 1) THEN
   sto(1) = -1.
   nct = 0
   
-  
-  IF (nam(1) == 'End of minerals') THEN
-    WRITE(*,*)
-    WRITE(*,*) ' Reached end of minerals'
-    WRITE(*,*)
-    GO TO 32   !  End of minerals block
-  END IF
+  IF (nam(1) == 'End of minerals') GO TO 32
   
 !     ----decide if reaction occurs in chosen system
   
@@ -1620,16 +1584,10 @@ DO  i = 1, n
     WRITE(*,*)
     REWIND iunit5
     READ(iunit5,*) dummy
-5005 READ(iunit5,*) nam(1)
-     
+    5005   READ(iunit5,*) nam(1)
     IF (nam(1) == 'End of gases') THEN
-    WRITE(*,*)
-    WRITE(*,*) ' Reached end of gases'
-    WRITE(*,*)
-    GO TO 5006   !  End of gases block
-  END IF
-    
-    
+      GO TO 5006
+    END IF
     GO TO 5005
     5006   icheck = mnrl_new - mnrl
     WRITE(*,*)
@@ -1988,7 +1946,8 @@ IF (dumstring == 'End of surface complexation') GO TO 62
 
 BACKSPACE (iunit5)
 
-READ(iunit5,*,ERR=6006) nam(1),n,(sto(i+1),nam(i+1),i=1,n), (alogk0(l),l=1,ntemp)
+READ(iunit5,*,ERR=6006) nam(1),n,(sto(i+1),nam(i+1),i=1,n),  &
+    (alogk0(l),l=1,ntemp)
 
 sto(1) = -1.
 
@@ -2516,10 +2475,10 @@ END IF
 !  600 format(' ',a12,1pe12.4,<ncomp>(0pf7.2))
 !  601 format(' ',a12,1pe12.4,<ncomp+nsurf>(0pf7.2))
 !  602 format(' ',27x,<ncomp+nsurf>a7)
-599 FORMAT('       ',27X,100A7)
-600 FORMAT('       ',a18,1PE12.4,100(0PF7.2))
-601 FORMAT('       ',a18,1PE12.4,100(0PF7.2))
-602 FORMAT('       ',27X,100A7)
+599 FORMAT(' ',27X,100A7)
+600 FORMAT(' ',a18,1PE12.4,100(0PF7.2))
+601 FORMAT(' ',a18,1PE12.4,100(0PF7.2))
+602 FORMAT(' ',27X,100A7)
 
 IF (ncmplx > 0) THEN
   IF (iprint == 1) THEN

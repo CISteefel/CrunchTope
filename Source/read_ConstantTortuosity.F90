@@ -122,11 +122,8 @@ IF(ls /= 0) THEN
     END IF
     
   ELSE
-    
     GO TO 10
-    
   END IF
-  
   GO TO 10
   
 ELSE         ! No string found

@@ -125,9 +125,6 @@ END INTERFACE
 INTERFACE
 SUBROUTINE bdrecalc_by_grid(ncomp,nspec,jx,jy,jz,scorr)
   USE crunchtype
-  USE concentration
-  USE params
-  USE RunTime
   IMPLICIT NONE
   INTEGER(I4B), INTENT(IN)                      :: ncomp
   INTEGER(I4B), INTENT(IN)                      :: nspec
@@ -179,7 +176,6 @@ REAL(DP)                                                  :: satgasOld
 REAL(DP)                                                  :: df
 REAL(DP)                                                  :: sumchgbd
 REAL(DP)                                                  :: xvectors
-REAL(DP)                                                  :: xvectors_H2O
 REAL(DP)                                                  :: xvecgas
 REAL(DP)                                                  :: xvec_ex
 REAL(DP)                                                  :: xspecdiffw
@@ -192,10 +188,8 @@ REAL(DP)                                                  :: yvectors
 REAL(DP)                                                  :: yvecgas
 REAL(DP)                                                  :: yvec_ex
 REAL(DP)                                                  :: xbdflux
-REAL(DP)                                                  :: xbdflux_H2O
 REAL(DP)                                                  :: ybdflux
 REAL(DP)                                                  :: source
-REAL(DP)                                                  :: source_H2O
 REAL(DP)                                                  :: aq_accum
 REAL(DP)                                                  :: gas_accum
 REAL(DP)                                                  :: gas_transport
@@ -242,7 +236,7 @@ aq_accum = 0.0d0
 jz = 1
 j = (jz-1)*nx*ny + (jy-1)*nx + jx
 
-Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/( por(jx,jy,jz)*satliq(jx,jy,jz) )
+Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
 
 pi = DACOS(-1.0d0)
 portemp = por(jx,jy,jz)
@@ -265,26 +259,28 @@ IF (cylindrical) THEN
   df = 1.0d0
   MultiplyCell = CellVolume
   IF (CylindricalDivideVolume) THEN
-    df = 1.0/CellVolume
-    MultiplyCell = 1.0
+      df = 1.0/CellVolume
+      MultiplyCell = 1.0
   END IF
 ELSE IF (spherical) THEN
   CellVolume = (4.0d0/3.0d0)*pi*( (x(jx)+0.5d0*dxx(jx))**3.0d0 - (x(jx)-0.5d0*dxx(jx))**3.0d0  )
   df = 1.0d0
   MultiplyCell = CellVolume
   IF (CylindricalDivideVolume) THEN
-    df = 1.0/CellVolume
-    MultiplyCell = 1.0
+      df = 1.0/CellVolume
+      MultiplyCell = 1.0
   END IF
+!!  df = 1.0/CellVolume
+!!  MultiplyCell = 1.0
 ELSE
-  CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-  df = 1.0d0
-  MultiplyCell = CellVolume
+      CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
+       df = 1.0d0
+       MultiplyCell = CellVolume
+!!      df = 1.0/CellVolume
+!!      MultiplyCell = 1.0
 END IF
 
 fxmax = 0.0d0 
-
-call xmassNodeByNode(jx,jy,jz,ncomp,nspec)
 
 IF (species_diffusion .and. nBoundaryConditionZone == 0) THEN
 
@@ -667,10 +663,7 @@ ELSE
 
 END IF
 
-!!! End of Boundary Concentrations
-
 200 IF (species_diffusion) THEN
-      
   dgradw = 0.0
   dgrade = 0.0
   dgrads = 0.0
@@ -730,7 +723,6 @@ DO i = 1,ncomp
       ELSE
         xvecgas = 0.0
       END IF
-      continue
     ELSE      
       xvectors = a(jx,jy,jz)*scw(i)
       IF (isaturate == 1) THEN
@@ -895,22 +887,24 @@ DO i = 1,ncomp
   
 !!NOTE:  "GIMRT" source term in m**3/year
   source = 0.0d0
-  
   IF (wells) THEN
    
     DO npz = 1,npump(jx,jy,jz)
     
       IF (qg(npz,jx,jy,jz) > 0.0) THEN    ! Injection well
-
-        source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
-!!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
-        source_H2O = 0.0d0
+        !!! if (i == 1) then
+        !!!   source = 0.d0
+        !!! else
+          source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*scond(i,intbnd(npz,jx,jy,jz))/CellVolume
+          continue
+        !!! end if
 
       ELSE IF (qg(npz,jx,jy,jz) < 0.0) THEN    ! Pumping well
-
-        source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
-!!!        source_H2O = source_H2O + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*55.50843506/CellVolume
-        source_H2O = 0.0d0
+        !!! if (i == 1) then
+        !!!   source = 0.d0
+        !!! else
+          source = source + xgram(jx,jy,jz)*qg(npz,jx,jy,jz)*rotemp*s(i,jx,jy,jz)/CellVolume
+        !!! end if
         
       ELSE
         CONTINUE
@@ -922,6 +916,18 @@ DO i = 1,ncomp
 
   GasSource = 0.0
 
+!!!  IF (isaturate == 1) THEN
+!!!    IF (gaspump(1,jx,jy,jz) /= 0.0) THEN
+!!!      IF (cylindrical .OR. spherical) THEN
+!!        GasSource = gaspump(jx,jy,jz)*sgaspump(i)
+!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
+!!!      ELSE
+!!!        GasSource = gaspump(1,jx,jy,jz)*sgaspump(i)/CellVolume
+!!!      END IF
+!!!    ELSE
+!!!      GasSource = 0.0
+!!!    END IF
+!!!  END IF
 
   IF (jy == 1) THEN
     IF (ReadNuft .AND. infiltration /= 0) THEN
@@ -933,19 +939,22 @@ DO i = 1,ncomp
     recharge = 0.0
   END IF
   
-  !!! First the solutes
   IF (i /= ikh2o) THEN
-    
-    aq_accum = 1.0d0/dt * xgram(jx,jy,jz)*portemp*                            &
-      ( rotemp*satl*s(i,jx,jy,jz) - rotempOld*satlOld*sn(i,jx,jy,jz) )*(1.0 + Retardation*distrib(i) )
+    aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
+      (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) -            &
+       rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
 
-  !!! Then H2O
   ELSE
-    aq_accum = 1.0d0/dt * (s(i,jx,jy,jz) - sn(i,jx,jy,jz))  !! Units of mol/m^3_medium/s
+  !!!  aq_accum = r*(s(i,jx,jy,jz) - sn(i,jx,jy,jz))
+    
+     aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
+       (rotemp*satl*s(i,jx,jy,jz) -            &
+        rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
   END IF
   
   IF (isaturate == 1) THEN
-    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
+!!!    gas_accum = portemp*r*(satgas*sgas(i,jx,jy,jz) - satgasOld*sgasn(i,jx,jy,jz))
+        gas_accum = portemp*r*satgas*(sgas(i,jx,jy,jz) - sgasn(i,jx,jy,jz))
   ELSE
     gas_accum = 0.0
     gas_transport = 0.0
@@ -972,7 +981,8 @@ DO i = 1,ncomp
       gas_transport = df*eg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    fxx(ind) = MultiplyCell* (aq_accum + gas_accum + ex_accum - recharge - source - GasSource ) &
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )&
+        + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz) + yvectors*df  &
         + df*ybdflux + yvec_ex*df  &
         + yvecgas*df + ex_transport  &
         + gas_transport 
@@ -986,15 +996,7 @@ DO i = 1,ncomp
       gas_transport = df*bg(jx,jy,jz)*sgas(i,jx,jy,jz)
     END IF
     
-    IF (i == ikh2o) THEN
-      
-      fxx(ind) = MultiplyCell*(aq_accum - source_H2O) 
-
-      CONTINUE
-      
-    ELSE
-         
-         fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource)  &
               + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz)   &  !! Diagonal aqueous transport
               + xvectors*df     &   !! Off-diagonal aqueous transport
               + df*xbdflux      &   !! Advective flux through boundary
@@ -1004,23 +1006,18 @@ DO i = 1,ncomp
               + gas_transport   &   !! diagonal gas transport
               + xspecdiffw*df   &   !! Species-dependent diffusion
               + xspecdiffe*df       !! Species-dependent diffusion
-           
-    END IF
     
+      CONTINUE
       
   ELSE
       
     IF (ierode == 1) THEN
       ex_transport =  df*sch(i,jx,jy,jz)* ( bbu(jx,jy,jz) + ebu(jx,jy,jz) )
     END IF
-    
     IF (isaturate == 1) THEN
       gas_transport = df*sgas(i,jx,jy,jz)* ( bg(jx,jy,jz)+ eg(jx,jy,jz) )
     END IF
-    
-    IF (i /= ikh2o) THEN
-      
-      fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
+    fxx(ind) = MultiplyCell*(aq_accum + gas_accum + ex_accum - recharge - source - GasSource )         &
         + xgram(jx,jy,jz)*df*b(jx,jy,jz)*s(i,jx,jy,jz) + xgram(jx,jy,jz)*df*e(jx,jy,jz)*s(i,jx,jy,jz)  &   !! Diagonal aqueous transport
         + xvectors*df + yvectors*df       & 
         + df*xbdflux + df*ybdflux         &
@@ -1029,11 +1026,6 @@ DO i = 1,ncomp
         + ex_transport + gas_transport    &
         + xspecdiffw*df + xspecdiffe*df   &
         + xspecdiffs*df + xspecdiffn*df       ! Species-dependent diffusion
-    ELSE
-         
-      fxx(ind) = MultiplyCell*(aq_accum - source_H2O) 
-          
-    END IF
         
   END IF
   
@@ -1055,7 +1047,7 @@ DO is = 1,nsurf
     surf_accum = r*check
 !!!    surf_accum = r*(ssurf_local(is)-ssurfn(is,jx,jy,jz))
 !!!    surf_accum = r*( ssurf_local(is) - c_surf(is,jinit(jx,jy,jz)) )
-!!!    surf_accum = 0.0d0
+    surf_accum = 0.0d0
     xvec_surf = 0.0
     yvec_surf = 0.0
   END IF

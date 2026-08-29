@@ -304,6 +304,7 @@ REAL(DP)                                                   :: dt
 REAL(DP)                                                   :: RoAveLeft
 REAL(DP)                                                   :: RoAveRight
 REAL(DP)                                                   :: qxSum
+REAL(DP)                                                   :: TotalMoles
 
 INTEGER(I4B)                                               :: jyy
 
@@ -761,7 +762,7 @@ IF (CalculateFlow) THEN
  ELSE initial_flow_solver_if
 
   atolksp = 1.D-50
-  rtolksp = GIMRT_rtolksp
+!!!  rtolksp = GIMRT_rtolksp
   rtolksp = 1.0D-25
   dtolksp = 1.0D-30
 
@@ -1308,7 +1309,7 @@ DO WHILE (nn <= nend)
         ELSE flow_solver_if_time
    
           atolksp = 1.D-50
-          rtolksp = GIMRT_rtolksp
+!!!          rtolksp = GIMRT_rtolksp
           rtolksp = 1.0D-25
           dtolksp = 1.0D-30
 
@@ -1686,6 +1687,14 @@ DO WHILE (nn <= nend)
 
 !   NOTE:  call to OLDCON not needed since total concentrations are transported
 !     (SN already calculated)
+    
+DO jz = 1,nz
+  DO jy = 1,ny
+    DO jx = 1,nx
+      CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+    END DO
+  END DO
+END DO
 
     newtmax = 0
     loop4001: DO jz = 1,nz
@@ -1695,11 +1704,6 @@ DO WHILE (nn <= nend)
           CALL keqcalc2(ncomp,nrct,nspec,ngas,nsurf_sec,jx,jy,jz)
           IF (igamma == 3) THEN
 
-            IF (Duan .OR. Duan2006) THEN
-!!!              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-            ELSE
-!!!              CALL !!! gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-            END IF
             CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
 
           END IF
@@ -1757,18 +1761,14 @@ DO WHILE (nn <= nend)
           END DO
         END DO
       END DO
+      
+      CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
 
       IF (igamma == 2) THEN
         DO jz = 1,nz
           DO jy = 1,ny
             DO jx = 1,nx
-              
-!!!            IF (Duan .OR. Duan2006) THEN
-!!!              CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-!!!            ELSE
-!!!              CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-!!!            END IF
-              
+                       
             CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             
             END DO
@@ -1868,24 +1868,13 @@ DO WHILE (nn <= nend)
           END DO
         END DO
 
-        IF (igamma == 3 .or. igamma == 2 .or. igamma == 0) THEN
           jz = 1
           DO jy = 1,ny
-            DO jx = 1,nx
-              
-                IF (Duan .OR. Duan2006) THEN                 
-!!!                  CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-                 ELSE
-!!!                   CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-                 END IF
-                  
-                CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-
+            DO jx = 1,nx               
+              CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             END DO
           END DO
           
-        END IF
-        
         jz = 1
         DO jy = 1,ny
           DO jx = 1,nx
@@ -1896,6 +1885,9 @@ DO WHILE (nn <= nend)
             CALL oldsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
           END DO
         END DO
+        
+        gammawater(:,:,:) = EXP( lngammawater(:,:,:) )
+
 
     ! **************  START NEWTON LOOP  *******************
 
@@ -1903,29 +1895,23 @@ DO WHILE (nn <= nend)
         icvg = 1
         iterat = 0 ! number of Newton iterations
 
-    newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 12)
+        newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 12)
           NE = NE + 1
           iterat = iterat + 1
           
+          jz = 1
+          do jy = 1,ny
+            do jx = 1,nx
+              CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
+            end do
+          end do
           CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
-		      CALL jacobian(ncomp,nspec,nx,ny,nz)								   
-            
+          CALL jacobian(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
+
           jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
-                 
-              IF (Duan .OR. Duan2006) THEN
-!!!                    CALL gamma_co2(ncomp,nspec,ngas,jx,jy,jz)
-              ELSE
-!!!                    CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-              END IF
-                  
-              if (igamma == 2) then
-                CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
-              end if
- 
-              CALL totconc(ncomp,nspec,jx,jy,jz)
-                  
+              CALL totconc(ncomp,nspec,jx,jy,jz)    
             END DO
           END DO 
                           
@@ -1969,6 +1955,7 @@ DO WHILE (nn <= nend)
               IF (isaturate == 1) THEN
                 CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
               END IF
+              
               IF (ierode == 1) THEN
                 CALL totexchange(ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
                 CALL totsurf(ncomp,nsurf,nsurf_sec,jx,jy,jz)
@@ -2051,8 +2038,8 @@ DO WHILE (nn <= nend)
               if (petscon) then
 
                 atolksp = 1.D-50
-    !!            rtolksp = 1.D-09
-                rtolksp = GIMRT_rtolksp
+                rtolksp = 1.D-09
+ !!!               rtolksp = GIMRT_rtolksp
                 dtolksp = 1.D+05
 
                 pc%v = userC(5)
@@ -2118,7 +2105,6 @@ DO WHILE (nn <= nend)
                   IF (ABS(yh(i,jx)) > MaximumCorrection) THEN
                     write(*,*) 'Implementing MaximumCorrection'
                     write(*,*) TRIM( ulab(i) ),yh(i,jx)
-                    write(*,*) 
 !!!                    read(*,*)
                     yh(i,jx) = SIGN(MaximumCorrection,yh(i,jx))
                   ELSE
@@ -2242,31 +2228,32 @@ DO WHILE (nn <= nend)
                 
                 !!!   Update ionic strength
                 
+                                !!!   Update ionic strength
+
                 ind = ncomp + nexchange + nsurf + npot + 1
-                IF (DABS(xn(ind)) > MaximumCorrection) THEN
-                  xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                IF (DABS(xn(ind)) > 0.5) THEN
+                  xn(ind) = SIGN( 0.5,xn(ind) )
                 ELSE
                   CONTINUE
                 END IF
-                
+
                 IF ( sion(jx,jy,jz) == 0.0d0 ) THEN
                   sion(jx,jy,jz) = 1.0D-06
                 ELSE
                   sion(jx,jy,jz) = EXP( LOG( sion(jx,jy,jz) ) + xn(ind) )
                 END IF
-                
+
           !!!   Update lngammawater
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(xn(ind)) > MaximumCorrection) THEN
-                  xn(ind) = SIGN(MaximumCorrection,xn(ind))
+                IF (DABS(xn(ind)) > 0.5) THEN
+                  xn(ind) = SIGN(0.5,xn(ind))
                 ELSE
                   CONTINUE
                 END IF
                 
                 lngammawater(jx,jy,jz) = lngammawater(jx,jy,jz) + xn(ind) 
-                
-                
+                         
               END DO
             END DO
 
@@ -2280,7 +2267,8 @@ DO WHILE (nn <= nend)
             DO jx = 1,nx
               j = (jy-1)*nx+jx
               
-              DO i = 2,ncomp
+              !!! Flag
+              DO i = 1,ncomp
                 ind = (j-1)*(neqn) + i
                 
                 IF (ResidualTolerance /= 0.0d0) THEN
@@ -2343,23 +2331,13 @@ DO WHILE (nn <= nend)
     5017 CONTINUE
         IF (icvg == 1) THEN
           
-          MaxValFx = MaxVal(fxx)
-          MaxFx    = MaxLoc(fxx)
-          
-          checkInteger1 = MaxFx(1)/neqn
-          checkInteger2 = checkInteger1*neqn
-          checkInteger3 = MaxFx(1) - checkInteger2
-          
-          write(*,*)
-          write(*,*) ' Newton iterations= ', iterat
-          write(*,*) ' Failure to converge at grid cell = ', checkInteger1
-          write(*,*) ' Failure to converge for primary variable: ', checkInteger3
-          write(*,*) ' FxxFail = ', FxxFail
-          write(*,*)
-          do kk = 2,neqn
-            write(*,*) kk, '  ', fxx(checkInteger2+kk)
+          !!! Check TotalMoles
+          TotalMoles = 0.d0
+          do ik = 2,ncomp+nspec
+            TotalMoles = TotalMoles + sp10(ik,1,1,1)
           end do
-          write(*,*)
+          write(*,*) ' TotalMoles at failure point',TotalMoles
+
 
           ddtold = dt_GIMRT
           dt_GIMRT = dt_GIMRT/10.0
@@ -2439,13 +2417,18 @@ END IF    !  END OF GIMRT NEWTON LOOP
 !!!  ***************************************************
        
 !! For greater accuracy, update reaction rate
+     
+ChangeH2O    = 0.0
+ChangeH2     = 0.0
+ChangeH2_gas = 0.0
+
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-!!      CALL totconc(ncomp,nspec,jx,jy,jz))
-      CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
       
-IF (BatchReactor .OR. BatchReactor2) THEN
+      CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
+        
+      IF (BatchReactor .OR. BatchReactor2) THEN
         
         CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
             
@@ -2458,8 +2441,7 @@ IF (BatchReactor .OR. BatchReactor2) THEN
         porsatro         = por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)
         
         totH2O           = CellVolume * (s(1,jx,jy,jz) - sn(1,jx,jy,jz)  )
-        sp10oldH2        = EXP( spold(6,jx,jy,jz) )
-        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - sp10oldH2 )  
+        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - EXP(spold(6,jx,jy,jz) )  )
         
         ChangeInH2_gas   = EXP( spgas(1,jx,jy,jz) ) -  EXP( spgasold(1,jx,jy,jz) ) 
         totGasH2         = CellVolume * por(jx,jy,jz) * satgas * ChangeInH2_gas
@@ -2468,8 +2450,8 @@ IF (BatchReactor .OR. BatchReactor2) THEN
         ChangeH2(jx)     = ChangeH2(jx) + totAqueousH2
         ChangeH2_gas(jx) = ChangeH2_gas(jx) + totGasH2
 
-END IF
-
+      END IF
+        
     END DO
   END DO
 END DO

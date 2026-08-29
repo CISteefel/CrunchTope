@@ -47,8 +47,10 @@ USE crunchtype
 USE solver, ONLY:  XvecCrunchD, BvecCrunchD
 USE transport, ONLY:  aDD,bDD,cDD,dDD,eDD,fDD,gDD,hDD,iDD
 
-#include <petsc/finclude/petsc.h>
-      use petsc
+#include "petsc/finclude/petscmat.h"
+#include "petsc/finclude/petscksp.h"
+USE petscmat
+USE petscksp
  
 IMPLICIT NONE
 

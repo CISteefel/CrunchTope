@@ -80,8 +80,6 @@ INTEGER(I4B)                                                :: lss
 speciesnotfound = .true.
 REWIND nout
 
-distrib = 0.0d0
-
 ncnt = 0
 100 READ(nout,'(a)',END=300) zone
 dumstring = zone(1:13)
@@ -140,7 +138,6 @@ GO TO 100  ! Keep reading from file until the end of list is found
 !  Go here when the list of retarded species is complete--check against primary species list
 
 300 DO kk = 1,ncnt
-      
   namtemp = nam_retard(kk)
   CALL stringlen(namtemp,lss)
   speciesnotfound = .true.
@@ -160,10 +157,7 @@ GO TO 100  ! Keep reading from file until the end of list is found
     READ(*,*)
     STOP
   END IF
-  
 END DO
-
-CONTINUE
 
 
 END SUBROUTINE read_kd

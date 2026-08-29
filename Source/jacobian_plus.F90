@@ -84,8 +84,7 @@ DO ksp = 1,nspec
   spec_conc = sp10(ksp+ncomp,jx,jy,jz)
   dcorrectmp = d_correct(ksp+ncomp)
   chgtmp = chg(ksp+ncomp)
-  
-  DO i = 2,ncomp
+  DO i = 1,ncomp
     IF (muaq(ksp,i) /= 0.0) THEN
       mutemp = muaq(ksp,i)
       DO i2 = 1,ncomp
@@ -98,7 +97,6 @@ DO ksp = 1,nspec
       END DO
     END IF
   END DO
-  
 END DO
 
 DO i = 1,ncomp

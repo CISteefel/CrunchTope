@@ -1,6 +1,6 @@
 ALL: CrunchMain
 
-FFLAGS  = -w -ffpe-trap=invalid,overflow,zero -fcheck=all   
+FFLAGS  = -w -ffpe-trap=invalid,overflow,zero   
 
 SOURCEF = \
           crunchtype.F90\
@@ -18,14 +18,12 @@ SOURCEF = \
           temperature.F90\
           flow.F90\
           crunch_interface.F90\
-          hydraulic_function.F90\
           CrunchFunctions.F90\
           isotope.F90\
-	  CrunchModules.F90\
           NanoCrystal.F90\
           CrunchTopeDriver.F90\
-          richards.F90\
           CrunchTope.F90\
+          AffinityNumerical.F90\
           AllocateALL.F90\
           AllocateOS3D.F90\
           AllocateGasesGimrt.F90\
@@ -279,7 +277,6 @@ SOURCEF = \
           squeeze.F90\
           sschaine.F90\
           sschaine_hyph.F90\
-          read_richards.F90\
           StartTope.F90\
           SteadyState.F90\
           stringlen.F90\
@@ -323,8 +320,9 @@ SOURCEF = \
           velocalcNS.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
+          read_watertablefile.F90\
+          read_watertable_timeseries.F90\
           interp3.F90\
-          interp.F90\
           read_transpiration.F90\
           read_evaporation.F90\
           read_timeseries.F90\
@@ -332,359 +330,36 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
+	  richards.F90\
+          flux_Richards.F90\
+          Jacobian_Richards.F90\
+          Jacobian_Richards_steady.F90\
+          read_boundary_condition_Richards.F90\
           read_vanGenuchten_parameters.F90\
+          residual_Richards.F90\
+          residual_Richards_steady.F90\
+          solve_Richards.F90\
+          solve_Richards_steady.F90\
+          vanGenuchten_model.F90\
+          vanGenuchten_model_kr.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
+          read_vgafile.F90\
+          read_vgnfile.F90\
+          read_wcrfile.F90\
           read_walltime.F90\
           read_permxfile.F90\
           read_permyfile.F90\
           read_mineralfile.F90\
           read_eastriver.F90\
 
-OBJSF  =  crunchtype.o\
-          params.o\
-          strings.o\
-          io.o\
-          concentration.o\
-          mineral.o\
-          transport.o\
-          medium.o\
-          modflowModule.o\
-          ReadFlow.o\
-          RunTime.o\
-          solver.o\
-          temperature.o\
-          flow.o\
-          crunch_interface.o\
-          CrunchFunctions.o\
-          isotope.o\
-          hydraulic_function.o\
-          CrunchModules.o\
-          NanoCrystal.o\
-          CrunchTopeDriver.o\
-          richards.o\
-          CrunchTope.o\
-          AllocateOS3D.o\
-          AllocateGIMRT.o\
-          AllocateALL.o\
-          AllocateGasesGimrt.o\
-          AllocateGasesOS3D.o\
-          AqueousFluxInitialize.o\
-          AqueousFluxWrite.o\
-          AqueousToBulkConvert.o\
-          AssembleLocal.o\
-          AssembleGlobal.o\
-          AverageRo.o\
-          bd_diffuse.o\
-          bd_diffuse_by_grid.o\
-          bdcalc.o\
-          bdexchange.o\
-          bdgas.o\
-          bdgas_by_grid.o\
-          bdrecalc.o\
-          bdrecalc_by_grid.o\
-          bdsurf.o\
-          breakfind.o\
-          BreakFindPlusCount.o\
-          BreakthroughInitialize.o\
-          BreakthroughWrite.o\
-          CalciteBulkStoichiometry.o\
-          CalciteStoichiometry.o\
-          CalciteStoichiometryBoundary.o\
-          CalculateDHAD.o\
-          CalculateTortuosity.o\
-          coeff.o\
-          coeff_D.o\
-          coeffCylinder.o\
-          coeffCylinder_D.o\
-          coeffCylinderDiffuse.o\
-          coeffCylinderNUFT.o\
-          coeffDiffuse.o\
-          coeffNuft.o\
-          coeffSphericalNew.o\
-          coeffSphericalNew_d.o\
-          convan.o\
-          CourantStep.o\
-          CourantStepAlt.o\
-          CPUdefinition.o\
-          CrunchPETScFinalizeSolver.o\
-          CrunchPETScInitializeChemistry.o\
-          CrunchPETScInitializeDiffusion.o\
-          CrunchPETScInitializePressure.o\
-          CrunchPETScTolerances.o\
-          database.o\
-          decay.o\
-          decbt90.o\
-          density.o\
-          dispersivity.o\
-          duan.o\
-          equilib_co2.o\
-          erosion.o\
-          ex_activity.o\
-          exactivity_init.o\
-          exchange.o\
-          exchange_init.o\
-          ExchangeConcentration.o\
-          find_condition.o\
-          find_firststring.o\
-          find_string.o\
-          FindMaxFlow.o\
-          FirstAllocation.o\
-          fit.o\
-          fitgamma.o\
-          FluxWeightedConcentrationInitialize.o\
-          FluxWeightedConcentrationWrite.o\
-          FormatForNameList.o\
-          FxTopeGlobal.o\
-          FxTopeLocal.o\
-          gamma_co2.o\
-          gammaUpdated.o\
-          gamma_init_co2.o\
-          gamma_init.o\
-          gamma_local.o\
-          gascoeffCylinder.o\
-          gasdiff.o\
-          gases.o\
-          gases_init_co2.o\
-          gases_init.o\
-          GasInjection.o\
-          GetMineralNumber.o\
-          GasPartialPressure.o\
-          GasPartialPressure_Init.o\
-          GetPrimarySpeciesNumber.o\
-          GhostCells.o\
-          GIMRTCrunchPETScTolerances.o\
-          GlobalArrayAllocation.o\
-          GlobalDensity.o\
-          graphics3d.o\
-          GraphicsKaleidagraph.o\
-          GraphicsTecplot.o\
-          GraphicsVisit.o\
-          harmonic.o\
-          InitializeCalciteStoichiometry.o\
-          isotope-read_series.o\
-          IsotopeBreakthroughInitialize.o\
-          IsotopeBreakthroughWrite.o\
-          jac_exchange.o\
-          jac_exchange_local.o\
-          jac_local.o\
-          jacexchange.o\
-          jacexchange_init.o\
-          jacgas.o\
-          jacgas_local.o\
-          jacminTope.o\
-          jacobian.o\
-          jacobian_init.o\
-          jacobian_plus.o\
-          jacpotential.o\
-          JacPotentialLocal.o\
-          jacrkin.o\
-          jacsurf.o\
-          jacsurf_init.o\
-          jacsurf_local.o\
-          keqcalc2.o\
-          keqcalc2_init_co2.o\
-          keqcalc2_init.o\
-          keqcalcGasOnly.o\
-          lubksb90.o\
-          ludcmp90.o\
-          majuscules.o\
-          mindecay.o\
-          mineralfind.o\
-          mineral_update.o\
-          MineralBreakthroughWrite.o\
-          MineralBreakthroughInitialize.o\
-          modread.o\
-          ModScan.o\
-          movie.o\
-          newfile.o\
-          nrerror.o\
-          NviewInit.o\
-          NviewOutput.o\
-          oldcon.o\
-          oldcongas.o\
-          oldkd.o\
-          oldsurf.o\
-          oldsurface.o\
-          os3d_newton.o\
-          PauseFor.o\
-          PestExchange.o\
-          PestSurface.o\
-          PestScaleOutput.o\
-          porcalc.o\
-          porperm.o\
-          Pressure.o\
-          PrimarySpeciesCheck.o\
-          ratecheck.o\
-          reactionTope.o\
-          reactkin.o\
-          read98.o\
-          read_AqueousFluxSeries.o\
-          read_BoundaryConditionsByZone.o\
-          read_bound.o\
-          read_burialfile.o\
-          read_CatabolicPath.o\
-          read_concentration.o\
-          read_condition.o\
-          read_ConstantTortuosity.o\
-          read_constantflow.o\
-          read_constantgasflow.o\
-          read_coordinates.o\
-          read_dbs.o\
-          read_decay.o\
-          read_diffusion.o\
-          read_dispersion.o\
-          read_equil.o\
-          read_erosion.o\
-          read_exchange.o\
-          readFileName.o\
-          read_flowfile.o\
-          read_FluxWeightedConcentration.o\
-          read_gasdiffusion.o\
-          read_gasflowfile.o\
-          read_gaspump.o\
-          read_graphics.o\
-          read_gravity.o\
-          read_het.o\
-          read_infiltration.o\
-          read_integer.o\
-          read_ionexchangeBS.o\
-          read_ionexchangeMIN.o\
-          read_Isotopes.o\
-          read_Kd.o\
-          read_kinetics_Bio.o\
-          read_logical.o\
-          read_master.o\
-          read_mineral.o\
-          read_minkin.o\
-          read_minseries.o\
-          read_MODFLOWfile.o\
-          read_multpar.o\
-          read_multstring.o\
-          read_nuft.o\
-          read_par.o\
-          read_permfile.o\
-          read_permx.o\
-          read_permy.o\
-          read_permz.o\
-          read_pH.o\
-          read_porosity.o\
-          read_pressureAlternative.o\
-          read_pump.o\
-          read_restart.o\
-          read_series.o\
-          read_snapshot.o\
-          read_SolidDensity.o\
-          read_speciesdiffusion.o\
-          read_steady.o\
-          read_string.o\
-          read_surface.o\
-          read_surfacecomplex.o\
-          read_temp.o\
-          read_temperature.o\
-          read_title.o\
-          read_toperatio.o\
-          read_tortuosityfile.o\
-          read_TortuosityByZone.o\
-          readblock.o\
-          readbreak.o\
-          readCaseSensitive.o\
-          readCaseSensitivePar.o\
-          ReadFileNameOnly.o\
-          ReadFlowField.o\
-          readModFlowParameters.o\
-          readModFlowStress.o\
-          ReadPressureCondition.o\
-          readRecharge.o\
-          ReadSaturation.o\
-          readSingleString.o\
-          readtype1.o\
-          readtype2.o\
-          readtype3.o\
-          readtypescan1.o\
-          reallocate.o\
-          restart.o\
-          rocalc.o\
-          satcalc.o\
-          solbt90.o\
-          SolveDiffuse.o\
-          SolveDiffuseSpherical.o\
-          SolveGasDiffuse.o\
-          speciation.o\
-          species.o\
-          species_init.o\
-          SpeciesLocal.o\
-          squeeze.o\
-          sschaine.o\
-          sschaine_hyph.o\
-          read_richards.o\
-          StartTope.o\
-          SteadyState.o\
-          stringlen.o\
-          stringtype.o\
-          SurfaceComplex.o\
-          surf_init.o\
-          SurfaceCharge.o\
-          SurfaceCharge_init.o\
-          SurfaceConcentration.o\
-          SurfLocal.o\
-          swap.o\
-          timestep.o\
-          tot_ex.o\
-          totconc.o\
-          totconc_init.o\
-          totconc_plus.o\
-          totexchange.o\
-          totexchange_init.o\
-          totexchange_local.o\
-          totgas.o\
-          totgas_init.o\
-          totsurf.o\
-          totsurf_init.o\
-          totsurf_local.o\
-          tridag_ser.o\
-          tvd.o\
-          tvdNuft.o\
-          units_concentration.o\
-          units_distance.o\
-          units_time.o\
-          units_timeOutput.o\
-          UpdateExchanger.o\
-          velocalc.o\
-          WaterReacted.o\
-          WaterReactedNodeByNode.o\
-          xmass.o\
-          xmassNodeByNode.o\
-          xtoolInit.o\
-          xtoolOutput.o\
-          PressureNS.o\
-          velocalcNS.o\
-          read_pumptimeseriesfile.o\
-          read_pumplocationsfile.o\
-          interp3.o\
-          interp.o\
-          read_transpiration.o\
-          read_evaporation.o\
-          read_timeseries.o\
-          read_pumptimeseries.o\
-          read_pumplocations.o\
-          FRACTUREAPERTURE.o\
-          read_infiltration_2.o\
-          read_vanGenuchten_parameters.o\
-          read_tempreg.o\
-          read_tempregion.o\
-          read_tempts.o\
-          read_walltime.o\
-          read_permxfile.o\
-          read_permyfile.o\
-          read_mineralfile.o\
-          read_eastriver.o\
+objsf = $(sourcef:.F90=.o)
 
-LOCDIR   = .
+locdir = .
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules
 
 CrunchMain : ${OBJSF} #chkopts
-	-${FLINKER} -o CrunchTope_gfortran ${OBJSF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}
+	-${FLINKER} -o CrunchTope ${OBJSF} ${PETSC_FORTRAN_LIB} ${PETSC_LIB} ${FFLAGS}

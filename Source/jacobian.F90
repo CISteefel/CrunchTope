@@ -40,9 +40,7 @@
 !!! modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or 
 !!! derivative works thereof, in binary and source code form.
 
-!!!      ****************************************
-
-SUBROUTINE jacobian(ncomp,nspec,nx,ny,nz)
+SUBROUTINE jacobian(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
 USE crunchtype
 USE params
 USE concentration
@@ -57,6 +55,9 @@ IMPLICIT NONE
 
 INTEGER(I4B), INTENT(IN)                             :: ncomp
 INTEGER(I4B), INTENT(IN)                             :: nspec
+INTEGER(I4B), INTENT(IN)                             :: nsurf
+INTEGER(I4B), INTENT(IN)                             :: nexchange
+INTEGER(I4B), INTENT(IN)                             :: npot
 INTEGER(I4B), INTENT(IN)                             :: nx
 INTEGER(I4B), INTENT(IN)                             :: ny
 INTEGER(I4B), INTENT(IN)                             :: nz
@@ -76,50 +77,50 @@ INTEGER(I4B)                                         :: jx
 INTEGER(I4B)                                         :: jy
 INTEGER(I4B)                                         :: jz
 INTEGER(I4B)                                         :: ik
+INTEGER(I4B)                                         :: pos_IonS
+INTEGER(I4B)                                         :: pos_gammawater
 
 fjac = 0.0d0
+
+pos_IonS       = ncomp + nexchange + nsurf + npot + 1
+pos_gammawater = ncomp + nexchange + nsurf + npot + 1 + 1
 
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
-      
+
       ConvertToMeterCubed = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
 
       DO ksp = 1,nspec
         spec_conc = sp10(ksp+ncomp,jx,jy,jz)
         ik = ksp + ncomp
-        
+
+
+
         !!! Cycle through primary species
-        DO i = 2,ncomp                   !!! "i" is total concentration subscript (skip H2O here)
-          
+        DO i = 2,ncomp
           mutemp = muaq(ksp,i)
           IF (mutemp /= 0.0) THEN
-            
-            !!! Activity of H2O is captured elsewhere, so include no dependence on the H2O species concentration itself       
-            fjac(ikh2o,i,jx,jy,jz) = 0.0d0
-            
-            DO i2 = 2,ncomp              !!! derivative with respect to
-
+            DO i2 = 1,ncomp
+              IF (i2 == ikh2o) CYCLE
               fjac(i2,i,jx,jy,jz) = fjac(i2,i,jx,jy,jz) +           &
                  mutemp*muaq(ksp,i2)*spec_conc
-
             END DO
-
+            fjac(pos_IonS,i,jx,jy,jz) = fjac(pos_IonS,i,jx,jy,jz)  &
+               + mutemp*deriv_conc(ik,pos_IonS,jx,jy,jz)
+            fjac(pos_gammawater,i,jx,jy,jz) = fjac(pos_gammawater,i,jx,jy,jz)  &
+               + mutemp*deriv_conc(ik,pos_gammawater,jx,jy,jz)
           END IF
-          
         END DO
         !!! End of cycle through primary species
-        
-      END DO
 
-      DO i = 1,ncomp
-        
-        fjac(i,i,jx,jy,jz) = fjac(i,i,jx,jy,jz) + sp10(i,jx,jy,jz)
+      END DO                          !!! closes DO ksp = 1,nspec
 
-      END DO
-
+      fjac(1,1,jx,jy,jz) = sp10(1,jx,jy,jz)
       
-      !!!fjac(ikh2o,ikh2o,jx,jy,jz) = sp10(ikh2o,jx,jy,jz)
+      DO i = 2,ncomp
+        fjac(i,i,jx,jy,jz) = fjac(i,i,jx,jy,jz) + sp10(i,jx,jy,jz)
+      END DO
 
     END DO
   END DO
@@ -127,4 +128,3 @@ END DO
 
 RETURN
 END SUBROUTINE jacobian
-!***********************************************************

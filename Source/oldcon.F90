@@ -46,9 +46,6 @@ SUBROUTINE oldcon(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,jx,jy,jz)
 USE crunchtype
 USE params
 USE concentration
-USE medium
-USE transport, ONLY: satliq,satliqold
-USE temperature, ONLY: ro
 
 IMPLICIT NONE
 
@@ -69,16 +66,13 @@ INTEGER(I4B), INTENT(IN)                      :: jz
 REAL(DP)                                      :: sum1
 REAL(DP)                                      :: sum2
 REAL(DP)                                      :: sum3
-REAL(DP)                                      :: ConvertToMeterCubed
 
 INTEGER(I4B)                                  :: i
 INTEGER(I4B)                                  :: ksp
 INTEGER(I4B)                                  :: nex
 INTEGER(I4B)                                  :: ns
 
-ConvertToMeterCubed = por(jx,jy,jz)*satliq(jx,jy,jz)*ro(jx,jy,jz)
-
-DO i = 2,ncomp
+DO i = 1,ncomp
   sum1 = 0.0
   sum2 = 0.0
   sum3 = 0.0
@@ -91,15 +85,10 @@ DO i = 2,ncomp
   DO ns = 1,nsurf_sec
     sum3 = sum3 + musurf(ns,i)*spsurf10(ns+nsurf,jx,jy,jz)
   END DO
-     
   sn(i,jx,jy,jz) = sum1 + sp10(i,jx,jy,jz)
-  
   sexold(i,jx,jy,jz) = sum2
   ssurfold(i,jx,jy,jz) = sum3
-  
 END DO
-  
-sn(ikh2o,jx,jy,jz) = sp10(ikh2o,jx,jy,jz)
 
 RETURN
 END SUBROUTINE oldcon

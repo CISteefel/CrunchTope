@@ -246,19 +246,23 @@ REAL(DP)                                                        :: testSigma
 
 REAL(DP)                                                        :: liqsat_fac, sat
 
-REAL(DP)                                                        :: lnActivity
-CHARACTER (LEN=3)                                               :: ulabPrint
-
 !!!NoFractionationDissolution = .false.
 
 SetToAqueousMoleFraction = .FALSE.
 
+
+
+
 IF (JacobianNumerical) THEN
-  
-  write(*,*)
-  write(*,*) ' Numerical Jacobian associated with Hellmann rate law no longer supported'
-  write(*,*)
-  stop
+    
+  perturb = 1.d-09 
+  sppTMP = sp(:,jx,jy,jz)
+  sppTMP10(:) = sp10(:,jx,jy,jz)
+
+  DO i = 1,ncomp
+    sppTMPperturb(i) = sppTMP(i) + perturb
+    sppTMP10perturb(i) = DEXP(sppTMPperturb(i))
+  END DO
 
 END IF
 
@@ -323,6 +327,7 @@ DO k = 1,nkin
 
     jac_rmin(:,:,k) = 0.0d0
     
+
   ELSE   !! Case where Jacobian of mineral reactions are calculated (block above skips all computation of Jacobian)
     
     jac_pre = 0.0d0
@@ -334,6 +339,7 @@ DO k = 1,nkin
 !***********  What surface area to use ************************
       
 !!  Taken from reaction.F90
+      
       
 ! ************* Saturation state dependence of rate ********
    
@@ -349,13 +355,17 @@ DO k = 1,nkin
         IF (AffinityDepend1(np,k) == 1.0D0) THEN
           term1 = sign*DABS(snorm(np,k) - 1.0D0)
         ELSE
-!!!       Should be the general case, with nonlinear exponents on "snorm" term possible (calculated in reactionTope)
+!!! Should be the general case, with nonlinear exponents on "snorm" term possible (calculated in reactionTope)
           term1 = sign*DABS(snorm(np,k) - 1.0D0)**(AffinityDepend1(np,k))
         END IF
 
         IF (imintype(np,k) == 5 .OR. UseDissolutionOnly) THEN                          !! Dissolution only
 
-          AffinityTerm = MIN(0.0d0,term1)
+!!          IF (UseDissolutionOnly) THEN
+!!            AffinityTerm = term1
+!!          ELSE
+
+            AffinityTerm = MIN(0.0d0,term1)
           IF (AffinityTerm == 0.0d0) THEN
               AffinityTerm = 1.0d-12
           END IF
@@ -413,15 +423,8 @@ DO k = 1,nkin
               
               sumiap = 0.0D0
               DO i2 = 1,ncomp
-                
-                ulabPrint = ulab(i)
-                IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-                  lnActivity = lngammawater(jx,jy,jz)
-                ELSE
-                  lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
-                END IF
 
-                sumiap = sumiap + mumin(1,k,i2)*lnActivity
+                  sumiap = sumiap + mumin(1,k,i2)*( sppTMP(i2) + lngamma(i2,jx,jy,jz) )
 
               END DO
               
@@ -481,6 +484,23 @@ DO k = 1,nkin
                                               (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousRare(Isotopologue)          &
                                               * dMoleFractionAqueousRare(iPrimaryCommon,isotopologue)
 
+!!!  **********  Numerical derivative **********************
+!!!!!            perturb = 1.0D-09
+!!!!!            sppTMP(:)   = sp(:,jx,jy,jz)
+!!!!!            sppTMP10(:) = sp10(:,jx,jy,jz)
+!!!!!            CALL AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,termTMP,time)
+!!!!!            AffinityInitial = termTMP
+!!!!!            DO i = 1,ncomp
+!!!!!                sppTMP(i) = sppTMP(i) + perturb
+!!!!!                sppTMP10(i) = DEXP(sppTMP(i))
+!!!!!                CALL AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,termTMP,time)
+!!!!!                jac_check(i) = (termTMP - AffinityInitial)/perturb
+!!!!!!!                jac_sat(i) = jac_check(i)
+!!!!!                sppTMP(i) = sp(i,jx,jy,jz) 
+!!!!!                sppTMP10(i) = sp10(i,jx,jy,jz)
+!!!!!            END DO
+!!!  *******************************************************
+
                 ELSE 
 
                   CONTINUE
@@ -494,6 +514,15 @@ DO k = 1,nkin
                 IF (imintype(np,k) == 5 .AND. silog(np,k) > 0.0d0) THEN   !! Dissolution only
                   jac_sat = 0.0d0
                 END IF
+
+!!!              write(*,*) umin(k)
+!!!              write(*,*)
+!!!              do i = 1,ncomp
+!!!                dumstring = ulab(i)
+!!!                write(*,*) dumstring,jac_sat(i),jac_check(i)
+!!!              end do
+!!!              write(*,*)
+!!!              read(*,*)
 
               ELSE IF (IsotopeMineralCommon(k)) THEN
 
@@ -527,6 +556,7 @@ DO k = 1,nkin
                     jac_sat(iPrimaryRare)   = si(np,k) *                                                                          &
                                               (-mumin(1,kMineralCommon,iPrimaryCommon))/MoleFractionAqueousCommon(Isotopologue)   &
                                                 * dMoleFractionAqueousCommon(iPrimaryRare,isotopologue)
+
                 ELSE
 
                   CONTINUE
@@ -540,6 +570,7 @@ DO k = 1,nkin
                 IF (imintype(np,k) == 5 .AND. silog(np,k) > 0.0d0) THEN   !! Dissolution only
                   jac_sat = 0.0d0
                 END IF
+
 
               ELSE
   
@@ -596,6 +627,9 @@ DO k = 1,nkin
               jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k)*       &
                            ( si(np,k)**(AffinityDepend2(np,k)-1.0d0) ) * term3
 
+!!              jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k)*       &
+!!                           ( SaturationTerm ) * term3
+
               IF (imintype(np,k) == 4 .AND. silog(np,k) < 0.0d0) THEN   !! Precipitation only
                 jac_sat(i) = 0.0d0
               END IF
@@ -621,6 +655,9 @@ DO k = 1,nkin
               jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k)*       &
                            ( si(np,k)**(AffinityDepend2(np,k)-1.0d0) ) * term3
 
+!!              jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k)*       &
+!!                           ( SaturationTerm ) * term3
+
               IF (imintype(np,k) == 4 .AND. silog(np,k) < 0.0d0) THEN   !! Precipitation only
                 jac_sat(i) = 0.0d0
               END IF
@@ -640,12 +677,42 @@ DO k = 1,nkin
               read(*,*)
               STOP
             END IF
-            write(*,*) 
-            write(*,*) ' Hellmann rate law no longer supported'
-            write(*,*)
-            stop
+            DO i = 1,ncomp
+!!!             IF (mumin(np,k,i) /= 0.0d0) THEN
+                sppTMP(i) = sppTMPperturb(i)
+                sppTMP10(i) = sppTMP10perturb(i)
+                !!! CALL AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,termTMP,time)
+                jac_sat(i) = (termTMP - AffinityTerm)/perturb
+                sppTMP(i) = sp(i,jx,jy,jz) 
+                sppTMP10(i) = sp10(i,jx,jy,jz)
+!!!              ELSE
+!!!               jac_sat(i) = 0.0d0
+!!!             END IF
+            END DO
             
           ENDIF
+          
+!!  Numerical derivative for checking analytical
+!!
+!!          perturb = 1.d-09 
+!!         DO i = 1,ncomp
+!!        !!    IF (mumin(np,k,i) /= 0.0d0) THEN
+!!            sppTMP(i) = sppTMP(i) + perturb
+!!            sppTMP10(i) = DEXP(sppTMP(i))
+!!            CALL AffinityNumerical(ncomp,nrct,jx,jy,jz,np,k,sppTMP,termTMP,time)
+!!            jac_check(i) = (termTMP - AffinityTerm)/perturb
+!!            sppTMP(i) = sppTMP(i) - perturb 
+!!            sppTMP10(i) = sp10(i,jx,jy,jz)
+!!            END IF
+!!         END DO
+            
+!!          jac_sat = jac_check
+        
+!!          write(*,*) umin(k),si(np,k)
+!!          do i = 1,ncomp
+!!            write(*,*) jac_sat(i),jac_check(i)
+!!          end do
+!!          read(*,*)
 
         END IF      !!! END of imintype(np,k) /= 2 or 3
 
@@ -992,6 +1059,38 @@ DO k = 1,nkin
   
 END DO        !! End of loop through minerals
 
+
+!!perturb = 1.d-06
+
+!!do i = 1,ncomp
+!!  sppTMP(i) = sppTMP(i) + perturb
+!!  CALL ReactionNumerical(ncomp,nkin,nrct,nspec,nexchange,nsurf,jx,jy,jz,rminTMP)
+!!  do k = 1,nkin
+!!    do np = 1,nreactmin(k)
+!!      jac_check(i,np,k) = (rminTMP(np,k) - rmin(np,k))/perturb
+!!    end do
+!!  end do
+!!  sppTMP(i) = sppTMP(i) - perturb
+!!end do
+
+!!jac_rmin = jac_check
+
+!!   do k = 1,nkin
+!!     do np = 1,nreactmin(k)
+!!     do i = 1,ncomp
+!!       CheckDiff = (jac_check(i,np,k) - jac_rmin(i,np,k))/jac_rmin(i,np,k)
+!!       IF (DABS(CheckDiff) > 1.E-08) THEN
+!!         write(*,*) umin(k)
+!!         write(*,*) CheckDiff,jac_check(i,np,k),jac_rmin(i,np,k)
+!!         write(*,*) ' jx = ',jx
+!!         read(*,*)
+!!        WRITE(*,*)
+!!       END IF
+!!     end do
+!!   end do
+!!  end do
+
+!!  continue
 
 RETURN
 END SUBROUTINE jacmin

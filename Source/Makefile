@@ -1,6 +1,6 @@
 ALL: CrunchMain
 
-FFLAGS  = -w -ffpe-trap=invalid,overflow,zero -Wuninitialized --check=all
+FFLAGS  = -w -O3 -ffpe-trap=invalid,overflow,zero   
 
 SOURCEF = \
           crunchtype.F90\
@@ -18,14 +18,15 @@ SOURCEF = \
           temperature.F90\
           flow.F90\
           crunch_interface.F90\
-          hydraulic_function.F90\
           CrunchFunctions.F90\
           isotope.F90\
-          CrunchModules.F90\
           NanoCrystal.F90\
+	  hydraulic_function.F90\
+	  richards.F90\
+	  read_richards.F90\
           CrunchTopeDriver.F90\
-          richards.F90\
           CrunchTope.F90\
+          AffinityNumerical.F90\
           AllocateALL.F90\
           AllocateOS3D.F90\
           AllocateGasesGimrt.F90\
@@ -279,7 +280,6 @@ SOURCEF = \
           squeeze.F90\
           sschaine.F90\
           sschaine_hyph.F90\
-          read_richards.F90\
           StartTope.F90\
           SteadyState.F90\
           stringlen.F90\
@@ -323,8 +323,8 @@ SOURCEF = \
           velocalcNS.F90\
           read_pumptimeseriesfile.F90\
           read_pumplocationsfile.F90\
-          interp3.F90\
           interp.F90\
+          interp3.F90\
           read_transpiration.F90\
           read_evaporation.F90\
           read_timeseries.F90\
@@ -332,7 +332,7 @@ SOURCEF = \
           read_pumplocations.F90\
           FRACTUREAPERTURE.F90\
           read_infiltration_2.F90\
-          read_vanGenuchten_parameters.F90\
+	  read_vanGenuchten_parameters.F90\
           read_tempreg.F90\
           read_tempregion.F90\
           read_tempts.F90\
@@ -359,12 +359,13 @@ OBJSF  =  crunchtype.o\
           crunch_interface.o\
           CrunchFunctions.o\
           isotope.o\
-          hydraulic_function.o\
-          CrunchModules.o\
           NanoCrystal.o\
+	  hydraulic_function.o\
+	  richards.o\
+	  read_richards.o\
           CrunchTopeDriver.o\
-          richards.o\
           CrunchTope.o\
+          AffinityNumerical.o\
           AllocateOS3D.o\
           AllocateGIMRT.o\
           AllocateALL.o\
@@ -618,7 +619,6 @@ OBJSF  =  crunchtype.o\
           squeeze.o\
           sschaine.o\
           sschaine_hyph.o\
-          read_richards.o\
           StartTope.o\
           SteadyState.o\
           stringlen.o\
@@ -662,16 +662,15 @@ OBJSF  =  crunchtype.o\
           velocalcNS.o\
           read_pumptimeseriesfile.o\
           read_pumplocationsfile.o\
-          interp3.o\
           interp.o\
+          interp3.o\
           read_transpiration.o\
           read_evaporation.o\
           read_timeseries.o\
           read_pumptimeseries.o\
           read_pumplocations.o\
           FRACTUREAPERTURE.o\
-          read_infiltration_2.o\
-          read_vanGenuchten_parameters.o\
+	  read_vanGenuchten_parameters.o\
           read_tempreg.o\
           read_tempregion.o\
           read_tempts.o\
@@ -681,7 +680,7 @@ OBJSF  =  crunchtype.o\
           read_mineralfile.o\
           read_eastriver.o\
 
-LOCDIR   = .
+LOCDIR   = ${CrunchTope_Dir}
 
 include ${PETSC_DIR}/lib/petsc/conf/variables
 include ${PETSC_DIR}/lib/petsc/conf/rules

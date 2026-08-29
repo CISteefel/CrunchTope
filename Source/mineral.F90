@@ -116,7 +116,6 @@ MODULE mineral
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: SurfaceAreaNucleation
   
 
-  
   LOGICAL(LGT), DIMENSION(:,:), ALLOCATABLE        :: HomogeneousNucleation
   LOGICAL(LGT), DIMENSION(:,:), ALLOCATABLE        :: SumMineralSurfaceArea
   
@@ -270,9 +269,6 @@ MODULE mineral
   LOGICAL(LGT)                              :: BatchReactor
   LOGICAL(LGT)                              :: BatchReactor2
   LOGICAL(LGT)                              :: CriticalZone
-  
-  LOGICAL(LGT)                              :: SulfurPassivationLogical
-  INTEGER(i4b)                              :: SulfurMineralNumber
   
   CHARACTER (LEN=mlen)                      :: AqueousKineticFile
   

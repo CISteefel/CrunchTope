@@ -17,6 +17,7 @@ speciate_only   false
 gimrt           true
 screen_output   1000
 !!fix_saturation  0.999
+fix_saturation  0.900
 read_saturationfile QL-saturation.dat
 graphics        kaleidagraph
 Duan            false
@@ -104,8 +105,33 @@ CSH(1.6)             0.0   !!ssa 1  0.0000001
 CSH(0.8)             0.0   !!ssa 1  0.0000001
 Portlandite          0.0   !!ssa 1  0.0000001
 Bogusite             0.0          0.0
-set_porosity     16
-!!set_saturation   0.1
+set_porosity         16
+!!set_saturation     0.1
+END
+
+Condition O2
+!!Solution w/o minerals
+temperature      95.0
+units            mol/kg
+pH               charge
+!!!CO2(aq)          CO2(g)    100.0
+O2(aq)           O2(g)   0.20
+Ca++             0.0
+SiO2(aq)         0.000001 
+SO4--            0.0
+Na+              0.5
+Cl-              0.50064
+H2O              55.50843506
+Calcite              0.0   !!ssa 1  0.0000001
+Calcite_mix          0.0   !!ssa 1  0.0000001
+SiO2(am)             0.0
+SiO2(ammix)          0.0
+CSH(1.6)             0.0   !!ssa 1  0.0000001
+CSH(0.8)             0.0   !!ssa 1  0.0000001
+Portlandite          0.0   !!ssa 1  0.0000001
+Bogusite             0.0          0.0
+set_porosity         16
+!!set_saturation     0.1
 END
 
 Condition Brine
@@ -214,9 +240,10 @@ xzones          4  2000   320 100  200  10
 END
 
 FLOW
-distance_units      microns
+distance_units      meters
 time_units          second
 constant_flow       0.0
+constant_gasflow    10.0 
 calculate_flow      false
 END
 

@@ -85,7 +85,7 @@ IF (iexc == 1) THEN        ! Gaines-Thomas convention
       sum = sum + muexc(nex,i)*(sptmp(i)+gamtmp(i))
     END DO
     sum = sum + muexc(nex,ix+ncomp)*spextmp(ix)
-    activity = EXP(-keqexc(nex) + sum )
+    activity = EXP(-keqexc(nex) + sum + bfit(nex)*sion_tmp )
     aexch(nex) = activity
     spextmp10(nex+nexchange) = activity*totexch(ix,nco)/muexc(nex,ix+ncomp)
     sumactivity(ix) = sumactivity(ix) + aexch(nex)
@@ -98,7 +98,7 @@ ELSE IF (iexc == 2) THEN   ! Vanselow convention
       sum = sum + muexc(nex,i)*(sptmp(i)+gamtmp(i))
     END DO
     sum = sum + muexc(nex,ix+ncomp)*spextmp(ix)
-    aexch(nex) = EXP(-keqexc(nex) + sum  )
+    aexch(nex) = EXP(-keqexc(nex) + sum + bfit(nex)*sion_tmp )
   END DO
   DO ix = 1,nexchange
     wt_aexch(ix) = 0.0

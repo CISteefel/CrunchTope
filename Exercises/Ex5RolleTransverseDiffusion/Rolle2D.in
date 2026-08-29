@@ -148,7 +148,7 @@ END
 
 condition injection
 units            mmol/kg  
-pH               7.0
+pH               6.75
 K+               0.29
 Na+              0.00
 Mg++             0.29
@@ -159,7 +159,7 @@ END
 
 condition ambient
 units            mmol/kg  
-pH               7.0
+pH               6.75
 K+               0.000001
 Na+              0.00
 Mg++             0.000001
