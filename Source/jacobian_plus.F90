@@ -48,6 +48,7 @@ USE params
 USE concentration
 USE solver
 USE transport
+USE temperature, ONLY: ro
 
 IMPLICIT NONE
 !fp! auto_par_loops = 0;
@@ -81,12 +82,15 @@ fjac_d(:,:,jx,jy,jz) = 0.0
 fjac_chg(:,:,jx,jy,jz) = 0.0
 
 DO ksp = 1,nspec
+  
   spec_conc = sp10(ksp+ncomp,jx,jy,jz)
   dcorrectmp = d_correct(ksp+ncomp)
   chgtmp = chg(ksp+ncomp)
+  
   DO i = 1,ncomp
     IF (muaq(ksp,i) /= 0.0) THEN
       mutemp = muaq(ksp,i)
+      
       DO i2 = 1,ncomp
         fjac(i2,i,jx,jy,jz) = fjac(i2,i,jx,jy,jz) +   &
               mutemp*muaq(ksp,i2)*spec_conc
@@ -95,6 +99,7 @@ DO ksp = 1,nspec
         fjac_chg(i2,i,jx,jy,jz) = fjac_chg(i2,i,jx,jy,jz) +   &
               chgtmp*dcorrectmp*mutemp*muaq(ksp,i2)*spec_conc
       END DO
+      
     END IF
   END DO
 END DO

@@ -429,10 +429,18 @@ REAL(DP), DIMENSION(:), ALLOCATABLE                          :: AqueousFlux_Face
 REAL(DP)                                                   :: totAqueousH2 
 REAL(DP)                                                   :: totGasH2 
 REAL(DP)                                                   :: totH2O
-REAL(DP)                                                   :: ChangeInH2_gas
+REAL(DP)                                                   :: ChangeIn_H2gas
+REAL(DP)                                                   :: ChangeIn_H2O
+REAL(DP)                                                   :: ChangeIn_H2O_2
+REAL(DP)                                                   :: ChangeIn_Serp
 REAL(DP)                                                   :: SatGas
 REAL(DP)                                                   :: CellVolume
 REAL(DP)                                                   :: sp10oldH2
+REAL(DP)                                                   :: porsatGas
+REAL(DP)                                                   :: TimeIntegratedH2O
+REAL(DP)                                                   :: TimeIntegratedSerp
+REAL(DP)                                                   :: Ratio_H2OtoSerp
+REAL(DP)                                                   :: CheckH2O_stoichiometry
 
 !*************************************************************************
 ! Edit by Toshiyuki Bandai, 2024 Oct.
@@ -531,6 +539,8 @@ dtmaxcour = 0.0
 iprnt = 0
 ncounter = 0
 
+MoleChange = 0.d0
+
 CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,               &
     ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,                      &
     corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,         &
@@ -543,54 +553,58 @@ str_min = 0
 str_sec = 0
 str_millisec = 0
 
-IF (ALLOCATED(GasFlux_FaceWest)) THEN
-  DEALLOCATE(GasFlux_FaceWest)
-END IF
-ALLOCATE(GasFlux_FaceWest(ngas))
-GasFlux_FaceWest = 0.0
+IF (MeterScaleFracture_Veins) THEN
+  
+  IF (ALLOCATED(GasFlux_FaceWest)) THEN
+    DEALLOCATE(GasFlux_FaceWest)
+  END IF
+  ALLOCATE(GasFlux_FaceWest(ngas))
+  GasFlux_FaceWest = 0.0
 
-IF (ALLOCATED(GasFlux_FaceEast)) THEN
-  DEALLOCATE(GasFlux_FaceEast)
-END IF
-ALLOCATE(GasFlux_FaceEast(ngas))
-GasFlux_FaceEast = 0.0
+  IF (ALLOCATED(GasFlux_FaceEast)) THEN
+    DEALLOCATE(GasFlux_FaceEast)
+  END IF
+  ALLOCATE(GasFlux_FaceEast(ngas))
+  GasFlux_FaceEast = 0.0
 
-IF (ALLOCATED(GasFlux_FaceSouth)) THEN
-  DEALLOCATE(GasFlux_FaceSouth)
-END IF
-ALLOCATE(GasFlux_FaceSouth(ngas))
-GasFlux_FaceSouth = 0.0
+  IF (ALLOCATED(GasFlux_FaceSouth)) THEN
+    DEALLOCATE(GasFlux_FaceSouth)
+  END IF
+  ALLOCATE(GasFlux_FaceSouth(ngas))
+  GasFlux_FaceSouth = 0.0
 
-IF (ALLOCATED(GasFlux_FaceNorth)) THEN
-  DEALLOCATE(GasFlux_FaceNorth)
-END IF
-ALLOCATE(GasFlux_FaceNorth(ngas))
-GasFlux_FaceNorth = 0.0
+  IF (ALLOCATED(GasFlux_FaceNorth)) THEN
+    DEALLOCATE(GasFlux_FaceNorth)
+  END IF
+  ALLOCATE(GasFlux_FaceNorth(ngas))
+  GasFlux_FaceNorth = 0.0
 
-!!!!!!!!!!!!!!!!!!!!
-IF (ALLOCATED(AqueousFlux_FaceWest)) THEN
-  DEALLOCATE(AqueousFlux_FaceWest)
-END IF
-ALLOCATE(AqueousFlux_FaceWest(ncomp+nspec))
-AqueousFlux_FaceWest = 0.0
+  !!!!!!!!!!!!!!!!!!!!
+  IF (ALLOCATED(AqueousFlux_FaceWest)) THEN
+    DEALLOCATE(AqueousFlux_FaceWest)
+  END IF
+  ALLOCATE(AqueousFlux_FaceWest(ncomp+nspec))
+  AqueousFlux_FaceWest = 0.0
 
-IF (ALLOCATED(AqueousFlux_FaceEast)) THEN
-  DEALLOCATE(AqueousFlux_FaceEast)
-END IF
-ALLOCATE(AqueousFlux_FaceEast(ncomp+nspec))
-AqueousFlux_FaceEast = 0.0
+  IF (ALLOCATED(AqueousFlux_FaceEast)) THEN
+    DEALLOCATE(AqueousFlux_FaceEast)
+  END IF
+  ALLOCATE(AqueousFlux_FaceEast(ncomp+nspec))
+  AqueousFlux_FaceEast = 0.0
 
-IF (ALLOCATED(AqueousFlux_FaceSouth)) THEN
-  DEALLOCATE(AqueousFlux_FaceSouth)
-END IF
-ALLOCATE(AqueousFlux_FaceSouth(ncomp+nspec))
-AqueousFlux_FaceSouth = 0.0
+  IF (ALLOCATED(AqueousFlux_FaceSouth)) THEN
+    DEALLOCATE(AqueousFlux_FaceSouth)
+  END IF
+  ALLOCATE(AqueousFlux_FaceSouth(ncomp+nspec))
+  AqueousFlux_FaceSouth = 0.0
 
-IF (ALLOCATED(AqueousFlux_FaceNorth)) THEN
-  DEALLOCATE(AqueousFlux_FaceNorth)
+  IF (ALLOCATED(AqueousFlux_FaceNorth)) THEN
+    DEALLOCATE(AqueousFlux_FaceNorth)
+  END IF
+  ALLOCATE(AqueousFlux_FaceNorth(ncomp+nspec))
+  GasFlux_FaceNorth = 0.0
+
 END IF
-ALLOCATE(AqueousFlux_FaceNorth(ncomp+nspec))
-GasFlux_FaceNorth = 0.0
 
 ! ************ Initialize PETSc stuff ***************************************
 IF ( InputFileCounter == 1) THEN
@@ -838,6 +852,7 @@ IF (CalculateFlow) THEN
       CALL velocalcNS(nx,ny,nz,dtflow)
   ELSE
       CALL velocalc(nx,ny,nz)
+      CONTINUE
   END IF
   
   END If initial_flow_solver_if
@@ -2418,9 +2433,11 @@ END IF    !  END OF GIMRT NEWTON LOOP
        
 !! For greater accuracy, update reaction rate
      
-ChangeH2O    = 0.0
-ChangeH2     = 0.0
-ChangeH2_gas = 0.0
+
+
+!!! ChangeH2O    = 0.d0
+!!! ChangeH2     = 0.d0
+!!! ChangeH2_gas = 0.d0
 
 DO jz = 1,nz
   DO jy = 1,ny
@@ -2430,31 +2447,50 @@ DO jz = 1,nz
         
       IF (BatchReactor .OR. BatchReactor2) THEN
         
+        !!! Double check that H2(aq) is species 6
+        IF ( ulab(6)  /= 'H2(aq)') THEN
+          write(*,*) ' H2(aq) should be species 6'
+          write(*,*)
+          stop
+        END IF
+        
         CALL totgas(ncomp,nspec,ngas,jx,jy,jz)
             
-        CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-        
-        satgas = 1.0 - satliq(jx,jy,jz)
-              
-!!!     NOTE: In units of moles
-                  
-        porsatro         = por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)
-        
-        totH2O           = CellVolume * (s(1,jx,jy,jz) - sn(1,jx,jy,jz)  )
-        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - EXP(spold(6,jx,jy,jz) )  )
-        
-        ChangeInH2_gas   = EXP( spgas(1,jx,jy,jz) ) -  EXP( spgasold(1,jx,jy,jz) ) 
-        totGasH2         = CellVolume * por(jx,jy,jz) * satgas * ChangeInH2_gas
-        
-        ChangeH2O(jx)    = ChangeH2O(jx) + totH2O
-        ChangeH2(jx)     = ChangeH2(jx) + totAqueousH2
-        ChangeH2_gas(jx) = ChangeH2_gas(jx) + totGasH2
+        CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz) 
+        satgas    = 1.0 - satliq(jx,jy,jz)
+        porsatro  = por(jx,jy,jz) * ro(jx,jy,jz) * satliq(jx,jy,jz)
+        porsatGas = por(jx,jy,jz) * satgas
+!!!     NOTE: In units of moles, grid cell by grid cell
 
+!!!        ChangeIn_H2O     = ( sp10(1,jx,jy,jz) - EXP(spold(1,jx,jy,jz)) )
+        ChangeIn_H2O     = s(1,jx,jy,jz) - sn(1,jx,jy,jz)
+
+        totH2O           = CellVolume * porsatro * ChangeIn_H2O
+ !!!       totH2O           = CellVolume * porsatro* (s(1,jx,jy,jz) - sn(1,jx,jy,jz)  )
+        totAqueousH2     = CellVolume * porsatro * ( sp10(6,jx,jy,jz) - EXP(spold(6,jx,jy,jz) )  )       
+        ChangeIn_H2gas   = spgas10(1,jx,jy,jz)  -  EXP( spgasold(1,jx,jy,jz) ) 
+        totGasH2         = CellVolume * porsatGas * ChangeIn_H2gas
+        
+        ChangeH2O(jx)    = ChangeH2O(jx)    + totH2O
+        ChangeH2(jx)     = ChangeH2(jx)     + totAqueousH2
+        ChangeH2_gas(jx) = ChangeH2_gas(jx) + totGasH2
+        
+        ChangeIn_Serp    = dppt(3,jx,1,1) * delt * CellVolume
+         
+        DO k = 1,nrct
+            MoleChange(k,jx) = MoleChange(k,jx) + dppt(k,jx,jy,jz)*delt*CellVolume   !!! Units of moles mineral
+        END DO
+        
+        CONTINUE
+        
       END IF
         
     END DO
   END DO
 END DO
+
+spold = sp
+spgasold = spgas
 
 time = time + delt
 
@@ -2818,7 +2854,7 @@ END IF
   spold = sp
   spexold = spex
   spsurfold = spsurf
-
+  spgasOld = spgas
 
 !**********************************
   IF (iprint3 == 1) THEN
@@ -2883,12 +2919,12 @@ END IF
         
         WRITE(*,*) 'Time step # ',nn
 
-        IF (SerpentineFracture) THEN
+        IF (MeterScaleFracture_Veins) THEN
 
-          GasFlux_FaceWest = 0.0
-          GasFlux_FaceEast = 0.0
-          GasFlux_FaceSouth = 0.0
-          GasFlux_FaceNorth = 0.0
+!!!          GasFlux_FaceWest = 0.0
+!!!          GasFlux_FaceEast = 0.0
+!!!          GasFlux_FaceSouth = 0.0
+!!!          GasFlux_FaceNorth = 0.0
 
           jz = 1
           jx = 1
@@ -2929,12 +2965,12 @@ END IF
           write(204,2255) time, GasFlux_FaceSouth(1)
           write(205,2255) time, GasFlux_FaceNorth(1)
           
-          AqueousFlux_FaceWest = 0.0
-          AqueousFlux_FaceEast = 0.0
-          AqueousFlux_FaceSouth = 0.0
-          AqueousFlux_FaceNorth = 0.0
+ !!!         AqueousFlux_FaceWest = 0.0
+ !!!         AqueousFlux_FaceEast = 0.0
+ !!!         AqueousFlux_FaceSouth = 0.0
+ !!!         AqueousFlux_FaceNorth = 0.0
       
-          kk = 21
+          kk = 6    !!! H2(aq)
       
           jz = 1
           jx = 1
@@ -2957,13 +2993,14 @@ END IF
           jz = 1
           jy = ny
           DO jx = 1,nx
-            AqueousFlux_FaceNorth(kk) = AqueousFlux_FaceNorth(kk) + d(jx,jy,1) * (sp10(kk,jx,jy+1,1)-sp10(kk,jx,jy,jz)) * delt
+            AqueousFlux_FaceNorth(kk) = AqueousFlux_FaceNorth(kk) + d(jx,jy,1) * &
+                                         ( sp10(kk,jx,jy+1,1) - sp10(kk,jx,jy,jz) ) * delt
           END DO
       
-          write(212,2255) time, AqueousFlux_FaceWest(1)
-          write(213,2255) time, AqueousFlux_FaceEast(1)
-          write(214,2255) time, AqueousFlux_FaceSouth(1)
-          write(215,2255) time, AqueousFlux_FaceNorth(1)
+          write(212,2255) time, AqueousFlux_FaceWest(kk)
+          write(213,2255) time, AqueousFlux_FaceEast(kk)
+          write(214,2255) time, AqueousFlux_FaceSouth(kk)
+          write(215,2255) time, AqueousFlux_FaceNorth(kk)
           
         END IF
           
@@ -3209,6 +3246,7 @@ END IF
 
       CALL speciation(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,npot,  &
          ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt)
+      
       IF (kaleidagraph) THEN
         CALL GraphicsKaleidagraph(ncomp,nrct,nkin,nspec,ngas,nexchange,nexch_sec,nsurf,nsurf_sec,  &
            ndecay,ikin,nx,ny,nz,time,nn,nint,ikmast,ikph,delt,jpor)

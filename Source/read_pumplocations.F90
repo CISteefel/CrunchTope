@@ -85,8 +85,8 @@ INTEGER(I4B)                                                :: jz
 real(DP),dimension(:), ALLOCATABLE     :: xdum1
 real(DP),dimension(:), ALLOCATABLE     :: ydum1
 real(DP),dimension(:), ALLOCATABLE     :: zdum1
-INTEGER(I4B)                                                  :: FileNameLength
-CHARACTER (LEN=mls)                                           :: FileTemp
+INTEGER(I4B)                                                :: FileNameLength
+CHARACTER (LEN=mls)                                         :: FileTemp
 INTEGER(I4B)                                                :: nco
 INTEGER(I4B)                                                :: intbnd_tmp
 

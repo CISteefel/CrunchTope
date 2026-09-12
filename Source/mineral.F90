@@ -266,6 +266,7 @@ MODULE mineral
   LOGICAL(LGT)                              :: SaltCreep
   LOGICAL(LGT)                              :: CalciteCreep
   LOGICAL(LGT)                              :: SerpentineFracture
+  LOGICAL(LGT)                              :: MeterScaleFracture_Veins
   LOGICAL(LGT)                              :: BatchReactor
   LOGICAL(LGT)                              :: BatchReactor2
   LOGICAL(LGT)                              :: CriticalZone

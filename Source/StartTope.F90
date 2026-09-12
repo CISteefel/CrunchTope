@@ -51,6 +51,7 @@ SUBROUTINE StartTope(ncomp,nspec,nkin,nrct,ngas,npot,                   &
   InputFileCounter,nBoundaryConditionZone)
 USE crunchtype
 USE params
+USE CrunchFunctions
 USE runtime
 USE concentration
 USE mineral
@@ -294,6 +295,7 @@ INTEGER(I4B)                                                  :: lenInput
 
 CHARACTER (LEN=15)                                            :: text
 CHARACTER (LEN=mls)                                           :: filename
+CHARACTER (LEN=21)                                           :: FileOpen
 CHARACTER (LEN=mls)                                           :: FileOutput
 CHARACTER (LEN=mls)                                           :: vxfile
 CHARACTER (LEN=mls)                                           :: vyfile
@@ -606,6 +608,8 @@ REAL(DP)                                                      :: SSA_m2g
 
 REAL(DP)                                                      :: ScaleMineralVolumes
 
+CHARACTER (LEN=mls)                                           :: PumpUnitString
+REAL(DP)                                                      :: PumpConversion
 
 INTEGER(I4B)                                                  :: knucl
 INTEGER(I4B)                                                  :: ios
@@ -615,6 +619,9 @@ INTEGER(I4B)                                                  :: npFlag
 INTEGER(I4B)                                                  :: jPoint
 
 REAL(DP)                                                      :: StressMaxVal
+REAL(DP)                                                      :: Sig1
+REAL(DP)                                                      :: Sig3
+REAL(DP)                                                      :: SigMean
 
 INTEGER(I4B)                                                  :: nBoundaryConditionZone
 
@@ -881,6 +888,21 @@ IF (found) THEN
     stop
   END IF
 
+  ContactPressureLogical = .FALSE.
+  parchar = 'contactpressure'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,ContactPressureLogical)
+  
+  PseudomorphicLogical = .FALSE.
+  parchar = 'pseudomorphic'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,PseudomorphicLogical)
+  
+  UtahForgeLogical = .FALSE.
+  parchar = 'utahforge'
+  parfind = ' '
+  CALL read_logical(nout,lchar,parchar,parfind,UtahForgeLogical)
+  
   nmmLogical = .FALSE.
   parchar = 'nmm'
   parfind = ' '
@@ -905,6 +927,21 @@ IF (found) THEN
   parfind = ' '
   SerpentineFracture = .FALSE.
   CALL read_logical(nout,lchar,parchar,parfind,SerpentineFracture)
+  
+  parchar = 'MeterScaleFracture_Veins'
+  parfind = ' '
+  MeterScaleFracture_Veins = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,MeterScaleFracture_Veins)
+  
+  parchar = 'BatchReactor'
+  parfind = ' '
+  BatchReactor = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,BatchReactor)
+  
+  parchar = 'BatchReactor2'
+  parfind = ' '
+  BatchReactor2 = .FALSE.
+  CALL read_logical(nout,lchar,parchar,parfind,BatchReactor2)
 
   parchar = 'montterri'
   parfind = ' '
@@ -2174,7 +2211,6 @@ IF (.NOT. H2Ofound) THEN
   write(*,*)
   write(*,*) ' H2O must be present in list of PRIMARY SPECIES'
   write(*,*) ' Add "H2O" to the end of the PRIMARY SPECIES list'
-  write(*,*) ' Add "H2O  55.50843506" to the CONDITION blocks'
   write(*,*)
   STOP
 END IF
@@ -2260,7 +2296,9 @@ IF (found) THEN
   END IF
 
 ELSE
+  WRITE(*,*)
   WRITE(*,*) ' No ion exchange block found'
+  WRITE(*,*)
 END IF
 
 !  Now, check to see that species dependences specified for mineral
@@ -2433,6 +2471,7 @@ DO is = 1,nsurf
   END IF
 END DO
 
+kpot = 0
 npot = 0
 DO k = 1,nrct
   IF (kPotential(k) .eqv.  .TRUE.) THEN
@@ -2465,9 +2504,27 @@ IF (ALLOCATED(nptlink)) THEN
 ELSE
   ALLOCATE(nptlink(nsurf_sec))
 END IF
+IF (ALLOCATED(nptPrimary)) THEN
+  DEALLOCATE(nptPrimary)
+  ALLOCATE(nptPrimary(nsurf))
+ELSE
+  ALLOCATE(nptPrimary(nsurf))
+END IF
 
 surfcharge_init = 0.0
 LogPotential_tmp = 0.0
+
+DO is = 1,nsurf
+  
+    IF (iedl(is) == 0) THEN          !! Electrostatic for primary surface complex
+      DO npt = 1,npot
+        IF (kpot(npt) == ksurf(is) ) THEN
+          nptPrimary(is) = npt
+        END IF
+      END DO
+    END IF
+
+END DO
 
 !  Link the various secondary surface complexes to a primary surface hydroxyl site
 
@@ -2482,12 +2539,23 @@ END DO
 nptlink = 0
 
 DO ns = 1,nsurf_sec
-  DO npt = 1,npot
-   IF (ksurf(islink(ns)) == kpot(npt)) THEN
-     nptlink(ns) = npt
-   END IF
-  END DO
+  is = islink(ns)
+  nptlink(ns) = nptPrimary(is)
+  write(*,555) namsurf_sec(ns),nptlink(ns)
 END DO
+
+555 format(a12,1x,i2)
+
+
+!!!  Surface Complexation Cheat Sheet    
+!!!    kPotential(k) --> Logical to EDL potential
+!!!    ksurf(is) --> pointer for primary nsurf complex to mineral (initialized in read_surface.F90)
+!!!    iedl(is) --> 0 for electrostatic, 1 for -no_edl
+!!!    npot --> number of potentials
+!!!    kpot(npt) --> pointer to mineral upon which the potential is developed
+!!!    islink(ns) --> pointer from secondary surface complex (ns) to primary surface complex (is)
+!!!    ksurf(islink(ns)) --> This would point from a secondary surface complex (ns) to a primary (islink(ns)) complex to a mineral
+!!!    nptlink(ns) --> pointer of surface complex (secondary) to potential (npt)
 
 !!!neqn = ncomp + nsurf + nexchange + npot + 1 + 1   [For now, "equilib.F90' will not consider the two new unknowns]
 neqn = ncomp + nsurf + nexchange + npot
@@ -3007,12 +3075,14 @@ IF (ALLOCATED(conversion)) THEN
 ELSE
   ALLOCATE(conversion(mchem))
 END IF
+
 IF (ALLOCATED(unitsflag)) THEN
   DEALLOCATE(unitsflag)
   ALLOCATE(unitsflag(mchem))
 ELSE
   ALLOCATE(unitsflag(mchem))
 END IF
+
 IF (ALLOCATED(sionInit)) THEN
   DEALLOCATE(sionInit)
   ALLOCATE(sionInit(mchem))
@@ -3127,6 +3197,20 @@ DO i = 1,ncomp
     ikH2O = i
   END IF
 END DO
+
+IF (ikH2O /= 1) THEN
+  write(*,*)
+  write(*,*) ' H2O should be Number 1 in Primary Species list'
+  write(*,*)
+  stop
+END IF
+
+IF (.not. H2Opresent) THEN
+  write(*,*)
+  write(*,*) ' H2O needs to present in the primary species list'
+  write(*,*)
+  stop
+END IF
 
 !!!  ******************************************************
 !!!  *****************  PEST BLOCK  ***********************
@@ -3260,6 +3344,9 @@ WRITE(iunit2,*)
 WRITE(iunit2,*) '  ********  SPECIATION OF GEOCHEMICAL CONDITIONS  ********'
 WRITE(iunit2,*)
 
+IF (ALLOCATED(AqueousToBulkCond)) THEN
+  DEALLOCATE(AqueousToBulkCond)
+END IF
 ALLOCATE(AqueousToBulkCond(nchem))
 
 iinit = 1
@@ -3272,8 +3359,6 @@ DO nco = 1,nchem
 
   portemp = porcond(nco)
   PressureTemp = PressureCond(nco)
-
-  CALL keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc,PressureTemp)
 
   DO i = 1,ncomp
     namtemp = ulab(i)
@@ -3288,6 +3373,8 @@ DO nco = 1,nchem
     spsurftmp10(is) = guess_surf(is,nco)
     spsurftmp(is) = DLOG(spsurftmp10(is))
   END DO
+  
+  CALL keqcalc2_init(ncomp,nrct,nspec,ngas,nsurf_sec,tempc,PressureTemp)
 
   gamtmp = 0.0
 
@@ -3296,7 +3383,7 @@ DO nco = 1,nchem
   spgastmp10 = 1.0D-35
 
   CALL species_init(ncomp,nspec)
-  CALL gases_init(ncomp,ngas,tempc)
+  CALL gases_init(ncomp,ngas,tempc,nco)
   CALL surf_init(ncomp,nspec,nsurf,nsurf_sec,nchem)
   CALL exchange_init(ncomp,nspec,nexchange,nexch_sec,nchem)
   CALL totconc_init(ncomp,nspec,nexchange,nexch_sec,nsurf,nsurf_sec,nco)
@@ -3318,7 +3405,7 @@ DO nco = 1,nchem
   tk = tempc + 273.15d0
   denmol = 1.e05/(8.314*tk)   ! P/RT = n/V, with pressure converted from bars to Pascals
 
-  spgastmp10 = spgastmp10*denmol
+  !!!spgastmp10 = spgastmp10*denmol
   spgastmp = DLOG(spgastmp10)
 
   DO ik = 1,ncomp+nspec
@@ -3739,6 +3826,7 @@ IF (found) THEN
   CALL read_kd(nout,ncomp,nretard)
 
 ELSE
+  
   WRITE(*,*) ' Retardation parameters not found'
   WRITE(*,*) ' Assuming NO retardation (Kd = 0) '
 
@@ -3978,6 +4066,7 @@ IF (found) THEN
   !*************
 
 ELSE
+  
   WRITE(*,*)
   WRITE(*,*) ' Failed to find discretization block'
   WRITE(*,*)
@@ -4010,36 +4099,37 @@ END IF
 #ifndef ALQUIMIA
 
 
-  IF (nzonex == 0) THEN
+IF (nzonex == 0) THEN
 
-  ELSE
+ELSE
+  nsum = 0
+  DO i = 1,nzonex
+    nsum = nsum + nvx(i)
+  END DO
+END IF
+
+IF (nzoney == 0) THEN
+
+ELSE
+  nsum = 0
+  DO i = 1,nzoney
+    nsum = nsum + nvy(i)
+  END DO
+END IF
+
+IF (nzonez == 0) THEN
+
+ELSE
     nsum = 0
-    DO i = 1,nzonex
-      nsum = nsum + nvx(i)
+    DO i = 1,nzonez
+      nsum = nsum + nvz(i)
     END DO
-  END IF
-
-  IF (nzoney == 0) THEN
-
-  ELSE
-    nsum = 0
-    DO i = 1,nzoney
-      nsum = nsum + nvy(i)
-    END DO
-  END IF
-
-  IF (nzonez == 0) THEN
-
-  ELSE
-      nsum = 0
-      DO i = 1,nzonez
-        nsum = nsum + nvz(i)
-      END DO
-  END IF
+END IF
 
   !  Now calculate NX, NY, and NZ
 
   IF (nzonex == 0) THEN
+    
     nx = 1
     IF (ALLOCATED(x)) THEN
       DEALLOCATE(x)
@@ -4062,6 +4152,7 @@ END IF
     x(1) = 0.5d0*dxx(1)
 
   ELSE
+    
     nx = 0
     DO i = 1,nzonex
       IF (nvx(i) == 0) THEN
@@ -4115,6 +4206,7 @@ END IF
   1019 FORMAT(1X,i3,1X,1PE12.3)
 
   IF (nzoney == 0) THEN
+    
     ny = 1
     IF (ALLOCATED(y)) THEN
       DEALLOCATE(y)
@@ -4138,6 +4230,7 @@ END IF
     y(1) = 0.5d0*dyy(1)
     
   ELSE
+    
     ny = 0
     DO i = 1,nzoney
       IF (nvy(i) == 0) THEN
@@ -4270,21 +4363,25 @@ END IF
 
 nxyz = nx*ny*nz
 
-  IF (ALLOCATED(gammawater)) THEN
-    DEALLOCATE(gammawater)
-    ALLOCATE(gammawater(nx,ny,nz))
-  ELSE
-    ALLOCATE(gammawater(nx,ny,nz))
-  END IF
-  IF (ALLOCATED(lngammawater)) THEN
-    DEALLOCATE(lngammawater)
-    ALLOCATE(lngammawater(nx,ny,nz))
-  ELSE
-    ALLOCATE(lngammawater(nx,ny,nz))
-  END IF
+IF (nx == 3 .and. ny == 1 .and. nz == 1) THEN
+  ihindmarsh = 0
+END IF
 
-  gammawater = 1.0d0
-  lngammawater = 0.0d0
+IF (ALLOCATED(gammawater)) THEN
+  DEALLOCATE(gammawater)
+  ALLOCATE(gammawater(nx,ny,nz))
+ELSE
+  ALLOCATE(gammawater(nx,ny,nz))
+END IF
+IF (ALLOCATED(lngammawater)) THEN
+  DEALLOCATE(lngammawater)
+  ALLOCATE(lngammawater(nx,ny,nz))
+ELSE
+  ALLOCATE(lngammawater(nx,ny,nz))
+END IF
+
+gammawater = 1.0d0
+lngammawater = 0.0d0
 
 !!!  **************  End of DISCRETIZATION  *********************************
 !!!  ************************************************************************
@@ -4433,18 +4530,37 @@ t = tinit
 section = 'initial_conditions'
 CALL readblock(nin,nout,section,found,ncount)
 IF (found) THEN
-  ELSE
-    WRITE(*,*)
-    WRITE(*,*) ' No initial conditions found'
-    WRITE(*,*) ' --->  No defaults available: Aborting run'
-    WRITE(*,*)
-    READ(*,*)
-    STOP
+  CONTINUE
+ELSE
+  WRITE(*,*)
+  WRITE(*,*) ' No initial conditions found'
+  WRITE(*,*) ' --->  No defaults available: Aborting run'
+  WRITE(*,*)
+  READ(*,*)
+  STOP
+END IF
+  
+  CALL read_het(nout,nchem,nhet,nx,ny,nz)
+  
+  IF (ContactPressureLogical .and. PseudomorphicLogical) THEN
+    
+    IF (ALLOCATED(stress)) THEN
+      DEALLOCATE(stress)
+    END IF
+    ALLOCATE(stress(nx,ny,nz))
+
+    stress = 0.00
+  END IF
+  
+  IF (ContactPressureLogical .and. SerpentineFracture) THEN
+    
+     write(*,*) ' This was supposed to be Utah Forge'
+     read(*,*)
+     stop
   END IF
 
-  CALL read_het(nout,nchem,nhet,nx,ny,nz)
-
   IF (ReadInitialConditions .and. InitialConditionsFile /= ' ') THEN
+    
     ALLOCATE(work3(nx,ny,nz))
     INQUIRE(FILE=InitialConditionsFile,EXIST=ext)
     IF (.NOT. ext) THEN
@@ -4454,119 +4570,107 @@ IF (found) THEN
       WRITE(*,*)
       READ(*,*)
       STOP
-  END IF
+    END IF
 
-  OPEN(UNIT=52,FILE=InitialConditionsFile,STATUS='OLD',ERR=6001)
-  FileTemp = InitialConditionsFile
-  CALL stringlen(FileTemp,FileNameLength)
-
-  IF (MontTerri) THEN
-    nhet = 0
-    DO jz = 1,nz
+    OPEN(UNIT=52,FILE=InitialConditionsFile,STATUS='OLD',ERR=6001)
+    FileTemp = InitialConditionsFile
+    CALL stringlen(FileTemp,FileNameLength)
+    
+    IF (MeterScaleFracture_Veins) THEN
+    
+      jz = 1  
+      nhet = 0
       DO jy = 1,ny
-        DO jx= 1,nx       
-          nhet = nhet + 1
-          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-  !!!                            x    y    z    condition #             
-          jinit(jx,jy,jz) = work3(jx,jy,jz) 
+        DO jx= 1,nx
+        
+          nhet = nhet + 1    
+        
+          READ(52,*,END=1020) xdum,ydum, work3(jx,jy,jz)
+  !!!                           x    y       mt
+          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+                
+          activecell(jx,jy,jz) = 1
+    
+        END DO
+      END DO
+
+      CLOSE(UNIT=52)
+    
+    END IF
+  
+  
+    IF (nmmLogical .AND. ContactPressureLogical) THEN
+     
+      jz = 1
+      DO jy = 1,ny
+        DO jx= 1,nx
+          nhet = nhet + 1  
+          READ(52,*,END=1020) xdum,ydum,zdum,work3(jx,jy,jz),xdum,xdum,xdum,xdum,xdum,sig1,sig3
+!!!                           x      y   bn         mt        sx   sy   txy  dx   dy  sig1 sig3    sigmean
+          read(52,*) xdum
+
+          
+          SigMean = (Sig1 + Sig3)/2.00
+          IF (DABS(SigMean) > 350.0*1000000.d0) THEN
+            SigMean = SIGN(350.0*1000000.d0,SigMean)
+          END IF
+          stress(jx,jy,jz) = SigMean
+          
+          if (work3(jx,jy,jz) == 0.0) THEN
+            jinit(jx,jy,jz) = 1
+          else if (work3(jx,jy,jz) == 1.0) then
+            jinit(jx,jy,jz) = 1
+          else
+            jinit(jx,jy,jz) = 2
+          end if
+          
           activecell(jx,jy,jz) = 1
         END DO
       END DO
-    END DO
-
-    CLOSE(UNIT=52)
-
-  END IF
+      CLOSE(UNIT=52)  
+    
+    end IF                               !!! Ordinary InitialConditionsFile (no stress, no NMM), 
+    
+!!!   jz = 1
+!!!         nhet = 0
+    
+!!!         DO jy = 1,ny
+!!!           DO jx= 1,nx
+!!!             nhet = nhet + 1   
+!!!          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
+!!!             READ(52,*,END=1020) xdum,ydum,zdum,work3(jx,jy,jz),xdum,xdum,xdum,xdum,xdum,xdum,xdum
+!!!                           x      y   bn         mt        sx   sy   txy  dx   dy  sig1 sig3   sigmean
+!!!            read(52,*) xdum
+  !!!                           x    y   z       condition 
+!!!             if (work3(jx,jy,jz) == 0.0) THEN
+!!!               jinit(jx,jy,jz) = 1
+!!!             else if (work3(jx,jy,jz) == 1.0) then
+!!!               jinit(jx,jy,jz) = 1
+!!!             else
+!!!               jinit(jx,jy,jz) = 2
+!!!             end if
+!!!               
+!!!          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
+!!!   
+!!!             activecell(jx,jy,jz) = 1
+!!!           END DO
+!!!         END DO
+!!!         CLOSE(UNIT=52)
   
-  If (SerpentineFracture) THEN
-    
-    SerpentineFile_Mesh = 'mesh-Siqin-Transposed.txt'
-    INQUIRE(FILE=SerpentineFile_Mesh,EXIST=ext)
-    IF (.NOT. ext) THEN
-      CALL stringlen(SerpentineFile_Mesh,ls)
-      WRITE(*,*)
-      WRITE(*,*) ' Serpentine Mesh file not found: ', SerpentineFile_Mesh(1:ls)
-      WRITE(*,*)
-      READ(*,*)
-      STOP
-    ELSE
-      
-      OPEN(UNIT=53,FILE=SerpentineFile_Mesh,STATUS='OLD',ERR=6001)
-      FileTemp = SerpentineFile_Mesh
-      CALL stringlen(FileTemp,FileNameLength)
-
-      nhet = 0
-
-      READ(53,*,END=1020) ( (jinit(jx,jy,1),jx=1,nx), jy=1,ny )
-
-      jinit = jinit + 1
-      nhet = nx*ny
-      activecell = 1
-
-      
-      CLOSE(unit=53,STATUS='keep')      
-    END IF
-      
-
-  END IF
-    
-
-  IF (nmmLogical .and. .not. SerpentineFracture ) THEN
-
-    jz = 1
-    ALLOCATE(stress(nx,ny,1))
-
-    nhet = 0
-    DO jy = 1,ny
-      DO jx= 1,nx
-        nhet = nhet + 1
-      
-        IF (SaltCreep) THEN
-          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz), xdum, ydum, zdum, xdum, ydum, xdum, stress(jx,jy,jz), zdum,   xdum
-  !!!                            x    y    bn    mt               sx    sy    txy   dx    dy    sig1  sig3              re-sig1 re-sig
-          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz)) + 1
-
-        ELSE IF (FractureNetwork) THEN
-
-          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-  !!!                            x    y    bn    mt
-          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
-          
-        ELSE IF (CalciteCreep) THEN
-
-          READ(52,*,END=1020) xdum,ydum,zdum, work3(jx,jy,jz)
-  !!!                            x    y    bn    mt
-          jinit(jx,jy,jz) = DNINT(work3(jx,jy,jz))
-
-        ELSE
-          CONTINUE
-        ENDIF   
-        activecell(jx,jy,jz) = 1
-    
-      END DO
-    END DO
-
-    CLOSE(UNIT=52)
-  
-    StressMaxVal= MaxVal(ABS(stress*1.0E-06))
-    write(*,*)
-    write(*,*) ' StressMaxVal =', StressMaxVal
-    write(*,*)
-
-  END IF
+!!!       END IF
 
 END IF
 
 IF (nhet == 0) THEN
     WRITE(*,*)
-    WRITE(*,*) ' No initial conditions found'
+    WRITE(*,*) ' No heterogeneities found'
     WRITE(*,*) ' --->  No defaults available: Aborting run'
     WRITE(*,*)
     READ(*,*)
   STOP
 END IF
 
-
+!!!  IF heterogeneity is specified in input file, but .NOT. ReadInitialConditions (from file), then
 IF (nhet > 0 .and. .not. ReadInitialConditions) THEN
   
   DO l = 1,nhet
@@ -4903,6 +5007,7 @@ IF (jpor /= 0 .AND. PorosityFile /= ' ') THEN
   CLOSE(UNIT=52)
 END IF
 
+!!! The following distributes variables within internal domain (1-nx,1-ny,1-nz)
 DO jz = 1,nz
   DO jy = 1,ny
     DO jx = 1,nx
@@ -5122,7 +5227,7 @@ IF (readmineral) THEN
       STOP
     END IF
         
-    OPEN(UNIT=23,FILE=vv_file,STATUS='old',err=8001)
+    OPEN(UNIT=23,FILE=vv_file,STATUS='old')
     FileTemp = vv_file
     CALL stringlen(FileTemp,FileNameLength)
     
@@ -5166,7 +5271,7 @@ IF (readmineral) THEN
       STOP
     END IF
 
-    OPEN(UNIT=23,FILE=bsa_file,STATUS='old',err=8001)
+    OPEN(UNIT=23,FILE=bsa_file,STATUS='old')
     FileTemp = bsa_file
     CALL stringlen(FileTemp,FileNameLength)
     
@@ -5791,7 +5896,7 @@ IF (found) THEN
     CALL readFileName(nout,lchar,parchar,parfind,dumstring,section,SnapshotFileFormat)
     IF (parfind == 'read_snapshotfile') THEN
     lenarray=0
-    OPEN(UNIT=23,FILE=dumstring,STATUS='old',err=8001)
+    OPEN(UNIT=23,FILE=dumstring,STATUS='old')
     FileTemp = dumstring
     CALL stringlen(FileTemp,FileNameLength)
     do while (ierr == 0)
@@ -6395,7 +6500,9 @@ END IF
 
 readvelocity = .FALSE.
 readgasvelocity = .FALSE.
+WRITE(*,*)
 WRITE(*,*) ' Reading flow block'
+WRITE(*,*)
 
 section = 'flow'
 CALL readblock(nin,nout,section,found,ncount)
@@ -6415,7 +6522,7 @@ qrecharge = 0
 
 !!! ****  Flow Block Found  *********
 
-IF (found) THEN
+IF (FOUND) THEN
 
   !  Initialize pressure and pumping rate first
 
@@ -6436,6 +6543,20 @@ IF (found) THEN
   IF (isaturate == 1) THEN
     gaspump = 0.0d0
   END IF
+  
+      IF (ALLOCATED(GasFlowFactorX)) THEN
+        DEALLOCATE(GasFlowFactorX)
+        ALLOCATE(GasFlowFactorX(0:nx,1:ny,nz))
+      ELSE
+        ALLOCATE(GasFlowFactorX(0:nx,1:ny,nz))
+      END IF
+    
+      IF (ALLOCATED(GasFlowFactorY)) THEN
+        DEALLOCATE(GasFlowFactorY)
+        ALLOCATE(GasFlowFactorY(1:nx,0:ny,nz))
+      ELSE
+        ALLOCATE(GasFlowFactorY(1:nx,0:ny,nz))
+      END IF
 
   CALL units_time(nout,section,time_scale)
   CALL units_distance(nout,section,dist_scale)
@@ -6450,11 +6571,149 @@ IF (found) THEN
   IF (pumptimeseries) THEN
     CALL read_pumplocations(nout,nx,ny,nz,nchem)
   ELSE
-    CALL read_pump(nout,nx,ny,nz,nchem)
+    CALL read_pump(nout,nx,ny,nz,nchem)    !!! If there  are pump terms, returns "wells" == .TRUE.
   ENDIF
+  
+!!! Convert pumping from units provided by user to m^3/yr
+  
+!!! Check to see if there are any pumping wells first
+  
+  ThereArePumpingWells = .FALSE.
+  DO jz = 1,nz
+    DO jy = 1,ny
+      DO jx = 1,nx
+        IF (npump(jx,jy,jz) > 0) THEN
+          ThereArePumpingWells = .TRUE.
+        END IF
+      END DO
+    END DO
+  END DO
+  
+  ! select units for pump term
+  parchar = 'pumpunits'
+  parfind = ' '
+  CALL read_string(nout,lchar,parchar,parfind,dumstring,section)
+  !!!IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
+    IF (parfind == ' ') THEN
+ !!!     WRITE(*,*)
+ !!!     WRITE(*,*) ' Units for pumping should be provided (no default)'
+ !!!     WRITE(*,*)
+ !!!     STOP
+    ELSE
+      PumpUnitString = dumstring
+    END IF
+  !!!END IF
+  
+!!! Check that units for pumping (volume fluid per unit time) are recognized
+  
+  PumpConversion = 0.0d0
+
+!!! Conversion is from units specified to m^3/yr
+
+  
+  IF (PumpUnitString == 'cm3_sec') THEN
+    PumpConversion = 3.1536E+01
+  END IF
+  IF (PumpUnitString == 'liter_sec') THEN
+    PumpConversion = 3.1536E+04
+  END IF
+  IF (PumpUnitString == 'dm3_sec') THEN
+    PumpConversion = 3.1536E+04
+  END IF
+  IF (PumpUnitString == 'm3_sec') THEN
+    PumpConversion = 3.1536E+07
+  END IF
+  
+  IF (PumpUnitString == 'cm3_min') THEN
+    PumpConversion = 5.2560E-01
+  END IF
+  IF (PumpUnitString == 'liter_min') THEN
+    PumpConversion = 5.2560E+02
+  END IF
+  IF (PumpUnitString == 'dm3_min') THEN
+    PumpConversion = 5.2560E+02
+  END IF
+  IF (PumpUnitString == 'm3_min') THEN
+    PumpConversion = 5.2560E+05
+  END IF
+  
+  IF (PumpUnitString == 'cm3_hr') THEN
+    PumpConversion = 8.7600E-03
+  END IF
+  IF (PumpUnitString == 'liter_hr') THEN
+    PumpConversion = 8.7600E+00
+  END IF
+  IF (PumpUnitString == 'dm3_hr') THEN
+    PumpConversion = 8.7600E+00
+  END IF
+  IF (PumpUnitString == 'm3_hr') THEN
+    PumpConversion = 8.7600E+03
+  END IF
+  
+  IF (PumpUnitString == 'cm3_day') THEN
+    PumpConversion = 3.6500E-04
+  END IF
+  IF (PumpUnitString == 'liter_day') THEN
+    PumpConversion = 3.6500E-01
+  END IF
+  IF (PumpUnitString == 'dm3_day') THEN
+    PumpConversion = 3.6500E-01
+  END IF
+  IF (PumpUnitString == 'm3_day') THEN
+    PumpConversion = 3.6500E+02
+  END IF
+  
+  IF (PumpUnitString == 'cm3_yr') THEN
+    PumpConversion = 1.0000E-06
+  END IF
+  IF (PumpUnitString == 'liter_yr') THEN
+    PumpConversion = 1.0000E-03
+  END IF
+  IF (PumpUnitString == 'dm3_yr') THEN
+    PumpConversion = 1.0000E-03
+  END IF
+  IF (PumpUnitString == 'm3_yr') THEN
+    PumpConversion = 1.0d0
+  END IF
+  
+  IF ( PumpConversion == 0.0 .AND. (ThereArePumpingWells .OR. pumptimeseries) ) THEN
+    WRITE(*,*)
+    WRITE(*,*) ' Pump units must be provided and cannot be = 0.0 if there are pumping wells'
+    WRITE(*,*)
+    STOP
+  END IF
+
+!!! pumpunits      cm3_sec
+!!! pumpunits      liter_sec
+!!! pumpunits      dm3_sec
+!!! pumpunits      m3_sec
+
+!!! pumpunits      cm3_min
+!!! pumpunits      liter_min
+!!! pumpunits      dm3_min
+!!! pumpunits      m3_min
+
+!!! pumpunits      cm3_hr
+!!! pumpunits      liter_hr
+!!! pumpunits      dm3_hr
+!!! pumpunits      m3_hr
+
+!!! pumpunits      cm3_day
+!!! pumpunits      liter_day
+!!! pumpunits      dm3_day
+!!! pumpunits      m3_day
+
+!!! pumpunits      cm3_yr
+!!! pumpunits      liter_yr
+!!! pumpunits      dm3_yr
+!!! pumpunits      m3_yr
+  
+  IF ( ThereArePumpingWells .OR. pumptimeseries ) THEN
+    qg =  qg*PumpConversion
+  END IF
 
   CALL read_gaspump(nout,nx,ny,nz,nchem,ngaspump)
-
+  
   irecharge = 0
 
   IF (.NOT. modflow) THEN
@@ -6710,6 +6969,10 @@ IF (found) THEN
     ELSE
       ALLOCATE(permzOld(1:nx,1:ny,0:nz+1))
     END IF
+    
+!!!    IF (nz == 1) THEN
+
+!!!    END IF
 
     pres = 0.0
     perminx = 0.0
@@ -6788,7 +7051,7 @@ IF (found) THEN
             READ(*,*)
             STOP
           END IF
-          OPEN(UNIT=23,FILE=permxfile,STATUS='old',ERR=8001)
+          OPEN(UNIT=23,FILE=permxfile,STATUS='old')
           FileTemp = permxfile
           CALL stringlen(FileTemp,FileNameLength)
           IF (PermFileFormat == 'ContinuousRead') THEN
@@ -7250,9 +7513,9 @@ IF (found) THEN
             END DO
           END IF
 
-          permmaxy = 0.0
+          permmaxY = 0.0
           permy = perminy
-          permmaxy = MAXVAL(DABS(permy))
+          permmaxY = MAXVAL(DABS(permy))
 
           DEALLOCATE(permzoney)
           DEALLOCATE(jxxpermy_lo)
@@ -7264,85 +7527,260 @@ IF (found) THEN
 
         END IF
       END IF
+      
+      
+      IF (MeterScaleFracture_Veins) THEN
+          
+        write(*,*) ' Entering MeterScaleFracture_Veins permeability field'
+        write(*,*)
+        
+        DO jy = 1,ny
+          DO jx = 1,nx
+
+            IF (jinit(jx,jy,1) == 3) THEN        !!!  Fracture
+              perminx(jx,jy,1) = 1.0D-12
+              permx(jx,jy,1)   = 1.0D-12
+              perminy(jx,jy,1) = 1.0D-12
+              permy(jx,jy,1)   = 1.0D-12
+              porin(jx,jy,1)   = 0.90
+              por(jx,jy,1)     = 0.90
+                
+            ELSE IF (jinit(jx,jy,1) == 2) THEN  !!! Serpentine
+              perminx(jx,jy,1) = 1.0D-15
+              permx(jx,jy,1)   = 1.0D-15
+              perminy(jx,jy,1) = 1.0D-15
+              permy(jx,jy,1)   = 1.0D-15
+              porin(jx,jy,1)   = 0.10
+              por(jx,jy,1)     = 0.10
+                
+            ELSE IF (jinit(jx,jy,1) == 1) THEN  !!! Rock matrix (peridotite)
+              perminx(jx,jy,1) = 1.0D-20
+              permx(jx,jy,1)   = 1.0D-20
+              perminy(jx,jy,1) = 1.0D-20
+              permy(jx,jy,1)   = 1.0D-20
+              porin(jx,jy,1)   = 0.01
+              por(jx,jy,1)     = 0.01
+                
+            ELSE
+              write(*,*) ' Material type (CONDITION) should be 1, 2, 3, or 4'
+              write(*,*) jinit(jx,jy,1)
+              write(*,*)
+              read(*,*)
+                
+            END IF
+            
+          END DO
+        END DO
+        
+        jz = 1
+        jy = 1
+        do jx = 1,nx
+          
+          perminx(jx,jy,1) = 1.0D-15
+          permx(jx,jy,1)   = 1.0D-15
+          perminy(jx,jy,1) = 1.0D-15
+          permy(jx,jy,1)   = 1.0D-15
+          porin(jx,jy,1)   = 0.80
+          por(jx,jy,1)     = 0.80
+          jinit(jx,jy,1)   = 5         !!! Frit at bottom of column
+              
+        end do
+        
+    !!!      jz = 1
+    !!!       jy = 255
+    !!!      do jx = 1,nx
+          
+    !!!       perminx(jx,jy,1) = 1.0D-15
+    !!!        permx(jx,jy,1)   = 1.0D-15
+    !!!       perminy(jx,jy,1) = 1.0D-15
+    !!!       permy(jx,jy,1)   = 1.0D-15
+    !!!       porin(jx,jy,1)   = 7.00
+    !!!       por(jx,jy,1)     = 7.00
+    !!!      jinit(jx,jy,1)   = 6         !!! Separator
+    !!!      satliq(jx,jy,jz) = 0.50
+              
+    !!!    end do
+        
+    !!!    saturationcond( 6 )= 0.50
+        
+    !!! Reset to constant permeability to test flow
+        
+ !!!       perminx = 1.0D-13
+ !!!       permx   = 1.0D-13
+ !!!       perminy = 1.0D-13
+ !!!       permy   = 1.0D-13
+        
+        perminx(0,:,:)     = 0.d0
+        perminx(126,:,:)   = 0.d0
+        permx(0,:,:)       = 0.d0
+        permx(126,:,:)     = 0.d0
+        permy(:,0,:)       = 0.d0
+        perminy(:,0,:)     = 0.d0
+        
+      END IF
 
       IF (nz == 1) THEN
 
-        IF (nmmLogical .and. FractureNetwork) THEN
+        IF (nmmLogical .and. SerpentineFracture) THEN
 
-          IF (CriticalZone) THEN
-
-            do jy = 1,ny
-              do jx = 1,nx
-
-                if (jinit(jx,jy,1) == 2) then
-                  perminx(jx,jy,1) = 1.0D-12
-                  permx(jx,jy,1) = 1.0D-12
-                  perminy(jx,jy,1) = 1.0D-12
-                  permy(jx,jy,1) = 1.0D-12
-                end if
-
-              end do
-            end do
-
-            do jy = 1,2
-              do jx = 1,nx          !!! Soil layer 2 grid cells deep
-
-                  perminx(jx,jy,1) = 1.0D-12
-                  permx(jx,jy,1) = 1.0D-12
-                  perminy(jx,jy,1) = 1.0D-12
-                  permy(jx,jy,1) = 1.0D-12
-                  jinit(jx,jy,1) = 3
-
-              end do
-            end do
-
-          ELSE
-
-            do jy = 1,ny
-              do jx = 1,nx
-                if (jinit(jx,jy,1) == 2) then
-                  perminx(jx,jy,1) = 1.0D-11
-                  permx(jx,jy,1) = 1.0D-11
-                  perminy(jx,jy,1) = 1.0D-11
-                  permy(jx,jy,1) = 1.0D-11
-                end if
-              end do
-            end do
-
-          END IF
-
-        END IF
-        
-        IF (SerpentineFracture) THEN
-          
-          write(*,*) ' Entering SerpentineFracture permeability field'
-          write(*,*)
-
+          jz = 1
           DO jy = 1,ny
             DO jx = 1,nx
-
-              IF (jinit(jx,jy,1) == 2) THEN     !!!  Fracture network
-                perminx(jx,jy,1) = 1.0D-11
-                permx(jx,jy,1)   = 1.0D-11
-                perminy(jx,jy,1) = 1.0D-11
-                permy(jx,jy,1)   = 1.0D-11
-                porin(jx,jy,1)   = 0.85
-                por(jx,jy,1)     = 0.85
-                
-              ELSE                              !!!  Rock matrix
-                perminx(jx,jy,1) = 1.0D-19
-                permx(jx,jy,1)   = 1.0D-19
-                perminy(jx,jy,1) = 1.0D-19
-                permy(jx,jy,1)   = 1.0D-19
-                porin(jx,jy,1)   = 0.01
-                por(jx,jy,1)     = 0.01
-                
-              END IF
-
+              if (jinit(jx,jy,1) == 2) then
+                perminx(jx,jy,1) = 1.0D-14
+                permx(jx,jy,1)   = 1.0D-14
+                perminy(jx,jy,1) = 1.0D-14
+                permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+              if (jx > 79 .and. jx < 89 .and. jy > 237 .and. jy < 241) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+              if (jx > 133 .and. jx < 41 .and. jy > 239 .and. jy < 241) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+              if (jx == 75 .and. jy > 238 .and. jy < 241) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+             if (jx == 2 .and. jy == 24) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+             
+              if (jx > 181 .and. jx < 184 .and. jy == 1) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+              if (jx > 80 .and. jx < 93 .and. jy == 1) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+              if (jy > 208 .and. jy < 214 .and. jx == 131) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+              end if
+              
+             if (jx == 201 .and. jy == 240) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+             
+             if (jx == 201 .and. jy == 239) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+             
+             if (jx == 181 .and. jy == 1) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+             
+             if (jx == 182 .and. jy == 1) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+             
+             if (jx == 183 .and. jy == 1) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+             
+             if (jx == 184 .and. jy == 1) then
+                    jinit(jx,jy,jz) = 2
+                    do k = 1,nrct
+                      volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+                    end do
+                    perminx(jx,jy,1) = 1.0D-14
+                    permx(jx,jy,1)   = 1.0D-14
+                    perminy(jx,jy,1) = 1.0D-14
+                    permy(jx,jy,1)   = 1.0D-14
+             end if
+          
             END DO
           END DO
+          
 
-
+          
         END IF
 
         permz = 0.0
@@ -7453,9 +7891,6 @@ IF (found) THEN
       InitializeHydrostatic = .FALSE.
       CALL read_logical(nout,lchar,parchar,parfind,InitializeHydrostatic)
       IF (gimrt) THEN
-        WRITE(*,*)
-        WRITE(*,*) ' --> Initializing flow field to be hydrostatic '
-        WRITE(*,*)
       ELSE
         CONTINUE
       END IF
@@ -8214,10 +8649,40 @@ IF (constant_gasflow) THEN
   qxgasinit = qxgasinit/(time_scale*dist_scale)
   qygasinit = qygasinit/(time_scale*dist_scale)
   qzgasinit = qzgasinit/(time_scale*dist_scale)
+  
+      
 
   qxgas = qxgasinit
   qygas = qygasinit
   qzgas = qzgasinit
+  
+
+  
+  !!! Hardwired for cylindrical meter-scale
+  IF (nx == 37) THEN
+    qygas = 0.0
+    qzgas = 0.0
+    do jy = 0,nx
+      do jx = 29,nx
+        qygas(jx,jy,1) = 0.0
+      end do
+    end do
+  END IF
+
+  
+  
+  
+!!!  DO jy = 1,ny
+!!!    DO jx = 0,nx
+!!!      qxgas(jx,jy,1) = GasFlowFactorX(jx,jy,1)*qxgas(jx,jy,1)
+!!!    END DO
+!!!  END DO
+!!!  DO jy = 0,ny
+!!!    DO jx = 1,nx
+!!!      qygas(jx,jy,1) = GasFlowFactorY(jx,jy,1)*qygas(jx,jy,1)
+!!!    END DO
+!!!  END DO
+      
 
 END IF
 
@@ -8888,7 +9353,7 @@ anisotropyY = 1.0d0
 !!!anisotropyZ = 1.0d0
 
 UseThresholdPorosity = .FALSE.
-MillingtonQuirk = .TRUE.
+MillingtonQuirk = .FALSE.
 TortuosityOption = 'none'
 
 IF (ALLOCATED(tortuosity)) THEN
@@ -8898,6 +9363,7 @@ ELSE
   ALLOCATE(tortuosity(nx,ny,nz))
 END IF
 
+!!! Set tortuosity = 1.0 as default case
 tortuosity = 1.0d0
 
 IF (ALLOCATED(anisotropyZ)) THEN
@@ -8909,6 +9375,7 @@ END IF
 
 anisotropyZ = 1.0d0
 
+!!! Following is ONLY for MontTerri simulations
 IF (MontTerri) THEN
 
   DO jz = 1,nz
@@ -8992,9 +9459,9 @@ IF (MontTerri) THEN
 !!! 6: Inner disturbed zone
 !!! 7: Opalinus Clay (OPA)    
   
-END IF
+END IF      !!! End MontTerri simulations
 
-IF (found) THEN
+IF (FOUND) THEN
 
   WRITE(*,*)
   WRITE(*,*) ' Transport block found'
@@ -9068,20 +9535,19 @@ IF (found) THEN
   call read_ConstantTortuosity(nout,nx,ny,nz,constant_tortuosity,TortuosityConstant,TortuosityOption)
 
   IF (constant_tortuosity) THEN
+    
     WRITE(*,*)
     WRITE(*,*) ' Constant tortuosity option specified'
     WRITE(*,*)
-    MillingtonQuirk = .TRUE.
-    IF (TortuosityOption /= 'none') THEN
-      CALL stringlen(TortuosityOption,ls)
-      WRITE(*,*)
-      WRITE(*,*) ' Tortuosity will be calculated using: ', TortuosityOption(1:ls)
-      WRITE(*,*)
-    END IF
     tortuosity = TortuosityConstant
+    WRITE(*,*) ' Default tortuosity = ', TortuosityConstant
+    
+!!! If tortuosity is set, then do NOT use Millington-Quirk
+    MillingtonQuirk = .FALSE.
+    
   ELSE
 
-  !   No constant tortuosity specified, so look for file read or for tortuosity set by zones
+  ! No constant tortuosity specified, so look for file read or for tortuosity set by zones
 
     TortuosityFile = ' '
     ReadTortuosity = .FALSE.
@@ -9093,8 +9559,8 @@ IF (found) THEN
       ReadTortuosity = .TRUE.
     END IF
 
-  !   Reading tortuosity zones directly from input file
-    IF (.NOT. ReadTortuosity) THEN
+!!! Reading tortuosity zones directly from input file
+    IF (.NOT. ReadTortuosity) THEN    !!! No file read of tortuosity, so look for tortuosity zones
 
       ALLOCATE(TortuosityZone(0:mperm))
 
@@ -9109,56 +9575,32 @@ IF (found) THEN
 
       CALL read_TortuosityByZone(nout,nx,ny,nz)
 
-       IF (TortuosityZone(0) == 0.0d0 .AND. nTortuosityZone==0) THEN
+!!!   First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
 
-  !!        WRITE(*,*)
-  !!        WRITE(*,*) ' No default tortuosity given'
-  !!        WRITE(*,*) ' Tortuosity should be followed by "default" or blank string'
-  !!        WRITE(*,*)
-  !!        STOP
-
-      ELSE
-        MillingtonQuirk = .TRUE.
-        WRITE(*,*)
-        WRITE(*,*) ' Default tortuosity = ',TortuosityZone(0)
-        WRITE(*,*)
-      END IF
-
-  ! First, initialize the tortuosity to default tortuosity (TortuosityZone(0))
-
-      IF (TortuosityZone(0) > 0.0d0 .OR. nTortuosityZone > 0) THEN
-        MillingtonQuirk = .TRUE.
+      IF ( nTortuosityZone == 0 ) THEN
+        MillingtonQuirk = .FALSE.
+        tortuosity = TortuosityZone(0)     !!! Should be set = 1.0 in "read_TortuosityByZone"
+        
+      ELSE             !!!  Tortuosity heterogeneity [nTurtuosityZone > 0]set via multiple tortuosity zones, 
+                       !!!  so do NOT use Millington-Quirk
+          
+        MillingtonQuirk = .FALSE.
         Tortuosity = TortuosityZone(0)
 
-  !       Next, initialize tortuosity from various zones
+  !!!   Next, initialize tortuosity from various zones
 
-        IF (nTortuosityZone > 0) THEN
-          DO l = 1,nTortuosityZone
-            DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
-              DO jy = jyyTortuosity_lo(l),jyyTortuosity_hi(l)
-                DO jx = jxxTortuosity_lo(l),jxxTortuosity_hi(l)
-                  Tortuosity(jx,jy,jz) = TortuosityZone(l)
-                END DO
+        DO l = 1,nTortuosityZone
+          DO jz = jzzTortuosity_lo(l),jzzTortuosity_hi(l)
+            DO jy = jyyTortuosity_lo(l),jyyTortuosity_hi(l)
+              DO jx = jxxTortuosity_lo(l),jxxTortuosity_hi(l)
+                Tortuosity(jx,jy,jz) = TortuosityZone(l)
               END DO
             END DO
           END DO
-        END IF
-
-  !!      Check to see if any of the nodes are uninitialized with a non-zero value
-
-        CheckSum = MINVAL(Tortuosity)
-
-        IF (checkSum < eps) THEN
-          WRITE(*,*)
-          WRITE(*,*) ' Tortuosity is not initialized to a non-zero value everywhere'
-          WRITE(*,*)
-          STOP
-        END IF
-
-      ELSE
-        MillingtonQuirk = .FALSE.
+        END DO
+          
       END IF
-
+        
       DEALLOCATE(TortuosityZone)
       DEALLOCATE(jxxTortuosity_lo)
       DEALLOCATE(jxxTortuosity_hi)
@@ -9179,7 +9621,7 @@ IF (found) THEN
           READ(*,*)
           STOP
         END IF
-        MillingtonQuirk = .TRUE.
+        MillingtonQuirk = .FALSE.
         OPEN(UNIT=52,FILE=TortuosityFile,STATUS='OLD',ERR=6002)
         FileTemp = TortuosityFile
         CALL stringlen(FileTemp,FileNameLength)
@@ -9305,7 +9747,28 @@ IF (found) THEN
         CLOSE(UNIT=52,STATUS='KEEP')
       END IF
     END IF
+    
+  END IF     !!! End of tortuosity file read
+  
+  IF (nTortuosityZone == 0) THEN
+    
+    IF (constant_tortuosity) THEN
+      continue
+    ELSE
+      parchar = 'MillingtonQuirk'
+      parfind = ' '
+      MillingtonQuirk = .FALSE.
+      CALL read_logical(nout,lchar,parchar,parfind,MillingtonQuirk)
+      IF (MillingtonQuirk) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' MillingtonQuirk set to TRUE'
+        WRITE(*,*)
+      END IF
+      
+    END IF
+    
   END IF
+    
 
   parchar = 'anisotropy_ratioY'
   parfind = ' '
@@ -9350,7 +9813,7 @@ IF (found) THEN
     UseThresholdPorosity = .FALSE.
   ELSE
     UseThresholdPorosity = .TRUE.
-    MillingtonQuirk = .TRUE.
+    !!! MillingtonQuirk = .TRUE.
     parchar = 'tortuosity_below'
     parfind = ' '
     realjunk = 0.0
@@ -9581,10 +10044,10 @@ DEALLOCATE(namdep_nyf)
 #ifndef ALQUIMIA
 DEALLOCATE(tempcond)
 DEALLOCATE(SkipAdjust)
-DEALLOCATE(rocond)
-DEALLOCATE(porcond)
-DEALLOCATE(SaturationCond)
-DEALLOCATE(PressureCond)
+!!!DEALLOCATE(rocond)
+!!!DEALLOCATE(porcond)
+!!!DEALLOCATE(SaturationCond)
+!!!DEALLOCATE(PressureCond)
 DEALLOCATE(equilibrate)
 DEALLOCATE(fsurftmp)
 #endif
@@ -9601,7 +10064,7 @@ DEALLOCATE(jzzlo)
 DEALLOCATE(jzzhi)
 DEALLOCATE(jjfix)
 #ifndef ALQUIMIA
-DEALLOCATE(surfcharge_init)
+!!!DEALLOCATE(surfcharge_init)
 DEALLOCATE(LogPotential_tmp)
 #endif
 DEALLOCATE(unitsflag)

@@ -360,7 +360,11 @@ IF (found) THEN
         IF (unitsflag(nchem) == 2) THEN                   !  Units in PPM
           IF (wtaq(i) /= 0.0) THEN
             ctot(i,nchem) = ctot(i,nchem)*0.001/wtaq(i)
-            guess(i,nchem) = guess(i,nchem)*0.001/wtaq(i)
+            IF (i == 1) THEN    !!! H2O
+              guess(i,nchem) = guess(i,nchem)*0.001/wtaq(i)
+            ELSE
+              guess(i,nchem) = guess(i,nchem)*0.001/wtaq(i)
+            END IF
           ELSE
             dumstring = ulab(i)
             CALL stringlen(dumstring,ls)
@@ -444,7 +448,11 @@ IF (found) THEN
       IF (guess(i,nchem) == 0.0) THEN
         
         IF (itype(i,nchem) == 1) THEN
-          guess(i,nchem) = GuessFactor*ctot(i,nchem)
+          IF (i == 1) THEN
+            guess(i,nchem) = ctot(i,nchem)
+          ELSE
+            guess(i,nchem) = GuessFactor*ctot(i,nchem)
+          END IF
         END IF
         
         IF (itype(i,nchem) == 7) THEN

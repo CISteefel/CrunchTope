@@ -83,6 +83,7 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE      :: gaspump
     
     LOGICAL(LGT)                                   :: wells
+    LOGICAL(LGT)                                   :: ThereArePumpingWells
     
     REAL(DP), DIMENSION(:),ALLOCATABLE           :: permzonex
     REAL(DP), DIMENSION(:),ALLOCATABLE           :: permzoney
@@ -150,6 +151,8 @@ MODULE flow
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permxOld
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permyOld
     REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: permzOld
+    REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: GasFlowFactorX
+    REAL(DP), DIMENSION(:,:,:),ALLOCATABLE         :: GasFlowFactorY
     
     INTEGER(I4B), DIMENSION(:,:,:),ALLOCATABLE     :: npump
     

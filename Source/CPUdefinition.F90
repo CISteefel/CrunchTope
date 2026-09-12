@@ -42,7 +42,7 @@
 
 !!!      ****************************************
     
-    subroutine def_time(CPU_unit)
+subroutine def_time(CPU_unit)
 
 USE crunchtype
 
@@ -53,6 +53,7 @@ REAL(DP)                :: T1,T2
 REAL(DP),DIMENSION(:,:), ALLOCATABLE :: A, B, C
 
 ALLOCATE(A(1000,1000),B(1000,1000),C(1000,1000))
+ALLOCATE(A_H2O(1000,1000),B_H2O(1000,1000),C_H2O(1000,1000))
 
 call random_number(A)
 call random_number(B)

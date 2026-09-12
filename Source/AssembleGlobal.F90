@@ -435,8 +435,8 @@ DO jy = 1,ny
 !!      MultiplyCell = 1.0
     ELSE
       CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
-       df = 1.0d0
-       MultiplyCell = CellVolume
+      df = 1.0d0
+      MultiplyCell = CellVolume
 !!      df = 1.0/CellVolume
 !!      MultiplyCell = 1.0
     END IF
@@ -1195,7 +1195,8 @@ DO jy = 1,ny
         sumrct = 0.0d0
         DO k = 1,nkin
           DO np = 1,nreactmin(k)
-            sumrct = sumrct + decay_correct(i,k)*mumin(np,k,i)*rmin(np,k)
+            sumrct = sumrct + mumin(np,k,i)*rmin(np,k)
+!!!            sumrct = sumrct + decay_correct(i,k)*mumin(np,k,i)*rmin(np,k)
           END DO
         END DO
       ENDIF
@@ -1208,6 +1209,7 @@ DO jy = 1,ny
 !  Update the residual, adding reaction terms and exchange terms
       
       fxx(ind) = fxx(ind) + MultiplyCell*(sumrct + 0.5*(satl+satlold)*xgram(jx,jy,jz)*portemp*rotemp*sumkin)
+!!!      fxx(ind) = fxx(ind) + MultiplyCell*(sumrct)
       
       sumrd = 0.0d0
       sumjackin = 0.0d0
@@ -1258,8 +1260,7 @@ DO jy = 1,ny
             aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
                *(1.0 + Retardation*distrib(i) )
           ELSE
-            aq_accum = satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-               *(1.0 + Retardation*distrib(i) )
+            aq_accum = satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  
           END IF
           source_jac = source*fjac(i2,i,jx,jy,jz)  
           ex_accum = r*fch(i,i2,jx,jy,jz)

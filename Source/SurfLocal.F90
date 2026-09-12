@@ -77,6 +77,9 @@ REAL(DP)                                                    :: activity
 REAL(DP)                                                    :: LogTotalSites
 REAL(DP)                                                    :: LogTotalEquivalents
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 
 !!      CALL AqueousToBulkConvert(jx,jy,jz,AqueousToBulk)
 !!      LogAqueousToBulk = DLOG(AqueousToBulk)
@@ -87,14 +90,19 @@ REAL(DP)                                                    :: LogTotalEquivalen
 
           delta_z = zsurf(ns+nsurf) - zsurf(islink(ns))
 
-
-
-            sum = 0.0
-            DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-            END DO
-
-
+          sum = 0.0
+          DO i = 1,ncomp
+              
+            ulabPrint = ulab(i)
+            IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+              lnActivity = lngamma(i,jx,jy,jz)
+            ELSE
+              lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+            END IF
+          
+            sum = sum + musurf(ns,i)*lnActivity
+            
+          END DO
 
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 
 
@@ -109,21 +117,27 @@ REAL(DP)                                                    :: LogTotalEquivalen
 !!!          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum -                     &
 !!!             delta_z*2.0*LogPotential(nptlink(ns),jx,jy,jz) + LogTotalEquivalents
 
-          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                  &
-        + 2.0d0*musurf(ns,islink(ns)+ncomp)*delta_z*LogPotential(nptlink(ns),jx,jy,jz)   &
-        - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                        &
-        - DLOG(musurf(ns,islink(ns)+ncomp)) 
+          spsurf(ns+nsurf,jx,jy,jz) = keqsurf(ns,jx,jy,jz) + sum                            &
+            - 2.0d0*musurf(ns,islink(ns)+ncomp) * delta_z * LogPotential(nptlink(ns),jx,jy,jz)  &
+            - (musurf(ns,islink(ns)+ncomp)-1.0d0)*LogTotalSites                                 &
+            - DLOG(musurf(ns,islink(ns)+ncomp)) 
           
           spsurf10(ns+nsurf,jx,jy,jz) = DEXP( spsurf(ns+nsurf,jx,jy,jz) )
 
         ELSE                                                  !  Non-electrostatic 
 
-
-
-            sum = 0.0
-            DO i = 1,ncomp
-              sum = sum + musurf(ns,i)*(sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz))
-            END DO
+          sum = 0.0
+          DO i = 1,ncomp
+              
+            ulabPrint = ulab(i)
+            IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+              lnActivity = lngamma(i,jx,jy,jz)
+            ELSE
+              lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+            END IF
+          
+            sum = sum + musurf(ns,i)*lnActivity
+          END DO
 
 
           LogTotalSites = LogTotalSurface(islink(ns),jx,jy,jz) 

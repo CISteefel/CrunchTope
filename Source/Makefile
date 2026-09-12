@@ -12,6 +12,8 @@ SOURCEF = \
           transport.F90\
           medium.F90\
           modflowModule.F90\
+	  hydraulic_function.F90\
+	  CrunchModules.F90\
           ReadFlow.F90\
           RunTime.F90\
           solver.F90\
@@ -21,12 +23,10 @@ SOURCEF = \
           CrunchFunctions.F90\
           isotope.F90\
           NanoCrystal.F90\
-	  hydraulic_function.F90\
 	  richards.F90\
 	  read_richards.F90\
           CrunchTopeDriver.F90\
           CrunchTope.F90\
-          AffinityNumerical.F90\
           AllocateALL.F90\
           AllocateOS3D.F90\
           AllocateGasesGimrt.F90\
@@ -69,7 +69,6 @@ SOURCEF = \
           convan.F90\
           CourantStep.F90\
           CourantStepAlt.F90\
-          CPUdefinition.F90\
           CrunchPETScFinalizeSolver.F90\
           CrunchPETScInitializeChemistry.F90\
           CrunchPETScInitializeDiffusion.F90\
@@ -101,8 +100,8 @@ SOURCEF = \
           FxTopeGlobal.F90\
           FxTopeLocal.F90\
           gamma_co2.F90\
-          gammaUpdated.F90\
           gamma_init_co2.F90\
+          gammaUpdated.F90\
           gamma_initUpdated.F90\
           gamma_local.F90\
           gascoeffCylinder.F90\
@@ -351,6 +350,8 @@ OBJSF  =  crunchtype.o\
           transport.o\
           medium.o\
           modflowModule.o\
+	  hydraulic_function.o\
+	  CrunchModules.o\
           ReadFlow.o\
           RunTime.o\
           solver.o\
@@ -360,12 +361,10 @@ OBJSF  =  crunchtype.o\
           CrunchFunctions.o\
           isotope.o\
           NanoCrystal.o\
-	  hydraulic_function.o\
 	  richards.o\
 	  read_richards.o\
           CrunchTopeDriver.o\
           CrunchTope.o\
-          AffinityNumerical.o\
           AllocateOS3D.o\
           AllocateGIMRT.o\
           AllocateALL.o\
@@ -408,7 +407,6 @@ OBJSF  =  crunchtype.o\
           convan.o\
           CourantStep.o\
           CourantStepAlt.o\
-          CPUdefinition.o\
           CrunchPETScFinalizeSolver.o\
           CrunchPETScInitializeChemistry.o\
           CrunchPETScInitializeDiffusion.o\

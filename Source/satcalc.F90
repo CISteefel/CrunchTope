@@ -75,6 +75,9 @@ INTEGER(I4B)                                                    :: id
 INTEGER(I4B)                                                    :: kd
 INTEGER(I4B)                                                    :: isotope
 
+REAL(DP)                                                        :: lnActivity
+CHARACTER (LEN=3)                                               :: ulabPrint
+
 tk = t(jx,jy,jz) + 273.15D0
 tkinv = 1.0/tk
 reft = 1.0/298.15
@@ -82,10 +85,18 @@ reft = 1.0/298.15
 DO k = 1,nrct
   DO np = 1,nreactmin(k)
 
-      sumiap = 0.0D0
-      DO i = 1,ncomp
-        sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*(sp(i,jx,jy,jz)+lngamma(i,jx,jy,jz))
-      END DO
+    sumiap = 0.0D0
+    DO i = 1,ncomp
+        
+      ulabPrint = ulab(i)
+      IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
+        lnActivity = lngamma(i,jx,jy,jz)
+      ELSE
+        lnActivity = sp(i,jx,jy,jz) + lngamma(i,jx,jy,jz)
+      END IF
+        
+      sumiap = sumiap + decay_correct(i,k)*mumin(np,k,i)*lnActivity
+    END DO
 
     silog(np,k) = (sumiap - keqmin(np,k,jx,jy,jz))/clg
   END DO

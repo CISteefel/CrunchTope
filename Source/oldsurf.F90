@@ -88,11 +88,11 @@ DO is = 1,nsurf
     ssurfn(is,jx,jy,jz) = permole*volMinimum/(volmol(k))
   END IF
 
-!!  IF (ssurfn(is,jx,jy,jz) < 1.D-20) THEN
-!!    ssurfn(is,jx,jy,jz) = 1.D-20
-!!  END IF
+  IF (ssurfn(is,jx,jy,jz) < 1.D-20) THEN
+    ssurfn(is,jx,jy,jz) = 1.D-20
+  END IF
 
- !!! LogTotalSurface(is,jx,jy,jz) = DLOG(ssurfn(is,jx,jy,jz))
+ LogTotalSurface(is,jx,jy,jz) = DLOG(ssurfn(is,jx,jy,jz))
 !!!  IF (c_surf(is,jinit(jx,jy,jz)) > 0.0) THEN
 !!!    LogTotalSurface(is,jx,jy,jz) = DLOG(c_surf(is,jinit(jx,jy,jz)))
 !!!  END IF

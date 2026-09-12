@@ -125,6 +125,7 @@ IF(ls /= 0) THEN
       CALL convan(ssch,lzs,res)
       IF (res == 'n') THEN
         qtemp = DNUM(ssch)
+        continue
       ELSE                !  An ascii string--so bag it.
         WRITE(*,*)
         WRITE(*,*) ' Cant interpret string following "pump"'
@@ -312,8 +313,9 @@ IF(ls /= 0) THEN
       WRITE(*,*) ' No pumping rate given'
       WRITE(*,*) ' Pumping zone ignored'
       WRITE(*,*)
-      GO TO 10
+      stop
     END IF
+    
   ELSE
     GO TO 10
   END IF
@@ -321,12 +323,11 @@ ELSE
   GO TO 10
 END IF
 
+write(*,*) 'npumpzone = ', npumpzone
 GO TO 10
 
-500 CONTINUE
-
-
-
+500 write(*,*) ' End read of pumpzones'
+  
   IF (ALLOCATED(npump)) THEN
     DEALLOCATE(npump)
     ALLOCATE(npump(nx,ny,nz))
@@ -376,17 +377,25 @@ IF (wells) THEN
             np = npump(jx,jy,jz)
             qg(np,jxxtemp,jyytemp,jzztemp) = qgTemp(npz,jxxtemp,jyytemp,jzztemp)
             intbnd(np,jxxtemp,jyytemp,jzztemp) = intbndTemp(npz,jxxtemp,jyytemp,jzztemp)
-
+            if (jxxtemp == 1 .and. jyytemp == 1) then
+              write(*,*) qg(np,jxxtemp,jyytemp,jzztemp)
+              continue
+            end if
           END IF
 
         END DO
+        
+            if (jx == 1 .and. jy == 1) then
+              write(*,*) qg(np,jxxtemp,jyytemp,jzztemp)
+              continue
+            end if    
 
       END DO
     END DO
   END DO
 
   !!  Convert pumping rate from liters/sec to m**3/yr
-  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
+!!!  qg = qg*secyr/1000.0d0                  !!  Converting from l/sec to m**3/yr
 
 END IF
 

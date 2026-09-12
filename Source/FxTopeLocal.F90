@@ -125,7 +125,7 @@ END IF
 !!   CellVolume = dxx(jx)*dyy(jy)*dzz(jx,jy,jz)
 !!   MultiplyCell = CellVolume
 
-Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/por(jx,jy,jz)
+Retardation = 0.001d0*SolidDensity(jinit(jx,jy,jz))*(1.0-por(jx,jy,jz))/( por(jx,jy,jz)*satliq(jx,jy,jz) )
 
 fxmax = 0.0
 satl = satliq(jx,jy,jz)

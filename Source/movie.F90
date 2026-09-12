@@ -186,51 +186,49 @@ ELSE
   END IF
 END IF
 
-    IF (FirstCall) THEN
-      
-      OPEN(UNIT=91,FILE='HaliteMovie.out', ACCESS='sequential',STATUS='unknown')
-      WRITE(91,1019)
-      WRITE(91,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+!!!    IF (FirstCall) THEN
+!!!      
+!!!      OPEN(UNIT=91,FILE='HaliteMovie.out', ACCESS='sequential',STATUS='unknown')
+!!!      WRITE(91,1019)
+!!!      WRITE(91,*) 'ZONE F=POINT,I=', nx,  ', J=',ny    
+!!!
+!!!        DO jy = 1,ny
+!!!          DO jx = 1,nx
+!!!            WRITE(91,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,volfx(1,jx,jy,1)
+!!!          END DO
+!!!        END DO
+!!!
+!!!    ELSE
+!!!      WRITE(91,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+!!!        DO jy = 1,ny
+!!!          DO jx = 1,nx
+!!!            WRITE(91,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,volfx(1,jx,jy,1)
+!!!          END DO
+!!!        END DO
+!!!
+!!!    END IF
     
-
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(91,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,volfx(1,jx,jy,1)
-          END DO
-        END DO
-
-    ELSE
-      WRITE(91,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(91,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,volfx(1,jx,jy,1)
-          END DO
-        END DO
-
-    END IF
-    
-    IF (FirstCall) THEN
-      
-      OPEN(UNIT=92,FILE='HaliteRateMovie.out', ACCESS='sequential',STATUS='unknown')
-      WRITE(92,1019)
-      WRITE(92,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
-    
-
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(92,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dppt(1,jx,jy,1)
-          END DO
-        END DO
-
-    ELSE
-      WRITE(92,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
-        DO jy = 1,ny
-          DO jx = 1,nx
-            WRITE(92,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dppt(1,jx,jy,1)
-          END DO
-        END DO
-
-    END IF
+!!!    IF (FirstCall) THEN
+!!!      
+!!!      OPEN(UNIT=92,FILE='HaliteRateMovie.out', ACCESS='sequential',STATUS='unknown')
+!!!      WRITE(92,1019)
+!!!      WRITE(92,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+!!!    
+!!!        DO jy = 1,ny
+!!!          DO jx = 1,nx
+!!!            WRITE(92,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dppt(1,jx,jy,1)
+!!!          END DO
+!!!        END DO
+!!!
+!!!    ELSE
+!!!      WRITE(92,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+!!!        DO jy = 1,ny
+!!!          DO jx = 1,nx
+!!!            WRITE(92,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale,dppt(1,jx,jy,1)
+!!!          END DO
+!!!        END DO
+!!!
+!!!    END IF
     
     IF (FirstCall) THEN
       
@@ -246,6 +244,7 @@ END IF
         END DO
 
     ELSE
+      
       WRITE(93,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
         DO jy = 1,ny
           DO jx = 1,nx
@@ -254,6 +253,29 @@ END IF
         END DO
 
     END IF
+  
+  IF (FirstCall) THEN
+    
+    OPEN(UNIT=94,FILE='H2Evolve.out', ACCESS='sequential',STATUS='unknown')
+    WRITE(94,1021)
+    WRITE(94,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+      
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(94,184)  x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, spgas10(1,jx,jy,1)
+      END DO
+    END DO
+
+  ELSE
+    
+    WRITE(94,*) 'ZONE F=POINT,I=', nx,  ', J=',ny
+    DO jy = 1,ny
+      DO jx = 1,nx
+        WRITE(94,184) x(jx)*OutputDistanceScale,y(jy)*OutputDistanceScale, spgas10(1,jx,jy,1)
+      END DO
+    END DO
+
+  END IF
 
 
 185 FORMAT(1PE12.5,12x,100(1X,1PE13.5))
@@ -267,6 +289,7 @@ END IF
 1018 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Calcite"')
 1019 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Halite"')
 1020 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "Porosity"')
+1021 FORMAT('VARIABLES = " X (meters)"," Y (meters)", "H2(g)"')
 
 1009 FORMAT('VARIABLES = " X (meters)", "  Y (meters)  "',100(', "',A10,'"'))
 2009 FORMAT('VARIABLES = " X (meters)", "  Z (meters)  "',100(', "',A10,'"'))

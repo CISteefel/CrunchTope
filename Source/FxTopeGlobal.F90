@@ -947,9 +947,7 @@ DO i = 1,ncomp
   ELSE
   !!!  aq_accum = r*(s(i,jx,jy,jz) - sn(i,jx,jy,jz))
     
-     aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
-       (rotemp*satl*s(i,jx,jy,jz) -            &
-        rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
+     aq_accum = portemp * ( rotemp*satl*s(i,jx,jy,jz) - rotempOld*satlOld*sn(i,jx,jy,jz) )/dt
   END IF
   
   IF (isaturate == 1) THEN

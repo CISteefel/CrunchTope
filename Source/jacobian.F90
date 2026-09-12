@@ -95,8 +95,6 @@ DO jz = 1,nz
         spec_conc = sp10(ksp+ncomp,jx,jy,jz)
         ik = ksp + ncomp
 
-
-
         !!! Cycle through primary species
         DO i = 2,ncomp
           mutemp = muaq(ksp,i)
