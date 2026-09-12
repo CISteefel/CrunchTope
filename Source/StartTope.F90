@@ -7533,7 +7533,7 @@ IF (FOUND) THEN
           
         write(*,*) ' Entering MeterScaleFracture_Veins permeability field'
         write(*,*)
-        
+        jz = 1
         DO jy = 1,ny
           DO jx = 1,nx
 
@@ -7544,6 +7544,9 @@ IF (FOUND) THEN
               permy(jx,jy,1)   = 1.0D-12
               porin(jx,jy,1)   = 0.90
               por(jx,jy,1)     = 0.90
+              do k = 1,nrct
+                volfx(k,jx,jy,1) = volin(k,jinit(jx,jy,1))
+              end do
                 
             ELSE IF (jinit(jx,jy,1) == 2) THEN  !!! Serpentine
               perminx(jx,jy,1) = 1.0D-15
@@ -7552,14 +7555,20 @@ IF (FOUND) THEN
               permy(jx,jy,1)   = 1.0D-15
               porin(jx,jy,1)   = 0.10
               por(jx,jy,1)     = 0.10
+              do k = 1,nrct
+                volfx(k,jx,jy,1) = volin(k,jinit(jx,jy,1))
+              end do
                 
             ELSE IF (jinit(jx,jy,1) == 1) THEN  !!! Rock matrix (peridotite)
               perminx(jx,jy,1) = 1.0D-20
               permx(jx,jy,1)   = 1.0D-20
               perminy(jx,jy,1) = 1.0D-20
               permy(jx,jy,1)   = 1.0D-20
-              porin(jx,jy,1)   = 0.01
-              por(jx,jy,1)     = 0.01
+              porin(jx,jy,1)   = 0.005
+              por(jx,jy,1)     = 0.005
+              do k = 1,nrct
+                volfx(k,jx,jy,1) = volin(k,jinit(jx,jy,1))
+              end do
                 
             ELSE
               write(*,*) ' Material type (CONDITION) should be 1, 2, 3, or 4'
@@ -7583,6 +7592,9 @@ IF (FOUND) THEN
           porin(jx,jy,1)   = 0.80
           por(jx,jy,1)     = 0.80
           jinit(jx,jy,1)   = 5         !!! Frit at bottom of column
+          do k = 1,nrct
+            volfx(k,jx,jy,jz) = volin(k,jinit(jx,jy,jz))
+          end do
               
         end do
         

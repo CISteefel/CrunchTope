@@ -2990,7 +2990,8 @@ END IF
             AqueousFlux_FaceSouth(kk) = AqueousFlux_FaceSouth(kk) + f(jx,jy,1) * (sp10(kk,jx,jy-1,1)-sp10(kk,jx,jy,jz)) * delt
           END DO 
       
-          jz = 1
+          
+		  jz = 1
           jy = ny
           DO jx = 1,nx
             AqueousFlux_FaceNorth(kk) = AqueousFlux_FaceNorth(kk) + d(jx,jy,1) * &
