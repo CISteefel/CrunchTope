@@ -2990,8 +2990,7 @@ END IF
             AqueousFlux_FaceSouth(kk) = AqueousFlux_FaceSouth(kk) + f(jx,jy,1) * (sp10(kk,jx,jy-1,1)-sp10(kk,jx,jy,jz)) * delt
           END DO 
       
-          
-		  jz = 1
+          jz = 1
           jy = ny
           DO jx = 1,nx
             AqueousFlux_FaceNorth(kk) = AqueousFlux_FaceNorth(kk) + d(jx,jy,1) * &
@@ -3621,7 +3620,7 @@ STOP
 2252 FORMAT(2X,'Time (hrs) = ',1PE12.5,2X,'Delt (hrs) =',1PE10.3)
 2253 FORMAT(2X,'Time (mins) = ',1PE12.5,2X,'Delt (mins) =',1PE10.3)
 2254 FORMAT(2X,'Time (secs) = ',1PE12.5,2X,'Delt (secs) =',1PE10.3)
-2255 FORMAT( 2X,1PE12.5,2X,4(1X,1PE10.3) )
+2255 FORMAT( 2X,1PE12.5,2X,4(1X,1PE15.6) )
 2260 FORMAT(2X,'Time (yrs) = ',1PE10.3)
 2261 FORMAT(2X,'Time (days) = ',1PE10.3)
 2262 FORMAT(2X,'Time (hrs) = ',1PE10.3)
