@@ -3472,6 +3472,7 @@ END IF
     WRITE(iures) spsurfold
     WRITE(iures) raq_tot
     WRITE(iures) sion
+    WRITE(iures) lngammawater
     WRITE(iures) jinit
 
 !!    WRITE(iures) mumin_decay
