@@ -336,7 +336,7 @@ DO k = 1,nkin
 !!!                                 MPa  *  MPa->Pa  * Vm (m^3/mol) /    (RT)
 !!!   LoadingPressureEffect = EXP( -200.0 * 1000000.0 * 0.00010645   / (8.314*Tk) )
 !!!               MPa * MPa -> Pa
-    StressPrint = 100.0 * 1000000 
+    StressPrint = 0.0 * 1000000 
     LoadingPressureEffect = DEXP( -StressPrint * volmol(k) / (8.314D0*Tk) )
     LogLoadingP = LOG(LoadingPressureEffect)
     !!!write(*,*) k, LogLoadingP

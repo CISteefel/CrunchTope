@@ -2245,7 +2245,7 @@ END DO
                 
                                 !!!   Update ionic strength
 
-                ind = ncomp + nexchange + nsurf + npot + 1
+                ind = (j-1)*(neqn) + ncomp + nexchange + nsurf + npot + 1
                 IF (DABS(xn(ind)) > 0.5) THEN
                   xn(ind) = SIGN( 0.5,xn(ind) )
                 ELSE
@@ -2260,7 +2260,7 @@ END DO
 
           !!!   Update lngammawater
                 
-                ind = ncomp + nexchange + nsurf + npot + 1 + 1
+                ind = (j-1)*(neqn) +  ncomp + nexchange + nsurf + npot + 1 + 1
                 IF (DABS(xn(ind)) > 0.5) THEN
                   xn(ind) = SIGN(0.5,xn(ind))
                 ELSE

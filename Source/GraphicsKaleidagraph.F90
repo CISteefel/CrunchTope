@@ -667,9 +667,9 @@ IF (BatchReactor2) THEN
       vol21 = volfx(21,jx,1,1) - volin(21,nco)     !!!
       vol22 = volfx(22,jx,1,1) - volin(22,nco)     !!!
       vol23 = volfx(23,jx,1,1) - volin(23,nco)     !!!
-      vol24 = volfx(24,jx,1,1) - volin(24,nco)     !!!
-      vol25 = volfx(25,jx,1,1) - volin(25,nco)     !!!
-      vol26 = volfx(26,jx,1,1) - volin(26,nco)     !!!
+      vol24 = volfx(24,jx,1,1) - volin(24,nco)     !!! Enstatite
+      vol25 = volfx(25,jx,1,1) - volin(25,nco)     !!! Diopside
+      vol26 = volfx(26,jx,1,1) - volin(26,nco)     !!! Calcite
     
     END DO
   
@@ -767,17 +767,17 @@ IF (BatchReactor2) THEN
     GramColumn = 93.77
     GramColumn = 22.9
     
-    npointer = 20
+    npointer = 10
     nco = jinit(npointer,1,1)
  
     
-    TotMassInitial = volin(1,nco) /volmol(1)  * wtmin(1)  +  &
-                     volin(2,nco) /volmol(2)  * wtmin(2)  +  &
-                     volin(3,nco) /volmol(3)  * wtmin(3)  +  &
-                     volin(4,nco) /volmol(4)  * wtmin(4)  +  &
-                     volin(5,nco) /volmol(5)  * wtmin(5)  +  &
-                     volin(24,nco)/volmol(24) * wtmin(24) +  &
-                     volin(25,nco)/volmol(25) * wtmin(25) 
+    TotMassInitial = volin(1,nco) /volmol(1)  * wtmin(1)  +  &    !!! Fo90-1
+                     volin(2,nco) /volmol(2)  * wtmin(2)  +  &    !!! Fo90-2
+                     volin(3,nco) /volmol(3)  * wtmin(3)  +  &    !!! Serp
+                     volin(4,nco) /volmol(4)  * wtmin(4)  +  &    !!! Magnetite
+                     volin(5,nco) /volmol(5)  * wtmin(5)  +  &    !!! Brucite
+                     volin(24,nco)/volmol(24) * wtmin(24) +  &    !!! Enstatite
+                     volin(25,nco)/volmol(25) * wtmin(25)         !!! Diopside
     
  !!!   IF (TotMassInitial == 0.0) THEN
   !!!     write(*,*) 'Initial mass should not be zero'
@@ -787,20 +787,20 @@ IF (BatchReactor2) THEN
     write(8,*)
     write(8,*) ' Initial Mass Percent '
     write(8,*) 
-    write(8,*) ' Olivine (%)     = ', 100.0*( ( volin( 1,nco) + volin(2,nco) )/volmol(1)  * wtmin(1) /TotMassInitial )                  !!! Units: Mass %
-    write(8,*) ' Serpentine (%)  = ', 100.0*( volin( 3,nco) /volmol(3)  * wtmin(3) /TotMassInitial )                  !!! Units: Mass %
-    write(8,*) ' Magnetite (%)   = ', 100.0*( volin( 4,nco) /volmol(4)  * wtmin(4) /TotMassInitial )                  !!! Units: Mass %
-    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volin( 5,nco) /volmol(5)  * wtmin(5) /TotMassInitial )                  !!! Units: Mass %
-    write(8,*) ' OPX (%)         = ', 100.0*( ( volin( 24,nco) ) /volmol(24)  * wtmin(24) /TotMassInitial )                  !!! Units: Mass %
-    write(8,*) ' CPX (%)         = ', 100.0*( ( volin( 25,nco) ) /volmol(25)  * wtmin(25) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Olivine (%)     = ', 100.0*( ( volin( 1,nco) + volin(2,nco) )/volmol(1)*wtmin(1) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volin( 3,nco) /volmol(3)*wtmin(3) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volin( 4,nco) /volmol(4)*wtmin(4) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volin( 5,nco) /volmol(5)*wtmin(5) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' OPX (%)         = ', 100.0*( ( volin( 24,nco) ) /volmol(24)*wtmin(24) /TotMassInitial )                  !!! Units: Mass %
+    write(8,*) ' CPX (%)         = ', 100.0*( ( volin( 25,nco) ) /volmol(25)*wtmin(25) /TotMassInitial )                  !!! Units: Mass %
     
-    TotMass = volfx(1,npointer,1,1) /volmol(1)  * wtmin(1)    +  &
-              volfx(2,npointer,1,1) /volmol(2)  * wtmin(2)    +  &
-              volfx(3,npointer,1,1) /volmol(3)  * wtmin(3)    +  &
-              volfx(4,npointer,1,1) /volmol(4)  * wtmin(4)    +  &
-              volfx(5,npointer,1,1) /volmol(5)  * wtmin(5)    +  &
-              volfx(24,npointer,1,1) /volmol(24)  * wtmin(24) +  &
-              volfx(25,npointer,1,1) /volmol(25)  * wtmin(25) 
+    TotMass = volfx(1,npointer,1,1) /volmol(1)  * wtmin(1)    +  &   !!! Fo90-1
+              volfx(2,npointer,1,1) /volmol(2)  * wtmin(2)    +  &   !!! Fo90-2
+              volfx(3,npointer,1,1) /volmol(3)  * wtmin(3)    +  &   !!! Serp
+              volfx(4,npointer,1,1) /volmol(4)  * wtmin(4)    +  &   !!! Magnetite
+              volfx(5,npointer,1,1) /volmol(5)  * wtmin(5)    +  &   !!! Brucite
+              volfx(24,npointer,1,1) /volmol(24)* wtmin(24) +  &   !!! Enstatite
+              volfx(25,npointer,1,1) /volmol(25)* wtmin(25)        !!! Diopside
         
       
       
@@ -809,13 +809,13 @@ IF (BatchReactor2) THEN
     write(8,*)
     write(8,*) ' Final Mass Percent '
     write(8,*)
-    write(8,*) ' Olivine (%)     = ', 100.0*( ( volfx(1,npointer,1,1) + volfx(2,npointer,1,1) ) /volmol(1)  * wtmin(1) /TotMass )                  !!! Units: Mass %
-    write(8,*) ' Serpentine (%)  = ', 100.0*( volfx(3,npointer,1,1) /volmol(3)  * wtmin(3) /TotMass )                  !!! Units: Mass %
-    write(8,*) ' Magnetite (%)   = ', 100.0*( volfx(4,npointer,1,1) /volmol(4)  * wtmin(4) /TotMass )                  !!! Units: Mass %
-    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volfx(5,npointer,1,1) /volmol(5)  * wtmin(5) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Olivine (%)     = ', 100.0*( ( volfx(1,npointer,1,1)+volfx(2,npointer,1,1) ) /volmol(1)*wtmin(1) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Serpentine (%)  = ', 100.0*( volfx(3,npointer,1,1) /volmol(3)*wtmin(3) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Magnetite (%)   = ', 100.0*( volfx(4,npointer,1,1) /volmol(4)*wtmin(4) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' Fe-brucite (%)  = ', 100.0*( volfx(5,npointer,1,1) /volmol(5)*wtmin(5) /TotMass )                  !!! Units: Mass %
     
-    write(8,*) ' OPX (%)         = ', 100.0*( ( volfx(24,npointer,1,1))/volmol(24)  * wtmin(24) /TotMass )                  !!! Units: Mass %
-    write(8,*) ' CPX (%)         = ', 100.0*( volfx(25,npointer,1,1) /volmol(25)  * wtmin(25) /TotMass )                  !!! Units: Mass %    
+    write(8,*) ' OPX (%)         = ', 100.0*( ( volfx(24,npointer,1,1))/volmol(24)*wtmin(24) /TotMass )                  !!! Units: Mass %
+    write(8,*) ' CPX (%)         = ', 100.0*( volfx(25,npointer,1,1) /volmol(25)*wtmin(25) /TotMass )                  !!! Units: Mass %    
     write(8,*)
     
     TotVolInitial =  volin(1,nco)     +  &
@@ -836,7 +836,7 @@ IF (BatchReactor2) THEN
     
     write(8,*) ' Initial Volume Percent '
     write(8,*) 
-    write(8,*) ' Olivine (%)     = ', 100.0*( volin(1,nco) + volin(1,nco)    )               !!! Units: Vol %
+    write(8,*) ' Olivine (%)     = ', 100.0*( volin(1,nco) + volin(2,nco)    )               !!! Units: Vol %
     write(8,*) ' Serpentine (%)  = ', 100.0*( volin(3,nco)  )               !!! Units: Vol %
     write(8,*) ' Magnetite (%)   = ', 100.0*( volin(4,nco)  )                !!! Units: Vol %
     write(8,*) ' Fe-brucite (%)  = ', 100.0*( volin(5,nco)  )               !!! Units: Vol %

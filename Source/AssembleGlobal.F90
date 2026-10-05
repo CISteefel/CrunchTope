@@ -208,9 +208,10 @@ REAL(DP)                                       :: ChargeSum
 REAL(DP)                                       :: TotalMoles
 REAL(DP)                                       :: sumder
 REAL(DP)                                       :: gammaH2O
+REAL(DP)                                       :: CheckH2O
 INTEGER(I4B)                                   :: icomp2
 
-REAL(DP), DIMENSION(ncomp + nsurf + nexchange + npot + 1 + 1,ncomp + nsurf + nexchange + npot + 1 + 1)    :: der_residuals
+REAL(DP), DIMENSION(ncomp + nsurf + nexchange + npot + 1 + 1,ncomp + nsurf + nexchange + npot + 1 + 1)  :: der_residuals
 
 CHARACTER (LEN=3)                              :: ulabprint
 
@@ -1640,7 +1641,14 @@ DO jy = 1,ny
       
       ind = (j-1)*(neqn) + pos_gammawater
       
-      fxx(ind) = LOG( (1.0d0 - 0.017d0*TotalMoles)/ gammaH2O )
+      CheckH2O = (1.0d0 - 0.017d0*TotalMoles)
+      if (CheckH2O <= 0.d0) then
+        write(*,*)
+        write(*,*) 'CheckH2O', CheckH2O
+        STOP
+      end IF
+      
+      fxx(ind) = LOG( CheckH2O/ gammaH2O )
         
 !!!   Derivative of activity of water (gammawater) with respect to primary species 
 
