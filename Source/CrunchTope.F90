@@ -2162,8 +2162,8 @@ END DO
           !!!   Update ionic strength
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 
-                IF (DABS(yh(ind,jx)) > 0.5) THEN
-                  yh(ind,jx) = SIGN( 0.5,yh(ind,jx) )
+                IF (DABS(yh(ind,jx)) > 0.5d0) THEN
+                  yh(ind,jx) = SIGN( 0.5d0,yh(ind,jx) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2177,8 +2177,8 @@ END DO
           !!!   Update lngammawater
                 
                 ind = ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(yh(ind,jx) ) > 0.5) THEN
-                  yh(ind,jx) = SIGN( 0.5,yh(ind,jx) )
+                IF (DABS(yh(ind,jx) ) > 0.5d0) THEN
+                  yh(ind,jx) = SIGN( 0.5d0,yh(ind,jx) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2246,8 +2246,8 @@ END DO
                                 !!!   Update ionic strength
 
                 ind = (j-1)*(neqn) + ncomp + nexchange + nsurf + npot + 1
-                IF (DABS(xn(ind)) > 0.5) THEN
-                  xn(ind) = SIGN( 0.5,xn(ind) )
+                IF (DABS(xn(ind)) > 0.5d0) THEN
+                  xn(ind) = SIGN( 0.5d0,xn(ind) )
                 ELSE
                   CONTINUE
                 END IF
@@ -2261,8 +2261,8 @@ END DO
           !!!   Update lngammawater
                 
                 ind = (j-1)*(neqn) +  ncomp + nexchange + nsurf + npot + 1 + 1
-                IF (DABS(xn(ind)) > 0.5) THEN
-                  xn(ind) = SIGN(0.5,xn(ind))
+                IF (DABS(xn(ind)) > 0.5d0) THEN
+                  xn(ind) = SIGN(0.5d0,xn(ind))
                 ELSE
                   CONTINUE
                 END IF
