@@ -383,12 +383,7 @@ IF (wells) THEN
             end if
           END IF
 
-        END DO
-        
-            if (jx == 1 .and. jy == 1) then
-              write(*,*) qg(np,jxxtemp,jyytemp,jzztemp)
-              continue
-            end if    
+        END DO 
 
       END DO
     END DO

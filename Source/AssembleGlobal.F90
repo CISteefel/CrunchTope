@@ -1644,6 +1644,8 @@ DO jy = 1,ny
       CheckH2O = (1.0d0 - 0.017d0*TotalMoles)
       if (CheckH2O <= 0.d0) then
         write(*,*)
+        write(*,*) ' Blew Sky High'
+        write(*,*) ' No convergence:  !! FAIL !! '
         write(*,*) 'CheckH2O', CheckH2O
         STOP
       end IF

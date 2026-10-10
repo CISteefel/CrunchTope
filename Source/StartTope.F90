@@ -1228,9 +1228,9 @@ IF (found) THEN
 
   IF (SolverMethod == 'gmres') THEN
     CONTINUE
-  ELSE IF (SolverMethod == 'bicg') THEN
+  ELSE IF (SolverMethod == 'bicg') THEN    !!! biconjugate gradient method
     CONTINUE
-  ELSE IF (SolverMethod == 'bcgs') THEN
+  ELSE IF (SolverMethod == 'bcgs') THEN    !!! Stabilized Biconjugate Gradien
     CONTINUE
   ELSE IF (SolverMethod == 'direct') THEN
     CONTINUE

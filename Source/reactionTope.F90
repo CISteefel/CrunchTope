@@ -377,6 +377,7 @@ DO k = 1,nkin
 !!  Imintype = 8 --> Microbially mediated monod with theormodynamic factor, and biomass
 !!  Imintype = 9 --> biomass first order decay !!smr-2011-04-29
 !!  Imintype = 10 -> Nucleation
+!!  Imintype = 12 -> TST + inhibition
 
 !!  Calculate thermodynamic term
     
@@ -576,10 +577,6 @@ DO k = 1,nkin
 !!  "MineralID" is the pointer to the mineral number whose volume fraction is being tracked
     
     IF (silog(np,k) >= 0.0D0 .AND. iarea(k,jinit(jx,jy,jz)) == 0) THEN       !! Supersaturated AND bulk_surface_area option
-      
-      IF (k == 13) then
-        continue
-      end if
 
 !!    Associate mineral with another mineral (surface area and volume fraction)
       IF (MineralAssociate(k)) THEN
@@ -680,8 +677,13 @@ DO k = 1,nkin
 
     ELSE
           
-!!    TST, irreversible, or PrecipitationOnly
-      IF (imintype(np,k) == 1 .OR. imintype(np,k) == 3 .OR. imintype(np,k) == 4 .OR. imintype(np,k) == 5 .OR. imintype(np,k) == 10 ) THEN 
+!!    TST, irreversible, PrecipitationOnly, DissolutionOnly, TST-Inhibition
+      IF (imintype(np,k) == 1 .OR.              &
+            imintype(np,k) == 3 .OR.            &
+              imintype(np,k) == 4 .OR.          &
+                imintype(np,k) == 5 .OR.        &
+                  imintype(np,k) == 10 .OR.     &
+                    imintype(np,k) == 12) THEN 
         
         term2 = 0.0D0
         DO kk = 1,ndepend(np,k)
@@ -718,6 +720,19 @@ DO k = 1,nkin
             term2 = term2 + dependTMP*DLOG(spsurf10(is,jx,jy,jz))        
           END IF
         END DO
+        
+        IF (imintype(np,k) == 12) THEN           !!! Adding inhibition to TST
+          
+          DO kk = 1,ninhibit(np,k)
+            i = inhibit(kk,np,k)
+            IF (itot_inhibit(kk,np,k) == 1) THEN
+              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
+            ELSE
+              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
+            END IF
+          END DO
+          
+        END IF
 
         IF (HyperbolicInhibition(np,k)) THEN
 !!          Kformation = 0.0000149823D0
@@ -756,6 +771,7 @@ DO k = 1,nkin
             END IF
           END IF
         END DO
+        
         DO kk = 1,ninhibit(np,k)
 
           i = inhibit(kk,np,k)
@@ -846,11 +862,11 @@ DO k = 1,nkin
 ! sergi: first order biomass decay - may 2011
       
       ELSE IF (imintype(np,k) == 9) THEN
-      IF (east_river) then
-        term2 = volfx(biomass_decay(np,k),jx,jy,jz)*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
-      ELSE
-        term2 = volfx(biomass_decay(np,k),jx,jy,jz)
-      ENDIF
+        IF (east_river) then
+          term2 = volfx(biomass_decay(np,k),jx,jy,jz)*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
+        ELSE
+          term2 = volfx(biomass_decay(np,k),jx,jy,jz)
+        ENDIF
 !!        term2 = term2/volmol(biomass_decay(np,k)) not applicable after volmol=1 for biomass
         pre_rmin(np,k) = term2
 

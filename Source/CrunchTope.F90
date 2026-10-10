@@ -1025,15 +1025,6 @@ IF (GIMRT .AND. (nxyz > 1) .AND. petscon) THEN  ! set up PETSc vectors, matrix, 
 endif   !  PETSc setup
 !*****************************end PETSc setup **************************************
 
-IF (irestart == 1) THEN
-
-  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave,          &
-               delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
-               amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
-
-END IF
-
-
 !!  Check to see if the problem is fully saturated initially and changes to unsaturated
 !!  with the call to "ReadFlowField".
 
@@ -1047,6 +1038,14 @@ END IF
 
 IF (OS3D .AND. isaturate == 1) THEN         !!  NOTE:  No previous allocation of gases for OS3D
   CALL AllocateGasesOS3D(nx,ny,nz,ncomp)
+END IF
+
+IF (irestart == 1) THEN
+
+  CALL restart(time,nn,nint,nexchange,nsurf,nrct,nx,ny,nz,nstop,nstopsave,          &
+               delt,dtold,tstep,deltmin,dtmaxcour,dtmax,userC,userD,userP,user,     &
+               amatpetsc,amatD,amatP,bvec,xvec,bvecD,xvecD,bvecP,xvecP)
+
 END IF
 
 !  **********************  START OS3D BLOCK  *********************************
@@ -2347,11 +2346,11 @@ END DO
         IF (icvg == 1) THEN
           
           !!! Check TotalMoles
-          TotalMoles = 0.d0
-          do ik = 2,ncomp+nspec
-            TotalMoles = TotalMoles + sp10(ik,1,1,1)
-          end do
-          write(*,*) ' TotalMoles at failure point',TotalMoles
+          !!! TotalMoles = 0.d0
+          !!! do ik = 2,ncomp+nspec
+          !!!   TotalMoles = TotalMoles + sp10(ik,1,1,1)
+          !!! end do
+          !!! write(*,*) ' Total Moles at failure point',TotalMoles
 
 
           ddtold = dt_GIMRT
@@ -2478,7 +2477,7 @@ DO jz = 1,nz
         ChangeIn_Serp    = dppt(3,jx,1,1) * delt * CellVolume
          
         DO k = 1,nrct
-            MoleChange(k,jx) = MoleChange(k,jx) + dppt(k,jx,jy,jz)*delt*CellVolume   !!! Units of moles mineral
+          MoleChange(k,jx) = MoleChange(k,jx) + dppt(k,jx,jy,jz)*delt*CellVolume   !!! Units of moles mineral
         END DO
         
         CONTINUE
@@ -3167,10 +3166,12 @@ END IF
     ELSE
       OPEN(UNIT=iures,FILE=RestartOutputFile,FORM='unformatted',STATUS='unknown')
     END IF
-
+    
     WRITE(iures) time
+
     WRITE(iures) nn
     WRITE(iures) nint
+
     WRITE(iures) delt,dtold,tstep,deltmin,dtmaxcour,dtmax
     WRITE(iures) keqaq
     WRITE(iures) keqgas
@@ -3185,12 +3186,20 @@ END IF
     WRITE(iures) spold
     WRITE(iures) spex
     WRITE(iures) spex10
-    WRITE(iures) lngamma
+    
     WRITE(iures) exchangesites
     WRITE(iures) spexold
+    
+    
+ !!!                       IF (TrueFalse) THEN  
+
     WRITE(iures) spgas
     WRITE(iures) spgasold
     WRITE(iures) spgas10
+ 
+    WRITE(iures) lngamma
+    WRITE(iures) lngammawater
+
     IF (isaturate==1) then
       WRITE(iures) sgas
       WRITE(iures) sgasn
@@ -3199,43 +3208,42 @@ END IF
       WRITE(iures) ssurf
       WRITE(iures) ssurfn
     endif
+    
     WRITE(iures) sexold
     WRITE(iures) ssurfold
     WRITE(iures) spsurf
     WRITE(iures) spsurf10
-    WRITE(iures) spsurfold
+    WRITE(iures) spsurfold 
     WRITE(iures) raq_tot
     WRITE(iures) sion
-    WRITE(iures) lngammawater
-    WRITE(iures) jinit   !! Read IntegerDummyArray(nxyz)
+    
     WRITE(iures) keqmin
     WRITE(iures) volfx
     WRITE(iures) dppt
     WRITE(iures) area
-    WRITE(iures) areainByGrid
-    WRITE(iures) volinByGrid
-    WRITE(iures) specificByGrid
+    
     WRITE(iures) LogPotential
     WRITE(iures) t
     WRITE(iures) told
-    WRITE(iures) ro
-    WRITE(iures) por
+    WRITE(iures) ro   
+    WRITE(iures) por 
     WRITE(iures) satliq
     WRITE(iures) qxgas
     WRITE(iures) qygas
     WRITE(iures) qzgas
     WRITE(iures) pres
-    
     WRITE(iures) ActiveCell
     WRITE(iures) VolSaveByTimeStep
     WRITE(iures) Volsave
     WRITE(iures) ncounter
     
+    !!!end if
+    
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
-        WRITE(iures) Richards_State%psi
-        WRITE(iures) Richards_State%theta
+     WRITE(iures) Richards_State%psi
+     WRITE(iures) Richards_State%theta
     END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
@@ -3420,105 +3428,13 @@ END IF
       WRITE(*,771) isimu_hr, isimu_min, ExtraSeconds
       nint = nint + 1
 
-!   Write a restart file
 
-    iures = 131
-
-    INQUIRE(FILE=RestartOutputFile,OPENED=truefalse)
-    IF (truefalse) then
-      CLOSE(UNIT=iures)
-      OPEN(UNIT=iures,FILE=RestartOutputFile,FORM='unformatted',STATUS='unknown')
-    ELSE
-      OPEN(UNIT=iures,FILE=RestartOutputFile,FORM='unformatted',STATUS='unknown')
-    END IF
-
-    WRITE(iures) time
-    WRITE(iures) nn
-    WRITE(iures) nint
-    WRITE(iures) delt,dtold,tstep,deltmin,dtmaxcour,dtmax
-
-    WRITE(iures) keqaq
-    WRITE(iures) keqgas
-    WRITE(iures) keqsurf
-    WRITE(iures) xgram
-    WRITE(iures) spnO2
-    WRITE(iures) spnnO2
-    WRITE(iures) sp
-    WRITE(iures) s
-    WRITE(iures) sn
-    WRITE(iures) sp10
-    WRITE(iures) spold
-    WRITE(iures) spex
-    WRITE(iures) spex10
-    WRITE(iures) lngamma
-    WRITE(iures) exchangesites
-    WRITE(iures) spexold
-!!    WRITE(iures) sch
-    WRITE(iures) spgas
-    WRITE(iures) spgasold
-    WRITE(iures) spgas10
-    IF (isaturate==1) then
-      WRITE(iures) sgas
-      WRITE(iures) sgasn
-    ENDIF
-    if (ierode==1) then
-      WRITE(iures) ssurf
-      WRITE(iures) ssurfn
-    endif
-    WRITE(iures) sexold
-    WRITE(iures) ssurfold
-    WRITE(iures) spsurf
-    WRITE(iures) spsurf10
-    WRITE(iures) spsurfold
-    WRITE(iures) raq_tot
-    WRITE(iures) sion
-    WRITE(iures) jinit
-
-!!    WRITE(iures) mumin_decay
-    WRITE(iures) keqmin
-    WRITE(iures) volfx
-    WRITE(iures) dppt
-    WRITE(iures) area
-    WRITE(iures) areainByGrid
-    WRITE(iures) volinByGrid
-    WRITE(iures) specificByGrid
-    WRITE(iures) LogPotential
-
-    WRITE(iures) t
-    WRITE(iures) told
-    WRITE(iures) ro
-
-    WRITE(iures) por
-
-    WRITE(iures) satliq
-    WRITE(iures) qxgas
-    WRITE(iures) qygas
-    WRITE(iures) qzgas
-    WRITE(iures) pres
-  !!!  WRITE(iures) dspy
-  !!!  WRITE(iures) dspz
-  !!!  WRITE(iures) qg
-    WRITE(iures) ActiveCell
-    WRITE(iures) VolSaveByTimeStep
-    WRITE(iures) Volsave
-    WRITE(iures) ncounter
-    
-    !********************************************
-    ! Edit by Toshiyuki Bandai 2023 May
-    IF (Richards) THEN
-        WRITE(iures) Richards_State%psi
-        WRITE(iures) Richards_State%head
-        WRITE(iures) Richards_State%theta
-        WRITE(iures) Richards_State%theta_prev
-    END IF
-    ! End of Edit by Toshiyuki Bandai 2023 May
-    !*********************************************
 
 !!    WRITE(iures) tauZero
 
 !    CLOSE(UNIT=intfile,STATUS='keep')
 
-    CLOSE(UNIT=iures,STATUS='keep')
+    !!! CLOSE(UNIT=iures,STATUS='keep')
 
 !         ***** PETSc closeout**************
          IF (InputFileCounter == NumInputFiles) THEN

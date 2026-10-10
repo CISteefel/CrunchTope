@@ -135,8 +135,8 @@ REAL(DP)                                             :: tmp4
 REAL(DP)                                             :: satL
 REAL(DP)                                             :: vol_temp
 
-REAL(DP)                                                        :: lnActivity
-CHARACTER (LEN=3)                                               :: ulabPrint
+REAL(DP)                                             :: lnActivity
+CHARACTER (LEN=3)                                    :: ulabPrint
 
 REAL(DP), DIMENSION(ikin)                            :: MoleFraction
 REAL(DP), DIMENSION(ncomp,ikin)                      :: dMoleFraction

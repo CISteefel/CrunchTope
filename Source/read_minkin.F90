@@ -280,6 +280,7 @@ IF(ls /= 0) THEN
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     rlabel(npar,nkin) = ssch
+  
   ELSE IF (ssch == '-local_equilibrium' .OR. ssch == '-equilibrium' .OR. ssch == '-localequilibrium') THEN
     LocalEquilibrium(nkin) = .TRUE.
   
@@ -305,6 +306,7 @@ IF(ls /= 0) THEN
     CALL sschaine(zone,id,iff,ssch,ids,ls)
     lzs = ls
     crossaff(npar,nkin) = ssch
+    
   ELSE IF (ssch == '-rate') THEN
     iuser(1) = 1
     id = ids + ls
@@ -319,6 +321,7 @@ IF(ls /= 0) THEN
       WRITE(*,*)
       READ(*,*)
       STOP
+      
     ELSE
       rate0(npar,nkin) = DNUM(ssch)
       continue
@@ -345,6 +348,7 @@ IF(ls /= 0) THEN
 !!    END IF
 
   ELSE IF (ssch == '-activation') THEN
+    
     iuser(2) = 1
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -361,7 +365,9 @@ IF(ls /= 0) THEN
     ELSE
       ea(npar,nkin) = DNUM(ssch)
     END IF
+    
   ELSE IF (ssch == '-dependence') THEN
+    
     iuser(3) = 1
     ndep = ndep + 1
     namdep_nyf(ndep,npar,nkin) = ' '
@@ -454,7 +460,9 @@ IF(ls /= 0) THEN
 !            endif
    
     END IF
+    
   ELSE IF (ssch == '-type') THEN
+    
     iuser(4) = 1
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -470,10 +478,14 @@ IF(ls /= 0) THEN
       imintype(npar,nkin) = 3
     ELSE IF (ssch == 'ripening') THEN
       imintype(npar,nkin) = 11
+    ELSE IF (ssch == 'tst_inhibition') THEN
+      imintype(npar,nkin) = 12
     ELSE
       imintype(npar,nkin) = 1
     END IF
+    
   ELSE IF (ssch == '-associate') THEN
+    
     iuser(7) = 1
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -481,7 +493,9 @@ IF(ls /= 0) THEN
     lzs=ls
     CALL stringtype(ssch,lzs,res)
     namAssociate(nkin) = ssch
+    
   ELSE IF (ssch == '-monod_term' .OR. ssch == '-monod_terms') THEN
+    
     iuser(5) = 1
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -501,9 +515,11 @@ IF(ls /= 0) THEN
       WRITE(*,*)
       READ(*,*)
       STOP
+      
     ELSE
       halfsat_tmp(1) = DNUM(ssch)
     END IF
+    
 !  First, check to see if we are dealing with a total concentration
     dumstring = nam_monod
     IF (dumstring(1:4) == 'tot_') THEN
@@ -555,6 +571,7 @@ IF(ls /= 0) THEN
     END IF
     
   ELSE IF (ssch == '-inhibition') THEN
+    
     iuser(6) = 1
     id = ids + ls
     CALL sschaine(zone,id,iff,ssch,ids,ls)
@@ -577,6 +594,7 @@ IF(ls /= 0) THEN
     ELSE
       rinhibit_tmp(1) = DNUM(ssch)
     END IF
+    
 !  First, check to see if we are dealing with a total concentration
     dumstring = nam_inhibit
     IF (dumstring(1:4) == 'tot_') THEN
@@ -586,6 +604,7 @@ IF(ls /= 0) THEN
     ELSE
       itot_tmp = 0
     END IF
+    
     speciesfound = .false.
     DO i = 1,ncomp
       IF (ulab(i) == nam_inhibit) THEN
@@ -599,6 +618,7 @@ IF(ls /= 0) THEN
     IF (speciesfound) THEN
       CONTINUE
     ELSE
+      
       DO ksp = 1,nspec
         ik = ncomp + ksp
         IF (ulab(ik) == nam_inhibit) THEN
@@ -609,7 +629,7 @@ IF(ls /= 0) THEN
           ELSE
             WRITE(*,*)
             WRITE(*,*) ' Cannot specify total concentration for secondary species'
-            WRITE(*,*) ' in Monod inhibition term: ',dumstring(1:lss)
+            WRITE(*,*) ' in inhibition term: ',dumstring(1:lss)
             WRITE(*,*)
             READ(*,*)
             STOP
@@ -620,14 +640,16 @@ IF(ls /= 0) THEN
         CONTINUE
       ELSE
         WRITE(*,*)
-        WRITE(*,*) ' Cannot find inhibiting species in Monod rate law: ',dumstring(1:lss)
+        WRITE(*,*) ' Cannot find inhibiting species in rate law: ',dumstring(1:lss)
         WRITE(*,*)
         READ(*,*)
         STOP
       END IF
+      
     END IF
     
   ELSE IF (ssch == '-biomass') THEN
+    
 ! label this mineral as biomass
     id = ids + ls
     lzs=ls
@@ -738,7 +760,9 @@ IF (ssch == tempmin) THEN
       CALL sschaine(dummy1,id,iff,ssch,ids,ls)
       lzs=ls
 !!!      CALL convan(ssch,lzs,res)
+      
       IF (ssch == 'type') THEN                              !! Read TYPE
+        
         id = ids + ls
         CALL sschaine(dummy1,id,iff,ssch,ids,ls)
         IF (ssch == '=') THEN
@@ -769,7 +793,10 @@ IF (ssch == tempmin) THEN
 ! sergi: biomass decay
          ELSE IF (ssch == 'BiomassDecay' .OR. ssch == 'biomassdecay') THEN
            imintype(npar,nkin) = 9
-
+           
+! CIS: TST + inhibition term
+         ELSE IF (ssch == 'TST_inhibition' .OR. ssch == 'tst_inhibition') THEN
+           imintype(npar,nkin) = 12
 
 ! sergi: biomass decay end
           ELSE
@@ -790,6 +817,7 @@ IF (ssch == tempmin) THEN
           READ(*,*)
           STOP
         END IF
+        
       ELSE
         WRITE(*,*)
         WRITE(*,*) '  Error in database: Rate "type"'
@@ -1150,6 +1178,7 @@ IF (ssch == tempmin) THEN
             READ(*,*)
             STOP
           END IF
+          
         ELSE
           WRITE(*,*)
           WRITE(*,*) '  Error in database: Monod inhibition terms '
@@ -1365,9 +1394,6 @@ IF (ssch == tempmin) THEN
 
       end if
       
-      
- 
-
 ! end sergi: biomass decay
 
       
@@ -1440,7 +1466,8 @@ IF (ssch == tempmin) THEN
                 
                 GO TO 222            !!  Go back, even if this is obsolete syntax
                 
-              ELSE   
+              ELSE      !!! This should be the non-Monod selection
+                
                 ndepend(np,nkin) = ndepend(np,nkin) + 1
                 IF (ndepend(np,nkin) > mpre) THEN
                   WRITE(*,*)
@@ -1514,39 +1541,10 @@ IF (ssch == tempmin) THEN
                 
                 namdep_nyf(kk,np,nkin) = NAME(kk)
                 depend(kk,np,nkin) = dep_tmp(kk)
-                
-                
-!                      do ksp = 1,nspec
-!                        ik = ncomp + ksp
-!                        if (ulab(ik).eq.name(kk)) then
-!                          idepend(kk,np,nkin) = ik
-!                          speciesfound = .true.
-!                          depend(kk,np,nkin) = dep_tmp(kk)
-!                          if (itot_tmp.eq.0) then
-!                            continue
-!                          else
-!                            write(*,*)
-!                            write(*,*) ' Cannot specify total concentration for secondary species'
-!                            write(*,*) ' in rate law: ',dumstring(1:lss)
-!                            write(*,*)
-!                            stop
-!                          endif
-!                        endif
-!                      end do
-                
-!                      if (speciesfound) then
-!                        continue
-!                      else
-!                        write(*,*)
-!                        write(*,*) ' Cannot find species in rate law: ',dumstring(1:lss)
-!                        dumstring = name(kk)
-!                        call stringlen(dumstring,llen)
-!                        write(*,*) ' Looking for species: ',dumstring(1:llen)
-!                        write(*,*)
-!                        stop
-!                      endif
-                
+                            
               END IF
+              
+              CONTINUE
               
             END DO    !  End of loop through "ndepend" species
             
@@ -1559,6 +1557,7 @@ IF (ssch == tempmin) THEN
             READ(*,*)
             STOP
           END IF
+          
         ELSE
           WRITE(*,*)
           WRITE(*,*) '  Error in database: Reaction "dependence" '
@@ -1569,6 +1568,7 @@ IF (ssch == tempmin) THEN
           STOP
         END IF
         
+      
       END IF                                  !!  User input, so skip block above
       
       READ(18,'(a)',END=300) dummy1
@@ -1652,82 +1652,285 @@ IF (ssch == tempmin) THEN
       IF (AffinityDepend3(np,nkin) /= 1.0d0) THEN
         JacobianNumerical = .TRUE.
       END IF
+      
+      !  Look for inhibition terms
+      IF (dummy1 == 'inhibition') THEN
+        CONTINUE
+      ELSE
+        READ(18,'(a)',END=300) dummy1
+      END IF
+      
+       IF (dummy1(1:1) == '+') THEN
+         CONTINUE
+       ELSE
+!!!       ELSE IF (imintype(np,nkin) == 12) THEN        !!! TST + inhibition case
+      
+!!!         READ(18,'(a)',END=300) dummy1
+!!!         IF (iuser(6) == 0) THEN ! No user input, so read
+          id = 1
+          iff = mls
+          CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+          lzs=ls
+          CALL convan(ssch,lzs,res)
+          IF (ssch == 'inhibition') THEN
+            ninhibit(np,nkin) = 0
+            id = ids + ls
+            CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+            IF (ssch == ':') THEN
+              777   id = ids + ls
+              CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+              IF (ls /= 0) THEN
+                ninhibit(np,nkin) = ninhibit(np,nkin) + 1
+                IF (ninhibit(np,nkin) > mpre) THEN
+                  WRITE(*,*)
+                  WRITE(*,*) ' Redimension parameter "mpre" in params.inc'
+                  WRITE(*,*) ' Mpre = ',mpre
+                  WRITE(*,*) ' Number of inhibition terms', ninhibit(np,nkin)
+                  WRITE(*,*)
+                  READ(*,*)
+                  STOP
+                END IF
+                lzs = ls
+                CALL stringtype(ssch,lzs,res)
+                NAME(ninhibit(np,nkin)) = ssch
+                id = ids + ls
+                CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+                lzs = ls
+                CALL stringtype (ssch,lzs,res)
+                IF (res == 'a') THEN
+                  WRITE(*,*)
+                  WRITE(*,*) '  Error in database: TST inhibition terms'
+                  WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+                  WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+                  WRITE(*,*)
+                  READ(*,*)
+                  STOP
+                ELSE
+                  rinhibit_tmp(ninhibit(np,nkin)) = DNUM(ssch)
+                END IF
+                GO TO 777
+              END IF
+            
+              DO kk = 1,ninhibit(np,nkin)
+                dumstring = NAME(kk)
+                IF (dumstring(1:4) == 'tot_') THEN
+                  CALL stringlen(dumstring,lss)
+                  NAME(kk) = dumstring(5:lss)
+                  itot_tmp = 1
+                ELSE
+                  itot_tmp = 0
+                END IF
 
-    END IF                                                             !! End of choice between "dependence" and "monod_term"
+                speciesfound = .false.          
+                DO i = 1,ncomp
+                  IF (ulab(i) == NAME(kk)) THEN
+                    inhibit(kk,np,nkin) = i
+                    speciesfound = .true.
+                    rinhibit(kk,np,nkin) = rinhibit_tmp(kk)
+                    IF (itot_tmp == 1) THEN
+                      itot_inhibit(kk,np,nkin) = 1
+                    END IF
+                  END IF
+                END DO
+                IF (speciesfound) THEN
+                  CONTINUE
+                ELSE
+                  DO ksp = 1,nspec
+                    ik = ncomp + ksp
+                    IF (ulab(ik) == NAME(kk)) THEN
+                      inhibit(kk,np,nkin) = ik
+                      speciesfound = .true.
+                      rinhibit(kk,np,nkin) = rinhibit_tmp(kk)
+                      IF (itot_tmp == 0) THEN
+                        CONTINUE
+                      ELSE
+                        WRITE(*,*)
+                        WRITE(*,*) ' Cannot specify total concentration for secondary species'
+                        WRITE(*,*) ' in TST inhibition expression: ',dumstring(1:lss)
+                        WRITE(*,*)
+                        READ(*,*)
+                        STOP
+                      END IF
+                    END IF
+                  END DO
+                  IF (speciesfound) THEN
+                    CONTINUE
+                  ELSE
+                    WRITE(*,*)
+                    WRITE(*,*) ' Cannot find species in TST expression: ',dumstring(1:lss)
+                    dumstring = NAME(kk)
+                    CALL stringlen(dumstring,llen)
+                    WRITE(*,*) ' Looking for species: ',dumstring(1:llen)
+                    WRITE(*,*)
+                    READ(*,*)
+                    STOP
+                  END IF
+                END IF
+              END DO    !  End of loop through "inhibiting" species
+            
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' Error in database: TST inhibition terms '
+              WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+              WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            
+            WRITE(*,*)
+            WRITE(*,*) ' Kinetic reaction number: ',nkin
+            CONTINUE 
+          
+          ELSE IF (ssch /= 'inhibition') then
+            
+            WRITE(*,*) ' String NOT "inhibition", so see if it is next in the list'
+            
+            READ(18,'(a)',END=300) dummy1
+            IF (dummy1(1:1) == '+') THEN
+              CONTINUE
+            ELSE
+              id = 1
+              iff = mls
+              CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+              lzs=ls
+              CALL convan(ssch,lzs,res)
+              IF (ssch == 'inhibition') THEN
+                ninhibit(np,nkin) = 0
+                id = ids + ls
+                CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+                IF (ssch == ':') THEN
+                  888   id = ids + ls
+                  CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+                  IF (ls /= 0) THEN
+                    ninhibit(np,nkin) = ninhibit(np,nkin) + 1
+                    IF (ninhibit(np,nkin) > mpre) THEN
+                      WRITE(*,*)
+                      WRITE(*,*) ' Redimension parameter "mpre" in params.inc'
+                      WRITE(*,*) ' Mpre = ',mpre
+                      WRITE(*,*) ' Number of inhibition terms', ninhibit(np,nkin)
+                      WRITE(*,*)
+                      READ(*,*)
+                      STOP
+                    END IF
+                    lzs = ls
+                    CALL stringtype(ssch,lzs,res)
+                    NAME(ninhibit(np,nkin)) = ssch
+                    id = ids + ls
+                    CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+                    lzs = ls
+                    CALL stringtype (ssch,lzs,res)
+                    IF (res == 'a') THEN
+                      WRITE(*,*)
+                      WRITE(*,*) '  Error in database: TST inhibition terms'
+                      WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+                      WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+                      WRITE(*,*)
+                      READ(*,*)
+                      STOP
+                    ELSE
+                      rinhibit_tmp(ninhibit(np,nkin)) = DNUM(ssch)
+                    END IF
+                    GO TO 888
+                  END IF
+            
+                  DO kk = 1,ninhibit(np,nkin)
+                    dumstring = NAME(kk)
+                    IF (dumstring(1:4) == 'tot_') THEN
+                      CALL stringlen(dumstring,lss)
+                      NAME(kk) = dumstring(5:lss)
+                      itot_tmp = 1
+                    ELSE
+                      itot_tmp = 0
+                    END IF
+
+                    speciesfound = .false.          
+                    DO i = 1,ncomp
+                      IF (ulab(i) == NAME(kk)) THEN
+                        inhibit(kk,np,nkin) = i
+                        speciesfound = .true.
+                        rinhibit(kk,np,nkin) = rinhibit_tmp(kk)
+                        IF (itot_tmp == 1) THEN
+                          itot_inhibit(kk,np,nkin) = 1
+                        END IF
+                      END IF
+                    END DO
+                    IF (speciesfound) THEN
+                      CONTINUE
+                    ELSE
+                      DO ksp = 1,nspec
+                        ik = ncomp + ksp
+                        IF (ulab(ik) == NAME(kk)) THEN
+                          inhibit(kk,np,nkin) = ik
+                          speciesfound = .true.
+                          rinhibit(kk,np,nkin) = rinhibit_tmp(kk)
+                          IF (itot_tmp == 0) THEN
+                            CONTINUE
+                          ELSE
+                            WRITE(*,*)
+                            WRITE(*,*) ' Cannot specify total concentration for secondary species'
+                            WRITE(*,*) ' in TST inhibition expression: ',dumstring(1:lss)
+                            WRITE(*,*)
+                            READ(*,*)
+                            STOP
+                          END IF
+                        END IF
+                      END DO
+                      IF (speciesfound) THEN
+                        CONTINUE
+                      ELSE
+                        WRITE(*,*)
+                        WRITE(*,*) ' Cannot find species in TST expression: ',dumstring(1:lss)
+                        dumstring = NAME(kk)
+                        CALL stringlen(dumstring,llen)
+                        WRITE(*,*) ' Looking for species: ',dumstring(1:llen)
+                        WRITE(*,*)
+                        READ(*,*)
+                        STOP
+                      END IF
+                    END IF
+                  END DO    !  End of loop through "inhibiting" species
+            
+                ELSE
+                  WRITE(*,*)
+                  WRITE(*,*) ' Error in database: TST inhibition terms '
+                  WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+                  WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+                  WRITE(*,*)
+                  READ(*,*)
+                  STOP
+                END IF
+              
+              ELSE
+                WRITE(*,*)
+                WRITE(*,*) ' Error in database: TST inhibition terms '
+                WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+                WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
+        
+             END IF                                                !! If no input file input, then ...
+          !!! End of inhibition section for TST
+        
+          END IF
+          
+          CONTINUE
+          
+        END IF
+      
+      END IF                                                             !! End of choice between "dependence" and "monod_term"
     
-!  Read stoichiometry here
     
-!          read(18,'(a)',end=300) dummy1
-!          namsearch = nammin_tmp(nkin)
-!          call stringlen(namsearch,ls_min)
-!          templabel = rlabel(np,nkin)
-!          call stringlen(templabel,ls_label)
-!          call reaction_interp(dummy1,npar,nkin,namsearch,
-!     &       templabel,namspecies,nsp,sto)
-    
-! Check to see if all of the species are present, skipping the mineral
-    
-!          kkh2o = 0
-!          do kk = 2,nsp
-!            do ik = 1,ncomp+nspec
-!              if (namspecies(kk).eq.ulab(ik)) then
-!                goto 550
-!              endif
-!            end do
-!            if (namspecies(kk).eq.'H2O'.or.namspecies(kk).eq.'h2o') then
-!                ikh2O = ik
-!                goto 550
-!              endif
-!            namtemp = namspecies(kk)
-!            call stringlen(namtemp,ls)
-!            write(*,*)
-!            write(*,*) ' Could not find species: ',namtemp(1:ls)
-!            write(*,*) ' In mineral reaction:    ',namsearch(1:ls_min)
-!            write(*,*) ' Label:                  ',templabel(1:ls_label)
-!            write(*,*)
-!            stop
-!  550       continue
-!          end do
-!          nreac = nreac + 1
-    
-    
-!          ax(nreac,nreac) = 1.0
-    
-!     do kk = 2,nsp
-    
-!       do i = 1, ncomp
-!         if (namspecies(kk).eq.ulab(i)) then
-!           bx(nreac,i) = sto(kk)
-!           goto 1001
-!              endif
-!            end do
-    
-!       do ksp = 1, nspec
-!         if (namspecies(kk).eq.ulab(ksp+ncomp)) then
-!           ax(nreac,ksp) = -sto(kk)
-!           goto 1001
-!              endif
-!            end do
-    
-!       do ngg = 1, ngas
-!         if (namspecies(kk).eq.namg(ngg)) then
-!           ax(nreac,ngg+nspec) = -sto(kk)
-!           goto 1001
-!              endif
-!            end do
-    
-! 1001       continue
-    
-!          end do
-    
-  ELSE            ! Mineral name not followed by "label"
-    WRITE(*,*)
-    WRITE(*,*) ' Error in database in "label" statement'
-    WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
-    WRITE(*,*)
-    READ(*,*)
-    STOP
-  END IF
+    ELSE            ! Mineral name not followed by "label"
+      WRITE(*,*)
+      WRITE(*,*) ' Error in database in "label" statement'
+      WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+      WRITE(*,*)
+      READ(*,*)
+      STOP
+    END IF
   
 ELSE
 !!!  write(*,*) tempmin

@@ -249,6 +249,10 @@ REAL(DP)                                                        :: liqsat_fac, s
 REAL(DP)                                                        :: lnActivity
 CHARACTER (LEN=3)                                               :: ulabPrint
 
+REAL(DP)                                             :: jac_inhibition
+REAL(DP)                                             :: InhibitTerm
+INTEGER(I4B)                                         :: id
+
 !!!NoFractionationDissolution = .false.
 
 SetToAqueousMoleFraction = .FALSE.
@@ -703,61 +707,67 @@ DO k = 1,nkin
      
 !******** Far from equilibrium dependence of rate *********
  
-      IF (imintype(np,k) == 1 .OR. imintype(np,k) == 3 .OR. imintype(np,k) == 4 .OR. imintype(np,k) == 10) THEN  !! TST, irreversible, or ppt only
-!!      +++++++++++++++++++++++++++++++++++++++++IF (imintype(np,k) == 1 .OR. imintype(np,k) == 3 .OR. imintype(np,k) == 4) THEN  !! TST, irreversible, or ppt only
-
-          DO kk = 1,ndepend(np,k)
-            i = idepend(kk,np,k)
-            IF (itot_min(kk,np,k) == 1) THEN    ! Dependence on total concentration
-              IF (gimrt) THEN
-                DO i2 = 1,ncomp
-                  jac_pre(i2,np) = jac_pre(i,np) + fjac(i2,i,jx,jy,jz)*depend(kk,np,k)* pre_rmin(np,k)/s(i,jx,jy,jz)
-                END DO
-              ELSE
-                DO i2 = 1,ncomp
-                  jac_pre(i2,np) = jac_pre(i2,np) + fjac_loc(i2,i)*depend(kk,np,k)* pre_rmin(np,k)/s(i,jx,jy,jz)
-                END DO
-              END IF
+!!!   TST, irreversible, PrecipitationOnly, DissolutionOnly, TST-Inhibition
+      IF (imintype(np,k) == 1 .OR.              &
+            imintype(np,k) == 3 .OR.            &
+              imintype(np,k) == 4 .OR.          &
+                imintype(np,k) == 5 .OR.        &
+                  imintype(np,k) == 10 .OR.     &
+                    imintype(np,k) == 12) THEN 
+        
+        DO kk = 1,ndepend(np,k)
+          i = idepend(kk,np,k)
+          IF (itot_min(kk,np,k) == 1) THEN    ! Dependence on total concentration
+            IF (gimrt) THEN
+              DO i2 = 1,ncomp
+                jac_pre(i2,np) = jac_pre(i,np) + fjac(i2,i,jx,jy,jz)*depend(kk,np,k)* pre_rmin(np,k)/s(i,jx,jy,jz)
+              END DO
             ELSE
-              IF (i <= ncomp) THEN   !  Primary species dependence
-                jac_pre(i,np) = jac_pre(i,np) + pre_rmin(np,k)*depend(kk,np,k)
-              ELSE                   !  Secondary species dependence
-                ksp = i - ncomp
-                DO i2 = 1,ncomp
-                  jac_pre(i2,np) = jac_pre(i2,np) + pre_rmin(np,k)*depend(kk,np,k)*  &
-                    muaq(ksp,i2)
-                END DO
-              END IF
-            END IF
-          END DO     !  End of of loop through aqueous species dependencies
-
-          DO kk = 1,ndependex(np,k)
-            ix = ixdepend(kk,np,k)
-            DO i2 = 1,ncomp+nexchange
-              jac_pre(i2,np) = jac_pre(i2,np) + pre_rmin(np,k)*dependex(kk,np,k)*  &
-                muexc(ix,i2)
-            END DO
-          END DO     !  End of of loop through exchange species dependencies
-
-          DO kk = 1,ndependsurf(np,k)
-            is = isdepend(kk,np,k)
-            dependTMP = dependsurf(kk,np,k)
-            IF (is <= nsurf) THEN    !!  Primary surface complex dependence
-              jac_pre(is+ncomp+nexchange,np) = jac_pre(is+ncomp+nexchange,np) + pre_rmin(np,k)*dependTMP
-            ELSE 
-              iss = is - nsurf
-              DO i2 = 1,ncomp+nsurf
-                jac_pre(i2,np) = jac_pre(i2,np) + pre_rmin(np,k)*dependTMP*musurf(iss,i2)    
+              DO i2 = 1,ncomp
+                jac_pre(i2,np) = jac_pre(i2,np) + fjac_loc(i2,i)*depend(kk,np,k)* pre_rmin(np,k)/s(i,jx,jy,jz)
               END DO
             END IF
-          END DO    
+          ELSE
+            IF (i <= ncomp) THEN   !  Primary species dependence
+              jac_pre(i,np) = jac_pre(i,np) + pre_rmin(np,k)*depend(kk,np,k)
+            ELSE                   !  Secondary species dependence
+              ksp = i - ncomp
+              DO i2 = 1,ncomp
+                jac_pre(i2,np) = jac_pre(i2,np) + pre_rmin(np,k)*depend(kk,np,k)*  &
+                  muaq(ksp,i2)
+              END DO
+            END IF
+          END IF
+        END DO     !  End of of loop through aqueous species dependencies
+
+        DO kk = 1,ndependex(np,k)
+          ix = ixdepend(kk,np,k)
+          DO i2 = 1,ncomp+nexchange
+            jac_pre(i2,np) = jac_pre(i2,np) + pre_rmin(np,k)*dependex(kk,np,k)*  &
+              muexc(ix,i2)
+          END DO
+        END DO     !  End of of loop through exchange species dependencies
+
+        DO kk = 1,ndependsurf(np,k)
+          is = isdepend(kk,np,k)
+          dependTMP = dependsurf(kk,np,k)
+          IF (is <= nsurf) THEN    !!  Primary surface complex dependence
+            jac_pre(is+ncomp+nexchange,np) = jac_pre(is+ncomp+nexchange,np) + pre_rmin(np,k)*dependTMP
+          ELSE 
+            iss = is - nsurf
+            DO i2 = 1,ncomp+nsurf
+              jac_pre(i2,np) = jac_pre(i2,np) + pre_rmin(np,k)*dependTMP*musurf(iss,i2)    
+            END DO
+          END IF
+        END DO    
           
-         IF (HyperbolicInhibition(np,k)) THEN
-           Al = sp10(HyperbolicInhibitionPointer(np,k),jx,jy,jz)
+    !!! This is for the Oelkers rate law of yesteryear...
+        IF (HyperbolicInhibition(np,k)) THEN
+          Al = sp10(HyperbolicInhibitionPointer(np,k),jx,jy,jz)
   
-           denominator = Kformation(np,k) + Al**HyperbolicInhibitionDepend(np,k)
-           termHyperbolic = -Al*Kformation(np,k)*HyperbolicInhibitionDepend(np,k)* Al**(HyperbolicInhibitionDepend(np,k)-1.0d0)   &
-               /(denominator*denominator)
+          denominator = Kformation(np,k) + Al**HyperbolicInhibitionDepend(np,k)
+          termHyperbolic = -Al*Kformation(np,k)*HyperbolicInhibitionDepend(np,k)* Al**(HyperbolicInhibitionDepend(np,k)-1.0d0)   &
+              /(denominator*denominator)
 
 !!           termHyperbolic = -Kformation(np,k)*HyperbolicInhibitionDepend(np,k)* Al*Al**(1.0-HyperbolicInhibitionDepend(np,k))   &
 !!               /(denominator*denominator)
@@ -765,16 +775,63 @@ DO k = 1,nkin
            
 !!            jac_pre(ikAl,np) = -0.33333333d0*Al*Kformation/(Kformation + Al**0.333333333333)**2.0d0 *Al**0.666666666666
           
-           jac_pre(HyperbolicInhibitionPointer(np,k),np) = jac_pre(HyperbolicInhibitionPointer(np,k),np) + termHyperbolic
+          jac_pre(HyperbolicInhibitionPointer(np,k),np) = jac_pre(HyperbolicInhibitionPointer(np,k),np) + termHyperbolic
         END IF
-        
-! REDIMENSION JAC_PRE(1:ncomp+nexchange+nsurf,np)
+         
+  !!  Inhibition terms
+          
+        IF (imintype(np,k) == 12) THEN           !!! Adding inhibition to TST
+          
+          DO kk = 1,ninhibit(np,k)
+            i = inhibit(kk,np,k)
+            IF (itot_inhibit(kk,np,k) == 1) THEN
+              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
+            ELSE
+              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
+            END IF
+          END DO
+          
+          DO kk = 1,ninhibit(np,k)
+            
+            i = inhibit(kk,np,k)
+            IF (inhibit(kk,np,k) < 0) THEN
+              CONTINUE                                             !!  No dependence on mineral volume fraction
+            ELSE
+              IF (itot_inhibit(kk,np,k) == 1) THEN                 !!  Dependence on total concentration
+                
+                denom = ( rinhibit(kk,np,k) + s(i,jx,jy,jz) )* ( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
+                InhibitTerm = rinhibit(kk,np,k)/( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
+                DO i2 = 1,ncomp
+                  jac_inhibition = -fjac(i2,i,jx,jy,jz) * rinhibit(kk,np,k)/denom
+                  jac_pre(i2,np) =  jac_pre(i2,np) + pre_rmin(np,k)/InhibitTerm * jac_inhibition  
+                END DO
+                
+              ELSE
+                denom = ( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) ) * ( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
+                InhibitTerm = rinhibit(kk,np,k)/( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
+                IF (i <= ncomp) THEN
+                  jac_inhibition = -sp10(i,jx,jy,jz)*rinhibit(kk,np,k)/denom
+                  jac_pre(i,np) =  jac_pre(i,np) + pre_rmin(np,k)/InhibitTerm * jac_inhibition 
+                ELSE
+                  ksp = i - ncomp
+                  DO i2 = 1,ncomp
+                    jac_inhibition = -muaq(ksp,i2)*sp10(i,jx,jy,jz) * rinhibit(kk,np,k)/denom
+                    jac_pre(i2,np) =  jac_pre(i2,np) + pre_rmin(np,k)/InhibitTerm * jac_inhibition               
+                  END DO
+                END IF
+                
+              END IF
+            END IF
+            
+          END DO
+          
+        END IF                      !!! IF (imintype(np,k) == 12) THEN      !!! TST + inhibition
         
       ELSE IF (imintype(np,k) == 2) THEN   !  Monod rate law
         
         DO kk = 1,nmonod(np,k)
-          IF (imonod(kk,np,k) == 0 .AND. kmonod(kk,np,k) == 1) THEN                !! Mineral Monod reaction depends on its own concentration
-            CONTINUE                                                       !! No dependence on this term, since mineral concentration is not a primary unknown
+          IF (imonod(kk,np,k) == 0 .AND. kmonod(kk,np,k) == 1) THEN       !! Mineral Monod reaction depends on its own concentration
+            CONTINUE                                                      !! No dependence on this term, since mineral concentration is not a primary unknown
           ELSE
             i = imonod(kk,np,k)
             IF (itot_monod(kk,np,k) == 1) THEN    ! Dependence on total concentration

@@ -94,7 +94,7 @@ LOGICAL(LGT)                                :: TrueFalse
 
 REAL(DP)                                    :: DummyReal
 REAL(DP), DIMENSION(:), ALLOCATABLE         :: tempreal
-REAL(DP), DIMENSION(:), ALLOCATABLE         :: RealDummyArray
+REAL(DP), DIMENSION(:,:,:,:), ALLOCATABLE         :: RealDummyArray
 INTEGER(I4B), DIMENSION(:), ALLOCATABLE     :: IntegerDummyArray
 INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE :: Integer3DDummyArray
 INTEGER(I4B)                                :: nxyz
@@ -137,10 +137,11 @@ IF (truefalse) then
 ELSE
   OPEN(UNIT=iures,FILE=restartfile,FORM='unformatted',STATUS='old',ERR=6001)
 END IF
-
+  
     READ(iures) time
     READ(iures) nn
     READ(iures) nint
+
     READ(iures) DummyReal,dtold,DummyReal,DummyReal,DummyReal,dtmax
     READ(iures) keqaq
     READ(iures) keqgas
@@ -155,13 +156,19 @@ END IF
     READ(iures) spold
     READ(iures) spex
     READ(iures) spex10
-    READ(iures) lngamma
-    READ(iures) lngammawater
+    
     READ(iures) exchangesites
     READ(iures) spexold
+    
+!!!        IF (TrueFalse) THEN  
+   
     READ(iures) spgas
     READ(iures) spgasold
     READ(iures) spgas10
+    
+    READ(iures) lngamma
+    READ(iures) lngammawater
+        
     IF (isaturate==1) then
       READ(iures) sgas
       READ(iures) sgasn
@@ -170,6 +177,7 @@ END IF
       READ(iures) ssurf
       READ(iures) ssurfn
     endif
+    
     READ(iures) sexold
     READ(iures) ssurfold
     READ(iures) spsurf
@@ -178,34 +186,11 @@ END IF
     READ(iures) raq_tot
     READ(iures) sion
     
-    IF (ALLOCATED(IntegerDummyArray)) THEN
-      DEALLOCATE(IntegerDummyArray)
-    END IF
-    ALLOCATE(IntegerDummyArray(nxyz))
-    
-    IF (ALLOCATED(Integer3DDummyArray)) THEN
-      DEALLOCATE(Integer3DDummyArray)
-    END IF
-    ALLOCATE(Integer3DDummyArray(0:nx+1,0:ny+1,0:nz+1))
-
-    READ(iures) Integer3DDummyArray
-!!!    READ(iures) jinit   !! this is a 3D array running from (0:nx+1,0:ny+1,0:nz+1)
     READ(iures) keqmin
     READ(iures) volfx
     READ(iures) dppt
     READ(iures) area
     
-    IF (ALLOCATED(RealDummyArray)) THEN
-      DEALLOCATE(RealDummyArray)
-    END IF
-    ALLOCATE(RealDummyArray(nrct*nxyz))
-    
-    READ(iures) RealDummyArray
-    READ(iures) RealDummyArray
-    READ(iures) RealDummyArray
-!!!    READ(iures) areainByGrid
-!!!    READ(iures) volinByGrid
-!!!    READ(iures) specificByGrid
     READ(iures) LogPotential
     READ(iures) t
     READ(iures) told
@@ -220,6 +205,9 @@ END IF
     READ(iures) VolSaveByTimeStep
     READ(iures) Volsave
     READ(iures) ncounter
+    
+    !!! end if
+    
     !********************************************
     ! Edit by Toshiyuki Bandai 2024 Oct.
     IF (Richards) THEN
@@ -229,11 +217,9 @@ END IF
     ! End of Edit by Toshiyuki Bandai 2024 Oct.
     !*********************************************
     
-    
-  
-  porin = por
-
 CLOSE(UNIT=iures,STATUS='keep')
+
+porin = por
 
 IF (ALLOCATED(RealDummyArray)) THEN
   DEALLOCATE(RealDummyArray)

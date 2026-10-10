@@ -288,12 +288,19 @@ IF (ny == 1 .AND. nz == 1) THEN ! one-dimensional problem
     ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,nz))
   END IF
   
-!!!  IF (ALLOCATED(spgas10_old)) THEN
-!!!    DEALLOCATE(spgas10_old)
-!!!    ALLOCATE(spgas10_old(ngas,0:nx+1,0:ny+1,nz))
-!!!  ELSE
-!!!    ALLOCATE(spgas10_old(ngas,0:nx+1,0:ny+1,nz))
-!!!  END IF
+    IF (ALLOCATED(spgasold)) THEN
+    DEALLOCATE(spgasold)
+    ALLOCATE(spgasold(ngas,0:nx+1,0:ny+1,nz))
+  ELSE
+    ALLOCATE(spgasold(ngas,0:nx+1,0:ny+1,nz))
+  END IF
+  
+  IF (ALLOCATED(spgas10_old)) THEN
+    DEALLOCATE(spgas10_old)
+    ALLOCATE(spgas10_old(ngas,0:nx+1,0:ny+1,nz))
+  ELSE
+    ALLOCATE(spgas10_old(ngas,0:nx+1,0:ny+1,nz))
+  END IF
 
   IF (ALLOCATED(t)) THEN
     DEALLOCATE(t)
@@ -495,6 +502,13 @@ ELSE ! three-dimensional problem
     ALLOCATE(spgas(ngas,0:nx+1,0:ny+1,0:nz+1))
   END IF
   
+  IF (ALLOCATED(spgas10)) THEN
+    DEALLOCATE(spgas10)
+    ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,0:nz+1))
+  ELSE
+    ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,0:nz+1))
+  END IF
+  
   IF (ALLOCATED(LogPotential)) THEN
     DEALLOCATE(LogPotential)
     ALLOCATE(LogPotential(nsurf,0:nx+1,0:ny+1,0:nz+1))
@@ -514,12 +528,8 @@ ELSE ! three-dimensional problem
   ELSE
     ALLOCATE(spsurf10(nsurf+nsurf_sec,0:nx+1,0:ny+1,0:nz+1))
   END IF
-  IF (ALLOCATED(spgas10)) THEN
-    DEALLOCATE(spgas10)
-    ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,0:nz+1))
-  ELSE
-    ALLOCATE(spgas10(ngas,0:nx+1,0:ny+1,0:nz+1))
-  END IF
+  
+
 
   IF (ALLOCATED(t)) THEN
     DEALLOCATE(t)
@@ -556,12 +566,7 @@ ELSE
 END IF
 
 
-  IF (ALLOCATED(spgasold)) THEN
-    DEALLOCATE(spgasold)
-    ALLOCATE(spgasold(ngas,0:nx+1,0:ny+1,0:nz+1))
-  ELSE
-    ALLOCATE(spgasold(ngas,0:nx+1,0:ny+1,0:nz+1))
-  END IF
+
 
 IF (ALLOCATED(spsurfold)) THEN
   DEALLOCATE(spsurfold)
