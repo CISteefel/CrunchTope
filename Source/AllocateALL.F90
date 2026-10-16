@@ -89,6 +89,7 @@ IF (ALLOCATED(MoleChange)) THEN
   DEALLOCATE(MoleChange)
 END IF
 ALLOCATE(MoleChange(nrct,nx))
+MoleChange = 0.d0
 
 IF (BatchReactor .Or. BatchReactor2) THEN
   

@@ -539,7 +539,7 @@ dtmaxcour = 0.0
 iprnt = 0
 ncounter = 0
 
-MoleChange = 0.d0
+! MoleChange is initialized after allocation in AllocateALL.
 
 CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,               &
     ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,                      &
