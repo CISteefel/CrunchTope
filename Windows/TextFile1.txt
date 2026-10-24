@@ -1,0 +1,107 @@
+            npassivate(np,nkin) = 0
+            id = ids + ls
+            CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+            IF (ssch == ':') THEN
+              888   id = ids + ls
+              CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+              IF (ls /= 0) THEN
+                npassivate(np,nkin) = npassivate(np,nkin) + 1
+                
+                IF (npassivate(np,nkin) > mpre) THEN
+                  WRITE(*,*)
+                  WRITE(*,*) ' Redimension parameter "mpre" in params.inc'
+                  WRITE(*,*) ' Mpre = ',mpre
+                  WRITE(*,*) ' Number of passivation terms', npassivate(np,nkin)
+                  WRITE(*,*)
+                  READ(*,*)
+                  STOP
+                END IF
+                
+                lzs = ls
+                CALL stringtype(ssch,lzs,res)
+                NAME(npassivate(np,nkin)) = ssch
+                id = ids + ls
+                CALL sschaine(dummy1,id,iff,ssch,ids,ls)
+                lzs = ls
+                CALL stringtype (ssch,lzs,res)
+                
+                IF (res == 'a') THEN
+                  WRITE(*,*)
+                  WRITE(*,*) '  Error in database: TST passivation terms'
+                  WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+                  WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+                  WRITE(*,*)
+                  READ(*,*)
+                  STOP
+                ELSE
+                  rpassivate_tmp(npassivate(np,nkin)) = DNUM(ssch)
+                END IF
+                GO TO 888
+              END IF
+            
+              DO kk = 1,npassivate(np,nkin)
+                
+                dumstring = NAME(kk)
+                
+                mineralfound = .false.          
+                DO k = 1,nkin
+                  IF (umin(k) == NAME(kk)) THEN
+                    passivate(kk,np,nkin) = i
+                    mineralfound = .true.
+                    rpassivate(kk,np,nkin) = rpassivate_tmp(kk)
+                    IF (itot_tmp == 1) THEN
+                      itot_inhibit(kk,np,nkin) = 1
+                    END IF
+                  END IF
+                  
+                END DO
+                
+                IF (speciesfound) THEN
+                  CONTINUE
+                ELSE
+                  DO ksp = 1,nspec
+                    ik = ncomp + ksp
+                    IF (ulab(ik) == NAME(kk)) THEN
+                      inhibit(kk,np,nkin) = ik
+                      speciesfound = .true.
+                      rinhibit(kk,np,nkin) = rinhibit_tmp(kk)
+                      IF (itot_tmp == 0) THEN
+                        CONTINUE
+                      ELSE
+                        WRITE(*,*)
+                        WRITE(*,*) ' Cannot specify total concentration for secondary species'
+                        WRITE(*,*) ' in TST inhibition expression: ',dumstring(1:lss)
+                        WRITE(*,*)
+                        READ(*,*)
+                        STOP
+                      END IF
+                    END IF
+                  END DO
+                  IF (speciesfound) THEN
+                    CONTINUE
+                  ELSE
+                    WRITE(*,*)
+                    WRITE(*,*) ' Cannot find species in TST expression: ',dumstring(1:lss)
+                    dumstring = NAME(kk)
+                    CALL stringlen(dumstring,llen)
+                    WRITE(*,*) ' Looking for species: ',dumstring(1:llen)
+                    WRITE(*,*)
+                    READ(*,*)
+                    STOP
+                  END IF
+                END IF
+              END DO    !  End of loop through "inhibiting" species
+            
+            ELSE
+              WRITE(*,*)
+              WRITE(*,*) ' Error in database: TST inhibition terms '
+              WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+              WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+              WRITE(*,*)
+              READ(*,*)
+              STOP
+            END IF
+            
+            WRITE(*,*)
+            WRITE(*,*) ' Kinetic reaction number: ',nkin
+            CONTINUE 

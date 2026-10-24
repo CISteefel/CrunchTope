@@ -473,6 +473,7 @@ KSP                  ksp
   
 Switcheroo = .FALSE.
 
+
 MassBalanceError = 0.0d0
 AqueousMassBalanceError = 0.0d0
 RateMassBalanceError = 0.0d0
@@ -552,6 +553,7 @@ str_hr  = 0
 str_min = 0
 str_sec = 0
 str_millisec = 0
+
 
 IF (MeterScaleFracture_Veins) THEN
   
@@ -1761,14 +1763,14 @@ END DO
             
             DO i = 1,ncomp+nspec
               sp(i,jx,jy,jz) = spold(i,jx,jy,jz)
-              sp10(i,jx,jy,jz) = EXP(sp(i,jx,jy,jz))
+              sp10(i,jx,jy,jz) = DEXP(sp(i,jx,jy,jz))
             END DO
             DO ix = 1,nexchange
               spex(ix,jx,jy,jz) = spexold(ix,jx,jy,jz)
             END DO
             DO is = 1,nsurf+nsurf_sec
               spsurf(is,jx,jy,jz) = spsurfold(is,jx,jy,jz)
-              spsurf10(is,jx,jy,jz) = EXP(spsurfold(is,jx,jy,jz))
+              spsurf10(is,jx,jy,jz) = DEXP(spsurfold(is,jx,jy,jz))
             END DO
             CALL exchange(ncomp,nexchange,nexch_sec,jx,jy,jz)
             
@@ -1812,8 +1814,6 @@ END DO
 !!!  *************   START GIMRT BLOCK  *********************
 
 6000 IF (GIMRT) THEN
-  
-
        
     i_substep = 1
     n_substep = 1
@@ -1909,7 +1909,7 @@ END DO
         icvg = 1
         iterat = 0 ! number of Newton iterations
 
-        newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 12)
+        newtonloop:  DO WHILE (icvg == 1 .AND. iterat <= 15)
           NE = NE + 1
           iterat = iterat + 1
           
@@ -2241,8 +2241,6 @@ END DO
                 END DO
                 
                 !!!   Update ionic strength
-                
-                                !!!   Update ionic strength
 
                 ind = (j-1)*(neqn) + ncomp + nexchange + nsurf + npot + 1
                 IF (DABS(xn(ind)) > 0.5d0) THEN
@@ -2544,7 +2542,7 @@ END IF
         DO jx = 1,nx
           DO ik = 1,ncomp
             sp(ik,jx,jy,jz) = spold(ik,jx,jy,jz)
-            sp10(ik,jx,jy,jz) = EXP(sp(ik,jx,jy,jz))
+            sp10(ik,jx,jy,jz) = DEXP(sp(ik,jx,jy,jz))
           END DO
           DO ix = 1,nexchange
             spex(ix,jx,jy,jz) = spexold(ix,jx,jy,jz)

@@ -797,6 +797,10 @@ IF (ssch == tempmin) THEN
 ! CIS: TST + inhibition term
          ELSE IF (ssch == 'TST_inhibition' .OR. ssch == 'tst_inhibition') THEN
            imintype(npar,nkin) = 12
+           
+! CIS: TST + passivation term
+         ELSE IF (ssch == 'TST_passivation' .OR. ssch == 'tst_passivation') THEN
+           imintype(npar,nkin) = 13
 
 ! sergi: biomass decay end
           ELSE
@@ -1673,6 +1677,7 @@ IF (ssch == tempmin) THEN
           lzs=ls
           CALL convan(ssch,lzs,res)
           IF (ssch == 'inhibition') THEN
+            
             ninhibit(np,nkin) = 0
             id = ids + ls
             CALL sschaine(dummy1,id,iff,ssch,ids,ls)
@@ -1781,6 +1786,10 @@ IF (ssch == tempmin) THEN
             WRITE(*,*)
             WRITE(*,*) ' Kinetic reaction number: ',nkin
             CONTINUE 
+            
+          ELSE IF (ssch == 'passivation') THEN
+            
+            continue
           
           ELSE IF (ssch /= 'inhibition') then
             

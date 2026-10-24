@@ -93,7 +93,8 @@ DO i = 1,ncomp
   END DO
   
   IF (i == ikh2o) THEN
-    sn(i,jx,jy,jz) = ConvertToMeterCubed*sum1 + sp10(i,jx,jy,jz)
+!!!    sn(i,jx,jy,jz) = ConvertToMeterCubed*sum1 + sp10(i,jx,jy,jz)
+    sn(1,jx,jy,jz) = sp10(1,jx,jy,jz)
   ELSE
     sn(i,jx,jy,jz) = sum1 + sp10(i,jx,jy,jz)
   END IF

@@ -1317,7 +1317,7 @@ DO jy = 1,ny
 
           ELSE
             aq_accum = satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-                *(1.0 + Retardation*distrib(i) ) 
+                *(1.d0 + Retardation*distrib(i) ) 
           END IF
 
           source_jac = source*fjac(i2,i,jx,jy,jz) 
