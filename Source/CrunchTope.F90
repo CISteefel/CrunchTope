@@ -540,8 +540,6 @@ dtmaxcour = 0.0
 iprnt = 0
 ncounter = 0
 
-MoleChange = 0.d0
-
 CALL StartTope(ncomp,nspec,nkin,nrct,ngas,npot,nx,ny,nz,data1,ipath,igamma,               &
     ikmast,ikph,iko2,ltitle,tstep,delt,deltmin,ttol,jpor,ikin,nstop,                      &
     corrmax,nseries,minseries,nexchange,nexch_sec,nsurf,nsurf_sec,ndecay,str_mon,         &
@@ -993,6 +991,8 @@ IF (GIMRT) THEN
 END IF
 
 call AllocateALL(ncomp,nspec,ngas,nrct,nexchange,nsurf,nsurf_sec,npot,neqn,nx,ny,nz)
+
+MoleChange = 0.d0
 
 DO jz = 1,nz
   DO jy = 1,ny

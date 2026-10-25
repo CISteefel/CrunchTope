@@ -29,8 +29,7 @@ GIMRT_solver        gmres
 screen_output       50
 ResidualTolerance   1.0E-08
 aqueousdatabase     Fe_redox_aqueous_v5_5_kunits.dbs
-save_restart        coppersulfide3.rst
-restart             coppersulfide2.rst  append
+save_restart        coppersulfide1.rst
 END
 
 OUTPUT
