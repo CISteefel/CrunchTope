@@ -7,13 +7,14 @@ time_units       years
 timestep_max     0.010
 timestep_init    0.010
 time_tolerance   0.1
-hindmarsh        true
-correction_max   10.0
+hindmarsh        false
+correction_max   2.0
 debye-huckel     false
+lag_activity     false
 master           Tracer
 database_sweep   no
 speciate_only    false
-gimrt            false
+gimrt            true
 graphics         kaleidagraph
 database         datacom.dbs
 screen_output    1000
@@ -59,6 +60,8 @@ Condition junk1
 units            mol/kg
 temperature      25.0
 Tracer           0.1
+Na+              0.01
+Cl-              0.01
 H2O              55.50843506
 END
  
@@ -66,6 +69,8 @@ Condition junk2
 units            mol/kg
 temperature      25.0
 Tracer           0.000001
+Na+              0.01
+Cl-              0.01
 H2O              55.50843506
 set_porosity     1.0
 END
@@ -77,6 +82,8 @@ END
 PRIMARY_SPECIES
 H2O
 Tracer
+Na+              
+Cl-             
 END
  
  

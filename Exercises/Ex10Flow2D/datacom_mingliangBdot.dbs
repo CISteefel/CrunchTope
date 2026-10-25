@@ -1531,6 +1531,7 @@ HCl(c)
   rate(25C) = -10.00
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.00   1.00   1.00
 +----------------------------------------------------
 HNO3(c)
   label = default
@@ -1538,6 +1539,7 @@ HNO3(c)
   rate(25C) = -10.00
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.00   1.00   1.00
 +---------------------------------------------------
 Cs-Illite
   label = default
@@ -1545,6 +1547,7 @@ Cs-Illite
   rate(25C) = -5.00
   activation = 0.0  (kcal/mole)
   dependence :   CsXhan1  1.0
+  AffinityDependence = 1.00   1.00   1.00
 +----------------------------------------------------
 SO4_mod_NH3
   label = default
@@ -1577,7 +1580,6 @@ SO4_monod
   activation = 0.0  (kcal/mole)
   monod_terms :  SO4--  1600.0e-06
   inhibition :
-  AffinityDependence = 1.00   1.00   1.00
 +----------------------------------------------------
 Fe(OH)3_monod
   label = default
@@ -1938,7 +1940,6 @@ CH2O
   activation = 0.0  (kcal/mole)
   monod_terms :  O2(aq)  15.0e-06
   inhibition :
-  1 CH2O + 106 O2(aq) -->  96 CO2(aq) + 14 HCO3- + 16 NH4+ + HPO4-2 + 92 H2O
 +---------------------------------------------------
 CH2O
   label = denitrification
@@ -1947,7 +1948,6 @@ CH2O
   activation = 0.0  (kcal/mole)
   monod_terms :  NO3-  45.0e-06
   inhibition :  O2(aq)  30.0e-06
-  1 CH2O + 94.4 NO3- --> 13.6 CO2(aq) + 92.4 HCO3- + 55.2 N2(aq) + HPO4-2 + 84.8 H2O
 +---------------------------------------------------
 CH2O_SO4
   label = default
@@ -1956,7 +1956,6 @@ CH2O_SO4
   activation = 0.0  (kcal/mole)
   monod_terms :  SO4--  1600.0e-06
   inhibition :
-  1 ch2o_so4 + 14 h+ + 53 so4-2 --> 53 h2s(aq) +  1 hpo4-2 + 16 nh4+ + 106 hco3-
 +---------------------------------------------------
 CH2O_SO4
   label = bogus
@@ -2004,7 +2003,6 @@ Iron
   rate(25C) = -7.45
   activation = 15.0  (kcal/mole)
   dependence :     DCE(aq) 1.0
-  1.0 Iron + 0.5 DCE(aq) =  1.0 Fe+2 + 0.5 RH(aq) + 1.0 Cl-
 +---------------------------------------------------
 Iron
   label = tce
@@ -2012,7 +2010,6 @@ Iron
   rate(25C) = -6.92
   activation = 15.0  (kcal/mole)
   dependence :   TCE(aq) 1.0
-  1.0 Iron + 0.333 TCE(aq) + 1.0 H+ =  1.0 Fe+2 + 0.5 RH(aq) + 1.0 Cl-
 +---------------------------------------------------
 Muscovite
   label = default

@@ -45,7 +45,7 @@
     
 SUBROUTINE AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,  &
         nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,delt,time,&
-        user,amatpetsc,nBoundaryConditionZone)
+        amatpetsc,nBoundaryConditionZone,igamma)
 USE crunchtype
 USE params
 USE runtime
@@ -82,9 +82,11 @@ INTEGER(I4B), INTENT(IN)                      :: nsurf_sec
 INTEGER(I4B), INTENT(IN)                      :: npot
 INTEGER(I4B), INTENT(IN)                      :: ndecay
 INTEGER(I4B), INTENT(IN)                      :: nn
-
 REAL(DP), INTENT(IN)                          :: delt
 REAL(DP), INTENT(IN)                          :: time
+INTEGER(I4B), INTENT(IN)                      :: nBoundaryConditionZone
+INTEGER(I4B), INTENT(IN)                      :: igamma
+
 
 !********************** Add in PETSC declarations for f90 variables *****
 INTEGER(I4B)                                                     :: ipetsc
@@ -167,7 +169,6 @@ INTEGER(I4B)                                  :: jpoint
 INTEGER(I4B)                                  :: round
 
 INTEGER(I4B)                                  :: nbnd
-INTEGER(I4B)                                  :: nBoundaryConditionZone
 
 INTEGER(I4B)                                  :: npz
 
@@ -220,7 +221,7 @@ REAL(DP)                                       :: time_norm
 REAL(DP), DIMENSION(:), ALLOCATABLE            :: temp_dum
 
 !********************* PETSc declarations ********************************
-PetscFortranAddr                                                    user(6)
+!!! PetscFortranAddr                                                    user(6)
 Mat                                                                 amatpetsc
 !******************end PETSc declarations *********************************
 
@@ -263,7 +264,7 @@ fxx = 0.0
 
 IF (ierode /= 1) THEN
   IF (nsurf > 0) THEN
-    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+    CALL SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz,igamma)
   END IF
 END IF
 
@@ -454,7 +455,7 @@ DO jy = 1,ny
     END IF
     
     CALL FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,nspec,  &
-        ngas,neqn,delt,jx,jy,jz,nBoundaryConditionZone)
+               ngas,neqn,delt,jx,jy,jz,nBoundaryConditionZone)
     
     IF (ierode == 1) THEN
       CALL ex_activity(ncomp,nexchange,nexch_sec,jx,jy,jz)
@@ -1312,12 +1313,10 @@ DO jy = 1,ny
           rxnaq = satl*xgram(jx,jy,jz)*portemp*rotemp*sumjackin(i2)
 
           IF (i /= ikh2o) THEN
-            aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-                *(1.0 + Retardation*distrib(i) ) 
-
+            aq_accum = H2Oreacted(jx,jy,jz)*satl*xgram(jx,jy,jz) * portemp * rotemp * fjac(i2,i,jx,jy,jz) *  &
+                (1.0 + Retardation*distrib(i) )  /delt
           ELSE
-            aq_accum = satl*xgram(jx,jy,jz)*r*portemp*rotemp*fjac(i2,i,jx,jy,jz)  &
-                *(1.d0 + Retardation*distrib(i) ) 
+            aq_accum = satl * xgram(jx,jy,jz) * portemp * rotemp * fjac(i2,i,jx,jy,jz)  /delt
           END IF
 
           source_jac = source*fjac(i2,i,jx,jy,jz) 

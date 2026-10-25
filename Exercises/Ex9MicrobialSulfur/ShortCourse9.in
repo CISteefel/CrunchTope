@@ -7,7 +7,7 @@ time_units              days
 timestep_max            0.001
 timestep_init           1.E-10
 time_tolerance          0.0001
-hindmarsh               true
+hindmarsh               false
 correction_max          2.0
 debye-huckel            true
 database_sweep          false
@@ -26,7 +26,8 @@ END
 
 OUTPUT
 time_units  days
-spatial_profile       1.0  10.0 20.0 30.0 43.0
+spatial_profile       1.0 2.0
+!!!  10.0 20.0 30.0 43.0
 time_series           influent.out      1  1  1
 time_series           fiftycm.out      50  1  1
 time_series           hundredcm.out   100  1  1

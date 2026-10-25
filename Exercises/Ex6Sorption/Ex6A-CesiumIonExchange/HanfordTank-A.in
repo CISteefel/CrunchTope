@@ -196,5 +196,5 @@ CO2(g)
 END
  
 MINERALS
-Calcite    -rate    -35.00
+Calcite    -label default  -rate  -35.00
 END

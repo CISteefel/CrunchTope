@@ -510,7 +510,7 @@ DO i = 1,ncomp
 !!!  IF (ulab(i) == 'H2O' .AND. itype(i,nco) == 1) THEN
   IF (ulab(i) == 'H2O') THEN
 !!!    sptmp10(i) = 55.50843506 * porcond(nco) * SaturationCond(nco) * RoCond(nco)
-    sptmp10(i) = 55.50843506
+    sptmp10(i) = 55.50843506d0
     sptmp(i) = DLOG(sptmp10(i))
   END IF
 END DO

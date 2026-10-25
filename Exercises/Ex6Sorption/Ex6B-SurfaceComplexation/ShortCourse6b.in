@@ -5,16 +5,16 @@ END
 RUNTIME
 time_units      days
 timestep_max    0.1
-timestep_init   1.E-01
+timestep_init   1.E-04
 debye-huckel    true
 database_sweep  false
-time_tolerance  0.01
+time_tolerance  0.001
 correction_max  2.0
 gimrt           true
-master_variable Zn++
-speciate_only   false
+master_variable H+
+speciate_only   true
 database        datacom.dbs
-screen_output   100
+screen_output   1
 graphics        tecplot
 hindmarsh       true
 END
@@ -24,20 +24,13 @@ time_units               days
 spatial_profile          365
 time_series_at_node      PHREEQCexample8.out  1  1  1
 time_series_print        all
-ime_series_interval      1
+time_series_interval      1
 END
 
 POROSITY
 fix_porosity     0.90
 porosity_update  false
 END
-
-!!! BOUNDARY_CONDITIONS
-!!! BoundaryCondition      Solution1   zone  0-0       1-1     1-1  flux
-!!! BoundaryCondition      Solution12    zone  4-4       1-1     1-1  flux
-!!!!x_begin                SoluteWater   dirichlet
-!!!!x_end                  Deep_Soil2    flux
-!!! END
 
 TEMPERATURE
 set_temperature      25.0
@@ -63,13 +56,15 @@ ZnOH+
 END
 
 SURFACE_COMPLEXATION
->FeOH_strong   on Fe(OH)3  
->FeOH_weak     on Fe(OH)3 
+>FeOH_strong   on Fe(OH)3 
+>FeOH_weak     on Fe(OH)3
+!!! >FeOH_strong   on Fe(OH)3  -no_edl
+!!! >FeOH_weak     on Fe(OH)3  -no_edl
 END
 
 MINERALS  
-Fe(OH)3
-HNO3(c)          -label default  -rate  -38.00
+Fe(OH)3           -label  default  -rate -25.00
+!!! HNO3(c)          -label default  -rate  -38.00
 END
 
 GASES
@@ -90,8 +85,8 @@ pH                   5.00
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
-O2(aq)               2.4647E-04    
+Fe+++                Fe(OH)3         
+O2(aq)               O2(g)  0.20    
 H2O              55.50843506           
 !Site name     <site density mol/m**2>   
 >FeOH_weak       3.703704E-06  
@@ -108,7 +103,7 @@ pH                   5.25
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3    
 O2(aq)               2.4647E-04  
 H2O              55.50843506             
 !Site name     <site density mol/m**2>   
@@ -124,7 +119,7 @@ pH                   5.50
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3   
 O2(aq)               2.4647E-04  
 H2O              55.50843506             
 !Site name     <site density mol/m**2>   
@@ -140,7 +135,7 @@ pH                   5.75
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3        
 O2(aq)               2.4647E-04    
 H2O              55.50843506           
 !Site name     <site density mol/m**2>   
@@ -155,7 +150,7 @@ pH                   6.00
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3       
 O2(aq)               2.4647E-04     
 H2O              55.50843506          
 !Site name     <site density mol/m**2>   
@@ -171,7 +166,7 @@ pH                   6.25
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3        
 O2(aq)               2.4647E-04   
 H2O              55.50843506            
 !Site name     <site density mol/m**2>   
@@ -187,7 +182,7 @@ pH                   6.50
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3        
 O2(aq)               2.4647E-04    
 H2O              55.50843506           
 !Site name     <site density mol/m**2>   
@@ -203,7 +198,7 @@ pH                   6.75
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3         
 O2(aq)               2.4647E-04     
 H2O              55.50843506          
 !Site name     <site density mol/m**2>   
@@ -219,7 +214,7 @@ pH                   7.00
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3       
 O2(aq)               2.4647E-04   
 H2O              55.50843506            
 !Site name     <site density mol/m**2>   
@@ -235,7 +230,7 @@ pH                   7.25
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3          
 O2(aq)               2.4647E-04   
 H2O              55.50843506            
 !Site name     <site density mol/m**2>   
@@ -251,7 +246,7 @@ pH                   7.50
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3     
 O2(aq)               2.4647E-04   
 H2O              55.50843506            
 !Site name     <site density mol/m**2>   
@@ -267,7 +262,7 @@ pH                   7.75
 Zn++                 1.E-07           equilibrate_surface                   
 Na+                  charge                            
 NO3-                 1.0000E-01                          
-Fe+++                0.00            
+Fe+++                Fe(OH)3         
 O2(aq)               2.4647E-04 
 H2O              55.50843506              
 !Site name     <site density mol/m**2>   

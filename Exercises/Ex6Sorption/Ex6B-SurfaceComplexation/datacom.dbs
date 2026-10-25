@@ -3138,6 +3138,7 @@ HCl(c)
   rate(25C) = -10.00
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.00   1.00   1.00
 +----------------------------------------------------
 HNO3(c)
   label = default
@@ -3145,6 +3146,7 @@ HNO3(c)
   rate(25C) = -10.00
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.00   1.00   1.00
 +---------------------------------------------------
 Cs-Illite
   label = default
@@ -3152,6 +3154,7 @@ Cs-Illite
   rate(25C) = -5.00
   activation = 0.0  (kcal/mole)
   dependence :   CsXhan1  1.0
+  AffinityDependence = 1.00   1.00   1.00
 +----------------------------------------------------
 Illite
   label = default
@@ -3192,7 +3195,6 @@ SO4_monod
   activation = 0.0  (kcal/mole)
   monod_terms :  SO4--  1600.0e-06
   inhibition :
-  AffinityDependence = 1.00   1.00   1.00
 +----------------------------------------------------
 Fe(OH)3_monod
   label = default

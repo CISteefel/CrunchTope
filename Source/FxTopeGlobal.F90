@@ -42,8 +42,8 @@
 
 !!!      ****************************************
 
-SUBROUTINE FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,  &
-    nspec,ngas,neqn,dt,jx,jy,jz,nBoundaryConditionZone)
+SUBROUTINE FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,nspec,  &
+               ngas,neqn,dt,jx,jy,jz,nBoundaryConditionZone)
 USE crunchtype
 USE params
 USE runtime
@@ -940,14 +940,14 @@ DO i = 1,ncomp
   END IF
   
   IF (i /= ikh2o) THEN
-    aq_accum = xgram(jx,jy,jz)*r*portemp*                            &
-      (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) -            &
-       rotempOld*satlOld*sn(i,jx,jy,jz))*(1.0 + Retardation*distrib(i) )
+    aq_accum = xgram(jx,jy,jz) * portemp *                            &
+      (H2Oreacted(jx,jy,jz)*rotemp*satl*s(i,jx,jy,jz) - rotempOld*satlOld*sn(i,jx,jy,jz))  *  &
+      (1.d0 + Retardation*distrib(i) ) /dt
 
   ELSE
   !!!  aq_accum = r*(s(i,jx,jy,jz) - sn(i,jx,jy,jz))
-    
-     aq_accum = portemp * ( rotemp*satl*s(i,jx,jy,jz) - rotempOld*satlOld*sn(i,jx,jy,jz) )/dt
+    !!! Assumes that for H2O, i  = 1
+    aq_accum = portemp * ( rotemp*satl*s(1,jx,jy,jz) - rotempOld*satlOld*sn(1,jx,jy,jz) )/dt
   END IF
   
   IF (isaturate == 1) THEN

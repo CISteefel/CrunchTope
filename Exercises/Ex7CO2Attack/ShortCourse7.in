@@ -7,28 +7,30 @@ time_units      days
 !!timestep_max    0.00005
 timestep_max    0.0001
 timestep_init   0.00000001
-time_tolerance  0.001
+time_tolerance  0.0001
 correction_max  2.0
 hindmarsh       true
+lag_activity    false
 debye-huckel    true
 database_sweep  false
 master          H+
 speciate_only   false
 gimrt           true
-screen_output   1000
+screen_output   100
 !!fix_saturation  0.999
 fix_saturation  0.900
 read_saturationfile QL-saturation.dat
 graphics        kaleidagraph
 Duan            false
 Benchmark       false
-Qingyun         true
-database     QL-datacom02.dbs
+Qingyun         false
+database        QL-datacom02.dbs
 END
 
 OUTPUT
 time_units               days
-spatial_profile          0.001  0.5  1  3  6  8  10
+spatial_profile          0.001  0.05 
+!!!  1  3  6  8  10
 time_series_at_node      CO2_GCS  1  1  1
 time_series_print        pH
 time_series_interval     1  
@@ -44,10 +46,10 @@ END
 
 MINERALS
 Calcite          -label nucleatecalcite
-Calcite          -label h+  -rate     -3.0
-Calcite_mix      -label h+  -rate     -3.0
-SiO2(ammix)      -label default -rate  -6.5
-SiO2(am)         -label default -rate  -6.5
+Calcite          -label h+  -rate       -3.0
+Calcite_mix      -label h+  -rate       -3.0
+SiO2(ammix)      -label default -rate   -6.5
+SiO2(am)         -label default -rate   -6.5
 SiO2(am)         -label nucleateSiO2(am)
 Portlandite      -label default  -rate  -5.0
 CSH(1.6)         -label default  -rate  -7.8
@@ -80,7 +82,6 @@ NUCLEATION
     /
 End
 
-
 TEMPERATURE
 set_temperature  95.0
 END
@@ -91,9 +92,9 @@ temperature      95.0
 units            mol/kg
 pH               charge
 CO2(aq)          CO2(g)    100.0
-Ca++             0.0
+Ca++             1.D-10
 SiO2(aq)         0.000001 
-SO4--            0.0
+SO4--            1.D-15
 Na+              0.5
 Cl-              0.50064
 H2O              55.50843506
@@ -109,30 +110,6 @@ set_porosity         16
 !!set_saturation     0.1
 END
 
-Condition O2
-!!Solution w/o minerals
-temperature      95.0
-units            mol/kg
-pH               charge
-!!!CO2(aq)          CO2(g)    100.0
-O2(aq)           O2(g)   0.20
-Ca++             0.0
-SiO2(aq)         0.000001 
-SO4--            0.0
-Na+              0.5
-Cl-              0.50064
-H2O              55.50843506
-Calcite              0.0   !!ssa 1  0.0000001
-Calcite_mix          0.0   !!ssa 1  0.0000001
-SiO2(am)             0.0
-SiO2(ammix)          0.0
-CSH(1.6)             0.0   !!ssa 1  0.0000001
-CSH(0.8)             0.0   !!ssa 1  0.0000001
-Portlandite          0.0   !!ssa 1  0.0000001
-Bogusite             0.0          0.0
-set_porosity         16
-!!set_saturation     0.1
-END
 
 Condition Brine
 !!Solution w/o minerals
@@ -140,9 +117,9 @@ temperature      95.0
 units            mol/kg
 pH               charge
 CO2(aq)          CO2(g)    100.0
-Ca++             0.0
+Ca++             1.D-10
 SiO2(aq)         0.000001 
-SO4--            0.0
+SO4--            1.D-15
 Na+              0.5
 Cl-              0.50064
 H2O              55.50843506
@@ -164,9 +141,9 @@ temperature      95.0
 units            mol/kg
 pH               charge
 CO2(aq)          CO2(g)    100.0
-Ca++             0.0
+Ca++             1.D-15
 SiO2(aq)         0.000001 
-SO4--            0.0
+SO4--            1.D-15
 Na+              0.5
 Cl-              0.50064
 H2O              55.50843506
@@ -202,7 +179,6 @@ set_porosity         0.20
 !!set_saturation       1
 END
 
-
 INITIAL_CONDITIONS
 Brine         1-324    1-1  1-1
 CO2           1-4      1-1  1-1
@@ -211,8 +187,8 @@ Cement        325-524  1-1  1-1
 END
 
 BOUNDARY_CONDITIONS
-X_begin     CO2   Flux 
-X_end       Cement        Flux 
+X_begin     CO2       Flux 
+X_end       Cement    Flux 
 END
 
 TRANSPORT
@@ -230,7 +206,6 @@ diffusion_activation  5.0
 !!!D_25  CO2(aq) 3e-9
 !!!D_25  Cl-    3.47e-9
 !!!D_25  Na+    2.27e-9
-
 !!dispersivity        0.0  0.0 
 END
 
@@ -243,7 +218,7 @@ FLOW
 distance_units      meters
 time_units          second
 constant_flow       0.0
-constant_gasflow    10.0 
+constant_gasflow    0.0 
 calculate_flow      false
 END
 

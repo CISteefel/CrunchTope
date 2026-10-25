@@ -8,8 +8,8 @@ END
 
 RUNTIME
 time_units          years
-timestep_max        0.001
-timestep_init       0.000000001
+timestep_max        0.01
+timestep_init       1.d-10
 corrmax             2.0
 time_tolerance      0.01
 debye-huckel        true

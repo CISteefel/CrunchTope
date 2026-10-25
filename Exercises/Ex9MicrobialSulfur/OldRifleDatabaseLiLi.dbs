@@ -3125,6 +3125,7 @@ C5H7O2NFe(s)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 C5H7O2NSO4(s)
   label = default
@@ -3132,6 +3133,7 @@ C5H7O2NSO4(s)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 decay_b_so4(s)
   label = default
@@ -3147,6 +3149,7 @@ C5H7O2NCH4(s)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Magnetite
   label = default
@@ -3154,6 +3157,7 @@ Magnetite
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 CO2(s)
   label = default
@@ -3161,6 +3165,7 @@ CO2(s)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : CO3-- 1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 FeS(am)
   label = default
@@ -3168,6 +3173,7 @@ FeS(am)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 FeS34(am)
   label = default
@@ -3175,6 +3181,7 @@ FeS34(am)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 ZnS
   label = default
@@ -3182,6 +3189,7 @@ ZnS
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Fe(OH)3
   label = default
@@ -3189,6 +3197,7 @@ Fe(OH)3
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Fe(OH)3H2S
   label = default
@@ -3196,6 +3205,7 @@ Fe(OH)3H2S
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence : HS-  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +-----------------------------------------------------
 Fe(OH)3_HS
   label = default
@@ -3203,6 +3213,7 @@ Fe(OH)3_HS
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence :  tot_H2S(aq)  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +-----------------------------------------------------
 Fe(OH)3_HS34
   label = default
@@ -3210,6 +3221,7 @@ Fe(OH)3_HS34
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence :  tot_H2S(aq)  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +-----------------------------------------------------
 Iron3_DIRB
   label = DIRB
@@ -3226,6 +3238,7 @@ Goethite
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence :  
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Goethite_DIRB
   label = DIRB
@@ -3265,6 +3278,7 @@ GreenRustSO4
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 GreenRustCO3
   label = default
@@ -3272,6 +3286,7 @@ GreenRustCO3
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Lepidocrocite
   label = default
@@ -3279,6 +3294,7 @@ Lepidocrocite
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Fe(OH)3
   label = default
@@ -3286,6 +3302,7 @@ Fe(OH)3
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 S32
   label = default
@@ -3293,6 +3310,7 @@ S32
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence : H2S(aq)  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 S34
   label = default
@@ -3300,6 +3318,7 @@ S34
   rate(25C) = -11.25   !cis
   activation = 0.0  (kcal/mole)
   dependence : H2S(aq)  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Siderite
   label = default
@@ -3307,6 +3326,7 @@ Siderite
   rate(25C) = -11.25   !cis
   activation = 15.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Vivianite
   label = default
@@ -3314,6 +3334,7 @@ Vivianite
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Fe(OH)2
   label = default
@@ -3321,6 +3342,7 @@ Fe(OH)2
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 TcO2.2H2O(am)
   label = default
@@ -3328,6 +3350,7 @@ TcO2.2H2O(am)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 H(c)
   label = default
@@ -3335,6 +3358,7 @@ H(c)
   rate(25C) = -6.00   !cis
   activation = 15.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Calcite
   label = default
@@ -3342,6 +3366,7 @@ Calcite
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 CalciteRifle
@@ -3350,6 +3375,7 @@ CalciteRifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence :  
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 Calcite44Rifle
@@ -3358,6 +3384,7 @@ Calcite44Rifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 CalciteRifle
@@ -3366,6 +3393,7 @@ CalciteRifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 Calcite44Rifle
@@ -3374,6 +3402,7 @@ Calcite44Rifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence : 
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 CalciteRifle
@@ -3382,6 +3411,7 @@ CalciteRifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence :   Ca++   1.0   CO3--   1.0
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 Calcite44Rifle
@@ -3390,6 +3420,7 @@ Calcite44Rifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence : Ca44++   1.0   CO3--   1.0
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Calcite  =  1.0 Ca+2 + 1.0 CO3--
 +---------------------------------------------------
 Magnesite
@@ -3398,6 +3429,7 @@ Magnesite
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Magnesite  =  1.0 Mg++ + 1.0 CO3--
 +---------------------------------------------------
 MagnesiteRifle
@@ -3406,8 +3438,8 @@ MagnesiteRifle
   rate(25C) = -6.19
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
   1.0 Magnesite  =  1.0 Mg++ + 1.0 CO3--
-
 +---------------------------------------------------
 Quartz
   label = default
@@ -3415,6 +3447,7 @@ Quartz
   rate(25C) = -36.19
   activation = 0.0  (kcal/mole)
   dependence :
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 End of mineral kinetics
 Begin exchange

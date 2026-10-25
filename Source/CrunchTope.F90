@@ -1987,7 +1987,7 @@ END DO
 
           CALL AssembleGlobal(nx,ny,nz,ncomp,nspec,nkin,nrct,ngas,ikin,                   &
              nexchange,nexch_sec,nsurf,nsurf_sec,npot,ndecay,nn,dt_GIMRT,time, &
-             userC,amatpetsc,nBoundaryConditionZone,igamma)
+             amatpetsc,nBoundaryConditionZone,igamma)
 
           if ( (nn.eq.1) .and. (ne.eq.1) .and. petscon ) then
     !!          call MatSetOption(amatpetsc,MAT_NO_NEW_NONZERO_LOCATIONS,ierr)
@@ -2119,6 +2119,7 @@ END DO
                   IF (ABS(yh(i,jx)) > MaximumCorrection) THEN
                     write(*,*) 'Implementing MaximumCorrection'
                     write(*,*) TRIM( ulab(i) ),yh(i,jx)
+                    write(*,*)
 !!!                    read(*,*)
                     yh(i,jx) = SIGN(MaximumCorrection,yh(i,jx))
                   ELSE
@@ -2149,8 +2150,8 @@ END DO
                 END DO
 
                 DO npt = 1,npot
-                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.9d0) THEN
-                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.9d0,yh(npt+ncomp+nexchange+nsurf,jx))
+                  IF (DABS(yh(npt+ncomp+nexchange+nsurf,jx)) > 0.2d0) THEN
+                    yh(npt+ncomp+nexchange+nsurf,jx) = SIGN(0.2d0,yh(npt+ncomp+nexchange+nsurf,jx))
                   ELSE
                     CONTINUE
                   END IF
@@ -2232,8 +2233,8 @@ END DO
 
                 DO npt = 1,npot
                   ind = (j-1)*(neqn) + npt+ncomp+nexchange+nsurf
-                 IF (DABS(xn(ind)) > 0.9d0) THEN
-                   xn(ind) = SIGN(0.9d0,xn(ind))
+                 IF (DABS(xn(ind)) > 0.2d0) THEN
+                   xn(ind) = SIGN(0.2d0,xn(ind))
                  ELSE
                    CONTINUE
                  END IF
@@ -2354,6 +2355,14 @@ END DO
           ddtold = dt_GIMRT
           dt_GIMRT = dt_GIMRT/10.0
           itskip = 1
+          
+          IF (dt_GIMRT < 1.d-100) THEN
+            write(*,*)
+            write(*,*) ' Time step crashed to less than 1.E-100'
+            write(*,*) ' Shut Er Down'
+            write(*,*)
+            stop
+          END IF
 
           jz = 1
           DO jy = 1,ny

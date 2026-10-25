@@ -176,16 +176,20 @@ temp2 = temp*temp
 WriteInputP = .FALSE.
 WriteInputT = .FALSE.
 
-ChargeSum = 0.0d0
+IF (SaltCreep .or. CalciteCreep) THEN
+  
+  ChargeSum = 0.0d0
+  DO ik = 1,ncomp+nspec
+    ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
+  END DO
 
-DO ik = 1,ncomp+nspec
-  ChargeSum = ChargeSum + sptmp10(ik)*chg(ik)*chg(ik)
-END DO
-
-sion_tmp = 0.50D0*ChargeSum
-sqrt_sion = DSQRT(sion_tmp)
+  sion_tmp = 0.50D0*ChargeSum
+  sqrt_sion = DSQRT(sion_tmp)
+  
+ENDIF
 
 DO ksp = 1,nspec
+  
   IF (ntemp == 1 .OR. RunIsothermal) THEN
     keqaq_tmp(ksp) = -clg*eqhom(ksp)
   ELSE
@@ -295,63 +299,63 @@ IF (SaltCreep) THEN
   
   if (WriteInputT) THEN
     
-  do kkk = 25,200
+    do kkk = 25,200
     
-    IF (kkk < 10) THEN
+      IF (kkk < 10) THEN
       
-      string1 = IntegerToCharacter(kkk)
-      tempT = Real(kkk) 
-!!!      tempT = tempT*0.2 + 22.0
-      temp = tempT + 273.15
-      StringReal = RealToCharacter(tempT)
-      write(122,111) string1(1:1)
-      write(122,121) stringReal
+        string1 = IntegerToCharacter(kkk)
+        tempT = Real(kkk) 
+  !!!      tempT = tempT*0.2 + 22.0
+        temp = tempT + 273.15
+        StringReal = RealToCharacter(tempT)
+        write(122,111) string1(1:1)
+        write(122,121) stringReal
       
-    ELSE IF (kkk >= 10 .and. kkk<100) THEN
+      ELSE IF (kkk >= 10 .and. kkk<100) THEN
       
-      string2 = IntegerToCharacter(kkk)
-      tempT = Real(kkk)
-!!!      tempT = tempT*0.2 + 22.0
-      temp = tempT + 273.15
-      StringReal = RealToCharacter(tempT)
-      write(122,113) string2
-      write(122,121) stringReal
+        string2 = IntegerToCharacter(kkk)
+        tempT = Real(kkk)
+  !!!      tempT = tempT*0.2 + 22.0
+        temp = tempT + 273.15
+        StringReal = RealToCharacter(tempT)
+        write(122,113) string2
+        write(122,121) stringReal
       
-    ELSE IF (kkk >= 100 .and. kkk<1000) THEN
+      ELSE IF (kkk >= 100 .and. kkk<1000) THEN
       
-      string3 = IntegerToCharacter(kkk)
-      tempT = Real(kkk)
-!!!      tempT = tempT*0.2 + 22.0
-      temp = tempT + 273.15
-      StringReal = RealToCharacter(tempT)
-      write(122,115) string3
-      write(122,121) stringReal
+        string3 = IntegerToCharacter(kkk)
+        tempT = Real(kkk)
+  !!!      tempT = tempT*0.2 + 22.0
+        temp = tempT + 273.15
+        StringReal = RealToCharacter(tempT)
+        write(122,115) string3
+        write(122,121) stringReal
       
-    ELSE
+      ELSE
       
-      write(*,*) 'Temperatures should not be above 100C'
-      write(*,*)
-      read(*,*)
-      stop
+        write(*,*) 'Temperatures should not be above 100C'
+        write(*,*)
+        read(*,*)
+        stop
       
-    ENDIF
+      ENDIF
     
-119   format('Temperature    ',a1)
-120   format('Temperature    ',a2)
-121   format('Temperature    ',a5) 
+  119   format('Temperature    ',a1)
+  120   format('Temperature    ',a2)
+  121   format('Temperature    ',a5) 
       
-    write(122,*) 'pressure        1.0'
-    write(122,*) 'set_porosity    0.001'
-    write(122,*) 'units           mol/kg'
-    write(122,*) 'Na+             Halite'
-    write(122,*) 'Cl-             charge'
-    write(122,*) 'Tracer          1.0E-06'
-    write(122,*) 'H2O             55.55'
-    write(122,*) 'Halite          0.10  bsa 1.0'
-    write(122,*) 'END'
-    write(122,*)
+      write(122,*) 'pressure        1.0'
+      write(122,*) 'set_porosity    0.001'
+      write(122,*) 'units           mol/kg'
+      write(122,*) 'Na+             Halite'
+      write(122,*) 'Cl-             charge'
+      write(122,*) 'Tracer          1.0E-06'
+      write(122,*) 'H2O             55.55'
+      write(122,*) 'Halite          0.10  bsa 1.0'
+      write(122,*) 'END'
+      write(122,*)
 
-  END DO
+    END DO
   
   ENDIF
   

@@ -42,7 +42,7 @@
 
 !!!      ****************************************
     
-SUBROUTINE SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz)
+SUBROUTINE SurfaceComplex(ncomp,nsurf,nsurf_sec,nx,ny,nz,igamma)
 USE crunchtype
 USE concentration
 USE mineral
@@ -61,6 +61,7 @@ INTEGER(I4B), INTENT(IN)                                    :: nsurf_sec
 INTEGER(I4B), INTENT(IN)                                    :: nx
 INTEGER(I4B), INTENT(IN)                                    :: ny
 INTEGER(I4B), INTENT(IN)                                    :: nz
+INTEGER(I4B), INTENT(IN)                                    :: igamma
 
 !  Internal variables and arrays
 
