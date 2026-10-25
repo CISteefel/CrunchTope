@@ -1,0 +1,109 @@
+! 19_ VARIANT of Fe_redox_aqueous_v5_3.dbs: HS_Fe3_oxidation rate25C
+! 3.48 -> 1.097453e+08 (x3.1536e+07). Nothing else changed.
+! 3.48 is Ebrahimi et al. (2003) in L/mol/s; CrunchTope aqueous rate
+! constants are per YEAR (reactkin.F90:522, no conversion). See
+! make_aq_units_db.py for the measurement that confirms it.
+
+&Aqueous
+name = 'FeII_oxidation'
+stoichiometry = -1.0000 'Fe++'  -0.2500 'O2(aq)'  -1.0000 'H+'  1.0000 'Fe+++'  0.5000 'H2O'
+keq = 8.4887
+/
+
+&AqueousKinetics
+name = 'FeII_oxidation'
+type = 'tst'
+rate25C = 1.53e-06
+dependence = 'tot_Fe++' 1.0 'O2(aq)' 1.0 'H+' -2.0
+/
+
+! v5: removed duplicate &AqueousKinetics block for FeII_oxidation (rate25C = 41.4848,
+! no H+ dependence). CrunchTope's database parser lets the last block with a given
+! name win, so that duplicate was silently overwriting the rate law above -- running
+! the reaction ~2.7e7x too fast and with no pH suppression, when abiotic Fe2+
+! oxidation by O2 should be strongly acid-suppressed (H+^-2, Singer & Stumm 1970 form).
+! This is the likely root cause of Newton non-convergence on H+ and O2(aq) at the
+! ore-zone boundary (cells 60/61), where Fe++ gradients are steepest.
+
+! ============================================================================
+! v5.2 ADDED sulfide re-oxidation pathways (HS_O2_oxidation, HS_Fe3_oxidation) to
+! give S(-II) a removal pathway -- SO4-- and HS- are both PRIMARY_SPECIES, so like
+! Fe+++/Fe++ they don't interconvert automatically; nothing existed to consume the
+! H2S(aq) building up from dissolving Pyrite/Covellite/Chalcocite. v5.2's keq values
+! (138.32, 70.41) were derived from log K already in dcpep_Fe_redox_v5.dbs and were
+! kept as-is here. v5.2's rate25C values (1e-4, 1e-3) were acknowledged placeholders.
+!
+! v5.3: RE-RUN CONFIRMED v5.2's placeholders were ~6-7 orders of magnitude too slow.
+! From the v5.2 output (AqRate8.tec, grid cell 41, 10 yr): HS_Fe3_oxidation actually
+! ran at 4.82e-8 mol/L/yr, while Covellite+Pyrite were dumping sulfide into solution
+! at order 0.1-0.5 mol/L/yr (from MineralRate8.tec, converted through porosity).
+! H2S(aq) and Chalcopyrite's cumulative growth were unchanged to 4-5 significant
+! figures between v5 and v5.2 -- the sink was there but was rounding-error-sized
+! next to the source.
+!
+! Rate constants below are now literature-derived rather than placeholders:
+!
+! HS_Fe3_oxidation: Ebrahimi, Kleerebezem, van Loosdrecht & Heijnen (2003), "Kinetics
+! of the reactive absorption of hydrogen sulfide into aqueous ferric sulfate
+! solutions," Chem. Eng. Sci. 58(2), 417-427, report an elementary, irreversible,
+! second-order rate law r = k*[H2S]*[Fe3+] with log10(k) = 9.3855 - 2636.6/T(K) (as
+! quoted in Nour Eldien, Gasmseed & Abdalla, IJESIT 4(6), 2015, who cite it directly).
+! At 298.15 K: log10(k) = 9.3855 - 2636.6/298.15 = 0.5418 -> k = 3.48 L/(mol*s).
+! Applied here as rate25C = 3.48 with first-order dependence on tot_HS- and Fe+++,
+! i.e. treating dissolved sulfide as reacting directly with Fe3+ (matches the
+! stoichiometric 8-electron reaction below in aggregate, even though the elementary
+! literature mechanism is mediated by FeOH2+ specifically per Asai, Konishi & Yabu
+! (1990, AIChE J. 36, 1331) -- using total Fe+++ instead of the FeOH2+ sub-species is
+! a simplification that will run a bit fast at the very low pH end of the range
+! studied (their data covered pH ~1-3, similar to this leach, so it should be in the
+! right ballpark). NOTE: at H2S(aq) ~ 0.01 mol/kgw and Fe+++ ~ 0.005 mol/kgw this
+! rate constant makes the reaction fast (pseudo-first-order timescale ~1 min) --
+! close to transport/mixing-limited. Watch for Newton convergence trouble at
+! timestep_max = 0.05 days; if the solver struggles, this reaction is fast enough
+! that it may be more robust to treat sulfide/sulfate as a decoupled-but-fast pair
+! (smaller timestep_max) rather than pushing rate25C any higher.
+!
+! HS_O2_oxidation: no equally clean single rate constant was found for the direct
+! homogeneous HS-/H2S(aq) + O2(aq) reaction at low pH (most published values, e.g.
+! O'Brien & Birkner (1977) Environ. Sci. Technol. 11, 1114-1120, are for circumneutral
+! to alkaline pH where HS-/S2- rather than H2S(aq) dominate and react faster; sulfide
+! oxidation by O2 is well documented to slow sharply as pH drops and the neutral,
+! less reactive H2S(aq) form takes over). rate25C below is a rough downward
+! adjustment from those neutral-pH values to reflect that pH ~1 suppression, NOT a
+! direct literature number -- treat it as lower-confidence than HS_Fe3_oxidation.
+! In practice this pathway stays minor regardless, since O2(aq) itself is only
+! ~5e-5 mol/kgw by the time fluid reaches the ore zone (see v5.2 diagnosis) -- Fe3+
+! is what actually clears the sulfide here, consistent with Chalcopyrite/Covellite's
+! own dissolution being written as Fe+++-dependent rather than O2-dependent.
+! ============================================================================
+
+&Aqueous
+name = 'HS_O2_oxidation'
+stoichiometry = 1.0 'SO4--' 1.0 'H+' -1.0 'HS-' -2.0 'O2(aq)'
+keq = 138.32
+/
+
+&AqueousKinetics
+name = 'HS_O2_oxidation'
+type = 'tst'
+! Rough, pH-adjusted-down estimate from O'Brien & Birkner (1977) neutral-pH data --
+! lower confidence than HS_Fe3_oxidation below. Minor pathway regardless (O2(aq)
+! starved at depth).
+rate25C = 1.0e-01
+dependence = 'tot_HS-' 1.0 'O2(aq)' 1.0
+/
+
+&Aqueous
+name = 'HS_Fe3_oxidation'
+stoichiometry = 1.0 'SO4--' 8.0 'Fe++' 9.0 'H+' -1.0 'HS-' -8.0 'Fe+++' -4.0 'H2O'
+keq = 70.41
+/
+
+&AqueousKinetics
+name = 'HS_Fe3_oxidation'
+type = 'tst'
+! Ebrahimi et al. (2003): r = k[H2S][Fe3+], log10(k) = 9.3855 - 2636.6/T(K).
+! k(25C) = 3.48 L/(mol*s). See derivation in the header comment above.
+rate25C = 1.097453e+08
+dependence = 'tot_HS-' 1.0 'Fe+++' 1.0
+/
