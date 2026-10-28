@@ -635,6 +635,17 @@ DEALLOCATE(workint2)
 
 ndim1 = nreactmax
 ndim2 = nrct
+i = size(npassivate,1)
+j = size(npassivate,2)
+ALLOCATE(workint2(i,j))
+workint2 = npassivate
+DEALLOCATE(npassivate)
+ALLOCATE(npassivate(ndim1,ndim2))
+IF(ndim1 /= 0 .AND. ndim2 /= 0)npassivate(1:ndim1,1:ndim2) = workint2(1:ndim1,1:ndim2)
+DEALLOCATE(workint2)
+
+ndim1 = nreactmax
+ndim2 = nrct
 i = size(kcrossaff,1)
 j = size(kcrossaff,2)
 ALLOCATE(workint2(i,j))
@@ -1234,6 +1245,20 @@ IF(ndim1 /= 0.AND.ndim2 /= 0.AND.ndim3 /= 0)  &
     inhibit(1:ndim1,1:ndim2,1:ndim3) = workint3(1:ndim1,1:ndim2,1:ndim3)
 DEALLOCATE(workint3)
 
+ndim1 = ninhibitmax
+ndim2 = nreactmax
+ndim3 = nrct
+i = size(passivate,1)
+j = size(passivate,2)
+k = size(passivate,3)
+ALLOCATE(workint3(i,j,k))
+workint3 = passivate
+DEALLOCATE(passivate)
+ALLOCATE(passivate(ndim1,ndim2,ndim3))
+IF(ndim1 /= 0.AND.ndim2 /= 0.AND.ndim3 /= 0)  &
+    passivate(1:ndim1,1:ndim2,1:ndim3) = workint3(1:ndim1,1:ndim2,1:ndim3)
+DEALLOCATE(workint3)
+
 
 !  *******  Real arrays  ****************
 
@@ -1291,6 +1316,21 @@ DEALLOCATE(rinhibit)
 ALLOCATE(rinhibit(ndim1,ndim2,ndim3))
 IF(ndim1 /= 0.AND.ndim2 /= 0.AND.ndim3 /= 0)  &
     rinhibit(1:ndim1,1:ndim2,1:ndim3) = work3(1:ndim1,1:ndim2,1:ndim3)
+DEALLOCATE(work3)
+
+
+ndim1 = ninhibitmax
+ndim2 = nreactmax
+ndim3 = nrct
+i = size(rpassivate,1)
+j = size(rpassivate,2)
+k = size(rpassivate,3)
+ALLOCATE(work3(i,j,k))
+work3 = rpassivate
+DEALLOCATE(rpassivate)
+ALLOCATE(rpassivate(ndim1,ndim2,ndim3))
+IF(ndim1 /= 0.AND.ndim2 /= 0.AND.ndim3 /= 0)  &
+    rpassivate(1:ndim1,1:ndim2,1:ndim3) = work3(1:ndim1,1:ndim2,1:ndim3)
 DEALLOCATE(work3)
 
 ndim1 = ncomp

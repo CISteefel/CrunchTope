@@ -2078,7 +2078,7 @@
 'Chalcedony'   22.6880  1    1.0000 'SiO2(aq)' 500.0    -3.7281 500.0 500.0 500.0   500.0 500.0  500.0    60.0843
 'Chalcocite'   27.4800  3   -1.0000 'H+'    1.0000 'HS-'    2.0000 'Cu+'  -38.0632   -34.7342   -30.9432   -27.5086   -24.2415   -21.7547   -19.8710   -18.5347   159.1580
 'Chalcocyanite'   40.8800  2    1.0000 'Cu++'    1.0000 'SO4--'    4.0172     2.9239     1.5148     0.0976    -1.4686    -2.9213   500.0000   500.0000   159.6096
-'Chalcopyrite'   42.8300  4   -2.0000 'H+'    1.0000 'Cu++'    1.0000 'Fe++'    2.0000 'HS-'  -34.6820   -32.5638   -30.3135   -28.4310   -26.8161   -25.8398   -25.4342   -25.6677   183.5250
+'Chalcopyrite'   42.8300  4   -2.00 'H+'  1.00 'Cu++'  1.00 'Fe++'  2.00 'HS-'  -34.6820  -32.5638  -30.3135  -28.4310   26.8161  -25.8398  -25.4342  -25.6677   183.5250
 'Chamosite-7A'  106.2000  5  -10.0000 'H+'    1.0000 'SiO2(aq)'    2.0000 'Al+++'    2.0000 'Fe++'    7.0000 'H2O'   38.5531    32.8416    26.0443    19.7370    13.4183     8.2474     3.7689    -0.3464   341.7689
 'Chlorargyrite'   25.7270  2    1.0000 'Ag+'    1.0000 'Cl-'  -10.8318    -9.7453    -8.5756    -7.5846    -6.7102    -6.1375    -5.8184    -5.7725   143.3209
 'Chloromagnesite'  500.0000  2    1.0000 'Mg++'    2.0000 'Cl-'   24.3265    21.8604    18.8410    15.8987    12.7811    10.0752     7.6029     5.1540    95.2104
@@ -3031,20 +3031,21 @@ Begin mineral kinetics
 +---------------------------------------------------
 Chalcopyrite
   label = acero
-  type  = tst
+  type  = tst_passivation
   rate(25C) = -5.52
   activation = 0.0  (kcal/mole)
   dependence : 
   affinitydependence = 1.d0  1.d0  1.d0
+	passivation : Goethite  1.D-04
 +---------------------------------------------------
-Chalcopyrite
-  label = acero
-  type  = tst-passivation
-  rate(25C) = -5.52
+Pyrite
+  label = testing_inhibition
+  type  = tst_inhibition
+  rate(25C) = -8.9
   activation = 0.0  (kcal/mole)
-  dependence : 
+  dependence : Fe+++  0.93 
   affinitydependence = 1.d0  1.d0  1.d0
-	inhibition :  S [mineral]  1.0e-04 [vol fraction]
+  inhibition : tot_Fe++  1.D-03
 +---------------------------------------------------
 Chalcopyrite
   label = kimball-questionable
@@ -3069,15 +3070,6 @@ Pyrite
   activation = 0.0  (kcal/mole)
   dependence : O2(aq)  0.5  H+ -0.11
   affinitydependence = 1.d0  1.d0  1.d0
-+---------------------------------------------------
-Pyrite
-  label = testing_inhibition
-  type  = tst_inhibition
-  rate(25C) = -8.9
-  activation = 0.0  (kcal/mole)
-  dependence : Fe+++  0.93 
-  affinitydependence = 1.d0  1.d0  1.d0
-  inhibition : tot_Fe++  1.D-03
 +---------------------------------------------------
 Chalcocite
   label = simpleTST
@@ -3137,7 +3129,6 @@ Covellite
   dependence :  
   affinitydependence = 1.d0  1.d0  1.d0
 +----------------------------------------------------
-
 SO4_mod_NH3
   label = default
   type = tst

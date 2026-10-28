@@ -128,6 +128,7 @@ MODULE mineral
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: depend
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: halfsat
   REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: rinhibit
+  REAL(DP), DIMENSION(:,:,:), ALLOCATABLE          :: rpassivate
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: site_density
   REAL(DP), DIMENSION(:,:), ALLOCATABLE            :: specific
   REAL(DP), DIMENSION(:), ALLOCATABLE              :: surfcharge
@@ -156,11 +157,13 @@ MODULE mineral
   INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: ndepend
   INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: nmonod
   INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: ninhibit
+  INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: npassivate
   INTEGER(I4B), DIMENSION(:,:), ALLOCATABLE        :: kcrossaff
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: idepend
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: imonod
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: kmonod
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: inhibit
+  INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: passivate
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: itot_min
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: itot_monod
   INTEGER(I4B), DIMENSION(:,:,:), ALLOCATABLE      :: itot_inhibit

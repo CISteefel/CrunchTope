@@ -128,9 +128,7 @@ REAL(DP)                                             :: perturb
 REAL(DP)                                             :: termTMP
 REAL(DP)                                             :: sign
 REAL(DP)                                             :: term1
-REAL(DP)                                             :: term2
-REAL(DP)                                             :: term3
-REAL(DP)                                             :: term2New
+REAL(DP)                                             :: AffinityPowerFactor  ! Affinity Jacobian power, not TST log multiplier
 REAL(DP)                                             :: snormTMP
 
 INTEGER(I4B)                                         :: k
@@ -249,8 +247,6 @@ REAL(DP)                                                        :: liqsat_fac, s
 REAL(DP)                                                        :: lnActivity
 CHARACTER (LEN=3)                                               :: ulabPrint
 
-REAL(DP)                                             :: jac_inhibition
-REAL(DP)                                             :: InhibitTerm
 INTEGER(I4B)                                         :: id
 
 !!!NoFractionationDissolution = .false.
@@ -567,14 +563,14 @@ DO k = 1,nkin
               
             SaturationTerm = (si(np,k) - 1.0d0)
             IF (saturationterm == 0.0d0) THEN
-              term3 = 0.0d0
+              AffinityPowerFactor = 0.0d0
             ELSE
-              term3 = (DABS(SaturationTerm))**(AffinityDepend1(np,k)-1.0d0)
+              AffinityPowerFactor = (DABS(SaturationTerm))**(AffinityDepend1(np,k)-1.0d0)
             END IF
                         
             DO i = 1,ncomp      
   
-              jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k) * term3
+              jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k) * AffinityPowerFactor
 
               IF (imintype(np,k) == 4 .AND. silog(np,k) < 0.0d0) THEN   !! Precipitation only
                 jac_sat(i) = 0.0d0
@@ -590,15 +586,15 @@ DO k = 1,nkin
 
             SaturationTerm = ( si(np,k)**AffinityDepend2(np,k) - 1.0d0 )
             IF (saturationterm == 0.0d0) THEN
-              term3 = 0.0d0
+              AffinityPowerFactor = 0.0d0
             ELSE
-              term3 = DABS(SaturationTerm)
+              AffinityPowerFactor = DABS(SaturationTerm)
             END IF
                         
             DO i = 1,ncomp      
   
               jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k)*       &
-                           ( si(np,k)**(AffinityDepend2(np,k)-1.0d0) ) * term3
+                           ( si(np,k)**(AffinityDepend2(np,k)-1.0d0) ) * AffinityPowerFactor
 
               IF (imintype(np,k) == 4 .AND. silog(np,k) < 0.0d0) THEN   !! Precipitation only
                 jac_sat(i) = 0.0d0
@@ -614,16 +610,16 @@ DO k = 1,nkin
 
             SaturationTerm = ( si(np,k)**AffinityDepend2(np,k) - 1.0d0 )
             IF (saturationterm == 0.0d0) THEN
-              term3 = 0.0d0
+              AffinityPowerFactor = 0.0d0
             ELSE
-              term3 = (DABS(SaturationTerm))**(AffinityDepend1(np,k)-1.0d0)
+              AffinityPowerFactor = (DABS(SaturationTerm))**(AffinityDepend1(np,k)-1.0d0)
 
             END IF
                         
             DO i = 1,ncomp      
   
               jac_sat(i) = mumin(np,k,i)*si(np,k)* AffinityDepend1(np,k)*AffinityDepend2(np,k)*       &
-                           ( si(np,k)**(AffinityDepend2(np,k)-1.0d0) ) * term3
+                           ( si(np,k)**(AffinityDepend2(np,k)-1.0d0) ) * AffinityPowerFactor
 
               IF (imintype(np,k) == 4 .AND. silog(np,k) < 0.0d0) THEN   !! Precipitation only
                 jac_sat(i) = 0.0d0
@@ -707,20 +703,21 @@ DO k = 1,nkin
      
 !******** Far from equilibrium dependence of rate *********
  
-!!!   TST, irreversible, PrecipitationOnly, DissolutionOnly, TST-Inhibition
-      IF (imintype(np,k) == 1 .OR.              &
-            imintype(np,k) == 3 .OR.            &
-              imintype(np,k) == 4 .OR.          &
-                imintype(np,k) == 5 .OR.        &
-                  imintype(np,k) == 10 .OR.     &
-                    imintype(np,k) == 12) THEN 
+!!    TST, irreversible, PrecipitationOnly, DissolutionOnly, TST-Inhibition
+      IF (imintype(np,k) == 1 .OR.                &
+          imintype(np,k) == 3 .OR.                &
+          imintype(np,k) == 4 .OR.                &
+          imintype(np,k) == 5 .OR.                &
+          imintype(np,k) == 10 .OR.               &
+          imintype(np,k) == 12 .OR.               &
+          imintype(np,k) == 13) THEN
         
         DO kk = 1,ndepend(np,k)
           i = idepend(kk,np,k)
           IF (itot_min(kk,np,k) == 1) THEN    ! Dependence on total concentration
             IF (gimrt) THEN
               DO i2 = 1,ncomp
-                jac_pre(i2,np) = jac_pre(i,np) + fjac(i2,i,jx,jy,jz)*depend(kk,np,k)* pre_rmin(np,k)/s(i,jx,jy,jz)
+                jac_pre(i2,np) = jac_pre(i2,np) + fjac(i2,i,jx,jy,jz)*depend(kk,np,k)* pre_rmin(np,k)/s(i,jx,jy,jz)
               END DO
             ELSE
               DO i2 = 1,ncomp
@@ -760,74 +757,47 @@ DO k = 1,nkin
             END DO
           END IF
         END DO    
-          
-    !!! This is for the Oelkers rate law of yesteryear...
-        IF (HyperbolicInhibition(np,k)) THEN
-          Al = sp10(HyperbolicInhibitionPointer(np,k),jx,jy,jz)
-  
-          denominator = Kformation(np,k) + Al**HyperbolicInhibitionDepend(np,k)
-          termHyperbolic = -Al*Kformation(np,k)*HyperbolicInhibitionDepend(np,k)* Al**(HyperbolicInhibitionDepend(np,k)-1.0d0)   &
-              /(denominator*denominator)
-
-!!           termHyperbolic = -Kformation(np,k)*HyperbolicInhibitionDepend(np,k)* Al*Al**(1.0-HyperbolicInhibitionDepend(np,k))   &
-!!               /(denominator*denominator)
-           
-           
-!!            jac_pre(ikAl,np) = -0.33333333d0*Al*Kformation/(Kformation + Al**0.333333333333)**2.0d0 *Al**0.666666666666
-          
-          jac_pre(HyperbolicInhibitionPointer(np,k),np) = jac_pre(HyperbolicInhibitionPointer(np,k),np) + termHyperbolic
-        END IF
          
-  !!  Inhibition terms
-          
-        IF (imintype(np,k) == 12) THEN           !!! Adding inhibition to TST
-          
+  !!  TST inhibition: differentiate the logarithm of each inhibition factor.
+  !!  reaction uses term3 = SUM(LOG(K/(K+C))) and pre_rmin = EXP(term3).
+  !!  Thus d(pre_rmin)/d(ln a_j) = -pre_rmin*C/(K+C)*d(ln C)/d(ln a_j).
+  !!  No separate product accumulator (term2) is needed in the Jacobian.
+
+        IF (imintype(np,k) == 12) THEN
           DO kk = 1,ninhibit(np,k)
             i = inhibit(kk,np,k)
+            IF (i < 0) CYCLE  ! No aqueous derivative for mineral-dependent inhibition
+
             IF (itot_inhibit(kk,np,k) == 1) THEN
-              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
-            ELSE
-              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
-            END IF
-          END DO
-          
-          DO kk = 1,ninhibit(np,k)
-            
-            i = inhibit(kk,np,k)
-            IF (inhibit(kk,np,k) < 0) THEN
-              CONTINUE                                             !!  No dependence on mineral volume fraction
-            ELSE
-              IF (itot_inhibit(kk,np,k) == 1) THEN                 !!  Dependence on total concentration
-                
-                denom = ( rinhibit(kk,np,k) + s(i,jx,jy,jz) )* ( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
-                InhibitTerm = rinhibit(kk,np,k)/( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
-                DO i2 = 1,ncomp
-                  jac_inhibition = -fjac(i2,i,jx,jy,jz) * rinhibit(kk,np,k)/denom
-                  jac_pre(i2,np) =  jac_pre(i2,np) + pre_rmin(np,k)/InhibitTerm * jac_inhibition  
-                END DO
-                
-              ELSE
-                denom = ( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) ) * ( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
-                InhibitTerm = rinhibit(kk,np,k)/( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
-                IF (i <= ncomp) THEN
-                  jac_inhibition = -sp10(i,jx,jy,jz)*rinhibit(kk,np,k)/denom
-                  jac_pre(i,np) =  jac_pre(i,np) + pre_rmin(np,k)/InhibitTerm * jac_inhibition 
+              factor1 = -pre_rmin(np,k)*s(i,jx,jy,jz) / &
+                        (rinhibit(kk,np,k) + s(i,jx,jy,jz))
+              DO i2 = 1,ncomp
+                IF (gimrt) THEN
+                  jac_pre(i2,np) = jac_pre(i2,np) + factor1*fjac(i2,i,jx,jy,jz)
                 ELSE
-                  ksp = i - ncomp
-                  DO i2 = 1,ncomp
-                    jac_inhibition = -muaq(ksp,i2)*sp10(i,jx,jy,jz) * rinhibit(kk,np,k)/denom
-                    jac_pre(i2,np) =  jac_pre(i2,np) + pre_rmin(np,k)/InhibitTerm * jac_inhibition               
-                  END DO
+                  jac_pre(i2,np) = jac_pre(i2,np) + factor1*fjac_loc(i2,i)
                 END IF
-                
+              END DO
+            ELSE
+              factor1 = -pre_rmin(np,k)*sp10(i,jx,jy,jz) / &
+                        (rinhibit(kk,np,k) + sp10(i,jx,jy,jz))
+              IF (i <= ncomp) THEN
+                jac_pre(i,np) = jac_pre(i,np) + factor1
+              ELSE
+                ksp = i - ncomp
+                DO i2 = 1,ncomp
+                  jac_pre(i2,np) = jac_pre(i2,np) + factor1*muaq(ksp,i2)
+                END DO
               END IF
             END IF
-            
           END DO
-          
-        END IF                      !!! IF (imintype(np,k) == 12) THEN      !!! TST + inhibition
-        
-      ELSE IF (imintype(np,k) == 2) THEN   !  Monod rate law
+        END IF
+
+        !!! imintype = 13: passivation derivative is intentionally not yet included.
+        !!! NOTE: This imintype = 13 rate term only depends on the volume fraction of the passivating mineral, 
+        !!! so it should not have a Jacobian entry (in contrast to inhibition on an aqueous species.
+
+ELSE IF (imintype(np,k) == 2) THEN   !  Monod rate law
         
         DO kk = 1,nmonod(np,k)
           IF (imonod(kk,np,k) == 0 .AND. kmonod(kk,np,k) == 1) THEN       !! Mineral Monod reaction depends on its own concentration

@@ -8,7 +8,7 @@ END
 
 RUNTIME
 time_units          days
-timestep_max        0.005
+timestep_max        0.1
 timestep_init       1.d-13
 correction_max      2.0
 time_tolerance      0.0001
@@ -47,13 +47,13 @@ time_series_interval     1
 END
 
 MINERALS
+Chalcopyrite    -label acero               -rate  -5.52
 Pyrite          -label williamson          -rate  -8.9 
 Pyrite          -label testing_inhibition  -rate  -8.9
-Chalcopyrite    -label acero               -rate -5.52
-Chalcocite      -label simpleTST           -rate -9.00
-Covellite       -label simpleTST           -rate -6.00
-Bornite         -label simpleTST           -rate -5.30
-Digenite        -label simpleTST           -rate -7.00
+Chalcocite      -label simpleTST           -rate  -9.00
+Covellite       -label simpleTST           -rate  -6.00
+Bornite         -label simpleTST           -rate  -5.30
+Digenite        -label simpleTST           -rate  -7.00
 
 Goethite    -label default   -rate  -8.00 
 Kaolinite   -label default   -rate  -39.00 

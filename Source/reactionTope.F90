@@ -77,7 +77,8 @@ REAL(DP)                                                        :: tkinv
 REAL(DP)                                                        :: reft
 REAL(DP)                                                        :: porfactor
 REAL(DP)                                                        :: sumiap
-REAL(DP)                                                        :: term2
+REAL(DP)                                                        :: term2  ! Direct kinetic multiplier
+REAL(DP)                                                        :: term3  ! Natural log of TST multiplier
 REAL(DP)                                                        :: term1
 REAL(DP)                                                        :: vcheck 
 REAL(DP)                                                        :: check 
@@ -143,6 +144,8 @@ INTEGER(I4B)                                                    :: kMineralRareP
 INTEGER(I4B)                                                    :: kMineralCommonPoint
 INTEGER(I4B)                                                    :: iPrimaryRare
 INTEGER(I4B)                                                    :: iPrimaryCommon
+
+INTEGER(I4B)                                                    :: kPoint
 
 INTEGER(I4B)                                                    :: kIsotopologuePoint
 
@@ -378,6 +381,8 @@ DO k = 1,nkin
 !!  Imintype = 9 --> biomass first order decay !!smr-2011-04-29
 !!  Imintype = 10 -> Nucleation
 !!  Imintype = 12 -> TST + inhibition
+!!  Imintype = 13 -> TST + passivation
+
 
 !!  Calculate thermodynamic term
     
@@ -678,75 +683,76 @@ DO k = 1,nkin
     ELSE
           
 !!    TST, irreversible, PrecipitationOnly, DissolutionOnly, TST-Inhibition
-      IF (imintype(np,k) == 1 .OR.              &
-            imintype(np,k) == 3 .OR.            &
-              imintype(np,k) == 4 .OR.          &
-                imintype(np,k) == 5 .OR.        &
-                  imintype(np,k) == 10 .OR.     &
-                    imintype(np,k) == 12) THEN 
+      IF (imintype(np,k) == 1 .OR.                &
+          imintype(np,k) == 3 .OR.                &
+          imintype(np,k) == 4 .OR.                &
+          imintype(np,k) == 5 .OR.                &
+          imintype(np,k) == 10 .OR.               &
+          imintype(np,k) == 12 .OR.               &
+          imintype(np,k) == 13) THEN
         
-        term2 = 0.0D0
-        DO kk = 1,ndepend(np,k)
-          i = idepend(kk,np,k)
-          IF (depend(kk,np,k) < 0.000) THEN
-            IF (itot_min(kk,np,k) == 1) THEN
-              term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
-            ELSE
-
-              term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
-
-            END IF
-          ELSE
-            IF (itot_min(kk,np,k) == 1) THEN
-              term2 = term2 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
-            ELSE
-
-                term2 = term2 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
-
-            END IF
-          END IF
-        END DO
-        DO kk = 1,ndependex(np,k)
-          nex = ixdepend(kk,np,k)
-          ixx = ixlink(nex)
-          term2 = term2 + dependex(kk,np,k)*spex(nex+nexchange,jx,jy,jz)
-        END DO
-        DO kk = 1,ndependsurf(np,k)
-          is = isdepend(kk,np,k)
-          dependTMP = dependsurf(kk,np,k)
-          IF (is <= nsurf) THEN
-            term2 = term2 + dependsurf(kk,np,k)*spsurf(is,jx,jy,jz)
-          ELSE
-            term2 = term2 + dependTMP*DLOG(spsurf10(is,jx,jy,jz))        
-          END IF
-        END DO
-        
-        IF (imintype(np,k) == 12) THEN           !!! Adding inhibition to TST
+          term3 = 0.0D0
+          DO kk = 1,ndepend(np,k)
+            i = idepend(kk,np,k)
           
-          DO kk = 1,ninhibit(np,k)
-            i = inhibit(kk,np,k)
-            IF (itot_inhibit(kk,np,k) == 1) THEN
-              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + s(i,jx,jy,jz) )
+            IF (depend(kk,np,k) < 0.000) THEN
+              IF (itot_min(kk,np,k) == 1) THEN
+                term3 = term3 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
+              ELSE
+
+                term3 = term3 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
+
+              END IF
             ELSE
-              term2 = term2 * rinhibit(kk,np,k)/( rinhibit(kk,np,k) + sp10(i,jx,jy,jz) )
+              IF (itot_min(kk,np,k) == 1) THEN
+                term3 = term3 + depend(kk,np,k)*DLOG(s(i,jx,jy,jz))
+              ELSE
+
+                term3 = term3 + depend(kk,np,k)*(lngamma(i,jx,jy,jz)+sp(i,jx,jy,jz))
+
+              END IF
             END IF
           END DO
-          
-        END IF
-
-        IF (HyperbolicInhibition(np,k)) THEN
-!!          Kformation = 0.0000149823D0
-          Al = sp10(HyperbolicInhibitionPointer(np,k),jx,jy,jz)
-          denominator = Kformation(np,k) + Al**HyperbolicInhibitionDepend(np,k)
-          term2 = Kformation(np,k)/denominator
-        END IF
-
-        IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
-          sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
-          liqsat_fac = 1/(1 + (thres_root/sat)**exp_root)
-          term2 = liqsat_fac
-        ENDIF
         
+          DO kk = 1,ndependex(np,k)
+            nex = ixdepend(kk,np,k)
+            ixx = ixlink(nex)
+            term3 = term3 + dependex(kk,np,k)*spex(nex+nexchange,jx,jy,jz)
+          END DO
+          DO kk = 1,ndependsurf(np,k)
+            is = isdepend(kk,np,k)
+            dependTMP = dependsurf(kk,np,k)
+            IF (is <= nsurf) THEN
+              term3 = term3 + dependsurf(kk,np,k)*spsurf(is,jx,jy,jz)
+            ELSE
+              term3 = term3 + dependTMP*DLOG(spsurf10(is,jx,jy,jz))        
+            END IF
+          END DO
+        
+          IF (imintype(np,k) == 12) THEN           !!! Adding inhibition to TST
+          
+            DO kk = 1,ninhibit(np,k)
+              i = inhibit(kk,np,k)
+              IF (itot_inhibit(kk,np,k) == 1) THEN
+                term3 = term3 + DLOG( rinhibit(kk,np,k)/(rinhibit(kk,np,k) + s(i,jx,jy,jz)) )
+              ELSE
+                term3 = term3 + DLOG(  rinhibit(kk,np,k)/(rinhibit(kk,np,k) + sp10(i,jx,jy,jz)) )
+              END IF
+            END DO
+          
+          END IF
+        
+          IF (imintype(np,k) == 13) THEN           !!! Adding passivation to TST
+          
+            DO kk = 1,npassivate(np,k)
+              kPoint = passivate(kk,np,k)
+              term3 = term3 + DLOG( rpassivate(kk,np,k)/(rpassivate(kk,np,k) + volfx(kPoint,jx,jy,jz)) )
+            END DO
+          
+          END IF
+
+          pre_rmin(np,k) = DEXP(term3)
+
 !!        ***** * Monod kinetics (without thermodynamic term)  **********
         
       ELSE IF (imintype(np,k) == 2) THEN     !  Monod rate law
@@ -782,9 +788,11 @@ DO k = 1,nkin
           END IF
         END DO
 
-      ELSE IF (imintype(np,k) == 6 .OR. imintype(np,k) == 7) THEN  !! Forward or reverse, with surface area set constant at 1.0
+        pre_rmin(np,k) = term2
 
-        CONTINUE
+      ELSE IF (imintype(np,k) == 6 .OR. imintype(np,k) == 7) THEN  !! Forward or reverse, constant area
+
+        pre_rmin(np,k) = 1.0D0
 
 !!    Monod rate law with biomass and thermodynamic factor, F_T     
       ELSE IF (imintype(np,k) == 8) THEN     
@@ -848,20 +856,12 @@ DO k = 1,nkin
           END IF
         END DO
 
-! frankfurt - sergi - add inhibition
-        !DO kk = 1,ninhibit(np,k)
-        !  i = inhibit(kk,np,k)
-        !  IF (itot_inhibit(kk,np,k) == 1) THEN
-        !    term2 = term2 * rinhibit(kk,np,k)/(rinhibit(kk,np,k)+s(i,jx,jy,jz))
-        !  ELSE
-        !    term2 = term2 * rinhibit(kk,np,k)/(rinhibit(kk,np,k)+sp10(i,jx,jy,jz))
-        !  END IF
-        ! END DO        
-! biomass end
+        pre_rmin(np,k) = term2
 
 ! sergi: first order biomass decay - may 2011
       
       ELSE IF (imintype(np,k) == 9) THEN
+        
         IF (east_river) then
           term2 = volfx(biomass_decay(np,k),jx,jy,jz)*(1/(1 + (bio_decay_KX/volfx(biomass_decay(np,k),jx,jy,jz))**10))
         ELSE
@@ -877,7 +877,7 @@ DO k = 1,nkin
 !       * the bulk rate calculated below is in mol-reaction/m3-bulk/yr
 !       * this is a dissolution reaction where 1 mol-reaction = 1 mol-biomass
 
-! end sergi: first order biomass decay - may 2011
+! sergi: first order biomass decay - may 2011
 
         
       ELSE
@@ -890,42 +890,6 @@ DO k = 1,nkin
         WRITE(*,*)
         READ(*,*)
         STOP
-
-      END IF
-      
-      IF (imintype(np,k) == 2) THEN     ! Monod kinetics
-
-        pre_rmin(np,k) = term2
-
-! biomass
-      ELSE IF (imintype(np,k) == 8) THEN   ! MonodBiomass kinetics
-
-        pre_rmin(np,k) = term2
-! biomass end        
-
-! sergi: first order biomass decay - may 2011
-      ELSE IF (imintype(np,k) == 9) THEN 
-
-        pre_rmin(np,k) = term2
-! end sergi: first order biomass decay - may 2011
-
-      ELSE IF (east_river .and. umin(k)=='Root_respiration') THEN
-      
-        pre_rmin(np,k) = term2
-
-      ELSE IF (east_river .and. umin(k)=='Root_exudates') THEN 
-
-        pre_rmin(np,k) = term2
-
-      ELSE IF (HyperbolicInhibition(np,k)) THEN  
-        pre_rmin(np,k) = term2
-      ELSE
-
-        IF (term2 == 0.0D0) THEN
-          pre_rmin(np,k) = 1.0D0
-        ELSE
-          pre_rmin(np,k) = DEXP(term2)
-        END IF
 
       END IF
       
@@ -1020,6 +984,7 @@ DO k = 1,nkin
           
           IF (HomogeneousNucleation(np,k)) THEN
               surf(np,k) = 1.0d0
+              
           ELSE 
               IF (SumMineralSurfaceArea(np,k)) THEN
                 surfTotal = 0.0d0
@@ -1083,9 +1048,6 @@ DO k = 1,nkin
         AffinityTerm = term1
         
       END IF
-
-!!    Sergi:  Need to move the END IF above here??
-
 
 !************** End of dependence on mineral saturation state *************
 
@@ -1154,9 +1116,6 @@ DO k = 1,nkin
         ELSE
           MoleFractionMineral = 1.0d0
         END IF
-
-!!!         kcalcite = 1
-!!!         kACC = 2
         
         IF (Qingyun) THEN
             
@@ -1192,11 +1151,6 @@ DO k = 1,nkin
           END IF
           
         ELSE
-          
-        ! IF (umin(k)=='Biomass(s)_decay') THEN
-        ! !If biomass decay, rate should be multiplied by biomass concentration [mol/m3]
-        ! rmin(np,k) = rate0(np,k)*AffinityTerm*volfx(MineralId(k),jx,jy,jz)
-        ! ELSE
           
           rmin(np,k) = MoleFractionMineral*surf(np,k)*rate0(np,k)*actenergy(np,k)*pre_rmin(np,k)*AffinityTerm
         

@@ -518,12 +518,21 @@ IF (ALLOCATED(nmonod)) THEN
 ELSE
   ALLOCATE(nmonod(mreact,mrct))
 END IF
+
 IF (ALLOCATED(ninhibit)) THEN
   DEALLOCATE(ninhibit)
   ALLOCATE(ninhibit(mreact,mrct))
 ELSE
   ALLOCATE(ninhibit(mreact,mrct))
 END IF
+
+IF (ALLOCATED(npassivate)) THEN
+  DEALLOCATE(npassivate)
+  ALLOCATE(npassivate(mreact,mrct))
+ELSE
+  ALLOCATE(npassivate(mreact,mrct))
+END IF
+
 IF (ALLOCATED(kcrossaff)) THEN
   DEALLOCATE(kcrossaff)
   ALLOCATE(kcrossaff(mreact,mrct))
@@ -673,24 +682,41 @@ IF (ALLOCATED(itot_inhibit)) THEN
 ELSE
   ALLOCATE(itot_inhibit(mcomp,mreact,mrct))
 END IF
+
 IF (ALLOCATED(inhibit)) THEN
   DEALLOCATE(inhibit)
   ALLOCATE(inhibit(mtot,mreact,mrct))
 ELSE
   ALLOCATE(inhibit(mtot,mreact,mrct))
 END IF
+
+IF (ALLOCATED(passivate)) THEN
+  DEALLOCATE(passivate)
+  ALLOCATE(passivate(mtot,mreact,mrct))
+ELSE
+  ALLOCATE(passivate(mtot,mreact,mrct))
+END IF
+
 IF (ALLOCATED(halfsat)) THEN
   DEALLOCATE(halfsat)
   ALLOCATE(halfsat(mtot,mreact,mrct))
 ELSE
   ALLOCATE(halfsat(mtot,mreact,mrct))
 END IF
+
 IF (ALLOCATED(rinhibit)) THEN
   DEALLOCATE(rinhibit)
   ALLOCATE(rinhibit(mtot,mreact,mrct))
 ELSE
   ALLOCATE(rinhibit(mtot,mreact,mrct))
 END IF
+IF (ALLOCATED(rpassivate)) THEN
+  DEALLOCATE(rpassivate)
+  ALLOCATE(rpassivate(mtot,mreact,mrct))
+ELSE
+  ALLOCATE(rpassivate(mtot,mreact,mrct))
+END IF
+
 IF (ALLOCATED(mumin)) THEN
   DEALLOCATE(mumin)
   ALLOCATE(mumin(mreact,nm,nc))
