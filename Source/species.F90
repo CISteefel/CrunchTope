@@ -43,10 +43,11 @@
 !!!      ****************************************
 
 
-SUBROUTINE species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
+SUBROUTINE species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz,time)
 USE crunchtype
 USE params
 USE concentration
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: INT64, REAL64
 
 IMPLICIT NONE
 
@@ -60,6 +61,7 @@ INTEGER(I4B), INTENT(IN)                                    :: npot
 INTEGER(I4B), INTENT(IN)                                    :: nx
 INTEGER(I4B), INTENT(IN)                                    :: ny
 INTEGER(I4B), INTENT(IN)                                    :: nz
+REAL(DP),     INTENT(IN)                                    :: time 
 
 !  Internal variables and arrays
 
@@ -79,6 +81,14 @@ INTEGER(I4B)                                                :: kk
 REAL(DP)                                                    :: sum
 REAL(DP)                                                    :: sumderiv_gamma
 INTEGER(I4B)                                                :: pos_der
+
+INTEGER(INT64) :: count_start, count_end, count_rate
+
+REAL(REAL64), SAVE :: species_wall_total = 0.0_REAL64
+REAL(REAL64)       :: elapsed_time
+
+CALL SYSTEM_CLOCK(COUNT_RATE=count_rate)
+CALL SYSTEM_CLOCK(COUNT=count_start)
 
 DO jz = 1,nz
   DO jy = 1,ny
@@ -138,12 +148,23 @@ END DO
         END DO
         deriv_conc(ik,pos_der,jx,jy,jz) = sp10(ik,jx,jy,jz) * ( sumderiv_gamma - deriv_gamma(ik,pos_der,jx,jy,jz) / gamma(ik,jx,jy,jz) )
       END DO
-      
+       
     !!! End of loop of nx, ny, and nz
     END DO 
   END DO
 END DO
 
+
+! End wall-clock measurement
+CALL SYSTEM_CLOCK(COUNT=count_end)
+
+elapsed_time = REAL(count_end-count_start, REAL64) / &
+               REAL(count_rate, REAL64)
+
+species_wall_total = species_wall_total + elapsed_time
+species_wall_time  = species_wall_time + elapsed_time
+
 RETURN
 END SUBROUTINE species
+
 !  **************************************************************

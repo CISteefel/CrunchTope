@@ -57,6 +57,7 @@ USE transport
 USE temperature
 USE ReadFlow
 USE flow
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: INT64, REAL64
 
 #include "petsc/finclude/petscmat.h"
 USE petscmat
@@ -225,6 +226,18 @@ REAL(DP), DIMENSION(:), ALLOCATABLE            :: temp_dum
 Mat                                                                 amatpetsc
 !******************end PETSc declarations *********************************
 
+INTEGER(INT64) :: count_start, count_end, count_rate, phase_start, phase_end, call_start, call_end
+REAL(REAL64) :: dt_local, dt_insert
+INTEGER(INT64) :: fx_start, fx_end, chemistry_start, chemistry_end
+INTEGER(INT64) :: reaction_start, reaction_end, neighbor_start, neighbor_end
+INTEGER(INT64) :: primary_start, primary_end, individual_start, individual_end
+
+REAL(REAL64), SAVE :: assemble_wall_total = 0.0_REAL64
+REAL(REAL64)       :: elapsed_time
+
+CALL SYSTEM_CLOCK(COUNT_RATE=count_rate)
+CALL SYSTEM_CLOCK(COUNT=count_start)
+call_start = count_start
 
 jz = 1
 if (delt < 1.0e-20) then
@@ -403,6 +416,7 @@ END IF
 jz = 1
 DO jy = 1,ny
   DO jx = 1,nx
+    CALL SYSTEM_CLOCK(COUNT=phase_start)
     j = (jz-1)*nx*ny + (jy-1)*nx + jx
    
     jpoint = jinit(jx,jy,jz)
@@ -444,9 +458,11 @@ DO jy = 1,ny
     END IF
     
     alf = 0.0d0
-    aah(:,:,jx) = 0.0d0
-    bbh(:,:,jx) = 0.0d0
-    cch(:,:,jx) = 0.0d0
+    IF (ihindmarsh == 1 .AND. nxyz == nx .AND. nxyz /= 1) THEN
+      aah(:,:,jx) = 0.0d0
+      bbh(:,:,jx) = 0.0d0
+      cch(:,:,jx) = 0.0d0
+    END IF
     
     IF (ierode /= 1) THEN
       IF (nexchange > 0) THEN
@@ -454,8 +470,11 @@ DO jy = 1,ny
       END IF
     END IF
     
+    CALL SYSTEM_CLOCK(COUNT=fx_start)
     CALL FxTopeGlobal(nx,ny,nz,ncomp,nexchange,nexch_sec,nsurf,nsurf_sec,nrct,nspec,  &
                ngas,neqn,delt,jx,jy,jz,nBoundaryConditionZone)
+    CALL SYSTEM_CLOCK(COUNT=fx_end)
+    fx_wall_total = fx_wall_total + REAL(fx_end-fx_start,REAL64)/REAL(count_rate,REAL64)
     
     IF (ierode == 1) THEN
       CALL ex_activity(ncomp,nexchange,nexch_sec,jx,jy,jz)
@@ -473,19 +492,40 @@ DO jy = 1,ny
       END IF
     END IF
         
+    CALL SYSTEM_CLOCK(COUNT=reaction_start)
     IF (nrct > 0) THEN
+      CALL SYSTEM_CLOCK(COUNT=individual_start)
       CALL reaction(ncomp,nkin,nrct,nspec,nexchange,nsurf,ndecay,jx,jy,jz,delt,time)
+      CALL SYSTEM_CLOCK(COUNT=individual_end)
+      reaction_call_wall_total = reaction_call_wall_total + &
+        REAL(individual_end-individual_start,REAL64)/REAL(count_rate,REAL64)
       round = 1
+      CALL SYSTEM_CLOCK(COUNT=individual_start)
       CALL jacmin(ncomp,nspec,nexchange,nsurf,nkin,nrct,jx,jy,jz,time,round)
+      CALL SYSTEM_CLOCK(COUNT=individual_end)
+      jacmin_call_wall_total = jacmin_call_wall_total + &
+        REAL(individual_end-individual_start,REAL64)/REAL(count_rate,REAL64)
     END IF
     
     IF (ikin > 0) THEN
+      CALL SYSTEM_CLOCK(COUNT=individual_start)
       CALL reactkin(ncomp,nspec,nrct,ikin,jx,jy,jz,AqueousToBulk,time)
+      CALL SYSTEM_CLOCK(COUNT=individual_end)
+      reactkin_call_wall_total = reactkin_call_wall_total + &
+        REAL(individual_end-individual_start,REAL64)/REAL(count_rate,REAL64)
+      CALL SYSTEM_CLOCK(COUNT=individual_start)
       CALL jacrkin(ncomp,nspec,nrct,ikin,jx,jy,jz,AqueousToBulk)
+      CALL SYSTEM_CLOCK(COUNT=individual_end)
+      jacrkin_call_wall_total = jacrkin_call_wall_total + &
+        REAL(individual_end-individual_start,REAL64)/REAL(count_rate,REAL64)
     END IF
+    CALL SYSTEM_CLOCK(COUNT=reaction_end)
+    reaction_calls_wall_total = reaction_calls_wall_total + &
+      REAL(reaction_end-reaction_start,REAL64)/REAL(count_rate,REAL64)
 
     IF (activecell(jx,jy,jz) == 0) GO TO 800
     
+    CALL SYSTEM_CLOCK(COUNT=neighbor_start)
     IF (nx == 1) GO TO 100
     
 !    IF (species_diffusion) THEN
@@ -539,8 +579,7 @@ DO jy = 1,ny
             END DO
           END DO
         END IF
-
-        
+ 
         DO i = 1,ncomp
           
           DO i2 = 1,ncomp
@@ -685,6 +724,7 @@ DO jy = 1,ny
         jdum=jx-1
 
         IF (species_diffusion) THEN
+
           DO i2 = 1,ncomp
             fgradsum = 0.0
             fjwtchg = 0.0
@@ -1053,6 +1093,9 @@ DO jy = 1,ny
     END IF
     
 200 CONTINUE
+    CALL SYSTEM_CLOCK(COUNT=neighbor_end)
+    neighbor_alf_wall_total = neighbor_alf_wall_total + &
+      REAL(neighbor_end-neighbor_start,REAL64)/REAL(count_rate,REAL64)
     
     source = 0.0d0
 
@@ -1179,6 +1222,7 @@ DO jy = 1,ny
       fxx(ind) = 0.1174*sqrt_sion*HyperbolicSine - surfcharge( k )
     END DO
     
+    CALL SYSTEM_CLOCK(COUNT=primary_start)
     DO i = 1,ncomp
       ind = (j-1)*(neqn) + i
       
@@ -1377,6 +1421,9 @@ DO jy = 1,ny
       END IF
       
     END DO     ! end of I primary species loop
+    CALL SYSTEM_CLOCK(COUNT=primary_end)
+    primary_alf_wall_total = primary_alf_wall_total + &
+      REAL(primary_end-primary_start,REAL64)/REAL(count_rate,REAL64)
 
 !!! Start of IX exchange loop
     
@@ -1562,6 +1609,7 @@ DO jy = 1,ny
     
 !!! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       
+    CALL SYSTEM_CLOCK(COUNT=chemistry_start)
 !!! --> Start of new functionality section (Ionic Strength and Activity of Water)
     
       pos_IonS       = ncomp + nexchange + nsurf + npot + 1
@@ -1735,6 +1783,10 @@ DO jy = 1,ny
         aah(pos_gammawater,pos_IonS,jx) = der_residuals(pos_gammawater,pos_IonS)
       endif
     
+    CALL SYSTEM_CLOCK(COUNT=chemistry_end)
+    ion_water_wall_total = ion_water_wall_total + &
+      REAL(chemistry_end-chemistry_start,REAL64)/REAL(count_rate,REAL64)
+
 !  Case where nxyz = 1
     
     IF (nxyz == 1) THEN
@@ -1782,9 +1834,13 @@ DO jy = 1,ny
       END DO
       
     END IF
+    
+    CALL SYSTEM_CLOCK(COUNT=phase_end)
+    dt_local = REAL(phase_end-phase_start,REAL64)/REAL(count_rate,REAL64)
+    local_wall_total = local_wall_total + dt_local
+    CALL SYSTEM_CLOCK(COUNT=phase_start)
 
     IF (ihindmarsh == 0 .OR. nxyz /= nx) THEN
-
      IF ( petscon) THEN
 
 ! *********************** insert filling matrix for PETSc case ***************************
@@ -1965,11 +2021,15 @@ DO jy = 1,ny
 
      endif ! Watsolv or PETSc dichotomy/toggle   
 
-    END IF
+!!!    END IF
 
 !***************************insert update of petsc index **********************    
+    END IF  ! PETSc path versus Hindmarsh path
     ipetsc = ipetsc + 1
 !***************************end update of petsc index ************************
+    CALL SYSTEM_CLOCK(COUNT=phase_end)
+    dt_insert = REAL(phase_end-phase_start,REAL64)/REAL(count_rate,REAL64)
+    insert_wall_total = insert_wall_total + dt_insert
   END DO  ! End of JX loop
 END DO    ! End of JY loop
 
@@ -1978,14 +2038,26 @@ END DO    ! End of JY loop
 1077 FORMAT(12(1X,1PE10.3))
 
 ! ***************************insert construction for PETSc matrix ***********
+ CALL SYSTEM_CLOCK(COUNT=phase_start)
  if (petscon) then
           call MatAssemblyBegin(amatpetsc,MAT_FINAL_ASSEMBLY,ierr)
           call MatAssemblyEnd(amatpetsc,MAT_FINAL_ASSEMBLY,ierr)
  endif
+ 
+ CALL SYSTEM_CLOCK(COUNT=count_end)
+ final_wall_total = final_wall_total + REAL(count_end-phase_start,REAL64)/REAL(count_rate,REAL64)
+ assemble_wall_total = assemble_wall_total + REAL(count_end-call_start,REAL64)/REAL(count_rate,REAL64)
+ assemble_wall_time = assemble_wall_time + REAL(count_end-call_start,REAL64)/REAL(count_rate,REAL64)
+ timing_calls = timing_calls + 1
+ 
+ !!! IF (timing_calls == 1 .OR. MOD(timing_calls,100) == 0) THEN
+ !!!   WRITE(*,*) "AssembleGlobal cumulative seconds (calls):", timing_calls
+ !!!   WRITE(*,*) "  Local compute :", local_wall_total
+ !!!    WRITE(*,*) "  PETSc insertion:", insert_wall_total
+ !!!    WRITE(*,*) "  Final assembly :", final_wall_total
+ !!!    WRITE(*,*) "  Other overhead :", assemble_wall_total-local_wall_total-insert_wall_total-final_wall_total
+ !!!  END IF
 ! ******************end construction for PETSc matrix ********************
-
-
-
 
 RETURN
 END SUBROUTINE AssembleGlobal

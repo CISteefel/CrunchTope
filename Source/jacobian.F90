@@ -48,6 +48,7 @@ USE medium
 USE transport, ONLY: satliq,satliqold
 USE temperature, ONLY: ro
 USE solver
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: INT64, REAL64
 
 IMPLICIT NONE
 
@@ -79,6 +80,14 @@ INTEGER(I4B)                                         :: jz
 INTEGER(I4B)                                         :: ik
 INTEGER(I4B)                                         :: pos_IonS
 INTEGER(I4B)                                         :: pos_gammawater
+
+INTEGER(INT64) :: count_start, count_end, count_rate
+
+REAL(REAL64), SAVE :: jacobian_wall_total = 0.0_REAL64
+REAL(REAL64)       :: elapsed_time
+
+CALL SYSTEM_CLOCK(COUNT_RATE=count_rate)
+CALL SYSTEM_CLOCK(COUNT=count_start)
 
 fjac = 0.0d0
 
@@ -119,10 +128,27 @@ DO jz = 1,nz
       DO i = 2,ncomp
         fjac(i,i,jx,jy,jz) = fjac(i,i,jx,jy,jz) + sp10(i,jx,jy,jz)
       END DO
+      
+   !!!    elapsed_time = REAL(count_end-count_start, DP) / &
+    !!!                  REAL(count_rate, DP)
+
+   !!!    jacobian_wall_total = jacobian_wall_total + elapsed_time
+      
+ !!!     if (jx==1) THEN
+  !!!       write(*,*) ' Jacobian wallclock time = ', jacobian_wall_total
+  !!!     END IF
 
     END DO
   END DO
 END DO
+
+! End wall-clock measurement
+CALL SYSTEM_CLOCK(COUNT=count_end)
+
+elapsed_time = REAL(count_end-count_start, REAL64) / &
+               REAL(count_rate, REAL64)
+
+jacobian_wall_time  = species_wall_time + elapsed_time
 
 RETURN
 END SUBROUTINE jacobian

@@ -59,6 +59,7 @@ USE ReadFlow
 USE modflowModule
 USE CrunchFunctions
 USE Richards_module
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: INT64, REAL64
 !!USE fparser
 
 #include <petsc/finclude/petsc.h>
@@ -470,9 +471,33 @@ PC                   pc
 KSP                  ksp
 !!Scalar               zeroPetsc
 ! ************************end PETSc declarations of PETSc variables ******
+
+INTEGER(INT64) :: count_start, count_end, count_rate
+
+REAL(REAL64), SAVE :: CrunchFlow_wall_total = 0.0_REAL64
+REAL(REAL64)       :: elapsed_time
+
+CALL SYSTEM_CLOCK(COUNT_RATE=count_rate)
+CALL SYSTEM_CLOCK(COUNT=count_start)
+
+species_wall_time = 0.d0
+assemble_wall_time = 0.d0
+jacobian_wall_time = 0.d0
+local_wall_total  = 0.0_DP
+fx_wall_total = 0.0_DP
+ion_water_wall_total = 0.0_DP
+reaction_calls_wall_total = 0.0_DP
+reaction_call_wall_total = 0.0_DP
+jacmin_call_wall_total = 0.0_DP
+reactkin_call_wall_total = 0.0_DP
+jacrkin_call_wall_total = 0.0_DP
+neighbor_alf_wall_total   = 0.0_DP
+primary_alf_wall_total    = 0.0_DP
+insert_wall_total = 0.0_DP
+final_wall_total  = 0.0_DP
+timing_calls      = 0
   
 Switcheroo = .FALSE.
-
 
 MassBalanceError = 0.0d0
 AqueousMassBalanceError = 0.0d0
@@ -1919,7 +1944,7 @@ END DO
               CALL gammaUpdated(ncomp,nspec,nsurf,nexchange,npot,jx,jy,jz,igamma)
             end do
           end do
-          CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
+          CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz,time)
           CALL jacobian(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
 
           jz = 1
@@ -2417,7 +2442,7 @@ END DO
           IF (ALLOCATED(levptr)) DEALLOCATE(levptr)
         END IF
 
-        CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
+        CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz,time)
         CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 
         jz = 1
@@ -2567,7 +2592,7 @@ END IF
       END DO
     END DO
 
-    CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz)
+    CALL species(ncomp,nspec,nsurf,nexchange,npot,nx,ny,nz,time)
     CALL SurfaceComplex(ncomp,nspec,nsurf,nsurf_sec,nx,ny,nz,igamma)
 
     GO TO 6000
@@ -3418,7 +3443,7 @@ END IF
 
       WRITE(*,*)
       WRITE(*,*)
-      WRITE(*,*) '====== Running time on this computer ======'
+      WRITE(*,*) '====== Wallclock time on this computer ======'
       WRITE(*,*)
 
       IF (end_mon /= str_mon) THEN
@@ -3432,10 +3457,46 @@ END IF
       ExtraSeconds = PrintSeconds - DFLOAT(isimu_hr*3600)  - DFLOAT(isimu_min*60)
 
 !!!      WRITE(*,771) isimu_hr, isimu_min, isimu_sec
-      WRITE(*,771) isimu_hr, isimu_min, ExtraSeconds
+!!!      WRITE(*,771) isimu_hr, isimu_min, ExtraSeconds
+      
+      CALL SYSTEM_CLOCK(COUNT=count_end)
+
+      elapsed_time = REAL(count_end-count_start, DP) / &
+                     REAL(count_rate, DP)
+
+      CrunchFlow_wall_total = CrunchFlow_wall_total + elapsed_time
+      
+!!!      write(*,*) ' Species wallclock time    = ', species_wall_time
+!!!      write(*,*) ' Jacobian wallclock time   = ', jacobian_wall_time
+      write(*,*) ' CrunchFlow wallclock time = ', CrunchFlow_wall_total
+      write(*,*)    
+
+      WRITE(*,*) '******** AssembleGlobal Timing Summary ********'
+      WRITE(*,*) ' Number of calls           = ', timing_calls
+      WRITE(*,*) ' Local computation         = ', local_wall_total
+      WRITE(*,*) ' PETSc matrix insertion    = ', insert_wall_total
+      WRITE(*,*) ' PETSc final assembly      = ', final_wall_total
+!!!      WRITE(*,*) ' Other overhead            = ', assemble_wall_time - &
+!!!          local_wall_total - insert_wall_total - final_wall_total
+      WRITE(*,*) ' Total AssembleGlobal time = ', assemble_wall_time
+      WRITE(*,*) ' FxTopeGlobal time         = ', fx_wall_total
+      WRITE(*,*) ' Ionic strength/H2O time   = ', ion_water_wall_total
+      WRITE(*,*) ' Reaction/kinetics calls   = ', reaction_calls_wall_total
+!!!      WRITE(*,*) ' reaction                  = ', reaction_call_wall_total
+!!!      WRITE(*,*) ' jacmin                    = ', jacmin_call_wall_total
+!!!      WRITE(*,*) ' reactkin                  = ', reactkin_call_wall_total
+!!!      WRITE(*,*) ' jacrkin                   = ', jacrkin_call_wall_total
+!!!      WRITE(*,*) ' Neighbor alf blocks       = ', neighbor_alf_wall_total
+!!!      WRITE(*,*) ' Primary species/alf loop  = ', primary_alf_wall_total
+!!!      WRITE(*,*) ' Remaining local time      = ', &
+!!!           local_wall_total - fx_wall_total - ion_water_wall_total - &
+!!!           reaction_calls_wall_total - neighbor_alf_wall_total - primary_alf_wall_total
+      WRITE(*,*) ' Other local computation   = ', &
+           local_wall_total - fx_wall_total - ion_water_wall_total
+      
+      
+
       nint = nint + 1
-
-
 
 !!    WRITE(iures) tauZero
 
@@ -3615,7 +3676,9 @@ STOP
         call PetscFinalize(ierr)
        endif
 !       ****** PETSc closeout finished *********
+       
 READ(*,*)
+
 STOP
 END SUBROUTINE CrunchTope
 !****************END DRIVER PROGRAM**********************

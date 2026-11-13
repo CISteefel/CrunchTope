@@ -53,6 +53,7 @@ USE runtime
 USE NanoCrystal
 USE isotope
 USE transport
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: INT64, REAL64
 
 IMPLICIT NONE
 
@@ -207,6 +208,16 @@ REAL(DP)                                                        :: liqsat_fac
 REAL(DP)                                                        :: attenuation_term
 REAL(DP)                                                        :: sat
 !**********
+
+INTEGER(INT64) :: count_start, count_end, count_rate
+
+REAL(REAL64), SAVE :: reaction_wall_total = 0.0_REAL64
+REAL(REAL64)       :: elapsed_time
+
+CALL SYSTEM_CLOCK(COUNT_RATE=count_rate)
+CALL SYSTEM_CLOCK(COUNT=count_start)
+
+! --- Your calculations ---
 
 rmin = 0.0d0
 
@@ -1166,63 +1177,13 @@ DO k = 1,nkin
     dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz) + rmin(np,k)
 
 !********************
-!Stolze Lucien, June 2023, specific to East river simulations
-!Release of OM from soil function of liquid saturation
-    
-    !!! Steefel Checked
-    IF (east_river) THEN
-      IF (umin(k)=='TOC_soil' .OR. umin(k)=='TOCsoil') THEN
-        liqsat_fac = 1
-        ! write(*,*) satliqold(jx,jy,jz)
-        ! stop
-        sat = 0.5*(satliq(jx,jy,jz) + satliqold(jx,jy,jz) )
-        IF (satliq(jx,jy,jz) > thres_OM2) THEN
-          liqsat_fac = 1/(1 + (thres_OM1/sat)**exp_OM)
-        ELSE
-          liqsat_fac = 1/(1 + (thres_OM1/thres_OM2)**exp_OM)
-        ENDIF
-        dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
-        !pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
-        rmin(np,k) = rmin(np,k)*liqsat_fac
-      ENDIF
-      
-!!!       IF (umin(k)=='Root_respiration' .or. umin(k)=='Root_exudates') THEN
-!!!         liqsat_fac = 1/(1 + (thres_root/satliq(jx,jy,jz))**exp_root)
-!!!         dppt(k,jx,jy,jz) = dppt(k,jx,jy,jz)*liqsat_fac
-!!!         pre_rmin(np,k) = pre_rmin(np,k)*liqsat_fac
-!!!         rmin(np,k) = rmin(np,k)*liqsat_fac
-!!!       ENDIF
-      
-     ENDIF
-!********************
   
   END DO   !  End of npth parallel reaction
 
   !Check if volume fraction goes below zero:
 
-!********************
-!Stolze Lucien, June 2023, specific to East river simulations
-!Microbial dormancy
-  IF (umin(k)=='Biomass(s)_decay') THEN
-  ! ! Compare the rate of growth and decay (decay is negative)
-  ! IF (dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz) >= 0) THEN
-  ! dppt(MineralId(k),jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
-  ! dppt(k,jx,jy,jz) = 0
-  ! ELSE
-  ! dppt(k,jx,jy,jz) = dppt(MineralId(k),jx,jy,jz) + dppt(k,jx,jy,jz)
-  ! dppt(MineralId(k),jx,jy,jz) = 0
-  ! ENDIF
-  ! IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) <= 0) THEN
-  ! dppt(k,jx,jy,jz) = 0
-  ! ENDIF
-  ! vcheck = (volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) + dppt(k,jx,jy,jz)*delt
-  ! IF ((volfx(MineralId(k),jx,jy,jz) - bio_decay_KX) >= 0 .and. vcheck < 0.0) THEN
-  ! dppt(k,jx,jy,jz) = -(volfx(MineralId(k),jx,jy,jz) - bio_decay_KX)/delt
-  !       !ivolume(k) = 1
-  ! ENDIF
-  ! rmin(1,k) = 0
-  ! pre_rmin(1,k) = 0
-!********************
+    IF (umin(k)=='Biomass(s)_decay') THEN
+
   ELSE
 
     IF (MineralAssociate(k)) THEN
@@ -1256,6 +1217,13 @@ DO k = 1,nkin
   ENDIF
     
 END DO     !  End of kth mineral
+
+CALL SYSTEM_CLOCK(COUNT=count_end)
+
+elapsed_time = REAL(count_end-count_start, DP) / &
+               REAL(count_rate, DP)
+
+reaction_wall_total = reaction_wall_total + elapsed_time
 
 RETURN
 END SUBROUTINE reaction

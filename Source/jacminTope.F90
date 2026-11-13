@@ -53,6 +53,7 @@ USE medium
 USE temperature
 USE isotope
 USE transport
+USE, INTRINSIC :: ISO_FORTRAN_ENV, ONLY: INT64, REAL64
 
 IMPLICIT NONE
 
@@ -248,6 +249,14 @@ REAL(DP)                                                        :: lnActivity
 CHARACTER (LEN=3)                                               :: ulabPrint
 
 INTEGER(I4B)                                         :: id
+
+INTEGER(INT64) :: count_start, count_end, count_rate
+
+REAL(REAL64), SAVE :: jacmin_wall_total = 0.0_REAL64
+REAL(REAL64)       :: elapsed_time
+
+CALL SYSTEM_CLOCK(COUNT_RATE=count_rate)
+CALL SYSTEM_CLOCK(COUNT=count_start)
 
 !!!NoFractionationDissolution = .false.
 
@@ -1018,6 +1027,13 @@ ELSE IF (imintype(np,k) == 2) THEN   !  Monod rate law
   END IF      !! End of IF block for calculation of Jacobian
   
 END DO        !! End of loop through minerals
+
+CALL SYSTEM_CLOCK(COUNT=count_end)
+
+elapsed_time = REAL(count_end-count_start, DP) / &
+               REAL(count_rate, DP)
+
+jacmin_wall_total = jacmin_wall_total + elapsed_time
 
 
 RETURN

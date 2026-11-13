@@ -77,6 +77,25 @@ MODULE  concentration
   INTEGER(I4B)                                      :: UnitPestExchange
   INTEGER(I4B)                                      :: NPestSurface
   INTEGER(I4B)                                      :: UnitPestSurface
+  
+  REAL(DP)                                          :: species_wall_time
+  REAL(DP)                                          :: jacobian_wall_time 
+  REAL(DP)                                          :: assemble_wall_time
+
+  ! Cumulative AssembleGlobal timing components (seconds)
+  REAL(DP) :: local_wall_total  = 0.0_DP
+  REAL(DP) :: insert_wall_total = 0.0_DP
+  REAL(DP) :: fx_wall_total = 0.0_DP
+     REAL(DP) :: ion_water_wall_total = 0.0_DP
+   REAL(DP) :: reaction_calls_wall_total = 0.0_DP
+   REAL(DP) :: neighbor_alf_wall_total   = 0.0_DP
+   REAL(DP) :: primary_alf_wall_total    = 0.0_DP
+  REAL(DP) :: reaction_call_wall_total = 0.0_DP
+  REAL(DP) :: jacmin_call_wall_total = 0.0_DP
+  REAL(DP) :: reactkin_call_wall_total = 0.0_DP
+  REAL(DP) :: jacrkin_call_wall_total = 0.0_DP
+  REAL(DP) :: final_wall_total  = 0.0_DP
+  INTEGER(I4B) :: timing_calls = 0  
 
   INTEGER(I4B)                                      :: ikFe2
   INTEGER(I4B)                                      :: ikFe3

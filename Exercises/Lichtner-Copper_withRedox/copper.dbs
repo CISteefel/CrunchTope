@@ -3047,22 +3047,6 @@ Pyrite
   affinitydependence = 1.d0  1.d0  1.d0
   inhibition : tot_Fe++  1.D-03
 +---------------------------------------------------
-Chalcopyrite
-  label = kimball-questionable
-  type  = tst
-  rate(25C) = -1.52
-  activation = 0.0  (kcal/mole)
-  dependence : H+ 1.68
-  affinitydependence = 1.d0  1.d0  1.d0
-+---------------------------------------------------
-Chalcopyrite
-  label = kimball-hosed
-  type  = tst
-  rate(25C) = 1.88
-  activation = 0.0  (kcal/mole)
-  dependence : tot_Fe+++  0.42  H+ 0.8
-  affinitydependence = 1.d0  1.d0  1.d0
-+---------------------------------------------------
 Pyrite
   label = williamson
   type  = tst
@@ -3096,7 +3080,7 @@ Bornite   !v5.5-Butte: Butte Intermediate-Zone Cu-Fe sulfide. Fe(III)-dependent,
   affinitydependence = 1.d0  1.d0  1.d0
   inhibition :  H2S(aq)  1.0e-04
 +---------------------------------------------------
-Digenite   !v5.5-Butte: Cu9S5, chalcocite-digenite shallow-zone couple (Reed & Dilles). Fe(III)-dependent, TST
+Digenite   
   label = Fe_depend
   type  = tst_inhibition
   rate(25C) = -7.0
@@ -3129,6 +3113,22 @@ Covellite
   dependence :  
   affinitydependence = 1.d0  1.d0  1.d0
 +----------------------------------------------------
+Chalcopyrite
+  label = kimball-questionable
+  type  = tst
+  rate(25C) = -1.52
+  activation = 0.0  (kcal/mole)
+  dependence : H+ 1.68
+  affinitydependence = 1.d0  1.d0  1.d0
++---------------------------------------------------
+Chalcopyrite
+  label = kimball-hosed
+  type  = tst
+  rate(25C) = 1.88
+  activation = 0.0  (kcal/mole)
+  dependence : tot_Fe+++  0.42  H+ 0.8
+  affinitydependence = 1.d0  1.d0  1.d0
++---------------------------------------------------
 SO4_mod_NH3
   label = default
   type = tst

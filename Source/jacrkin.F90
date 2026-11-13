@@ -150,55 +150,7 @@ tkinv = 1.0D0/tk
 reft = 1.0D0/(298.15D0)
 															!! Numerical derivatives of total concentration for use in Monod terms
 
-perturb = 1.d-08 
-sppTMP = sp(:,jx,jy,jz)
-sppTMP10(:) = sp10(:,jx,jy,jz)
-DO i2 = 1,ncomp
-  sppTMPperturb(i2) = sppTMP(i2) + perturb
-  sppTMP10perturb(i2) = DEXP(sppTMPperturb(i2))
-END DO
 
-DO i2 = 1,ncomp
-
-  sppTMP(i2) = sppTMPperturb(i2)
-  sppTMP10(i2) = sppTMP10perturb(i2)
-
-!!  New speciation
-  DO ksp = 1,nspec
-
-!!    IF (muaq(ksp,i2) /= 0.0) THEN  !! If the secondary species is not affectd by primary i2, then skip it
-      sum = 0.0D0
-      DO ii = 1,ncomp
-        ulabPrint = ulab(ii)
-        IF (ulabPrint(1:3) == 'H2O' .or. ulabPrint(1:3) == 'HHO') THEN
-          lnActivity = lngamma(ii,jx,jy,jz)
-        ELSE
-          lnActivity = sp(ii,jx,jy,jz) + lngamma(ii,jx,jy,jz)
-        END IF
-        
-        sum = sum + muaq(ksp,ii)*lnActivity
-        
-        
-      END DO
-      sppTMP(ksp+ncomp) = keqaq(ksp,jx,jy,jz) - lngamma(ksp+ncomp,jx,jy,jz) + sum
-      sppTMP10(ksp+ncomp) = EXP(sppTMP(ksp+ncomp))  
-!!    END IF
-
-  END DO
-
-  DO i = 1,ncomp
-    sum=0.0D0
-    DO ksp = 1,nspec
-      kk = ksp + ncomp
-      sum = sum + muaq(ksp,i)*sppTMP10(kk)
-    END DO
-    sTMPperturb(i2,i) = sum + sppTMP10(i)
-  END DO
-
-  sppTMP(i2) = sp(i2,jx,jy,jz)
-  sppTMP10(i2) = sp10(i2,jx,jy,jz)
-
-END DO
 
 ! biomass end
 
@@ -206,8 +158,6 @@ END DO
 !    to the primary species
 
 !! Numerical derivatives of total concentration for use in Monod terms	   
-
-
 
 
 rdkin = 0.0
@@ -479,68 +429,7 @@ DO ir = 1,ikin
 
 !     ENDDO
 
-!!!   ***************** NOW DO NUMERICAL PERTURBATION ***************************************************  
-      
-!!!      DO i2 = 1,ncomp
-
-!!!        IF (nIsotopePrimary > 0) THEN
-            
-!!!          IF (IsotopePrimaryCommon(i)) THEN
-
-!!!            IsotopologueOther = isotopeRare(iPointerIsotope(i))
-!!!            IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
-!!!              MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir)*(1.0d0+sTMPperturb(i2,IsotopologueOther)/halfsataq(id,ir)) )
-!!!            ELSE                                               ! Dependence on individual species
-!!!              MonodTermPerturb = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz)+ halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir)) )
-!!!            END IF
-!!!
-!!!          ELSE IF (IsotopePrimaryRare(i)) THEN
-!!!
-!!!            IsotopologueOther = isotopeCommon(iPointerIsotope(i))
-!!!            IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
-!!!              MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir)*(1.0d0+sTMPperturb(i2,IsotopologueOther)/halfsataq(id,ir)) )
-!!!            ELSE                                               ! Dependence on individual species
-!!!              MonodTermPerturb = sp10(i,jx,jy,jz)/( sp10(i,jx,jy,jz)+ halfsataq(id,ir)*(1.0d0+sp10(IsotopologueOther,jx,jy,jz)/halfsataq(id,ir)) )
-!!!            END IF
-            
-!!!          ELSE
-          
-!!!            WRITE(*,*)
-!!!            WRITE(*,*) ' Should be either the Common or Rare isotope in jacrkin.F90'
-!!!            WRITE(*,*)
-!!!            READ(*,*)
-!!!            STOP
-        
-!!!          END IF
-
-!!!        ELSE    !general case - no isotopes
-!!!            
-!!!          IF (itot_monodaq(id,ir) == 1) THEN                 ! Dependence on total concentration
-!!!            MonodTermPerturb = sTMPperturb(i2,i)/( sTMPperturb(i2,i) + halfsataq(id,ir) )
-!!!          ELSE
-!!!            IF (i == i2) THEN 
-!!!              MonodTermPerturb = sppTMP10perturb(i)/(halfsataq(id,ir)+sppTMP10perturb(i))
-!!!            ELSE
-!!!              MonodTermPerturb = sp10(i,jx,jy,jz)/(halfsataq(id,ir)+sp10(i,jx,jy,jz))
-!!!            END IF
-!!!          END IF
-!!!          
-!!!        END IF         
-
-!!!        OtherMonodTerms = 1.0d0
-!!!        DO idDummy = 1,nmonodaq(ir)
-!!!          IF (id /= idDummy) THEN
-!!!            OtherMonodTerms = OtherMonodTerms*termMonod(idDummy,ir)
-!!!          END IF
-!!!        END DO
-
-!!!       DerivativeMonodTerm = (MonodTermPerturb - MonodTerm )/perturb 
-
-!!!        jac_prekin(i2,1) = jac_prekin(i2,1) + OtherMonodTerms*DerivativeMonodTerm
-
-!!!      END DO
-      
-!!    ************** END OF NUMERICAL PERTURBATION ********************************   
+  
 
     !END DO
 
@@ -591,22 +480,6 @@ DO ir = 1,ikin
       sign = -1.0d0
     END IF
 
-    ! IF(satkin(ir) > 1.0d0) THEN
-    !   snormAqueous = 1.0d0
-    ! ELSE 
-    !   snormAqueous = satkin(ir)
-    ! ENDIF
-    
-    ! term1 = sign*DABS(snormAqueous - 1.0D0)
-    ! affinity = MAX(0.0d0,term1)
-
-    !Lucien (regular affinity calculation):
-    snormAqueous = satkin(ir)
-    affinity = sign*(1 - satkin(ir))
-    ! if (satkin(ir) >= 1) then
-    ! affinity = 0
-    ! snormAqueous = 1.0d0
-    ! endif
 
 !!  Reaction assumed to be irreversible, so do not let it go in reverse
     DO i = 1,ncomp
