@@ -306,6 +306,8 @@ REAL(DP)                                                   :: RoAveLeft
 REAL(DP)                                                   :: RoAveRight
 REAL(DP)                                                   :: qxSum
 REAL(DP)                                                   :: TotalMoles
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: sionOld
+REAL(DP), DIMENSION(:,:,:), ALLOCATABLE                    :: lngammawaterOld
 
 INTEGER(I4B)                                               :: jyy
 
@@ -721,6 +723,8 @@ WRITE(*,*)
 
 !!!  *******************************************************
 !!!  ***************  FLOW CALCULATION  ********************
+
+dtflow = 0.0d0
 
 IF (CalculateFlow) THEN
 
@@ -1927,6 +1931,9 @@ END DO
         
         gammawater(:,:,:) = EXP( lngammawater(:,:,:) )
 
+        sionOld = sion
+        lngammawaterOld = lngammawater
+
 
     ! **************  START NEWTON LOOP  *******************
 
@@ -2314,6 +2321,10 @@ END DO
                 ELSE
                   tolmax = atol
                 END IF
+                !!! H2O residual scales with the mass of water in the cell (~55.5 mol/kg), so make its tolerance relative to it
+                IF (i == ikh2o) THEN
+                  tolmax = tolmax*MAX(1.0d0, por(jx,jy,jz)*ro(jx,jy,jz)*satliq(jx,jy,jz)*s(i,jx,jy,jz))
+                END IF
 
                 IF (DABS(delt*fxx(ind)) > tolmax) THEN
 !!!                IF (DABS(fxx(ind)) > tolmax) THEN
@@ -2424,6 +2435,10 @@ END DO
               spno2(jx,jy,jz) = spnno2(jx,jy,jz)
             END DO
           END DO
+
+          sion = sionOld
+          lngammawater = lngammawaterOld
+          gammawater = EXP( lngammawater )
 
           WRITE(*,*)
           WRITE(*,*) '***** NO CONVERGENCE OF NEWTON ITERATIONS IN GIMRT *****'

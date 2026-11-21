@@ -1913,6 +1913,7 @@ workint = mintype
 DEALLOCATE(mintype)
 ALLOCATE(mintype(nkin+50))
 IF (nkin > 0) mintype(1:nkin) = workint(1:nkin)
+mintype(nkin+1:) = 0
 DEALLOCATE(workint)
 
 !!  Check that the "associated" minerals are in the list
