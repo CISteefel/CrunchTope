@@ -60,25 +60,25 @@ END
 
 NUCLEATION
 &Nucleation
-  NameMineral      = Calcite
-  label            = nucleatecalcite
+  NameMineral      = 'Calcite'
+  label            = 'nucleatecalcite'
   A_zero25C        = 0.00000001
   B_nucleation     = 0.000905
   Sigma_mJm2       = 47
   SSA_m2g          = 1
-  Surface          = Bogusite_i
+  Surface          = 'Bogusite_i'
     /
 End
 
 NUCLEATION
 &Nucleation
-  NameMineral      = SiO2(am)
-  label            = nucleateSiO2(am)
+  NameMineral      = 'SiO2(am)'
+  label            = 'nucleateSiO2(am)'
   A_zero25C        = 0.00000001
   B_nucleation     = 0.000905
   Sigma_mJm2       = 20000
   SSA_m2g          = 1
-  Surface          = Bogusite_i
+  Surface          = 'Bogusite_i'
     /
 End
 

@@ -532,6 +532,7 @@ IF (ALLOCATED(npassivate)) THEN
 ELSE
   ALLOCATE(npassivate(mreact,mrct))
 END IF
+npassivate = 0
 
 IF (ALLOCATED(kcrossaff)) THEN
   DEALLOCATE(kcrossaff)

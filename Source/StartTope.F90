@@ -2571,6 +2571,7 @@ if (.not.allocated(SaturationCond)) ALLOCATE(SaturationCond(mchem))
 if (.not.allocated(PressureCond)) ALLOCATE(PressureCond(mchem))
 if (.not.allocated(ctot)) ALLOCATE(ctot(ncomp,mchem))
 if (.not.allocated(guess)) ALLOCATE(guess(ncomp,mchem))
+guess = 0.0d0
 if (.not.allocated(itype)) ALLOCATE(itype(ncomp,mchem))
 if (.not.allocated(c_surf)) ALLOCATE(c_surf(nsurf,mchem))
 if (.not.allocated(guess_surf)) ALLOCATE(guess_surf(nsurf,mchem))
@@ -2610,6 +2611,7 @@ IF (ALLOCATED(voltemp)) THEN
 ELSE
   ALLOCATE(voltemp(nrct,mchem))
 END IF
+voltemp = 0.0d0
 IF (ALLOCATED(scond)) THEN
   DEALLOCATE(scond)
   ALLOCATE(scond(ncomp,mchem))
@@ -6540,9 +6542,7 @@ IF (FOUND) THEN
 
   END IF
 
-  IF (isaturate == 1) THEN
-    gaspump = 0.0d0
-  END IF
+  gaspump = 0.0d0
   
       IF (ALLOCATED(GasFlowFactorX)) THEN
         DEALLOCATE(GasFlowFactorX)
