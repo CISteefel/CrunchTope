@@ -3036,7 +3036,7 @@ Chalcopyrite
   activation = 0.0  (kcal/mole)
   dependence : 
   affinitydependence = 1.d0  1.d0  1.d0
-	passivation : Goethite  1.D-04
+  passivation : Goethite  1.D-04
 +---------------------------------------------------
 Pyrite
   label = testing_inhibition

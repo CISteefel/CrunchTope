@@ -110,6 +110,7 @@ REAL(DP)                                                    :: depend_tmp
 
 LOGICAL(LGT)                                                :: SpeciesFound
 LOGICAL(LGT)                                                :: MineralFound
+LOGICAL(LGT)                                                :: AffinityFound
 
 CHARACTER (LEN=mls)                                         :: dummy1
 CHARACTER (LEN=mls)                                         :: dumstring
@@ -1536,6 +1537,7 @@ IF (ssch == tempmin) THEN
 
       END IF                                  !!  User input, so skip block above
 
+      AffinityFound = .FALSE.
       READ(18,'(a)',END=300) dummy1
       IF (dummy1(1:1) == '+') THEN
         CONTINUE
@@ -1546,6 +1548,7 @@ IF (ssch == tempmin) THEN
         lzs=ls
         CALL convan(ssch,lzs,res)
         IF (ssch == 'affinitydependence') THEN
+          AffinityFound = .TRUE.
           id = ids + ls
           CALL sschaine(dummy1,id,iff,ssch,ids,ls)
           IF (ssch == '=') THEN                               !! OK, read 3 numbers for affinity dependence
@@ -1612,6 +1615,20 @@ IF (ssch == tempmin) THEN
         END IF
       END IF                                                           !! End of read of AffinityDependence
 
+      !!! AffinityDependence line is required for TST rate laws (tst, tst_inhibition, tst_passivation),
+      !!! since the inhibition/passivation line is read after it
+      IF (.NOT. AffinityFound .AND. (imintype(np,nkin) == 1 .OR. imintype(np,nkin) == 12 .OR. imintype(np,nkin) == 13)) THEN
+        WRITE(*,*)
+        WRITE(*,*) ' Error in database: expected keyword "AffinityDependence" after "dependence" for TST rate laws'
+        WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+        WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+        WRITE(*,*) ' Found: ',TRIM(dummy1)
+        WRITE(*,*) ' (check spelling; lines must be indented with spaces, not tabs)'
+        WRITE(*,*)
+        READ(*,*)
+        STOP
+      END IF
+
       !! Check to see if all of the exponents /= 1, in which case we have the Burch-Hellmann rate law
       !!!      IF (AffinityDepend1(np,nkin) /= 1.0d0 .AND. AffinityDepend2(np,nkin) /= 1.0d0 .AND. AffinityDepend3(np,nkin) /= 1.0d0) THEN
       IF (AffinityDepend3(np,nkin) /= 1.0d0) THEN
@@ -1625,6 +1642,23 @@ IF (ssch == tempmin) THEN
       READ(18,'(a)',END=300) dummy1
       IF (dummy1(1:1) == '+') THEN
         !!! Go to end of this IF block if the next line starts with "+", otherwise ...
+
+        IF (imintype(np,nkin) == 12 .OR. imintype(np,nkin) == 13) THEN
+          IF (imintype(np,nkin) == 12) THEN
+            dumstring = 'inhibition'
+          ELSE
+            dumstring = 'passivation'
+          END IF
+          CALL stringlen(dumstring,lss)
+          WRITE(*,*)
+          WRITE(*,*) ' Error in database: expected keyword "',dumstring(1:lss),'" after "AffinityDependence"'
+          WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+          WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+          WRITE(*,*) ' Found: ',TRIM(dummy1)
+          WRITE(*,*)
+          READ(*,*)
+          STOP
+        END IF
 
       ELSE
 
@@ -1750,6 +1784,19 @@ IF (ssch == tempmin) THEN
               STOP
 
             END IF
+
+          ELSE
+
+            WRITE(*,*)
+            WRITE(*,*) ' Error in database: expected keyword "inhibition" after "AffinityDependence"'
+            WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+            WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+            WRITE(*,*) ' Found: ',TRIM(dummy1)
+            WRITE(*,*) ' (check spelling; lines must be indented with spaces, not tabs)'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+
           END IF   ! Close IF (ssch == inhibition)
 
           WRITE(*,*)
@@ -1767,7 +1814,6 @@ IF (ssch == tempmin) THEN
           lzs=ls
           CALL convan(ssch,lzs,res)
 
-          write(*,*) ssch
           IF (ssch == 'passivation') THEN
 
             !!!           TST-passivation   ++++++++++++++++++
@@ -1807,34 +1853,21 @@ IF (ssch == tempmin) THEN
 
               END IF
 
+              !!! Passivating minerals are matched to the mineral list in read98, after all minerals are read
+              IF (.NOT. ALLOCATED(passivatename)) THEN
+                ALLOCATE(passivatename(10,mreact,mrct))
+                passivatename = ' '
+              END IF
+              IF (npassivate(np,nkin) > SIZE(passivatename,1)) THEN
+                WRITE(*,*)
+                WRITE(*,*) ' Too many passivating minerals (max 10) for mineral: ',tempmin(1:lsave)
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+              END IF
               DO kk = 1,npassivate(np,nkin)
-                dumstring = NAME(kk)
-                itot_tmp = 0
-
-                MineralFound = .false.
-                DO k = 1,nkin
-
-                  IF (umin(k) == NAME(kk)) THEN
-                    passivate(kk,np,nkin) = k
-                    MineralFound = .true.
-                    rpassivate(kk,np,nkin) = rpassivate_tmp(kk)
-                  END IF
-
-                END DO
-
-                IF (MineralFound) THEN
-                  CONTINUE
-                ELSE
-                  WRITE(*,*)
-                  WRITE(*,*) ' Cannot find mineral in TST-passivate expression: ',dumstring
-                  dumstring = NAME(kk)
-                  CALL stringlen(dumstring,llen)
-                  WRITE(*,*) ' Looking for mineral: ',dumstring(1:llen)
-                  WRITE(*,*)
-                  READ(*,*)
-                  STOP
-                END IF
-
+                passivatename(kk,np,nkin) = NAME(kk)
+                rpassivate(kk,np,nkin) = rpassivate_tmp(kk)
               END DO    !  End of loop through "passivating" species
 
             ELSE
@@ -1854,7 +1887,19 @@ IF (ssch == tempmin) THEN
             WRITE(*,*) ' Kinetic reaction number: ',nkin
             CONTINUE
 
-          END IF
+          ELSE
+
+            WRITE(*,*)
+            WRITE(*,*) ' Error in database: expected keyword "passivation" after "AffinityDependence"'
+            WRITE(*,*) ' Mineral = ',tempmin(1:lsave)
+            WRITE(*,*) ' Label = ',templabel(1:lenlabel)
+            WRITE(*,*) ' Found: ',TRIM(dummy1)
+            WRITE(*,*) ' (check spelling; lines must be indented with spaces, not tabs)'
+            WRITE(*,*)
+            READ(*,*)
+            STOP
+
+          END IF   ! Close IF (ssch == passivation)
 
           CONTINUE
 

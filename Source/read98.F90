@@ -521,7 +521,7 @@ IF (icomplete /= 1) THEN
       nreactmax = MAX0(nreactmin(k),nreactmax)
        DO np = 1,nreactmin(k)
          nmonodmax = MAX0(nmonod(np,k),nmonodmax)
-         ninhibitmax = MAX0(ninhibit(np,k),ninhibitmax)
+         ninhibitmax = MAX0(ninhibit(np,k),npassivate(np,k),ninhibitmax)   !! also sizes passivate, rpassivate in reallocate
        END DO
       
     END DO
@@ -559,6 +559,39 @@ IF (icomplete /= 1) THEN
           END IF
         END DO
       END DO
+
+! Match passivating minerals (TST-passivation) to the mineral list, now that all minerals are read
+
+      IF (ALLOCATED(passivatename)) THEN
+        DO k = 1,nkin
+          DO np = 1,nreactmin(k)
+            IF (imintype(np,k) == 13) THEN
+              DO kk = 1,npassivate(np,k)
+                DO ll = 1,nkin
+                  IF (passivatename(kk,np,k) == umin(ll)) THEN
+                    passivate(kk,np,k) = ll
+                    GO TO 556
+                  END IF
+                END DO
+                namtemp = umin(k)
+                CALL stringlen(namtemp,lmin)
+                namtemp2 = passivatename(kk,np,k)
+                CALL stringlen(namtemp2,laffinity)
+
+                WRITE(*,*)
+                WRITE(*,*) ' Mineral for passivation not found in mineral list'
+                WRITE(*,*) ' Phase: ', namtemp(1:lmin)
+                WRITE(*,*) ' Passivating phase not found: ',namtemp2(1:laffinity)
+                WRITE(*,*)
+                READ(*,*)
+                STOP
+                556            CONTINUE
+              END DO
+            END IF
+          END DO
+        END DO
+        DEALLOCATE(passivatename)
+      END IF
       
     END IF     !  Dont do this IF block if only speciating
     

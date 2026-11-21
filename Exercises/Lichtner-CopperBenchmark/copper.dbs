@@ -3034,7 +3034,7 @@ SO4_mod_NH3
   rate(25C) = -13.0   !eg
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 Fe(OH)3_mod_NH3
   label = default
@@ -3042,7 +3042,7 @@ Fe(OH)3_mod_NH3
   rate(25C) = -14.144   !eg
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 MnO2_mod_NH3
   label = default
@@ -3050,7 +3050,7 @@ MnO2_mod_NH3
   rate(25C) = -15.2   !eg
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +----------------------------------------------------
 SO4_monod
   label = default
@@ -3082,7 +3082,7 @@ Bogusite
   rate(25C) = -35.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 MnO2_monod
   label = default
@@ -3098,7 +3098,7 @@ Gypsum
   rate(25C) = -6.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Calcite
   label = default
@@ -3106,7 +3106,7 @@ Calcite
   rate(25C) = -6.19
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Calcite
   label = h+
@@ -3114,7 +3114,7 @@ Calcite
   rate(25C) = -6.19
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Calcite
   label = nitao
@@ -3122,7 +3122,7 @@ Calcite
   rate(25C) = -7.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 OldPyrite
   label = default
@@ -3130,7 +3130,7 @@ OldPyrite
   rate(25C) = -12.4   !eg
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Pyrite
   label = default
@@ -3138,7 +3138,7 @@ Pyrite
   rate(25C) = -8.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Pyrite
   label = oxygen
@@ -3146,7 +3146,7 @@ Pyrite
   rate(25C) = -8.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Pyrite
   label = ferric
@@ -3154,7 +3154,7 @@ Pyrite
   rate(25C) = -4.50
   activation = 15.0  (kcal/mole)
   dependence :    Fe+++  0.62
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Fe(OH)2
   label = default
@@ -3162,7 +3162,7 @@ Fe(OH)2
   rate(25C) = -7.90
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Fe(OH)3
   label = default
@@ -3170,7 +3170,7 @@ Fe(OH)3
   rate(25C) = -11.40   !eg
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 FeS(am)
   label = default
@@ -3178,7 +3178,7 @@ FeS(am)
   rate(25C) = -8.90
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Vivianite
   label = default
@@ -3186,7 +3186,7 @@ Vivianite
   rate(25C) = -8.0
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Hydroxylapatite
   label = default
@@ -3194,7 +3194,7 @@ Hydroxylapatite
   rate(25C) = -11.0
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0.0
+  AffinityDependence = 1.0  1.0  1.0.0
 +---------------------------------------------------
 CARFAP
   label = default
@@ -3202,7 +3202,7 @@ CARFAP
   rate(25C) = -11.0
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 PO4ads
   label = default
@@ -3210,7 +3210,7 @@ PO4ads
   rate(25C) = -11.0
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 SiO2(am)
   label = default
@@ -3218,7 +3218,7 @@ SiO2(am)
   rate(25C) = -11.8
   activation = 0.0 (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Aragonite
   label = default
@@ -3226,7 +3226,7 @@ Aragonite
   rate(25C) = -8.10
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Dolomite
   label = default
@@ -3234,7 +3234,7 @@ Dolomite
   rate(25C) = -7.70
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Magnesite
   label = default
@@ -3242,7 +3242,7 @@ Magnesite
   rate(25C) = -9.40
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Siderite
   label = default
@@ -3250,7 +3250,7 @@ Siderite
   rate(25C) = -8.90
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 CH2O
   label = aerobic_respiration
@@ -3289,7 +3289,7 @@ Iron
   rate(25C) = -11.30
   activation = 15.0    (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Iron
   label = oxygen
@@ -3297,7 +3297,7 @@ Iron
   rate(25C) = -6.40
   activation = 15.0   (kcal/mole)
   dependence :    O2(aq) 1.0
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Iron
   label = ferric
@@ -3305,7 +3305,7 @@ Iron
   rate(25C) = -6.40
   activation = 15.0  (kcal/mole)
   dependence :     Fe++ 1.0
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Iron
   label = hydrolysis
@@ -3313,7 +3313,7 @@ Iron
   rate(25C) = -10.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Iron
   label = dce
@@ -3321,7 +3321,7 @@ Iron
   rate(25C) = -7.45
   activation = 15.0  (kcal/mole)
   dependence :     DCE(aq) 1.0
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Iron
   label = tce
@@ -3329,7 +3329,7 @@ Iron
   rate(25C) = -6.92
   activation = 15.0  (kcal/mole)
   dependence :   TCE(aq) 1.0
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Muscovite
   label = default
@@ -3337,7 +3337,7 @@ Muscovite
   rate(25C) = -13.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Muscovite
   label = h+
@@ -3345,7 +3345,7 @@ Muscovite
   rate(25C) = -11.38
   activation = 15.0  (kcal/mole)
   dependence :    H+  0.39
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Muscovite
   label = oh-
@@ -3353,7 +3353,7 @@ Muscovite
   rate(25C) = -11.91
   activation = 15.0  (kcal/mole)
   dependence : OH-  0.22
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Quartz
   label = default
@@ -3361,7 +3361,7 @@ Quartz
   rate(25C) = -13.39
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Quartz
   label = pH
@@ -3369,7 +3369,7 @@ Quartz
   rate(25C) = -14.30
   activation = 15.0  (kcal/mole)
   dependence :     H+  -0.3
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Kaolinite
   label = h+
@@ -3377,7 +3377,7 @@ Kaolinite
   rate(25C) = -11.58
   activation = 15.0  (kcal/mole)
   dependence :     H+  0.1666
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Kaolinite
   label = oh-
@@ -3385,7 +3385,7 @@ Kaolinite
   rate(25C) = -10.88
   activation = 15.0  (kcal/mole)
   dependence :     OH-  0.54
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Kaolinite
   label = default
@@ -3393,7 +3393,7 @@ Kaolinite
   rate(25C) = -13.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 K-Feldspar
   label = default
@@ -3401,7 +3401,7 @@ K-Feldspar
   rate(25C) = -13.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Albite
   label = default
@@ -3409,7 +3409,7 @@ Albite
   rate(25C) = -13.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Anorthite
   label = default
@@ -3417,7 +3417,7 @@ Anorthite
   rate(25C) = -13.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 CO2(c)
   label = default
@@ -3425,7 +3425,7 @@ CO2(c)
   rate(25C) = -13.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Chalcedony
   label = default
@@ -3433,7 +3433,7 @@ Chalcedony
   rate(25C) = -13.39
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Ettringite
   label = default
@@ -3441,7 +3441,7 @@ Ettringite
   rate(25C) = -8.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Brucite
   label = default
@@ -3449,7 +3449,7 @@ Brucite
   rate(25C) = -8.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Ettringite(AU)
   label = default
@@ -3457,7 +3457,7 @@ Ettringite(AU)
   rate(25C) = -8.00
   activation = 15.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Chrysocolla
   label = default
@@ -3465,7 +3465,7 @@ Chrysocolla
   rate(25C) = -7.00
   activation = 0.0  (kcal/mole)
   dependence :  H+  0.39
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Goethite
   label = default
@@ -3473,7 +3473,7 @@ Goethite
   rate(25C) = -7.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Jarosite
   label = default
@@ -3481,7 +3481,7 @@ Jarosite
   rate(25C) = -6.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Jurbanite
   label = default
@@ -3489,7 +3489,7 @@ Jurbanite
   rate(25C) = -6.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 Alunite
   label = default
@@ -3497,7 +3497,7 @@ Alunite
   rate(25C) = -7.00
   activation = 0.0  (kcal/mole)
   dependence :
-	AffinityDependence = 1.0  1.0  1.0
+  AffinityDependence = 1.0  1.0  1.0
 +---------------------------------------------------
 End of mineral kinetics
 Begin exchange
