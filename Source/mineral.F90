@@ -81,6 +81,7 @@ MODULE mineral
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: umin
   CHARACTER (LEN=mls), DIMENSION(:,:), ALLOCATABLE :: rlabel
   CHARACTER (LEN=mls), DIMENSION(:,:), ALLOCATABLE :: crossaff
+  CHARACTER (LEN=mls), DIMENSION(:,:,:), ALLOCATABLE :: passivatename
   CHARACTER (LEN=mls), DIMENSION(:), ALLOCATABLE   :: namAssociate
 
   REAL(DP), DIMENSION(:,:), ALLOCATABLE              :: surf

@@ -269,6 +269,7 @@ INTEGER(I4B) :: lfile
 INTEGER(I4B) :: variable_BC_index = 0
 INTEGER(I4B) :: time_length ! length of the time series to define the size of the array for the time-series
 CHARACTER (LEN=mls) :: BC_file ! filename for time-dependent boundary condition
+CHARACTER (LEN=mls) :: zone_original ! input line before conversion to lower case
 TYPE(RichardsVariableBC), POINTER :: tail ! pointer to tail of the list
 REAL(DP), ALLOCATABLE :: BC_time(:)
 REAL(DP), ALLOCATABLE :: BC_values(:)
@@ -287,6 +288,7 @@ END IF
 DO i = 1,mBoundaryConditionZone
 
   READ(nout,'(a)',END=500) zone
+  zone_original = zone
 
   nlen1 = LEN(zone)
   CALL majuscules(zone,nlen1)
@@ -401,7 +403,7 @@ DO i = 1,mBoundaryConditionZone
 
 ! obtain the file name for the variable boundary condition
                 CALL stringtype(ssch,lzs,res)
-                BC_file = ssch
+                BC_file = zone_original(ids:ids+ls-1)
                 lfile = ls
                 id = ids + ls
                 variable_BC_index = variable_BC_index + 1
